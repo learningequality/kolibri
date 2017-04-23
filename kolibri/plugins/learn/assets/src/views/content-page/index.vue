@@ -106,7 +106,7 @@
         return this.$tr('recommended');
       },
       progress() {
-        if (this.isLearner) {
+        if (!this.isSuperuser) {
           return this.summaryProgress;
         }
         return this.sessionProgress;
@@ -159,7 +159,7 @@
         summaryProgress: (state) => state.core.logging.summary.progress,
         sessionProgress: (state) => state.core.logging.session.progress,
 
-        isLearner: coreGetters.isLearner,
+        isSuperuser: coreGetters.isSuperuser,
       },
     },
   };
