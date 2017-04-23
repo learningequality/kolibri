@@ -43,8 +43,8 @@ function _showChannelList(store, classId) {
     // }
     const summaryPayload = {
       channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.FACILITY,
-      collection_id: store.state.core.session.facility_id,
+      collection_kind: ReportConstants.UserScopes.CLASSROOM,
+      collection_id: classId,
     };
 
     // workaround for conditionalPromise.then() misbehaving
