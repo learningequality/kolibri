@@ -97,7 +97,7 @@ class TotalContentProgressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FacilityUser
-        fields = ('progress', )
+        fields = ('progress', 'id')
 
     def get_progress(self, obj):
-        return obj.contentsummarylog_set.aggregate(Sum('progress')).get('progress__sum')
+        return obj.contentsummarylog_set.filter(progress=1).aggregate(Sum('progress')).get('progress__sum')
