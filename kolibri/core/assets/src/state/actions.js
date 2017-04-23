@@ -187,14 +187,14 @@ function kolibriLogin(store, sessionPayload) {
 
 function kolibriLogout(store) {
   const coreApp = require('kolibri');
-  const { SessionResource, clearCaches } = coreApp.resources;
+  const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
-    clearCaches();
+    coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
 
