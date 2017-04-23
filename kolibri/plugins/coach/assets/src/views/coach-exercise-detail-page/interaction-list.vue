@@ -3,7 +3,8 @@
   <div class="interaction-list">
   <!--TODO-->
     <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
-    <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
+    <p v-if="interactions.length">{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
+    <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
 
       <interaction-item
@@ -28,7 +29,8 @@
     $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
-      questionHeader: 'Question {questionNumber, number} attempts'
+      questionHeader: 'Question {questionNumber, number} attempts',
+      noInteractions: 'No attempts made on this question',
     },
     components: {
       'interaction-item': require('./interaction-item'),
@@ -51,7 +53,7 @@
         this.$emit('select', index);
       },
       isSelected(index) {
-        return this.selectedInteractionIndex === index;
+        return Number(this.selectedInteractionIndex) === index;
       },
     },
   };

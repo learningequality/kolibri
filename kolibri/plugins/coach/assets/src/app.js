@@ -55,7 +55,7 @@ class CoachToolsModule extends KolibriModule {
         {
           name: PageNames.EXAM_REPORT_DETAIL_ROOT,
           path: '/:classId/:channelId/exams/:examId/users/:userId',
-          redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
+          redirect: '/:classId/:channelId/exams/:examId/users/:userId/1/0',
         },
         {
           name: PageNames.EXAM_REPORT_DETAIL,

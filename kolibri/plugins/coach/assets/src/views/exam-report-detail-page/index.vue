@@ -3,7 +3,7 @@
   <immersive-full-screen :backPageLink="backPageLink">
     <template slot="text">{{ $tr('backTo', { title: exam.title }) }}</template>
     <template slot="body">
-      <div class="page-status-container">
+      <div class="summary-container">
         <page-status
           :contentName="exam.title"
           :userName="userName"
@@ -11,23 +11,24 @@
           :completionTimeStamp="completionTimeStamp"
           :completed="exam.closed"/>
       </div>
-      <div class="outer-container">
-        <div class="attempt-log-container column">
+      <div class="details-container">
+        <div class="attempt-log-container">
           <attempt-log-list
             :attempt-logs="examAttempts"
-            :selectedAttemptId="currentAttempt.id"
+            :selectedQuestionNumber="questionNumber"
             @select="navigateToAttempt"
           />
         </div>
-        <div class="exercise-container column">
+        <div class="exercise-container">
           <interaction-list
             :interactions="currentInteractionHistory"
             :attemptNumber="questionNumber"
-            :currentInteractionIndex="currentInteractionIndex"
+            :selectedInteractionIndex="selectedInteractionIndex"
             @select="navigateToInteraction"
           />
 
           <content-renderer
+            v-if="currentInteraction"
             class="content-renderer"
             :id="exercise.pk"
             :itemId="itemId"
@@ -80,17 +81,17 @@
       navigateToAttempt(questionNumber) {
         this.navigateTo(questionNumber, 0);
       },
-      navigateToInteraction(interactionIndex) {
-        this.navigateTo(this.questionNumber, interactionIndex);
+      navigateToInteraction(interaction) {
+        this.navigateTo(this.questionNumber, interaction);
       },
-      navigateTo(question, interactionIndex) {
+      navigateTo(question, interaction) {
         this.$router.push({
           name: constants.PageNames.EXAM_REPORT_DETAIL,
           params: {
             channelId: this.channelId,
             classId: this.classId,
             userId: this.userId,
-            interactionIndex,
+            interaction,
             question,
             examId: this.exam.id,
           },
@@ -108,7 +109,7 @@
         currentAttempt: state => state.pageState.currentAttempt,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         currentInteraction: state => state.pageState.currentInteraction,
-        currentInteractionIndex: state => state.pageState.interactionIndex,
+        selectedInteractionIndex: state => state.pageState.interactionIndex,
         questionNumber: state => state.pageState.questionNumber,
         exercise: state => state.pageState.exercise,
         itemId: state => state.pageState.itemId,
@@ -122,26 +123,32 @@
 
 <style lang="stylus" scoped>
 
-  .column
-    float: left
+  @require '~kolibri.styles.definitions'
 
-  .page-status-container
-    padding-top: 20px
-    padding-left: 10px
-    padding-right: 10px
+  $container-side-padding = 15px
 
-  .outer-container
-    display: table-cell
-    height: 100%
-    width: 1%
-    padding: 10px
+  .summary-container
+    padding-top: $container-side-padding
+    padding-left: $container-side-padding
+    padding-right: $container-side-padding
+    height: 15%
+
+  .details-container
+    width: 100%
+    height: 85%
+    padding-top: $container-side-padding
+    clearfix()
 
   .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto
+    float: left
 
   .exercise-container
     width: 70%
+    height: 100%
+    padding: $containerSidePadding
+    float: left
 
 </style>
