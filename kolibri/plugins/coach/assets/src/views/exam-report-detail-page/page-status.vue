@@ -76,12 +76,6 @@
         return this.completed ? 1 : 0.1;
       }
     },
-    vuex: {
-      getters: {
-        pageState: state => state.pageState,
-        progress: () => 1,
-      },
-    },
   };
 
 </script>

@@ -471,8 +471,10 @@ function showExamReportDetailPage(
   questionNumber,
   interactionIndex
   ) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
+  if (store.state.pageName !== Constants.PageNames.EXAM_REPORT_DETAIL) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
+  }
   const examPromise = ExamResource.getModel(examId, { channel_id: channelId }).fetch();
   const examLogPromise = ExamLogResource.getCollection({ exam: examId, user: userId }).fetch();
   const attemptLogPromise = ExamAttemptLogResource.getCollection(
@@ -486,7 +488,7 @@ function showExamReportDetailPage(
 
       const questionList = createQuestionList(questionSources);
 
-      if (!questionList[questionNumber]) {
+      if (!questionList[questionNumber - 1]) {
         // Illegal question number!
         CoreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
       } else {
@@ -509,14 +511,29 @@ function showExamReportDetailPage(
               contentId: question.contentId
             }));
 
-            const currentQuestion = questions[questionNumber];
+            const allQuestions = questions.map(
+              (question, index) => {
+                const attemptLog = examAttempts.find(
+                  log => log.item === question.itemId &&
+                  log.content_id === question.contentId) || {
+                    interaction_history: '[]',
+                    correct: false,
+                  };
+                return Object.assign({
+                  questionNumber: index + 1,
+                }, attemptLog);
+              }
+            );
+
+            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
+
+            const currentQuestion = questions[questionNumber - 1];
 
             const itemId = currentQuestion.itemId;
 
             const exercise = contentNodeMap[currentQuestion.contentId];
 
-            const currentAttempt = examAttempts.find(log => (log.item === itemId) &&
-              (log.content_id === currentQuestion.contentId));
+            const currentAttempt = allQuestions[questionNumber - 1];
 
             const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
 
@@ -536,7 +553,7 @@ function showExamReportDetailPage(
               currentInteraction,
               currentInteractionHistory,
               user,
-              examAttempts,
+              examAttempts: allQuestions,
               examLog,
             };
 

@@ -59,7 +59,7 @@
       },
       selectedQuestionNumber: {
         required: true,
-        default: 0,
+        default: 1,
       },
     },
     methods: {
@@ -67,7 +67,7 @@
         this.$emit('select', questionNumber);
       },
       isSelected(questionNumber) {
-        return this.selectedQuestionNumber === questionNumber;
+        return Number(this.selectedQuestionNumber) === questionNumber;
       },
     },
   };
