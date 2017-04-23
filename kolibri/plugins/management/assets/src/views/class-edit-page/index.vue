@@ -60,7 +60,9 @@
         <tr>
           <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
-          <th class="col-header" scope="col"> {{$tr('role')}} </th>
+          <th class="col-header" scope="col">
+            <span class="visuallyhidden">{{ $tr('role') }}</span>
+          </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
@@ -82,12 +84,15 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
+            <user-role :role="user.kind" :omitLearner="true" />
+            <!--
             <role-switcher
-              class="user-role"
+              class="user-role-switcher"
               :currentRole="user.kind"
               @click-add-coach="addCoachRoleToUser(user)"
               @click-remove-coach="removeCoachRoleFromUser(user)"
             />
+            -->
           </td>
 
           <!-- Edit field -->
@@ -140,6 +145,7 @@
       'role-switcher': require('./role-switcher'),
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'user-role': require('../user-role'),
     },
     data: () => ({
       searchFilter: '',
@@ -326,7 +332,7 @@
   .table-cell
     color: $core-text-default
 
-  .user-role
+  .user-role-switcher
     display: table-cell
     height: 1.5rem
     margin: 5px 0

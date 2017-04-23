@@ -69,6 +69,9 @@
           <th></th>
           <th>{{ $tr('name') }}</th>
           <th>{{ $tr('username') }}</th>
+          <th>
+            <span class="visuallyhidden">{{ $tr('role') }}</span>
+          </th>
         </tr>
         </thead>
 
@@ -76,8 +79,11 @@
         <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
             @click="toggleSelection(learner.id)">
           <td class="col-checkbox"><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
-          <td class="col-name"><strong>{{ learner.full_name }}</strong></td>
-          <td class="col-username">{{ learner.username }}</td>
+          <td><strong>{{ learner.full_name }}</strong></td>
+          <td>{{ learner.username }}</td>
+          <td class="col-role">
+            <user-role :role="learner.kind" :omitLearner="true" />
+          </td>
         </tr>
         </tbody>
       </table>
@@ -157,6 +163,7 @@
       numLearners: '{count, number, integer} {count, plural, one {User} other {Users}}',
       name: 'Name',
       username: 'Username',
+      role: 'Role',
       selectedUsers: 'Only show selected users',
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
@@ -174,6 +181,7 @@
       'user-create-modal': require('../user-page/user-create-modal'),
       'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
       'ui-switch': require('keen-ui/src/UiSwitch'),
+      'user-role': require('../user-role'),
     },
     data: () => ({
       filterInput: '',
@@ -353,10 +361,10 @@
     background-color: $core-bg-canvas
 
   .col-checkbox
-    width: 10%
+    width: 24px
 
-  .col-name, .col-username
-    width: 45%
+  .col-role
+    width: 100px
 
   .results-text
     font-size: 0.9375rem
