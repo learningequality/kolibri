@@ -120,11 +120,17 @@ class IsAdminForOwnFacilityDataset(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return False
 
-    def readable_by_user_filter(self, user, queryset):
+    def _filter(self, user, queryset):
         if self._user_is_admin_for_related_facility(user):
             return queryset.filter(id=user.dataset_id)
         else:
             return queryset.none()
+
+    def readable_by_user_filter(self, user, queryset):
+        return self._filter(user, queryset)
+
+    def writable_by_user_filter(self, user, queryset):
+        return self._filter(user, queryset)
 
 
 class CoachesCanManageGroupsForTheirClasses(BasePermissions):
@@ -145,6 +151,9 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
         return self._user_is_coach_for_classroom(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
+        return queryset.none()
+
+    def writable_by_user_filter(self, user, queryset):
         return queryset.none()
 
 
@@ -176,4 +185,7 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
         return self._user_should_be_able_to_manage(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
+        return queryset.none()
+
+    def writable_by_user_filter(self, user, queryset):
         return queryset.none()
