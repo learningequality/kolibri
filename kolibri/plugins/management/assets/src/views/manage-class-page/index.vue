@@ -26,10 +26,8 @@
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
-            <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
-            <th scope="col" class="table-data">{{ $tr('admins') }}</th>
-            <th scope="col"></th>
+            <th scope="col" class="table-data">{{ $tr('members') }}</th>
+            <th scope="col">{{ $tr('actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -39,9 +37,9 @@
                 {{classModel.name}}
               </router-link>
             </th>
-            <td class="table-data">{{ classModel.learner_count }}</td>
-            <td class="table-data">{{ classModel.coach_count }}</td>
-            <td class="table-data">{{ classModel.admin_count }}</td>
+            <td class="table-data">
+              {{ classModel.learner_count + classModel.coach_count + classModel.admin_count }}
+            </td>
             <td class="table-btn">
               <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
                 {{ $tr('deleteClass') }}
@@ -118,9 +116,8 @@
       // table info
       className: 'Class Name',
       classes: 'Users',
-      learners: 'Learners',
-      coaches: 'Coaches',
-      admins: 'Admins',
+      members: 'Members',
+      actions: 'Actions',
       noClassesExist: 'No Classes Exist.',
     },
   };
@@ -147,6 +144,7 @@
 
   .table-text
     text-align: left
+    width: 100%
 
   .table-data
     text-align: center
