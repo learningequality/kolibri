@@ -1,10 +1,11 @@
 
 const cookiejs = require('js-cookie');
-const UserKinds = require('../constants').UserKinds;
+const getters = require('kolibri.coreVue.vuex.getters');
 const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 const intervalTimer = require('../timer');
 
@@ -75,7 +76,7 @@ function _contentSessionModel(store) {
     progress: sessionLog.progress || 0,
     extra_fields: sessionLog.extra_fields,
   };
-  if (store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+  if (!getters.isSuperuser(store.state)) {
     mapping.user = store.state.core.session.user_id;
   }
   return mapping;
@@ -170,7 +171,7 @@ function kolibriLogin(store, sessionPayload) {
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-    if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
+    if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
@@ -200,12 +201,25 @@ function kolibriLogout(store) {
 
 function getCurrentSession(store) {
   const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
+  const { SessionResource, FacilityResource } = coreApp.resources;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
   return sessionPromise.then((session) => {
+    if (!session.facility_id) {
+      // device owners users aren't associated with a facility, so just choose one
+      logging.info('No facilty ID set on session. Fetching facility list...');
+      const facilityCollection = FacilityResource.getCollection();
+      const facilityPromise = facilityCollection.fetch();
+      return facilityPromise.then(facilties => {
+        session.facility_id = facilties[0].id;
+        logging.info(`Setting facility ${session.facility_id}`);
+        store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      });
+    }
+    logging.info('Session set.');
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
+    return null;
   }).catch(error => { handleApiError(store, error); });
 }
 
@@ -236,8 +250,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const promises = [];
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id &&
-    store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+  if (store.state.core.session.user_id && !getters.isSuperuser(store.state)) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
@@ -311,7 +324,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
     kind: contentKind,
   }, _contentSessionModel(store));
 
-  if (store.state.core.session.kind[0] === UserKinds.SUPERUSER) {
+  if (getters.isSuperuser(store.state)) {
     // treat deviceOwner as anonymous user.
     sessionData.user = null;
   }

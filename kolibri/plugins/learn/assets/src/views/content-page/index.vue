@@ -74,7 +74,7 @@
   const Constants = require('../../constants');
   const getters = require('../../state/getters');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const coreGetters = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -106,7 +106,7 @@
         return this.$tr('recommended');
       },
       progress() {
-        if (this.userkind.includes(UserKinds.LEARNER)) {
+        if (this.isLearner) {
           return this.summaryProgress;
         }
         return this.sessionProgress;
@@ -158,7 +158,8 @@
 
         summaryProgress: (state) => state.core.logging.summary.progress,
         sessionProgress: (state) => state.core.logging.session.progress,
-        userkind: (state) => state.core.session.kind,
+
+        isLearner: coreGetters.isLearner,
       },
     },
   };

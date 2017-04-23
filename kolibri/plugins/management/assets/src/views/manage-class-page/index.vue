@@ -3,9 +3,7 @@
   <div>
 
     <div class="header">
-      <h1>
-        {{ $tr('allClasses', { name: facilityName }) }}
-      </h1>
+      <h1>{{ $tr('allClasses') }}</h1>
 
       <icon-button
         class="create-btn"
@@ -106,7 +104,6 @@
       getters: {
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
-        facilityName: state => state.pageState.facility.name,
       },
       actions: {
         displayModal: actions.displayModal,
@@ -114,7 +111,7 @@
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in {name}',
+      allClasses: 'All Classes',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',

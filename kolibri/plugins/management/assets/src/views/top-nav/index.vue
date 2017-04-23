@@ -14,7 +14,7 @@
       <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
         {{$tr('data')}}
       </router-link>
-      <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur" v-if="isDeviceOwner">
+      <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur">
         {{$tr('content')}}
       </router-link>
     </div>
@@ -25,7 +25,6 @@
 
 <script>
 
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const { PageNames } = require('../../constants');
 
   const linkify = (name) => ({ name });
@@ -42,7 +41,7 @@
       classes: 'Classes',
       content: 'Content',
       data: 'Data',
-      facilities: 'Facilities',
+      facilities: 'Facility',
       users: 'Users',
     },
     methods: {
@@ -84,7 +83,6 @@
     },
     vuex: {
       getters: {
-        isDeviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         pageName: state => state.pageName,
       },
     },
