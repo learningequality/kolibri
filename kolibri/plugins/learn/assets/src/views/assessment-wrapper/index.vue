@@ -246,6 +246,7 @@ oriented data synchronization.
           this.createDummyMasteryLogAction();
         }
         this.nextQuestion();
+        this.$emit('sessionInitialized');
       },
       handleItemError() {
         this.itemError = true;

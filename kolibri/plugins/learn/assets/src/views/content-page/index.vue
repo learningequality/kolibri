@@ -2,12 +2,17 @@
 
   <div>
 
-    <page-header :title="content.title"/>
+    <page-header :title="content.title">
+      <content-points
+        slot="end-header"
+        :showPopover="progress >= 1 && wasIncomplete"/>
+    </page-header>
 
     <content-renderer
       v-if="!content.assessment"
       v-show="!searchOpen"
       class="content-renderer"
+      @sessionInitialized="setWasIncomplete"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
@@ -24,6 +29,7 @@
       v-else
       v-show="!searchOpen"
       class="content-renderer"
+      @sessionInitialized="setWasIncomplete"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
@@ -85,6 +91,9 @@
       license: 'License',
       copyrightHolder: 'Copyright holder',
     },
+    data: () => ({
+      wasIncomplete: false,
+    }),
     computed: {
       Constants() {
         return Constants; // allow constants to be accessed inside templates
@@ -131,11 +140,15 @@
       'download-button': require('kolibri.coreVue.components.downloadButton'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'assessment-wrapper': require('../assessment-wrapper'),
+      'content-points': require('../content-points'),
     },
     methods: {
       nextContentClicked() {
         this.$router.push(this.nextContentLink);
       },
+      setWasIncomplete() {
+        this.wasIncomplete = this.progress < 1;
+      }
     },
     vuex: {
       getters: {
@@ -150,6 +163,7 @@
 
         // attributes for this content item
         content: (state) => state.pageState.content,
+        contentId: (state) => state.pageState.content.id,
         channelId: (state) => state.core.channels.currentId,
         pagename: (state) => state.pageName,
 
