@@ -23,6 +23,8 @@ class BasePermissions(object):
         - `user_can_delete_object`
     - The queryset-filtering `readable_by_user_filter` method, which takes in a queryset and returns a queryset
       filtered down to just objects that should be readable by the user.
+    - The queryset-filtering `writable_by_user_filter` method, which takes in a queryset and returns a queryset
+      filtered down to just objects that should be writable by the user.
 
     """
 
@@ -46,6 +48,10 @@ class BasePermissions(object):
     def readable_by_user_filter(self, user, queryset):
         """Applies a filter to the provided queryset, only returning items for which the user has read permission."""
         raise NotImplementedError("Override `readable_by_user_filter` in your permission class before you use it.")
+
+    def writable_by_user_filter(self, user, queryset):
+        """Applies a filter to the provided queryset, only returning items for which the user has update permission."""
+        raise NotImplementedError("Override `writable_by_user_filter` in your permission class before you use it.")
 
     def __or__(self, other):
         """
@@ -131,7 +137,7 @@ class RoleBasedPermissions(BasePermissions):
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
-    def readable_by_user_filter(self, user, queryset):
+    def _user_role_filter(self, role, user, queryset):
 
         # import here to prevent circular dependencies
         from ..models import Collection
@@ -142,7 +148,7 @@ class RoleBasedPermissions(BasePermissions):
 
         query = {
             "source_user": user,
-            "role_kind": self.can_be_read_by,
+            "role_kind": role,
         }
 
         if self.target_field == ".":
@@ -158,6 +164,13 @@ class RoleBasedPermissions(BasePermissions):
                 query["target_user"] = F(self.target_field)
 
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(**query)
+
+
+    def readable_by_user_filter(self, user, queryset):
+        return self._user_role_filter(self.can_be_read_by, user, queryset)
+
+    def writable_by_user_filter(self, user, queryset):
+        return self._user_role_filter(self.can_be_updated_by, user, queryset)
 
 
 ####################################################################################################################
@@ -209,6 +222,13 @@ class PermissionsFromAny(BasePermissions):
             union_queryset = union_queryset | perm.readable_by_user_filter(user, queryset)
         return union_queryset
 
+    def writable_by_user_filter(self, user, queryset):
+        # call each of the children permissions instances in turn, performing an "OR" on the querysets
+        union_queryset = queryset.none()
+        for perm in self.perms:
+            union_queryset = union_queryset | perm.writable_by_user_filter(user, queryset)
+        return union_queryset
+
 
 class PermissionsFromAll(BasePermissions):
     """
@@ -252,6 +272,12 @@ class PermissionsFromAll(BasePermissions):
         # call each of the children permissions instances in turn, iteratively filtering down the queryset
         for perm in self.perms:
             queryset = perm.readable_by_user_filter(user, queryset)
+        return queryset
+
+    def writable_by_user_filter(self, user, queryset):
+        # call each of the children permissions instances in turn, iteratively filtering down the queryset
+        for perm in self.perms:
+            queryset = perm.writable_by_user_filter(user, queryset)
         return queryset
 
 
