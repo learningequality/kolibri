@@ -2,6 +2,7 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
+      <total-points/>
       <channel-switcher @switch="switchChannel"/>
       <router-link :to="searchPage">
         <ui-icon-button
@@ -56,6 +57,7 @@
       'tabs': require('kolibri.coreVue.components.tabs'),
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
+      'total-points': require('./total-points'),
     },
     methods: {
       switchChannel(channelId) {
