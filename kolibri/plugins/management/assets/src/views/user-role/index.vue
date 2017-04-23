@@ -32,7 +32,7 @@
     },
     computed: {
       text() {
-        if (this.role === UserKinds.LEARNER && !this.omitLearner) {
+        if (this.role === UserKinds.LEARNER) {
           return this.$tr('learner');
         } else if (this.role === UserKinds.COACH) {
           return this.$tr('coach');
