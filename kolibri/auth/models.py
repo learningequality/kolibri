@@ -329,7 +329,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :param queryset: A ``QuerySet`` instance that the filtering should be applied to.
         :return: Filtered ``QuerySet`` including only elements that are readable by this user.
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `filter_readable` method.")
 
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
