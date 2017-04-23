@@ -1,6 +1,7 @@
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
 const find = require('lodash/find');
+const matches = require('lodash/matches');
 
 
 /** Class representing a single API resource object */
@@ -492,7 +493,7 @@ class Resource {
    * @return {Model}       First matching Model
    */
   findModel(attrs) {
-    return find(this.models, attrs);
+    return find(this.models, model => matches(attrs)(model.attributes));
   }
 
   /**
