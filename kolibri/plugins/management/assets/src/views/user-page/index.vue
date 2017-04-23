@@ -60,11 +60,11 @@
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
+          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col"> {{$tr('edit')}} </th>
         </tr>
       </thead>
@@ -72,11 +72,9 @@
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
-          <!-- Full Name field -->
-          <th scope="row" class="table-cell">
-            <span class="table-name">
-              {{user.full_name}}
-            </span>
+          <!-- Username field -->
+          <th class="table-cell table-username" scope="col">
+            {{user.username}}
           </th>
 
           <!-- Logic for role tags -->
@@ -84,9 +82,11 @@
             <user-role :role="user.kind" :omitLearner="true" />
           </td>
 
-          <!-- Username field -->
-          <td class="table-cell table-username">
-            {{user.username}}
+          <!-- Full Name field -->
+          <td scope="row" class="table-cell">
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
           </td>
 
           <!-- Edit field -->

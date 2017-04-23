@@ -58,11 +58,11 @@
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
@@ -70,17 +70,10 @@
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
-          <!-- Full Name field -->
-          <th scope="row" class="table-cell full-name">
-            <span class="table-name">
-              {{user.full_name}}
-            </span>
-          </th>
-
           <!-- Username field -->
-          <td class="table-cell table-username">
+          <th class="table-cell table-username" scope="col">
             {{user.username}}
-          </td>
+          </th>
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
@@ -93,6 +86,13 @@
               @click-remove-coach="removeCoachRoleFromUser(user)"
             />
             -->
+          </td>
+
+          <!-- Full Name field -->
+          <td scope="row" class="table-cell full-name">
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
           </td>
 
           <!-- Edit field -->

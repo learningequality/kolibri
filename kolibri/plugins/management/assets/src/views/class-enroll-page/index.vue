@@ -67,11 +67,11 @@
         <thead>
         <tr>
           <th></th>
-          <th>{{ $tr('name') }}</th>
           <th>{{ $tr('username') }}</th>
           <th>
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
+          <th>{{ $tr('name') }}</th>
         </tr>
         </thead>
 
@@ -79,11 +79,11 @@
         <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
             @click="toggleSelection(learner.id)">
           <td class="col-checkbox"><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
-          <td><strong>{{ learner.full_name }}</strong></td>
-          <td>{{ learner.username }}</td>
+          <th scope="col">{{ learner.username }}</th>
           <td class="col-role">
             <user-role :role="learner.kind" :omitLearner="true" />
           </td>
+          <td><strong>{{ learner.full_name }}</strong></td>
         </tr>
         </tbody>
       </table>
@@ -362,9 +362,6 @@
 
   .col-checkbox
     width: 24px
-
-  .col-role
-    width: 100px
 
   .results-text
     font-size: 0.9375rem
