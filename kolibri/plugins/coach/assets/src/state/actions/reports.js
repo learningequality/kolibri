@@ -294,7 +294,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
       );
 
       const exerciseQuestions = parseJSONorUndefined(
-        exercise.assessmentmetadata[0].assessment_item_ids
+        (exercise.assessmentmetadata[0] || {}).assessment_item_ids || ''
       );
       // SECOND LOOP: Add their question number
       if (exerciseQuestions) {
