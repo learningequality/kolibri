@@ -1,24 +1,34 @@
-const UserKinds = require('../constants').UserKinds;
+const { UserKinds, MaxPointsPerContent } = require('../constants');
 const cookiejs = require('js-cookie');
+
 
 function isUserLoggedIn(state) {
   return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
 }
 
-function isAdminOrSuperuser(state) {
-  const kind = state.core.session.kind;
-  if (kind[0] === UserKinds.SUPERUSER || kind[0] === UserKinds.ADMIN) {
-    return true;
-  }
-  return false;
+
+function isSuperuser(state) {
+  return state.core.session.kind[0] === UserKinds.SUPERUSER;
 }
 
 
-function isCoachAdminOrSuperuser(state) {
-  const kind = state.core.session.kind;
-  return [UserKinds.SUPERUSER, UserKinds.ADMIN, UserKinds.COACH].includes(kind[0]);
+function isAdmin(state) {
+  return state.core.session.kind[0] === UserKinds.ADMIN;
 }
 
+
+function isCoach(state) {
+  return state.core.session.kind[0] === UserKinds.COACH;
+}
+
+
+function isLearner(state) {
+  return state.core.session.kind[0] === UserKinds.LEARNER;
+}
+
+function currentFacilityId(state) {
+  return state.core.session.facility_id;
+}
 
 /*
  * Returns the 'default' channel ID:
@@ -44,11 +54,24 @@ function getCurrentChannelObject(state) {
   return state.core.channels.list.find(channel => channel.id === state.core.channels.currentId);
 }
 
+function totalPoints(state) {
+  return state.core.totalProgress * MaxPointsPerContent;
+}
+
+function contentPoints(state) {
+  return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
+}
+
 
 module.exports = {
   isUserLoggedIn,
-  isAdminOrSuperuser,
-  isCoachAdminOrSuperuser,
+  isSuperuser,
+  isAdmin,
+  isCoach,
+  isLearner,
   getDefaultChannelId,
   getCurrentChannelObject,
+  currentFacilityId,
+  totalPoints,
+  contentPoints,
 };

@@ -91,6 +91,10 @@
           </th>
           <th>{{ $tr('name') }}</th>
           <th>{{ $tr('username') }}</th>
+          <th>
+            <span class="visuallyhidden">{{ $tr('role') }}</span>
+          </th>
+          <th>{{ $tr('name') }}</th>
         </tr>
         </thead>
 
@@ -107,8 +111,11 @@
               class="inline-block"
               />
           </td>
-          <td class="col-name"><strong>{{ learner.full_name }}</strong></td>
-          <td class="col-username">{{ learner.username }}</td>
+          <th scope="col">{{ learner.username }}</th>
+          <td class="col-role">
+            <user-role :role="learner.kind" :omitLearner="true" />
+          </td>
+          <td><strong>{{ learner.full_name }}</strong></td>
         </tr>
         </tbody>
       </table>
@@ -162,6 +169,7 @@
       name: 'Name',
       username: 'Username',
       selectedUsers: 'Show selected users',
+      role: 'Role',
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
@@ -181,6 +189,7 @@
       'user-create-modal': require('../user-page/user-create-modal'),
       'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
       'ui-switch': require('keen-ui/src/UiSwitch'),
+      'user-role': require('../user-role'),
     },
     data: () => ({
       filterInput: '',
@@ -381,10 +390,7 @@
     background-color: $table-row-selected
 
   .col-checkbox
-    width: 10%
-
-  .col-name, .col-username
-    width: 45%
+    width: 24px
 
   nav
     display: inline-block

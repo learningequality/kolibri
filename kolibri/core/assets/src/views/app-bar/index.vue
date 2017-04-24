@@ -10,12 +10,14 @@
     :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
+      <span v-if="isSuperuser" class="superuser">{{ $tr('superuser') }}</span>
       <ui-icon-button
         v-if="isUserLoggedIn"
         icon="person"
         type="secondary"
         color="white"
         :ariaLabel="$tr('account')"
+        :title="userTooltip"
         has-dropdown
         ref="accountButton">
         <ui-menu
@@ -44,6 +46,10 @@
 
   const kolibriLogout = require('kolibri.coreVue.vuex.actions').kolibriLogout;
   const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
+  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
+  const isAdmin = require('kolibri.coreVue.vuex.getters').isAdmin;
+  const isCoach = require('kolibri.coreVue.vuex.getters').isCoach;
+  const isLearner = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
 
   module.exports = {
     $trNameSpace: 'appBar',
@@ -52,6 +58,11 @@
       editProfile: 'Edit Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
+      superuser: 'Signed in as a Device Owner',
+      learnerDetails: '{username} (Learner)',
+      coachDetails: '{username} (Coach)',
+      adminDetails: '{username} (Admin)',
+      superuserDetails: '{username} (Device Owner)',
     },
     props: {
       title: {
@@ -74,6 +85,21 @@
       'ui-button': require('keen-ui/src/UiButton'),
     },
     computed: {
+      userTooltip() {
+        if (this.isSuperuser) {
+          return this.$tr('superuserDetails', { username: this.username });
+        }
+        if (this.isAdmin) {
+          return this.$tr('adminDetails', { username: this.username });
+        }
+        if (this.isCoach) {
+          return this.$tr('coachDetails', { username: this.username });
+        }
+        if (this.isLearner) {
+          return this.$tr('learnerDetails', { username: this.username });
+        }
+        return '';
+      },
       accountMenuOptions() {
         return [
           {
@@ -106,12 +132,25 @@
         kolibriLogout,
       },
       getters: {
+        username: state => state.core.session.username,
         isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isLearner,
       },
     },
   };
 
 </script>
+
+
+<style lang="stylus" scoped>
+
+  .superuser
+    font-size: smaller
+
+</style>
 
 
 <style lang="stylus">

@@ -2,63 +2,57 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
+    <template v-if="isSuperuser">
+      <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
-    <div v-if="pageState.taskList.length" class="main alert-bg">
-      <task-status
-        :type="pageState.taskList[0].type"
-        :status="pageState.taskList[0].status"
-        :percentage="pageState.taskList[0].percentage"
-        :id="pageState.taskList[0].id"
-      />
-    </div>
-
-    <div class="main light-bg">
-      <div class="table-title">
-        <h1 class="page-title">{{$tr('title')}}</h1>
-        <div class="button-wrapper" v-if="!pageState.taskList.length">
-          <icon-button
-            :text="$tr('import')"
-            class="button"
-            @click="startImportWizard"
-            :primary="true">
-            <mat-svg category="content" name="add"/>
-          </icon-button>
-          <icon-button
-            :text="$tr('export')"
-            class="button"
-            :primary="true"
-            @click="startExportWizard">
-            <ion-svg name="ios-upload-outline"/>
-          </icon-button>
-        </div>
+      <div v-if="pageState.taskList.length" class="main alert-bg">
+        <task-status
+          :type="pageState.taskList[0].type"
+          :status="pageState.taskList[0].status"
+          :percentage="pageState.taskList[0].percentage"
+          :id="pageState.taskList[0].id"
+        />
       </div>
-      <hr>
-      <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
-      <table>
-      <!-- Table Headers -->
-<!--         <thead>
-          <tr>
-            <th class="col-header col-channel" scope="col"> Channel Name </th>
-            <th class="col-header col-export" scope="col"> Export </th>
-          </tr>
-        </thead> -->
-        <!-- Table body -->
-        <tbody>
-          <tr v-for="channel in channelList">
-            <!-- Channel Name -->
-            <th scope="row" class="table-cell" width="70%">
-              <span class="channel-name">
-                {{ channel.title }}
-              </span>
-            </th>
-            <!-- Export Button -->
-<!--             <td class="table-cell table-export" width="30%">
-            </td> -->
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+      <div class="main light-bg">
+        <div class="table-title">
+          <h1 class="page-title">{{$tr('title')}}</h1>
+          <div class="button-wrapper" v-if="!pageState.taskList.length">
+            <icon-button
+              :text="$tr('import')"
+              class="button"
+              @click="startImportWizard"
+              :primary="true">
+              <mat-svg category="content" name="add"/>
+            </icon-button>
+            <icon-button
+              :text="$tr('export')"
+              class="button"
+              :primary="true"
+              @click="startExportWizard">
+              <ion-svg name="ios-upload-outline"/>
+            </icon-button>
+          </div>
+        </div>
+        <hr>
+        <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
+        <table>
+          <tbody>
+            <tr v-for="channel in channelList">
+              <th scope="row" class="table-cell" width="70%">
+                <span class="channel-name">
+                  {{ channel.title }}
+                </span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <template v-else>
+      {{ $tr('notAdmin') }}
+    </template>
+
 
   </div>
 
@@ -67,6 +61,7 @@
 
 <script>
 
+  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
 
@@ -77,6 +72,7 @@
       import: 'Import',
       export: 'Export',
       noChannels: 'No channels installed',
+      notAdmin: 'You need to log in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -90,10 +86,14 @@
       intervalId: undefined,
     }),
     mounted() {
-      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      if (this.isSuperuser) {
+        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      }
     },
     destroyed() {
-      clearInterval(this.intervalId);
+      if (this.isSuperuser) {
+        clearInterval(this.intervalId);
+      }
     },
     computed: {
       wizardComponent() {
@@ -113,6 +113,7 @@
     },
     vuex: {
       getters: {
+        isSuperuser,
         channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },

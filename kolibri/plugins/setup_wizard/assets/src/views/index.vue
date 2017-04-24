@@ -43,7 +43,7 @@
     $trNameSpace: 'setupWizard',
     $trs: {
       header: 'Create device owner and facility',
-      deviceOwner: 'Device owner',
+      deviceOwner: 'Device Owner',
       deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
       username: 'Username',
       password: 'Password',

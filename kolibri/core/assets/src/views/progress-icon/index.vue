@@ -43,24 +43,27 @@
 
 <style lang="stylus" scoped>
 
+  $icon-size = 1em
+
   .ui-icon
-    font-size: 1em
+    font-size: $icon-size
 
   .wrapper
     display: inline-block
 
   .progress-icon
     border-radius: 50%
-    line-height: 1em
+    line-height: $icon-size
+    padding: 0.3em
 
   svg
     display: block
     fill: black
 
   .inprogress
-    background-color: #ff9800
+    background-color: #828282
 
   .completed
-    background-color: #4caf50
+    background-color: #E0B921
 
 </style>

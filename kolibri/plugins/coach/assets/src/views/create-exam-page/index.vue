@@ -51,9 +51,15 @@
           <table v-else key="table">
             <thead>
               <tr>
-                <th class="col-icon"></th>
-                <th class="col-title">{{ $tr('title') }}</th>
-                <th class="col-add"></th>
+                <th class="col-checkbox">
+                  <input
+                    type="checkbox"
+                    :checked="allExercisesWithinCurrentTopicSelected"
+                    :indeterminate.prop="someExercisesWithinCurrentTopicSelected"
+                    @change="changeSelection">
+                </th>
+                <th class="col-title">{{ $tr('selectAll') }}</th>
+                <th class="col-selection"></th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +128,7 @@
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',
+      selectAll: 'Select all',
       title: 'Exam title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
@@ -149,6 +156,7 @@
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
+        selectAll: false,
       };
     },
     components: {
@@ -198,6 +206,33 @@
           maxQuestionsFromSelection: this.maxQuestionsFromSelection
         });
       },
+      allExercisesWithinCurrentTopic() {
+        let allExercises = [];
+        this.subtopics.forEach(subtopic => {
+          allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
+        });
+        this.exercises.forEach(exercise => {
+          allExercises.push(exercise);
+        });
+        return allExercises;
+      },
+      allExercisesWithinCurrentTopicSelected() {
+        if (this.allExercisesWithinCurrentTopic.length === 0) {
+          return false;
+        }
+        return this.allExercisesWithinCurrentTopic.every(
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id));
+      },
+      noExercisesWithinCurrentTopicSelected() {
+        return this.allExercisesWithinCurrentTopic.every(
+            exercise => !this.selectedExercises.some(
+              selectedExercise => selectedExercise.id === exercise.id));
+      },
+      someExercisesWithinCurrentTopicSelected() {
+        return !this.allExercisesWithinCurrentTopicSelected &&
+        !this.noExercisesWithinCurrentTopicSelected;
+      },
       showPreviewNewExamModal() {
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
@@ -234,6 +269,15 @@
       },
     },
     methods: {
+      changeSelection() {
+        const allExercises = this.allExercisesWithinCurrentTopic;
+        const currentTopicTitle = this.topic.title;
+        if (this.allExercisesWithinCurrentTopicSelected) {
+          this.handleRemoveTopicExercises(allExercises, currentTopicTitle);
+        } else {
+          this.handleAddTopicExercises(allExercises, currentTopicTitle);
+        }
+      },
       handleGoToTopic(topicId) {
         this.loading = true;
         this.fetchContent(this.currentChannel.id, topicId).then(
@@ -389,6 +433,5 @@
 
   .col-title
     text-align: left
-    width: 100%
 
 </style>

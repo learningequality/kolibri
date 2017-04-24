@@ -2,11 +2,15 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
 
-    <top-nav v-if="showTopNav && isCoachAdminOrSuperuser" slot="tabs"/>
+    <top-nav v-if="showTopNav" slot="tabs"/>
 
     <div slot="content" class="content">
-      <div v-if="isCoachAdminOrSuperuser">
+      <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
+      </div>
+      <div v-else-if="isSuperuser">
+        <h1>{{ $tr('superUserPrompt') }}</h1>
+        <p>{{ $tr('superUserCommand') }}</p>
       </div>
       <div v-else class="login-message">
         <h1>{{ $tr('logInPrompt') }}</h1>
@@ -23,7 +27,7 @@
 
   const store = require('../state/store');
   const Constants = require('../constants');
-  const isCoachAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isCoachAdminOrSuperuser;
+  const coreGetters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
@@ -32,6 +36,8 @@
       coachTitle: 'Coach',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as an Admin to view this page.',
+      superUserPrompt: 'Logged in as device owner',
+      superUserCommand: 'The coach tools cannot be used by a device owner. Please log in as an administrator or coach.',
     },
     components: {
       'top-nav': require('./top-nav'),
@@ -42,11 +48,12 @@
       'exam-report-detail-page': require('./exam-report-detail-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
-      'coach-exercise-render-page': require('./coach-exercise-render-page'),
       // reports
-      'recent-items-page': require('./recent-items-page'),
-      'channel-list-page': require('./channel-list-page'),
-      'item-list-page': require('./item-list-page'),
+      'learner-exercise-detail-page': require('./reports/learner-exercise-detail-page'),
+      'recent-items-page': require('./reports/recent-items-page'),
+      'channel-list-page': require('./reports/channel-list-page'),
+      'item-list-page': require('./reports/item-list-page'),
+      'learner-list-page': require('./reports/learner-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -55,19 +62,18 @@
           [Constants.PageNames.CLASS_LIST]: 'class-list-page',
           [Constants.PageNames.EXAMS]: 'exams-page',
           [Constants.PageNames.GROUPS]: 'groups-page',
-          [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
           [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
           // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
           [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
           [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
-          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
+          [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
+          [Constants.PageNames.LEARNER_LIST]: 'item-list-page',
           [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
@@ -78,13 +84,15 @@
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== Constants.PageNames.CLASS_LIST;
+        return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
       },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isCoachAdminOrSuperuser,
+        isSuperuser: coreGetters.isSuperuser,
+        isAdmin: coreGetters.isAdmin,
+        isCoach: coreGetters.isCoach,
       },
     },
     store,

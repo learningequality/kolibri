@@ -1,13 +1,14 @@
 from django.db.models.query import F
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
+from kolibri.auth.models import FacilityUser
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
 from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from .serializers import (
-    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer,
-    ExamLogSerializer, MasteryLogSerializer, UserSessionLogSerializer
+    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer,
+    MasteryLogSerializer, TotalContentProgressSerializer, UserSessionLogSerializer
 )
 
 
@@ -63,6 +64,13 @@ class ContentSummaryLogViewSet(viewsets.ModelViewSet):
     serializer_class = ContentSummaryLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = ContentSummaryLogFilter
+
+
+class TotalContentProgressViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    queryset = FacilityUser.objects.all()
+    serializer_class = TotalContentProgressSerializer
 
 
 class ContentRatingLogFilter(BaseLogFilter):
@@ -155,6 +163,14 @@ class ExamAttemptLogViewSet(viewsets.ModelViewSet):
     filter_class = ExamAttemptFilter
 
 class ExamLogFilter(BaseLogFilter):
+
+    collection = filters.django_filters.MethodFilter()
+
+    def filter_collection(self, queryset, collection_id):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            target_user=F('user'),
+            ancestor_collection=collection_id,
+        )
 
     class Meta:
         model = ExamLog
