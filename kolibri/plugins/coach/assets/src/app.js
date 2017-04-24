@@ -87,8 +87,13 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT,
+          path: '/:classId/recent/:channelId/:contentId/:userId',
+          redirect: '/:classId/recent/:channelId/:contentId/:userId/1/0',
+        },
+        {
           name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
-          path: '/:classId/recent/:channelId/:contentId/:userId/:questionNumber?/:interactionIndex?',
+          path: '/:classId/recent/:channelId/:contentId/:userId/:questionNumber/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showRecentLearnerItemDetails(
               store,
@@ -138,8 +143,13 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT,
+          path: '/:classId/topics/:channelId/item/:contentId/:userId',
+          redirect: '/:classId/topics/:channelId/item/:contentId/:userId/1/0',
+        },
+        {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
-          path: '/:classId/topics/:channelId/item/:contentId/:userId/:questionNumber?/:interactionIndex?',
+          path: '/:classId/topics/:channelId/item/:contentId/:userId/:questionNumber/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showTopicLearnerItemDetails(
               store,
@@ -189,8 +199,13 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
+          path: '/:classId/learners/:userId/:channelId/item/:contentId/:questionNumber/:interactionIndex',
+          redirect: '/:classId/learners/:userId/:channelId/item/:contentId/1/0',
+        },
+        {
           name: PageNames.LEARNER_ITEM_DETAILS,
-          path: '/:classId/learners/:userId/:channelId/item/:contentId/:questionNumber?/:interactionIndex?',
+          path: '/:classId/learners/:userId/:channelId/item/:contentId/:questionNumber/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showLearnerItemDetails(
               store,

@@ -86,7 +86,6 @@ function _showChannelList(store, classId) {
 }
 
 function _contentReportState(data) {
-  console.log('dddddd', data);
   if (!data) { return []; }
   return data.map(row => ({
     contentId: row.content_id,
@@ -107,7 +106,6 @@ function _contentReportState(data) {
 }
 
 function _recentReportState(data) {
-  console.log('rrrrrrr', data);
   if (!data) { return []; }
   return data.map(row => ({
     contentId: row.content_id,
@@ -128,7 +126,6 @@ function _recentReportState(data) {
 }
 
 function _learnerReportState(data) {
-  console.log('lllllll', data);
   if (!data) { return []; }
   return data.map(row => ({
     id: row.pk.toString(), // see https://github.com/learningequality/kolibri/issues/1255
@@ -144,7 +141,6 @@ function _learnerReportState(data) {
 
 function _contentSummaryState(data) {
   if (!data) { return {}; }
-  console.log('cscscscs', data);
   const kind = !data.ancestors.length ? CoreConstants.ContentNodeKinds.CHANNEL : data.kind;
   return {
     ancestors: data.ancestors.map(item => ({
@@ -166,7 +162,6 @@ function _contentSummaryState(data) {
 }
 
 function _userSummaryState(data) {
-  console.log('uuuuuu', data);
   if (!data) {
     return {};
   }
@@ -174,10 +169,8 @@ function _userSummaryState(data) {
 }
 
 function _setContentReport(store, reportPayload) {
-  console.log('?????', reportPayload);
   const reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
   reportPromise.then(report => {
-    console.log('>>>>>', _contentReportState(report));
     store.dispatch('SET_REPORT_TABLE_DATA', _contentReportState(report));
   });
   return reportPromise;
@@ -268,7 +261,6 @@ function _showLearnerList(store, options) {
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   questionNumber, interactionIndex) {
-  console.log('arrived in our action');
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
@@ -313,16 +305,10 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
         );
       }
 
-
       // THIRD LOOP: Return the current attempt
-      const currentAttemptLog = () => {
-        if (questionNumber) {
-          return attemptLogs.find(
-            attemptLog => attemptLog.questionNumber === questionNumber
-          );
-        }
-        return attemptLogs[0];
-      };
+      const currentAttemptLog = () => attemptLogs.find(
+          attemptLog => attemptLog.questionNumber === questionNumber
+      );
 
       const currentInteractionHistory = JSON.parse(currentAttemptLog().interaction_history);
 
@@ -332,9 +318,9 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
         exercise,
         attemptLogs,
         currentAttemptLog: currentAttemptLog(),
-        interactionIndex: interactionIndex || 0,
+        interactionIndex,
         currentInteractionHistory,
-        currentInteraction: currentInteractionHistory[interactionIndex || 0],
+        currentInteraction: currentInteractionHistory[interactionIndex],
         summaryLog: summaryLog[0],
         channelId,
         classId,
