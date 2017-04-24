@@ -70,7 +70,6 @@ function showGroupsPage(store, classId) {
           });
 
           const pageState = {
-            facilityId: facility[0],
             class: _classState(classModel),
             classUsers: _usersState(classUsers),
             groups,

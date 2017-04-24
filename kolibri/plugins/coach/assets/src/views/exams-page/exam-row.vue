@@ -128,7 +128,7 @@
         this.$emit('previewExam', this.examId);
       },
       emitViewReport() {
-        this.$emit('viewReport', this.examId);
+        this.$emit('viewReport');
       },
       emitRenameExam() {
         this.$emit('renameExam', this.examId);

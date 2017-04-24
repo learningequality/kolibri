@@ -8,13 +8,11 @@
           category="navigation"
           name="arrow_back"
         />
-        <p class="back">
-          <slot name="text"/>
-        </p>
+        <p class="back">{{ backPageText }}</p>
       </router-link>
     </div>
     <div class="page-body">
-      <slot name="body"/>
+      <slot/>
     </div>
   </div>
 
@@ -23,12 +21,18 @@
 
 <script>
 
+  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+
   module.exports = {
     props: {
       backPageLink: {
         type: Object,
         required: true,
-      }
+        validator: validateLinkObject,
+      },
+      backPageText: {
+        type: String,
+      },
     },
   };
 

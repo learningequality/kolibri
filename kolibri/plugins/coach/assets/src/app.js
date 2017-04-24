@@ -31,6 +31,48 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.EXAMS,
+          path: '/:classId/exams',
+          handler: (toRoute, fromRoute) => {
+            examActions.showExamsPage(store, toRoute.params.classId);
+          },
+        },
+        {
+          name: PageNames.CREATE_EXAM,
+          path: '/:classId/exams/new/:channelId',
+          handler: (toRoute, fromRoute) => {
+            examActions.showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
+          },
+        },
+        {
+          name: PageNames.EXAM_REPORT,
+          path: '/:classId/:channelId/exams/:examId',
+          handler: (toRoute, fromRoute) => {
+            examActions.showExamReportPage(store, toRoute.params.classId, toRoute.params.channelId,
+              toRoute.params.examId);
+          },
+        },
+        {
+          name: PageNames.EXAM_REPORT_DETAIL_ROOT,
+          path: '/:classId/:channelId/exams/:examId/users/:userId',
+          redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
+        },
+        {
+          name: PageNames.EXAM_REPORT_DETAIL,
+          path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
+          handler: (toRoute, fromRoute) => {
+            examActions.showExamReportDetailPage(
+              store,
+              toRoute.params.classId,
+              toRoute.params.userId,
+              toRoute.params.channelId,
+              toRoute.params.examId,
+              toRoute.params.question,
+              toRoute.params.interaction
+            );
+          },
+        },
+        {
           name: PageNames.RECENT_CHANNELS,
           path: '/:classId/recent',
           handler: (to, from) => {
@@ -49,35 +91,6 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.EXAMS,
-          path: '/:classId/exams',
-          handler: (toRoute, fromRoute) => {
-            examActions.showExamsPage(store, toRoute.params.classId);
-          },
-        },
-        {
-          name: PageNames.CREATE_EXAM,
-          path: '/:classId/exams/new/:channelId',
-          handler: (toRoute, fromRoute) => {
-            examActions.showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
-          },
-        },
-        {
-          name: PageNames.EXAM_REPORT,
-          path: '/:classId/exams/:examId',
-          handler: (toRoute, fromRoute) => {
-            examActions.showExamReportPage(store, toRoute.params.classId, toRoute.params.examId);
-          },
-        },
-        {
-          name: PageNames.EXAM_REPORT_DETAIL,
-          path: '/:classId/exams/:examId/users/:userId',
-          handler: (toRoute, fromRoute) => {
-            examActions.showExamReportDetailPage(
-              store, toRoute.params.classId, toRoute.params.examId);
-          },
-        },
-        {
           name: PageNames.RECENT_LEARNERS_FOR_ITEM,
           path: '/:classId/recent/:channelId/:contentId',
           handler: (to, from) => {
@@ -87,11 +100,22 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
+          name: PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/recent/:channelId/:contentId/:userId',
+          redirect: '/:classId/recent/:channelId/:contentId/:userId/0/0',
+        },
+        {
+          name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
+          path: '/:classId/recent/:channelId/:contentId/:userId/:attemptLogIndex/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showRecentLearnerItemDetails(
-              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
+              store,
+              to.params.classId,
+              to.params.userId,
+              to.params.channelId,
+              to.params.contentId,
+              Number(to.params.attemptLogIndex),
+              Number(to.params.interactionIndex)
             );
           },
         },
@@ -132,11 +156,22 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
+          name: PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/topics/:channelId/item/:contentId/:userId',
+          redirect: '/:classId/topics/:channelId/item/:contentId/:userId/0/0',
+        },
+        {
+          name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
+          path: '/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showTopicLearnerItemDetails(
-              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
+              store,
+              to.params.classId,
+              to.params.userId,
+              to.params.channelId,
+              to.params.contentId,
+              Number(to.params.attemptLogIndex),
+              Number(to.params.interactionIndex)
             );
           },
         },
@@ -177,11 +212,22 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.LEARNER_ITEM_DETAILS,
+          name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/learners/:userId/:channelId/item/:contentId',
+          redirect: '/:classId/learners/:userId/:channelId/item/:contentId/0/0',
+        },
+        {
+          name: PageNames.LEARNER_ITEM_DETAILS,
+          path: '/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showLearnerItemDetails(
-              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId
+              store,
+              to.params.classId,
+              to.params.userId,
+              to.params.channelId,
+              to.params.contentId,
+              Number(to.params.attemptLogIndex),
+              Number(to.params.interactionIndex)
             );
           },
         },
@@ -191,15 +237,6 @@ class CoachToolsModule extends KolibriModule {
           handler: (to, from) => {
             groupActions.showGroupsPage(
               store, to.params.classId
-            );
-          },
-        },
-        {
-          name: PageNames.EXERCISE_RENDER,
-          path: '/:userId/:contentId/exercise-render',
-          handler: (to, from) => {
-            actions.showCoachExerciseRenderPage(
-              store, to.params.userId, to.params.contentId
             );
           },
         },

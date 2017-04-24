@@ -60,13 +60,11 @@
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
-          <th class="col-header" scope="col">
-            <span class="role-header" aria-hidden="true">
-              {{$tr('kind')}}
-            </span>
-          </th>
           <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header" scope="col">
+            <span class="visuallyhidden">{{ $tr('kind') }}</span>
+          </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col"> {{$tr('edit')}} </th>
         </tr>
       </thead>
@@ -74,23 +72,21 @@
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
-          <!-- Full Name field -->
-          <th scope="row" class="table-cell">
-            <span class="table-name">
-              {{user.full_name}}
-            </span>
+          <!-- Username field -->
+          <th class="table-cell table-username" scope="col">
+            {{user.username}}
           </th>
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span v-if="user.kind !== LEARNER" class="user-role">
-              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
-            </span>
+            <user-role :role="user.kind" :omitLearner="true" />
           </td>
 
-          <!-- Username field -->
-          <td class="table-cell table-username">
-            {{user.username}}
+          <!-- Full Name field -->
+          <td scope="row" class="table-cell">
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
           </td>
 
           <!-- Edit field -->
@@ -125,6 +121,7 @@
       'user-create-modal': require('./user-create-modal'),
       'user-edit-modal': require('./user-edit-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'user-role': require('../user-role'),
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
@@ -211,13 +208,10 @@
       learners: 'Learners',
       // edit button text
       addNew: 'Add New',
-      // user tags
-      admin: 'Admin',
-      coach: 'Coach',
       // table info
       fullName: 'Full Name',
       users: 'Users',
-      kind: 'Kind',
+      kind: 'Role',
       username: 'Username',
       edit: 'Edit',
       // search-related error messages
@@ -295,17 +289,6 @@
     font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
-
-  .user-role
-    background-color: $core-text-annotation
-    color: $core-bg-light
-    padding-left: 1em
-    padding-right: 1em
-    border-radius: 40px
-    font-size: 0.875em
-    display: inline-block
-    text-transform: capitalize
-    white-space: nowrap
 
   .searchbar .icon
     display: inline-block

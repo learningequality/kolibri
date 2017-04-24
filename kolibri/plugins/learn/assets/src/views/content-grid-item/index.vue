@@ -14,6 +14,7 @@
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const values = require('lodash/values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+  const validateLinkObject = require('kolibri.utils.validateLinkObject');
 
   module.exports = {
     mixins: [responsiveWindow],
@@ -46,6 +47,7 @@
       link: {
         type: Object,
         required: true,
+        validator: validateLinkObject,
       },
     },
     computed: {

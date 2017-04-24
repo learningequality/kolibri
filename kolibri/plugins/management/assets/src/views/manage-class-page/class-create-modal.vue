@@ -82,11 +82,7 @@
         if (!this.name) {
           this.errorMessage = 'Must provide class name to create new class!';
         } else {
-          const newClass = {
-            name: this.name,
-            facilityId: this.facilityId,
-          };
-          this.createClass(newClass);
+          this.createClass(this.name);
         }
       },
       close() {
@@ -94,9 +90,6 @@
       },
     },
     vuex: {
-      getters: {
-        facilityId: state => state.pageState.facility.id,
-      },
       actions: {
         createClass: actions.createClass,
         displayModal: actions.displayModal,

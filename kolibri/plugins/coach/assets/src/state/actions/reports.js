@@ -1,12 +1,10 @@
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const values = require('lodash/values');
+const coreGetters = require('kolibri.coreVue.vuex.getters');
 
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
-
-const reportGetters = require('../getters/reports');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -20,10 +18,22 @@ const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
+const AttemptLogResource = coreApp.resources.AttemptLog;
 const ChannelResource = coreApp.resources.ChannelResource;
+const ContentNodeResource = coreApp.resources.ContentNodeResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
 
 function _showChannelList(store, classId) {
+  // don't handle super users
+  if (coreGetters.isSuperuser(store.state)) {
+    store.dispatch('SET_PAGE_STATE', {});
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+    return;
+  }
+
   function channelLastActivePromise(channel) {
     // helper function for _showChannelList
     // @param channel to get recentActivity for
@@ -33,8 +43,8 @@ function _showChannelList(store, classId) {
     // }
     const summaryPayload = {
       channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.FACILITY,
-      collection_id: store.state.core.session.facility_id,
+      collection_kind: ReportConstants.UserScopes.CLASSROOM,
+      collection_id: classId,
     };
 
     // workaround for conditionalPromise.then() misbehaving
@@ -75,21 +85,7 @@ function _showChannelList(store, classId) {
   );
 }
 
-function _progressState(progressData) {
-  // not all of these keys are defined for all requests...
-  return {
-    // all reports
-    totalProgress: progressData.total_progress,
-    // content/learner reports
-    kind: progressData.kind,
-    nodeCount: progressData.node_count,
-    // 'recent' reports
-    logCountComplete: progressData.log_count_complete,
-    logCountTotal: progressData.log_count_total,
-  };
-}
-
-function _reportState(data) {
+function _contentReportState(data) {
   if (!data) { return []; }
   return data.map(row => ({
     contentId: row.content_id,
@@ -100,8 +96,46 @@ function _reportState(data) {
       title: row.parent.title,
     },
     id: row.pk,
-    progress: row.progress.map(_progressState),
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
     title: row.title,
+  }));
+}
+
+function _recentReportState(data) {
+  if (!data) { return []; }
+  return data.map(row => ({
+    contentId: row.content_id,
+    kind: row.kind,
+    lastActive: row.last_active,
+    parent: {
+      id: row.parent.pk,
+      title: row.parent.title,
+    },
+    id: row.pk,
+    progress: row.progress.map(progressData => ({
+      logCountComplete: progressData.log_count_complete,
+      logCountTotal: progressData.log_count_total,
+      totalProgress: progressData.total_progress,
+    })),
+    title: row.title,
+  }));
+}
+
+function _learnerReportState(data) {
+  if (!data) { return []; }
+  return data.map(row => ({
+    id: row.pk.toString(), // see https://github.com/learningequality/kolibri/issues/1255
+    fullName: row.full_name,
+    lastActive: row.last_active,
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      timeSpent: progressData.time_spent,
+      totalProgress: progressData.total_progress,
+    })),
   }));
 }
 
@@ -118,120 +152,185 @@ function _contentSummaryState(data) {
     lastActive: data.last_active,
     numUsers: data.num_users,
     id: data.pk,
-    progress: data.progress.map(_progressState),
+    progress: data.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
     title: data.title,
   };
 }
 
 function _userSummaryState(data) {
-  console.log('uuuuuu', data);
   if (!data) {
     return {};
   }
   return data;
 }
 
-function _showReport(store, options) {
-  const classId = options.classId;
-  const channelId = options.channelId;
-  const contentScope = options.contentScope;
-  const contentScopeId = options.contentScopeId;
-  const userScope = options.userScope;
-  const userScopeId = options.userScopeId;
+function _setContentReport(store, reportPayload) {
+  const reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
+  reportPromise.then(report => {
+    store.dispatch('SET_REPORT_TABLE_DATA', _contentReportState(report));
+  });
+  return reportPromise;
+}
 
-  /* check if params are semi-valid. */
-  function _validate(value, constants) {
-    if (!values(constants).includes(value)) {
-      throw Error(`Invalid report parameters: ${value} not in ${JSON.stringify(constants)}`);
-    }
-  }
-  _validate(contentScope, ReportConstants.ContentScopes);
-  _validate(userScope, ReportConstants.UserScopes);
+function _setLearnerReport(store, reportPayload) {
+  const reportPromise = UserReportResource.getCollection(reportPayload).fetch();
+  reportPromise.then(report => {
+    store.dispatch('SET_REPORT_TABLE_DATA', _learnerReportState(report));
+  });
+  return reportPromise;
+}
 
-  // REPORT
-  const reportPayload = {
-    channel_id: channelId,
-    content_node_id: contentScopeId,
-    collection_kind: ReportConstants.UserScopes.CLASSROOM,
-    collection_id: classId,
-  };
-  let reportPromise;
-  if (reportGetters.isTopicPage) {
-    reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
-  } else if (reportGetters.isLearnerPage) {
-    reportPromise = UserReportResource.getCollection(reportPayload).fetch();
-  } else if (reportGetters.isRecentPage) {
-    throw Error('recent report is not currently handled in this action');
-  }
-
-  // CONTENT SUMMARY
+function _setContentSummary(store, contentScopeId, reportPayload) {
   const contentPromise = ContentSummaryResource.getModel(contentScopeId, reportPayload).fetch();
+  contentPromise.then(contentSummary => {
+    store.dispatch('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+  });
+  return contentPromise;
+}
 
-  // USER SUMMARY
-  let userPromise;
-  if (userScope === ReportConstants.UserScopes.USER) {
-    userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
-  }
+function _setUserSummary(store, userScopeId, reportPayload) {
+  const userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
+  userPromise.then(userSummary => {
+    store.dispatch('SET_REPORT_USER_SUMMARY', _userSummaryState(userSummary));
+  });
+  return userPromise;
+}
 
-  const promises = [];
-  promises.push(reportPromise);
-  promises.push(contentPromise);
-  promises.push(userPromise);
-
-  // API response handlers
+function _showContentList(store, options) {
+  const reportPayload = {
+    channel_id: options.channelId,
+    content_node_id: options.contentScopeId,
+    collection_kind: options.userScope,
+    collection_id: options.classId,
+  };
+  const promises = [
+    _setContentSummary(store, options.contentScopeId, reportPayload),
+    _setContentReport(store, reportPayload),
+  ];
   Promise.all(promises).then(
-    ([report, contentSummary, userSummary]) => {
-      const pageState = {
-        classId,
-        channelId,
-        contentScope,
-        contentScopeId,
-        userScope,
-        userScopeId,
-        tableData: _reportState(report),
-        contentScopeSummary: _contentSummaryState(contentSummary),
-        userScopeSummary: _userSummaryState(userSummary),
+    () => {
+      const reportProps = {
+        classId: options.classId,
+        channelId: options.channelId,
+        contentScope: options.contentScope,
+        contentScopeId: options.contentScopeId,
+        userScope: options.userScope,
+        userScopeId: options.userScopeId,
+        viewBy: ReportConstants.ViewBy.CONTENT,
       };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => coreActions.handleError(store, error)
   );
 }
 
-
-function _showChannelRoot(store, classId, channelId) {
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
-
-  channelPromise.then(
-    (channelData) => {
-      _showReport(store, {
-        classId,
-        channelId,
-        contentScope: ReportConstants.ContentScopes.ROOT,
-        contentScopeId: channelData.root_pk,
-        userScope: ReportConstants.UserScopes.CLASSROOM,
-        userScopeId: classId,
-        sortColumn: ReportConstants.TableColumns.NAME,
-        sortOrder: ReportConstants.SortOrders.NONE,
-      });
+function _showLearnerList(store, options) {
+  const reportPayload = {
+    channel_id: options.channelId,
+    content_node_id: options.contentScopeId,
+    collection_kind: options.userScope,
+    collection_id: options.classId,
+  };
+  const promises = [
+    _setContentSummary(store, options.contentScopeId, reportPayload),
+    _setLearnerReport(store, reportPayload),
+  ];
+  Promise.all(promises).then(
+    () => {
+      const reportProps = {
+        classId: options.classId,
+        channelId: options.channelId,
+        contentScope: options.contentScope,
+        contentScopeId: options.contentScopeId,
+        userScope: options.userScope,
+        userScopeId: options.userScopeId,
+        viewBy: ReportConstants.ViewBy.LEARNER,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => coreActions.handleError(store, error)
   );
 }
 
+// needs exercise, attemptlog. Pass answerstate into contentrender to display answer
+function _showExerciseDetailView(store, classId, userId, channelId, contentId,
+  attemptLogIndex, interactionIndex) {
+  Promise.all([
+    ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
+    AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
+    SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
+    FacilityUserResource.getModel(userId).fetch(),
+  ]).then(
+    ([exercises, attemptLogs, summaryLog, user]) => {
+      function parseJSONorUndefined(json) {
+        try {
+          return JSON.parse(json);
+        } catch (e) {
+          if (!(e instanceof SyntaxError)) {
+            throw e;
+          }
+        }
+        return undefined;
+      }
+      // MAPPERS NEEDED
+      // attemptLogState
+      // attemptLogListState
+      // interactionState
+      // InteractionHistoryState
+      // user?
 
-function _showTopic(store, classId, channelId, topicId) {
-  _showReport(store, {
-    classId,
-    channelId,
-    contentScope: ReportConstants.ContentScopes.TOPIC,
-    contentScopeId: topicId,
-    userScope: ReportConstants.UserScopes.CLASSROOM,
-    userScopeId: classId,
-    sortColumn: ReportConstants.TableColumns.NAME,
-    sortOrder: ReportConstants.SortOrders.NONE,
-  });
+      const exercise = exercises[0];
+
+      // FIRST LOOP: Sort them by most recent
+      attemptLogs.sort(
+        (attemptLog1, attemptLog2) =>
+          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+      );
+
+      const exerciseQuestions = parseJSONorUndefined(
+        exercise.assessmentmetadata[0].assessment_item_ids
+      );
+      // SECOND LOOP: Add their question number
+      if (exerciseQuestions) {
+        attemptLogs.forEach(
+          attemptLog => {
+            attemptLog.questionNumber = (exerciseQuestions.indexOf(attemptLog.item) + 1);
+          }
+        );
+      }
+
+      const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
+
+      const currentInteractionHistory =
+        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
+
+      const pageState = {
+        // because this is info returned from a collection
+        user,
+        exercise,
+        attemptLogs,
+        currentAttemptLog,
+        interactionIndex,
+        currentInteractionHistory,
+        currentInteraction: currentInteractionHistory[interactionIndex],
+        summaryLog: summaryLog[0],
+        channelId,
+        classId,
+        attemptLogIndex,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
 }
 
 
@@ -241,6 +340,7 @@ function showRecentChannels(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId);
 }
+
 
 function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL);
@@ -267,7 +367,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
       recentReportsPromise.then(
         reports => {
           const pageState = {
-            reports: _reportState(reports),
+            reports: _recentReportState(reports),
             classId,
             channelId,
           };
@@ -287,12 +387,26 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  _showLearnerList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.CONTENT,
+    contentScopeId: contentId,
+    userScope: ReportConstants.UserScopes.CLASSROOM,
+    userScopeId: classId,
+  });
 }
 
-function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
+function showRecentLearnerItemDetails(store, classId, userId, channelId, contentId,
+  questionNumber, interactionIndex) {
+  if (store.state.pageName !== Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 function showTopicChannels(store, classId) {
@@ -306,26 +420,62 @@ function showTopicChannelRoot(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showChannelRoot(store, classId, channelId);
+
+  const channelPromise = ChannelResource.getModel(channelId).fetch();
+  channelPromise.then(
+    (channelData) => {
+      _showContentList(store, {
+        classId,
+        channelId,
+        contentScope: ReportConstants.ContentScopes.ROOT,
+        contentScopeId: channelData.root_pk,
+        userScope: ReportConstants.UserScopes.CLASSROOM,
+        userScopeId: classId,
+      });
+    },
+    error => coreActions.handleError(store, error)
+  );
 }
 
 function showTopicItemList(store, classId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showTopic(store, classId, channelId, topicId);
+
+  _showContentList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.ROOT,
+    contentScopeId: topicId,
+    userScope: ReportConstants.UserScopes.CLASSROOM,
+    userScopeId: classId,
+  });
 }
 
 function showTopicLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  _showLearnerList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.CONTENT,
+    contentScopeId: contentId,
+    userScope: ReportConstants.UserScopes.CLASSROOM,
+    userScopeId: classId,
+  });
 }
 
-function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
+function showTopicLearnerItemDetails(store, classId, userId, channelId, contentId,
+  questionNumber, interactionIndex) {
+  if (store.state.pageName !== Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 function showLearnerList(store, classId) {
@@ -353,10 +503,15 @@ function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 }
 
-function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
+function showLearnerItemDetails(store, classId, userId, channelId, contentId,
+  questionNumber, interactionIndex) {
+  if (store.state.pageName !== Constants.PageNames.LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 
@@ -375,4 +530,5 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
+  _setUserSummary,
 };

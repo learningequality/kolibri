@@ -4,6 +4,11 @@
     <ui-alert type="success" @dismiss="resetProfileState" v-if="success">
       {{$tr('success')}}
     </ui-alert>
+    <div class="points">
+      <span class="top">{{ $tr('yourPoints') }}</span>
+      <points-icon class="in-points icon" :active="true"/>
+      <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
+    </div>
     <form @submit.prevent="submitEdits">
 
       <core-textbox
@@ -18,8 +23,13 @@
         id="username"
         type="text" />
 
+      <p v-if="isLearner" class="type">{{ $tr('isLearner') }}</p>
+      <p v-if="isCoach" class="type">{{ $tr('isCoach') }}</p>
+      <p v-if="isAdmin" class="type">{{ $tr('isAdmin') }}</p>
+      <p v-if="isSuperuser" class="type">{{ $tr('isSuperuser') }}</p>
+
       <core-textbox
-        v-if="hasPrivilege('name')"
+        v-if="hasPrivilege('name') && !isSuperuser"
         class="input-field"
         :disabled="busy"
         :label="$tr('name')"
@@ -29,6 +39,7 @@
         type="text" />
 
       <icon-button
+        v-if="!isSuperuser"
         :disabled="busy"
         :primary="true"
         :text="$tr('updateProfile')"
@@ -43,7 +54,10 @@
 <script>
 
   const actions = require('../../state/actions');
+  const getters = require('kolibri.coreVue.vuex.getters');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+  const { totalPoints } = require('kolibri.coreVue.vuex.getters');
+  const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     name: 'profile-page',
@@ -53,18 +67,27 @@
       success: 'Profile details updated!',
       username: 'Username',
       name: 'Name',
-      updateProfile: 'Update',
+      updateProfile: 'Update profile',
+      isLearner: '(you are a Learner)',
+      isCoach: '(you are a Coach)',
+      isAdmin: '(you are an Admin)',
+      isSuperuser: '(you are a Device Owner)',
+      yourPoints: 'Your points',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-textbox': require('kolibri.coreVue.components.textbox'),
       'ui-alert': require('keen-ui/src/UiAlert'),
+      'points-icon': require('kolibri.coreVue.components.pointsIcon'),
     },
     data() {
       return {
         username: this.session.username,
         full_name: this.session.full_name,
       };
+    },
+    created() {
+      this.fetchPoints();
     },
     computed: {
       errorMessage() {
@@ -96,10 +119,16 @@
         success: state => state.pageState.success,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
+        isSuperuser: getters.isSuperuser,
+        isAdmin: getters.isAdmin,
+        isCoach: getters.isCoach,
+        isLearner: getters.isLearner,
+        totalPoints,
       },
       actions: {
         editProfile: actions.editProfile,
         resetProfileState: actions.resetProfileState,
+        fetchPoints,
       },
     },
     mixins: [responsiveWindow],
@@ -136,5 +165,29 @@
     width: 100%
     display: inline-block
     font-size: 0.9em
+
+  .type
+    text-align: right
+    font-size: smaller
+
+  .points
+    padding-bottom: 0.5em
+
+  .in-points
+    display: inline-block
+
+  .total
+    color: $core-accent-color
+    font-size: 3em
+    font-weight: bold
+    padding-left: 0.2em
+
+  .top
+    color: $core-text-annotation
+    clearfix()
+
+  .icon
+    width: 2em
+    height: 2em
 
 </style>

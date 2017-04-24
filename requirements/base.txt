@@ -15,4 +15,4 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.0.9rc14
-kolibri_exercise_perseus_plugin==0.6.3
+kolibri_exercise_perseus_plugin==0.6.4

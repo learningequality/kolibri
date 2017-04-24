@@ -30,6 +30,7 @@
           <label for="user-role"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
           <select v-model="kind_new" id="user-role">
             <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
             <option :value="ADMIN"> {{$tr('admin')}} </option>
           </select>
         </div>

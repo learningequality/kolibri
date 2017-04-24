@@ -129,6 +129,7 @@
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
+      title: 'Exam title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
       enterNum: 'Enter a number',
