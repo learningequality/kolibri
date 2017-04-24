@@ -487,7 +487,7 @@ function showExamReportDetailPage(
 
       const questionList = createQuestionList(questionSources);
 
-      if (!questionList[questionNumber - 1]) {
+      if (!questionList[questionNumber]) {
         // Illegal question number!
         CoreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
       } else {
@@ -526,10 +526,10 @@ function showExamReportDetailPage(
 
             allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
-            const currentQuestion = questions[questionNumber - 1];
+            const currentQuestion = questions[questionNumber];
             const itemId = currentQuestion.itemId;
             const exercise = contentNodeMap[currentQuestion.contentId];
-            const currentAttempt = allQuestions[questionNumber - 1];
+            const currentAttempt = allQuestions[questionNumber];
             const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
             const currentInteraction = currentInteractionHistory[interactionIndex];
             const pageState = {

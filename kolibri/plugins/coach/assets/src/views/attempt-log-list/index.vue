@@ -4,11 +4,11 @@
     <h3 class="header">{{ $tr('header') }}</h3>
 
     <ul class="history-list">
-      <template v-for="attemptLog in attemptLogs">
+      <template v-for="(attemptLog, index) in attemptLogs">
         <li
-          @click="setSelectedAttemptLog(attemptLog.questionNumber)"
+          @click="setSelectedAttemptLog(index)"
           :class="{
-            selected: isSelected(attemptLog.questionNumber),
+            selected: isSelected(index),
             clickable: true
           }"
         >

@@ -322,6 +322,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
         summaryLog: summaryLog[0],
         channelId,
         classId,
+        attemptLogIndex,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
