@@ -67,8 +67,11 @@
         <thead>
         <tr>
           <th></th>
-          <th>{{ $tr('name') }}</th>
           <th>{{ $tr('username') }}</th>
+          <th>
+            <span class="visuallyhidden">{{ $tr('role') }}</span>
+          </th>
+          <th>{{ $tr('name') }}</th>
         </tr>
         </thead>
 
@@ -76,8 +79,11 @@
         <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
             @click="toggleSelection(learner.id)">
           <td class="col-checkbox"><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
-          <td class="col-name"><strong>{{ learner.full_name }}</strong></td>
-          <td class="col-username">{{ learner.username }}</td>
+          <th scope="col">{{ learner.username }}</th>
+          <td class="col-role">
+            <user-role :role="learner.kind" :omitLearner="true" />
+          </td>
+          <td><strong>{{ learner.full_name }}</strong></td>
         </tr>
         </tbody>
       </table>
@@ -145,7 +151,7 @@
     $trNameSpace: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
-      enrollSelectedUsers: 'Review selected users',
+      enrollSelectedUsers: 'Enroll selected users',
       selectLearners: 'Choose users to enroll in',
       showingAllUnassigned: 'Showing all users not assigned to this class',
       searchForUser: 'Search for a user',
@@ -157,6 +163,7 @@
       numLearners: '{count, number, integer} {count, plural, one {User} other {Users}}',
       name: 'Name',
       username: 'Username',
+      role: 'Role',
       selectedUsers: 'Only show selected users',
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
@@ -174,6 +181,7 @@
       'user-create-modal': require('../user-page/user-create-modal'),
       'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
       'ui-switch': require('keen-ui/src/UiSwitch'),
+      'user-role': require('../user-role'),
     },
     data: () => ({
       filterInput: '',
@@ -353,10 +361,7 @@
     background-color: $core-bg-canvas
 
   .col-checkbox
-    width: 10%
-
-  .col-name, .col-username
-    width: 45%
+    width: 24px
 
   .results-text
     font-size: 0.9375rem

@@ -26,6 +26,9 @@ function isLearner(state) {
   return state.core.session.kind[0] === UserKinds.LEARNER;
 }
 
+function currentFacilityId(state) {
+  return state.core.session.facility_id;
+}
 
 /*
  * Returns the 'default' channel ID:
@@ -60,4 +63,5 @@ module.exports = {
   isLearner,
   getDefaultChannelId,
   getCurrentChannelObject,
+  currentFacilityId,
 };

@@ -49,9 +49,10 @@ function _classState(data) {
  * This mostly duplicates _userState below, but searches Roles array for an exact match
  * on the classId, and not for any Role object.
  */
-function _userStateForClassEditPage(classId, apiUserData) {
+function _userStateForClassEditPage(facilityId, classId, apiUserData) {
   const matchingRole = apiUserData.roles.find((r) => (
-      String(r.collection) === classId ||
+      String(r.collection) === String(classId) ||
+      String(r.collection) === String(facilityId) ||
       r.kind === UserKinds.ADMIN ||
       r.kind === UserKinds.SUPERUSER
     )
@@ -239,10 +240,12 @@ function showClassEditPage(store, classId) {
     ClassroomResource.getModel(classId).fetch(),
   ];
 
+  const facilityId = getters.currentFacilityId(store.state);
+
   const transformResults = ([facilityUsers, classroom]) => ({
     modalShown: false,
     classes: [classroom],
-    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, classId)),
+    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, facilityId, classId)),
   });
 
   ConditionalPromise.all(promises).only(
