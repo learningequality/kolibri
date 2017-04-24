@@ -44,7 +44,7 @@
       remove: 'Remove from Class',
       cancel: 'Cancel',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to remove { username } from { classname }',
+      deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
       accessReassurance: 'You can still access this account from { sectionTabName }',
       usersTab: 'Users',
     },
