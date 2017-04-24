@@ -66,7 +66,7 @@
       genericError: 'Something went wrong',
       success: 'Profile details updated!',
       username: 'Username',
-      name: 'Full Name',
+      name: 'Full name',
       updateProfile: 'Update profile',
       isLearner: '(you are a Learner)',
       isCoach: '(you are a Coach)',
