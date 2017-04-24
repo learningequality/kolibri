@@ -155,7 +155,7 @@
         this.$refs.audio.currentTime = sum;
       },
 
-      updateTime(e) {
+      updateTime() {
         // guard against the function being called after component is unmounted
         if (this.$refs.audio === undefined) return;
         this.displayTime = this.$refs.audio.currentTime;
