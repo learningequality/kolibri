@@ -67,10 +67,11 @@ function _topicsState(topics) {
 }
 
 function _exerciseState(exercise) {
+  const numAssesments = (exercise.assessmentmetadata[0] || {}).number_of_assessments || 0;
   return {
     id: exercise.pk,
     title: exercise.title,
-    numAssesments: exercise.assessmentmetadata[0].number_of_assessments,
+    numAssesments,
   };
 }
 
