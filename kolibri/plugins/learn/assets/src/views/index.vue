@@ -2,7 +2,6 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
-      <total-points/>
       <channel-switcher @switch="switchChannel"/>
       <router-link :to="searchPage">
         <ui-icon-button
@@ -11,6 +10,7 @@
           color="white"
           :ariaLabel="$tr('search')"/>
       </router-link>
+      <a class="points-link" href="/user"><total-points/></a>
     </div>
     <div slot="tabs" v-if="!isSearchPage">
       <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
@@ -189,8 +189,12 @@
 <style lang="stylus" scoped>
 
   @require 'learn.styl'
+  @require '~kolibri.styles.definitions'
 
   .content
     margin: auto
+
+  .points-link
+    color: inherit
 
 </style>

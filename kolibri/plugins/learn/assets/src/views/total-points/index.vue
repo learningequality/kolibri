@@ -1,10 +1,11 @@
 <template>
 
-  <div v-if="totalPoints" class="points">
+  <div v-if="totalPoints" class="points" ref="points">
     <div class="circle in-points">
       <points-icon class="icon" :active="true"/>
     </div>
     <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
+    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('totalPoints', { points: totalPoints }) }}</ui-tooltip>
   </div>
 
 </template>
@@ -16,8 +17,13 @@
   const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
+    $trNameSpace: 'totalPoints',
+    $trs: {
+      totalPoints: 'You have earned { points, number } points!',
+    },
     components: {
       'points-icon': require('kolibri.coreVue.components.pointsIcon'),
+      'ui-tooltip': require('keen-ui/src/UiTooltip'),
     },
     vuex: {
       getters: {
