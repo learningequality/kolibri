@@ -458,7 +458,7 @@ summary and session log progress update for exercise
 **/
 function updateExerciseProgress(store, progressPercent, forceSave = false) {
   /* Update the logging state with new progress information */
-  updateProgress(store, progressPercent, forceSave);
+  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
 
   /* Mark completion time if 100% progress reached */
   if (progressPercent === 1) {
