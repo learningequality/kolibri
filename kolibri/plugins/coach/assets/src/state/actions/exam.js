@@ -6,6 +6,7 @@ const CoreActions = require('kolibri.coreVue.vuex.actions');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 const Constants = require('../../constants');
+const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
@@ -13,6 +14,9 @@ const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
 const ExamResource = CoreApp.resources.ExamResource;
 const ExamAssignmentResource = CoreApp.resources.ExamAssignmentResource;
+const ExamLogResource = CoreApp.resources.ExamLogResource;
+const FacilityUserResource = CoreApp.resources.FacilityUserResource;
+const ExamAttemptLogResource = CoreApp.resources.ExamAttemptLogResource;
 
 const pickIdAndName = pick(['id', 'name']);
 
@@ -416,22 +420,153 @@ function createExam(store, classCollection, examObj) {
   );
 }
 
-function showExamReportPage(store, classId, examId) {
+function showExamReportPage(store, classId, channelId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', ('Exam Report'));
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  const examLogPromise = ExamLogResource.getCollection({
+    exam: examId,
+    collection: classId,
+  }).fetch();
+  const examPromise = ExamResource.getModel(examId, { channel_id: channelId }).fetch();
+  const facilityUserPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
+  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
+  ConditionalPromise.all([examLogPromise, facilityUserPromise, groupPromise, examPromise]).only(
+    CoreActions.samePageCheckGenerator(store),
+    ([examLogs, facilityUsers, learnerGroups, exam]) => {
+      const examTakers = facilityUsers.map(
+      user => {
+        const examTakenByUser = examLogs.find(examLog => String(examLog.user) === user.id) || {};
+        const learnerGroup = learnerGroups.find(
+          group => group.user_ids.indexOf(user.id) > -1) || {};
+        return {
+          id: user.id,
+          name: user.full_name,
+          group: learnerGroup,
+          score: examTakenByUser.score,
+          progress: examTakenByUser.progress,
+        };
+      });
+      const pageState = {
+        examTakers,
+        classId,
+        exam,
+        channelId,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', 'Exam Report');
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => { CoreActions.handleApiError(store, error); }
+  );
 }
 
-function showExamReportDetailPage(store, classId, examId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+function showExamReportDetailPage(
+  store,
+  classId,
+  userId,
+  channelId,
+  examId,
+  questionNumber,
+  interactionIndex
+  ) {
+  if (store.state.pageName !== Constants.PageNames.EXAM_REPORT_DETAIL) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
+  }
+  const examPromise = ExamResource.getModel(examId, { channel_id: channelId }).fetch();
+  const examLogPromise = ExamLogResource.getCollection({ exam: examId, user: userId }).fetch();
+  const attemptLogPromise = ExamAttemptLogResource.getCollection(
+    { exam: examId, user: userId }).fetch();
+  const userPromise = FacilityUserResource.getModel(userId).fetch();
+  ConditionalPromise.all([attemptLogPromise, examPromise, userPromise, examLogPromise]).only(
+    CoreActions.samePageCheckGenerator(store),
+    ([examAttempts, exam, user, examLog]) => {
+      const seed = exam.seed;
+      const questionSources = JSON.parse(exam.question_sources);
+
+      const questionList = createQuestionList(questionSources);
+
+      if (!questionList[questionNumber - 1]) {
+        // Illegal question number!
+        CoreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+      } else {
+        const contentPromise = ContentNodeResource.getCollection(
+          { channel_id: channelId },
+          { ids: questionSources.map(item => item.exercise_id) }).fetch();
+
+        contentPromise.only(
+          CoreActions.samePageCheckGenerator(store),
+          (contentNodes) => {
+            const contentNodeMap = {};
+
+            contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
+
+            const questions = questionList.map(question => ({
+              itemId: selectQuestionFromExercise(
+              question.assessmentItemIndex,
+              seed,
+              contentNodeMap[question.contentId]),
+              contentId: question.contentId
+            }));
+
+            const allQuestions = questions.map(
+              (question, index) => {
+                const attemptLog = examAttempts.find(
+                  log => log.item === question.itemId &&
+                  log.content_id === question.contentId) || {
+                    interaction_history: '[]',
+                    correct: false,
+                  };
+                return Object.assign({
+                  questionNumber: index + 1,
+                }, attemptLog);
+              }
+            );
+
+            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
+
+            const currentQuestion = questions[questionNumber - 1];
+
+            const itemId = currentQuestion.itemId;
+
+            const exercise = contentNodeMap[currentQuestion.contentId];
+
+            const currentAttempt = allQuestions[questionNumber - 1];
+
+            const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
+
+            const currentInteraction = currentInteractionHistory[interactionIndex];
+
+            const pageState = {
+              exam: _examState(exam),
+              itemId,
+              classId,
+              questions,
+              currentQuestion,
+              questionNumber,
+              currentAttempt,
+              exercise,
+              channelId,
+              interactionIndex,
+              currentInteraction,
+              currentInteractionHistory,
+              user,
+              examAttempts: allQuestions,
+              examLog,
+            };
+
+            store.dispatch('SET_PAGE_STATE', pageState);
+            store.dispatch('CORE_SET_ERROR', null);
+            store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
+            store.dispatch('CORE_SET_PAGE_LOADING', false);
+          },
+          error => CoreActions.handleApiError(store, error)
+        );
+      }
+    },
+    error => CoreActions.handleApiError(store, error)
+  );
 }
 
 module.exports = {

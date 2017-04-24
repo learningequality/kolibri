@@ -1,7 +1,9 @@
 from django.db.models import Sum
+from django.utils.timezone import now
 from kolibri.auth.models import FacilityUser
 from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class ContentSessionLogSerializer(serializers.ModelSerializer):
@@ -12,10 +14,31 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
 class ExamLogSerializer(serializers.ModelSerializer):
+    progress = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
+
+    def get_progress(self, obj):
+        return obj.attemptlogs.count()
+
+    def get_score(self, obj):
+        return obj.attemptlogs.aggregate(Sum('correct')).get('correct__sum')
 
     class Meta:
         model = ExamLog
-        fields = ('id', 'exam', 'user', 'closed',)
+        fields = ('id', 'exam', 'user', 'closed', 'progress', 'score', 'completion_timestamp')
+        read_only_fields = ('completion_timestamp')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ExamLog.objects.all(),
+                fields=('user', 'exam')
+            )
+        ]
+
+    def update(self, instance, validated_data):
+        # This has changed, set the completion timestamp
+        if validated_data.get('closed') and not instance.closed:
+            instance.completion_timestamp = now()
+        return instance
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 

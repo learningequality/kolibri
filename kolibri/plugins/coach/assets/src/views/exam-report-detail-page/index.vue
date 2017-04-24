@@ -1,21 +1,46 @@
 <template>
 
   <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> {{ backtoText(contentName) }} </template>
+    <template slot="text">{{ $tr('backTo', { title: exam.title }) }}</template>
     <template slot="body">
-      <div class="page-status-container">
+      <div class="summary-container">
         <page-status
+          :contentName="exam.title"
           :userName="userName"
-          :score="score"
-          :questions="questions"
-          :date="date"/>
+          :questions="examAttempts"
+          :completionTimeStamp="completionTimeStamp"
+          :completed="exam.closed"/>
       </div>
-      <div class="outer-container">
-        <div class="answer-history-container column">
-          <answer-history/>
+      <div class="details-container">
+        <div class="attempt-log-container">
+          <attempt-log-list
+            :attempt-logs="examAttempts"
+            :selectedQuestionNumber="questionNumber"
+            @select="navigateToAttempt"
+          />
         </div>
-        <div class="exercise-container column">
-          <div class="fake" style="height:600px;background-color:pink;"></div>
+        <div class="exercise-container">
+          <interaction-list
+            :interactions="currentInteractionHistory"
+            :attemptNumber="questionNumber"
+            :selectedInteractionIndex="selectedInteractionIndex"
+            @select="navigateToInteraction"
+          />
+
+          <content-renderer
+            v-if="currentInteraction"
+            class="content-renderer"
+            :id="exercise.pk"
+            :itemId="itemId"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :contentId="exercise.content_id"
+            :channelId="channelId"
+            :available="exercise.available"
+            :answerState="currentInteraction.answer"
+            :extraFields="exercise.extra_fields"
+            :assessment="true"/>
         </div>
       </div>
     </template>
@@ -29,60 +54,66 @@
   const constants = require('../../constants');
 
   module.exports = {
-    $trNameSpace: 'coachExamRenderPage',
+    $trNameSpace: 'coachExamDetailPage',
     $trs: {
-      backto: 'Back to { text }',
+      backTo: 'Back to exam report for { title }',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
-      'answer-history': require('./answer-history'),
+      'attempt-log-list': require('../coach-exercise-detail-page/attempt-log-list'),
+      'interaction-list': require('../coach-exercise-detail-page/interaction-list'),
     },
     computed: {
       backPageLink() {
-        return { name: constants.PageNames.EXAM_REPORT };
-      },
-      content() {
         return {
-          id: '84658d43b99f5824bc1aa5e3eb6b3578',
-          kind: 'exercise',
-          files: [{
-            extension: 'perseus',
-            download_url: '/downloadcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/Divide_fractions_and_whole_numbers_word_problems_Exercise.perseus',
-            available: true,
-            checksum: '898fa0875f5cdf1721a32eb7540d0ec8',
-            file_size: 182937,
-            id: '47e59275f0f64c89aba65a537aeb38c2',
-            lang: null,
-            preset: 'Exercise',
-            priority: null,
-            storage_url: '/zipcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/',
-            supplementary: false,
-            thumbnail: false,
-          }],
-          content_id: '357f3d15348c4e3d8ac5d459ad8b924d',
-          available: true,
-          extraFields: null,
+          name: constants.PageNames.EXAM_REPORT,
+          params: {
+            classId: this.classId,
+            channelId: this.channelId,
+            examId: this.exam.id,
+          },
         };
-      },
-      channelId() {
-        return '78eed5c0b59b30c0a40c94c17c849af6';
       },
     },
     methods: {
-      backtoText(text) {
-        return this.$tr('backto', { text });
+      navigateToAttempt(questionNumber) {
+        this.navigateTo(questionNumber, 0);
       },
+      navigateToInteraction(interaction) {
+        this.navigateTo(this.questionNumber, interaction);
+      },
+      navigateTo(question, interaction) {
+        this.$router.push({
+          name: constants.PageNames.EXAM_REPORT_DETAIL,
+          params: {
+            channelId: this.channelId,
+            classId: this.classId,
+            userId: this.userId,
+            interaction,
+            question,
+            examId: this.exam.id,
+          },
+        });
+      }
     },
     vuex: {
       getters: {
-        pageState: state => state.pageState,
-        // fake date for page-status
-        contentName: () => 'Summative Exam Report',
-        userName: () => 'Aaron Andrews',
-        score: () => 72,
-        questions: () => [{ correct: 0 }, { correct: 1 }],
-        date: () => '18 Nov 2016',
+        channelId: state => state.pageState.channelId,
+        classId: state => state.pageState.classId,
+        examAttempts: state => state.pageState.examAttempts,
+        exam: state => state.pageState.exam,
+        userName: state => state.pageState.user.full_name,
+        userId: state => state.pageState.user.id,
+        currentAttempt: state => state.pageState.currentAttempt,
+        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
+        currentInteraction: state => state.pageState.currentInteraction,
+        selectedInteractionIndex: state => state.pageState.interactionIndex,
+        questionNumber: state => state.pageState.questionNumber,
+        exercise: state => state.pageState.exercise,
+        itemId: state => state.pageState.itemId,
+        completionTimeStamp: state => state.pageState.examLog.completion_timestamp,
       },
     },
   };
@@ -92,26 +123,32 @@
 
 <style lang="stylus" scoped>
 
-  .column
-    float: left
+  @require '~kolibri.styles.definitions'
 
-  .page-status-container
-    padding-top: 20px
-    padding-left: 10px
-    padding-right: 10px
+  $container-side-padding = 15px
 
-  .outer-container
-    display: table-cell
-    height: 100%
-    width: 1%
-    padding: 10px
+  .summary-container
+    padding-top: $container-side-padding
+    padding-left: $container-side-padding
+    padding-right: $container-side-padding
+    height: 15%
 
-  .answer-history-container
+  .details-container
+    width: 100%
+    height: 85%
+    padding-top: $container-side-padding
+    clearfix()
+
+  .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto
+    float: left
 
   .exercise-container
     width: 70%
+    height: 100%
+    padding: $containerSidePadding
+    float: left
 
 </style>
