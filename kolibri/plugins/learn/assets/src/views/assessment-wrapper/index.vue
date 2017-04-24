@@ -47,7 +47,7 @@ oriented data synchronization.
         :log="recentAttempts"
       />
       <p class="message">{{ $tr('goal', {count: totalCorrectRequiredM}) }}</p>
-      <p id="try-again" v-if="!correct && !firstAttempt">{{ $tr('tryAgain') }}</p>
+      <p id="try-again" v-if="correct < 1 && !firstAttempt">{{ $tr('tryAgain') }}</p>
     </div>
   </div>
 
@@ -117,7 +117,7 @@ oriented data synchronization.
       shake: false,
       firstAttempt: true,
       complete: false,
-      correct: true,
+      correct: 0,
       itemError: false,
     }),
     methods: {
@@ -125,7 +125,7 @@ oriented data synchronization.
         correct,
         complete,
         firstAttempt = false,
-        hinted = false,
+        hinted,
         answerState,
         simpleAnswer,
       }) {
@@ -154,8 +154,9 @@ oriented data synchronization.
         }
       },
       answerGiven({ correct, answerState, simpleAnswer }) {
+        correct = Number(correct); // eslint-disable-line no-param-reassign
         this.correct = correct;
-        if (!correct) {
+        if (correct < 1) {
           if (!this.shake) {
             setTimeout(() => {
               this.shake = false;
@@ -168,7 +169,7 @@ oriented data synchronization.
           answer: answerState,
           correct,
         });
-        this.complete = correct;
+        this.complete = correct === 1;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
             correct,
@@ -222,7 +223,7 @@ oriented data synchronization.
         this.shake = false;
         this.firstAttempt = true;
         this.complete = false;
-        this.correct = true;
+        this.correct = 0;
         this.itemError = false;
         this.setItemId();
         this.createAttemptLog();
@@ -258,7 +259,7 @@ oriented data synchronization.
         this.complete = true;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
-            correct: true,
+            correct: 1,
             complete: this.complete,
             firstAttempt: true,
           });
