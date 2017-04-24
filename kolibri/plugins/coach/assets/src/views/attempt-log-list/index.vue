@@ -49,7 +49,7 @@
       header: 'Answer history',
       today: 'Today',
       yesterday: 'Yesterday',
-      daysAgo: ' { daysElapsed } days ago',
+      daysAgo: '{ daysElapsed } days ago',
       question: 'Question { questionNumber, number }',
     },
     props: {

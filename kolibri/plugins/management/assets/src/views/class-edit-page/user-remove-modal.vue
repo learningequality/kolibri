@@ -6,7 +6,7 @@
     @cancel="close"
   >
     <div>
-      {{$tr('deleteConfirmation')}} <strong>{{username}}</strong> {{$tr('from')}} <strong>{{classname}}</strong>
+      {{$trHtml('deleteConfirmation', {username, classname})}}
 
       <p>{{$tr('still')}} <strong>{{$tr('users')}}</strong>.</p>
 
@@ -45,8 +45,7 @@
       remove: 'Remove from Class',
       cancel: 'Cancel',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to remove ',
-      from: ' from ',
+      deleteConfirmation: 'Are you sure you want to remove <strong> {{ username }} </strong> from <strong> {{ classname}} </strong>',
       still: 'You can still access this account from ',
       users: 'Users',
     },
