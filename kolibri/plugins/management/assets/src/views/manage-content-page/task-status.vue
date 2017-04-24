@@ -3,7 +3,7 @@
   <div class="TaskStatus">
     <!-- Progress bar element, status label -->
     <div class="Bar dtc">
-      <div class="Bar__statusMsg">Exporting Khan Academy...</div>
+      <div class="Bar__statusMsg">{{ title }} &mdash; {{ subTitle }}</div>
       <progress class="Bar_bar" max="1" :value="percentage"></progress>
     </div>
 
@@ -13,7 +13,10 @@
         {{ percentage * 100 | round }}%
       </span>
       <span class="Stats__time dib">
-        {{ (1 - percentage) * completionTimeEstimate | round }} minutes left
+        <template v-if="statusFailed">{{ $tr('failedMsg') }}</template>
+        <template v-else>
+          {{ timeLeft | timeify }}
+        </template>
       </span>
     </div>
 
@@ -73,7 +76,16 @@
         return `${Math.round(num)} seconds`;
       }
     },
+    data: () => ({
+      averageSpeed: null, // percentage/second
+      lastTick: Date.now(),
+      timeLeft: null,
+      updateCounter: 0,
+    }),
     computed: {
+      speedIsStable() {
+        return this.updateCounter > 10;
+      },
       timeLeft() {
         // wait a certain number of updates to stabilize a little
         // in testing, speeds are so random, that it takes a lot of samples
@@ -120,6 +132,24 @@
       handleClearTask() {
         // send notification
         this.clearTask(this.id);
+        this.updateCounter = 0;
+      },
+    },
+    watch: {
+      percentage(val, oldVal) {
+        const now = Date.now();
+        const lastSpeed = (val - oldVal) / ((now - this.lastTick) / 1000);
+        if (!this.averageSpeed) {
+          this.averageSpeed = lastSpeed;
+        } else {
+          // exponential smoothing. since, updates are lightly weighted, this
+          // is very sensitive to initial conditions and will take a long time
+          // to correct bad initial values
+          const SF = 0.005;
+          this.averageSpeed = (SF * lastSpeed) + ((1 - SF) * this.averageSpeed);
+          this.updateCounter += 1;
+        }
+        this.lastTick = now;
       },
     },
     props: {

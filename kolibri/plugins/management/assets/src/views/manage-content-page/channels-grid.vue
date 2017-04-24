@@ -79,7 +79,8 @@
     methods: {
       handleDeleteChannel() {
         if (this.selectedChannelIdx !== null) {
-          this.deleteChannel(this.channelList[this.selectedChannelIdx].id);
+          this.deleteChannel(this.channelList[this.selectedChannelIdx].id)
+          .then(() => { this.selectedChannelIdx = null; });
         }
       },
       numberOfFilesInChannel(channelId) {
