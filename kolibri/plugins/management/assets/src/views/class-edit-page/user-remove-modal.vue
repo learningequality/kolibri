@@ -6,9 +6,8 @@
     @cancel="close"
   >
     <div>
-      {{$trHtml('deleteConfirmation', {username, classname})}}
-
-      <p>{{$tr('still')}} <strong>{{$tr('users')}}</strong>.</p>
+      <span v-html="formattedDeleteConfirmation"> </span>
+      <p v-html="formattedAccessReassuranceConfirmation"> </p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
@@ -45,9 +44,9 @@
       remove: 'Remove from Class',
       cancel: 'Cancel',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to remove <strong> {{ username }} </strong> from <strong> {{ classname}} </strong>',
-      still: 'You can still access this account from ',
-      users: 'Users',
+      deleteConfirmation: 'Are you sure you want to remove { username } from { classname }',
+      accessReassurance: 'You can still access this account from { sectionTabName }',
+      usersTab: 'Users',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -71,6 +70,25 @@
         required: true,
       },
     },
+    computed: {
+      formattedDeleteConfirmation() {
+        return this.$tr(
+          'deleteConfirmation',
+          {
+            username: this.bold(this.username),
+            classname: this.bold(this.classname),
+          }
+        );
+      },
+      formattedAccessReassuranceConfirmation() {
+        return this.$tr(
+          'accessReassurance',
+          {
+            sectionTabName: this.bold(this.$tr('usersTab')),
+          }
+        );
+      },
+    },
     methods: {
       userRemove() {
         this.removeClassUser(this.classid, this.userid);
@@ -78,6 +96,9 @@
       close() {
         this.displayModal(false);
       },
+      bold(stringToBold) {
+        return `<strong v-html> ${stringToBold} </strong>`;
+      }
     },
     vuex: {
       actions: {
