@@ -34,6 +34,7 @@
   const actions = require('../../state/actions');
   const logging = require('kolibri.lib.logging');
   const constants = require('../../constants');
+  const round = require('lodash/round');
 
   const { TaskTypes, TaskStatuses } = constants;
 
@@ -57,10 +58,29 @@
       round(num) {
         return Math.round(num);
       },
+      timeify(num) {
+        const ONE_HOUR = 3600;
+        const ONE_MINUTE = 60;
+        if (num < 0) {
+          return 'Calculating...';
+        }
+        if (num > ONE_HOUR) {
+          return `${round(num / ONE_HOUR, 1)} hours`;
+        }
+        if (num > ONE_MINUTE) {
+          return `${Math.round(num / ONE_MINUTE)} minutes`;
+        }
+        return `${Math.round(num)} seconds`;
+      }
     },
     computed: {
-      completionTimeEstimate() {
-        return 60;
+      timeLeft() {
+        // wait a certain number of updates to stabilize a little
+        // in testing, speeds are so random, that it takes a lot of samples
+        if (!this.speedIsStable) {
+          return -1;
+        }
+        return ((1 - this.percentage) / this.averageSpeed); // seconds
       },
       buttonMessage() {
         if (this.statusFailed || this.statusSuccess) {
