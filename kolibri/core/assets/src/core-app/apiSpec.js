@@ -105,6 +105,9 @@ module.exports = {
         elapsedTime: {
           module: require('../views/elapsed-time'),
         },
+        pointsIcon: {
+          module: require('../views/points-icon'),
+        },
       },
       router: {
         module: require('../router'),

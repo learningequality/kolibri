@@ -27,6 +27,7 @@ const initialState = {
     loginModalVisible: false,
     loginError: null,
     logging: baseLoggingState,
+    totalProgress: null,
     channels: {
       list: [],
       currentId: null,
@@ -93,6 +94,9 @@ const mutations = {
   },
   SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
     state.core.logging.session.progress = sessionProgress;
+    if (state.core.logging.summary.progress < 1.0 && summaryProgress >= 1.0) {
+      state.core.totalProgress += 1;
+    }
     state.core.logging.summary.progress = summaryProgress;
   },
   SET_LOGGING_COMPLETION_TIME(state, time) {
@@ -169,6 +173,9 @@ const mutations = {
     state.core.logging.session = {};
     state.core.logging.mastery = {};
     state.core.logging.attempt = {};
+  },
+  SET_TOTAL_PROGRESS(state, progress) {
+    state.core.totalProgress = progress;
   },
   SET_CORE_CURRENT_CHANNEL(state, channelId) {
     state.core.channels.currentId = channelId;

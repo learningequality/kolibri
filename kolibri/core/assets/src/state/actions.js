@@ -413,26 +413,6 @@ function saveLogs(store) {
   }
 }
 
-
-/**
-summary and session log progress update for exercise
-**/
-function updateExerciseProgress(store, progressPercent, forceSave = false) {
-  /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
-
-  /* Mark completion time if 100% progress reached */
-  if (progressPercent === 1) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
-  }
-
-  /* Save models if needed */
-  if (forceSave || progressPercent === 1) {
-    saveLogs(store);
-  }
-}
-
-
 /**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
@@ -472,6 +452,24 @@ function updateProgress(store, progressPercent, forceSave = false) {
   }
 }
 
+
+/**
+summary and session log progress update for exercise
+**/
+function updateExerciseProgress(store, progressPercent, forceSave = false) {
+  /* Update the logging state with new progress information */
+  updateProgress(store, progressPercent, forceSave);
+
+  /* Mark completion time if 100% progress reached */
+  if (progressPercent === 1) {
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+  }
+
+  /* Save models if needed */
+  if (forceSave || progressPercent === 1) {
+    saveLogs(store);
+  }
+}
 
 /**
  * Update the total time spent and end time stamps
@@ -604,8 +602,9 @@ function createDummyMasteryLog(store) {
 
 function saveAttemptLog(store) {
   const coreApp = require('kolibri');
-  const attemptLogModel = coreApp.resources.AttemptLog.getModel(
-    store.state.core.logging.attempt.id);
+  const attemptLogModel = coreApp.resources.AttemptLog.findModel({
+    item: store.state.core.logging.attempt.item
+  });
   const promise = attemptLogModel.save(_attemptLogModel(store));
   promise.then((newAttemptLog) => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
@@ -698,6 +697,16 @@ function updateMasteryAttemptState(store, {
     });
 }
 
+function fetchPoints(store) {
+  if (!getters.isSuperuser(store.state)) {
+    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
+      store.state.core.session.user_id);
+    userProgressModel.fetch().then((progress) => {
+      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+    });
+  }
+}
+
 module.exports = {
   handleError,
   handleApiError,
@@ -723,4 +732,5 @@ module.exports = {
   saveAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
+  fetchPoints,
 };

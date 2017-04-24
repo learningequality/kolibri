@@ -9,6 +9,9 @@
         {{ title }}
         <progress-icon :progress="progress"/>
       </h1>
+      <div class="end">
+        <slot name="end-header"/>
+      </div>
     </div>
   </div>
 
@@ -72,5 +75,8 @@
 
   .title
     display: inline-block
+
+  .end
+    float: right
 
 </style>

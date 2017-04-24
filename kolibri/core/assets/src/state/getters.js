@@ -1,4 +1,4 @@
-const UserKinds = require('../constants').UserKinds;
+const { UserKinds, MaxPointsPerContent } = require('../constants');
 const cookiejs = require('js-cookie');
 
 
@@ -54,6 +54,14 @@ function getCurrentChannelObject(state) {
   return state.core.channels.list.find(channel => channel.id === state.core.channels.currentId);
 }
 
+function totalPoints(state) {
+  return state.core.totalProgress * MaxPointsPerContent;
+}
+
+function contentPoints(state) {
+  return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
+}
+
 
 module.exports = {
   isUserLoggedIn,
@@ -64,4 +72,6 @@ module.exports = {
   getDefaultChannelId,
   getCurrentChannelObject,
   currentFacilityId,
+  totalPoints,
+  contentPoints,
 };

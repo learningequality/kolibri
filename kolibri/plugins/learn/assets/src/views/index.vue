@@ -10,6 +10,7 @@
           color="white"
           :ariaLabel="$tr('search')"/>
       </router-link>
+      <a class="points-link" href="/user"><total-points/></a>
     </div>
     <div slot="tabs" v-if="!isSearchPage">
       <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
@@ -56,6 +57,7 @@
       'tabs': require('kolibri.coreVue.components.tabs'),
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
+      'total-points': require('./total-points'),
     },
     methods: {
       switchChannel(channelId) {
@@ -187,8 +189,12 @@
 <style lang="stylus" scoped>
 
   @require 'learn.styl'
+  @require '~kolibri.styles.definitions'
 
   .content
     margin: auto
+
+  .points-link
+    color: inherit
 
 </style>
