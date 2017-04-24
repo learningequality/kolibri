@@ -26,7 +26,12 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         if request.method == "GET" and request.resolver_match.url_name.endswith("-list"):
             # only filter down the queryset in the case of the list view being requested
-            return request.user.filter_readable(queryset)
+            # return request.user.filter_readable(queryset)
+
+            # TESTING ONLY
+            writable = request.user.filter_writable(queryset)
+            print("TEST WRITABLE", writable)
+            return writable
         else:
             # otherwise, return the full queryset, as permission checks will happen object-by-object
             # (and filtering here then leads to 404's instead of the more correct 403's)

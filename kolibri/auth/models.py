@@ -329,7 +329,16 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :param queryset: A ``QuerySet`` instance that the filtering should be applied to.
         :return: Filtered ``QuerySet`` including only elements that are readable by this user.
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `filter_readable` method.")
+
+    def filter_writable(self, queryset):
+        """
+        Filters a queryset down to only the elements that this user should have permission to update.
+
+        :param queryset: A ``QuerySet`` instance that the filtering should be applied to.
+        :return: Filtered ``QuerySet`` including only elements that are writable by this user.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `filter_writable` method.")
 
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
@@ -387,6 +396,13 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(queryset.model):
             return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+        else:
+            return queryset.none()
+
+    def filter_writable(self, queryset):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(queryset.model):
+            return queryset.model.permissions.writable_by_user_filter(self, queryset).distinct()
         else:
             return queryset.none()
 
@@ -510,6 +526,12 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         else:
             return queryset.none()
 
+    def filter_writable(self, queryset):
+        if _has_permissions_class(queryset.model):
+            return queryset.model.permissions.writable_by_user_filter(self, queryset).distinct()
+        else:
+            return queryset.none()
+
     def __str__(self):
         return '"{user}"@"{facility}"'.format(user=self.full_name or self.username, facility=self.facility)
 
@@ -581,6 +603,9 @@ class DeviceOwner(KolibriAbstractBaseUser):
         return True
 
     def filter_readable(self, queryset):
+        return queryset
+
+    def filter_writable(self, queryset):
         return queryset
 
     def __str__(self):

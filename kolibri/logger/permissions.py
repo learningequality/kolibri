@@ -26,3 +26,6 @@ class AnyoneCanWriteAnonymousLogs(BasePermissions):
 
     def readable_by_user_filter(self, user, queryset):
         return queryset.none()
+
+    def writable_by_user_filter(self, user, queryset):
+        return queryset.none()

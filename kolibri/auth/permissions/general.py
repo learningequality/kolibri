@@ -27,6 +27,9 @@ class DenyAll(BasePermissions):
     def readable_by_user_filter(self, user, queryset):
         return queryset.none()
 
+    def writable_by_user_filter(self, user, queryset):
+        return queryset.none()
+
 
 class AllowAll(BasePermissions):
     """
@@ -46,6 +49,9 @@ class AllowAll(BasePermissions):
         return True
 
     def readable_by_user_filter(self, user, queryset):
+        return queryset
+
+    def writable_by_user_filter(self, user, queryset):
         return queryset
 
 
@@ -71,10 +77,18 @@ class IsSelf(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and (user == obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def _access_filter(self, user, queryset):
         if user.id is None:
             return queryset.none()
         return queryset.filter(id=user.id)
+
+    def readable_by_user_filter(self, user, queryset):
+        return _access_filter(user, queryset)
+
+    def writable_by_user_filter(self, user, queryset):
+        if self.read_only:
+            return queryset.none()
+        return self._access_filter(user, queryset)
 
 
 class IsOwn(BasePermissions):
@@ -103,10 +117,18 @@ class IsOwn(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return self._user_can_write_object(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def _access_filter(self, user, queryset):
         if user.is_anonymous():
             return queryset.none()
         return queryset.filter(**{self.field_name: user.id})
+
+    def readable_by_user_filter(self, user, queryset):
+        return self._access_filter(user, queryset)
+
+    def writable_by_user_filter(self, user, queryset):
+        if self.read_only:
+            return queryset.none()
+        return self._access_filter(user, queryset)
 
 
 class IsFromSameFacility(BasePermissions):
@@ -132,11 +154,19 @@ class IsFromSameFacility(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and self._facility_dataset_is_same(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def _in_dataset_filter(self, user, queryset):
         if hasattr(user, "dataset"):
             return queryset.filter(dataset=user.dataset)
         else:
             return queryset.none()
+
+    def readable_by_user_filter(self, user, queryset):
+        return self._in_dataset_filter()
+
+    def writable_by_user_filter(self, user, queryset):
+        if self.read_only:
+            return queryset.none()
+        return self._in_dataset_filter()
 
 
 class IsAdminForOwnFacility(BasePermissions):
@@ -175,8 +205,14 @@ class IsAdminForOwnFacility(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def _filter(self, user, queryset):
         if self._user_is_admin_for_own_facility(user):
             return queryset.filter(dataset=user.dataset)
         else:
             return queryset.none()
+
+    def readable_by_user_filter(self, user, queryset):
+        return self._filter(user, queryset)
+
+    def writable_by_user_filter(self, user, queryset):
+        return self._filter(user, queryset)
