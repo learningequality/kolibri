@@ -3,6 +3,7 @@ from django.utils.timezone import now
 from kolibri.auth.models import FacilityUser
 from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class ContentSessionLogSerializer(serializers.ModelSerializer):
@@ -26,6 +27,12 @@ class ExamLogSerializer(serializers.ModelSerializer):
         model = ExamLog
         fields = ('id', 'exam', 'user', 'closed', 'progress', 'score', 'completion_timestamp')
         read_only_fields = ('completion_timestamp')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ExamLog.objects.all(),
+                fields=('user', 'exam')
+            )
+        ]
 
     def update(self, instance, validated_data):
         # This has changed, set the completion timestamp
