@@ -400,9 +400,11 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
 
 function showRecentLearnerItemDetails(store, classId, userId, channelId, contentId,
   questionNumber, interactionIndex) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
+  if (store.state.pageName !== Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showExerciseDetailView(store, classId, userId, channelId, contentId,
     questionNumber, interactionIndex);
 }
@@ -467,9 +469,11 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
 
 function showTopicLearnerItemDetails(store, classId, userId, channelId, contentId,
   questionNumber, interactionIndex) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
+  if (store.state.pageName !== Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showExerciseDetailView(store, classId, userId, channelId, contentId,
     questionNumber, interactionIndex);
 }
@@ -501,9 +505,11 @@ function showLearnerItemList(store, classId, userId, channelId, topicId) {
 
 function showLearnerItemDetails(store, classId, userId, channelId, contentId,
   questionNumber, interactionIndex) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
+  if (store.state.pageName !== Constants.PageNames.LEARNER_ITEM_DETAILS) {
+    store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showExerciseDetailView(store, classId, userId, channelId, contentId,
     questionNumber, interactionIndex);
 }
