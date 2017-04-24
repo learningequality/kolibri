@@ -1,8 +1,11 @@
 <template>
 
-  <immersive-full-screen v-if="exam" :backPageLink="backPageLink">
-    <template slot="text"> {{ $tr('backToExamList') }} </template>
-    <template slot="body">
+  <immersive-full-screen
+    v-if="exam"
+    :backPageLink="backPageLink"
+    :backPageText="$tr('backToExamList')"
+  >
+    <template>
       <div class="container">
         <div class="exam-status-container">
           <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>

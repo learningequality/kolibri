@@ -1,8 +1,10 @@
 <template>
 
-  <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> {{ $tr('backPrompt', {exerciseTitle: exercise.title}) }} </template>
-    <template slot="body">
+  <immersive-full-screen
+    :backPageLink="backPageLink"
+    :backPageText="$tr('backPrompt', { exerciseTitle: exercise.title })"
+  >
+    <template>
       <div class="summary-container">
         <attempt-summary
           :exerciseTitle="exercise.title"

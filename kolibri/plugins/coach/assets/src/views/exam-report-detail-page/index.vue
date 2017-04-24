@@ -1,8 +1,7 @@
 <template>
 
-  <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> {{ backtoText(contentName) }} </template>
-    <template slot="body">
+  <immersive-full-screen :backPageLink="backPageLink" :backPageText="backtoText(contentName)">
+    <template>
       <div class="page-status-container">
         <page-status
           :userName="userName"
