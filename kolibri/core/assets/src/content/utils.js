@@ -11,6 +11,7 @@ function validateAssessmentMetaData(data) {
   if (!assessmentIds.length || !Object.keys(masteryModel).length) {
     return {
       assessment: false,
+      assessmentIds: [],
     };
   }
   return {

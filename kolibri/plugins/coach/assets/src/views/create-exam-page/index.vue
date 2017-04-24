@@ -67,7 +67,7 @@
                 v-for="exercise in exercises"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
-                :exerciseNumAssesments="exercise.numAssesments"
+                :exerciseNumAssesments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
                 @addExercise="handleAddExercise"
                 @removeExercise="handleRemoveExercise"/>
@@ -172,7 +172,7 @@
     },
     computed: {
       maxQuestionsFromSelection() {
-        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssesments, 0);
+        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssessments, 0);
       },
       titleInvalid() {
         return this.validateTitle ? !this.inputTitle : false;
