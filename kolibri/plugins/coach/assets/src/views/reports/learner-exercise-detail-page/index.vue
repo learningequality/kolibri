@@ -60,8 +60,8 @@
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'attempt-summary': require('./attempt-summary'),
-      'attempt-log-list': require('./attempt-log-list'),
-      'interaction-list': require('./interaction-list'),
+      'attempt-log-list': require('../../attempt-log-list'),
+      'interaction-list': require('../../interaction-list'),
     },
     computed: {
       backPageLink() {

@@ -64,8 +64,8 @@
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
-      'attempt-log-list': require('../coach-exercise-detail-page/attempt-log-list'),
-      'interaction-list': require('../coach-exercise-detail-page/interaction-list'),
+      'attempt-log-list': require('../attempt-log-list'),
+      'interaction-list': require('../interaction-list'),
     },
     computed: {
       backPageLink() {
