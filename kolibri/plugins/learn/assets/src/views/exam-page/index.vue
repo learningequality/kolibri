@@ -26,6 +26,7 @@
             <content-renderer
               class="content-renderer"
               ref="contentRenderer"
+              v-if="itemId"
               :id="content.id"
               :kind="content.kind"
               :files="content.files"
@@ -38,6 +39,9 @@
               :allowHints="false"
               :answerState="currentAttempt.answer"
               @interaction="saveAnswer"/>
+              <ui-alert v-else :dismissible="false" type="error">
+                {{ $tr('noItemId') }}
+              </ui-alert>
               <div class="question-navbutton-container">
                 <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
                 <icon-button :disabled="questionNumber===exam.questionCount-1" alignment="right" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
@@ -75,6 +79,7 @@
       cancel: 'Cancel',
       areYouSure: 'Are you you want to submit your exam?',
       unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      noItemId: 'This question has an error, please move on to the next question',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
@@ -82,6 +87,7 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'answer-history': require('./answer-history'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'ui-alert': require('keen-ui/src/UiAlert'),
     },
     data: () => ({
       submitModalOpen: false,

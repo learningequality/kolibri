@@ -1,4 +1,5 @@
 const seededShuffle = require('seededshuffle');
+const { validateAssessmentMetaData } = require('kolibri.utils.content');
 
 function createQuestionList(questionSources) {
   return questionSources.reduce((acc, val) =>
@@ -8,8 +9,11 @@ function createQuestionList(questionSources) {
 }
 
 function selectQuestionFromExercise(index, seed, contentNode) {
-  const assessmentItemIds = JSON.parse(contentNode.assessmentmetadata[0].assessment_item_ids);
-  return seededShuffle.shuffle(assessmentItemIds, seed, true)[index];
+  const assessmentmetadata = validateAssessmentMetaData(contentNode);
+  if (assessmentmetadata.assessment) {
+    return seededShuffle.shuffle(assessmentmetadata.assessmentItemIds, seed, true)[index];
+  }
+  return null;
 }
 
 module.exports = {

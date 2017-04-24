@@ -139,6 +139,9 @@ module.exports = {
       validateLinkObject: {
         module: require('../validateLinkObject'),
       },
+      content: {
+        module: require('../content/utils'),
+      },
     },
   },
 };

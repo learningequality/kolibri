@@ -14,6 +14,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const router = require('kolibri.coreVue.router');
 const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
+const { validateAssessmentMetaData } = require('kolibri.utils.content');
 
 /**
  * Vuex State Mappers
@@ -42,29 +43,6 @@ function _topicState(data) {
   return state;
 }
 
-function _validateAssessmentMetaData(data) {
-  // Data is coming from a serializer for a one to many key, so at least will return an empty array.
-  const assessmentMetaData = data.assessmentmetadata[0];
-  if (!assessmentMetaData) {
-    return {
-      assessment: false,
-    };
-  }
-  const assessmentIds = JSON.parse(assessmentMetaData.assessment_item_ids || '[]');
-  const masteryModel = JSON.parse(assessmentMetaData.mastery_model || '{}');
-  if (!assessmentIds.length || !Object.keys(masteryModel).length) {
-    return {
-      assessment: false,
-    };
-  }
-  return {
-    assessment: true,
-    assessmentIds,
-    masteryModel,
-    randomize: assessmentMetaData.randomize,
-  };
-}
-
 function _contentState(data) {
   let progress;
   if (!data.progress_fraction) {
@@ -90,7 +68,7 @@ function _contentState(data) {
     license: data.license,
     license_owner: data.license_owner,
   };
-  Object.assign(state, _validateAssessmentMetaData(data));
+  Object.assign(state, validateAssessmentMetaData(data));
   return state;
 }
 
