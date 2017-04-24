@@ -79,44 +79,39 @@
 
       <table>
         <thead>
-        <tr>
-          <th>
-            <ui-checkbox
-              :name="$tr('selectAllOnPage')"
-              :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0"
-              :disabled="visibleFilteredUsers.length === 0"
-              @change="selectAllVisibleUsers"
-              class="inline-block"
-              />
-          </th>
-          <th>{{ $tr('name') }}</th>
-          <th>{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('role') }}</span>
-          </th>
-          <th>{{ $tr('name') }}</th>
-        </tr>
+          <tr>
+            <th class="col-checkbox">
+              <ui-checkbox
+                :name="$tr('selectAllOnPage')"
+                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0"
+                :disabled="visibleFilteredUsers.length === 0"
+                @change="selectAllVisibleUsers"
+                class="inline-block check"
+                />
+            </th>
+            <th class="col-username">{{ $tr('username') }}</th>
+            <th class="col-role">{{ $tr('role') }}</th>
+            <th class="col-name">{{ $tr('name') }}</th>
+          </tr>
         </thead>
 
         <tbody>
-        <p v-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
-        <p v-else-if="filterInput !== '' && filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
-        <tr v-else v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-            @click="toggleSelection(learner.id)">
-          <td class="col-checkbox">
-            <ui-checkbox
-              :name="$tr('selectUser')"
-              :value="isSelected(learner.id)"
-              @change="toggleSelection(learner.id)"
-              class="inline-block"
-              />
-          </td>
-          <th scope="col">{{ learner.username }}</th>
-          <td class="col-role">
-            <user-role :role="learner.kind" :omitLearner="true" />
-          </td>
-          <td><strong>{{ learner.full_name }}</strong></td>
-        </tr>
+          <p v-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
+          <p v-else-if="filterInput !== '' && filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+          <tr v-else v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
+              @click="toggleSelection(learner.id)">
+            <td class="col-checkbox">
+              <ui-checkbox
+                :name="$tr('selectUser')"
+                :value="isSelected(learner.id)"
+                @change="toggleSelection(learner.id)"
+                class="inline-block check"
+                />
+            </td>
+            <th class="col-username">{{ learner.username }}</th>
+            <td class="col-role">{{ learner.kind }}</td>
+            <td class="col-name">{{ learner.full_name }}</td>
+          </tr>
         </tbody>
       </table>
 
@@ -166,7 +161,7 @@
       searchForUser: 'Search for a user',
       createNewUser: 'New user account',
       of: 'of',
-      name: 'Name',
+      name: 'Full name',
       username: 'Username',
       selectedUsers: 'Show selected users',
       role: 'Role',
@@ -403,5 +398,8 @@
 
   .invisible
     visibility: hidden
+
+  .check
+    margin-bottom: 0
 
 </style>
