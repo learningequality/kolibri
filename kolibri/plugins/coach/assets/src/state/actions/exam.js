@@ -527,17 +527,11 @@ function showExamReportDetailPage(
             allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
             const currentQuestion = questions[questionNumber - 1];
-
             const itemId = currentQuestion.itemId;
-
             const exercise = contentNodeMap[currentQuestion.contentId];
-
             const currentAttempt = allQuestions[questionNumber - 1];
-
             const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
-
             const currentInteraction = currentInteractionHistory[interactionIndex];
-
             const pageState = {
               exam: _examState(exam),
               itemId,
