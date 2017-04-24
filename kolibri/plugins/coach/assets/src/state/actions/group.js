@@ -53,7 +53,7 @@ function showGroupsPage(store, classId) {
   const classPromise = ClassroomResource.getModel(classId).fetch();
   const classUsersPromise =
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
-  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
+  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch({}, true);
 
   ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
     coreActions.samePageCheckGenerator(store),
