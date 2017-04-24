@@ -11,7 +11,7 @@
         <h1 class="user-name">{{ userName }}</h1>
       </div>
       <div class="exercise-name">
-        <content-icon class="svg-icon" :kind="summaryLog.kind"/>
+        <content-icon class="svg-icon" :kind="kind"/>
         {{ exerciseTitle }}
       </div>
       <div :class="{'in-progress': !isCompleted, 'requirements': true}" >
@@ -27,10 +27,13 @@
           <br />
           <elapsed-time :date="dateCompleted"/>
         </span>
-        <span v-else>
+        <span v-else-if="isCompleted !== null">
           <strong> {{ $tr('statusInProgress') }} </strong>
           <br />
           <elapsed-time :date="dateLastAttempted"/>
+        </span>
+        <span v-else>
+          <strong> {{ $tr('notStarted') }} </strong>
         </span>
       </div>
     </div>
@@ -48,6 +51,7 @@
       statusInProgress: 'In Progress',
       requirementsMOfN: 'Mastery: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
+      notStarted: 'Not started',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -63,31 +67,61 @@
         type: String,
         required: true,
       },
+      kind: {
+        type: String,
+        required: true,
+      },
       summaryLog: {
         type: Object,
-        required: true,
-        // validate: TODO
+        default: () => ({}),
       },
     },
     computed: {
       isCompleted() {
-        return this.summaryLog.currentmasterylog.complete;
+        try {
+          return this.summaryLog.currentmasterylog.complete;
+        } catch (e) {
+          if (e instanceof TypeError) {
+            return null;
+          }
+          throw e;
+        }
       },
       dateCompleted() {
-        return new Date(this.summaryLog.currentmasterylog.end_timestamp).toLocaleDateString();
+        try {
+          return new Date(this.summaryLog.currentmasterylog.end_timestamp).toLocaleDateString();
+        } catch (e) {
+          if (e instanceof TypeError) {
+            return null;
+          }
+          throw e;
+        }
       },
       dateLastAttempted() {
-        return new Date(this.summaryLog.end_timestamp);
+        try {
+          return new Date(this.summaryLog.end_timestamp);
+        } catch (e) {
+          if (e instanceof TypeError) {
+            return null;
+          }
+          throw e;
+        }
       },
       requirementsString() {
-        const requirements = JSON.parse(this.summaryLog.currentmasterylog.mastery_criterion);
-        // TODO might be more types?
-        // if (requirements.type === 'm_of_n') {
-        return this.$tr('requirementsMOfN', {
-          m: requirements.m,
-          n: requirements.n,
-        });
-        // }
+        try {
+          const requirements = JSON.parse(this.summaryLog.currentmasterylog.mastery_criterion);
+          // TODO might be more types?
+          // if (requirements.type === 'm_of_n') {
+          return this.$tr('requirementsMOfN', {
+            m: requirements.m,
+            n: requirements.n,
+          });
+        } catch (e) {
+          if (e instanceof TypeError) {
+            return null;
+          }
+          throw e;
+        }
       },
     },
   };

@@ -55,7 +55,7 @@ class CoachToolsModule extends KolibriModule {
         {
           name: PageNames.EXAM_REPORT_DETAIL_ROOT,
           path: '/:classId/:channelId/exams/:examId/users/:userId',
-          redirect: '/:classId/:channelId/exams/:examId/users/:userId/1/0',
+          redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
         },
         {
           name: PageNames.EXAM_REPORT_DETAIL,
@@ -102,7 +102,7 @@ class CoachToolsModule extends KolibriModule {
         {
           name: PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/recent/:channelId/:contentId/:userId',
-          redirect: '/:classId/recent/:channelId/:contentId/:userId/1/0',
+          redirect: '/:classId/recent/:channelId/:contentId/:userId/0/0',
         },
         {
           name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
@@ -158,7 +158,7 @@ class CoachToolsModule extends KolibriModule {
         {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/topics/:channelId/item/:contentId/:userId',
-          redirect: '/:classId/topics/:channelId/item/:contentId/:userId/1/0',
+          redirect: '/:classId/topics/:channelId/item/:contentId/:userId/0/0',
         },
         {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
@@ -214,7 +214,7 @@ class CoachToolsModule extends KolibriModule {
         {
           name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
           path: '/:classId/learners/:userId/:channelId/item/:contentId/:questionNumber/:interactionIndex',
-          redirect: '/:classId/learners/:userId/:channelId/item/:contentId/1/0',
+          redirect: '/:classId/learners/:userId/:channelId/item/:contentId/0/0',
         },
         {
           name: PageNames.LEARNER_ITEM_DETAILS,

@@ -260,7 +260,7 @@ function _showLearnerList(store, options) {
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function _showExerciseDetailView(store, classId, userId, channelId, contentId,
-  questionNumber, interactionIndex) {
+  attemptLogIndex, interactionIndex) {
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
@@ -305,19 +305,17 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
         );
       }
 
-      // THIRD LOOP: Return the current attempt
-      const currentAttemptLog = () => attemptLogs.find(
-          attemptLog => attemptLog.questionNumber === questionNumber
-      );
+      const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
 
-      const currentInteractionHistory = JSON.parse(currentAttemptLog().interaction_history);
+      const currentInteractionHistory =
+        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
 
       const pageState = {
         // because this is info returned from a collection
         user,
         exercise,
         attemptLogs,
-        currentAttemptLog: currentAttemptLog(),
+        currentAttemptLog,
         interactionIndex,
         currentInteractionHistory,
         currentInteraction: currentInteractionHistory[interactionIndex],

@@ -4,7 +4,7 @@
     :backPageLink="backPageLink"
     :backPageText="$tr('backTo', { title: exam.title })"
   >
-    <template slot=>
+    <template>
       <div class="summary-container">
         <page-status
           :contentName="exam.title"

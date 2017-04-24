@@ -9,6 +9,7 @@
         <attempt-summary
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
+          :kind="exercise.kind"
           :summaryLog="summaryLog"/>
       </div>
       <div class="details-container">
@@ -29,8 +30,10 @@
 
           <content-renderer
             class="content-renderer"
+            v-if="currentInteraction"
             :id="exercise.pk"
             :itemId="currentAttemptLog.item"
+            :assessment="true"
             :allowHints="false"
             :kind="exercise.kind"
             :files="exercise.files"
