@@ -78,7 +78,7 @@
       // Modal title
       addNewAccountTitle: 'Add New Account',
       // Labels
-      name: 'Name',
+      name: 'Full name',
       username: 'Username',
       password: 'Password',
       confirmPassword: 'Confirm Password',
