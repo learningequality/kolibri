@@ -97,6 +97,7 @@ var config = {
         test: /\.styl$/,
         use: [ 'style-loader', cssLoader, postCSSLoader, 'stylus-loader' ]
       },
+      // Only used by unit test environment for mp3 plugin. Let's try to remove eventually.
       {
         test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
         use: [{
