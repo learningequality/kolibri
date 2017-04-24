@@ -525,7 +525,6 @@ function showLearnerItemDetails(store, classId, userId, channelId, contentId,
 
 
 module.exports = {
-  _showExerciseDetailView, // remove this after making it a helper
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnersForItem,

@@ -21,7 +21,6 @@ const PageNames = {
   EXAM_REPORT_DETAIL: 'EXAM_REPORT_DETAIL',
   LEARNERS: 'LEARNERS',
   GROUPS: 'GROUPS',
-  EXERCISE_RENDER: 'EXERCISE_RENDER',
 };
 
 const PageTitles = {
