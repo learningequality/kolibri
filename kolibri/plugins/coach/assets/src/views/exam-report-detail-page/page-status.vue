@@ -39,7 +39,7 @@
     $trs: {
       title: '{name} - Exam Performance',
       overallScore: 'Overall Score: <strong>{ score, number, plural }</strong>',
-      questionsCorrect: 'Questions Correct: <strong>{correct} of {total} correct</strong>',
+      questionsCorrect: 'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
       completed: 'Completed',
       date: 'on { completed, date, medium }',
       inProgress: 'In progress',
