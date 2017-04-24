@@ -362,7 +362,7 @@ function createUser(store, stateUserData) {
     // dispatch newly created user
     newUser => {
       const userState = _userState(newUser);
-      store.dispatch('ADD_USER', _userState(userState));
+      store.dispatch('ADD_USER', userState);
       store.dispatch('SET_USER_JUST_CREATED', userState);
       displayModal(store, false);
     },
