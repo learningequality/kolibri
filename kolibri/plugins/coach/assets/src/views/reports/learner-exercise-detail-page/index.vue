@@ -47,7 +47,7 @@
 
 <script>
 
-  const constants = require('../../constants');
+  const constants = require('../../../constants');
 
   module.exports = {
     $trNameSpace: 'coachExerciseRenderPage',
