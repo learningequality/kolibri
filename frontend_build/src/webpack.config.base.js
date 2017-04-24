@@ -98,6 +98,12 @@ var config = {
         use: [ 'style-loader', cssLoader, postCSSLoader, 'stylus-loader' ]
       },
       {
+        test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
+        use: [{
+          loader: "imports-loader?this=>window"
+        }],
+      },
+      {
         test: /\.s[a|c]ss$/,
         use: [ 'style-loader', cssLoader, postCSSLoader, 'sass-loader' ]
       },
