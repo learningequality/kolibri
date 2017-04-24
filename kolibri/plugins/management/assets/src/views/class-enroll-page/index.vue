@@ -96,9 +96,7 @@
         </thead>
 
         <tbody>
-          <p v-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
-          <p v-else-if="filterInput !== '' && filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
-          <tr v-else v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
+          <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
               @click="toggleSelection(learner.id)">
             <td class="col-checkbox">
               <ui-checkbox
@@ -114,6 +112,9 @@
           </tr>
         </tbody>
       </table>
+
+      <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
+      <p v-if="filteredUsers.length === 0 && filterInput !== ''">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
 
       <div class="pagination-footer">
         {{ visibleStartRange }} - {{ visibleEndRange }} {{ $tr('of') }} {{ numFilteredUsers }}
