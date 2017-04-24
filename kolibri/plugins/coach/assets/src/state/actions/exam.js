@@ -433,10 +433,9 @@ function showExamReportPage(store, classId, channelId, examId) {
   ConditionalPromise.all([examLogPromise, facilityUserPromise, groupPromise, examPromise]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examLogs, facilityUsers, learnerGroups, exam]) => {
-      console.log(facilityUsers, examLogs);
       const examTakers = facilityUsers.map(
-      (user) => {
-        const examTakenByUser = examLogs.find((examLog) => String(examLog.user) === user.id) || {};
+      user => {
+        const examTakenByUser = examLogs.find(examLog => String(examLog.user) === user.id) || {};
         const learnerGroup = learnerGroups.find(
           group => group.user_ids.indexOf(user.id) > -1) || {};
         return {
@@ -455,7 +454,7 @@ function showExamReportPage(store, classId, channelId, examId) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('Exam Report'));
+      store.dispatch('CORE_SET_TITLE', 'Exam Report');
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => { CoreActions.handleApiError(store, error); }

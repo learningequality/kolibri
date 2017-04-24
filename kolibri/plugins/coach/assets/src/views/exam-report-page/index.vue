@@ -30,10 +30,9 @@
               </router-link>
             </th>
             <td class="table-data" v-if="examTaker.progress === exam.question_count">{{ $tr('completed') }}</td>
-            <td class="table-data incomplete" v-else-if="examTaker.progress">{{ $tr('incomplete', {
-              num: examTaker.progress,
-              outOf: exam.question_count,
-            }) }}</td>
+            <td class="table-data incomplete" v-else-if="examTaker.progress">
+              {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+            </td>
             <td class="table-data incomplete" v-else>{{ $tr('notstarted') }}</td>
             <td class="table-data">{{ $tr('scorePercentage', { num: examTaker.score/exam.question_count }) }}</td>
             <td class="table-data">{{ examTaker.group.name || $tr('ungrouped') }}</td>
