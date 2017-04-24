@@ -6,7 +6,7 @@
     </ui-alert>
     <div class="points">
       <span class="top">{{ $tr('yourPoints') }}</span>
-      <points-icon class="in-points" :active="true" :width="'2em'" :height="'2em'"/>
+      <points-icon class="in-points icon" :active="true"/>
       <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
     </div>
     <form @submit.prevent="submitEdits">
@@ -185,5 +185,9 @@
   .top
     color: $core-text-annotation
     clearfix()
+
+  .icon
+    width: 2em
+    height: 2em
 
 </style>

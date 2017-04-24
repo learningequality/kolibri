@@ -6,7 +6,7 @@
         <div class="popover">
           <div class="content">
             <div class="topline">
-              <points-icon class="icon" :active="true" :width="'20px'" :height="'20px'"/>
+              <points-icon class="popover-icon" :active="true"/>
               <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
             </div>
             <span class="encourage">{{ $tr('niceWork') }}</span>
@@ -20,7 +20,7 @@
       </div>
     </transition>
     <div class="points" :style="style">
-      <points-icon class="in-points" :active="active" :width="'30px'" :height="'30px'"/>
+      <points-icon class="in-points icon" :active="active"/>
       <span class="count in-points">{{ $formatNumber(maxPoints) }}</span>
     </div>
   </div>
@@ -102,6 +102,10 @@
       display: table-cell
       vertical-align: middle
 
+  .icon
+    width: 30px
+    height: 30px
+
   .count
     padding-left: 5px
     font-size: 25px
@@ -118,8 +122,10 @@
     padding: 10px 15px 5px
     box-shadow: grey 2px 2px 5px 1px
 
-  .icon
+  .popover-icon
     float: left
+    width: 20px
+    height: 20px
 
   .plus-points
     padding-left: 5px

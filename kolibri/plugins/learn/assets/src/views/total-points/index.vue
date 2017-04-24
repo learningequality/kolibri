@@ -2,7 +2,7 @@
 
   <div v-if="totalPoints" class="points">
     <div class="circle in-points">
-      <points-icon class="icon" :active="true" :width="'20px'" :height="'20px'"/>
+      <points-icon class="icon" :active="true"/>
     </div>
     <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
   </div>
@@ -55,6 +55,8 @@
     position: relative
     top: 2.5px
     left: 2.5px
+    width: 20px
+    height: 20px
 
   .total
     padding-left: 5px
