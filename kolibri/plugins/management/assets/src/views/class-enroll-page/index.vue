@@ -12,6 +12,7 @@
           </icon-button>
         </router-link>
       </div>
+
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
         <icon-button
           :text="$tr('createNewUser')"
@@ -94,13 +95,15 @@
         </thead>
 
         <tbody>
-        <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
+        <p v-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
+        <p v-else-if="filterInput !== '' && filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+        <tr v-else v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
             @click="toggleSelection(learner.id)">
           <td class="col-checkbox">
             <ui-checkbox
               :name="$tr('selectUser')"
-              :value="userIsSelected(learner.id)"
-              @change="toggleUserSelection(learner.id)"
+              :value="isSelected(learner.id)"
+              @change="toggleSelection(learner.id)"
               class="inline-block"
               />
           </td>
@@ -154,7 +157,6 @@
       selectLearners: 'Select users to enroll in',
       showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
-      createAndEnroll: 'Or: Create & enroll a brand new user',
       createNewUser: 'New user account',
       of: 'of',
       name: 'Name',
@@ -179,17 +181,15 @@
       'user-create-modal': require('../user-page/user-create-modal'),
       'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
       'ui-switch': require('keen-ui/src/UiSwitch'),
-      'ui-select': require('keen-ui/src/UiSelect'),
     },
     data: () => ({
       filterInput: '',
-      perPage: '10',
+      perPage: 10,
       pageNum: 1,
       selectedUsers: [],
       sortByName: true,
       sortAscending: true,
       showSelectedUsers: false,
-      perPageOptions: ['5', '10', '25', '50', '100'],
     }),
     computed: {
       usersNotInClass() {
@@ -259,16 +259,16 @@
       },
     },
     methods: {
-      toggleUserSelection(userId) {
+      isSelected(userId) {
+        return this.selectedUsers.includes(userId);
+      },
+      toggleSelection(userId) {
         const index = this.selectedUsers.indexOf(userId);
         if (index === -1) {
           this.selectedUsers.push(userId);
         } else {
           this.selectedUsers.splice(index, 1);
         }
-      },
-      userIsSelected(userId) {
-        return this.selectedUsers.includes(userId);
       },
       selectAllVisibleUsers(value) {
         if (value) {
@@ -286,17 +286,6 @@
       },
       goToPage(page) {
         this.pageNum = page;
-      },
-      isSelected(userId) {
-        return this.selectedUsers.includes(userId);
-      },
-      toggleSelection(userId) {
-        const index = this.selectedUsers.indexOf(userId);
-        if (index === -1) {
-          this.selectedUsers.push(userId);
-        } else {
-          this.selectedUsers.splice(index, 1);
-        }
       },
       pageWithinRange(page) {
         const maxOnEachSide = 1;
@@ -352,7 +341,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  $toolbar-height = 36px
   $table-row-selected = #e0e0e0
   $table-row-hover = #eee
 
@@ -368,10 +356,6 @@
   .top-buttons
     position: relative
 
-  .pagination
-    text-align:center
-    padding: 2em
-
   table
     width: 100%
     word-break: break-all
@@ -386,6 +370,7 @@
   thead
     color: #686868
     font-size: small
+
   tbody
     tr
       cursor: pointer
@@ -400,10 +385,6 @@
 
   .col-name, .col-username
     width: 45%
-
-  .inline-select
-    width: 3em
-    display: inline-block
 
   nav
     display: inline-block
