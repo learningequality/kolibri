@@ -196,7 +196,9 @@ oriented data synchronization.
             correct: 0,
             complete: false,
             firstAttempt: true,
-            hinted: true
+            hinted: true,
+            answerState,
+            simpleAnswer: '',
           });
           this.firstAttempt = false;
         }
