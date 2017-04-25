@@ -79,6 +79,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
     coach_count = serializers.SerializerMethodField()
     admin_count = serializers.SerializerMethodField()
 
+    def validate_name(self, value):
+        if Classroom.objects.filter(name__iexact=value).exists():
+            raise serializers.ValidationError(_('A class with that username already exists'))
+        return value
+
     def get_learner_count(self, target_node):
         return target_node.get_members().count()
 
