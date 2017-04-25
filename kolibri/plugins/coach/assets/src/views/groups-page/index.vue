@@ -13,12 +13,14 @@
     </div>
 
     <create-group-modal v-if="showCreateGroupModal"
-      :classId="classId" />
+      :classId="classId"
+      :groups="groups" />
 
     <rename-group-modal v-if="showRenameGroupModal"
       :classId="classId"
       :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id" />
+      :groupId="selectedGroup.id"
+      :groups="groups" />
 
     <delete-group-modal v-if="showDeleteGroupModal"
       :classId="classId"

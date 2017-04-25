@@ -117,8 +117,8 @@ function _examState(exam) {
   };
 }
 
-function _examsState(exams, classId) {
-  return exams.map(exam => _examState(exam, classId));
+function _examsState(exams) {
+  return exams.map(exam => _examState(exam));
 }
 
 function displayExamModal(store, modalName) {
@@ -144,7 +144,7 @@ function showExamsPage(store, classId) {
         classId,
         currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
-        exams: _examsState(exams, classId),
+        exams: _examsState(exams),
         examModalShown: false,
       };
 
@@ -349,10 +349,11 @@ function showCreateExamPage(store, classId, channelId) {
 
   const currentClassPromise = ClassroomResource.getModel(classId).fetch();
   const channelPromise = ChannelResource.getCollection().fetch();
+  const examsPromise = ExamResource.getCollection({ collection: classId }).fetch({}, true);
 
-  ConditionalPromise.all([currentClassPromise, channelPromise]).only(
+  ConditionalPromise.all([currentClassPromise, channelPromise, examsPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, channelsCollection]) => {
+    ([currentClassModel, channelsCollection, exams]) => {
       const currentClass = pickIdAndName(currentClassModel);
       const currentChannel = _channelState(
         channelsCollection.find(channel => channel.id === channelId));
@@ -371,6 +372,7 @@ function showCreateExamPage(store, classId, channelId) {
             selectedExercises: [],
             examModalShown: false,
             classId,
+            exams: _examsState(exams),
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);

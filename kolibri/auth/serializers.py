@@ -79,6 +79,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
     coach_count = serializers.SerializerMethodField()
     admin_count = serializers.SerializerMethodField()
 
+    def validate_name(self, value):
+        if Classroom.objects.filter(name__iexact=value, parent=self.parent).exists():
+            raise serializers.ValidationError(_('A class with that name already exists'))
+        return value
+
     def get_learner_count(self, target_node):
         return target_node.get_members().count()
 
@@ -96,6 +101,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
 class LearnerGroupSerializer(serializers.ModelSerializer):
 
     user_ids = serializers.SerializerMethodField()
+
+    def validate_name(self, value):
+        if LearnerGroup.objects.filter(name__iexact=value, parent=self.parent).exists():
+            raise serializers.ValidationError(_('A group with that name already exists'))
+        return value
 
     def get_user_ids(self, group):
         return group.get_members().values_list('id')
