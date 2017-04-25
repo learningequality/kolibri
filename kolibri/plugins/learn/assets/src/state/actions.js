@@ -14,7 +14,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const router = require('kolibri.coreVue.router');
 const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-const { validateAssessmentMetaData } = require('kolibri.utils.content');
+const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
 /**
  * Vuex State Mappers
@@ -68,7 +68,7 @@ function _contentState(data) {
     license: data.license,
     license_owner: data.license_owner,
   };
-  Object.assign(state, validateAssessmentMetaData(data));
+  Object.assign(state, assessmentMetaDataState(data));
   return state;
 }
 

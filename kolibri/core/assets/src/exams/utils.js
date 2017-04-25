@@ -1,5 +1,5 @@
 const seededShuffle = require('seededshuffle');
-const { validateAssessmentMetaData } = require('kolibri.utils.content');
+const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
 function createQuestionList(questionSources) {
   return questionSources.reduce((acc, val) =>
@@ -9,7 +9,7 @@ function createQuestionList(questionSources) {
 }
 
 function selectQuestionFromExercise(index, seed, contentNode) {
-  const assessmentmetadata = validateAssessmentMetaData(contentNode);
+  const assessmentmetadata = assessmentMetaDataState(contentNode);
   return seededShuffle.shuffle(assessmentmetadata.assessmentItemIds, seed, true)[index];
 }
 

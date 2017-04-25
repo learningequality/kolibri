@@ -36,7 +36,7 @@ module.exports = {
       },
       seededshuffle: {
         module: require('seededshuffle'),
-      }
+      },
     },
     coreVue: {
       vuex: {
@@ -51,6 +51,9 @@ module.exports = {
         },
         store: {
           module: require('../state/store'),
+        },
+        mappers: {
+          module: require('../state/mappers'),
         },
       },
       components: {
@@ -138,9 +141,6 @@ module.exports = {
       },
       validateLinkObject: {
         module: require('../validateLinkObject'),
-      },
-      content: {
-        module: require('../content/utils'),
       },
     },
   },
