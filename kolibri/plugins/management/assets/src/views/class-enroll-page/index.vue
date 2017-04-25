@@ -161,7 +161,7 @@
       showing: 'Showing',
       of: 'of',
       numLearners: '{count, number, integer} {count, plural, one {User} other {Users}}',
-      name: 'Name',
+      name: 'Full name',
       username: 'Username',
       role: 'Role',
       selectedUsers: 'Only show selected users',
