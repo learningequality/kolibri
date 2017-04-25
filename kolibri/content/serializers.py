@@ -4,7 +4,6 @@ from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, Con
 from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.utils.translation import ugettext_lazy as _
 
 from .content_db_router import default_database_is_attached, get_active_content_database
 
