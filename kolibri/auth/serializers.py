@@ -80,7 +80,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
     admin_count = serializers.SerializerMethodField()
 
     def validate_name(self, value):
-        if Classroom.objects.filter(name__iexact=value).exists():
+        if Classroom.objects.filter(name__iexact=value, parent=self.parent).exists():
             raise serializers.ValidationError(_('A class with that name already exists'))
         return value
 
@@ -103,7 +103,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
     user_ids = serializers.SerializerMethodField()
 
     def validate_name(self, value):
-        if LearnerGroup.objects.filter(name__iexact=value).exists():
+        if LearnerGroup.objects.filter(name__iexact=value, parent=self.parent).exists():
             raise serializers.ValidationError(_('A group with that name already exists'))
         return value
 
