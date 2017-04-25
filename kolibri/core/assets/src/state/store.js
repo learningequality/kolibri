@@ -155,8 +155,6 @@ const mutations = {
       state.core.logging.attempt.completion_timestamp = null;
       state.core.logging.attempt.complete = false;
     }
-    state.core.logging.attempt.correct = correct;
-    state.core.logging.attempt.hinted = hinted;
     state.core.logging.attempt.end_timestamp = currentTime;
     let starttime = state.core.logging.attempt.start_timestamp;
     if (typeof starttime === 'string') {
@@ -164,8 +162,15 @@ const mutations = {
     }
     state.core.logging.attempt.time_spent = currentTime - starttime;
     if (firstAttempt) {
+      // Can only get it correct on the first try.
+      state.core.logging.attempt.correct = correct;
+      state.core.logging.attempt.hinted = hinted;
       state.core.logging.attempt.answer = JSON.stringify(answerState);
       state.core.logging.attempt.simple_answer = simpleAnswer;
+    } else if (state.core.logging.attempt.correct < 1) {
+      // Only set hinted if attempt has not already been marked as correct
+      // and set it to true if now true, but leave as true if false.
+      state.core.logging.attempt.hinted = state.core.logging.attempt.hinted || hinted;
     }
   },
   SET_EMPTY_LOGGING_STATE(state) {
