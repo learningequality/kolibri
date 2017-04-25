@@ -7,6 +7,7 @@ const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKi
 const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 const Constants = require('../../constants');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
+const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
@@ -67,10 +68,11 @@ function _topicsState(topics) {
 }
 
 function _exerciseState(exercise) {
+  const numAssessments = assessmentMetaDataState(exercise).length;
   return {
     id: exercise.pk,
     title: exercise.title,
-    numAssesments: exercise.assessmentmetadata[0].number_of_assessments,
+    numAssessments,
   };
 }
 
