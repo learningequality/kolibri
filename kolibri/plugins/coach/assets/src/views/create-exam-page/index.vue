@@ -8,7 +8,7 @@
       :placeholder="$tr('enterTitle')"
       :autofocus="false"
       :invalid="titleInvalid"
-      :error="$tr('examRequiresTitle')"
+      :error="titleInvalidMsg"
       v-model.trim="inputTitle"
       @blur="validateTitle = true"
       @input="validateTitle = true"
@@ -142,7 +142,8 @@
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
+      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      duplicateTitle: 'An exam with that title already exists',
     },
     data() {
       return {
@@ -171,18 +172,35 @@
       'preview-new-exam-modal': require('./preview-new-exam-modal'),
     },
     computed: {
-      maxQuestionsFromSelection() {
-        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssesments, 0);
+      duplicateTitle() {
+        const index = this.exams.findIndex(
+          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase());
+        if (index === -1) {
+          return false;
+        }
+        return true;
+      },
+      titleIsEmpty() {
+        return !this.inputTitle;
       },
       titleInvalid() {
-        return this.validateTitle ? !this.inputTitle : false;
+        return this.validateTitle ? this.titleIsEmpty || this.duplicateTitle : false;
+      },
+      titleInvalidMsg() {
+        return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
+      },
+      maxQuestionsFromSelection() {
+        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssesments, 0);
       },
       numQuestNotWithinRange() {
         return this.validateNumQuestMax ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
+      noExercisesSelected() {
+        return this.selectedExercises.length === 0;
+      },
       numQuestExceedsSelection() {
-        if (this.validateNumQuestExceeds && this.selectedExercises.length) {
+        if (this.validateNumQuestExceeds && !this.noExercisesSelected) {
           if (this.inputNumQuestions > this.maxQuestionsFromSelection) {
             return true;
           }
@@ -330,21 +348,18 @@
         this.validateTitle = true;
         this.validateNumQuestMax = true;
         this.validateNumQuestExceeds = true;
-        if (!this.titleInvalid && this.selectedExercises.length !== 0 &&
+        if (!this.titleInvalid && !this.noExercisesSelected &&
           !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
           this.validationError = '';
           return true;
         } else if (this.titleInvalid) {
-          this.validationError = this.$tr('examRequiresTitle');
+          this.validationError = this.titleInvalidMsg;
         } else if (this.numQuestNotWithinRange) {
-          this.validationError = this.$tr('numQuestionsBetween');
-        } else if (this.selectedExercises.length === 0) {
+          this.validationError = this.numQuestionsInvalidMsg;
+        } else if (this.noExercisesSelected) {
           this.validationError = this.$tr('noneSelected');
         } else if (this.numQuestExceedsSelection) {
-          this.validationError = this.$tr('numQuestionsExceed', {
-            inputNumQuestions: this.inputNumQuestions,
-            maxQuestionsFromSelection: this.maxQuestionsFromSelection
-          });
+          this.validationError = this.numQuestionsInvalidMsg;
         }
         return false;
       },
@@ -370,6 +385,7 @@
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
+        exams: state => state.pageState.exams,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,

@@ -1,12 +1,14 @@
 <template>
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
-    <form @submit.prevent="renameExam(examId, newExamTitle)">
+    <form @submit.prevent="callRenameExam">
       <core-textbox
         :label="$tr('examName')"
         :aria-label="$tr('examName')"
         :autofocus="true"
         :required="true"
+        :invalid="duplicateTitle"
+        :error="$tr('duplicateTitle')"
         v-model.trim="newExamTitle"/>
       <div class="footer">
         <icon-button :text="$tr('cancel')" type="button" @click="close"/>
@@ -29,6 +31,7 @@
       examName: 'Exam name',
       cancel: 'Cancel',
       rename: 'Rename',
+      duplicateTitle: 'An exam with that title already exists',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
@@ -48,13 +51,35 @@
         type: String,
         required: true,
       },
+      exams: {
+        type: Array,
+        required: true,
+      },
     },
     data() {
       return {
         newExamTitle: this.examTitle,
       };
     },
+    computed: {
+      duplicateTitle() {
+        if (this.newExamTitle === this.examTitle) {
+          return false;
+        }
+        const index = this.exams.findIndex(
+          exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase());
+        if (index === -1) {
+          return false;
+        }
+        return true;
+      },
+    },
     methods: {
+      callRenameExam() {
+        if (!this.duplicateTitle) {
+          this.renameExam(this.examId, this.newExamTitle);
+        }
+      },
       close() {
         this.displayExamModal(false);
       },
