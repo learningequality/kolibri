@@ -86,8 +86,8 @@
     $trNameSpace: 'signUpPage',
     $trs: {
       createAccount: 'Create an account',
-      name: 'Name',
-      enterName: 'Enter name',
+      name: 'Full name',
+      enterName: 'Enter full name',
       username: 'Username',
       enterUsername: 'Enter username',
       password: 'Password',

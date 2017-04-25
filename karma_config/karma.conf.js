@@ -1,24 +1,33 @@
 // Karma configuration
-var RewirePlugin = require("rewire-webpack");
-var _ = require("lodash");
-var webpack_config = _.clone(require("../frontend_build/src/webpack.config.base"));
-var path = require('path');
-var webpack = require('webpack');
+const RewirePlugin = require('rewire-webpack');
+const _ = require('lodash');
+const webpack_config = _.clone(require('../frontend_build/src/webpack.config.base'));
+const path = require('path');
+const webpack = require('webpack');
 
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.plugins.push(
   new webpack.DefinePlugin({
-    __coreAPISpec: "{}"
+    __coreAPISpec: '{}'
   })
 );
 webpack_config.devtool = '#inline-source-map';
-var aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
-aliases['kolibri'] = path.resolve(__dirname, './kolibriGlobalMock');
+
+// html5media plugin requires this
+webpack_config.module.rules.push({
+  test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
+  use: [{
+    loader: 'imports-loader?this=>window',
+  }],
+});
+
+const aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
+aliases.kolibri = path.resolve(__dirname, './kolibriGlobalMock');
 aliases['vue-test'] = path.resolve(__dirname, './vueLocal');
 
 webpack_config.resolve.alias = aliases;
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -34,7 +43,7 @@ module.exports = function(config) {
       { pattern: './node_modules/core-js/client/core.js', watched: false },
       './node_modules/phantomjs-polyfill-find/find-polyfill.js',
       'kolibri/**/assets/test/**/*.js',
-      {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
+      { pattern: 'kolibri/**/assets/src/**/*.js', included: false } // load these, but not in the browser, just for linting
     ],
 
     // list of files to exclude
@@ -74,7 +83,7 @@ module.exports = function(config) {
 
     webpackMiddleware: {
       // suppress all webpack building information to make test logs more readable.
-       noInfo: true
+      noInfo: true
     },
 
     eslint: {

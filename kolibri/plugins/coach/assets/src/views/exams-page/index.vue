@@ -88,6 +88,7 @@
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :classId="currentClass.id"
+      :exams="exams"
     />
     <delete-exam-modal
       v-if="showDeleteExamModal"

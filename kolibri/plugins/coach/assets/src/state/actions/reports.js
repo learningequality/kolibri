@@ -1,6 +1,7 @@
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const coreGetters = require('kolibri.coreVue.vuex.getters');
+const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
@@ -293,11 +294,9 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
           new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
       );
 
-      const exerciseQuestions = parseJSONorUndefined(
-        exercise.assessmentmetadata[0].assessment_item_ids
-      );
+      const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
       // SECOND LOOP: Add their question number
-      if (exerciseQuestions) {
+      if (exerciseQuestions && exerciseQuestions.length) {
         attemptLogs.forEach(
           attemptLog => {
             attemptLog.questionNumber = (exerciseQuestions.indexOf(attemptLog.item) + 1);

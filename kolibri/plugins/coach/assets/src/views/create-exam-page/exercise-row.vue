@@ -52,9 +52,9 @@
     methods: {
       changeSelection() {
         if (this.isSelected) {
-          this.$emit('removeExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssesments: this.exerciseNumAssesments });
+          this.$emit('removeExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
         } else {
-          this.$emit('addExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssesments: this.exerciseNumAssesments });
+          this.$emit('addExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
         }
       },
     },

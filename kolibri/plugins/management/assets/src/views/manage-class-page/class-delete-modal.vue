@@ -6,7 +6,7 @@
     @cancel="close"
   >
     <div>
-      {{$tr('deleteConfirmation')}} <strong>{{classname}}</strong>
+      <span v-html="formattedDeleteConfirmation"> </span>
 
       <p>{{$tr('description')}}</p>
 
@@ -46,7 +46,7 @@
       cancel: 'Cancel',
       description: 'Users will only be removed from the class and are still accessible from the "Users" tab.',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to delete ',
+      deleteConfirmation: 'Are you sure you want to delete { classname }?',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -61,6 +61,15 @@
       classid: {
         type: String,
         required: true,
+      },
+    },
+    computed: {
+      formattedDeleteConfirmation() {
+        return this.$tr('deleteConfirmation',
+          {
+            classname: `<strong> ${this.classname} </strong>`
+          }
+        );
       },
     },
     methods: {

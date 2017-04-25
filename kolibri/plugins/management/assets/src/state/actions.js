@@ -238,13 +238,15 @@ function showClassEditPage(store, classId) {
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     ClassroomResource.getModel(classId).fetch(),
+    ClassroomResource.getCollection().fetch({}, true),
   ];
 
   const facilityId = getters.currentFacilityId(store.state);
 
-  const transformResults = ([facilityUsers, classroom]) => ({
+  const transformResults = ([facilityUsers, classroom, classrooms]) => ({
     modalShown: false,
-    classes: [classroom],
+    currentClass: classroom,
+    classes: classrooms,
     classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, facilityId, classId)),
   });
 
@@ -362,7 +364,7 @@ function createUser(store, stateUserData) {
     // dispatch newly created user
     newUser => {
       const userState = _userState(newUser);
-      store.dispatch('ADD_USER', _userState(userState));
+      store.dispatch('ADD_USER', userState);
       store.dispatch('SET_USER_JUST_CREATED', userState);
       displayModal(store, false);
     },
@@ -407,10 +409,9 @@ function updateUser(store, stateUser) {
 
       // delete the old role models if this was not a learner
       handlePreviousRoles = Promise.all(roleDeletes).then(
-        responses => {
+        () => {
           // to avoid having to make an API call, clear manually
           savedUser.roles = [];
-          return responses;
         },
         // models could not be deleted
         error => error
@@ -420,18 +421,20 @@ function updateUser(store, stateUser) {
     // then assign the new role
     roleAssigned = new Promise((resolve, reject) => {
       // Take care of previous roles if necessary (will autoresolve if not)
-      handlePreviousRoles.catch(error => reject(error));
-
-      // only need to assign a new role if not a learner
-      if (stateUser.kind !== UserKinds.LEARNER) {
-        assignUserRole(savedUser, stateUser.kind).then(
-          (updated) => resolve(updated),
-          (error) => coreActions.handleApiError(store, error)
-        );
-      } else {
-        // new role is learner - having deleted old roles is enough
-        resolve(savedUser);
-      }
+      handlePreviousRoles.then(
+        () => {
+          // only need to assign a new role if not a learner
+          if (stateUser.kind !== UserKinds.LEARNER) {
+            assignUserRole(savedUser, stateUser.kind).then(
+              updated => resolve(updated),
+              error => coreActions.handleApiError(store, error)
+            );
+          } else {
+            // new role is learner - having deleted old roles is enough
+            resolve(savedUser);
+          }
+        },
+        error => reject(error));
     });
   }
 

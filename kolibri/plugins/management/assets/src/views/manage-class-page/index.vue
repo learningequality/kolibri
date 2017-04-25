@@ -18,7 +18,7 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="classes"/>
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
