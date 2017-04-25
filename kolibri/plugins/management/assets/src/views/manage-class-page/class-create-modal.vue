@@ -12,12 +12,12 @@
           v-model.trim="name"
           :autofocus="true"
           :required="true"
+          :invalid="duplicateName"
+          :error="$tr('duplicateName')"
           type="text"
         />
 
         <section class="footer">
-          <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
-
           <icon-button
             class="undo-btn"
             type="button"
@@ -30,7 +30,6 @@
             type="submit"
             :text="$tr('create')"
             :primary="true"
-            :disabled="name === ''"
           />
         </section>
       </form>
@@ -51,7 +50,7 @@
       classname: 'Class Name',
       cancel: 'Cancel',
       create: 'Create',
-      alreadyExists: 'A class with that name already exists',
+      duplicateName: 'A class with that name already exists',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -67,7 +66,6 @@
     data() {
       return {
         name: '',
-        errorMessage: '',
       };
     },
     computed: {
@@ -82,9 +80,7 @@
     },
     methods: {
       createNewClass() {
-        if (this.duplicateName) {
-          this.errorMessage = this.$tr('alreadyExists');
-        } else {
+        if (!this.duplicateName) {
           this.createClass(this.name);
         }
       },
@@ -105,15 +101,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .footer
     text-align: center
 
   .create-btn, .undo-btn
     width: 48%
-
-  .error
-    color: $core-text-error
 
 </style>
