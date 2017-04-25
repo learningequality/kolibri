@@ -7,6 +7,7 @@
       v-if="showEditNameModal"
       :classname="currClass.name"
       :classid="currClass.id"
+      :classes="classes"
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
@@ -220,7 +221,8 @@
       getters: {
         modalShown: state => state.pageState.modalShown,
         users: state => state.pageState.classUsers,
-        currClass: state => state.pageState.classes[0], // alway only one item in this array.
+        currClass: state => state.pageState.currentClass,
+        classes: state => state.pageState.classes
       },
       actions: {
         displayModal: actions.displayModal,

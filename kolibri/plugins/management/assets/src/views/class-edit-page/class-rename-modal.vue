@@ -2,43 +2,38 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="errorMessage ? true : false"
-    @enter="updateName"
     @cancel="close"
   >
     <div>
-      <!-- Fields for the user to fill out -->
-      <section class="class-fields">
-        <div class="class-field">
-          <core-textbox
-            :label="$tr('classname')"
-            :aria-label="$tr('classname')"
-            v-model="name"
-            autocomplete="name"
-            autofocus
-            required
-            id="name"
-            type="text" />
-        </div>
-      </section>
-
-      <!-- Button Options at footer of modal -->
-      <section class="footer">
-        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
-
-        <icon-button
-          :text="$tr('cancel')"
-          class="undo-btn"
-          @click="close"
+      <form @submit.prevent="updateName">
+        <core-textbox
+          :label="$tr('classname')"
+          :aria-label="$tr('classname')"
+          v-model.trim="name"
+          :autofocus="true"
+          :required="true"
+          type="text"
         />
 
-        <icon-button
-          class="update-btn"
-          :text="$tr('update')"
-          @click="updateName"
-          :primary="true"
-        />
-      </section>
+        <section class="footer">
+          <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+
+          <icon-button
+            class="undo-btn"
+            type="button"
+            :text="$tr('cancel')"
+            @click="close"
+          />
+
+          <icon-button
+            class="update-btn"
+            type="submit"
+            :text="$tr('update')"
+            :primary="true"
+            :disabled="name === ''"
+          />
+        </section>
+      </form>
     </div>
   </core-modal>
 
@@ -52,15 +47,11 @@
   module.exports = {
     $trNameSpace: 'classnameEditModal',
     $trs: {
-      // Modal title
       modalTitle: 'Change Class Name',
-      // Labels
       classname: 'Class Name',
-      // Button Labels
       cancel: 'Cancel',
       update: 'Update',
-      // error message
-      unknownError: 'Whoops! Something went wrong!',
+      alreadyExists: 'A class with that name already exists',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -76,6 +67,10 @@
         type: String,
         required: true,
       },
+      classes: {
+        type: Array,
+        required: true,
+      },
     },
     data() {
       return {
@@ -83,14 +78,23 @@
         errorMessage: '',
       };
     },
-    mounted() {
-      // clear form on load
-      Object.assign(this.$data, this.$options.data());
+    computed: {
+      duplicateName() {
+        if (this.name === this.classname) {
+          return false;
+        }
+        const index = this.classes.findIndex(
+          classroom => classroom.name.toUpperCase() === this.name.toUpperCase());
+        if (index === -1) {
+          return false;
+        }
+        return true;
+      },
     },
     methods: {
       updateName() {
-        if (!this.name) {
-          this.errorMessage = 'New class name cannot be empty!';
+        if (this.duplicateName) {
+          this.errorMessage = this.$tr('alreadyExists');
         } else {
           this.updateClass(this.classid, { name: this.name });
         }
@@ -113,34 +117,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .class-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-    label
-      position: relative
-      cursor: pointer
-    select
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-
-  .add-form
-    width: 300px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
 
   .footer
     text-align: center

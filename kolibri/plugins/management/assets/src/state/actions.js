@@ -238,13 +238,15 @@ function showClassEditPage(store, classId) {
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     ClassroomResource.getModel(classId).fetch(),
+    ClassroomResource.getCollection().fetch({}, true),
   ];
 
   const facilityId = getters.currentFacilityId(store.state);
 
-  const transformResults = ([facilityUsers, classroom]) => ({
+  const transformResults = ([facilityUsers, classroom, classrooms]) => ({
     modalShown: false,
-    classes: [classroom],
+    currentClass: classroom,
+    classes: classrooms,
     classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, facilityId, classId)),
   });
 

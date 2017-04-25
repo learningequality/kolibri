@@ -15,24 +15,24 @@
           type="text"
         />
 
-      <section class="footer">
-        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+        <section class="footer">
+          <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
 
-        <icon-button
-          :text="$tr('cancel')"
-          class="undo-btn"
-          @click="close"
-          type="button"
-        />
+          <icon-button
+            class="undo-btn"
+            type="button"
+            :text="$tr('cancel')"
+            @click="close"
+          />
 
-        <icon-button
-          class="create-btn"
-          :text="$tr('create')"
-          :primary="true"
-          :disabled="name === ''"
-          type="submit"
-        />
-      </section>
+          <icon-button
+            class="create-btn"
+            type="submit"
+            :text="$tr('create')"
+            :primary="true"
+            :disabled="name === ''"
+          />
+        </section>
       </form>
     </div>
   </core-modal>
@@ -51,7 +51,7 @@
       classname: 'Class Name',
       cancel: 'Cancel',
       create: 'Create',
-      alreadyExists: 'A class with that name already exists'
+      alreadyExists: 'A class with that name already exists',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -82,9 +82,7 @@
     },
     methods: {
       createNewClass() {
-        console.log(this.duplicateName);
         if (this.duplicateName) {
-          console.log('here');
           this.errorMessage = this.$tr('alreadyExists');
         } else {
           this.createClass(this.name);
