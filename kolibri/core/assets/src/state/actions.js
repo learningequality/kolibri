@@ -202,10 +202,9 @@ function kolibriLogout(store) {
 function getCurrentSession(store) {
   const coreApp = require('kolibri');
   const { SessionResource, FacilityResource } = coreApp.resources;
-  const id = 'current';
-  const sessionModel = SessionResource.getModel(id);
-  const sessionPromise = sessionModel.fetch({});
-  return sessionPromise.then((session) => {
+  const sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  return sessionPromise
+  .then((session) => {
     if (!session.facility_id) {
       // device owners users aren't associated with a facility, so just choose one
       logging.info('No facilty ID set on session. Fetching facility list...');
@@ -220,7 +219,8 @@ function getCurrentSession(store) {
     logging.info('Session set.');
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     return null;
-  }).catch(error => { handleApiError(store, error); });
+  })
+  .catch(error => { handleApiError(store, error); });
 }
 
 function showLoginModal(store, bool) {
