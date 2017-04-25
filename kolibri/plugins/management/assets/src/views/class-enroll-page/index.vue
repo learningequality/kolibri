@@ -73,19 +73,19 @@
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
             v-model="showSelectedUsers"
             class="switch"
+            @input="pageNum = 1"
           />
         </div>
       </div>
-
       <table>
         <thead>
           <tr>
             <th class="col-checkbox">
               <ui-checkbox
                 :name="$tr('selectAllOnPage')"
-                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0"
-                :disabled="visibleFilteredUsers.length === 0"
-                @change="selectAllVisibleUsers"
+                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
+                :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
+                @change="toggleAllVisibleUsers"
                 class="inline-block check"
                 />
             </th>
@@ -95,9 +95,9 @@
           </tr>
         </thead>
 
-        <tbody>
+        <tbody name="row" is="transition-group">
           <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-              @click="toggleSelection(learner.id)">
+              @click.prevent="toggleSelection(learner.id)" :key="learner.id">
             <td class="col-checkbox">
               <ui-checkbox
                 :name="$tr('selectUser')"
@@ -117,7 +117,7 @@
       <p v-if="filteredUsers.length === 0 && filterInput !== ''">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
 
       <div class="pagination-footer">
-        {{ visibleStartRange }} - {{ visibleEndRange }} {{ $tr('of') }} {{ numFilteredUsers }}
+        <span>{{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}</span>
         <nav>
           <ui-icon-button
             type="primary"
@@ -161,7 +161,6 @@
       showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
       createNewUser: 'New user account',
-      of: 'of',
       name: 'Full name',
       username: 'Username',
       selectedUsers: 'Show selected users',
@@ -175,6 +174,7 @@
       allUsersAlready: 'All users are already enrolled in this class',
       search: 'Search',
       selectUser: 'Select user',
+      pagination: '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -264,6 +264,11 @@
       },
     },
     methods: {
+      reducePageNum() {
+        while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
+          this.pageNum = this.pageNum - 1;
+        }
+      },
       isSelected(userId) {
         return this.selectedUsers.includes(userId);
       },
@@ -274,8 +279,9 @@
         } else {
           this.selectedUsers.splice(index, 1);
         }
+        this.reducePageNum();
       },
-      selectAllVisibleUsers(value) {
+      toggleAllVisibleUsers(value) {
         if (value) {
           this.visibleFilteredUsers.forEach(visibleUser => {
             if (!this.selectedUsers.includes(visibleUser.id)) {
@@ -288,6 +294,7 @@
               selectedUser => selectedUser !== visibleUser.id);
           });
         }
+        this.reducePageNum();
       },
       goToPage(page) {
         this.pageNum = page;
@@ -346,8 +353,9 @@
 
   @require '~kolibri.styles.definitions'
 
-  $table-row-selected = #e0e0e0
-  $table-row-hover = #eee
+  // based on material design data table spec
+  $table-row-selected = #F5F5F5
+  $table-row-hover = #EEEEEE
 
   .align-right
     text-align: right
@@ -402,5 +410,12 @@
 
   .check
     margin-bottom: 0
+
+  .row-enter-active, .row-leave-active
+    transition: all 0.25s ease
+
+  .row-enter, .row-leave-active
+    opacity: 0
+    transform: scale3d(1, 0.5, 1)
 
 </style>
