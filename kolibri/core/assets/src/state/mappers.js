@@ -1,11 +1,11 @@
 function assessmentMetaDataState(data) {
-  // Data is coming from a serializer for a one to many key, so at least will return an empty array.
   const blankState = {
     assessment: false,
     assessmentIds: [],
     masteryModel: null,
     randomize: false,
   };
+  // Data is from a serializer for a one to many key, so it will return a array of length 0 or 1
   const assessmentMetaData = data.assessmentmetadata[0];
   if (!assessmentMetaData) {
     return blankState;
