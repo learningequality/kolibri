@@ -12,6 +12,15 @@ webpack_config.plugins.push(
   })
 );
 webpack_config.devtool = '#inline-source-map';
+
+// html5media plugin requires this
+webpack_config.module.rules.push({
+  test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
+  use: [{
+    loader: 'imports-loader?this=>window',
+  }],
+});
+
 const aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
 aliases.kolibri = path.resolve(__dirname, './kolibriGlobalMock');
 aliases['vue-test'] = path.resolve(__dirname, './vueLocal');
