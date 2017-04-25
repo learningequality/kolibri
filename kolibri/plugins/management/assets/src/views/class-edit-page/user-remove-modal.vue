@@ -37,6 +37,10 @@
 
   const actions = require('../../state/actions');
 
+  function bold(stringToBold) {
+    return `<strong v-html> ${stringToBold} </strong>`;
+  }
+
   module.exports = {
     $trNameSpace: 'userRemoveModal',
     $trs: {
@@ -75,8 +79,8 @@
         return this.$tr(
           'deleteConfirmation',
           {
-            username: this.bold(this.username),
-            classname: this.bold(this.classname),
+            username: bold(this.username),
+            classname: bold(this.classname),
           }
         );
       },
@@ -96,9 +100,6 @@
       close() {
         this.displayModal(false);
       },
-      bold(stringToBold) {
-        return `<strong v-html> ${stringToBold} </strong>`;
-      }
     },
     vuex: {
       actions: {
