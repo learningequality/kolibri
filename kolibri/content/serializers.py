@@ -3,6 +3,7 @@ from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, Exam, ExamAssignment, File
 from kolibri.logger.models import ExamLog
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from django.utils.translation import ugettext_lazy as _
 
 from .content_db_router import default_database_is_attached, get_active_content_database
@@ -178,10 +179,12 @@ class ExamSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('creator',)
 
-    def validate_title(self, value):
-        if Exam.objects.filter(title__iexact=value, collection=self.initial_data['collection']).exists():
-            raise serializers.ValidationError(_('An exam with that name already exists'))
-        return value
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Exam.objects.all(),
+                fields=('collection', 'title')
+            )
+        ]
 
     def create(self, validated_data):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
