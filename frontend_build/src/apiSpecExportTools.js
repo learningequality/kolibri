@@ -1,3 +1,4 @@
+/* eslint-disable */
 var fs = require("fs");
 var path = require("path");
 
@@ -13,7 +14,11 @@ var specFilePath = path.resolve(path.join(__dirname, '../../kolibri/core/assets/
 function specModule(filePath) {
   var rootPath = path.dirname(filePath);
   function newPath(match, p1) {
-    return "'" + path.join(rootPath, p1) + "'";
+    if (p1.startsWith('.')) {
+      return "'" + path.join(rootPath, p1) + "'";
+    } else {
+      return "'" + p1 + "'";
+    }
   }
 
   // Read the spec file and do a regex replace to change all instances of 'require('...')'
