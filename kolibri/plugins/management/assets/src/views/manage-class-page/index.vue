@@ -18,7 +18,7 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal" :classes="classes"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
@@ -31,7 +31,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="classModel in classes">
+          <tr v-for="classModel in sortedClasses">
             <th scope="row" class="table-text">
               <router-link :to="classEditLink(classModel.id)" class="table-name">
                 {{classModel.name}}
@@ -61,6 +61,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     components: {
@@ -73,6 +74,13 @@
       currentClassDelete: null,
     }),
     computed: {
+      sortedClasses() {
+        return orderBy(
+          this.classes,
+          [classroom => classroom.name.toUpperCase()],
+          ['asc']
+        );
+      },
       showDeleteClassModal() {
         return this.modalShown === constants.Modals.DELETE_CLASS;
       },
@@ -80,7 +88,7 @@
         return this.modalShown === constants.Modals.CREATE_CLASS;
       },
       noClassesExist() {
-        return this.classes.length === 0;
+        return this.sortedClasses.length === 0;
       },
     },
     methods: {
