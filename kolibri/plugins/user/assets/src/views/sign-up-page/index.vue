@@ -67,7 +67,7 @@
         autocomplete="new-password"
         required />
 
-      <icon-button :disabled="canSubmit" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
+      <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -113,7 +113,6 @@
       username: '',
       password: '',
       confirmed_password: '',
-      termsAgreement: false,
     }),
     computed: {
       signInPage() {
@@ -136,10 +135,7 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return !(this.name && this.username && this.password && this.confirmed_password);
-      },
-      canSubmit() {
-        return !this.termsAgreement || this.allFieldsPopulated || !this.passwordsMatch || this.busy;
+        return this.name && this.username && this.password && this.confirmed_password;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
@@ -147,11 +143,18 @@
     },
     methods: {
       signUp() {
-        this.signUpAction({
-          full_name: this.name,
-          username: this.username,
-          password: this.password,
-        });
+        const canSubmit =
+          this.allFieldsPopulated &&
+          this.passwordsMatch &&
+          !this.busy;
+
+        if (canSubmit) {
+          this.signUpAction({
+            full_name: this.name,
+            username: this.username,
+            password: this.password,
+          });
+        }
       },
     },
     vuex: {
