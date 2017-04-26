@@ -30,11 +30,17 @@
               </router-link>
             </th>
 
-            <td class="table-data" v-if="examTaker.progress === exam.question_count">{{ $tr('completed') }}</td>
-            <td class="table-data incomplete" v-else-if="examTaker.progress">
-              {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+            <td class="table-data">
+              <span v-if="examTaker.progress === exam.question_count">
+                {{ $tr('completed') }}
+              </span>
+              <span v-else-if="examTaker.progress !== undefined" class="incomplete">
+                {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+              </span>
+              <span v-else class="incomplete">
+                {{ $tr('notstarted') }}
+              </span>
             </td>
-            <td class="table-data incomplete" v-else>{{ $tr('notstarted') }}</td>
 
             <td class="table-data">
               <span v-if="examTaker.progress === undefined">&mdash;</span>
