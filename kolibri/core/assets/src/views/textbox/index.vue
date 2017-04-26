@@ -14,8 +14,9 @@
     :required="required"
     :type="type"
     :error="error"
-    :invalid="invalid">
-  </ui-textbox>
+    :invalid="invalid"
+    ref="textbox"
+  />
 
 </template>
 
@@ -70,6 +71,9 @@
       updateText(text) {
         // v-model is just a :value + @input
         this.$emit('input', this.currentText);
+      },
+      reset() {
+        this.$refs.textbox.reset();
       },
     },
     components: {

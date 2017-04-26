@@ -4,7 +4,7 @@
     <div class="top-buttons pure-g">
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
-        <router-link :to="editClassLink">
+        <router-link :to="editClassLink" class="link-button">
           <icon-button
             :text="$tr('backToClassDetails')"
             :primary="false">
@@ -15,11 +15,16 @@
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
         <icon-button
+          :text="$tr('createNewUser')"
+          :primary="false"
+          @click="openCreateUserModal"
+        />
+        <icon-button
           :text="$tr('enrollSelectedUsers')"
           :primary="true"
           @click="openConfirmEnrollmentModal"
-          :disabled="selectedUsers.length === 0">
-        </icon-button>
+          :disabled="selectedUsers.length === 0"
+        />
       </div>
 
     </div>
@@ -31,109 +36,109 @@
       :selectedUsers="selectedUsers"/>
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
-    <h2 class="subheader-text">{{ $tr('showingAllUnassigned') }}</h2>
+    <p>{{ $tr('showingAllUnassigned') }}</p>
 
-    <div class="toolbar">
-      <div class="search-box" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          :aria-label="$tr('searchForUser')"
-          type="search"
-          v-model="filterInput"
-          :placeholder="$tr('searchForUser')"
-          @input="pageNum = 1">
+    <p v-if="facilityUsers.length === 0">{{ $tr('noUsersExist') }}</p>
+
+    <p v-else-if="usersNotInClass.length === 0">{{ $tr('allUsersAlready') }}</p>
+
+    <div v-else>
+
+      <div class="actions-header pure-g">
+
+        <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
+          <ui-icon
+            :aria-label="$tr('search')"
+            icon="search"
+          />
+          <textbox
+            :aria-label="$tr('searchForUser')"
+            v-model.trim="filterInput"
+            type="search"
+            :placeholder="$tr('searchForUser')"
+            @input="pageNum = 1"
+            ref="searchbox"
+            class="inline-block"
+            />
+          <ui-icon-button
+            type="secondary"
+            icon="clear"
+            :class="filterInput === '' ? 'invisible' : ''"
+            @click="$refs.searchbox.reset()"
+          />
+        </div>
+        <div :class="[windowSize.breakpoint > 3 ? 'pure-u-1-4' : 'pure-u-1-1', filterInput === '' ? '' : 'invisible']">
+          <ui-switch
+            name="showSelectedUsers"
+            :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
+            v-model="showSelectedUsers"
+            class="switch"
+            @input="pageNum = 1"
+          />
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-checkbox">
+              <ui-checkbox
+                :name="$tr('selectAllOnPage')"
+                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
+                :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
+                @change="toggleAllVisibleUsers"
+                class="inline-block check"
+                />
+            </th>
+            <th class="col-username">{{ $tr('username') }}</th>
+            <th class="col-role">{{ $tr('role') }}</th>
+            <th class="col-name">{{ $tr('name') }}</th>
+          </tr>
+        </thead>
+
+        <tbody name="row" is="transition-group">
+          <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
+              @click.prevent="toggleSelection(learner.id)" :key="learner.id">
+            <td class="col-checkbox">
+              <ui-checkbox
+                :name="$tr('selectUser')"
+                :value="isSelected(learner.id)"
+                @change="toggleSelection(learner.id)"
+                class="inline-block check"
+                />
+            </td>
+            <th class="col-username">{{ learner.username }}</th>
+            <td class="col-role">{{ learner.kind }}</td>
+            <td class="col-name">{{ learner.full_name }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
+      <p v-if="filteredUsers.length === 0 && filterInput !== ''">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+
+      <div class="pagination-footer">
+        <span>{{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}</span>
+        <nav>
+          <ui-icon-button
+            type="primary"
+            icon="chevron_left"
+            :ariaLabel="$tr('previousResults')"
+            :disabled="pageNum === 1"
+            size="small"
+            @click="goToPage(pageNum - 1)"/>
+          <ui-icon-button
+            type="primary"
+            icon="chevron_right"
+            :ariaLabel="$tr('nextResults')"
+            :disabled="pageNum === numPages"
+            size="small"
+            @click="goToPage(pageNum + 1)"/>
+        </nav>
       </div>
     </div>
 
-    <ui-switch
-      name="showSelectedUsers"
-      :label="$tr('selectedUsers')"
-      v-model="showSelectedUsers"
-      class="switch"/>
+    <user-create-modal v-if="showCreateUserModal"/>
 
-
-    <p v-if="usersNotInClass.length === 0">{{ $tr('noUsersExist') }}</p>
-    <p v-else-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
-    <p v-else-if="filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
-
-    <div v-else>
-      <p class="results-text">
-        {{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong>
-        {{ $tr('of') }} {{$tr('numLearners', {count: numFilteredUsers}) }}
-        <span v-if="filterInput">{{ $tr('thatMatch') }} <strong>"{{ filterInput }}"</strong></span>
-      </p>
-
-      <table>
-        <thead>
-        <tr>
-          <th></th>
-          <th>{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('role') }}</span>
-          </th>
-          <th>{{ $tr('name') }}</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-            @click="toggleSelection(learner.id)">
-          <td class="col-checkbox"><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
-          <th scope="col">{{ learner.username }}</th>
-          <td class="col-role">
-            <user-role :role="learner.kind" :omitLearner="true" />
-          </td>
-          <td><strong>{{ learner.full_name }}</strong></td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-
-
-    <nav v-if="numPages > 1" class="pagination">
-      <ui-icon-button
-        type="secondary"
-        color="default"
-        icon="chevron_left"
-        :ariaLabel="$tr('previousResults')"
-        :disabled="pageNum === 1"
-        size="small"
-        @click="goToPage(pageNum - 1)"/>
-      <icon-button
-        v-for="page in numPages"
-        :text="String(page)"
-        :primary="false"
-        :ariaLabel="`${$tr('goToPage')} ${page}`"
-        :disabled="pageNum === page"
-        size="small"
-        @click="goToPage(page)"
-        v-if="windowSize.breakpoint > 2 && pageWithinRange(page)"/>
-      <ui-icon-button
-        type="secondary"
-        color="default"
-        icon="chevron_right"
-        :ariaLabel="$tr('nextResults')"
-        :disabled="pageNum === numPages"
-        size="small"
-        @click="goToPage(pageNum + 1)"/>
-    </nav>
-
-    <hr>
-
-    <div>
-      <h2>{{ $tr('createAndEnroll') }}</h2>
-      <p>{{ $tr('enrollSomeone') }}</p>
-
-      <icon-button
-        :text="$tr('createNewUser')"
-        :primary="false"
-        @click="openCreateUserModal">
-        <mat-svg category="content" name="add"/>
-      </icon-button>
-
-      <user-create-modal
-        v-if="showCreateUserModal"/>
-    </div>
   </div>
 
 </template>
@@ -151,32 +156,31 @@
     $trNameSpace: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
-      enrollSelectedUsers: 'Enroll selected users',
-      selectLearners: 'Choose users to enroll in',
-      showingAllUnassigned: 'Showing all users not assigned to this class',
+      enrollSelectedUsers: 'Review & save',
+      selectLearners: 'Select users to enroll in',
+      showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
-      createAndEnroll: 'Or: create & enroll a brand new user',
-      enrollSomeone: `Enroll someone who isn't already a user`,
-      createNewUser: 'Create a new user account',
-      showing: 'Showing',
-      of: 'of',
-      numLearners: '{count, number, integer} {count, plural, one {User} other {Users}}',
+      createNewUser: 'New user account',
       name: 'Full name',
       username: 'Username',
+      selectedUsers: 'Show selected users',
       role: 'Role',
-      selectedUsers: 'Only show selected users',
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
-      thatMatch: 'that match',
       previousResults: 'Previous results',
-      goToPage: 'Go to page',
       nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      allUsersAlready: 'All users are already enrolled in this class',
+      search: 'Search',
+      selectUser: 'Select user',
+      pagination: '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'user-create-modal': require('../user-page/user-create-modal'),
       'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
@@ -242,6 +246,10 @@
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
+      allVisibleFilteredUsersSelected() {
+        return this.visibleFilteredUsers.every(
+          visibleUser => this.selectedUsers.includes(visibleUser.id));
+      },
       editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
@@ -256,8 +264,10 @@
       },
     },
     methods: {
-      goToPage(page) {
-        this.pageNum = page;
+      reducePageNum() {
+        while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
+          this.pageNum = this.pageNum - 1;
+        }
       },
       isSelected(userId) {
         return this.selectedUsers.includes(userId);
@@ -269,6 +279,25 @@
         } else {
           this.selectedUsers.splice(index, 1);
         }
+        this.reducePageNum();
+      },
+      toggleAllVisibleUsers(value) {
+        if (value) {
+          this.visibleFilteredUsers.forEach(visibleUser => {
+            if (!this.selectedUsers.includes(visibleUser.id)) {
+              this.selectedUsers.push(visibleUser.id);
+            }
+          });
+        } else {
+          this.visibleFilteredUsers.forEach(visibleUser => {
+            this.selectedUsers = this.selectedUsers.filter(
+              selectedUser => selectedUser !== visibleUser.id);
+          });
+        }
+        this.reducePageNum();
+      },
+      goToPage(page) {
+        this.pageNum = page;
       },
       pageWithinRange(page) {
         const maxOnEachSide = 1;
@@ -324,7 +353,9 @@
 
   @require '~kolibri.styles.definitions'
 
-  $toolbar-height = 36px
+  // based on material design data table spec
+  $table-row-selected = #F5F5F5
+  $table-row-hover = #EEEEEE
 
   .align-right
     text-align: right
@@ -332,15 +363,11 @@
   .align-center
     text-align: center
 
+  .link-button
+    text-decoration: none
+
   .top-buttons
     position: relative
-
-  .pagination
-    text-align:center
-    padding: 2em
-
-  .subheader-text
-    font-weight: normal
 
   table
     width: 100%
@@ -357,71 +384,38 @@
     color: #686868
     font-size: small
 
+  tbody
+    tr
+      cursor: pointer
+      &:hover
+        background-color: $table-row-hover
+
   .selectedrow
-    background-color: $core-bg-canvas
+    background-color: $table-row-selected
 
   .col-checkbox
     width: 24px
 
-  .results-text
-    font-size: 0.9375rem
-
-  // @jtamiace: All the following styles below apply to the search bar, and have been copied directly from user-page/index.vue
-  // Will need to be refactored later
-
-  .toolbar
-    margin-top: 30px
-
-  .toolbar:after
-    content: ''
-    display: table
-    clear: both
-
-  input[type='search']
+  nav
     display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
 
-  .search-box .icon
+  .pagination-footer
+    text-align: right
+
+  .inline-block
     display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
 
-  .search-box
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    max-width: 400px
-    height: $toolbar-height
-    float: left
+  .invisible
+    visibility: hidden
 
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .search-box
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
+  .check
+    margin-bottom: 0
 
-  @media print
-    .toolbar
-      display: none
+  .row-enter-active, .row-leave-active
+    transition: all 0.25s ease
 
-  @media screen and (max-width: 840px)
-    .search-box
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
+  .row-enter, .row-leave-active
+    opacity: 0
+    transform: scale3d(1, 0.5, 1)
 
 </style>

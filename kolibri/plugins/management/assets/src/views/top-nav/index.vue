@@ -105,6 +105,7 @@
     padding: 0.6em 2em
     text-decoration: none
     color: $core-text-annotation
+    display: inline-block
 
   .top .active
     color: $core-text-default
