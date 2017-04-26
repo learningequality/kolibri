@@ -454,8 +454,7 @@ function showExamList(store, channelId) {
   // if user is not logged in, this action is a noop
   if (!userIsLoggedIn) {
     store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('SET_PAGE_STATE', { exams: [] });
-    return null;
+    return Promise.resolve();
   }
 
   return coreActions.setChannelInfo(store, channelId).then(

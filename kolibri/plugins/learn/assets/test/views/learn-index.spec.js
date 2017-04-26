@@ -2,7 +2,7 @@
 const Vue = require('vue-test');
 const _ = require('lodash');
 const assert = require('assert');
-const LearnIndex = require('../src/views/index.vue');
+const LearnIndex = require('../../src/views/index.vue');
 
 function makeVm(options) {
   const Ctor = Vue.extend(LearnIndex);
