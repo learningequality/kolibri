@@ -706,7 +706,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = store.state.examLog;
+  const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id).save(examLog).catch(
     error => { coreActions.handleApiError(store, error); });

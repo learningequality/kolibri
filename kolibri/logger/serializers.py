@@ -31,7 +31,7 @@ class ExamLogSerializer(serializers.ModelSerializer):
         # This has changed, set the completion timestamp
         if validated_data.get('closed') and not instance.closed:
             instance.completion_timestamp = now()
-        return instance
+        return super(ExamLogSerializer, self).update(instance, validated_data)
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
