@@ -14,7 +14,7 @@
     <div
       class="placeholder"
       v-for="i in numSpaces"
-      :class="{'placeholder-empty': i === 0 && waiting}"
+      :class="{'placeholder-empty': i === 0 && waitingForAttempt}"
     ></div>
   </div>
 
@@ -26,7 +26,7 @@
   module.exports = {
     props: {
       // Creates an empty space awaiting a new attempt
-      waiting: {
+      waitingForAttempt: {
         type: Boolean,
         required: true,
       },
@@ -54,7 +54,7 @@
     },
     computed: {
       numItemsToRender() {
-        if (this.waiting) {
+        if (this.waitingForAttempt) {
           return this.numSpaces;
         }
         return this.numSpaces + 1;
@@ -72,7 +72,7 @@
       styleForIndex(visualIndex, originalIndex) {
         const ANSWER_WIDTH = 4 + 30 + 4;  // margin + width + margin
         let xPos = ANSWER_WIDTH * (this.log.length - 1 - originalIndex);
-        if (this.waiting) {
+        if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;
         }
         const style = {};

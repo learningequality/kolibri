@@ -41,7 +41,7 @@ oriented data synchronization.
     <div id="attemptprogress-container">
       <exercise-attempts
         class="attemptprogress"
-        :waiting="!complete"
+        :waitingForAttempt="firstAttempt"
         :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
