@@ -68,7 +68,7 @@ function _topicsState(topics) {
 }
 
 function _exerciseState(exercise) {
-  const numAssessments = assessmentMetaDataState(exercise).length;
+  const numAssessments = assessmentMetaDataState(exercise).assessmentIds.length;
   return {
     id: exercise.pk,
     title: exercise.title,
