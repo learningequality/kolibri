@@ -24,7 +24,7 @@
           <interaction-list
             :interactions="currentInteractionHistory"
             :selectedInteractionIndex="interactionIndex"
-            :attemptNumber="currentAttemptLog.id"
+            :attemptNumber="currentAttemptLog.questionNumber"
             @select="navigateToNewInteraction($event)"
           />
 
