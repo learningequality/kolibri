@@ -6,7 +6,7 @@
       <h1>
         {{ $tr('examTakenby', { num: takenBy }) }}
       </h1>
-      <h1>
+      <h1 v-if="takenBy > 0">
         {{ $tr('averageScore', { num: averageScore }) }}
       </h1>
     </div>
@@ -29,12 +29,24 @@
                 {{examTaker.name}}
               </router-link>
             </th>
-            <td class="table-data" v-if="examTaker.progress === exam.question_count">{{ $tr('completed') }}</td>
-            <td class="table-data incomplete" v-else-if="examTaker.progress">
-              {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+
+            <td class="table-data">
+              <span v-if="examTaker.progress === exam.question_count">
+                {{ $tr('completed') }}
+              </span>
+              <span v-else-if="examTaker.progress !== undefined" class="incomplete">
+                {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+              </span>
+              <span v-else class="incomplete">
+                {{ $tr('notstarted') }}
+              </span>
             </td>
-            <td class="table-data incomplete" v-else>{{ $tr('notstarted') }}</td>
-            <td class="table-data">{{ $tr('scorePercentage', { num: examTaker.score/exam.question_count }) }}</td>
+
+            <td class="table-data">
+              <span v-if="examTaker.progress === undefined">&mdash;</span>
+              <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
+            </td>
+
             <td class="table-data">{{ examTaker.group.name || $tr('ungrouped') }}</td>
           </tr>
         </tbody>
@@ -52,6 +64,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions/exam');
+  const sumBy = require('lodash/sumBy');
 
   module.exports = {
     computed: {
@@ -59,12 +72,14 @@
         return this.examTakers.length === 0;
       },
       averageScore() {
-        return Math.round(this.examTakers.reduce((acc, examTaker) => acc + examTaker.score, 0)
-          / this.takenBy);
+        const totalScores = sumBy(this.examsInProgress, 'score');
+        return (totalScores / this.takenBy) / this.exam.question_count;
+      },
+      examsInProgress() {
+        return this.examTakers.filter(examTaker => examTaker.progress !== undefined);
       },
       takenBy() {
-        return this.examTakers.reduce(
-          (acc, taker) => (acc + (taker.progress > 0 ? 1 : 0)), 0);
+        return this.examsInProgress.length;
       }
     },
     methods: {
