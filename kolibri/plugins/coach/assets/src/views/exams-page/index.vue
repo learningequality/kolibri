@@ -106,7 +106,7 @@
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
   const PageNames = require('../../constants').PageNames;
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'coachExamsPage',
@@ -143,10 +143,18 @@
     },
     computed: {
       sortedExams() {
-        return sortBy(this.exams, exam => exam.title.toUpperCase());
+        return orderBy(
+          this.exams,
+          [exam => exam.title.toUpperCase()],
+          ['asc']
+        );
       },
       sortedChannels() {
-        return sortBy(this.channels, channel => channel.name.toUpperCase());
+        return orderBy(
+          this.channels,
+          [channel => channel.name.toUpperCase()],
+          ['asc']
+        );
       },
       filterOptions() {
         return [

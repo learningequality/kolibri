@@ -16,7 +16,7 @@
 
 <script>
 
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'channelSwitcher',
@@ -28,7 +28,11 @@
     },
     computed: {
       sortedChannels() {
-        return sortBy(this.channelList, channel => channel.title.toUpperCase());
+        return orderBy(
+          this.channelList,
+          [channel => channel.title.toUpperCase()],
+          ['asc']
+        );
       },
       channelOptions() {
         return this.sortedChannels.map(channel => {

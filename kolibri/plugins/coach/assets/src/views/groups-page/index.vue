@@ -56,7 +56,7 @@
   const groupActions = require('../../state/actions/group');
   const GroupModals = require('../../constants').GroupModals;
   const differenceWith = require('lodash/differenceWith');
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'coachGroupsPage',
@@ -94,7 +94,11 @@
         return this.groupModalShown === GroupModals.MOVE_LEARNERS;
       },
       sortedGroups() {
-        return sortBy(this.groups, group => group.name.toUpperCase());
+        return orderBy(
+          this.groups,
+          [group => group.name.toUpperCase()],
+          ['asc']
+        );
       },
       groupedUsers() {
         const groupedUsers = [];

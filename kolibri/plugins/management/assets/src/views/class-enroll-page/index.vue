@@ -150,6 +150,7 @@
   const actions = require('../../state/actions');
   const differenceWith = require('lodash/differenceWith');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     mixins: [responsiveWindow],
@@ -192,8 +193,6 @@
       perPage: 10,
       pageNum: 1,
       selectedUsers: [],
-      sortByName: true,
-      sortAscending: true,
       showSelectedUsers: false,
     }),
     computed: {
@@ -214,16 +213,11 @@
         });
       },
       sortedFilteredUsers() {
-        return this.filteredUsers.sort((a, b) => {
-          if (this.sortAscending && this.sortByName) {
-            return a.full_name.localeCompare(b.full_name);
-          } else if (this.sortAscending && !this.sortByName) {
-            return a.username.localeCompare(b.username);
-          } else if (!this.sortAscending && this.sortByName) {
-            return b.full_name.localeCompare(a.full_name);
-          }
-          return b.username.localeCompare(a.username);
-        });
+        return orderBy(
+          this.filteredUsers,
+          [user => user.username.toUpperCase(), user => user.full_name.toUpperCase()],
+          ['asc', 'asc']
+        );
       },
       numFilteredUsers() {
         return this.sortedFilteredUsers.length;

@@ -64,7 +64,7 @@
   const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -98,7 +98,11 @@
     },
     computed: {
       sortedChannels() {
-        return sortBy(this.channelList, channel => channel.title.toUpperCase());
+        return orderBy(
+          this.channelList,
+          [channel => channel.title.toUpperCase()],
+          ['asc']
+        );
       },
       wizardComponent() {
         switch (this.pageState.wizardState.page) {

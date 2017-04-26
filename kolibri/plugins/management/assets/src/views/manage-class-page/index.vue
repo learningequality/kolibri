@@ -61,7 +61,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions');
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     components: {
@@ -75,7 +75,11 @@
     }),
     computed: {
       sortedClasses() {
-        return sortBy(this.classes, classroom => classroom.name.toUpperCase());
+        return orderBy(
+          this.classes,
+          [classroom => classroom.name.toUpperCase()],
+          ['asc']
+        );
       },
       showDeleteClassModal() {
         return this.modalShown === constants.Modals.DELETE_CLASS;

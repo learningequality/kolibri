@@ -39,7 +39,7 @@
 <script>
 
   const constants = require('../../constants');
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     data: () => ({
@@ -47,7 +47,11 @@
     }),
     computed: {
       sortedClasses() {
-        return sortBy(this.classes, classroom => classroom.name.toUpperCase());
+        return orderBy(
+          this.classes,
+          [classroom => classroom.name.toUpperCase()],
+          ['asc']
+        );
       },
       noClassesExist() {
         return this.sortedClasses ? this.sortedClasses.length === 0 : false;

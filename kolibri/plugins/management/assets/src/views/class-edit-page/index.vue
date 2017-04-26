@@ -121,7 +121,7 @@
   const constants = require('../../constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../state/actions');
-  const sortBy = require('lodash/sortBy');
+  const orderBy = require('lodash/orderBy');
 
 
   module.exports = {
@@ -187,7 +187,11 @@
         }
 
         const filteredUsers = this.users.filter(user => matchesText(user));
-        return sortBy(filteredUsers, user => user.username.toUpperCase());
+        return orderBy(
+          filteredUsers,
+          [user => user.username.toUpperCase()],
+          ['asc']
+        );
       },
       showEditNameModal() {
         return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
