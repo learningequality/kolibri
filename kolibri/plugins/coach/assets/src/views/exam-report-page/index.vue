@@ -34,7 +34,12 @@
               {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
             </td>
             <td class="table-data incomplete" v-else>{{ $tr('notstarted') }}</td>
-            <td class="table-data">{{ $tr('scorePercentage', { num: examTaker.score/exam.question_count }) }}</td>
+
+            <td class="table-data">
+              <span v-if="examTaker.progress === undefined">&mdash;</span>
+              <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
+            </td>
+
             <td class="table-data">{{ examTaker.group.name || $tr('ungrouped') }}</td>
           </tr>
         </tbody>
