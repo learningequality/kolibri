@@ -17,7 +17,7 @@
           {{ $tr('questionsLeft', { left: exam.questionCount - exam.answerCount }) }}
         </p>
         <div class="button-or-score">
-          <router-link :to="generateExamLink(exam.id)">
+          <router-link :to="generateExamLink(exam)">
             <icon-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"></icon-button>
             <icon-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"></icon-button>
           </router-link>
@@ -55,10 +55,10 @@
       },
     },
     methods: {
-      generateExamLink(id) {
+      generateExamLink(exam) {
         return {
           name: PageNames.EXAM_ROOT,
-          params: { channel_id: this.channelId, id },
+          params: { channel_id: exam.channelId, exam.id },
         };
       },
     },
@@ -76,37 +76,37 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-  
+
   .exams-assigned
     margin-top: 0
 
   .exam-row
     border-bottom: 1px solid #ccc
     padding: 20px 10px
-    
+
   .exam-icon
     fill: $core-text-default
     position: relative
     top: 5px
     margin-right: 10px
-    
+
   .exam-title
     display: inline-block
-    
+
   .exam-details
     display: inline-block
     float: right
-    
+
   .button-or-score
     width: 100px
     display: inline-block
     text-align: center
     margin-left: 80px
-    
+
   .answer-count
     display: inline-block
     text-align: right
-    
+
   .exam-button
     display: inline-block
     float: right
