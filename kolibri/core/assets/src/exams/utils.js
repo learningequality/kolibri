@@ -10,7 +10,7 @@ function createQuestionList(questionSources) {
 
 function selectQuestionFromExercise(index, seed, contentNode) {
   const assessmentmetadata = assessmentMetaDataState(contentNode);
-  return seededShuffle.shuffle(assessmentmetadata.assessmentItemIds, seed, true)[index];
+  return seededShuffle.shuffle(assessmentmetadata.assessmentIds, seed, true)[index];
 }
 
 module.exports = {
