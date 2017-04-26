@@ -12,9 +12,15 @@
       </router-link>
       <a class="points-link" href="/user"><total-points/></a>
     </div>
+
     <div slot="tabs" v-if="!isSearchPage">
-      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
+      <tabs
+        :items="learnTabs"
+        type="icon-and-text"
+        @tabclicked="handleTabClick"
+      />
     </div>
+
     <div slot="content">
       <breadcrumbs/>
       <component :is="currentPage"/>
@@ -27,12 +33,10 @@
 
 <script>
 
-  const PageNames = require('../constants').PageNames;
-  const PageModes = require('../constants').PageModes;
-
+  const { PageNames, PageModes } = require('../constants');
   const getters = require('../state/getters');
   const store = require('../state/store');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+  const { TopLevelPageNames } = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -151,24 +155,20 @@
         return this.pageName === PageNames.SEARCH;
       },
       learnTabs() {
-        const isRecommended = (this.pageMode === PageModes.LEARN);
-        const isTopics = (this.pageMode === PageModes.EXPLORE);
-        const isExams = (this.pageMode === PageModes.EXAM);
-
         return [{
           title: this.$tr('recommended'),
           icon: 'forum',
-          selected: isRecommended,
+          selected: (this.pageMode === PageModes.LEARN),
           disabled: false,
         }, {
           title: this.$tr('topics'),
           icon: 'folder',
-          selected: isTopics,
+          selected: (this.pageMode === PageModes.EXPLORE),
           disabled: false,
         }, {
           title: this.$tr('exams'),
           icon: 'assignment',
-          selected: isExams,
+          selected: (this.pageMode === PageModes.EXAM),
           disabled: false,
         }];
       },
