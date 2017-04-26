@@ -601,49 +601,54 @@ function showExam(store, channelId, id, questionNumber) {
                 contentId: question.contentId
               }));
 
-              const itemId = questions[questionNumber].itemId;
+              if (questions.every(question => !question.itemId)) {
+                // Exam is drawing solely on malformed exercise data, best to quit now
+                coreActions.handleError(store, `This exam has no valid questions`);
+              } else {
+                const itemId = questions[questionNumber].itemId;
 
-              const currentQuestion = questions[questionNumber];
+                const currentQuestion = questions[questionNumber];
 
-              const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
-                calcQuestionsAnswered(attemptLogs));
+                const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
+                  calcQuestionsAnswered(attemptLogs));
 
-              const pageState = {
-                exam: _examState(exam),
-                itemId,
-                questions,
-                currentQuestion,
-                questionNumber,
-                content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
-                channelId,
-                questionsAnswered,
-              };
-              if (!attemptLogs[currentQuestion.contentId]) {
-                attemptLogs[currentQuestion.contentId] = {};
-              }
-              if (!attemptLogs[currentQuestion.contentId][itemId]) {
-                attemptLogs[currentQuestion.contentId][itemId] = {
-                  start_timestamp: new Date(),
-                  completion_timestamp: null,
-                  end_timestamp: null,
-                  item: itemId,
-                  complete: false,
-                  time_spent: 0,
-                  correct: 0,
-                  answer: undefined,
-                  simple_answer: '',
-                  interaction_history: [],
-                  hinted: false,
-                  channel_id: channelId,
-                  content_id: currentQuestion.contentId,
+                const pageState = {
+                  exam: _examState(exam),
+                  itemId,
+                  questions,
+                  currentQuestion,
+                  questionNumber,
+                  content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
+                  channelId,
+                  questionsAnswered,
                 };
+                if (!attemptLogs[currentQuestion.contentId]) {
+                  attemptLogs[currentQuestion.contentId] = {};
+                }
+                if (!attemptLogs[currentQuestion.contentId][itemId]) {
+                  attemptLogs[currentQuestion.contentId][itemId] = {
+                    start_timestamp: new Date(),
+                    completion_timestamp: null,
+                    end_timestamp: null,
+                    item: itemId,
+                    complete: false,
+                    time_spent: 0,
+                    correct: 0,
+                    answer: undefined,
+                    simple_answer: '',
+                    interaction_history: [],
+                    hinted: false,
+                    channel_id: channelId,
+                    content_id: currentQuestion.contentId,
+                  };
+                }
+                pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
+                store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+                store.dispatch('SET_PAGE_STATE', pageState);
+                store.dispatch('CORE_SET_PAGE_LOADING', false);
+                store.dispatch('CORE_SET_ERROR', null);
+                store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
               }
-              pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
-              store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-              store.dispatch('SET_PAGE_STATE', pageState);
-              store.dispatch('CORE_SET_PAGE_LOADING', false);
-              store.dispatch('CORE_SET_ERROR', null);
-              store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
             },
             error => { coreActions.handleApiError(store, error); }
           );

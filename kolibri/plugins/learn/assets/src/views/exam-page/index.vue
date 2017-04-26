@@ -110,7 +110,10 @@
     },
     methods: {
       checkAnswer() {
-        return this.$refs.contentRenderer.checkAnswer();
+        if (this.$refs.contentRenderer) {
+          return this.$refs.contentRenderer.checkAnswer();
+        }
+        return null;
       },
       saveAnswer() {
         const answer = this.checkAnswer();
