@@ -18,7 +18,7 @@
       @click="openCreateExamModal">
       {{ $tr('newExam') }}
     </ui-button>
-    <table v-if="exams.length">
+    <table v-if="sortedExams.length">
       <thead>
         <tr>
           <th class="col-icon"></th>
@@ -51,7 +51,7 @@
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="currentClass.id"
-      :channels="channels"
+      :channels="sortedChannels"
     />
     <activate-exam-modal
       v-if="showActivateExamModal"
@@ -88,7 +88,7 @@
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :classId="currentClass.id"
-      :exams="exams"
+      :exams="sortedExams"
     />
     <delete-exam-modal
       v-if="showDeleteExamModal"
@@ -106,6 +106,7 @@
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
   const PageNames = require('../../constants').PageNames;
+  const sortBy = require('lodash/sortBy');
 
   module.exports = {
     $trNameSpace: 'coachExamsPage',
@@ -141,6 +142,12 @@
       };
     },
     computed: {
+      sortedExams() {
+        return sortBy(this.exams, exam => exam.title.toUpperCase());
+      },
+      sortedChannels() {
+        return sortBy(this.channels, channel => channel.name.toUpperCase());
+      },
       filterOptions() {
         return [
           { label: this.$tr('all'), value: this.$tr('all') },
@@ -150,10 +157,10 @@
       },
 
       activeExams() {
-        return this.exams.filter(exam => exam.active === true);
+        return this.sortedExams.filter(exam => exam.active === true);
       },
       inactiveExams() {
-        return this.exams.filter(exam => exam.active === false);
+        return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.filterSelected;
@@ -162,7 +169,7 @@
         } else if (filter === this.$tr('inactive')) {
           return this.inactiveExams;
         }
-        return this.exams;
+        return this.sortedExams;
       },
       showCreateExamModal() {
         return this.examModalShown === ExamModals.CREATE_EXAM;
@@ -188,7 +195,7 @@
     },
     methods: {
       setSelectedExam(examId) {
-        Object.assign(this.selectedExam, this.exams.find(exam => exam.id === examId));
+        Object.assign(this.selectedExam, this.sortedExams.find(exam => exam.id === examId));
       },
       openCreateExamModal() {
         this.displayExamModal(ExamModals.CREATE_EXAM);

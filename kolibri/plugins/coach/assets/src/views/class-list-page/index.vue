@@ -16,7 +16,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="cl in classes">
+          <tr v-for="cl in sortedClasses">
             <th scope="row" class="table-text">
               <router-link :to="recentPageLink(cl.id)">
                 {{ cl.name }}
@@ -39,14 +39,18 @@
 <script>
 
   const constants = require('../../constants');
+  const sortBy = require('lodash/sortBy');
 
   module.exports = {
     data: () => ({
       currentClassDelete: null,
     }),
     computed: {
+      sortedClasses() {
+        return sortBy(this.classes, classroom => classroom.name.toUpperCase());
+      },
       noClassesExist() {
-        return this.classes ? this.classes.length === 0 : false;
+        return this.sortedClasses ? this.sortedClasses.length === 0 : false;
       },
     },
     methods: {

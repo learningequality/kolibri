@@ -16,6 +16,8 @@
 
 <script>
 
+  const sortBy = require('lodash/sortBy');
+
   module.exports = {
     $trNameSpace: 'channelSwitcher',
     $trs: {
@@ -25,8 +27,11 @@
       'dropdown-menu': require('kolibri.coreVue.components.dropdownMenu'),
     },
     computed: {
+      sortedChannels() {
+        return sortBy(this.channelList, channel => channel.title.toUpperCase());
+      },
       channelOptions() {
-        return this.channelList.map(channel => {
+        return this.sortedChannels.map(channel => {
           const channelOption = {};
           channelOption.id = channel.id;
           channelOption.label = channel.title;
@@ -37,7 +42,7 @@
         });
       },
       currentChannelName() {
-        const channelName = Object(this.channelList.find(
+        const channelName = Object(this.sortedChannels.find(
             channel => channel.id === this.globalCurrentChannel)).title;
         if (channelName) {
           return channelName;

@@ -35,10 +35,10 @@
           </div>
         </div>
         <hr>
-        <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
+        <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
         <table>
           <tbody>
-            <tr v-for="channel in channelList">
+            <tr v-for="channel in sortedChannels">
               <th scope="row" class="table-cell" width="70%">
                 <span class="channel-name">
                   {{ channel.title }}
@@ -64,6 +64,7 @@
   const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
+  const sortBy = require('lodash/sortBy');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -96,6 +97,9 @@
       }
     },
     computed: {
+      sortedChannels() {
+        return sortBy(this.channelList, channel => channel.title.toUpperCase());
+      },
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:

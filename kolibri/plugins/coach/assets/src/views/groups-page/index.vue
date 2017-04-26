@@ -14,13 +14,13 @@
 
     <create-group-modal v-if="showCreateGroupModal"
       :classId="classId"
-      :groups="groups" />
+      :groups="sortedGroups" />
 
     <rename-group-modal v-if="showRenameGroupModal"
       :classId="classId"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
-      :groups="groups" />
+      :groups="sortedGroups" />
 
     <delete-group-modal v-if="showDeleteGroupModal"
       :classId="classId"
@@ -29,20 +29,20 @@
 
     <move-learners-modal v-if="showMoveLearnersModal"
       :groupId="selectedGroup.id"
-      :groups="groups"
+      :groups="sortedGroups"
       :usersToMove="usersToMove"
       :isUngrouped="isUngrouped" />
 
     <group-section
-      v-for="group in groups"
-      :canMove="Boolean(groups.length)"
+      v-for="group in sortedGroups"
+      :canMove="Boolean(sortedGroups.length)"
       :group="group"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
       @move="openMoveLearnersModal" />
 
     <group-section
-      :canMove="Boolean(groups.length)"
+      :canMove="Boolean(sortedGroups.length)"
       :group="ungroupedUsersObject"
       :isUngrouped="true"
       @move="openMoveLearnersModal" />
@@ -56,6 +56,7 @@
   const groupActions = require('../../state/actions/group');
   const GroupModals = require('../../constants').GroupModals;
   const differenceWith = require('lodash/differenceWith');
+  const sortBy = require('lodash/sortBy');
 
   module.exports = {
     $trNameSpace: 'coachGroupsPage',
@@ -92,9 +93,12 @@
       showMoveLearnersModal() {
         return this.groupModalShown === GroupModals.MOVE_LEARNERS;
       },
+      sortedGroups() {
+        return sortBy(this.groups, group => group.name.toUpperCase());
+      },
       groupedUsers() {
         const groupedUsers = [];
-        this.groups.forEach(group => {
+        this.sortedGroups.forEach(group => {
           group.users.forEach(user => {
             groupedUsers.push(user);
           });

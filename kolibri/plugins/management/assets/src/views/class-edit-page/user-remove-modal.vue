@@ -88,7 +88,7 @@
         return this.$tr(
           'accessReassurance',
           {
-            sectionTabName: this.bold(this.$tr('usersTab')),
+            sectionTabName: bold(this.$tr('usersTab')),
           }
         );
       },
