@@ -19,12 +19,18 @@
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <div>
-          <progress-icon class="svg-icon" :progress="progress"/>
-          <strong v-if="completed"> {{ $tr('completed') }} </strong>
-          <p v-else> {{ $tr('inProgress') }} </p>
-        </div>
-        <p v-if="completed">{{ $tr('date', { date }) }}</p>
+        <progress-icon class="svg-icon" :progress="progress"/>
+        <span v-if="completed">
+          <strong> {{ $tr('completed') }} </strong>
+          <br />
+          <elapsed-time :date="completionTimestamp"/>
+        </span>
+        <span v-else-if="completed !== null">
+          <strong> {{ $tr('inProgress') }} </strong>
+        </span>
+        <span v-else>
+          <strong> {{ $tr('notStarted') }} </strong>
+        </span>
       </div>
     </div>
   </div>
@@ -43,9 +49,11 @@
       completed: 'Completed',
       date: 'on { completed, date, medium }',
       inProgress: 'In progress',
+      notStarted: 'Not started',
     },
     components: {
       'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     props: {
       userName: {
@@ -74,7 +82,7 @@
       progress() {
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
-      }
+      },
     },
   };
 
