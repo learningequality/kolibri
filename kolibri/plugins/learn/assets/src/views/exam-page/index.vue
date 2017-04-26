@@ -50,7 +50,7 @@
           </div>
         </div>
       </div>
-      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="submitExam">
+      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
         <icon-button :text="$tr('cancel')" @click="toggleModal"/>
