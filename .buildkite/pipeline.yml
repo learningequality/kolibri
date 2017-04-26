@@ -5,7 +5,7 @@ steps:
   - wait
 
   - label: Build the python packages
-    command: mkdir -p dist && .buildkite/build_whl.sh
+    command: mkdir -p dist && .buildkite/build_whl.sh && docker container prune -f
 
   - wait
 
