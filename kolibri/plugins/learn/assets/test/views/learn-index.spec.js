@@ -9,7 +9,7 @@ function makeVm(options) {
   // TODO not mounting the component, since I can't figure out how
   // to setup tests to make all of the dependent components (namely core-base) work
   // seems to be good enough for current tests
-  return new Ctor(Object.assign(options));
+  return new Ctor(options);
 }
 
 describe('learn index', () => {

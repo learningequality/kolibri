@@ -161,13 +161,13 @@
           {
             title: this.$tr('recommended'),
             icon: 'forum',
-            selected: (this.pageMode === PageModes.LEARN),
+            selected: this.pageMode === PageModes.LEARN,
             disabled: false,
           },
           {
             title: this.$tr('topics'),
             icon: 'folder',
-            selected: (this.pageMode === PageModes.EXPLORE),
+            selected: this.pageMode === PageModes.EXPLORE,
             disabled: false,
           },
         ];
@@ -176,7 +176,7 @@
           tabs.push({
             title: this.$tr('exams'),
             icon: 'assignment',
-            selected: (this.pageMode === PageModes.EXAM),
+            selected: this.pageMode === PageModes.EXAM,
             disabled: false,
           });
         }
