@@ -2,14 +2,14 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('managementTitle')">
 
-    <div v-if="isAdmin || isSuperuser" slot="content">
+    <div v-if="isAdmin || isSuperuser">
       <div class="manage-content">
         <top-nav/>
       </div>
       <component class="manage-content page" :is="currentPage"/>
     </div>
 
-    <div v-else slot="content" class="login-message">
+    <div v-else class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>
     </div>

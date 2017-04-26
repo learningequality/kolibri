@@ -22,11 +22,9 @@
       <loading-spinner v-if="loading" class="align-to-parent"/>
       <template v-else>
         <error-box v-if="error"/>
-        <slot name="tabs"/>
-        <slot name="content"/>
+        <slot/>
       </template>
     </div>
-    <slot name="extra"/>
   </div>
 
 </template>

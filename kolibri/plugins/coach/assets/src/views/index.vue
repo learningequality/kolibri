@@ -2,9 +2,10 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
 
-    <top-nav v-if="showTopNav" slot="tabs"/>
 
-    <div slot="content" class="content">
+    <top-nav v-if="showTopNav"/>
+
+    <div class="content">
       <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
       </div>
