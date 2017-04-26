@@ -6,7 +6,7 @@
       <h1>
         {{ $tr('examTakenby', { num: takenBy }) }}
       </h1>
-      <h1>
+      <h1 v-if="takenBy > 0">
         {{ $tr('averageScore', { num: averageScore }) }}
       </h1>
     </div>
@@ -57,6 +57,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions/exam');
+  const sumBy = require('lodash/sumBy');
 
   module.exports = {
     computed: {
@@ -64,12 +65,14 @@
         return this.examTakers.length === 0;
       },
       averageScore() {
-        return Math.round(this.examTakers.reduce((acc, examTaker) => acc + examTaker.score, 0)
-          / this.takenBy);
+        const totalScores = sumBy(this.examsInProgress, 'score');
+        return (totalScores / this.takenBy) / this.exam.question_count;
+      },
+      examsInProgress() {
+        return this.examTakers.filter(examTaker => examTaker.progress !== undefined);
       },
       takenBy() {
-        return this.examTakers.reduce(
-          (acc, taker) => (acc + (taker.progress > 0 ? 1 : 0)), 0);
+        return this.examsInProgress.length;
       }
     },
     methods: {
