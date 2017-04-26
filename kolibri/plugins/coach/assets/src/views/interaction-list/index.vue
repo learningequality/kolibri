@@ -2,8 +2,11 @@
 
   <div class="interaction-list">
   <!--TODO-->
-    <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
-    <p v-if="interactions.length">{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
+    <template v-if="interactions.length">
+      <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
+      <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
+    </template>
+    
     <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
 
