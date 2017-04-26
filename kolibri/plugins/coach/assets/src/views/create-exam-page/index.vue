@@ -2,28 +2,34 @@
 
   <div>
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
-    <textbox
-      :label="$tr('title')"
-      :ariaLabel="$tr('title')"
-      :placeholder="$tr('enterTitle')"
-      :autofocus="false"
-      :invalid="titleInvalid"
-      :error="titleInvalidMsg"
-      v-model.trim="inputTitle"
-      @blur="validateTitle = true"
-      @input="validateTitle = true"
-    />
-    <textbox
-      :label="$tr('numQuestions')"
-      :ariaLabel="$tr('numQuestions')"
-      :placeholder="$tr('enterNum')"
-      :invalid="numQuestionsInvalid"
-      :error="numQuestionsInvalidMsg"
-      type="number"
-      v-model.trim.number="inputNumQuestions"
-      @blur="validateNumQuestMax = true"
-      @input="validateNumQuestMax = true"
-    />
+    <div class="pure-g">
+      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+        <textbox
+          :label="$tr('title')"
+          :ariaLabel="$tr('title')"
+          :placeholder="$tr('enterTitle')"
+          :autofocus="true"
+          :invalid="titleInvalid"
+          :error="titleInvalidMsg"
+          v-model.trim="inputTitle"
+          @blur="validateTitle = true"
+          @input="validateTitle = true"
+        />
+      </div>
+      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+        <textbox
+          :label="$tr('numQuestions')"
+          :ariaLabel="$tr('numQuestions')"
+          :placeholder="$tr('enterNum')"
+          :invalid="numQuestionsInvalid"
+          :error="numQuestionsInvalidMsg"
+          type="number"
+          v-model.trim.number="inputNumQuestions"
+          @blur="validateNumQuestMax = true"
+          @input="validateNumQuestMax = true"
+        />
+      </div>
+    </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<textbox-->
@@ -122,8 +128,10 @@
   const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
   const shuffle = require('lodash/shuffle');
   const random = require('lodash/random');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     $trNameSpace: 'createExamPage',
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',

@@ -7,6 +7,7 @@
         :ariaLabel="String(examActive)"
         :class="examActive ? 'icon-active' : 'icon-inactive'"
       />
+      <span v-if="examActive" class="active-circle"></span>
     </td>
 
     <td class="col-title"><strong>{{ examTitle }}</strong></td>
@@ -156,13 +157,24 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .icon-active
-    color: #4caf50
+    color: $core-action-normal
 
   .icon-inactive
     color: #9e9e9e
 
   .col-visibility, .col-action
     text-align: right
+
+  .active-circle
+    display: inline-block
+    margin-left: -5px
+    vertical-align: bottom
+    height: 10px
+    width: 10px
+    border-radius: 50%
+    background-color: #4caf50
 
 </style>
