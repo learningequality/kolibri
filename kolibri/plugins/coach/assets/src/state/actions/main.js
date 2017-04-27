@@ -8,6 +8,14 @@ const ClassroomResource = coreApp.resources.ClassroomResource;
 // ================================
 // CLASS LIST ACTIONS
 
+
+function _classState(classData) {
+  return {
+    id: classData.id,
+    name: classData.name,
+    memberCount: classData.learner_count,
+  };
+}
 function showClassListPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CLASS_LIST);
@@ -15,7 +23,7 @@ function showClassListPage(store) {
   classCollection.fetch().then(
     (classes) => {
       const pageState = {
-        classes,
+        classes: classes.map(_classState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
