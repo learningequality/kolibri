@@ -26,7 +26,6 @@
 
         <p v-if="loginError" class="sign-in-error">{{ $tr('signInError') }}</p>
       </form>
-      <span id="password-reset">{{ $tr('resetPassword') }}</span>
       <div id="divid-line"></div>
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
@@ -63,7 +62,6 @@
       createAccount: 'Create account',
       accessAsGuest: 'Access as guest',
       signInError: 'Incorrect username or password',
-      resetPassword: 'Reset your password',
       poweredBy: 'Kolibri {version}',
     },
     components: {
@@ -195,15 +193,6 @@
     padding: 5px
     display: inline-block
     text-decoration: none
-
-  #password-reset
-    display: block
-    text-align: center
-    margin: auto
-    margin-top: 26px
-    font-size: 0.8em
-    color: $login-text
-    text-decoration: underline
 
   #divid-line
     width: 412px
