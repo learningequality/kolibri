@@ -13,7 +13,7 @@
       <a class="points-link" href="/user"><total-points/></a>
     </div>
 
-    <div slot="tabs" v-if="!isSearchPage">
+    <div v-if="!isSearchPage">
       <tabs
         :items="learnTabs"
         type="icon-and-text"
@@ -21,7 +21,7 @@
       />
     </div>
 
-    <div slot="content">
+    <div>
       <breadcrumbs/>
       <component :is="currentPage"/>
     </div>

@@ -79,7 +79,7 @@
           return {
             name: targetName,
             params: {
-              classId: this.pageState.classId,
+              classId: this.classId,
               userId: row.id,
               channelId: this.pageState.channelId,
               contentId: this.pageState.contentScopeSummary.contentId,
@@ -91,6 +91,7 @@
     },
     vuex: {
       getters: {
+        classId: state => state.classId,
         pageState: state => state.pageState,
         pageName: state => state.pageName,
         exerciseCount: reportGetters.exerciseCount,

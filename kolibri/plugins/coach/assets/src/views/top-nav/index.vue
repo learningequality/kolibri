@@ -88,7 +88,7 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        classId: state => state.pageState.classId,
+        classId: state => state.classId,
         isRecentPage: coachGetters.isRecentPage,
         isTopicPage: coachGetters.isTopicPage,
         isLearnerPage: coachGetters.isLearnerPage,

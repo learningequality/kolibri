@@ -38,7 +38,7 @@
               </router-link>
             </th>
             <td class="table-data">
-              {{ classModel.learner_count + classModel.coach_count + classModel.admin_count }}
+              {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
               <button class="delete-class-button" @click="openDeleteClassModal(classModel)">

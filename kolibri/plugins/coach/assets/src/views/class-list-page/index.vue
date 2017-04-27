@@ -12,7 +12,6 @@
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
             <th scope="col" class="table-data">{{ $tr('members') }}</th>
-            <th scope="col" class="table-data">{{ $tr('groups') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -22,8 +21,7 @@
                 {{ cl.name }}
               </router-link>
             </th>
-            <td class="table-data">{{ cl.learner_count }}</td>
-            <td class="table-data">{{ cl.admin_count }}</td>
+            <td class="table-data">{{ cl.memberCount }}</td>
           </tr>
         </tbody>
       </table>
@@ -67,17 +65,16 @@
     },
     vuex: {
       getters: {
-        classes: state => state.pageState.classes,
+        classes: state => state.classList,
       },
     },
     $trNameSpace: 'coachClassListPage',
     $trs: {
-      myClasses: 'My classes',
+      myClasses: 'All classes',
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
       tableCaption: 'List of classes',
       members: 'Members',
-      groups: 'Groups',
       noClassesExist: 'No Classes Exist.',
     },
   };

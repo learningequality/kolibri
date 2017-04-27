@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <h1>{{ className }} - {{ $tr('groups') }}</h1>
     <div class="btn">
       <icon-button
         :text="$tr('newGroup')"
@@ -13,17 +12,14 @@
     </div>
 
     <create-group-modal v-if="showCreateGroupModal"
-      :classId="classId"
       :groups="sortedGroups" />
 
     <rename-group-modal v-if="showRenameGroupModal"
-      :classId="classId"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
       :groups="sortedGroups" />
 
     <delete-group-modal v-if="showDeleteGroupModal"
-      :classId="classId"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id" />
 
@@ -137,8 +133,6 @@
     },
     vuex: {
       getters: {
-        className: state => state.pageState.class.name,
-        classId: state => state.pageState.class.id,
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
         groupModalShown: state => state.pageState.groupModalShown,

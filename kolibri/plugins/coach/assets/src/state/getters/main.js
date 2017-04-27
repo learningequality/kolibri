@@ -1,6 +1,14 @@
 const Constants = require('../../constants');
 
 
+function className(state) {
+  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
+  if (cls) {
+    return cls.name;
+  }
+  return '';
+}
+
 function isRecentPage(state) {
   return Constants.RecentReports.includes(state.pageName);
 }
@@ -15,6 +23,7 @@ function isLearnerPage(state) {
 
 
 module.exports = {
+  className,
   isRecentPage,
   isTopicPage,
   isLearnerPage,

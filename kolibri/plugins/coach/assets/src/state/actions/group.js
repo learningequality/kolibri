@@ -2,19 +2,12 @@ const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const Constants = require('../../constants');
+const { setClassState } = require('./main');
 
 const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
 const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const ClassroomResource = coreApp.resources.ClassroomResource;
 
-
-function _classState(classModel) {
-  return {
-    id: classModel.id,
-    name: classModel.name,
-  };
-}
 
 function _userState(user) {
   return {
@@ -50,14 +43,18 @@ function showGroupsPage(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.GROUPS);
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
-  const classPromise = ClassroomResource.getModel(classId).fetch();
   const classUsersPromise =
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch({}, true);
 
-  ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
+  ConditionalPromise.all([
+    facilityPromise,
+    classUsersPromise,
+    groupPromise,
+    setClassState(store, classId)
+  ]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classModel, classUsers, groupsCollection]) => {
+    ([facility, classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
         FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true));
@@ -70,11 +67,9 @@ function showGroupsPage(store, classId) {
           });
 
           const pageState = {
-            class: _classState(classModel),
             classUsers: _usersState(classUsers),
             groups,
             groupModalShown: false,
-            classId
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -89,10 +84,10 @@ function showGroupsPage(store, classId) {
   );
 }
 
-function createGroup(store, classId, groupName) {
+function createGroup(store, groupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
-    parent: classId,
+    parent: store.state.classId,
     name: groupName,
   };
   LearnerGroupResource.createModel(groupPayload).save().then(
@@ -108,7 +103,7 @@ function createGroup(store, classId, groupName) {
   );
 }
 
-function renameGroup(store, classId, groupId, newGroupName) {
+function renameGroup(store, groupId, newGroupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
     name: newGroupName,
@@ -127,7 +122,7 @@ function renameGroup(store, classId, groupId, newGroupName) {
   );
 }
 
-function deleteGroup(store, classId, groupId) {
+function deleteGroup(store, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   LearnerGroupResource.getModel(groupId).delete().then(
     () => {

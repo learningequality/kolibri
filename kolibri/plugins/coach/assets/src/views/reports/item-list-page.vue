@@ -76,7 +76,7 @@
           return {
             name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
             params: {
-              classId: this.pageState.classId,
+              classId: this.classId,
               channelId: this.pageState.channelId,
               topicId: row.id,
             }
@@ -85,7 +85,7 @@
         return {
           name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
           params: {
-            classId: this.pageState.classId,
+            classId: this.classId,
             channelId: this.pageState.channelId,
             contentId: row.id,
           }
@@ -94,6 +94,7 @@
     },
     vuex: {
       getters: {
+        classId: state => state.classId,
         pageState: state => state.pageState,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,

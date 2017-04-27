@@ -38,9 +38,9 @@ function _classState(data) {
     id: data.id,
     name: data.name,
     parent: data.parent,
-    learner_count: data.learner_count,
-    coach_count: data.coach_count,
-    admin_count: data.admin_count,
+    memberCount: data.learner_count,
+    coachCount: data.coach_count,
+    adminCount: data.admin_count,
   };
 }
 

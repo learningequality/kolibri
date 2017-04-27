@@ -6,6 +6,7 @@ const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
+const { setClassState } = require('./main');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -68,6 +69,7 @@ function _showChannelList(store, classId) {
   store.state.core.channels.list.forEach(
     channel => channelLastActivePromises.push(channelLastActivePromise(channel))
   );
+  channelLastActivePromises.push(setClassState(store, classId));
 
   Promise.all(channelLastActivePromises).then(
     allChannelLastActive => {
@@ -75,10 +77,7 @@ function _showChannelList(store, classId) {
       allChannelLastActive.forEach(
         channelLastActive => Object.assign(lastActive, channelLastActive)
       );
-      const pageState = {
-        lastActive,
-        classId,
-      };
+      const pageState = { lastActive };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -215,7 +214,6 @@ function _showContentList(store, options) {
   Promise.all(promises).then(
     () => {
       const reportProps = {
-        classId: options.classId,
         channelId: options.channelId,
         contentScope: options.contentScope,
         contentScopeId: options.contentScopeId,
@@ -244,7 +242,6 @@ function _showLearnerList(store, options) {
   Promise.all(promises).then(
     () => {
       const reportProps = {
-        classId: options.classId,
         channelId: options.channelId,
         contentScope: options.contentScope,
         contentScopeId: options.contentScopeId,
@@ -267,6 +264,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
     SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
     FacilityUserResource.getModel(userId).fetch(),
+    setClassState(store, classId),
   ]).then(
     ([exercises, attemptLogs, summaryLog, user]) => {
       function parseJSONorUndefined(json) {
@@ -320,7 +318,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
         currentInteraction: currentInteractionHistory[interactionIndex],
         summaryLog: summaryLog[0],
         channelId,
-        classId,
         attemptLogIndex,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -347,8 +344,8 @@ function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
-  channelPromise.then(
-    channelData => {
+  Promise.all([channelPromise, setClassState(store, classId)]).then(
+    ([channelData]) => {
       const sevenDaysAgo = new Date();
       // this is being set by default in the backend
       // backend date data might be unreliable, though
@@ -367,7 +364,6 @@ function showRecentItemsForChannel(store, classId, channelId) {
         reports => {
           const pageState = {
             reports: _recentReportState(reports),
-            classId,
             channelId,
           };
           store.dispatch('SET_PAGE_STATE', pageState);

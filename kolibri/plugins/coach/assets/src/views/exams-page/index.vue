@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ currentClass.name }} {{ $tr('exams') }}</h1>
+    <h1>{{ className }} {{ $tr('exams') }}</h1>
     <ui-radio-group
       :name="$tr('examFilter')"
       :label="$tr('show')"
@@ -34,8 +34,8 @@
           :examTitle="exam.title"
           :examActive="exam.active"
           :examVisibility="exam.visibility"
-          :classId="currentClass.id"
-          :className="currentClass.name"
+          :classId="classId"
+          :className="className"
           :classGroups="[]"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
@@ -50,7 +50,7 @@
     <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
     <create-exam-modal
       v-if="showCreateExamModal"
-      :classId="currentClass.id"
+      :classId="classId"
       :channels="sortedChannels"
     />
     <activate-exam-modal
@@ -58,22 +58,22 @@
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
+      :classId="classId"
     />
     <deactivate-exam-modal
       v-if="showDeactivateExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
+      :classId="classId"
     />
     <change-exam-visibility-modal
       v-if="showChangeExamVisibilityModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
-      :className="currentClass.name"
+      :classId="classId"
+      :className="className"
       :classGroups="currentClassGroups"
     />
     <preview-exam-modal
@@ -87,14 +87,14 @@
       v-if="showRenameExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"
+      :classId="classId"
       :exams="sortedExams"
     />
     <delete-exam-modal
       v-if="showDeleteExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"
+      :classId="classId"
     />
   </div>
 
@@ -103,6 +103,7 @@
 
 <script>
 
+  const className = require('../../state/getters/main').className;
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
   const PageNames = require('../../constants').PageNames;
@@ -227,7 +228,7 @@
       routeToExamReport({ id, channelId }) {
         this.$router.push({
           name: PageNames.EXAM_REPORT,
-          params: { classId: this.currentClass.id, examId: id, channelId }
+          params: { classId: this.classId, examId: id, channelId }
         });
       },
       openRenameExamModal(examId) {
@@ -244,7 +245,8 @@
         displayExamModal: ExamActions.displayExamModal,
       },
       getters: {
-        currentClass: state => state.pageState.currentClass,
+        classId: state => state.classId,
+        className,
         currentClassGroups: state => state.pageState.currentClassGroups,
         exams: state => state.pageState.exams,
         channels: state => state.pageState.channels,

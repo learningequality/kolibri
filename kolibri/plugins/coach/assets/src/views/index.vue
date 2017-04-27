@@ -2,9 +2,12 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
 
-    <top-nav v-if="showTopNav" slot="tabs"/>
+    <div class="content">
+      <template v-if="showTopNav">
+        <h1>{{ className }}</h1>
+        <top-nav/>
+      </template>
 
-    <div slot="content" class="content">
       <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
       </div>
@@ -26,6 +29,7 @@
 <script>
 
   const store = require('../state/store');
+  const className = require('../state/getters/main').className;
   const Constants = require('../constants');
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
@@ -90,6 +94,7 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
+        className,
         isSuperuser: coreGetters.isSuperuser,
         isAdmin: coreGetters.isAdmin,
         isCoach: coreGetters.isCoach,

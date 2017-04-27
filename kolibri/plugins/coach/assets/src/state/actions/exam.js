@@ -6,10 +6,10 @@ const CoreActions = require('kolibri.coreVue.vuex.actions');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 const Constants = require('../../constants');
+const { setClassState } = require('./main');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
-const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
@@ -129,20 +129,18 @@ function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
 
-  const resourceRequests = [
-    ClassroomResource.getModel(classId).fetch(),
+  const promises = [
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     ChannelResource.getCollection().fetch(),
     ExamResource.getCollection({ collection: classId }).fetch({}, true),
+    setClassState(store, classId),
   ];
 
-  return ConditionalPromise.all(resourceRequests).only(
+  return ConditionalPromise.all(promises).only(
     CoreActions.samePageCheckGenerator(store),
-    ([classroom, learnerGroups, channels, exams]) => {
+    ([learnerGroups, channels, exams]) => {
       const pageState = {
         channels: _channelsState(channels),
-        classId,
-        currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams),
         examModalShown: false,
@@ -217,7 +215,7 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       let newAssignments = response.filter(n => n);
       newAssignments = _assignmentsState(newAssignments);
 
-      const classId = store.state.pageState.currentClass.id;
+      const classId = store.state.classId;
       const exams = store.state.pageState.exams;
       const examIndex = exams.findIndex(exam => exam.id === examId);
       const examVisibility = exams[examIndex].visibility;
@@ -347,31 +345,26 @@ function showCreateExamPage(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
   store.dispatch('CORE_SET_TITLE', Constants.PageTitles.CREATE_EXAM);
 
-  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
   const channelPromise = ChannelResource.getCollection().fetch();
   const examsPromise = ExamResource.getCollection({ collection: classId }).fetch({}, true);
 
-  ConditionalPromise.all([currentClassPromise, channelPromise, examsPromise]).only(
+  ConditionalPromise.all([channelPromise, examsPromise, setClassState(store, classId)]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, channelsCollection, exams]) => {
-      const currentClass = pickIdAndName(currentClassModel);
+    ([channelsCollection, exams]) => {
       const currentChannel = _channelState(
         channelsCollection.find(channel => channel.id === channelId));
 
       const fetchContentPromise = fetchContent(store, channelId, currentChannel.rootPk);
-
       ConditionalPromise.all([fetchContentPromise]).only(
         CoreActions.samePageCheckGenerator(store),
         ([content]) => {
           const pageState = {
-            currentClass,
             currentChannel,
             topic: content.topic,
             subtopics: content.subtopics,
             exercises: content.exercises,
             selectedExercises: [],
             examModalShown: false,
-            classId,
             exams: _examsState(exams),
           };
 
@@ -434,7 +427,13 @@ function showExamReportPage(store, classId, channelId, examId) {
   const examPromise = ExamResource.getModel(examId, { channel_id: channelId }).fetch();
   const facilityUserPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
-  ConditionalPromise.all([examLogPromise, facilityUserPromise, groupPromise, examPromise]).only(
+  ConditionalPromise.all([
+    examLogPromise,
+    facilityUserPromise,
+    groupPromise,
+    examPromise,
+    setClassState(store, classId),
+  ]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examLogs, facilityUsers, learnerGroups, exam]) => {
       const examTakers = facilityUsers.map(
@@ -452,7 +451,6 @@ function showExamReportPage(store, classId, channelId, examId) {
       });
       const pageState = {
         examTakers,
-        classId,
         exam,
         channelId,
       };
@@ -483,7 +481,13 @@ function showExamReportDetailPage(
   const attemptLogPromise = ExamAttemptLogResource.getCollection(
     { exam: examId, user: userId }).fetch();
   const userPromise = FacilityUserResource.getModel(userId).fetch();
-  ConditionalPromise.all([attemptLogPromise, examPromise, userPromise, examLogPromise]).only(
+  ConditionalPromise.all([
+    attemptLogPromise,
+    examPromise,
+    userPromise,
+    examLogPromise,
+    setClassState(store, classId)
+  ]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examAttempts, exam, user, examLogs]) => {
       const examLog = examLogs[0];
@@ -540,7 +544,6 @@ function showExamReportDetailPage(
             const pageState = {
               exam: _examState(exam),
               itemId,
-              classId,
               questions,
               currentQuestion,
               questionNumber,

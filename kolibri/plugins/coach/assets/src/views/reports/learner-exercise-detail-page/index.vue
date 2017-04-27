@@ -135,7 +135,7 @@
         attemptLogs: state => state.pageState.attemptLogs,
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        classId: state => state.pageState.classId,
+        classId: state => state.classId,
         contentId: state => state.pageState.exercise.pk,
         channelId: state => state.pageState.channelId,
         user: state => state.pageState.user,
