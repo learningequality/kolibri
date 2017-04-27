@@ -10,8 +10,8 @@
           :contentName="exam.title"
           :userName="userName"
           :questions="examAttempts"
-          :completionTimeStamp="completionTimeStamp"
-          :completed="exam.closed"/>
+          :completionTimestamp="new Date(completionTimestamp)"
+          :completed="closed"/>
       </div>
       <div class="details-container">
         <div class="attempt-log-container">
@@ -24,7 +24,7 @@
         <div class="exercise-container">
           <interaction-list
             :interactions="currentInteractionHistory"
-            :attemptNumber="questionNumber"
+            :attemptNumber="currentAttempt.questionNumber"
             :selectedInteractionIndex="selectedInteractionIndex"
             @select="navigateToInteraction"
           />
@@ -115,7 +115,8 @@
         questionNumber: state => state.pageState.questionNumber,
         exercise: state => state.pageState.exercise,
         itemId: state => state.pageState.itemId,
-        completionTimeStamp: state => state.pageState.examLog.completion_timestamp,
+        completionTimestamp: state => state.pageState.examLog.completion_timestamp,
+        closed: state => state.pageState.examLog.closed,
       },
     },
   };

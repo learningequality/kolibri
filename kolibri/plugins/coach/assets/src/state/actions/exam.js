@@ -68,7 +68,7 @@ function _topicsState(topics) {
 }
 
 function _exerciseState(exercise) {
-  const numAssessments = assessmentMetaDataState(exercise).length;
+  const numAssessments = assessmentMetaDataState(exercise).assessmentIds.length;
   return {
     id: exercise.pk,
     title: exercise.title,
@@ -485,7 +485,8 @@ function showExamReportDetailPage(
   const userPromise = FacilityUserResource.getModel(userId).fetch();
   ConditionalPromise.all([attemptLogPromise, examPromise, userPromise, examLogPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([examAttempts, exam, user, examLog]) => {
+    ([examAttempts, exam, user, examLogs]) => {
+      const examLog = examLogs[0];
       const seed = exam.seed;
       const questionSources = JSON.parse(exam.question_sources);
 

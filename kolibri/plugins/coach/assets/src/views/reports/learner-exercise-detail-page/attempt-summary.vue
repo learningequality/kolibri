@@ -48,7 +48,7 @@
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
       statusMastered: 'Mastered',
-      statusInProgress: 'In Progress',
+      statusInProgress: 'In progress',
       requirementsMOfN: 'Mastery: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
       notStarted: 'Not started',

@@ -684,7 +684,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   attributes.user = store.state.core.session.user_id;
   attributes.examlog = store.state.examLog.id;
   const promise = examAttemptLogModel.save(attributes);
-  promise.then((newExamAttemptLog) => {
+  return promise.then((newExamAttemptLog) => {
     const log = Object.assign({}, newExamAttemptLog, {
       answer: parseJSONorUndefined(newExamAttemptLog.answer),
       interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
@@ -706,7 +706,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = store.state.examLog;
+  const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id).save(examLog).catch(
     error => { coreActions.handleApiError(store, error); });

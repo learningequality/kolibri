@@ -136,10 +136,11 @@
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer();
-        this.$router.push({
-          name: PageNames.EXAM,
-          params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+        this.saveAnswer().then(() => {
+          this.$router.push({
+            name: PageNames.EXAM,
+            params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+          });
         });
       },
       submitExam() {
