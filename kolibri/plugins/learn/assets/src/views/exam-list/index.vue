@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <!-- TODO this HTML is duplicated in a number of places, maybe make a component? -->
     <div v-if="!isUserLoggedIn" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>
