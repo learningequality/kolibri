@@ -9,29 +9,26 @@
       <points-icon class="in-points icon" :active="true"/>
       <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
     </div>
+    <p v-if="isLearner">{{ $tr('isLearner') }}</p>
+    <p v-if="isCoach">{{ $tr('isCoach') }}</p>
+    <p v-if="isAdmin">{{ $tr('isAdmin') }}</p>
+    <p v-if="isSuperuser">{{ $tr('isSuperuser') }}</p>
     <form @submit.prevent="submitEdits">
 
       <core-textbox
-        v-if="hasPrivilege('learner_can_edit_username')"
         class="input-field"
         :invalid="error"
         :error="errorMessage"
         :label="$tr('username')"
         :value="session.username"
-        disabled
+        :disabled="!hasPrivilege('learner_can_edit_username')"
         autocomplete="username"
         id="username"
         type="text" />
 
-      <p v-if="isLearner" class="type">{{ $tr('isLearner') }}</p>
-      <p v-if="isCoach" class="type">{{ $tr('isCoach') }}</p>
-      <p v-if="isAdmin" class="type">{{ $tr('isAdmin') }}</p>
-      <p v-if="isSuperuser" class="type">{{ $tr('isSuperuser') }}</p>
-
       <core-textbox
-        v-if="hasPrivilege('learner_can_edit_name') && !isSuperuser"
         class="input-field"
-        :disabled="busy"
+        :disabled="!hasPrivilege('learner_can_edit_username') || isSuperuser|| busy"
         :label="$tr('name')"
         v-model="full_name"
         autocomplete="name"
@@ -40,7 +37,7 @@
 
       <icon-button
         v-if="!isSuperuser"
-        :disabled="busy"
+        :disabled="!hasPrivilege('learner_can_edit_username') || !hasPrivilege('learner_can_edit_username') || isSuperuser||busy"
         :primary="true"
         :text="$tr('updateProfile')"
         id="submit"

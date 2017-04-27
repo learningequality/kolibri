@@ -70,8 +70,7 @@ class KolibriAuthPermissions(permissions.BasePermission):
 
 class FacilityDatasetViewSet(viewsets.ModelViewSet):
     permissions_classes = (KolibriAuthPermissions,)
-    # TODO: Fix permissions
-    # filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
 
     def get_queryset(self):
