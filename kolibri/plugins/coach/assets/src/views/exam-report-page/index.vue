@@ -34,10 +34,10 @@
               <span v-if="examTaker.progress === exam.question_count">
                 {{ $tr('completed') }}
               </span>
-              <span v-else-if="examTaker.progress !== undefined" class="incomplete">
+              <span v-else-if="examTaker.progress !== undefined">
                 {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
               </span>
-              <span v-else class="incomplete">
+              <span v-else>
                 {{ $tr('notstarted') }}
               </span>
             </td>
@@ -153,9 +153,6 @@
 
   .table-data
     text-align: center
-
-  .incomplete
-    color: red
 
   .header
     position: relative
