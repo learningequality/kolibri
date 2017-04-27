@@ -32,16 +32,7 @@ const initialState = {
       list: [],
       currentId: null,
     },
-    // Hardcoded for now. Privileges set according to Zero Rating conf
-    learnerPrivileges: {
-      username: true,
-      name: true,
-      password: true,
-      signup: true,
-      delete: false,
-      // classActivation: false,
-      loginRequired: false,
-    },
+    facilityConfig: {},
   },
 };
 
@@ -51,7 +42,7 @@ const mutations = {
     state.core.loginModalVisible = false;
   },
   CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
-    state.core.facility_config = facilityConfig;
+    state.core.facilityConfig = facilityConfig;
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {

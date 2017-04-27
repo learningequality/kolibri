@@ -236,7 +236,18 @@ function getFacilityConfig(store) {
       .fetch();
     return facilityConfigCollection
       .then(facilityConfig => {
-        store.dispatch('CORE_SET_FACILITY_CONFIG', facilityConfig);
+        // TODO: get this working
+        const temp = {
+          id: 2,
+          learner_can_edit_username: true,
+          learner_can_edit_name: true,
+          learner_can_edit_password: true,
+          learner_can_sign_up: true,
+          learner_can_delete_account: true,
+          description: '',
+          location: '',
+        };
+        store.dispatch('CORE_SET_FACILITY_CONFIG', temp);
       })
       .catch(error => handleApiError(store, error));
   }).catch(error => handleApiError(store, error));

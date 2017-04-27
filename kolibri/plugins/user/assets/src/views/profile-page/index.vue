@@ -12,7 +12,7 @@
     <form @submit.prevent="submitEdits">
 
       <core-textbox
-        v-if="hasPrivilege('username')"
+        v-if="hasPrivilege('learner_can_edit_username')"
         class="input-field"
         :invalid="error"
         :error="errorMessage"
@@ -29,7 +29,7 @@
       <p v-if="isSuperuser" class="type">{{ $tr('isSuperuser') }}</p>
 
       <core-textbox
-        v-if="hasPrivilege('name') && !isSuperuser"
+        v-if="hasPrivilege('learner_can_edit_name') && !isSuperuser"
         class="input-field"
         :disabled="busy"
         :label="$tr('name')"
@@ -102,7 +102,7 @@
     },
     methods: {
       hasPrivilege(privilege) {
-        return this.privileges[privilege];
+        return this.facilityConfig[privilege];
       },
       submitEdits() {
         const edits = {
@@ -113,7 +113,7 @@
     },
     vuex: {
       getters: {
-        privileges: state => state.core.learnerPrivileges,
+        facilityConfig: state => state.core.facilityConfig,
         session: state => state.core.session,
         error: state => state.pageState.error,
         success: state => state.pageState.success,
