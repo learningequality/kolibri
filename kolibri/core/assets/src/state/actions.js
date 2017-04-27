@@ -698,7 +698,7 @@ function updateMasteryAttemptState(store, {
 }
 
 function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state)) {
+  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
     const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
       store.state.core.session.user_id);
     userProgressModel.fetch().then((progress) => {
