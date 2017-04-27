@@ -447,10 +447,17 @@ function showSearch(store, channelId, searchTerm) {
 }
 
 function showExamList(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const userIsLoggedIn = coreGetters.isUserLoggedIn(store.state);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_LIST);
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
 
-  coreActions.setChannelInfo(store, channelId).then(
+  // if user is not logged in, this action is a noop
+  if (!userIsLoggedIn) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return Promise.resolve();
+  }
+
+  return coreActions.setChannelInfo(store, channelId).then(
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
