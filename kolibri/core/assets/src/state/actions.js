@@ -210,8 +210,8 @@ function getCurrentSession(store) {
       logging.info('No facilty ID set on session. Fetching facility list...');
       const facilityCollection = FacilityResource.getCollection();
       const facilityPromise = facilityCollection.fetch();
-      return facilityPromise.then(facilties => {
-        session.facility_id = facilties[0].id;
+      return facilityPromise.then(facilities => {
+        session.facility_id = (facilities[0] || {}).id;
         logging.info(`Setting facility ${session.facility_id}`);
         store.dispatch('CORE_SET_SESSION', _sessionState(session));
       });
@@ -698,7 +698,7 @@ function updateMasteryAttemptState(store, {
 }
 
 function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state)) {
+  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
     const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
       store.state.core.session.user_id);
     userProgressModel.fetch().then((progress) => {
