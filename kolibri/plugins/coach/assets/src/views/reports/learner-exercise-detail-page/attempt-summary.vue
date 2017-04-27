@@ -89,7 +89,7 @@
       },
       dateCompleted() {
         try {
-          return new Date(this.summaryLog.currentmasterylog.end_timestamp).toLocaleDateString();
+          return new Date(this.summaryLog.currentmasterylog.end_timestamp);
         } catch (e) {
           if (e instanceof TypeError) {
             return null;
