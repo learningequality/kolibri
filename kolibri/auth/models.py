@@ -25,6 +25,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging as logger
 
+from six import string_types
+
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -36,7 +38,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
-from six import string_types
 
 from .constants import collection_kinds, role_kinds
 from .errors import (
@@ -45,8 +46,8 @@ from .errors import (
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions,
-    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups
+    AnonUserCanReadFacilitiesThatAllowSignUps, AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CoachesCanManageGroupsForTheirClasses,
+    CoachesCanManageMembershipsForTheirGroups, CollectionSpecificRoleBasedPermissions, IsAdminOrUserForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -67,7 +68,7 @@ class FacilityDataset(models.Model):
     to indicate that they belong to this particular ``Facility``.
     """
 
-    permissions = IsAdminForOwnFacilityDataset()
+    permissions = IsAdminOrUserForOwnFacilityDataset()
 
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)

@@ -71,12 +71,16 @@ class FacilityDatasetPermissionsTestCase(TestCase):
         self.assertFalse(self.data1["classroom_coaches"][0].can_create(FacilityDataset, new_facility_dataset))
         self.assertFalse(self.data1["learners_one_group"][0][0].can_create(FacilityDataset, new_facility_dataset))
         self.assertFalse(self.data1["unattached_users"][0].can_create(FacilityDataset, new_facility_dataset))
-        self.assertFalse(self.data1["unattached_users"][0].can_create(FacilityDataset, new_facility_dataset))
 
-    def test_anon_users_cannot_read_facility_dataset(self):
-        """ KolibriAnonymousUser cannot read Facility objects """
-        self.assertFalse(self.anon_user.can_read(self.data1["dataset"]))
-        self.assertNotIn(self.data1["dataset"], self.anon_user.filter_readable(FacilityDataset.objects.all()))
+    def test_facility_users_can_read_own_facility_dataset(self):
+        """ FacilityUsers can read own FacilityDatasets. """
+        own_dataset = self.data1["dataset"]
+        self.assertTrue(self.data1["facility_admin"].can_read(own_dataset))
+        self.assertTrue(self.data1["classroom_coaches"][0].can_read(own_dataset))
+        self.assertTrue(self.data1["learners_one_group"][0][0].can_read(own_dataset))
+        self.assertTrue(self.data1["unattached_users"][0].can_read(own_dataset))
+        self.assertFalse(self.anon_user.can_read(own_dataset))
+        self.assertNotIn(own_dataset, self.anon_user.filter_readable(FacilityDataset.objects.all()))
 
     def test_only_facility_admins_can_update_own_facility_dataset(self):
         """ The only FacilityUser who can update a FacilityDataset is a facility admin for that FacilityDataset """
@@ -135,7 +139,6 @@ class FacilityPermissionsTestCase(TestCase):
         self.assertFalse(self.data1["facility_admin"].can_create(Facility, new_facility_data))
         self.assertFalse(self.data1["classroom_coaches"][0].can_create(Facility, new_facility_data))
         self.assertFalse(self.data1["learners_one_group"][0][0].can_create(Facility, new_facility_data))
-        self.assertFalse(self.data1["unattached_users"][0].can_create(Facility, new_facility_data))
         self.assertFalse(self.data1["unattached_users"][0].can_create(Facility, new_facility_data))
 
     def test_facility_users_can_read_own_facility(self):

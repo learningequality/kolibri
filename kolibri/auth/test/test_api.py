@@ -377,7 +377,6 @@ class FacilityDatasetAPITestCase(APITestCase):
     def setUp(self):
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
-        FacilityFactory.create(name='extra')
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(self.admin)
@@ -385,7 +384,7 @@ class FacilityDatasetAPITestCase(APITestCase):
     def test_return_dataset_that_user_is_an_admin_for(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
         self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
 
     def test_return_all_datasets_for_device_owner(self):
@@ -393,7 +392,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
-    def test_return_nothing_for_facility_user(self):
+    def test_return_dataset_for_facility_user(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
