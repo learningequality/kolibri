@@ -154,9 +154,6 @@
   .table-data
     text-align: center
 
-  .incomplete
-    color: red
-
   .header
     position: relative
     padding-right: 150px
