@@ -32,7 +32,7 @@
     <audio
       id="audio"
       ref="audio"
-      @timeupdate="updateTime"
+      @timeupdate="updateTime()"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
       :src="defaultFile.storage_url"
