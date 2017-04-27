@@ -12,9 +12,15 @@
       </router-link>
       <a class="points-link" href="/user"><total-points/></a>
     </div>
+
     <div v-if="!isSearchPage">
-      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
+      <tabs
+        :items="learnTabs"
+        type="icon-and-text"
+        @tabclicked="handleTabClick"
+      />
     </div>
+
     <div>
       <breadcrumbs/>
       <component :is="currentPage"/>
@@ -27,12 +33,11 @@
 
 <script>
 
-  const PageNames = require('../constants').PageNames;
-  const PageModes = require('../constants').PageModes;
-
   const getters = require('../state/getters');
   const store = require('../state/store');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+  const { PageNames, PageModes } = require('../constants');
+  const { TopLevelPageNames } = require('kolibri.coreVue.vuex.constants');
+  const { isUserLoggedIn } = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -92,6 +97,7 @@
           params: { channel_id: channelId },
         });
       },
+      // BUG if a tab is disabled, it still handles clicks
       handleTabClick(tabIndex) {
         switch (tabIndex) {
           case 0:
@@ -151,26 +157,31 @@
         return this.pageName === PageNames.SEARCH;
       },
       learnTabs() {
-        const isRecommended = (this.pageMode === PageModes.LEARN);
-        const isTopics = (this.pageMode === PageModes.EXPLORE);
-        const isExams = (this.pageMode === PageModes.EXAM);
+        const tabs = [
+          {
+            title: this.$tr('recommended'),
+            icon: 'forum',
+            selected: this.pageMode === PageModes.LEARN,
+            disabled: false,
+          },
+          {
+            title: this.$tr('topics'),
+            icon: 'folder',
+            selected: this.pageMode === PageModes.EXPLORE,
+            disabled: false,
+          },
+        ];
 
-        return [{
-          title: this.$tr('recommended'),
-          icon: 'forum',
-          selected: isRecommended,
-          disabled: false,
-        }, {
-          title: this.$tr('topics'),
-          icon: 'folder',
-          selected: isTopics,
-          disabled: false,
-        }, {
-          title: this.$tr('exams'),
-          icon: 'assignment',
-          selected: isExams,
-          disabled: false,
-        }];
+        if (this.isUserLoggedIn) {
+          tabs.push({
+            title: this.$tr('exams'),
+            icon: 'assignment',
+            selected: this.pageMode === PageModes.EXAM,
+            disabled: false,
+          });
+        }
+
+        return tabs;
       },
     },
     vuex: {
@@ -178,6 +189,7 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
+        isUserLoggedIn,
       },
     },
     store, // make this and all child components aware of the store
