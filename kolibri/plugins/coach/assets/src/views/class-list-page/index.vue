@@ -70,7 +70,7 @@
     },
     $trNameSpace: 'coachClassListPage',
     $trs: {
-      myClasses: 'My classes',
+      myClasses: 'All classes',
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
       tableCaption: 'List of classes',
