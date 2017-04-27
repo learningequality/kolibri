@@ -223,6 +223,26 @@ function getCurrentSession(store) {
   .catch(error => { handleApiError(store, error); });
 }
 
+function getFacilityConfig(store) {
+  const coreApp = require('kolibri');
+  const FacilityCollection = coreApp.resources.FacilityResource
+    .getCollection()
+    .fetch();
+
+  return FacilityCollection.then(facilities => {
+    const currentFacilityId = facilities[0].id;
+    const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
+      .getCollection({ facility_id: currentFacilityId })
+      .fetch();
+    return facilityConfigCollection
+      .then(facilityConfig => {
+        store.dispatch('CORE_SET_FACILITY_CONFIG', facilityConfig);
+      })
+      .catch(error => handleApiError(store, error));
+  }).catch(error => handleApiError(store, error));
+}
+
+
 function showLoginModal(store, bool) {
   store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
   store.dispatch('CORE_SET_LOGIN_ERROR', null);
@@ -713,6 +733,7 @@ module.exports = {
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilityConfig,
   showLoginModal,
   cancelLoginModal,
   initContentSession,

@@ -50,6 +50,9 @@ const mutations = {
     state.core.session = value;
     state.core.loginModalVisible = false;
   },
+  CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
+    state.core.facility_config = facilityConfig;
+  },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
     state.core.loginError = value;
