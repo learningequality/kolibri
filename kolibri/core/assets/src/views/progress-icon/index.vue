@@ -1,14 +1,19 @@
 <template>
 
-  <div class="wrapper">
-    <div v-if="isInProgress" class="progress-icon inprogress">
-      <ui-icon><mat-svg category="action" name="hourglass_empty"/></ui-icon>
-    </div>
-
-    <div v-else-if="isCompleted" class="progress-icon completed">
-      <ui-icon><mat-svg category="navigation" name="check"/></ui-icon>
-    </div>
-  </div>
+  <span>
+    <ui-icon
+      v-if="isInProgress"
+      ariaLabel="$tr('inProgress')"
+      icon="schedule"
+      class="inprogress"
+    />
+    <ui-icon
+      v-else-if="isCompleted"
+      ariaLabel="$tr('completed')"
+      icon="check"
+      class="completed"
+    />
+  </span>
 
 </template>
 
@@ -16,6 +21,11 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'progressIcon',
+    $trs: {
+      inProgress: 'In progress',
+      completed: 'Completed',
+    },
     props: {
       progress: {
         type: Number,
@@ -43,27 +53,14 @@
 
 <style lang="stylus" scoped>
 
-  $icon-size = 1em
-
-  .ui-icon
-    font-size: $icon-size
-
-  .wrapper
-    display: inline-block
-
-  .progress-icon
+  .inprogress, .completed
     border-radius: 50%
-    line-height: $icon-size
-    padding: 0.3em
-
-  svg
-    display: block
-    fill: black
+    color: white
 
   .inprogress
-    background-color: #828282
+    background-color: #2196f3
 
   .completed
-    background-color: #E0B921
+    background-color: #4caf50
 
 </style>
