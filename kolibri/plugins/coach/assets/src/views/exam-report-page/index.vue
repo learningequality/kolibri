@@ -98,7 +98,7 @@
     vuex: {
       getters: {
         examTakers: state => state.pageState.examTakers,
-        classId: state => state.pageState.classId,
+        classId: state => state.classId,
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
       },

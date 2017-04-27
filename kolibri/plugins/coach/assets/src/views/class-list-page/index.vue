@@ -65,7 +65,7 @@
     },
     vuex: {
       getters: {
-        classes: state => state.pageState.classes,
+        classes: state => state.classList,
       },
     },
     $trNameSpace: 'coachClassListPage',

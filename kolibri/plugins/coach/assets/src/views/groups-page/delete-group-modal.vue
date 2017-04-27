@@ -8,7 +8,7 @@
       @click="close" />
     <icon-button :text="$tr('deleteGroup')"
       :primary="true"
-      @click="deleteGroup(classId, groupId)" />
+      @click="deleteGroup(groupId)" />
   </core-modal>
 
 </template>
@@ -34,10 +34,6 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      classId: {
-        type: String,
-        required: true,
-      },
       groupName: {
         type: String,
         required: true,

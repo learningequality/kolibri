@@ -102,7 +102,7 @@
         return {
           name: CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM,
           params: {
-            classId: this.pageState.classId,
+            classId: this.classId,
             channelId: this.pageState.channelId,
             contentId: row.id,
           }
@@ -111,6 +111,7 @@
     },
     vuex: {
       getters: {
+        classId: state => state.classId,
         pageState: state => state.pageState,
       },
     },

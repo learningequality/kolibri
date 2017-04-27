@@ -52,10 +52,6 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      classId: {
-        type: String,
-        required: true,
-      },
       groups: {
         type: Array,
         required: true,
@@ -74,7 +70,7 @@
     methods: {
       callCreateGroup() {
         if (!this.duplicateName) {
-          this.createGroup(this.classId, this.groupNameInput);
+          this.createGroup(this.groupNameInput);
         }
       },
       close() {

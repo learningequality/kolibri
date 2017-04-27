@@ -73,7 +73,7 @@
       getters: {
         channels: state => state.core.channels.list,
         lastActive: state => state.pageState.lastActive,
-        classId: state => state.pageState.classId,
+        classId: state => state.classId,
         pageName: state => state.pageName,
       },
     },

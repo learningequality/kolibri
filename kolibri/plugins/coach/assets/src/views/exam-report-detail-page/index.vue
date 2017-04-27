@@ -103,7 +103,7 @@
     vuex: {
       getters: {
         channelId: state => state.pageState.channelId,
-        classId: state => state.pageState.classId,
+        classId: state => state.classId,
         examAttempts: state => state.pageState.examAttempts,
         exam: state => state.pageState.exam,
         userName: state => state.pageState.user.full_name,

@@ -41,7 +41,7 @@
             title: this.$tr('channels'),
             vlink: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.pageState.classId },
+              params: { classId: this.classId },
             },
           },
           { title: this.channelTitle }
@@ -56,7 +56,7 @@
             title: this.$tr('channels'),
             vlink: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.pageState.classId },
+              params: { classId: this.classId },
             },
           },
           {
@@ -64,7 +64,7 @@
             vlink: {
               name: CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
-                classId: this.pageState.classId,
+                classId: this.classId,
                 channelId: this.pageState.channelId,
               },
             },
@@ -79,7 +79,7 @@
             title: this.$tr('channels'),
             vlink: {
               name: CoachConstants.PageNames.TOPIC_CHANNELS,
-              params: { classId: this.pageState.classId },
+              params: { classId: this.classId },
             },
           },
           // links to each ancestor
@@ -90,7 +90,7 @@
               breadcrumb.vlink = {
                 name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
                 params: {
-                  classId: this.pageState.classId,
+                  classId: this.classId,
                   channelId: this.pageState.channelId,
                   topicId: item.id,
                 },
@@ -100,7 +100,7 @@
               breadcrumb.vlink = {
                 name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
-                  classId: this.pageState.classId,
+                  classId: this.classId,
                   channelId: this.pageState.channelId,
                 },
               };
@@ -115,6 +115,7 @@
     vuex: {
       getters: {
         channels: state => state.core.channels.list,
+        classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
         isTopicPage: coachGetters.isTopicPage,
