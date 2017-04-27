@@ -34,12 +34,6 @@ function getElements(wrapper) {
   };
 }
 
-function promisifyNextTick() {
-  return new Promise((resolve) => {
-    Vue.nextTick(() => { resolve(); });
-  });
-}
-
 describe('facility config page view', () => {
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
@@ -58,7 +52,7 @@ describe('facility config page view', () => {
     const saveActionStub = sinon.stub(wrapper, 'saveFacilityConfig');
     const { saveButton } = getElements(wrapper);
     simulant.fire(saveButton(), 'click');
-    return promisifyNextTick()
+    return Vue.nextTick()
     .then(() => {
       sinon.assert.calledOnce(saveActionStub);
       saveActionStub.restore();
@@ -78,7 +72,7 @@ describe('facility config page view', () => {
     const { resetButton, cancelResetButton } = getElements(wrapper);
     assert.equal(wrapper.showModal, false);
     simulant.fire(resetButton(), 'click');
-    return promisifyNextTick()
+    return Vue.nextTick()
     .then(() => {
       assert.equal(wrapper.showModal, true);
       simulant.fire(cancelResetButton(), 'click');
@@ -91,10 +85,10 @@ describe('facility config page view', () => {
     const resetActionStub = sinon.stub(wrapper, 'resetFacilityConfig');
     const { resetButton, confirmResetButton } = getElements(wrapper);
     simulant.fire(resetButton(), 'click');
-    return promisifyNextTick()
+    return Vue.nextTick()
     .then(() => {
       simulant.fire(confirmResetButton(), 'click');
-      return promisifyNextTick();
+      return Vue.nextTick();
     })
     .then(() => {
       assert.equal(wrapper.showModal, false);
