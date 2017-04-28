@@ -28,7 +28,7 @@ const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
 /**
- * helper function for _showChannelList
+ * Helper function for _showChannelList
  * @param {object} channel - to get recentActivity for
  * @param {string} classId -
  * @returns {Promise} that resolves channel with lastActive value in object:
@@ -47,9 +47,7 @@ function channelLastActivePromise(channel, classId) {
       const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
       getSumm.then(
         channelSummary => {
-          const channelLastActive = {};
-          channelLastActive[channel.id] = channelSummary.last_active;
-          resolve(channelLastActive);
+          resolve({ [channel.id]: channelSummary.last_active });
         },
         error => reject(error)
       );

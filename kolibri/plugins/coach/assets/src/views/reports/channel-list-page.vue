@@ -26,6 +26,7 @@
 
 </template>
 
+
 <script>
 
   const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
