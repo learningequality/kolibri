@@ -56,7 +56,7 @@
       listened: '{proportionCompleted} listened',
       opened: '{proportionCompleted} opened',
       watched: '{proportionCompleted} watched',
-      mastered: '{proportionCompleted} mastered',
+      mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
     },
     components: {

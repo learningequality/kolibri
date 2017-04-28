@@ -19,7 +19,6 @@
   module.exports = {
     $trNameSpace: 'progressIndicator',
     $trs: {
-      mastered: 'mastered by {0, number, integer} learners',
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',
     },
@@ -42,9 +41,6 @@
       extraText() {
         if (this.numusers === undefined) {
           return null;
-        }
-        if (this.isExercise) {
-          return this.$tr('mastered', this.numusers);
         }
         return this.$tr('completed', this.numusers);
       },

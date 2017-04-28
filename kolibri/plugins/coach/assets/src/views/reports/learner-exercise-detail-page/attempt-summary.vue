@@ -47,9 +47,9 @@
   module.exports = {
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
-      statusMastered: 'Mastered',
+      statusMastered: 'Completed',
       statusInProgress: 'In progress',
-      requirementsMOfN: 'Mastery: {m ,number} out of {n, number} correct',
+      requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
       notStarted: 'Not started',
     },
