@@ -490,7 +490,7 @@ function showExamReportDetailPage(
   ]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examAttempts, exam, user, examLogs]) => {
-      const examLog = examLogs[0];
+      const examLog = examLogs[0] || {};
       const seed = exam.seed;
       const questionSources = JSON.parse(exam.question_sources);
 
