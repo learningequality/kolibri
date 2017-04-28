@@ -26,6 +26,35 @@ const ContentNodeResource = coreApp.resources.ContentNodeResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
+/**
+ * helper function for _showChannelList
+ * @param {object} channel - to get recentActivity for
+ * @param {string} classId -
+ * @returns {Promise} that resolves channel with lastActive value in object:
+ *   { 'channelId': dateOfLastActivity }
+*/
+function channelLastActivePromise(channel, classId) {
+  const summaryPayload = {
+    channel_id: channel.id,
+    collection_kind: ReportConstants.UserScopes.CLASSROOM,
+    collection_id: classId,
+  };
+
+  // workaround for conditionalPromise.then() misbehaving
+  return new Promise(
+    (resolve, reject) => {
+      const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
+      getSumm.then(
+        channelSummary => {
+          const channelLastActive = {};
+          channelLastActive[channel.id] = channelSummary.last_active;
+          resolve(channelLastActive);
+        },
+        error => reject(error)
+      );
+    }
+  );
+}
 
 function _showChannelList(store, classId) {
   // don't handle super users
@@ -36,38 +65,9 @@ function _showChannelList(store, classId) {
     return;
   }
 
-  function channelLastActivePromise(channel) {
-    // helper function for _showChannelList
-    // @param channel to get recentActivity for
-    // @returns promise that resolves channel with lastActive value in object:
-    // {
-    //   'channelId': dateOfLastActivity,
-    // }
-    const summaryPayload = {
-      channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.CLASSROOM,
-      collection_id: classId,
-    };
-
-    // workaround for conditionalPromise.then() misbehaving
-    return new Promise(
-      (resolve, reject) => {
-        const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
-        getSumm.then(
-          channelSummary => {
-            const channelLastActive = {};
-            channelLastActive[channel.id] = channelSummary.last_active;
-            resolve(channelLastActive);
-          },
-          error => reject(error)
-        );
-      }
-    );
-  }
-
   const channelLastActivePromises = [];
   store.state.core.channels.list.forEach(
-    channel => channelLastActivePromises.push(channelLastActivePromise(channel))
+    channel => channelLastActivePromises.push(channelLastActivePromise(channel, classId))
   );
   channelLastActivePromises.push(setClassState(store, classId));
 
