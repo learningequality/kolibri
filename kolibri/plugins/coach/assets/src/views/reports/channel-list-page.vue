@@ -8,10 +8,12 @@
       </tr>
     </thead>
     <tbody slot="tbody">
-      <tr v-for="row in channelList" :key="row.id">
-        <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
-        <activity-cell :date="lastActive[row.id]" />
-      </tr>
+      <template v-for="row in channelList">
+        <tr v-if="channelIsVisible(lastActive[row.id])" :key="row.id">
+          <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
+          <activity-cell :date="lastActive[row.id]" />
+        </tr>
+      </template>
     </tbody>
   </report-table>
 
@@ -23,6 +25,7 @@
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const PageNames = require('../../constants').PageNames;
   const orderBy = require('lodash/orderBy');
+  const differenceInDays = require('date-fns/difference_in_days');
 
   module.exports = {
     name: 'channelList',
@@ -31,6 +34,11 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
+    },
+    data() {
+      return {
+        currentDateTime: Date.now(),
+      };
     },
     components: {
       'report-table': require('./report-table'),
@@ -54,6 +62,16 @@
       },
     },
     methods: {
+      channelIsVisible(lastActiveTime) {
+        const THREHOLD_IN_DAYS = 7;
+        if (this.showRecentOnly) {
+          return (
+            Boolean(lastActiveTime) &&
+            differenceInDays(this.currentDateTime, lastActiveTime) <= THREHOLD_IN_DAYS
+          );
+        }
+        return true;
+      },
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,
@@ -75,6 +93,7 @@
         lastActive: state => state.pageState.lastActive,
         classId: state => state.classId,
         pageName: state => state.pageName,
+        showRecentOnly: state => state.pageState.showRecentOnly,
       },
     },
   };
