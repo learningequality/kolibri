@@ -526,6 +526,7 @@ function showExamReportDetailPage(
                   log.content_id === question.contentId) || {
                     interaction_history: '[]',
                     correct: false,
+                    noattempt: true,
                   };
                 return Object.assign({
                   questionNumber: index + 1,

@@ -13,7 +13,13 @@
           }"
         >
             <mat-svg
-              v-if="attemptLog.correct"
+              v-if="attemptLog.noattempt"
+              class="item svg-item svg-noattempt"
+              category="navigation"
+              name="cancel"
+            />
+            <mat-svg
+              v-else-if="attemptLog.correct"
               class="item svg-item svg-correct"
               category="action"
               name="check_circle"
@@ -25,7 +31,7 @@
               name="cancel"
             />
             <mat-svg
-              v-if="attemptLog.hinted"
+              v-else-if="attemptLog.hinted"
               class="item svg-item svg-hint"
               category="action"
               name="lightbulb_outline"
@@ -110,6 +116,9 @@
 
   .svg-correct
     fill: green
+
+  .svg-noattempt
+    fill: grey
 
   li
     clear: both
