@@ -16,7 +16,7 @@
       </div>
     </ui-toolbar>
 
-    <form class="signup-form" ref="form" @submit.prevent="signUp">
+    <form v-if="canSignUp" class="signup-form" ref="form" @submit.prevent="signUp">
       <ui-alert type="error" @dismiss="resetSignUpState" v-if="errorCode">
         {{errorMessage}}
       </ui-alert>
@@ -71,6 +71,8 @@
 
     </form>
 
+    <h1 v-else class="signup-disabled">{{ $tr('contactDeviceOwner')}}</h1>
+
   </div>
 
 </template>
@@ -98,6 +100,7 @@
       logIn: 'Log in',
       kolibri: 'Kolibri',
       finish: 'Finish',
+      contactDeviceOwner: 'Contact the device owner to create an account'
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -163,6 +166,7 @@
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
+        canSignUp: state => state.core.facilityConfig.learnerCanSignUp,
       },
       actions: {
         signUpAction: actions.signUp,
@@ -232,5 +236,10 @@
   .app-bar-icon
     font-size: 2.5em
     margin-left: 0.25em
+
+  .signup-disabled
+    background: $core-bg-light
+    text-align: center
+    padding: 1em
 
 </style>

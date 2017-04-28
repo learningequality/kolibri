@@ -30,7 +30,7 @@
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link class="group-btn" :to="signUp">
+        <router-link v-if="canSignUp" class="group-btn" :to="signUp">
           <icon-button id="signup-button" :text="$tr('createAccount')" :primary="true"/>
         </router-link>
         <a class="group-btn" href="/learn">
@@ -92,6 +92,7 @@
     vuex: {
       getters: {
         loginError: state => state.core.loginError === 401,
+        canSignUp: state => state.core.facilityConfig.learnerCanSignUp
       },
       actions: {
         kolibriLogin: actions.kolibriLogin,
