@@ -230,22 +230,27 @@ function getFacilityConfig(store) {
     .fetch();
 
   return FacilityCollection.then(facilities => {
-    const currentFacilityId = facilities[0].id;
+    store.dispatch('CORE_SET_FACILITIES', facilities);
+    const currentFacilityId = facilities[0].id; // assumes there is only 1 facility for now
     const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
       .getCollection({ facility_id: currentFacilityId })
       .fetch();
     return facilityConfigCollection
       .then(facilityConfig => {
-        const config = {
-          id: facilityConfig[0].id,
-          description: facilityConfig[0].description,
-          location: facilityConfig[0].location,
-          learnerCanSignUp: facilityConfig[0].learner_can_sign_up,
-          learnerCanEditUsername: facilityConfig[0].learner_can_edit_username,
-          learnerCanEditName: facilityConfig[0].learner_can_edit_name,
-          learnerCanEditPassword: facilityConfig[0].learner_can_edit_password,
-          learnerCanDeleteAccount: facilityConfig[0].learner_can_delete_account,
-        };
+        let config = {};
+        if (facilityConfig[0]) {
+          config = {
+            id: facilityConfig[0].id,
+            description: facilityConfig[0].description,
+            location: facilityConfig[0].location,
+            learnerCanSignUp: facilityConfig[0].learner_can_sign_up,
+            learnerCanEditUsername: facilityConfig[0].learner_can_edit_username,
+            learnerCanEditName: facilityConfig[0].learner_can_edit_name,
+            learnerCanEditPassword: facilityConfig[0].learner_can_edit_password,
+            learnerCanDeleteAccount: facilityConfig[0]
+              .learner_can_delete_account,
+          };
+        }
         store.dispatch('CORE_SET_FACILITY_CONFIG', config);
       })
       .catch(error => handleApiError(store, error));

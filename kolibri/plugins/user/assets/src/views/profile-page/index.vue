@@ -2,11 +2,11 @@
 
   <div class="content">
     <ui-alert type="success" @dismiss="resetProfileState" v-if="success">
-      {{$tr('success')}}
+      {{ $tr('success') }}
     </ui-alert>
 
     <h3>{{ $tr('role') }}</h3>
-    <p>{{role}}</p>
+    <p>{{ role }}</p>
 
     <template v-if="!isSuperuser">
       <h3>{{ $tr('points') }}</h3>
@@ -18,18 +18,18 @@
 
     <template v-if="!canEditUsername">
       <h3>{{ $tr('username') }}</h3>
-      <p>{{session.username}}</p>
+      <p>{{ session.username }}</p>
     </template>
 
     <template v-if="!canEditName && !isSuperuser">
       <h3>{{ $tr('name') }}</h3>
-      <p>{{session.full_name}}</p>
+      <p>{{ session.full_name }}</p>
     </template>
 
     <form v-if="canEditUsername || canEditName" @submit.prevent="submitEdits">
 
       <template v-if="canEditUsername">
-        <h3>{{$tr('username')}}</h3>
+        <h3>{{ $tr('username') }}</h3>
         <core-textbox
           :disabled="busy"
           :invalid="error"
@@ -40,7 +40,7 @@
       </template>
 
       <template v-if="canEditName">
-        <h3>{{$tr('name')}}</h3>
+        <h3>{{ $tr('name') }}</h3>
         <core-textbox
           :disabled="busy"
           v-model="full_name"

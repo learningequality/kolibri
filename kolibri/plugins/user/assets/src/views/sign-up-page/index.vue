@@ -16,12 +16,23 @@
       </div>
     </ui-toolbar>
 
-    <form v-if="canSignUp" class="signup-form" ref="form" @submit.prevent="signUp">
+    <form class="signup-form" ref="form" @submit.prevent="signUp">
       <ui-alert type="error" @dismiss="resetSignUpState" v-if="errorCode">
         {{errorMessage}}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
+
+      <ui-select
+        :name="$tr('selectFacility')"
+        :placeholder="$tr('selectFacility')"
+        :label="$tr('facility')"
+        :options="facilityOptions"
+        :invalid="selectFacilityInvalid"
+        :error="$tr('selectFacility')"
+        v-model="selectedFacility"
+        @blur="checkSelect = true"
+      />
 
       <core-textbox
         :placeholder="$tr('enterName')"
@@ -29,7 +40,6 @@
         :aria-label="$tr('name')"
         v-model="name"
         autocomplete="name"
-        autofocus
         required
         id="name"
         type="text" />
@@ -71,8 +81,6 @@
 
     </form>
 
-    <h1 v-else class="signup-disabled">{{ $tr('contactDeviceOwner')}}</h1>
-
   </div>
 
 </template>
@@ -100,7 +108,8 @@
       logIn: 'Log in',
       kolibri: 'Kolibri',
       finish: 'Finish',
-      contactDeviceOwner: 'Contact the device owner to create an account'
+      facility: 'Facility',
+      selectFacility: 'Select a facility',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -110,12 +119,15 @@
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'logo': require('kolibri.coreVue.components.logo'),
       'ui-icon': require('keen-ui/src/UiIcon'),
+      'ui-select': require('keen-ui/src/UiSelect'),
     },
     data: () => ({
       name: '',
       username: '',
       password: '',
       confirmed_password: '',
+      selectedFacility: '',
+      checkSelect: false,
     }),
     computed: {
       signInPage() {
@@ -138,14 +150,25 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return this.name && this.username && this.password && this.confirmed_password;
+        return this.selectedFacility && this.name && this.username
+          && this.password && this.confirmed_password;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
       },
+      facilityOptions() {
+        return this.facilities.map(facility => ({ label: facility.name, id: facility.id }));
+      },
+      selectFacilityInvalid() {
+        if (!this.checkSelect) {
+          return false;
+        }
+        return this.selectedFacility === '';
+      },
     },
     methods: {
       signUp() {
+        this.checkSelect = true;
         const canSubmit =
           this.allFieldsPopulated &&
           this.passwordsMatch &&
@@ -153,6 +176,7 @@
 
         if (canSubmit) {
           this.signUpAction({
+            facility: this.selectedFacility.id,
             full_name: this.name,
             username: this.username,
             password: this.password,
@@ -166,7 +190,7 @@
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
-        canSignUp: state => state.core.facilityConfig.learnerCanSignUp,
+        facilities: state => state.core.facilities,
       },
       actions: {
         signUpAction: actions.signUp,
@@ -236,10 +260,5 @@
   .app-bar-icon
     font-size: 2.5em
     margin-left: 0.25em
-
-  .signup-disabled
-    background: $core-bg-light
-    text-align: center
-    padding: 1em
 
 </style>

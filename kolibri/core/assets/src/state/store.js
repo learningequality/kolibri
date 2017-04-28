@@ -33,6 +33,7 @@ const initialState = {
       currentId: null,
     },
     facilityConfig: {},
+    facilities: [],
   },
 };
 
@@ -43,6 +44,9 @@ const mutations = {
   },
   CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
     state.core.facilityConfig = facilityConfig;
+  },
+  CORE_SET_FACILITIES(state, facilities) {
+    state.core.facilities = facilities;
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
