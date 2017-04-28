@@ -679,37 +679,40 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     content_id: contentId,
     item: itemId,
   });
-  // If the above findModel returned no matching model, then we can do
-  // getModel to get the new model instead.
-  if (!examAttemptLogModel) {
-    examAttemptLogModel = ExamAttemptLogResource.getModel(
-      currentAttemptLog.id);
-  }
   const attributes = Object.assign({}, currentAttemptLog);
   attributes.interaction_history = JSON.stringify(attributes.interaction_history);
   attributes.answer = JSON.stringify(attributes.answer);
   attributes.user = store.state.core.session.user_id;
   attributes.examlog = store.state.examLog.id;
+  // If the above findModel returned no matching model, then we can do
+  // getModel to get the new model instead.
+  if (!examAttemptLogModel) {
+    examAttemptLogModel = ExamAttemptLogResource.createModel(
+      attributes);
+  }
   const promise = examAttemptLogModel.save(attributes);
-  return promise.then((newExamAttemptLog) => {
-    const log = Object.assign({}, newExamAttemptLog, {
-      answer: parseJSONorUndefined(newExamAttemptLog.answer),
-      interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
-    });
-    store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-      [contentId]: ({
-        [itemId]: log,
-      }),
-    });
-    const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-    store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
-    const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-      user: store.state.core.session.user_id,
-      exam: store.state.pageState.exam.id,
-    });
-    // Add this attempt log to the Collection for future caching.
-    examAttemptLogCollection.set(examAttemptLogModel);
-  });
+  return promise.then((newExamAttemptLog) =>
+    new Promise((resolve, reject) => {
+      const log = Object.assign({}, newExamAttemptLog, {
+        answer: parseJSONorUndefined(newExamAttemptLog.answer),
+        interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
+      });
+      store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        [contentId]: ({
+          [itemId]: log,
+        }),
+      });
+      const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+      store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+      const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+        user: store.state.core.session.user_id,
+        exam: store.state.pageState.exam.id,
+      });
+      // Add this attempt log to the Collection for future caching.
+      examAttemptLogCollection.set(examAttemptLogModel);
+      resolve();
+    })
+  );
 }
 
 function closeExam(store) {
