@@ -1,12 +1,13 @@
 import datetime
 from dateutil.parser import parse
 
+from django.db.models import Q
 from django.utils import timezone
 
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.logger.models import ContentSummaryLog, MasteryLog
 from rest_framework import pagination, permissions, viewsets
 
 from .serializers import ContentReportSerializer, ContentSummarySerializer, UserReportSerializer
@@ -84,6 +85,7 @@ class RecentReportViewSet(viewsets.ModelViewSet):
     serializer_class = ContentReportSerializer
 
     def get_queryset(self):
+        attempted_mastery_logs = MasteryLog.objects.filter(attemptlogs__isnull=False)
         query_node = ContentNode.objects.get(pk=self.kwargs['content_node_id'])
         if self.request.query_params.get('last_active_time'):
             # Last active time specified
@@ -93,6 +95,7 @@ class RecentReportViewSet(viewsets.ModelViewSet):
         # Set on the kwargs to pass into the serializer
         self.kwargs['last_active_time'] = datetime_cutoff.isoformat()
         recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).filter(
+            Q(progress__gt=0) | Q(masterylogs__in=attempted_mastery_logs),
             user__in=get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id']),
             end_timestamp__gte=datetime_cutoff).values_list('content_id')
         return ContentNode.objects.filter(content_id__in=recent_content_items)
