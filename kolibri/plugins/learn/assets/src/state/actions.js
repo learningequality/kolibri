@@ -15,6 +15,7 @@ const router = require('kolibri.coreVue.router');
 const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
+const { now } = require('kolibri.utils.serverClock');
 
 /**
  * Vuex State Mappers
@@ -634,7 +635,7 @@ function showExam(store, channelId, id, questionNumber) {
                 }
                 if (!attemptLogs[currentQuestion.contentId][itemId]) {
                   attemptLogs[currentQuestion.contentId][itemId] = {
-                    start_timestamp: new Date(),
+                    start_timestamp: now(),
                     completion_timestamp: null,
                     end_timestamp: null,
                     item: itemId,
