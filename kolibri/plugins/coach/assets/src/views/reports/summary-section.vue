@@ -83,7 +83,7 @@
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-      mastered: 'Mastered',
+      mastered: 'Completed',
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
