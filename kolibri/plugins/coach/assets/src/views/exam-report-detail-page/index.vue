@@ -43,6 +43,19 @@
             :answerState="currentInteraction.answer"
             :extraFields="exercise.extra_fields"
             :assessment="true"/>
+          <content-renderer
+            v-else
+            class="content-renderer"
+            :id="exercise.pk"
+            :itemId="itemId"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :contentId="exercise.content_id"
+            :channelId="channelId"
+            :available="exercise.available"
+            :extraFields="exercise.extra_fields"
+            :assessment="true"/>
         </div>
       </div>
     </template>
