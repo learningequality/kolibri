@@ -236,7 +236,17 @@ function getFacilityConfig(store) {
       .fetch();
     return facilityConfigCollection
       .then(facilityConfig => {
-        store.dispatch('CORE_SET_FACILITY_CONFIG', facilityConfig);
+        const config = {
+          id: facilityConfig[0].id,
+          description: facilityConfig[0].description,
+          location: facilityConfig[0].location,
+          learnerCanSignUp: facilityConfig[0].learner_can_sign_up,
+          learnerCanEditUsername: facilityConfig[0].learner_can_edit_username,
+          learnerCanEditName: facilityConfig[0].learner_can_edit_name,
+          learnerCanEditPassword: facilityConfig[0].learner_can_edit_password,
+          learnerCanDeleteAccount: facilityConfig[0].learner_can_delete_account,
+        };
+        store.dispatch('CORE_SET_FACILITY_CONFIG', config);
       })
       .catch(error => handleApiError(store, error));
   }).catch(error => handleApiError(store, error));
