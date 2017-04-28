@@ -7,6 +7,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const { setClassState } = require('./main');
+const assign = require('lodash/assign');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -56,29 +57,30 @@ function channelLastActivePromise(channel, classId) {
   );
 }
 
+function getAllChannelsLastActivePromise(channels, classId) {
+  const promises = channels.map((channel) => channelLastActivePromise(channel, classId));
+  return Promise.all(promises);
+}
+
 function _showChannelList(store, classId) {
   // don't handle super users
   if (coreGetters.isSuperuser(store.state)) {
     store.dispatch('SET_PAGE_STATE', {});
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    return;
+    return Promise.resolve();
   }
 
-  const channelLastActivePromises = [];
-  store.state.core.channels.list.forEach(
-    channel => channelLastActivePromises.push(channelLastActivePromise(channel, classId))
-  );
-  channelLastActivePromises.push(setClassState(store, classId));
+  const promises = [
+    getAllChannelsLastActivePromise(store.state.core.channels.list, classId),
+    setClassState(store, classId),
+  ];
 
-  Promise.all(channelLastActivePromises).then(
-    allChannelLastActive => {
-      const lastActive = {};
-      allChannelLastActive.forEach(
-        channelLastActive => Object.assign(lastActive, channelLastActive)
-      );
-      const pageState = { lastActive };
-      store.dispatch('SET_PAGE_STATE', pageState);
+  return Promise.all(promises).then(
+    ([allChannelLastActive]) => {
+      store.dispatch('SET_PAGE_STATE', {
+        lastActive: assign({}, ...allChannelLastActive),
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     }
