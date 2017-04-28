@@ -1,24 +1,30 @@
 <template>
 
-  <report-table :caption="$tr('channelList')">
-    <thead slot="thead">
-      <tr>
-        <header-cell :text="$tr('channels')" align="left"/>
-        <header-cell :text="$tr('lastActivity')" align="left"/>
-      </tr>
-    </thead>
-    <tbody slot="tbody">
-      <template v-for="row in channelList">
-        <tr v-if="channelIsVisible(lastActive[row.id])" :key="row.id">
-          <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
-          <activity-cell :date="lastActive[row.id]"/>
+  <div>
+    <div v-if="showRecentOnly" ref="recentHeader">
+      <h1>{{ $tr('recentTitle') }}</h1>
+      <sub>{{ $tr('recentSubHeading') }}</sub>
+    </div>
+
+    <report-table :caption="$tr('channelList')">
+      <thead slot="thead">
+        <tr>
+          <header-cell :text="$tr('channels')" align="left"/>
+          <header-cell :text="$tr('lastActivity')" align="left"/>
         </tr>
-      </template>
-    </tbody>
-  </report-table>
+      </thead>
+      <tbody slot="tbody">
+        <template v-for="channel in channelList">
+          <tr v-if="channelIsVisible(lastActive[channel.id])" :key="channel.id">
+            <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
+            <activity-cell :date="lastActive[channel.id]"/>
+          </tr>
+        </template>
+      </tbody>
+    </report-table>
+  </div>
 
 </template>
-
 
 <script>
 
@@ -31,6 +37,8 @@
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
+      recentTitle: 'Recent Activity',
+      recentSubHeading: 'Showing recent activity in past 7 days',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
