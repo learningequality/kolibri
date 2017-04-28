@@ -667,6 +667,10 @@ function showExam(store, channelId, id, questionNumber) {
 }
 
 function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+  // As soon as this has happened, we should clear any previous cache for the
+  // UserExamResource - as that data has now changed.
+  UserExamResource.clearCache();
+
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
     [contentId]: ({
       [itemId]: currentAttemptLog,
