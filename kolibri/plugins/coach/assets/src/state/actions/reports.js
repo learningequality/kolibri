@@ -62,7 +62,7 @@ function getAllChannelsLastActivePromise(channels, classId) {
   return Promise.all(promises);
 }
 
-function _showChannelList(store, classId) {
+function _showChannelList(store, classId, showRecentOnly = false) {
   // don't handle super users
   if (coreGetters.isSuperuser(store.state)) {
     store.dispatch('SET_PAGE_STATE', {});
@@ -80,6 +80,7 @@ function _showChannelList(store, classId) {
     ([allChannelLastActive]) => {
       store.dispatch('SET_PAGE_STATE', {
         lastActive: assign({}, ...allChannelLastActive),
+        showRecentOnly,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -336,7 +337,7 @@ function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showChannelList(store, classId);
+  _showChannelList(store, classId, true /* showRecentOnly */);
 }
 
 
