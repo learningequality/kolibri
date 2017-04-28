@@ -42,6 +42,11 @@
         },
         progress: (state) => {
           if (state.pageState.content) {
+            if (state.core.logging.mastery.totalattempts > 0 &&
+              state.core.logging.summary.progress === 0) {
+              // If there have been attempts, but no progress, return some progress.
+              return 0.1;
+            }
             return state.core.logging.summary.progress;
           }
           return null;
