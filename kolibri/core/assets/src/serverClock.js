@@ -4,7 +4,11 @@ const logging = require('kolibri.lib.logging').getLogger(__filename);
 let diff = 0;
 
 function setServerTime(time) {
-  diff = new Date(time) - new Date();
+  let clientTime = new Date();
+  if (window.performance && window.performance.timing) {
+    clientTime = window.performance.timing.requestStart;
+  }
+  diff = new Date(time) - clientTime;
   logging.debug(`Server time difference set to ${diff}`);
 }
 
