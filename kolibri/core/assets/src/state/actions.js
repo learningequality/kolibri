@@ -9,6 +9,9 @@ const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 const intervalTimer = require('../timer');
 
+const mapKeys = require('lodash/mapKeys');
+const camelCase = require('lodash/camelCase');
+
 const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
@@ -235,25 +238,14 @@ function getFacilityConfig(store) {
     const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
       .getCollection({ facility_id: currentFacilityId })
       .fetch();
-    return facilityConfigCollection
-      .then(facilityConfig => {
-        let config = {};
-        if (facilityConfig[0]) {
-          config = {
-            id: facilityConfig[0].id,
-            description: facilityConfig[0].description,
-            location: facilityConfig[0].location,
-            learnerCanSignUp: facilityConfig[0].learner_can_sign_up,
-            learnerCanEditUsername: facilityConfig[0].learner_can_edit_username,
-            learnerCanEditName: facilityConfig[0].learner_can_edit_name,
-            learnerCanEditPassword: facilityConfig[0].learner_can_edit_password,
-            learnerCanDeleteAccount: facilityConfig[0]
-              .learner_can_delete_account,
-          };
-        }
-        store.dispatch('CORE_SET_FACILITY_CONFIG', config);
-      })
-      .catch(error => handleApiError(store, error));
+    return facilityConfigCollection.then(facilityConfig => {
+      let config = {};
+      const facility = facilityConfig[0];
+      if (facility) {
+        config = mapKeys(facility, (value, key) => camelCase(key));
+      }
+      store.dispatch('CORE_SET_FACILITY_CONFIG', config);
+    });
   }).catch(error => handleApiError(store, error));
 }
 
