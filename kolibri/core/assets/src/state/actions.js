@@ -1,6 +1,7 @@
 
 const cookiejs = require('js-cookie');
 const getters = require('kolibri.coreVue.vuex.getters');
+const CoreMappers = require('kolibri.coreVue.vuex.mappers');
 const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
@@ -8,9 +9,6 @@ const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultCh
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 const intervalTimer = require('../timer');
-
-const mapKeys = require('lodash/mapKeys');
-const camelCase = require('lodash/camelCase');
 
 const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
@@ -242,7 +240,7 @@ function getFacilityConfig(store) {
       let config = {};
       const facility = facilityConfig[0];
       if (facility) {
-        config = mapKeys(facility, (value, key) => camelCase(key));
+        config = CoreMappers.convertKeysToCamelCase(facility);
       }
       store.dispatch('CORE_SET_FACILITY_CONFIG', config);
     });
