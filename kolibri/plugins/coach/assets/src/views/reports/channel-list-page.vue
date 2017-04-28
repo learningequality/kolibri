@@ -11,7 +11,7 @@
       <template v-for="row in channelList">
         <tr v-if="channelIsVisible(lastActive[row.id])" :key="row.id">
           <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
-          <activity-cell :date="lastActive[row.id]" />
+          <activity-cell :date="lastActive[row.id]"/>
         </tr>
       </template>
     </tbody>
@@ -22,8 +22,8 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const PageNames = require('../../constants').PageNames;
+  const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
+  const { PageNames } = require('../../constants');
   const orderBy = require('lodash/orderBy');
   const differenceInDays = require('date-fns/difference_in_days');
 
@@ -47,30 +47,29 @@
       'activity-cell': require('./table-cells/activity-cell'),
     },
     computed: {
-      CHANNEL() { return ContentNodeKinds.CHANNEL; },
+      CHANNEL() {
+        return ContentNodeKinds.CHANNEL;
+      },
       channelList() {
-        const orderedLists = {
-          [PageNames.RECENT_CHANNELS]: orderBy(
-            this.channels,
+        const orderByArgs = {
+          [PageNames.RECENT_CHANNELS]: [
             [channel => this.lastActive[channel.id] || '', 'title'],
             ['desc', 'asc']
-          ),
-          [PageNames.TOPIC_CHANNELS]: orderBy(this.channels, ['title']),
-          [PageNames.LEARNER_CHANNELS]: orderBy(this.channels, ['title']),
+          ],
+          [PageNames.TOPIC_CHANNELS]: ['title'],
+          [PageNames.LEARNER_CHANNELS]: ['title'],
         };
-        return orderedLists[this.pageName];
+        return orderBy(this.channels, ...orderByArgs[this.pageName]);
       },
     },
     methods: {
       channelIsVisible(lastActiveTime) {
         const THREHOLD_IN_DAYS = 7;
-        if (this.showRecentOnly) {
-          return (
-            Boolean(lastActiveTime) &&
-            differenceInDays(this.currentDateTime, lastActiveTime) <= THREHOLD_IN_DAYS
-          );
-        }
-        return true;
+        if (!this.showRecentOnly) return true;
+        return (
+          Boolean(lastActiveTime) &&
+          differenceInDays(this.currentDateTime, lastActiveTime) <= THREHOLD_IN_DAYS
+        );
       },
       reportLink(channelId) {
         const linkTargets = {
