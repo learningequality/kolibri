@@ -78,7 +78,7 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <user-role :role="user.kind" :omitLearner="true" />
+            <!-- <user-role :role="user.kind" :omitLearner="true" /> -->
             <!--
             <role-switcher
               class="user-role-switcher"
@@ -128,7 +128,7 @@
     $trNameSpace: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users',
-      tableTitle: 'Manage Learners and Coaches in this class',
+      tableTitle: 'Manage learners in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
       // table info
