@@ -67,6 +67,7 @@
   const PageNames = require('../../constants').PageNames;
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const actions = require('../../state/actions');
+  const isEqual = require('lodash/isEqual');
 
   module.exports = {
     $trNameSpace: 'examPage',
@@ -117,8 +118,8 @@
       },
       saveAnswer() {
         const answer = this.checkAnswer();
-        if (answer) {
-          const attempt = this.currentAttempt;
+        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+          const attempt = Object.assign({}, this.currentAttempt);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
