@@ -8,7 +8,8 @@
 
     <div v-else>
       <page-header :title="$tr('examName')"></page-header>
-      <p class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
+      <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
+      <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
       <div class="exam-row" v-for="exam in exams">
         <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
         <h2 class="exam-title">{{ exam.title }}</h2>
@@ -50,6 +51,7 @@
       questionsLeft: '{ left, number } questions left',
       continue: 'Continue',
       start: 'Start',
+      noExams: 'You have no exams assigned',
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as a Learner to view this page.',
