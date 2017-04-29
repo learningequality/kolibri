@@ -9,6 +9,14 @@ function className(state) {
   return '';
 }
 
+function classMemberCount(state) {
+  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
+  if (cls) {
+    return cls.memberCount;
+  }
+  return 0;
+}
+
 function isRecentPage(state) {
   return Constants.RecentReports.includes(state.pageName);
 }
@@ -24,6 +32,7 @@ function isLearnerPage(state) {
 
 module.exports = {
   className,
+  classMemberCount,
   isRecentPage,
   isTopicPage,
   isLearnerPage,

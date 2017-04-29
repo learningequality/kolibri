@@ -84,7 +84,8 @@ Object.assign(getters, {
   },
   exerciseCount(state) {
     const summary = state.pageState.contentScopeSummary;
-    if (summary.kind === ContentNodeKinds.TOPIC) {
+    if (summary.kind === ContentNodeKinds.TOPIC ||
+      summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
       return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
     } else if (summary.kind === ContentNodeKinds.EXERCISE) {
       return 1;
@@ -101,7 +102,8 @@ Object.assign(getters, {
   },
   contentCount(state) {
     const summary = state.pageState.contentScopeSummary;
-    if (summary.kind === ContentNodeKinds.TOPIC) {
+    if (summary.kind === ContentNodeKinds.TOPIC ||
+      summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
       return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
     } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
       return 1;
