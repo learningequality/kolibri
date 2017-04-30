@@ -37,6 +37,9 @@ class FileSerializer(serializers.ModelSerializer):
 
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
+    assessment_item_ids = serializers.JSONField()
+    mastery_model = serializers.JSONField()
+
     class Meta:
         model = AssessmentMetaData
         fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
@@ -169,6 +172,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
 class ExamSerializer(serializers.ModelSerializer):
 
     assignments = ExamAssignmentSerializer(many=True, read_only=True)
+    question_sources = serializers.JSONField()
 
     class Meta:
         model = Exam
@@ -189,6 +193,8 @@ class ExamSerializer(serializers.ModelSerializer):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
 
 class UserExamSerializer(serializers.ModelSerializer):
+
+    question_sources = serializers.JSONField()
 
     class Meta:
         # Use the ExamAssignment as the primary model, as the permissions are more easily
