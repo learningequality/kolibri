@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from jsonfield import JSONField
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
@@ -93,7 +94,7 @@ class ContentSessionLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
-    extra_fields = models.TextField(default="{}")
+    extra_fields = JSONField(default={})
 
 
 class ContentSummaryLog(BaseLogModel):
@@ -109,7 +110,7 @@ class ContentSummaryLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
     kind = models.CharField(max_length=200)
-    extra_fields = models.TextField(default="{}")
+    extra_fields = JSONField(default={})
 
 
 class ContentRatingLog(BaseLogModel):
@@ -164,7 +165,7 @@ class MasteryLog(BaseLogModel):
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
-    mastery_criterion = models.TextField()
+    mastery_criterion = JSONField(default={})
     start_timestamp = models.DateTimeField()
     end_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
@@ -193,12 +194,12 @@ class BaseAttemptLog(BaseLogModel):
     correct = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
     hinted = models.BooleanField(default=False)
     # JSON blob that would allow the learner's answer to be rerendered in the frontend interface
-    answer = models.TextField()
+    answer = JSONField(default={})
     # A human readable answer that could be rendered directly in coach reports, can be blank.
     simple_answer = models.CharField(max_length=200, blank=True)
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
-    interaction_history = models.TextField()
+    interaction_history = JSONField(default=[])
     user = models.ForeignKey(FacilityUser)
 
     class Meta:

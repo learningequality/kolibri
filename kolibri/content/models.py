@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
+from jsonfield import JSONField
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
@@ -260,11 +261,11 @@ class AssessmentMetaData(ContentDatabaseModel):
         ContentNode, related_name='assessmentmetadata', blank=True, null=True
     )
     # A JSON blob containing a serialized list of ids for questions that the assessment can present.
-    assessment_item_ids = models.TextField()
+    assessment_item_ids = JSONField(default=[])
     # Length of the above assessment_item_ids for a convenience lookup.
     number_of_assessments = models.IntegerField()
     # A JSON blob describing the mastery model that is used to set this assessment as mastered.
-    mastery_model = models.CharField(max_length=200)
+    mastery_model = JSONField(default={})
     # Should the questions listed in assessment_item_ids be presented in a random order?
     randomize = models.BooleanField(default=False)
     # Is this assessment compatible with being previewed and answer filled for display in coach reports
@@ -335,7 +336,7 @@ class Exam(AbstractFacilityDataModel):
         {"exercise_id": <content_id2>, "number_of_questions": 5}
     ]
     """
-    question_sources = models.TextField()
+    question_sources = JSONField(default=[])
     # The random seed we use to decide which questions are in the exam
     seed = models.IntegerField(default=1)
     # Is this exam currently active and visible to students to whom it is assigned?
