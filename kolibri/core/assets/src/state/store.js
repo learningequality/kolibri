@@ -165,7 +165,7 @@ const mutations = {
       // Can only get it correct on the first try.
       state.core.logging.attempt.correct = correct;
       state.core.logging.attempt.hinted = hinted;
-      state.core.logging.attempt.answer = JSON.stringify(answerState);
+      state.core.logging.attempt.answer = answerState;
       state.core.logging.attempt.simple_answer = simpleAnswer;
     } else if (state.core.logging.attempt.correct < 1) {
       // Only set hinted if attempt has not already been marked as correct
