@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 class ContentSessionLogSerializer(serializers.ModelSerializer):
 
-    extra_fields = serializers.JSONField()
+    extra_fields = serializers.JSONField(default='{}')
 
     class Meta:
         model = ContentSessionLog
@@ -39,7 +39,7 @@ class MasteryLogSerializer(serializers.ModelSerializer):
 
     pastattempts = serializers.SerializerMethodField()
     totalattempts = serializers.SerializerMethodField()
-    mastery_criterion = serializers.JSONField()
+    mastery_criterion = serializers.JSONField(default='{}')
 
     class Meta:
         model = MasteryLog
@@ -54,8 +54,8 @@ class MasteryLogSerializer(serializers.ModelSerializer):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
 class AttemptLogSerializer(serializers.ModelSerializer):
-    answer = serializers.JSONField()
-    interaction_history = serializers.JSONField()
+    answer = serializers.JSONField(default='{}')
+    interaction_history = serializers.JSONField(default='[]')
 
     class Meta:
         model = AttemptLog
@@ -64,8 +64,8 @@ class AttemptLogSerializer(serializers.ModelSerializer):
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
 class ExamAttemptLogSerializer(serializers.ModelSerializer):
-    answer = serializers.JSONField()
-    interaction_history = serializers.JSONField()
+    answer = serializers.JSONField(default='{}')
+    interaction_history = serializers.JSONField(default='[]')
 
     class Meta:
         model = ExamAttemptLog
@@ -87,7 +87,7 @@ class ExamAttemptLogSerializer(serializers.ModelSerializer):
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
     currentmasterylog = serializers.SerializerMethodField()
-    extra_fields = serializers.JSONField()
+    extra_fields = serializers.JSONField(default='{}')
 
     class Meta:
         model = ContentSummaryLog

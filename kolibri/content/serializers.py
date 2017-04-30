@@ -37,8 +37,8 @@ class FileSerializer(serializers.ModelSerializer):
 
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
-    assessment_item_ids = serializers.JSONField()
-    mastery_model = serializers.JSONField()
+    assessment_item_ids = serializers.JSONField(default='[]')
+    mastery_model = serializers.JSONField(default='{}')
 
     class Meta:
         model = AssessmentMetaData
@@ -172,7 +172,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
 class ExamSerializer(serializers.ModelSerializer):
 
     assignments = ExamAssignmentSerializer(many=True, read_only=True)
-    question_sources = serializers.JSONField()
+    question_sources = serializers.JSONField(default='[]')
 
     class Meta:
         model = Exam
