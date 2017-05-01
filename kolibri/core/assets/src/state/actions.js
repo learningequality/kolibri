@@ -200,10 +200,15 @@ function kolibriLogout(store) {
   }).catch(error => { handleApiError(store, error); });
 }
 
-function getCurrentSession(store) {
+function getCurrentSession(store, force = false) {
   const coreApp = require('kolibri');
   const { SessionResource, FacilityResource } = coreApp.resources;
-  const sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  let sessionPromise;
+  if (force) {
+    sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
+  } else {
+    sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  }
   return sessionPromise
   .then((session) => {
     if (!session.facility_id) {

@@ -34,7 +34,7 @@
           :disabled="busy"
           :invalid="error"
           :error="errorMessage"
-          :value="session.username"
+          v-model="username"
           autocomplete="username"
           type="text" />
       </template>
@@ -145,6 +145,7 @@
     methods: {
       submitEdits() {
         const edits = {
+          username: this.username,
           full_name: this.full_name,
         };
         this.editProfile(edits, this.session);
