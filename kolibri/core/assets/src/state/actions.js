@@ -229,6 +229,7 @@ function getCurrentSession(store, force = false) {
   .catch(error => { handleApiError(store, error); });
 }
 
+
 function getFacilityConfig(store) {
   const coreApp = require('kolibri');
   const FacilityCollection = coreApp.resources.FacilityResource
@@ -250,17 +251,6 @@ function getFacilityConfig(store) {
       store.dispatch('CORE_SET_FACILITY_CONFIG', config);
     });
   }).catch(error => handleApiError(store, error));
-}
-
-
-function showLoginModal(store, bool) {
-  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
-  store.dispatch('CORE_SET_LOGIN_ERROR', null);
-}
-
-function cancelLoginModal(store, bool) {
-  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', false);
-  store.dispatch('CORE_SET_LOGIN_ERROR', null);
 }
 
 
@@ -744,8 +734,6 @@ module.exports = {
   kolibriLogout,
   getCurrentSession,
   getFacilityConfig,
-  showLoginModal,
-  cancelLoginModal,
   initContentSession,
   setChannelInfo,
   startTrackingProgress,

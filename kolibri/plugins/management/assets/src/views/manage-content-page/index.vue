@@ -65,7 +65,7 @@
       import: 'Import',
       export: 'Export',
       noChannels: 'No channels installed',
-      notAdmin: 'You need to log in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
+      notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
       'channels-grid': require('./channels-grid'),
