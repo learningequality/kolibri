@@ -1,53 +1,48 @@
-Admin
+Facility Admin
 ===============
 
-Starting Kolibri
-----------------
-
-Kolibri has two parts: **Kolibri launcher** and **Kolibri server**.
-
-**Kolibri launcher** is located in the Windows taskbar (usually at bottom right, near the clock), and allows you to start and stop the **Kolibri server**, and configure other settings.
-
-**Kolibri server** runs as a background process and displays (*serves*) learning content in the browser.
-
-* Double-click Kolibri desktop shortcut to start **Kolibri launcher**.
-* Right click the taskbar icon to open the **Kolibri launcher** menu.
-
-.. image:: img/task_tray_options.png
-  :alt: kolibri taskbar menu options
-
-.. warning::
-  Starting **Kolibri launcher** will not start **Kolibri server** by default, but you can configure that setting in the launcher options if it suits your needs better.
+.. literalinclude:: manage_users.rst
 
 
-Kolibri Launcher Menu Options
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Select **Start Server** to start the **Kolibri server**. 
 
-  #. You will see the notification message *Kolibri server is starting, please wait...*. While server is starting, the options **Start/Stop/Load in browser** will be disabled.
-  #. Once **Kolibri server** has started you will see the notification message *Kolibri server is running...*. The options **Stop Server** and **Load in browser** will now be available.
-* Select **Load in browser** to open the default browser at http://127.0.0.1:8080 displaying the Kolibri start page.
-* Select **Stop Server** when you want to stop the **Kolibri server**.
-* Select **Options** submenu for further configuration.
 
-  #. Activate **Run Kolibri when user logs in** option if you want **Kolibri launcher** to start automatically when you log into the system.
-  #. Activate **Auto-start server when Kolibri is run** option if you want the **Kolibri server** to start at the same time as the **Kolibri launcher**.
-  
-  .. note::
-    If you want **Kolibri server** to auto-start as soon as you log into the system, activate both of the above options. 
 
- 
-Accessing Kolibri from Other Devices in the Network
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
-While **Kolibri server** is up and running, other devices (computers, tablets, even mobile phones) in the same **Local Area Network (LAN)** can access its learning contents.
+9999999999999999999999999999999999999999999999999999999
 
-* To access the content on the same device/computer where **Kolibri server** is running, open the browser at the address http://127.0.0.1:8080/. 
 
-* To access the content from other devices in the same network, you need to know the IP address of one where where **Kolibri server** is running. For example, if **Kolibri server** is on a device/computer with IP address **192.168.0.104**, you can access it from others in the same network at the address http://192.168.0.104:8080. 
-.. note::
-  Use the ``ipconfig`` command to find out the IP address of the device on Windows operating system.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Manage Users
@@ -96,10 +91,10 @@ Create a New User Account
 
 To create a new user account, follow these steps.
 
-#. Click **Add New** button.
+#. Click **Add new** button.
 #. Fill in the required information (name, username, password).
 #. Select user profile (*Admin*, *Coach* or *Learner*). 
-#. Click **Create Account** to add the new user.
+#. Click **Create account** to add the new user.
 
 .. image:: img/add_new_account.png
   :alt: add new account form
@@ -108,8 +103,8 @@ To create a new user account, follow these steps.
 Select Users by Type
 ~~~~~~~~~~~~~~~~~~~~
 
-#. Click **All Users** selector to display user types. 
-#. Toggle between options to filter the user roster according to type, or leave it as **All Users** to display all.
+#. Click **All users** selector to display user types. 
+#. Toggle between options to filter the user roster according to type, or leave it as **All users** to display all.
 
 .. image:: img/select_users.png
   :alt: select users
@@ -121,7 +116,7 @@ Edit User’s Account
 To edit username or the full name account, follow these steps.
 
 #. Click on the **Edit** button (pencil icon) next to the user’s name.
-#. Edit **Full Name** or **Username** in the **Edit Account Info** window. 
+#. Edit **Full name** or **Username** in the **Edit account info** window. 
 #. Click **Confirm** to update the edited information or **Cancel** to exit without saving.
 
 .. image:: img/edit_account_info.png
@@ -131,7 +126,7 @@ To edit username or the full name account, follow these steps.
 Reset User’s Password
 *********************
 
-#. Click **Reset Password** in the **Edit Account Info** window. 
+#. Click **Reset password** in the **Edit account info** window. 
 #. Enter the new password in both fields.
 #. Click **Save** to confirm or **Back** to exit without changing the password.
 
@@ -166,7 +161,17 @@ Add New Class
 
 To add a new class, follow these steps.
 
-#. Click **Add New Class** button.
+#. Click **Add new class** button.
+#. Fill in the class name. 
+#. Click **Create** to add the new class or **Cancel** to exit.
+#. Click **Add Users to Class** to :ref:`select_users_class` or **Not now** to simply create the new class. 
+
+Edit Class
+~~~~~~~~~~~~~
+
+To edit class, follow these steps.
+
+#. Click the desired class name from the list.
 #. Fill in the class name. 
 #. Click **Create** to add the new class or **Cancel** to exit.
 #. Click **Add Users to Class** to :ref:`select_users_class` or **Not now** to simply create the new class. 
