@@ -1,10 +1,12 @@
 
 const cookiejs = require('js-cookie');
-const UserKinds = require('../constants').UserKinds;
+const getters = require('kolibri.coreVue.vuex.getters');
+const CoreMappers = require('kolibri.coreVue.vuex.mappers');
 const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 const intervalTimer = require('../timer');
 
@@ -75,7 +77,7 @@ function _contentSessionModel(store) {
     progress: sessionLog.progress || 0,
     extra_fields: sessionLog.extra_fields,
   };
-  if (store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+  if (!getters.isSuperuser(store.state)) {
     mapping.user = store.state.core.session.user_id;
   }
   return mapping;
@@ -170,7 +172,7 @@ function kolibriLogin(store, sessionPayload) {
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-    if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
+    if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
@@ -187,27 +189,69 @@ function kolibriLogin(store, sessionPayload) {
 
 function kolibriLogout(store) {
   const coreApp = require('kolibri');
-  const { SessionResource, clearCaches } = coreApp.resources;
+  const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
-    clearCaches();
+    coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
 
-function getCurrentSession(store) {
+function getCurrentSession(store, force = false) {
   const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
-  const id = 'current';
-  const sessionModel = SessionResource.getModel(id);
-  const sessionPromise = sessionModel.fetch({});
-  return sessionPromise.then((session) => {
+  const { SessionResource, FacilityResource } = coreApp.resources;
+  let sessionPromise;
+  if (force) {
+    sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
+  } else {
+    sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  }
+  return sessionPromise
+  .then((session) => {
+    if (!session.facility_id) {
+      // device owners users aren't associated with a facility, so just choose one
+      logging.info('No facilty ID set on session. Fetching facility list...');
+      const facilityCollection = FacilityResource.getCollection();
+      const facilityPromise = facilityCollection.fetch();
+      return facilityPromise.then(facilities => {
+        session.facility_id = (facilities[0] || {}).id;
+        logging.info(`Setting facility ${session.facility_id}`);
+        store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      });
+    }
+    logging.info('Session set.');
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-  }).catch(error => { handleApiError(store, error); });
+    return null;
+  })
+  .catch(error => { handleApiError(store, error); });
 }
+
+function getFacilityConfig(store) {
+  const coreApp = require('kolibri');
+  const FacilityCollection = coreApp.resources.FacilityResource
+    .getCollection()
+    .fetch();
+
+  return FacilityCollection.then(facilities => {
+    store.dispatch('CORE_SET_FACILITIES', facilities);
+    const currentFacilityId = facilities[0].id; // assumes there is only 1 facility for now
+    const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
+      .getCollection({ facility_id: currentFacilityId })
+      .fetch();
+    return facilityConfigCollection.then(facilityConfig => {
+      let config = {};
+      const facility = facilityConfig[0];
+      if (facility) {
+        config = CoreMappers.convertKeysToCamelCase(facility);
+      }
+      store.dispatch('CORE_SET_FACILITY_CONFIG', config);
+    });
+  }).catch(error => handleApiError(store, error));
+}
+
 
 function showLoginModal(store, bool) {
   store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
@@ -236,8 +280,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const promises = [];
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id &&
-    store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+  if (store.state.core.session.user_id && !getters.isSuperuser(store.state)) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
@@ -311,7 +354,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
     kind: contentKind,
   }, _contentSessionModel(store));
 
-  if (store.state.core.session.kind[0] === UserKinds.SUPERUSER) {
+  if (getters.isSuperuser(store.state)) {
     // treat deviceOwner as anonymous user.
     sessionData.user = null;
   }
@@ -400,26 +443,6 @@ function saveLogs(store) {
   }
 }
 
-
-/**
-summary and session log progress update for exercise
-**/
-function updateExerciseProgress(store, progressPercent, forceSave = false) {
-  /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
-
-  /* Mark completion time if 100% progress reached */
-  if (progressPercent === 1) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
-  }
-
-  /* Save models if needed */
-  if (forceSave || progressPercent === 1) {
-    saveLogs(store);
-  }
-}
-
-
 /**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
@@ -459,6 +482,24 @@ function updateProgress(store, progressPercent, forceSave = false) {
   }
 }
 
+
+/**
+summary and session log progress update for exercise
+**/
+function updateExerciseProgress(store, progressPercent, forceSave = false) {
+  /* Update the logging state with new progress information */
+  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
+
+  /* Mark completion time if 100% progress reached */
+  if (progressPercent === 1) {
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+  }
+
+  /* Save models if needed */
+  if (forceSave || progressPercent === 1) {
+    saveLogs(store);
+  }
+}
 
 /**
  * Update the total time spent and end time stamps
@@ -555,6 +596,9 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     totalattempts: 0,
     mastery_criterion: masteryCriterion,
   });
+  // Preemptively set attributes
+  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  // Save to the server
   return masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
@@ -588,8 +632,9 @@ function createDummyMasteryLog(store) {
 
 function saveAttemptLog(store) {
   const coreApp = require('kolibri');
-  const attemptLogModel = coreApp.resources.AttemptLog.getModel(
-    store.state.core.logging.attempt.id);
+  const attemptLogModel = coreApp.resources.AttemptLog.findModel({
+    item: store.state.core.logging.attempt.item
+  });
   const promise = attemptLogModel.save(_attemptLogModel(store));
   promise.then((newAttemptLog) => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
@@ -602,6 +647,7 @@ function createAttemptLog(store, itemId) {
   const coreApp = require('kolibri');
   const attemptLogModel = coreApp.resources.AttemptLog.createModel({
     id: null,
+    user: store.state.core.session.user_id,
     masterylog: store.state.core.logging.mastery.id || null,
     sessionlog: store.state.core.logging.session.id,
     start_timestamp: new Date(),
@@ -681,12 +727,23 @@ function updateMasteryAttemptState(store, {
     });
 }
 
+function fetchPoints(store) {
+  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
+      store.state.core.session.user_id);
+    userProgressModel.fetch().then((progress) => {
+      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+    });
+  }
+}
+
 module.exports = {
   handleError,
   handleApiError,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilityConfig,
   showLoginModal,
   cancelLoginModal,
   initContentSession,
@@ -706,4 +763,5 @@ module.exports = {
   saveAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
+  fetchPoints,
 };

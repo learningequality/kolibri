@@ -8,7 +8,7 @@ kolibri.resources = {
     getCollection: sinon.stub(),
   },
   ClassroomResource: {
-    getModel: sinon.stub(),
+    getCollection: sinon.stub(),
   },
   ContentNodeResource: {},
   ExamResource: {
@@ -22,7 +22,7 @@ kolibri.resources = {
 const examActions = require('../src/state/actions/exam');
 
 const channelStub = kolibri.resources.ChannelResource.getCollection;
-const classroomStub = kolibri.resources.ClassroomResource.getModel;
+const classroomStub = kolibri.resources.ClassroomResource.getCollection;
 const examStub = kolibri.resources.ExamResource.getCollection;
 const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
 
@@ -37,8 +37,8 @@ function makeSadFetchable(fetchResult = {}) {
 
 // fakes for data, since they have similar shape
 const fakeItems = [
-  { id: 'item_1', name: 'item one', root_pk: 'pk1', misc: 'ha ha ha' },
-  { id: 'item_2', name: 'item two', root_pk: 'pk2', misc: 'ha ha ha' },
+  { id: 'item_1', name: 'item one', root_pk: 'pk1', misc: 'ha ha ha', learner_count: 5 },
+  { id: 'item_2', name: 'item two', root_pk: 'pk2', misc: 'ha ha ha', learner_count: 6 },
 ];
 
 const fakeExams = [
@@ -177,22 +177,29 @@ describe('showPage actions for coach exams section', () => {
     it('store is properly set up when there are no problems', () => {
       channelStub.returns(makeHappyFetchable(fakeItems));
       learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-      classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+      classroomStub.returns(makeHappyFetchable(fakeItems));
       examStub.returns(makeHappyFetchable(fakeExams));
 
       return examActions.showExamsPage(storeMock, 'class_1')._promise
       .then(() => {
         sinon.assert.calledWith(channelStub);
         sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
-        sinon.assert.calledWith(classroomStub, 'class_1');
+        sinon.assert.calledWith(classroomStub);
         sinon.assert.calledWith(examStub, { collection: 'class_1' });
+        sinon.assert.calledWith(
+          dispatchSpy,
+          'SET_CLASS_INFO',
+          'class_1',
+          [
+            { id: 'item_1', name: 'item one', memberCount: 5 },
+            { id: 'item_2', name: 'item two', memberCount: 6 },
+          ]
+        );
         sinon.assert.calledWith(dispatchSpy, 'SET_PAGE_STATE', sinon.match({
           channels: [
             { id: 'item_1', name: 'item one', rootPk: 'pk1' },
             { id: 'item_2', name: 'item two', rootPk: 'pk2' },
           ],
-          classId: 'class_1',
-          currentClass: { id: 'item_1', name: 'item one' },
           currentClassGroups: [
             { id: 'item_1', name: 'item one' },
             { id: 'item_2', name: 'item two' },
@@ -206,7 +213,7 @@ describe('showPage actions for coach exams section', () => {
     it('store is properly set up when there are errors', () => {
       channelStub.returns(makeSadFetchable('channel error'));
       learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-      classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+      classroomStub.returns(makeHappyFetchable(fakeItems));
       examStub.returns(makeHappyFetchable(fakeExams));
       return examActions.showExamsPage(storeMock, 'class_1')._promise
       .catch(() => {

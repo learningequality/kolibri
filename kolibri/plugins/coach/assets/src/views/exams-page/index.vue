@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ currentClass.name }} {{ $tr('exams') }}</h1>
+    <h1>{{ className }} {{ $tr('exams') }}</h1>
     <ui-radio-group
       :name="$tr('examFilter')"
       :label="$tr('show')"
@@ -18,7 +18,7 @@
       @click="openCreateExamModal">
       {{ $tr('newExam') }}
     </ui-button>
-    <table v-if="exams.length">
+    <table v-if="sortedExams.length">
       <thead>
         <tr>
           <th class="col-icon"></th>
@@ -34,14 +34,14 @@
           :examTitle="exam.title"
           :examActive="exam.active"
           :examVisibility="exam.visibility"
-          :classId="currentClass.id"
-          :className="currentClass.name"
+          :classId="classId"
+          :className="className"
           :classGroups="[]"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
           @deactivateExam="openDeactivateExamModal"
           @previewExam="openPreviewExamModal"
-          @viewReport="routeToExamReport"
+          @viewReport="routeToExamReport(exam)"
           @renameExam="openRenameExamModal"
           @deleteExam="openDeleteExamModal"
         />
@@ -50,47 +50,51 @@
     <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
     <create-exam-modal
       v-if="showCreateExamModal"
-      :classId="currentClass.id"
-      :channels="channels"
+      :classId="classId"
+      :channels="sortedChannels"
     />
     <activate-exam-modal
       v-if="showActivateExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
+      :classId="classId"
     />
     <deactivate-exam-modal
       v-if="showDeactivateExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
+      :classId="classId"
     />
     <change-exam-visibility-modal
       v-if="showChangeExamVisibilityModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"
-      :className="currentClass.name"
+      :classId="classId"
+      :className="className"
       :classGroups="currentClassGroups"
     />
     <preview-exam-modal
       v-if="showPreviewExamModal"
-      :exam="selectedExam"
+      :examChannelId="selectedExam.channelId"
+      :examQuestionSources="JSON.parse(selectedExam.questionSources)"
+      :examSeed="selectedExam.seed"
+      :examNumQuestions="selectedExam.questionCount"
     />
     <rename-exam-modal
       v-if="showRenameExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"
+      :classId="classId"
+      :exams="sortedExams"
     />
     <delete-exam-modal
       v-if="showDeleteExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"
+      :classId="classId"
     />
   </div>
 
@@ -99,9 +103,11 @@
 
 <script>
 
+  const className = require('../../state/getters/main').className;
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
   const PageNames = require('../../constants').PageNames;
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'coachExamsPage',
@@ -137,6 +143,20 @@
       };
     },
     computed: {
+      sortedExams() {
+        return orderBy(
+          this.exams,
+          [exam => exam.title.toUpperCase()],
+          ['asc']
+        );
+      },
+      sortedChannels() {
+        return orderBy(
+          this.channels,
+          [channel => channel.name.toUpperCase()],
+          ['asc']
+        );
+      },
       filterOptions() {
         return [
           { label: this.$tr('all'), value: this.$tr('all') },
@@ -146,10 +166,10 @@
       },
 
       activeExams() {
-        return this.exams.filter(exam => exam.active === true);
+        return this.sortedExams.filter(exam => exam.active === true);
       },
       inactiveExams() {
-        return this.exams.filter(exam => exam.active === false);
+        return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.filterSelected;
@@ -158,7 +178,7 @@
         } else if (filter === this.$tr('inactive')) {
           return this.inactiveExams;
         }
-        return this.exams;
+        return this.sortedExams;
       },
       showCreateExamModal() {
         return this.examModalShown === ExamModals.CREATE_EXAM;
@@ -184,7 +204,7 @@
     },
     methods: {
       setSelectedExam(examId) {
-        Object.assign(this.selectedExam, this.exams.find(exam => exam.id === examId));
+        Object.assign(this.selectedExam, this.sortedExams.find(exam => exam.id === examId));
       },
       openCreateExamModal() {
         this.displayExamModal(ExamModals.CREATE_EXAM);
@@ -205,10 +225,10 @@
         this.setSelectedExam(examId);
         this.displayExamModal(ExamModals.PREVIEW_EXAM);
       },
-      routeToExamReport(examId) {
+      routeToExamReport({ id, channelId }) {
         this.$router.push({
           name: PageNames.EXAM_REPORT,
-          params: { classId: this.currentClass.id, examId }
+          params: { classId: this.classId, examId: id, channelId }
         });
       },
       openRenameExamModal(examId) {
@@ -225,7 +245,8 @@
         displayExamModal: ExamActions.displayExamModal,
       },
       getters: {
-        currentClass: state => state.pageState.currentClass,
+        classId: state => state.classId,
+        className,
         currentClassGroups: state => state.pageState.currentClassGroups,
         exams: state => state.pageState.exams,
         channels: state => state.pageState.channels,

@@ -3,6 +3,7 @@ from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, Exam, ExamAssignment, File
 from kolibri.logger.models import ExamLog
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from .content_db_router import default_database_is_attached, get_active_content_database
 
@@ -177,6 +178,13 @@ class ExamSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('creator',)
 
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Exam.objects.all(),
+                fields=('collection', 'title')
+            )
+        ]
+
     def create(self, validated_data):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
 
@@ -202,9 +210,8 @@ class UserExamSerializer(serializers.ModelSerializer):
         if isinstance(self.context['request'].user, FacilityUser):
             try:
                 # Try to add the score from the user's ExamLog attempts.
-                output['score'] = sum(
-                    obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.values_list(
-                        'correct', flat=True))
+                output['score'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.aggregate(
+                    Sum('correct')).get('correct__sum')
                 output['answer_count'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count()
                 output['closed'] = obj.exam.examlogs.get(user=self.context['request'].user).closed
             except ExamLog.DoesNotExist:

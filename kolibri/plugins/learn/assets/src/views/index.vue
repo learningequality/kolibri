@@ -10,11 +10,18 @@
           color="white"
           :ariaLabel="$tr('search')"/>
       </router-link>
+      <a class="points-link" href="/user"><total-points/></a>
     </div>
-    <div slot="tabs" v-if="!isSearchPage">
-      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
+
+    <div v-if="!isSearchPage">
+      <tabs
+        :items="learnTabs"
+        type="icon-and-text"
+        @tabclicked="handleTabClick"
+      />
     </div>
-    <div slot="content">
+
+    <div>
       <breadcrumbs/>
       <component :is="currentPage"/>
     </div>
@@ -26,12 +33,11 @@
 
 <script>
 
-  const PageNames = require('../constants').PageNames;
-  const PageModes = require('../constants').PageModes;
-
   const getters = require('../state/getters');
   const store = require('../state/store');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+  const { PageNames, PageModes } = require('../constants');
+  const { TopLevelPageNames } = require('kolibri.coreVue.vuex.constants');
+  const { isUserLoggedIn } = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -50,12 +56,13 @@
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'channel-switcher': require('./channel-switcher'),
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
+      'total-points': require('./total-points'),
     },
     methods: {
       switchChannel(channelId) {
@@ -90,6 +97,7 @@
           params: { channel_id: channelId },
         });
       },
+      // BUG if a tab is disabled, it still handles clicks
       handleTabClick(tabIndex) {
         switch (tabIndex) {
           case 0:
@@ -149,26 +157,31 @@
         return this.pageName === PageNames.SEARCH;
       },
       learnTabs() {
-        const isRecommended = (this.pageMode === PageModes.LEARN);
-        const isTopics = (this.pageMode === PageModes.EXPLORE);
-        const isExams = (this.pageMode === PageModes.EXAM);
+        const tabs = [
+          {
+            title: this.$tr('recommended'),
+            icon: 'forum',
+            selected: this.pageMode === PageModes.LEARN,
+            disabled: false,
+          },
+          {
+            title: this.$tr('topics'),
+            icon: 'folder',
+            selected: this.pageMode === PageModes.EXPLORE,
+            disabled: false,
+          },
+        ];
 
-        return [{
-          title: this.$tr('recommended'),
-          icon: 'forum',
-          selected: isRecommended,
-          disabled: false,
-        }, {
-          title: this.$tr('topics'),
-          icon: 'folder',
-          selected: isTopics,
-          disabled: false,
-        }, {
-          title: this.$tr('exams'),
-          icon: 'assignment',
-          selected: isExams,
-          disabled: false,
-        }];
+        if (this.isUserLoggedIn) {
+          tabs.push({
+            title: this.$tr('exams'),
+            icon: 'assignment',
+            selected: this.pageMode === PageModes.EXAM,
+            disabled: false,
+          });
+        }
+
+        return tabs;
       },
     },
     vuex: {
@@ -176,6 +189,7 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
+        isUserLoggedIn,
       },
     },
     store, // make this and all child components aware of the store
@@ -187,8 +201,12 @@
 <style lang="stylus" scoped>
 
   @require 'learn.styl'
+  @require '~kolibri.styles.definitions'
 
   .content
     margin: auto
+
+  .points-link
+    color: inherit
 
 </style>

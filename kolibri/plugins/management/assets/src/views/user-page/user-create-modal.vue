@@ -46,6 +46,7 @@
           <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
           <select @focus="clearStatus" v-model="kind" id="user-kind">
             <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
             <option :value="ADMIN"> {{$tr('admin')}} </option>
           </select>
         </div>
@@ -77,7 +78,7 @@
       // Modal title
       addNewAccountTitle: 'Add New Account',
       // Labels
-      name: 'Name',
+      name: 'Full name',
       username: 'Username',
       password: 'Password',
       confirmPassword: 'Confirm Password',

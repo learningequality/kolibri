@@ -41,13 +41,13 @@ oriented data synchronization.
     <div id="attemptprogress-container">
       <exercise-attempts
         class="attemptprogress"
-        :waiting="!complete"
+        :waitingForAttempt="firstAttempt"
         :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
       <p class="message">{{ $tr('goal', {count: totalCorrectRequiredM}) }}</p>
-      <p id="try-again" v-if="!correct && !firstAttempt">{{ $tr('tryAgain') }}</p>
+      <p id="try-again" v-if="correct < 1 && !firstAttempt">{{ $tr('tryAgain') }}</p>
     </div>
   </div>
 
@@ -56,9 +56,9 @@ oriented data synchronization.
 
 <script>
 
+  const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const MasteryModelGenerators = require('kolibri.coreVue.vuex.constants').MasteryModelGenerators;
   const seededShuffle = require('kolibri.lib.seededshuffle');
 
@@ -117,7 +117,7 @@ oriented data synchronization.
       shake: false,
       firstAttempt: true,
       complete: false,
-      correct: true,
+      correct: 0,
       itemError: false,
     }),
     methods: {
@@ -125,7 +125,7 @@ oriented data synchronization.
         correct,
         complete,
         firstAttempt = false,
-        hinted = false,
+        hinted,
         answerState,
         simpleAnswer,
       }) {
@@ -141,7 +141,7 @@ oriented data synchronization.
       },
       saveAttemptLogMasterLog() {
         this.saveAttemptLogAction().then(() => {
-          if (this.isFacilityUser && this.success) {
+          if (this.canLogInteractions && this.success) {
             this.setMasteryLogCompleteAction(new Date());
             this.saveMasteryLogAction();
           }
@@ -154,8 +154,9 @@ oriented data synchronization.
         }
       },
       answerGiven({ correct, answerState, simpleAnswer }) {
+        correct = Number(correct); // eslint-disable-line no-param-reassign
         this.correct = correct;
-        if (!correct) {
+        if (correct < 1) {
           if (!this.shake) {
             setTimeout(() => {
               this.shake = false;
@@ -168,7 +169,7 @@ oriented data synchronization.
           answer: answerState,
           correct,
         });
-        this.complete = correct;
+        this.complete = correct === 1;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
             correct,
@@ -196,7 +197,9 @@ oriented data synchronization.
             correct: 0,
             complete: false,
             firstAttempt: true,
-            hinted: true
+            hinted: true,
+            answerState,
+            simpleAnswer: '',
           });
           this.firstAttempt = false;
         }
@@ -220,7 +223,7 @@ oriented data synchronization.
         this.shake = false;
         this.firstAttempt = true;
         this.complete = false;
-        this.correct = true;
+        this.correct = 0;
         this.itemError = false;
         this.setItemId();
         this.createAttemptLog();
@@ -239,13 +242,14 @@ oriented data synchronization.
       sessionInitialized() {
         // Once the session is initialized we can initialize the mastery log,
         // as the required data will be available.
-        if (this.isFacilityUser) {
+        if (this.canLogInteractions) {
           this.initMasteryLog();
         } else {
           // if userKind is anonymous user or deviceOwner.
           this.createDummyMasteryLogAction();
         }
         this.nextQuestion();
+        this.$emit('sessionInitialized');
       },
       handleItemError() {
         this.itemError = true;
@@ -255,7 +259,7 @@ oriented data synchronization.
         this.complete = true;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
-            correct: true,
+            correct: 1,
             complete: this.complete,
             firstAttempt: true,
           });
@@ -268,9 +272,8 @@ oriented data synchronization.
       },
     },
     computed: {
-      isFacilityUser() {
-        return !(this.userkind.includes(UserKinds.SUPERUSER) ||
-          this.userkind.includes(UserKinds.ANONYMOUS));
+      canLogInteractions() {
+        return !this.isSuperuser;
       },
       recentAttempts() {
         if (!this.pastattempts) {
@@ -330,7 +333,7 @@ oriented data synchronization.
         updateExerciseProgress: actions.updateExerciseProgress,
       },
       getters: {
-        userkind: (state) => state.core.session.kind,
+        isSuperuser: getters.isSuperuser,
         totalattempts: (state) => state.core.logging.mastery.totalattempts,
         pastattempts: (state) => state.core.logging.mastery.pastattempts,
         userid: (state) => state.core.session.user_id,

@@ -32,7 +32,7 @@
     <audio
       id="audio"
       ref="audio"
-      @timeupdate="updateTime"
+      @timeupdate="updateTime()"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
       :src="defaultFile.storage_url"
@@ -156,6 +156,8 @@
       },
 
       updateTime() {
+        // guard against the function being called after component is unmounted
+        if (this.$refs.audio === undefined) return;
         this.displayTime = this.$refs.audio.currentTime;
         if (this.displayTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
@@ -169,7 +171,7 @@
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', Math.max((this.displayTime
+        this.$emit('updateProgress', Math.max((this.displayTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
         this.progressStartingPoint = this.$refs.audio.currentTime;
       },

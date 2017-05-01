@@ -1,18 +1,20 @@
 const coreApp = require('kolibri');
+const logging = require('kolibri.lib.logging');
+const getters = require('kolibri.coreVue.vuex.getters');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
-const FacilityResource = coreApp.resources.FacilityResource;
 const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
 
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const contentImportExportActions = require('./contentImportExportActions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const constants = require('../constants');
 const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
 const PageNames = constants.PageNames;
+const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
 const addCoachRoleAction = require('./addCoachRoleAction').default;
@@ -36,16 +38,9 @@ function _classState(data) {
     id: data.id,
     name: data.name,
     parent: data.parent,
-    learner_count: data.learner_count,
-    coach_count: data.coach_count,
-    admin_count: data.admin_count,
-  };
-}
-
-function _facilityState(data) {
-  return {
-    id: data.id,
-    name: data.name,
+    memberCount: data.learner_count,
+    coachCount: data.coach_count,
+    adminCount: data.admin_count,
   };
 }
 
@@ -54,9 +49,10 @@ function _facilityState(data) {
  * This mostly duplicates _userState below, but searches Roles array for an exact match
  * on the classId, and not for any Role object.
  */
-function _userStateForClassEditPage(classId, apiUserData) {
+function _userStateForClassEditPage(facilityId, classId, apiUserData) {
   const matchingRole = apiUserData.roles.find((r) => (
-      String(r.collection) === classId ||
+      String(r.collection) === String(classId) ||
+      String(r.collection) === String(facilityId) ||
       r.kind === UserKinds.ADMIN ||
       r.kind === UserKinds.SUPERUSER
     )
@@ -97,6 +93,17 @@ function _userState(apiUserData) {
 }
 
 
+function _taskState(data) {
+  const state = {
+    id: data.id,
+    type: data.type,
+    status: data.status,
+    metadata: data.metadata,
+    percentage: data.percentage,
+  };
+  return state;
+}
+
 /**
  * Title Helper
  */
@@ -123,15 +130,12 @@ function displayModal(store, modalName) {
 
 /**
  * Do a POST to create new class
- * @param {Object} stateClassData
- * @param {string} stateClassData.name
- * @param {string} stateClassData.facilityId
- *  Needed: name
+ * @param {string} name
  */
-function createClass(store, stateClassData) {
+function createClass(store, name) {
   const classData = {
-    name: stateClassData.name,
-    parent: stateClassData.facilityId,
+    name,
+    parent: store.state.core.session.facility_id,
   };
 
   ClassroomResource.createModel(classData).save().then(
@@ -212,17 +216,12 @@ function showClassesPage(store) {
   preparePage(store.dispatch, { name: PageNames.CLASS_MGMT_PAGE, title: 'Classes' });
   const classCollection = ClassroomResource.getCollection();
   const classPromise = classCollection.fetch({}, true);
-  const facilityCollection = FacilityResource.getCollection();
-  const facilityPromise = facilityCollection.fetch();
-
-  const promises = [facilityPromise, classPromise];
-
+  const promises = [classPromise];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facility, classes]) => {
+    ([classes]) => {
       const pageState = {
         modalShown: false,
-        facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
         classes: classes.map(_classState),
       };
 
@@ -239,12 +238,16 @@ function showClassEditPage(store, classId) {
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     ClassroomResource.getModel(classId).fetch(),
+    ClassroomResource.getCollection().fetch({}, true),
   ];
 
-  const transformResults = ([facilityUsers, classroom]) => ({
+  const facilityId = getters.currentFacilityId(store.state);
+
+  const transformResults = ([facilityUsers, classroom, classrooms]) => ({
     modalShown: false,
-    classes: [classroom],
-    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, classId)),
+    currentClass: classroom,
+    classes: classrooms,
+    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, facilityId, classId)),
   });
 
   ConditionalPromise.all(promises).only(
@@ -261,8 +264,6 @@ function showClassEditPage(store, classId) {
 function showClassEnrollPage(store, classId) {
   preparePage(store.dispatch, { name: PageNames.CLASS_ENROLL_MGMT_PAGE, title: 'Classes' });
 
-  // current facility
-  const facilityPromise = FacilityResource.getCollection().fetch();
   // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch({}, true);
   // current class
@@ -271,11 +272,10 @@ function showClassEnrollPage(store, classId) {
   const classUsersPromise =
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
 
-  ConditionalPromise.all([facilityPromise, userPromise, classPromise, classUsersPromise]).only(
+  ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
-    ([facility, facilityUsers, classroom, classUsers]) => {
+    ([facilityUsers, classroom, classUsers]) => {
       const pageState = {
-        facility: _facilityState(facility[0]),
         facilityUsers: facilityUsers.map(_userState),
         classUsers: classUsers.map(_userState),
         class: classroom,
@@ -338,7 +338,7 @@ function assignUserRole(user, kind) {
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: store.state.pageState.facility.id,
+    facility: store.state.core.session.facility_id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
@@ -364,7 +364,7 @@ function createUser(store, stateUserData) {
     // dispatch newly created user
     newUser => {
       const userState = _userState(newUser);
-      store.dispatch('ADD_USER', _userState(userState));
+      store.dispatch('ADD_USER', userState);
       store.dispatch('SET_USER_JUST_CREATED', userState);
       displayModal(store, false);
     },
@@ -409,10 +409,9 @@ function updateUser(store, stateUser) {
 
       // delete the old role models if this was not a learner
       handlePreviousRoles = Promise.all(roleDeletes).then(
-        responses => {
+        () => {
           // to avoid having to make an API call, clear manually
           savedUser.roles = [];
-          return responses;
         },
         // models could not be deleted
         error => error
@@ -422,18 +421,20 @@ function updateUser(store, stateUser) {
     // then assign the new role
     roleAssigned = new Promise((resolve, reject) => {
       // Take care of previous roles if necessary (will autoresolve if not)
-      handlePreviousRoles.catch(error => reject(error));
-
-      // only need to assign a new role if not a learner
-      if (stateUser.kind !== UserKinds.LEARNER) {
-        assignUserRole(savedUser, stateUser.kind).then(
-          (updated) => resolve(updated),
-          (error) => coreActions.handleApiError(store, error)
-        );
-      } else {
-        // new role is learner - having deleted old roles is enough
-        resolve(savedUser);
-      }
+      handlePreviousRoles.then(
+        () => {
+          // only need to assign a new role if not a learner
+          if (stateUser.kind !== UserKinds.LEARNER) {
+            assignUserRole(savedUser, stateUser.kind).then(
+              updated => resolve(updated),
+              error => coreActions.handleApiError(store, error)
+            );
+          } else {
+            // new role is learner - having deleted old roles is enough
+            resolve(savedUser);
+          }
+        },
+        error => reject(error));
     });
   }
 
@@ -467,16 +468,14 @@ function showUserPage(store) {
   preparePage(store.dispatch, { name: PageNames.USER_MGMT_PAGE, title: _managePageTitle('Users') });
 
   const userCollection = FacilityUserResource.getCollection();
-  const facilityPromise = FacilityResource.getCollection().fetch();
   const userPromise = userCollection.fetch({}, true);
 
-  const promises = [facilityPromise, userPromise];
+  const promises = [userPromise];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facility, users]) => {
+    ([users]) => {
       const pageState = {
-        facility: _facilityState(facility[0]),
         facilityUsers: users.map(_userState),
         modalShown: false,
       };
@@ -490,6 +489,178 @@ function showUserPage(store) {
 
 // ================================
 // CONTENT IMPORT/EXPORT ACTIONS
+
+
+function showContentPage(store) {
+  preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
+
+  if (!getters.isSuperuser(store.state)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return;
+  }
+
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  taskCollectionPromise.only(
+    samePageCheckGenerator(store),
+    (taskList) => {
+      const pageState = {
+        taskList: taskList.map(_taskState),
+        wizardState: { shown: false },
+      };
+      coreActions.setChannelInfo(store).then(() => {
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+function updateWizardLocalDriveList(store) {
+  const localDrivesPromise = TaskResource.localDrives();
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  localDrivesPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    coreActions.handleApiError(store, error);
+  });
+}
+
+function startImportWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+}
+
+function startExportWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.EXPORT,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+  updateWizardLocalDriveList(store);
+}
+
+function showImportNetworkWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_NETWORK,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+}
+
+function showImportLocalWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_LOCAL,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+  updateWizardLocalDriveList(store);
+}
+
+function cancelImportExportWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: false,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+}
+
+// called from a timer to continually update UI
+function pollTasksAndChannels(store) {
+  const samePageCheck = samePageCheckGenerator(store);
+  TaskResource.getCollection().fetch({}, true).only(
+    // don't handle response if we've switched pages or if we're in the middle of another operation
+    () => samePageCheck() && !store.state.pageState.wizardState.busy,
+    (taskList) => {
+      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
+      // I.e. channel list always reflects the current state of ongoing task(s).
+      coreActions.setChannelInfo(store).only(
+        samePageCheckGenerator(store),
+        () => {
+          store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+          // Close the wizard if there's an outstanding task.
+          // (this can be removed when we support more than one
+          // concurrent task.)
+          if (taskList.length && store.state.pageState.wizardState.shown) {
+            cancelImportExportWizard(store);
+          }
+        }
+      );
+    },
+    error => { logging.error(`poll error: ${error}`); }
+  );
+}
+
+function clearTask(store, taskId) {
+  const clearTaskPromise = TaskResource.clearTask(taskId);
+  clearTaskPromise.then(() => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+  })
+  .catch(error => { coreActions.handleApiError(store, error); });
+}
+
+function triggerLocalContentImportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const localImportPromise = TaskResource.localImportContent(driveId);
+  localImportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  });
+}
+
+function triggerLocalContentExportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const localExportPromise = TaskResource.localExportContent(driveId);
+  localExportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  });
+}
+
+function triggerRemoteContentImportTask(store, channelId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
+  remoteImportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
+  })
+  .catch((error) => {
+    if (error.status.code === 404) {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
+    } else {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+    }
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  });
+}
 
 
 // ================================
@@ -515,7 +686,7 @@ function showScratchpad(store) {
 }
 
 
-const actions = {
+module.exports = {
   displayModal,
 
   createClass,
@@ -537,8 +708,20 @@ const actions = {
   showUserPage,
   addCoachRole: addCoachRoleAction,
   removeCoachRole: removeCoachRoleAction,
+
+  showContentPage,
+  pollTasksAndChannels,
+  clearTask,
+  startImportWizard,
+  startExportWizard,
+  showImportNetworkWizard,
+  showImportLocalWizard,
+  cancelImportExportWizard,
+  triggerLocalContentExportTask,
+  triggerLocalContentImportTask,
+  triggerRemoteContentImportTask,
+  updateWizardLocalDriveList,
+
   showDataPage,
   showScratchpad,
 };
-
-module.exports = Object.assign(actions, contentImportExportActions);

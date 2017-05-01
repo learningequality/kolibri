@@ -230,6 +230,8 @@ class ExamLog(BaseLogModel):
     # Is this exam open for engagement, or is it closed?
     # Used to end user engagement with an exam when it has been deactivated.
     closed = models.BooleanField(default=False)
+    # when was this exam finished?
+    completion_timestamp = models.DateTimeField(blank=True, null=True)
 
 
 class ExamAttemptLog(BaseAttemptLog):

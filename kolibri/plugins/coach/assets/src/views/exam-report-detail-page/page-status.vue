@@ -10,20 +10,27 @@
         />
         <h1 class="user-name">{{ $tr('title', {name: userName}) }}</h1>
       </div>
-      <div class="questions">
-        {{ $tr('overallScore') }} <strong> {{ $tr('score', {number: score}) }} </strong>
+      <div v-html="$trHtml('overallScore', {score: score})" class="questions">
       </div>
-      <div class="questions">
-        {{ $tr('questionsCorrect') }} <strong> {{ questionsCorrectText(questions) }} </strong>
+      <div
+        v-html="$trHtml('questionsCorrect', { correct: questionsCorrect, total: questions.length })"
+        class="questions">
       </div>
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <div>
-          <progress-icon class="svg-icon" :progress="progress"/>
+        <progress-icon class="svg-icon" :progress="progress"/>
+        <span v-if="completed">
           <strong> {{ $tr('completed') }} </strong>
-        </div>
-        <p>{{ dateText(date) }}</p>
+          <br />
+          <elapsed-time :date="completionTimestamp"/>
+        </span>
+        <span v-else-if="completed !== null">
+          <strong> {{ $tr('inProgress') }} </strong>
+        </span>
+        <span v-else>
+          <strong> {{ $tr('notStarted') }} </strong>
+        </span>
       </div>
     </div>
   </div>
@@ -37,47 +44,43 @@
     $trNameSpace: 'coachExamReportDetailPageStatus',
     $trs: {
       title: '{name} - Exam Performance',
-      overallScore: 'Overall Score: ',
-      score: '{ number }%',
-      questionsCorrect: 'Questions Correct: ',
-      correctQuestions: '{correct} of {total} correct',
+      overallScore: 'Overall Score: <strong>{ score, number, plural }</strong>',
+      questionsCorrect: 'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
       completed: 'Completed',
-      date: 'on { date }',
+      inProgress: 'In progress',
+      notStarted: 'Not started',
     },
     components: {
       'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     props: {
       userName: {
         type: String,
         required: true,
       },
-      score: {
-        type: Number,
-        default: 0,
-      },
       questions: {
         type: Array,
         default: [],
       },
-      date: {
-        type: String,
+      completed: {
+        type: Boolean,
         default: false,
       },
-    },
-    methods: {
-      questionsCorrectText(questions) {
-        const correctQuestions = questions.filter((q) => q.correct);
-        return this.$tr('correctQuestions', { correct: correctQuestions.length, total: questions.length });
-      },
-      dateText(date) {
-        return this.$tr('date', { date });
+      completionTimestamp: {
+        type: Date,
       }
     },
-    vuex: {
-      getters: {
-        pageState: state => state.pageState,
-        progress: () => 1,
+    computed: {
+      questionsCorrect() {
+        return this.questions.reduce((a, q) => a + (q.correct === 1.0 ? 1 : 0), 0);
+      },
+      score() {
+        return (this.questions.reduce((a, q) => a + q.correct, 0) / this.questions.length) || 0;
+      },
+      progress() {
+        // Either return in completed or in progress
+        return this.completed ? 1 : 0.1;
       },
     },
   };

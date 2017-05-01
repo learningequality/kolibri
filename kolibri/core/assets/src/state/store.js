@@ -27,20 +27,13 @@ const initialState = {
     loginModalVisible: false,
     loginError: null,
     logging: baseLoggingState,
+    totalProgress: null,
     channels: {
       list: [],
       currentId: null,
     },
-    // Hardcoded for now. Privileges set according to Zero Rating conf
-    learnerPrivileges: {
-      username: true,
-      name: true,
-      password: true,
-      signup: true,
-      delete: false,
-      // classActivation: false,
-      loginRequired: false,
-    },
+    facilityConfig: {},
+    facilities: [],
   },
 };
 
@@ -48,6 +41,12 @@ const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
     state.core.loginModalVisible = false;
+  },
+  CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
+    state.core.facilityConfig = facilityConfig;
+  },
+  CORE_SET_FACILITIES(state, facilities) {
+    state.core.facilities = facilities;
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
@@ -93,6 +92,9 @@ const mutations = {
   },
   SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
     state.core.logging.session.progress = sessionProgress;
+    if (state.core.logging.summary.progress < 1.0 && summaryProgress >= 1.0) {
+      state.core.totalProgress += 1;
+    }
     state.core.logging.summary.progress = summaryProgress;
   },
   SET_LOGGING_COMPLETION_TIME(state, time) {
@@ -151,8 +153,6 @@ const mutations = {
       state.core.logging.attempt.completion_timestamp = null;
       state.core.logging.attempt.complete = false;
     }
-    state.core.logging.attempt.correct = correct;
-    state.core.logging.attempt.hinted = hinted;
     state.core.logging.attempt.end_timestamp = currentTime;
     let starttime = state.core.logging.attempt.start_timestamp;
     if (typeof starttime === 'string') {
@@ -160,8 +160,15 @@ const mutations = {
     }
     state.core.logging.attempt.time_spent = currentTime - starttime;
     if (firstAttempt) {
+      // Can only get it correct on the first try.
+      state.core.logging.attempt.correct = correct;
+      state.core.logging.attempt.hinted = hinted;
       state.core.logging.attempt.answer = JSON.stringify(answerState);
       state.core.logging.attempt.simple_answer = simpleAnswer;
+    } else if (state.core.logging.attempt.correct < 1) {
+      // Only set hinted if attempt has not already been marked as correct
+      // and set it to true if now true, but leave as true if false.
+      state.core.logging.attempt.hinted = state.core.logging.attempt.hinted || hinted;
     }
   },
   SET_EMPTY_LOGGING_STATE(state) {
@@ -169,6 +176,9 @@ const mutations = {
     state.core.logging.session = {};
     state.core.logging.mastery = {};
     state.core.logging.attempt = {};
+  },
+  SET_TOTAL_PROGRESS(state, progress) {
+    state.core.totalProgress = progress;
   },
   SET_CORE_CURRENT_CHANNEL(state, channelId) {
     state.core.channels.currentId = channelId;

@@ -1,8 +1,11 @@
 <template>
 
-  <immersive-full-screen v-if="exam" :backPageLink="backPageLink">
-    <template slot="text"> {{ $tr('backToExamList') }} </template>
-    <template slot="body">
+  <immersive-full-screen
+    v-if="exam"
+    :backPageLink="backPageLink"
+    :backPageText="$tr('backToExamList')"
+  >
+    <template>
       <div class="container">
         <div class="exam-status-container">
           <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
@@ -23,6 +26,7 @@
             <content-renderer
               class="content-renderer"
               ref="contentRenderer"
+              v-if="itemId"
               :id="content.id"
               :kind="content.kind"
               :files="content.files"
@@ -33,7 +37,11 @@
               :itemId="itemId"
               :assessment="true"
               :allowHints="false"
-              :answerState="currentAttempt.answer"/>
+              :answerState="currentAttempt.answer"
+              @interaction="saveAnswer"/>
+              <ui-alert v-else :dismissible="false" type="error">
+                {{ $tr('noItemId') }}
+              </ui-alert>
               <div class="question-navbutton-container">
                 <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
                 <icon-button :disabled="questionNumber===exam.questionCount-1" alignment="right" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
@@ -59,6 +67,7 @@
   const PageNames = require('../../constants').PageNames;
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const actions = require('../../state/actions');
+  const isEqual = require('lodash/isEqual');
 
   module.exports = {
     $trNameSpace: 'examPage',
@@ -71,6 +80,7 @@
       cancel: 'Cancel',
       areYouSure: 'Are you you want to submit your exam?',
       unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      noItemId: 'This question has an error, please move on to the next question',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
@@ -78,6 +88,7 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'answer-history': require('./answer-history'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'ui-alert': require('keen-ui/src/UiAlert'),
     },
     data: () => ({
       submitModalOpen: false,
@@ -90,8 +101,7 @@
         itemId: state => state.pageState.itemId,
         questionNumber: state => state.pageState.questionNumber,
         attemptLogs: state => state.examAttemptLogs,
-        currentAttempt: state =>
-          state.examAttemptLogs[state.pageState.content.id][state.pageState.itemId],
+        currentAttempt: state => state.pageState.currentAttempt,
         questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
@@ -100,10 +110,16 @@
       },
     },
     methods: {
-      goToQuestion(questionNumber) {
-        const answer = this.$refs.contentRenderer.checkAnswer();
-        if (answer) {
-          const attempt = this.currentAttempt;
+      checkAnswer() {
+        if (this.$refs.contentRenderer) {
+          return this.$refs.contentRenderer.checkAnswer();
+        }
+        return null;
+      },
+      saveAnswer() {
+        const answer = this.checkAnswer();
+        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+          const attempt = Object.assign({}, this.currentAttempt);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
@@ -116,12 +132,22 @@
             answer: answer.answerState,
             correct: answer.correct,
           });
-          this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
         }
-        this.$router.push({
-          name: PageNames.EXAM,
-          params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+        return Promise.resolve();
+      },
+      goToQuestion(questionNumber) {
+        this.saveAnswer().then(() => {
+          this.$router.push({
+            name: PageNames.EXAM,
+            params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+          });
         });
+      },
+      submitExam() {
+        if (!this.submitModalOpen) {
+          this.saveAnswer().then(this.toggleModal);
+        }
       },
       toggleModal() {
         this.submitModalOpen = !this.submitModalOpen;

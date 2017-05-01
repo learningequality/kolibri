@@ -36,7 +36,7 @@ module.exports = {
       },
       seededshuffle: {
         module: require('seededshuffle'),
-      }
+      },
     },
     coreVue: {
       vuex: {
@@ -51,6 +51,9 @@ module.exports = {
         },
         store: {
           module: require('../state/store'),
+        },
+        mappers: {
+          module: require('../state/mappers'),
         },
       },
       components: {
@@ -90,9 +93,6 @@ module.exports = {
         textbox: {
           module: require('../views/textbox'),
         },
-        channelSwitcher: {
-          module: require('../views/channel-switcher'),
-        },
         dropdownMenu: {
           module: require('../views/dropdown-menu'),
         },
@@ -104,6 +104,12 @@ module.exports = {
         },
         immersiveFullScreen: {
           module: require('../views/immersive-full-screen'),
+        },
+        elapsedTime: {
+          module: require('../views/elapsed-time'),
+        },
+        pointsIcon: {
+          module: require('../views/points-icon'),
         },
       },
       router: {
@@ -132,6 +138,9 @@ module.exports = {
     utils: {
       exams: {
         module: require('../exams/utils'),
+      },
+      validateLinkObject: {
+        module: require('../validateLinkObject'),
       },
     },
   },

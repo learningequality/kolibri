@@ -6,9 +6,8 @@
     @cancel="close"
   >
     <div>
-      {{$tr('deleteConfirmation')}} <strong>{{username}}</strong> {{$tr('from')}} <strong>{{classname}}</strong>
-
-      <p>{{$tr('still')}} <strong>{{$tr('users')}}</strong>.</p>
+      <span v-html="formattedDeleteConfirmation"> </span>
+      <p v-html="formattedAccessReassuranceConfirmation"> </p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
@@ -38,6 +37,10 @@
 
   const actions = require('../../state/actions');
 
+  function bold(stringToBold) {
+    return `<strong v-html> ${stringToBold} </strong>`;
+  }
+
   module.exports = {
     $trNameSpace: 'userRemoveModal',
     $trs: {
@@ -45,10 +48,9 @@
       remove: 'Remove from Class',
       cancel: 'Cancel',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to remove ',
-      from: ' from ',
-      still: 'You can still access this account from ',
-      users: 'Users',
+      deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
+      accessReassurance: 'You can still access this account from { sectionTabName }',
+      usersTab: 'Users',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -70,6 +72,25 @@
       userid: {
         type: String,
         required: true,
+      },
+    },
+    computed: {
+      formattedDeleteConfirmation() {
+        return this.$tr(
+          'deleteConfirmation',
+          {
+            username: bold(this.username),
+            classname: bold(this.classname),
+          }
+        );
+      },
+      formattedAccessReassuranceConfirmation() {
+        return this.$tr(
+          'accessReassurance',
+          {
+            sectionTabName: bold(this.$tr('usersTab')),
+          }
+        );
       },
     },
     methods: {

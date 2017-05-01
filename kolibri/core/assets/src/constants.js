@@ -43,6 +43,7 @@ const AttemptLoggingMap = {
   id: 'id',
   sessionlog: 'sessionlog',
   item: 'item',
+  user: 'user',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
   end_timestamp: 'end_timestamp',
@@ -87,6 +88,9 @@ const TopLevelPageNames = {
   PROFILE: 'PROFILE',
 };
 
+// How many points is a completed content item worth?
+const MaxPointsPerContent = 500;
+
 module.exports = {
   UserKinds,
   ContentNodeKinds,
@@ -97,4 +101,5 @@ module.exports = {
   TopLevelPageNames,
   MasteryModelGenerators,
   CollectionKinds,
+  MaxPointsPerContent,
 };

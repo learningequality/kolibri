@@ -14,6 +14,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const router = require('kolibri.coreVue.router');
 const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
+const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 
 /**
  * Vuex State Mappers
@@ -42,29 +43,6 @@ function _topicState(data) {
   return state;
 }
 
-function _validateAssessmentMetaData(data) {
-  // Data is coming from a serializer for a one to many key, so at least will return an empty array.
-  const assessmentMetaData = data.assessmentmetadata[0];
-  if (!assessmentMetaData) {
-    return {
-      assessment: false,
-    };
-  }
-  const assessmentIds = JSON.parse(assessmentMetaData.assessment_item_ids || '[]');
-  const masteryModel = JSON.parse(assessmentMetaData.mastery_model || '{}');
-  if (!assessmentIds.length || !Object.keys(masteryModel).length) {
-    return {
-      assessment: false,
-    };
-  }
-  return {
-    assessment: true,
-    assessmentIds,
-    masteryModel,
-    randomize: assessmentMetaData.randomize,
-  };
-}
-
 function _contentState(data) {
   let progress;
   if (!data.progress_fraction) {
@@ -90,7 +68,7 @@ function _contentState(data) {
     license: data.license,
     license_owner: data.license_owner,
   };
-  Object.assign(state, _validateAssessmentMetaData(data));
+  Object.assign(state, assessmentMetaDataState(data));
   return state;
 }
 
@@ -469,10 +447,17 @@ function showSearch(store, channelId, searchTerm) {
 }
 
 function showExamList(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const userIsLoggedIn = coreGetters.isUserLoggedIn(store.state);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_LIST);
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
 
-  coreActions.setChannelInfo(store, channelId).then(
+  // if user is not logged in, this action is a noop
+  if (!userIsLoggedIn) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return Promise.resolve();
+  }
+
+  return coreActions.setChannelInfo(store, channelId).then(
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
@@ -557,8 +542,7 @@ function showExam(store, channelId, id, questionNumber) {
 
         const attemptLogs = {};
 
-        if (store.state.core.session.user_id &&
-          store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
+        if (store.state.core.session.user_id && !coreGetters.isSuperuser(store.state)) {
           if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
             store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
           } else {
@@ -624,48 +608,54 @@ function showExam(store, channelId, id, questionNumber) {
                 contentId: question.contentId
               }));
 
-              const itemId = questions[questionNumber].itemId;
+              if (questions.every(question => !question.itemId)) {
+                // Exam is drawing solely on malformed exercise data, best to quit now
+                coreActions.handleError(store, `This exam has no valid questions`);
+              } else {
+                const itemId = questions[questionNumber].itemId;
 
-              const currentQuestion = questions[questionNumber];
+                const currentQuestion = questions[questionNumber];
 
-              const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
-                calcQuestionsAnswered(attemptLogs));
+                const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
+                  calcQuestionsAnswered(attemptLogs));
 
-              const pageState = {
-                exam: _examState(exam),
-                itemId,
-                questions,
-                currentQuestion,
-                questionNumber,
-                content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
-                channelId,
-                questionsAnswered,
-              };
-              if (!attemptLogs[currentQuestion.contentId]) {
-                attemptLogs[currentQuestion.contentId] = {};
-              }
-              if (!attemptLogs[currentQuestion.contentId][itemId]) {
-                attemptLogs[currentQuestion.contentId][itemId] = {
-                  start_timestamp: new Date(),
-                  completion_timestamp: null,
-                  end_timestamp: null,
-                  item: itemId,
-                  complete: false,
-                  time_spent: 0,
-                  correct: 0,
-                  answer: undefined,
-                  simple_answer: '',
-                  interaction_history: [],
-                  hinted: false,
-                  channel_id: channelId,
-                  content_id: currentQuestion.contentId,
+                const pageState = {
+                  exam: _examState(exam),
+                  itemId,
+                  questions,
+                  currentQuestion,
+                  questionNumber,
+                  content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
+                  channelId,
+                  questionsAnswered,
                 };
+                if (!attemptLogs[currentQuestion.contentId]) {
+                  attemptLogs[currentQuestion.contentId] = {};
+                }
+                if (!attemptLogs[currentQuestion.contentId][itemId]) {
+                  attemptLogs[currentQuestion.contentId][itemId] = {
+                    start_timestamp: new Date(),
+                    completion_timestamp: null,
+                    end_timestamp: null,
+                    item: itemId,
+                    complete: false,
+                    time_spent: 0,
+                    correct: 0,
+                    answer: undefined,
+                    simple_answer: '',
+                    interaction_history: [],
+                    hinted: false,
+                    channel_id: channelId,
+                    content_id: currentQuestion.contentId,
+                  };
+                }
+                pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
+                store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+                store.dispatch('SET_PAGE_STATE', pageState);
+                store.dispatch('CORE_SET_PAGE_LOADING', false);
+                store.dispatch('CORE_SET_ERROR', null);
+                store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
               }
-              store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-              store.dispatch('SET_PAGE_STATE', pageState);
-              store.dispatch('CORE_SET_PAGE_LOADING', false);
-              store.dispatch('CORE_SET_ERROR', null);
-              store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
             },
             error => { coreActions.handleApiError(store, error); }
           );
@@ -677,42 +667,60 @@ function showExam(store, channelId, id, questionNumber) {
 }
 
 function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+  // As soon as this has happened, we should clear any previous cache for the
+  // UserExamResource - as that data has now changed.
+  UserExamResource.clearCache();
+
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
     [contentId]: ({
       [itemId]: currentAttemptLog,
     }),
   });
-  const examAttemptLogModel = ExamAttemptLogResource.getModel(
-    currentAttemptLog.id);
+  // If a save has already been fired for this particular attempt log,
+  // it may not have an id yet, so we can look for it by its uniquely
+  // identifying fields, contentId and itemId.
+  let examAttemptLogModel = ExamAttemptLogResource.findModel({
+    content_id: contentId,
+    item: itemId,
+  });
   const attributes = Object.assign({}, currentAttemptLog);
   attributes.interaction_history = JSON.stringify(attributes.interaction_history);
   attributes.answer = JSON.stringify(attributes.answer);
   attributes.user = store.state.core.session.user_id;
   attributes.examlog = store.state.examLog.id;
+  // If the above findModel returned no matching model, then we can do
+  // getModel to get the new model instead.
+  if (!examAttemptLogModel) {
+    examAttemptLogModel = ExamAttemptLogResource.createModel(
+      attributes);
+  }
   const promise = examAttemptLogModel.save(attributes);
-  promise.then((newExamAttemptLog) => {
-    const log = Object.assign({}, newExamAttemptLog, {
-      answer: parseJSONorUndefined(newExamAttemptLog.answer),
-      interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
-    });
-    store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-      [contentId]: ({
-        [itemId]: log,
-      }),
-    });
-    const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-    store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
-    const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-      user: store.state.core.session.user_id,
-      exam: store.state.pageState.exam.id,
-    });
-    // Add this attempt log to the Collection for future caching.
-    examAttemptLogCollection.set(examAttemptLogModel);
-  });
+  return promise.then((newExamAttemptLog) =>
+    new Promise((resolve, reject) => {
+      const log = Object.assign({}, newExamAttemptLog, {
+        answer: parseJSONorUndefined(newExamAttemptLog.answer),
+        interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
+      });
+      store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        [contentId]: ({
+          [itemId]: log,
+        }),
+      });
+      const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+      store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+      const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+        user: store.state.core.session.user_id,
+        exam: store.state.pageState.exam.id,
+      });
+      // Add this attempt log to the Collection for future caching.
+      examAttemptLogCollection.set(examAttemptLogModel);
+      resolve();
+    })
+  );
 }
 
 function closeExam(store) {
-  const examLog = store.state.examLog;
+  const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id).save(examLog).catch(
     error => { coreActions.handleApiError(store, error); });

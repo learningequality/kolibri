@@ -51,7 +51,7 @@ DEVELOP
 -----
 
  - SVG inlining
- - Exercise mastery visualization
+ - Exercise completion visualization
  - Perseus exercise renderer
  - Coach reports
 

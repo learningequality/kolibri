@@ -9,6 +9,8 @@
 
 <script>
 
+  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+
   module.exports = {
     components: {
       'list-item': require('../card-list/list-item'),
@@ -21,6 +23,7 @@
       link: {
         type: Object,
         required: true,
+        validator: validateLinkObject,
       },
     },
   };

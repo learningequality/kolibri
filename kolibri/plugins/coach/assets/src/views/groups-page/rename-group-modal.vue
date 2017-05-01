@@ -3,13 +3,14 @@
   <core-modal :title="$tr('renameLearnerGroup')"
     @cancel="close">
     <div>
-      <form @submit.prevent="renameGroup(this.classId, groupId, groupNameInput)">
+      <form @submit.prevent="callRenameGroup">
         <textbox type="text"
           :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
           :required="true"
-          :invalid="invalid"
+          :invalid="duplicateName"
+          :error="$tr('duplicateName')"
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
           type="button"
@@ -35,6 +36,7 @@
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
+      duplicateName: 'A group with that name already exists',
     },
     data() {
       return {
@@ -48,10 +50,6 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      classId: {
-        type: String,
-        required: true,
-      },
       groupName: {
         type: String,
         required: true,
@@ -60,8 +58,30 @@
         type: String,
         required: true,
       },
+      groups: {
+        type: Array,
+        required: true,
+      },
+    },
+    computed: {
+      duplicateName() {
+        if (this.groupNameInput === this.groupName) {
+          return false;
+        }
+        const index = this.groups.findIndex(
+          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
+        if (index === -1) {
+          return false;
+        }
+        return true;
+      },
     },
     methods: {
+      callRenameGroup() {
+        if (!this.duplicateName) {
+          this.renameGroup(this.groupId, this.groupNameInput);
+        }
+      },
       close() {
         this.displayModal(false);
       },

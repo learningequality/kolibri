@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from .constants import role_kinds
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
@@ -92,9 +93,27 @@ class ClassroomSerializer(serializers.ModelSerializer):
         model = Classroom
         fields = ('id', 'name', 'parent', 'learner_count', 'coach_count', 'admin_count')
 
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Classroom.objects.all(),
+                fields=('parent', 'name')
+            )
+        ]
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 
+    user_ids = serializers.SerializerMethodField()
+
+    def get_user_ids(self, group):
+        return group.get_members().values_list('id')
+
     class Meta:
         model = LearnerGroup
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'parent', 'user_ids')
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Classroom.objects.all(),
+                fields=('parent', 'name')
+            )
+        ]

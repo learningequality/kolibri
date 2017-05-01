@@ -29,7 +29,7 @@
         :aria-label="$tr('name')"
         v-model="name"
         autocomplete="name"
-        autofocus
+        :autofocus="true"
         required
         id="name"
         type="text" />
@@ -67,7 +67,18 @@
         autocomplete="new-password"
         required />
 
-      <icon-button :disabled="canSubmit" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
+      <ui-select
+        :name="$tr('selectFacility')"
+        :placeholder="$tr('selectFacility')"
+        :label="$tr('facility')"
+        :options="facilityOptions"
+        :invalid="selectFacilityInvalid"
+        :error="$tr('selectFacility')"
+        :value="selectedFacility"
+        @input="updateSelection"
+      />
+
+      <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -86,8 +97,8 @@
     $trNameSpace: 'signUpPage',
     $trs: {
       createAccount: 'Create an account',
-      name: 'Name',
-      enterName: 'Enter name',
+      name: 'Full name',
+      enterName: 'Enter full name',
       username: 'Username',
       enterUsername: 'Enter username',
       password: 'Password',
@@ -98,6 +109,8 @@
       logIn: 'Log in',
       kolibri: 'Kolibri',
       finish: 'Finish',
+      facility: 'Facility',
+      selectFacility: 'Select a facility',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -107,13 +120,15 @@
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'logo': require('kolibri.coreVue.components.logo'),
       'ui-icon': require('keen-ui/src/UiIcon'),
+      'ui-select': require('keen-ui/src/UiSelect'),
     },
     data: () => ({
       name: '',
       username: '',
       password: '',
       confirmed_password: '',
-      termsAgreement: false,
+      checkSelect: false,
+      selection: {},
     }),
     computed: {
       signInPage() {
@@ -136,23 +151,50 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return !(this.name && this.username && this.password && this.confirmed_password);
-      },
-      canSubmit() {
-        return !this.termsAgreement || this.allFieldsPopulated || !this.passwordsMatch || this.busy;
+        return this.name && this.username && this.password
+        && this.confirmed_password && !this.noFacilitySelected;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
       },
+      facilityOptions() {
+        return this.facilities.map(facility => ({ label: facility.name, id: facility.id }));
+      },
+      noFacilitySelected() {
+        return !this.selectedFacility.id;
+      },
+      selectFacilityInvalid() {
+        if (!this.checkSelect) {
+          return false;
+        }
+        return this.noFacilitySelected;
+      },
+      selectedFacility() {
+        if (this.facilityOptions.length === 1) {
+          return this.facilityOptions[0];
+        }
+        return this.selection;
+      }
     },
     methods: {
       signUp() {
-        this.signUpAction({
-          full_name: this.name,
-          username: this.username,
-          password: this.password,
-        });
+        this.checkSelect = true;
+        const canSubmit =
+          this.allFieldsPopulated &&
+          this.passwordsMatch &&
+          !this.busy;
+        if (canSubmit) {
+          this.signUpAction({
+            facility: this.selectedFacility.id,
+            full_name: this.name,
+            username: this.username,
+            password: this.password,
+          });
+        }
       },
+      updateSelection(selection) {
+        this.selection = selection;
+      }
     },
     vuex: {
       getters: {
@@ -160,6 +202,7 @@
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
+        facilities: state => state.core.facilities,
       },
       actions: {
         signUpAction: actions.signUp,

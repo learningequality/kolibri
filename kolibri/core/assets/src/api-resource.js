@@ -1,5 +1,7 @@
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
+const find = require('lodash/find');
+const matches = require('lodash/matches');
 
 
 /** Class representing a single API resource object */
@@ -486,6 +488,15 @@ class Resource {
   }
 
   /**
+   * Find a model by its attributes - will return first model found that matches
+   * @param  {Object} attrs Hash of attributes to search by
+   * @return {Model}       First matching Model
+   */
+  findModel(attrs) {
+    return find(this.models, model => matches(attrs)(model.attributes));
+  }
+
+  /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object} data - The data for the model to add.
    * @param {Object} [resourceIds = {}]
@@ -508,7 +519,7 @@ class Resource {
     if (!(model instanceof Model)) {
       return this.createModel(model, filteredResourceIds);
     }
-    // Don't add to the model cache if the id is not defined.
+    // Add to the model cache using the default key if id is defined.
     if (model.id) {
       const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
       if (!this.models[cacheKey]) {
@@ -517,7 +528,10 @@ class Resource {
         this.models[cacheKey].set(model.attributes);
       }
       return this.models[cacheKey];
+    // Otherwise use a hash of the models attributes to create a temporary cache key
     }
+    const cacheKey = this.cacheKey(model.attributes, filteredResourceIds);
+    this.models[cacheKey] = model;
     return model;
   }
 
@@ -571,7 +585,7 @@ class Resource {
       }
     });
     if (missingParams.length > 0) {
-      throw TypeError(`Missing required resourceIds for: ${missingParams}`);
+      throw TypeError(`Missing required resourceIds: ${missingParams}`);
     }
     return filteredParams;
   }

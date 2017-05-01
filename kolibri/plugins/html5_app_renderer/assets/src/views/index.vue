@@ -51,7 +51,7 @@
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
-        self.$emit('progressUpdate', 1);
+        self.$emit('updateProgress', 1);
       }, 15000);
     },
     beforeDestroy() {
@@ -83,6 +83,7 @@
     height: 100vh
     max-height: calc(100vh - 24em)
     min-height: 400px
+    overflow-x: auto
     &:fullscreen
       width: 100%
       height: 100%

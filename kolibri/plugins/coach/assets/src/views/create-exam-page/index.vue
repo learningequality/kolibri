@@ -2,28 +2,34 @@
 
   <div>
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
-    <textbox
-      :label="$tr('title')"
-      :ariaLabel="$tr('title')"
-      :placeholder="$tr('enterTitle')"
-      :autofocus="false"
-      :invalid="titleInvalid"
-      :error="$tr('examRequiresTitle')"
-      v-model.trim="inputTitle"
-      @blur="validateTitle = true"
-      @input="validateTitle = true"
-    />
-    <textbox
-      :label="$tr('numQuestions')"
-      :ariaLabel="$tr('numQuestions')"
-      :placeholder="$tr('enterNum')"
-      :invalid="numQuestionsInvalid"
-      :error="numQuestionsInvalidMsg"
-      type="number"
-      v-model.trim.number="inputNumQuestions"
-      @blur="validateNumQuestMax = true"
-      @input="validateNumQuestMax = true"
-    />
+    <div class="pure-g">
+      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+        <textbox
+          :label="$tr('title')"
+          :ariaLabel="$tr('title')"
+          :placeholder="$tr('enterTitle')"
+          :autofocus="true"
+          :invalid="titleInvalid"
+          :error="titleInvalidMsg"
+          v-model.trim="inputTitle"
+          @blur="validateTitle = true"
+          @input="validateTitle = true"
+        />
+      </div>
+      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+        <textbox
+          :label="$tr('numQuestions')"
+          :ariaLabel="$tr('numQuestions')"
+          :placeholder="$tr('enterNum')"
+          :invalid="numQuestionsInvalid"
+          :error="numQuestionsInvalidMsg"
+          type="number"
+          v-model.trim.number="inputNumQuestions"
+          @blur="validateNumQuestMax = true"
+          @input="validateNumQuestMax = true"
+        />
+      </div>
+    </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<textbox-->
@@ -51,9 +57,15 @@
           <table v-else key="table">
             <thead>
               <tr>
-                <th class="col-icon"></th>
-                <th class="col-title">{{ $tr('title') }}</th>
-                <th class="col-add"></th>
+                <th class="col-checkbox">
+                  <input
+                    type="checkbox"
+                    :checked="allExercisesWithinCurrentTopicSelected"
+                    :indeterminate.prop="someExercisesWithinCurrentTopicSelected"
+                    @change="changeSelection">
+                </th>
+                <th class="col-title">{{ $tr('selectAll') }}</th>
+                <th class="col-selection"></th>
               </tr>
             </thead>
             <tbody>
@@ -61,7 +73,7 @@
                 v-for="exercise in exercises"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
-                :exerciseNumAssesments="exercise.numAssesments"
+                :exerciseNumAssesments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
                 @addExercise="handleAddExercise"
                 @removeExercise="handleRemoveExercise"/>
@@ -83,21 +95,21 @@
     <div class="footer">
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
       <p class="validation-error">{{ validationError }}</p>
-      <!--
+
       <icon-button :text="$tr('preview')" @click="preview">
         <mat-svg category="action" name="visibility"/>
       </icon-button>
-      -->
+
       <br>
       <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
-      :examTitle="inputTitle"
+      :examChannelId="currentChannel.id"
+      :examQuestionSources="questionSources"
+      :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      :selectedExercises="selectedExercises"
-      :seed="seed"
       @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container
@@ -112,16 +124,20 @@
 <script>
 
   const ExamActions = require('../../state/actions/exam');
+  const className = require('../../state/getters/main').className;
   const ExamModals = require('../../examConstants').Modals;
   const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
   const shuffle = require('lodash/shuffle');
   const random = require('lodash/random');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     $trNameSpace: 'createExamPage',
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',
+      selectAll: 'Select all',
       title: 'Exam title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
@@ -135,7 +151,8 @@
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
+      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      duplicateTitle: 'An exam with that title already exists',
     },
     data() {
       return {
@@ -149,6 +166,7 @@
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
+        selectAll: false,
       };
     },
     components: {
@@ -163,18 +181,35 @@
       'preview-new-exam-modal': require('./preview-new-exam-modal'),
     },
     computed: {
-      maxQuestionsFromSelection() {
-        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssesments, 0);
+      duplicateTitle() {
+        const index = this.exams.findIndex(
+          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase());
+        if (index === -1) {
+          return false;
+        }
+        return true;
+      },
+      titleIsEmpty() {
+        return !this.inputTitle;
       },
       titleInvalid() {
-        return this.validateTitle ? !this.inputTitle : false;
+        return this.validateTitle ? this.titleIsEmpty || this.duplicateTitle : false;
+      },
+      titleInvalidMsg() {
+        return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
+      },
+      maxQuestionsFromSelection() {
+        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssessments, 0);
       },
       numQuestNotWithinRange() {
         return this.validateNumQuestMax ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
+      noExercisesSelected() {
+        return this.selectedExercises.length === 0;
+      },
       numQuestExceedsSelection() {
-        if (this.validateNumQuestExceeds && this.selectedExercises.length) {
+        if (this.validateNumQuestExceeds && !this.noExercisesSelected) {
           if (this.inputNumQuestions > this.maxQuestionsFromSelection) {
             return true;
           }
@@ -197,6 +232,33 @@
           inputNumQuestions: this.inputNumQuestions,
           maxQuestionsFromSelection: this.maxQuestionsFromSelection
         });
+      },
+      allExercisesWithinCurrentTopic() {
+        let allExercises = [];
+        this.subtopics.forEach(subtopic => {
+          allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
+        });
+        this.exercises.forEach(exercise => {
+          allExercises.push(exercise);
+        });
+        return allExercises;
+      },
+      allExercisesWithinCurrentTopicSelected() {
+        if (this.allExercisesWithinCurrentTopic.length === 0) {
+          return false;
+        }
+        return this.allExercisesWithinCurrentTopic.every(
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id));
+      },
+      noExercisesWithinCurrentTopicSelected() {
+        return this.allExercisesWithinCurrentTopic.every(
+            exercise => !this.selectedExercises.some(
+              selectedExercise => selectedExercise.id === exercise.id));
+      },
+      someExercisesWithinCurrentTopicSelected() {
+        return !this.allExercisesWithinCurrentTopicSelected &&
+        !this.noExercisesWithinCurrentTopicSelected;
       },
       showPreviewNewExamModal() {
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
@@ -234,6 +296,15 @@
       },
     },
     methods: {
+      changeSelection() {
+        const allExercises = this.allExercisesWithinCurrentTopic;
+        const currentTopicTitle = this.topic.title;
+        if (this.allExercisesWithinCurrentTopicSelected) {
+          this.handleRemoveTopicExercises(allExercises, currentTopicTitle);
+        } else {
+          this.handleAddTopicExercises(allExercises, currentTopicTitle);
+        }
+      },
       handleGoToTopic(topicId) {
         this.loading = true;
         this.fetchContent(this.currentChannel.id, topicId).then(
@@ -267,12 +338,12 @@
       finish() {
         if (this.checkAllValid() === true) {
           const classCollection = {
-            id: this.currentClass.id,
-            name: this.currentClass.name,
+            id: this.classId,
+            name: this.className,
             kind: CollectionKinds.CLASSROOM
           };
           const examObj = {
-            classId: this.currentClass.id,
+            classId: this.classId,
             channelId: this.currentChannel.id,
             title: this.inputTitle,
             numQuestions: this.inputNumQuestions,
@@ -286,21 +357,18 @@
         this.validateTitle = true;
         this.validateNumQuestMax = true;
         this.validateNumQuestExceeds = true;
-        if (!this.titleInvalid && this.selectedExercises.length !== 0 &&
+        if (!this.titleInvalid && !this.noExercisesSelected &&
           !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
           this.validationError = '';
           return true;
         } else if (this.titleInvalid) {
-          this.validationError = this.$tr('examRequiresTitle');
+          this.validationError = this.titleInvalidMsg;
         } else if (this.numQuestNotWithinRange) {
-          this.validationError = this.$tr('numQuestionsBetween');
-        } else if (this.selectedExercises.length === 0) {
+          this.validationError = this.numQuestionsInvalidMsg;
+        } else if (this.noExercisesSelected) {
           this.validationError = this.$tr('noneSelected');
         } else if (this.numQuestExceedsSelection) {
-          this.validationError = this.$tr('numQuestionsExceed', {
-            inputNumQuestions: this.inputNumQuestions,
-            maxQuestionsFromSelection: this.maxQuestionsFromSelection
-          });
+          this.validationError = this.numQuestionsInvalidMsg;
         }
         return false;
       },
@@ -319,13 +387,15 @@
     },
     vuex: {
       getters: {
-        currentClass: state => state.pageState.currentClass,
+        classId: state => state.classId,
+        className,
         currentChannel: state => state.pageState.currentChannel,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
+        exams: state => state.pageState.exams,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
@@ -389,6 +459,5 @@
 
   .col-title
     text-align: left
-    width: 100%
 
 </style>

@@ -3,9 +3,7 @@
   <div>
 
     <div class="header">
-      <h1>
-        {{ $tr('allClasses', { name: facilityName }) }}
-      </h1>
+      <h1>{{ $tr('allClasses') }}</h1>
 
       <icon-button
         class="create-btn"
@@ -20,7 +18,7 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
@@ -28,22 +26,20 @@
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
-            <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
-            <th scope="col" class="table-data">{{ $tr('admins') }}</th>
-            <th scope="col"></th>
+            <th scope="col" class="table-data">{{ $tr('members') }}</th>
+            <th scope="col">{{ $tr('actions') }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="classModel in classes">
+          <tr v-for="classModel in sortedClasses">
             <th scope="row" class="table-text">
               <router-link :to="classEditLink(classModel.id)" class="table-name">
                 {{classModel.name}}
               </router-link>
             </th>
-            <td class="table-data">{{ classModel.learner_count }}</td>
-            <td class="table-data">{{ classModel.coach_count }}</td>
-            <td class="table-data">{{ classModel.admin_count }}</td>
+            <td class="table-data">
+              {{ classModel.memberCount }}
+            </td>
             <td class="table-btn">
               <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
                 {{ $tr('deleteClass') }}
@@ -65,6 +61,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     components: {
@@ -77,6 +74,13 @@
       currentClassDelete: null,
     }),
     computed: {
+      sortedClasses() {
+        return orderBy(
+          this.classes,
+          [classroom => classroom.name.toUpperCase()],
+          ['asc']
+        );
+      },
       showDeleteClassModal() {
         return this.modalShown === constants.Modals.DELETE_CLASS;
       },
@@ -84,7 +88,7 @@
         return this.modalShown === constants.Modals.CREATE_CLASS;
       },
       noClassesExist() {
-        return this.classes.length === 0;
+        return this.sortedClasses.length === 0;
       },
     },
     methods: {
@@ -106,7 +110,6 @@
       getters: {
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
-        facilityName: state => state.pageState.facility.name,
       },
       actions: {
         displayModal: actions.displayModal,
@@ -114,16 +117,15 @@
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in {name}',
+      allClasses: 'All Classes',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',
       // table info
       className: 'Class Name',
       classes: 'Users',
-      learners: 'Learners',
-      coaches: 'Coaches',
-      admins: 'Admins',
+      members: 'Members',
+      actions: 'Actions',
       noClassesExist: 'No Classes Exist.',
     },
   };
@@ -150,6 +152,7 @@
 
   .table-text
     text-align: left
+    width: 100%
 
   .table-data
     text-align: center

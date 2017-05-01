@@ -7,6 +7,7 @@
       v-if="showEditNameModal"
       :classname="currClass.name"
       :classid="currClass.id"
+      :classes="classes"
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
@@ -58,9 +59,11 @@
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
-          <th class="col-header" scope="col"> {{$tr('role')}} </th>
+          <th class="col-header" scope="col">
+            <span class="visuallyhidden">{{ $tr('role') }}</span>
+          </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
@@ -68,26 +71,29 @@
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
-          <!-- Full Name field -->
-          <th scope="row" class="table-cell full-name">
-            <span class="table-name">
-              {{user.full_name}}
-            </span>
-          </th>
-
           <!-- Username field -->
-          <td class="table-cell table-username">
+          <th class="table-cell table-username" scope="col">
             {{user.username}}
-          </td>
+          </th>
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
+            <!-- <user-role :role="user.kind" :omitLearner="true" /> -->
+            <!--
             <role-switcher
-              class="user-role"
+              class="user-role-switcher"
               :currentRole="user.kind"
               @click-add-coach="addCoachRoleToUser(user)"
               @click-remove-coach="removeCoachRoleFromUser(user)"
             />
+            -->
+          </td>
+
+          <!-- Full Name field -->
+          <td scope="row" class="table-cell full-name">
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
           </td>
 
           <!-- Edit field -->
@@ -115,13 +121,14 @@
   const constants = require('../../constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../state/actions');
+  const orderBy = require('lodash/orderBy');
 
 
   module.exports = {
     $trNameSpace: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users',
-      tableTitle: 'Manage Learners and Coaches in this class',
+      tableTitle: 'Manage learners in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
       // table info
@@ -140,6 +147,7 @@
       'role-switcher': require('./role-switcher'),
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'user-role': require('../user-role'),
     },
     data: () => ({
       searchFilter: '',
@@ -178,9 +186,12 @@
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         }
 
-        return this.users
-          .filter(user => matchesText(user))
-          .sort((user1, user2) => user1.username.localeCompare(user2.username));
+        const filteredUsers = this.users.filter(user => matchesText(user));
+        return orderBy(
+          filteredUsers,
+          [user => user.username.toUpperCase()],
+          ['asc']
+        );
       },
       showEditNameModal() {
         return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
@@ -214,7 +225,8 @@
       getters: {
         modalShown: state => state.pageState.modalShown,
         users: state => state.pageState.classUsers,
-        currClass: state => state.pageState.classes[0], // alway only one item in this array.
+        currClass: state => state.pageState.currentClass,
+        classes: state => state.pageState.classes
       },
       actions: {
         displayModal: actions.displayModal,
@@ -326,7 +338,7 @@
   .table-cell
     color: $core-text-default
 
-  .user-role
+  .user-role-switcher
     display: table-cell
     height: 1.5rem
     margin: 5px 0

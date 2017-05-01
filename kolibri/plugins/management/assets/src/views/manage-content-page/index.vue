@@ -2,46 +2,57 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
+    <template v-if="isSuperuser">
+      <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
-    <div v-if="tasksAreInQueue" class="main alert-bg">
-      <task-status
-        :type="pageState.taskList[0].type"
-        :status="pageState.taskList[0].status"
-        :percentage="pageState.taskList[0].percentage"
-        :id="pageState.taskList[0].id"
-      />
-    </div>
-
-    <div class="light-bg">
-      <div class="table-title">
-        <h1 class="page-title">{{$tr('title')}}</h1>
-        <div class="button-wrapper" v-if="!tasksAreInQueue">
-          <icon-button
-            :text="$tr('import')"
-            class="button"
-            @click="startImportWizard"
-            :primary="true">
-            <mat-svg category="content" name="add"/>
-          </icon-button>
-          <icon-button
-            :text="$tr('export')"
-            class="button"
-            :primary="true"
-            @click="startExportWizard">
-            <ion-svg name="ios-upload-outline"/>
-          </icon-button>
-        </div>
+      <div v-if="pageState.taskList.length" class="main alert-bg">
+        <task-status
+          :type="pageState.taskList[0].type"
+          :status="pageState.taskList[0].status"
+          :percentage="pageState.taskList[0].percentage"
+          :id="pageState.taskList[0].id"
+        />
       </div>
-      <hr>
 
-      <channels-grid v-if="channelList.length > 0" />
+      <div class="main light-bg">
+        <div class="table-title">
+          <h1 class="page-title">{{$tr('title')}}</h1>
+          <div class="button-wrapper" v-if="!pageState.taskList.length">
+            <icon-button
+              :text="$tr('import')"
+              class="button"
+              @click="startImportWizard"
+              :primary="true">
+              <mat-svg category="content" name="add"/>
+            </icon-button>
+            <icon-button
+              :text="$tr('export')"
+              class="button"
+              :primary="true"
+              @click="startExportWizard">
+              <ion-svg name="ios-upload-outline"/>
+            </icon-button>
+          </div>
+        </div>
+        <hr>
+        <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
+        <table>
+          <tbody>
+            <tr v-for="channel in sortedChannels">
+              <th scope="row" class="table-cell" width="70%">
+                <span class="channel-name">
+                  {{ channel.title }}
+                </span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <template v-else>
+      {{ $tr('notAdmin') }}
+    </template>
 
-      <p v-else class="core-text-alert">
-        {{ $tr('noChannels') }}
-      </p>
-
-    </div>
 
   </div>
 
@@ -50,8 +61,10 @@
 
 <script>
 
+  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -60,6 +73,7 @@
       import: 'Import',
       export: 'Export',
       noChannels: 'No channels installed',
+      notAdmin: 'You need to log in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -68,20 +82,27 @@
       'wizard-import-network': require('./wizard-import-network'),
       'wizard-import-local': require('./wizard-import-local'),
       'wizard-export': require('./wizard-export'),
-      'channels-grid': require('./channels-grid'),
     },
     data: () => ({
       intervalId: undefined,
     }),
     mounted() {
-      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      if (this.isSuperuser) {
+        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      }
     },
     destroyed() {
-      clearInterval(this.intervalId);
+      if (this.isSuperuser) {
+        clearInterval(this.intervalId);
+      }
     },
     computed: {
-      tasksAreInQueue() {
-        return this.pageState.taskList.length > 0;
+      sortedChannels() {
+        return orderBy(
+          this.channelList,
+          [channel => channel.title.toUpperCase()],
+          ['asc']
+        );
       },
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
@@ -100,6 +121,7 @@
     },
     vuex: {
       getters: {
+        isSuperuser,
         channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
@@ -123,11 +145,18 @@
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
 
+  .main
+    padding: 1em 2em
+    padding-bottom: 3em
+    margin-top: 2em
+    width: 100%
+    border-radius: 4px
+
   .light-bg
     background-color: $core-bg-light
 
-  /*.alert-bg
-    background-color: $core-bg-warning*/
+  .alert-bg
+    background-color: $core-bg-warning
 
   .table-title
     margin-top: 1em
@@ -161,6 +190,18 @@
 
   th
     text-align: inherit
+
+  .col-header
+    padding-bottom: (1.2 * $row-padding)
+    color: $core-text-annotation
+    font-weight: normal
+    font-size: 80%
+
+  .col-channel
+    width: 90%
+
+  .col-export
+    width: 10%
 
   .table-cell
     font-weight: normal // compensates for <th> cells

@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isAdminOrSuperuser" v-html="$trHtml('adminLink')"></p>
+    <p v-if="isAdmin || isSuperuser" v-html="$trHtml('adminLink')"></p>
     <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
@@ -11,18 +11,19 @@
 
 <script>
 
-  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const getters = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learnContentUnavailable',
     $trs: {
       header: 'No content channels available',
       adminLink: 'Download content channels from the <a href="/management/#/content">Content Management</a> page',
-      notAdmin: 'You need to log in as an administrator to manage content',
+      notAdmin: 'You need to log in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     vuex: {
       getters: {
-        isAdminOrSuperuser,
+        isAdmin: getters.isAdmin,
+        isSuperuser: getters.isSuperuser,
       },
     },
   };

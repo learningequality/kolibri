@@ -9,6 +9,9 @@
         {{ title }}
         <progress-icon :progress="progress"/>
       </h1>
+      <div class="end">
+        <slot name="end-header"/>
+      </div>
     </div>
   </div>
 
@@ -39,6 +42,11 @@
         },
         progress: (state) => {
           if (state.pageState.content) {
+            if (state.core.logging.mastery.totalattempts > 0 &&
+              state.core.logging.summary.progress === 0) {
+              // If there have been attempts, but no progress, return some progress.
+              return 0.1;
+            }
             return state.core.logging.summary.progress;
           }
           return null;
@@ -72,5 +80,8 @@
 
   .title
     display: inline-block
+
+  .end
+    float: right
 
 </style>

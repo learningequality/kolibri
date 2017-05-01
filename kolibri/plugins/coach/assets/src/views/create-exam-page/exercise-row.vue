@@ -1,28 +1,12 @@
 <template>
 
   <tr>
-    <td class="col-icon">
-      <content-icon :kind="exercise"/>
-    </td>
+    <th class="col-checkbox"><input type="checkbox" :checked="isSelected" @change="changeSelection"></th>
     <td class="col-title">
+      <content-icon :kind="exercise"/>
       <span>{{ exerciseTitle }}</span>
     </td>
-    <td class="col-add">
-      <icon-button
-        v-if="isSelected"
-        :text="$tr('removeExercise')"
-        :primary="false"
-        @click="$emit('removeExercise', { id: exerciseId, title: exerciseTitle, numAssesments: exerciseNumAssesments })">
-        <mat-svg category="content" name="remove"/>
-      </icon-button>
-      <icon-button
-        v-else
-        :text="$tr('addExercise')"
-        :primary="true"
-        @click="$emit('addExercise', { id: exerciseId, title: exerciseTitle, numAssesments: exerciseNumAssesments })">
-        <mat-svg category="content" name="add"/>
-      </icon-button>
-    </td>
+    <td class="col-selection"></td>
   </tr>
 
 </template>
@@ -34,10 +18,6 @@
 
   module.exports = {
     $trNameSpace: 'exerciseRow',
-    $trs: {
-      addExercise: 'Add exercise',
-      removeExercise: 'Remove exercise',
-    },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -67,6 +47,15 @@
       isSelected() {
         return this.selectedExercises.some(
           selectedExercise => selectedExercise.id === this.exerciseId);
+      },
+    },
+    methods: {
+      changeSelection() {
+        if (this.isSelected) {
+          this.$emit('removeExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
+        } else {
+          this.$emit('addExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
+        }
       },
     },
   };
