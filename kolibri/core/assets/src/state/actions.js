@@ -1,6 +1,7 @@
 
 const cookiejs = require('js-cookie');
 const getters = require('kolibri.coreVue.vuex.getters');
+const CoreMappers = require('kolibri.coreVue.vuex.mappers');
 const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
@@ -199,10 +200,15 @@ function kolibriLogout(store) {
   }).catch(error => { handleApiError(store, error); });
 }
 
-function getCurrentSession(store) {
+function getCurrentSession(store, force = false) {
   const coreApp = require('kolibri');
   const { SessionResource, FacilityResource } = coreApp.resources;
-  const sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  let sessionPromise;
+  if (force) {
+    sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
+  } else {
+    sessionPromise = SessionResource.getModel('current').fetch()._promise;
+  }
   return sessionPromise
   .then((session) => {
     if (!session.facility_id) {
@@ -222,6 +228,30 @@ function getCurrentSession(store) {
   })
   .catch(error => { handleApiError(store, error); });
 }
+
+function getFacilityConfig(store) {
+  const coreApp = require('kolibri');
+  const FacilityCollection = coreApp.resources.FacilityResource
+    .getCollection()
+    .fetch();
+
+  return FacilityCollection.then(facilities => {
+    store.dispatch('CORE_SET_FACILITIES', facilities);
+    const currentFacilityId = facilities[0].id; // assumes there is only 1 facility for now
+    const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
+      .getCollection({ facility_id: currentFacilityId })
+      .fetch();
+    return facilityConfigCollection.then(facilityConfig => {
+      let config = {};
+      const facility = facilityConfig[0];
+      if (facility) {
+        config = CoreMappers.convertKeysToCamelCase(facility);
+      }
+      store.dispatch('CORE_SET_FACILITY_CONFIG', config);
+    });
+  }).catch(error => handleApiError(store, error));
+}
+
 
 function showLoginModal(store, bool) {
   store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
@@ -713,6 +743,7 @@ module.exports = {
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilityConfig,
   showLoginModal,
   cancelLoginModal,
   initContentSession,

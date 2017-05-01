@@ -1,4 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
+const CoreMappers = require('kolibri.coreVue.vuex.mappers');
+
 const {
   FacilityResource,
   FacilityDatasetResource,
@@ -15,29 +17,6 @@ function resolveOnlyIfOnSamePage(promises, store) {
   const ident = x => x;
   return ConditionalPromise.all(promises)
   .only(samePageCheckGenerator(store), ident, ident)._promise;
-}
-
-function convertFacilityDataset(settings, formatForClient = true) {
-  const names = [
-    ['learnerCanEditName', 'learner_can_edit_name'],
-    ['learnerCanEditUsername', 'learner_can_edit_username'],
-    ['learnerCanEditPassword', 'learner_can_edit_password'],
-    ['learnerCanDeleteAccount', 'learner_can_delete_account'],
-    ['learnerCanSignUp', 'learner_can_sign_up'],
-  ];
-  const output = {};
-  if (formatForClient) {
-    // use camelCase for keys
-    names.forEach(([ccName, scName]) => {
-      Object.assign(output, { [ccName]: settings[scName] });
-    });
-  } else {
-    // use snake_case for names
-    names.forEach(([ccName, scName]) => {
-      Object.assign(output, { [scName]: settings[ccName] });
-    });
-  }
-  return output;
 }
 
 function showNotification(store, notificationType) {
@@ -62,9 +41,9 @@ function showFacilityConfigPage(store) {
       facilityDatasetId: dataset.id,
       facilityName: facility.name,
       // this part of state is mutated as user interacts with form
-      settings: convertFacilityDataset(dataset),
+      settings: CoreMappers.convertKeysToCamelCase(dataset),
       // this copy is kept for the purpose of undoing if save fails
-      settingsCopy: convertFacilityDataset(dataset),
+      settingsCopy: CoreMappers.convertKeysToCamelCase(dataset),
       notification: null
     });
     store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -85,7 +64,7 @@ function saveFacilityConfig(store) {
   const resourceRequests = [
     FacilityDatasetResource
       .getModel(facilityDatasetId)
-      .save(convertFacilityDataset(settings, false)),
+      .save(CoreMappers.convertKeysToSnakeCase(settings)),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess(x) {

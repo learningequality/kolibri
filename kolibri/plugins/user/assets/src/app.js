@@ -12,7 +12,11 @@ const PageNames = require('./constants').PageNames;
 
 class UserModule extends KolibriModule {
   ready() {
-    coreActions.getCurrentSession(store).then(() => {
+    const coreStoreUpdates = [
+      coreActions.getCurrentSession(store),
+      coreActions.getFacilityConfig(store),
+    ];
+    Promise.all(coreStoreUpdates).then(() => {
       const routes = [
         {
           name: PageNames.ROOT,
