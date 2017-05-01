@@ -4,6 +4,7 @@
     :title="$tr('addNewAccountTitle')"
     :has-error="errorMessage ? true : false"
     @cancel="close"
+    width="300px"
   >
     <form @submit.prevent="createNewUser">
       <!-- Fields for the user to fill out -->
