@@ -24,7 +24,7 @@
           :maxlength="30"
           :enforceMaxlength="true"
           :invalid="usernameInvalid"
-          :error="usernameInavlidMsg"
+          :error="usernameInvalidMsg"
           type="text"
           class="user-field"
           v-model="username"/>
@@ -118,7 +118,11 @@
       COACH: () => UserKinds.COACH,
       ADMIN: () => UserKinds.ADMIN,
       usernameAlreadyExists() {
-        return this.users.find(user => user.username === this.username);
+        const index = this.users.findIndex(user => user.username === this.username);
+        if (index === -1) {
+          return false;
+        }
+        return true;
       },
       usernameNotAlphaNum() {
         if (this.username === '') {
@@ -128,14 +132,9 @@
         return !re.test(this.username);
       },
       usernameInvalid() {
-        if (this.usernameAlreadyExists) {
-          return true;
-        } else if (this.usernameNotAlphaNum) {
-          return true;
-        }
-        return false;
+        return this.usernameAlreadyExists || this.usernameNotAlphaNum;
       },
-      usernameInavlidMsg() {
+      usernameInvalidMsg() {
         if (this.usernameAlreadyExists) {
           return this.$tr('usernameAlreadyExists');
         } else if (this.usernameNotAlphaNum) {
