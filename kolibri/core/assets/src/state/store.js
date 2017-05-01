@@ -24,7 +24,6 @@ const initialState = {
       facility_id: undefined,
       kind: [UserKinds.ANONYMOUS],
     },
-    loginModalVisible: false,
     loginError: null,
     logging: baseLoggingState,
     totalProgress: null,
@@ -48,7 +47,6 @@ const initialState = {
 const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
-    state.core.loginModalVisible = false;
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
@@ -63,9 +61,6 @@ const mutations = {
       facility_id: undefined,
       kind: [UserKinds.ANONYMOUS],
     };
-  },
-  CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
-    state.core.loginModalVisible = value;
   },
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };

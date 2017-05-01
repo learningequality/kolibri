@@ -223,16 +223,6 @@ function getCurrentSession(store) {
   .catch(error => { handleApiError(store, error); });
 }
 
-function showLoginModal(store, bool) {
-  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
-  store.dispatch('CORE_SET_LOGIN_ERROR', null);
-}
-
-function cancelLoginModal(store, bool) {
-  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', false);
-  store.dispatch('CORE_SET_LOGIN_ERROR', null);
-}
-
 
 /**
  * Create models to store logging information
@@ -713,8 +703,6 @@ module.exports = {
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
-  showLoginModal,
-  cancelLoginModal,
   initContentSession,
   setChannelInfo,
   startTrackingProgress,

@@ -10,7 +10,7 @@
         {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
-        <router-link id="login" :to="signInPage">
+        <router-link id="signin" :to="signInPage">
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
@@ -95,7 +95,7 @@
       confirmPassword: 'Confirm password',
       passwordMatchError: 'Passwords do not match',
       genericError: 'Something went wrong during sign up!',
-      logIn: 'Log in',
+      logIn: 'Sign in',
       kolibri: 'Kolibri',
       finish: 'Finish',
     },
@@ -195,7 +195,7 @@
     display: inline-block
     margin-left: $logo-margin
 
-  #login
+  #signin
     margin-right: 1em
     color: white
     text-decoration: none
