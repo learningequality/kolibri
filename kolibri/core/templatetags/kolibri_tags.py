@@ -11,8 +11,10 @@ from six import iteritems
 
 from django import template
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
+from django.utils.timezone import now
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIClient
@@ -47,6 +49,16 @@ def kolibri_main_navigation():
             "window._nav={0};"
             "</script>".format(json.dumps(init_data)))
     return mark_safe(html)
+
+
+@register.simple_tag()
+def kolibri_set_server_time():
+    html = ("<script type='text/javascript'>"
+            "{0}.utils.serverClock.setServerTime({1});"
+            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+                               json.dumps(now(), cls=DjangoJSONEncoder)))
+    return mark_safe(html)
+
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):

@@ -75,6 +75,7 @@ oriented data synchronization.
   const { InteractionTypes } = require('kolibri.coreVue.vuex.constants');
   const { MasteryModelGenerators } = require('kolibri.coreVue.vuex.constants');
   const seededShuffle = require('kolibri.lib.seededshuffle');
+  const { now } = require('kolibri.utils.serverClock');
 
   module.exports = {
     $trNameSpace: 'assessmentWrapper',
@@ -144,7 +145,7 @@ oriented data synchronization.
         simpleAnswer,
       }) {
         this.updateMasteryAttemptStateAction({
-          currentTime: new Date(),
+          currentTime: now(),
           correct,
           complete,
           firstAttempt,
@@ -156,7 +157,7 @@ oriented data synchronization.
       saveAttemptLogMasterLog() {
         this.saveAttemptLogAction().then(() => {
           if (this.canLogInteractions && this.success) {
-            this.setMasteryLogCompleteAction(new Date());
+            this.setMasteryLogCompleteAction(now());
             this.saveMasteryLogAction();
           }
         });

@@ -68,6 +68,7 @@
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const actions = require('../../state/actions');
   const isEqual = require('lodash/isEqual');
+  const { now } = require('kolibri.utils.serverClock');
 
   module.exports = {
     $trNameSpace: 'examPage',
@@ -124,9 +125,9 @@
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
           if (!attempt.completion_timestamp) {
-            attempt.completion_timestamp = new Date();
+            attempt.completion_timestamp = now();
           }
-          attempt.end_timestamp = new Date();
+          attempt.end_timestamp = now();
           attempt.interaction_history.push({
             type: InteractionTypes.answer,
             answer: answer.answerState,

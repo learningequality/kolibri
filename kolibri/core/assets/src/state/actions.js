@@ -7,6 +7,7 @@ const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const logging = require('kolibri.lib.logging').getLogger(__filename);
+const { now } = require('kolibri.utils.serverClock');
 
 const intervalTimer = require('../timer');
 
@@ -299,9 +300,9 @@ function initContentSession(store, channelId, contentId, contentKind) {
           /* If a summary model does not exist, create default state */
           store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState({
             pk: null,
-            start_timestamp: new Date(),
+            start_timestamp: now(),
             completion_timestamp: null,
-            end_timestamp: new Date(),
+            end_timestamp: now(),
             progress: 0,
             time_spent: 0,
             extra_fields: '{}',
@@ -331,8 +332,8 @@ function initContentSession(store, channelId, contentId, contentKind) {
   /* Set session log state to default */
   store.dispatch('SET_LOGGING_SESSION_STATE', _contentSessionLoggingState({
     pk: null,
-    start_timestamp: new Date(),
-    end_timestamp: new Date(),
+    start_timestamp: now(),
+    end_timestamp: now(),
     time_spent: 0,
     progress: 0,
     extra_fields: '{}',
@@ -463,7 +464,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
   /* Mark completion time if 100% progress reached */
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
   }
 
   /* Save models if needed */
@@ -482,7 +483,7 @@ function updateExerciseProgress(store, progressPercent, forceSave = false) {
 
   /* Mark completion time if 100% progress reached */
   if (progressPercent === 1) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
   }
 
   /* Save models if needed */
@@ -508,7 +509,7 @@ function updateTimeSpent(store, forceSave = false) {
     sessionTime + summaryLog.time_spent_before_current_session : 0;
 
   /* Update the logging state with new timing information */
-  store.dispatch('SET_LOGGING_TIME', sessionTime, summaryTime, new Date());
+  store.dispatch('SET_LOGGING_TIME', sessionTime, summaryTime, now());
 
   /* Determine if time threshold has been met */
   const timeThresholdMet = sessionLog.time_spent -
@@ -576,7 +577,7 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
   const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
     summarylog: store.state.core.logging.summary.id,
-    start_timestamp: new Date(),
+    start_timestamp: now(),
     completion_timestamp: null,
     end_timestamp: null,
     mastery_level: masteryLevel,
@@ -640,7 +641,7 @@ function createAttemptLog(store, itemId) {
     user: store.state.core.session.user_id,
     masterylog: store.state.core.logging.mastery.id || null,
     sessionlog: store.state.core.logging.session.id,
-    start_timestamp: new Date(),
+    start_timestamp: now(),
     completion_timestamp: null,
     end_timestamp: null,
     item: itemId,
@@ -672,7 +673,7 @@ function updateAttemptLogInteractionHistory(store, interaction) {
   }
   store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
   // Also update end timestamp on Mastery model.
-  store.dispatch('UPDATE_LOGGING_MASTERY', new Date());
+  store.dispatch('UPDATE_LOGGING_MASTERY', now());
 }
 
 /**
@@ -684,7 +685,7 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
     return createMasteryLog(store, 1, masteryCriterion);
   } else if (store.state.core.logging.mastery.complete &&
-    ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
+    ((now() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
       masterySpacingTime)) {
     // The most recent masterylog is complete, and they completed it more than
     // masterySpacingTime time ago!
