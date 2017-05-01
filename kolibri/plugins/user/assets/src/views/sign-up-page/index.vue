@@ -23,23 +23,13 @@
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <ui-select
-        :name="$tr('selectFacility')"
-        :placeholder="$tr('selectFacility')"
-        :label="$tr('facility')"
-        :options="facilityOptions"
-        :invalid="selectFacilityInvalid"
-        :error="$tr('selectFacility')"
-        v-model="selectedFacility"
-        @blur="checkSelect = true"
-      />
-
       <core-textbox
         :placeholder="$tr('enterName')"
         :label="$tr('name')"
         :aria-label="$tr('name')"
         v-model="name"
         autocomplete="name"
+        :autofocus="true"
         required
         id="name"
         type="text" />
@@ -76,6 +66,17 @@
         v-model="confirmed_password"
         autocomplete="new-password"
         required />
+
+      <ui-select
+        :name="$tr('selectFacility')"
+        :placeholder="$tr('selectFacility')"
+        :label="$tr('facility')"
+        :options="facilityOptions"
+        :invalid="selectFacilityInvalid"
+        :error="$tr('selectFacility')"
+        :value="selectedFacility"
+        @input="updateSelection"
+      />
 
       <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
 
@@ -126,8 +127,8 @@
       username: '',
       password: '',
       confirmed_password: '',
-      selectedFacility: '',
       checkSelect: false,
+      selection: {},
     }),
     computed: {
       signInPage() {
@@ -150,8 +151,8 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return this.selectedFacility && this.name && this.username
-          && this.password && this.confirmed_password;
+        return this.name && this.username && this.password
+        && this.confirmed_password && !this.noFacilitySelected;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
@@ -159,12 +160,21 @@
       facilityOptions() {
         return this.facilities.map(facility => ({ label: facility.name, id: facility.id }));
       },
+      noFacilitySelected() {
+        return !this.selectedFacility.id;
+      },
       selectFacilityInvalid() {
         if (!this.checkSelect) {
           return false;
         }
-        return this.selectedFacility === '';
+        return this.noFacilitySelected;
       },
+      selectedFacility() {
+        if (this.facilityOptions.length === 1) {
+          return this.facilityOptions[0];
+        }
+        return this.selection;
+      }
     },
     methods: {
       signUp() {
@@ -173,7 +183,6 @@
           this.allFieldsPopulated &&
           this.passwordsMatch &&
           !this.busy;
-
         if (canSubmit) {
           this.signUpAction({
             facility: this.selectedFacility.id,
@@ -183,6 +192,9 @@
           });
         }
       },
+      updateSelection(selection) {
+        this.selection = selection;
+      }
     },
     vuex: {
       getters: {
