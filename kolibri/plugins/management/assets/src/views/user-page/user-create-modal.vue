@@ -168,7 +168,15 @@
             },
             error => {
               this.loading = false;
-              this.errorMessage = this.$tr('unknownError');
+
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = Object.values(error.entity)[0][0];
+              } else if (error.status.code === 403) {
+                this.errorMessage = error.entity;
+              } else {
+                this.errorMessage = this.$tr('unknownError');
+              }
             });
         }
       },
