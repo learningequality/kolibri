@@ -2,48 +2,57 @@
 
   <div class="content">
     <ui-alert type="success" @dismiss="resetProfileState" v-if="success">
-      {{$tr('success')}}
+      {{ $tr('success') }}
     </ui-alert>
-    <div class="points">
-      <span class="top">{{ $tr('yourPoints') }}</span>
-      <points-icon class="in-points icon" :active="true"/>
-      <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
-    </div>
-    <form @submit.prevent="submitEdits">
 
-      <core-textbox
-        v-if="hasPrivilege('username')"
-        class="input-field"
-        :invalid="error"
-        :error="errorMessage"
-        :label="$tr('username')"
-        :value="session.username"
-        disabled
-        autocomplete="username"
-        id="username"
-        type="text" />
+    <h3>{{ $tr('role') }}</h3>
+    <p>{{ role }}</p>
 
-      <p v-if="isLearner" class="type">{{ $tr('isLearner') }}</p>
-      <p v-if="isCoach" class="type">{{ $tr('isCoach') }}</p>
-      <p v-if="isAdmin" class="type">{{ $tr('isAdmin') }}</p>
-      <p v-if="isSuperuser" class="type">{{ $tr('isSuperuser') }}</p>
+    <template v-if="!isSuperuser">
+      <h3>{{ $tr('points') }}</h3>
+      <p>
+        <points-icon class="points-icon" :active="true"/>
+        <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+      </p>
+    </template>
 
-      <core-textbox
-        v-if="hasPrivilege('name') && !isSuperuser"
-        class="input-field"
-        :disabled="busy"
-        :label="$tr('name')"
-        v-model="full_name"
-        autocomplete="name"
-        id="name"
-        type="text" />
+    <template v-if="!canEditUsername">
+      <h3>{{ $tr('username') }}</h3>
+      <p>{{ session.username }}</p>
+    </template>
+
+    <template v-if="!canEditName && !isSuperuser">
+      <h3>{{ $tr('name') }}</h3>
+      <p>{{ session.full_name }}</p>
+    </template>
+
+    <form v-if="canEditUsername || canEditName" @submit.prevent="submitEdits">
+
+      <template v-if="canEditUsername">
+        <h3>{{ $tr('username') }}</h3>
+        <core-textbox
+          :disabled="busy"
+          :invalid="error"
+          :error="errorMessage"
+          v-model="username"
+          autocomplete="username"
+          type="text" />
+      </template>
+
+      <template v-if="canEditName">
+        <h3>{{ $tr('name') }}</h3>
+        <core-textbox
+          :disabled="busy"
+          v-model="full_name"
+          autocomplete="name"
+          type="text" />
+      </template>
 
       <icon-button
-        v-if="!isSuperuser"
         :disabled="busy"
         :primary="true"
         :text="$tr('updateProfile')"
-        id="submit"
+        class="submit"
         type="submit" />
     </form>
   </div>
@@ -67,12 +76,13 @@
       success: 'Profile details updated!',
       username: 'Username',
       name: 'Full name',
-      updateProfile: 'Update profile',
-      isLearner: '(you are a Learner)',
-      isCoach: '(you are a Coach)',
-      isAdmin: '(you are an Admin)',
-      isSuperuser: '(you are a Device Owner)',
-      yourPoints: 'Your points',
+      updateProfile: 'Save changes',
+      isLearner: 'Learner',
+      isCoach: 'Coach',
+      isAdmin: 'Admin',
+      isSuperuser: 'Device Owner',
+      points: 'Points',
+      role: 'Role',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -99,13 +109,43 @@
         }
         return '';
       },
+      canEditUsername() {
+        if (this.isSuperuser) {
+          return false;
+        } else if (this.isAdmin) {
+          return true;
+        } else if (this.isCoach || this.isLearner) {
+          return this.facilityConfig.learnerCanEditUsername;
+        }
+        return false;
+      },
+      canEditName() {
+        if (this.isSuperuser) {
+          return false;
+        } else if (this.isAdmin) {
+          return true;
+        } else if (this.isCoach || this.isLearner) {
+          return this.facilityConfig.learnerCanEditName;
+        }
+        return false;
+      },
+      role() {
+        if (this.isSuperuser) {
+          return this.$tr('isSuperuser');
+        } else if (this.isAdmin) {
+          return this.$tr('isAdmin');
+        } else if (this.isCoach) {
+          return this.$tr('isCoach');
+        } else if (this.isLearner) {
+          return this.$tr('isLearner');
+        }
+        return '';
+      },
     },
     methods: {
-      hasPrivilege(privilege) {
-        return this.privileges[privilege];
-      },
       submitEdits() {
         const edits = {
+          username: this.username,
           full_name: this.full_name,
         };
         this.editProfile(edits, this.session);
@@ -113,7 +153,7 @@
     },
     vuex: {
       getters: {
-        privileges: state => state.core.learnerPrivileges,
+        facilityConfig: state => state.core.facilityConfig,
         session: state => state.core.session,
         error: state => state.pageState.error,
         success: state => state.pageState.success,
@@ -142,7 +182,6 @@
   @require '~kolibri.styles.definitions'
 
   // taken from docs, assumes 1rem = 16px
-  $ui-input-height = 68px
   $vertical-page-margin = 100px
   $iphone-width = 320
 
@@ -150,44 +189,24 @@
     padding-top: $vertical-page-margin
     margin-left: auto
     margin-right: auto
-    overflow-y: auto
     width: ($iphone-width - 20)px
 
-  #submit
+  .submit
     margin-left: auto
     margin-right: auto
     display: block
-    margin-top: $vertical-page-margin
-    width: 98%
 
-  .advanced-option
-    color: $core-action-light
-    width: 100%
-    display: inline-block
-    font-size: 0.9em
 
-  .type
-    text-align: right
-    font-size: smaller
-
-  .points
-    padding-bottom: 0.5em
-
-  .in-points
+  .points-icon, .points-num
     display: inline-block
 
-  .total
-    color: $core-accent-color
-    font-size: 3em
-    font-weight: bold
-    padding-left: 0.2em
-
-  .top
-    color: $core-text-annotation
-    clearfix()
-
-  .icon
+  .points-icon
     width: 2em
     height: 2em
+
+  .points-num
+    color: #1EB204
+    font-size: 3em
+    font-weight: bold
 
 </style>
