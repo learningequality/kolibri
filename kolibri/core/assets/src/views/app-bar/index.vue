@@ -55,7 +55,7 @@
     $trNameSpace: 'appBar',
     $trs: {
       account: 'Account',
-      editProfile: 'Edit Profile',
+      profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
       superuser: 'Signed in as a Device Owner',
@@ -103,8 +103,8 @@
       accountMenuOptions() {
         return [
           {
-            id: 'editProfile',
-            label: this.$tr('editProfile'),
+            id: 'profile',
+            label: this.$tr('profile'),
           },
           {
             id: 'signOut',
@@ -116,7 +116,7 @@
     methods: {
       optionSelected(option) {
         switch (option.id) {
-          case 'editProfile':
+          case 'profile':
             window.location = `/user`;
             break;
           case 'signOut':

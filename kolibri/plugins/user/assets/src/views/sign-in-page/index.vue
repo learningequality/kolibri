@@ -53,7 +53,7 @@
     $trNameSpace: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
-      signIn: 'Log in',
+      signIn: 'Sign in',
       username: 'Username',
       enterUsername: 'Enter username',
       password: 'Password',

@@ -1,3 +1,7 @@
+const mapKeys = require('lodash/mapKeys');
+const camelCase = require('lodash/camelCase');
+const snakeCase = require('lodash/snakeCase');
+
 function assessmentMetaDataState(data) {
   const blankState = {
     assessment: false,
@@ -23,6 +27,16 @@ function assessmentMetaDataState(data) {
   };
 }
 
+function convertKeysToCamelCase(object) {
+  return mapKeys(object, (value, key) => camelCase(key));
+}
+
+function convertKeysToSnakeCase(object) {
+  return mapKeys(object, (value, key) => snakeCase(key));
+}
+
 module.exports = {
   assessmentMetaDataState,
+  convertKeysToCamelCase,
+  convertKeysToSnakeCase,
 };

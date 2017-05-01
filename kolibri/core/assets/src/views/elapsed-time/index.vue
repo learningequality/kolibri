@@ -12,6 +12,7 @@
 
   const parse = require('date-fns/parse');
   const differenceInSeconds = require('date-fns/difference_in_seconds');
+  const { now } = require('kolibri.utils.serverClock');
 
   const MINUTES_IN_DAY = 1440;
   const MINUTES_IN_MONTH = 43200;
@@ -39,12 +40,12 @@
     },
     props: ['date'],
     data: () => ({
-      now: new Date(),
+      now: now(),
       timer: null,
     }),
     mounted() {
       this.timer = setInterval(
-        () => { this.now = new Date(); },
+        () => { this.now = now(); },
         10000
       );
     },

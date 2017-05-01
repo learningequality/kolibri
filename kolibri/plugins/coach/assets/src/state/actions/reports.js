@@ -7,6 +7,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const { setClassState } = require('./main');
+const { now } = require('kolibri.utils.serverClock');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -346,7 +347,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
-      const sevenDaysAgo = new Date();
+      const sevenDaysAgo = now();
       // this is being set by default in the backend
       // backend date data might be unreliable, though
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
