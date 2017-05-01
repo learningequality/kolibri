@@ -98,6 +98,10 @@ class RecentReportViewSet(viewsets.ModelViewSet):
             Q(progress__gt=0) | Q(masterylogs__in=attempted_mastery_logs),
             user__in=get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id']),
             end_timestamp__gte=datetime_cutoff).values_list('content_id')
+        # note from rtibbles:
+        # Possibly a horrible hack to ensure that we only return unique content_id'ed ContentNodes
+        # from the coach recent report endpoint.
+        # Would have loved to use distinct('content_id'), but unfortunately DISTINCT ON is Postgresql only
         return ContentNode.objects.filter(pk__in=ContentNode.objects.filter(
             content_id__in=recent_content_items).values('content_id').annotate(pk=Min('pk')).values_list(
             'pk', flat=True))
