@@ -1,6 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const getters = require('kolibri.coreVue.vuex.getters');
 const logging = require('kolibri.lib.logging');
 const map = require('lodash/map');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
@@ -52,6 +53,11 @@ function deleteChannel(store, channelId) {
 
 function showContentPage(store) {
   preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
+
+  if (!getters.isSuperuser(store.state)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return Promise.resolve();
+  }
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   return taskCollectionPromise.only(
     samePageCheckGenerator(store),
