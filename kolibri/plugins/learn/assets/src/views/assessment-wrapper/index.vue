@@ -31,13 +31,27 @@ oriented data synchronization.
         @sessionInitialized="sessionInitialized"
         @itemError="handleItemError"/>
     </div>
+
     <div class="button-drawer">
-      <icon-button @click="checkAnswer" v-show="!complete" class="question-btn" :class="{shaking: shake}" id="check-answer-button" :text="$tr('check')"></icon-button>
+      <icon-button
+        @click="checkAnswer"
+        v-show="!complete"
+        class="question-btn"
+        :class="{shaking: shake}"
+        id="check-answer-button"
+        :text="$tr('check')"
+      />
       <transition name="delay">
-        <icon-button @click="nextQuestion" v-show="complete" class="question-btn next-question-button" :text="$tr('correct')"></icon-button>
+        <icon-button
+          @click="nextQuestion"
+          v-show="complete"
+          class="question-btn next-question-button"
+          :text="$tr('correct')"
+        >
       </transition>
       <slot/>
     </div>
+
     <div id="attemptprogress-container">
       <exercise-attempts
         class="attemptprogress"
@@ -58,8 +72,8 @@ oriented data synchronization.
 
   const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
-  const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
-  const MasteryModelGenerators = require('kolibri.coreVue.vuex.constants').MasteryModelGenerators;
+  const { InteractionTypes } = require('kolibri.coreVue.vuex.constants');
+  const { MasteryModelGenerators } = require('kolibri.coreVue.vuex.constants');
   const seededShuffle = require('kolibri.lib.seededshuffle');
 
   module.exports = {
@@ -220,9 +234,9 @@ oriented data synchronization.
       nextQuestion() {
         // Consistently get the next item in the sequence depending on how many previous
         // attempts have been made.
+        this.complete = false;
         this.shake = false;
         this.firstAttempt = true;
-        this.complete = false;
         this.correct = 0;
         this.itemError = false;
         this.setItemId();
