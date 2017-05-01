@@ -47,7 +47,7 @@ oriented data synchronization.
           v-show="complete"
           class="question-btn next-question-button"
           :text="$tr('correct')"
-        >
+        />
       </transition>
       <slot/>
     </div>
@@ -436,6 +436,9 @@ oriented data synchronization.
 
   .delay-enter
     background-color: $core-action-normal
+
+  .delay-leave-active
+    display: none
 
   // checkAnswer btn animation
   .shaking
