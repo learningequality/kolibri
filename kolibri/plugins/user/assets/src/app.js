@@ -34,7 +34,7 @@ class UserModule extends KolibriModule {
         },
         {
           name: PageNames.SIGN_UP,
-          path: '/signup',
+          path: '/create_account',
           handler: (toRoute, fromRoute) => {
             actions.showSignUp(store);
           },

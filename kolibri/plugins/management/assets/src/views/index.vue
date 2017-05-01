@@ -41,8 +41,8 @@
     $trNameSpace: 'managementRoot',
     $trs: {
       managementTitle: 'Management',
-      logInPrompt: 'Did you forget to log in?',
-      logInCommand: 'You must be logged in as an Admin to view this page.',
+      logInPrompt: 'Did you forget to sign in?',
+      logInCommand: 'You must be signed in as an Admin to view this page.',
     },
     components: {
       'class-edit-page': require('./class-edit-page'),

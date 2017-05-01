@@ -53,8 +53,8 @@
       start: 'Start',
       noExams: 'You have no exams assigned',
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
-      logInPrompt: 'Did you forget to log in?',
-      logInCommand: 'You must be logged in as a Learner to view this page.',
+      logInPrompt: 'Did you forget to sign in?',
+      logInCommand: 'You must be signed in as a Learner to view this page.',
     },
     components: {
       'page-header': require('../page-header'),
