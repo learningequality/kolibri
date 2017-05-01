@@ -2,50 +2,50 @@
 
   <core-modal
     :title="$tr('addNewAccountTitle')"
-    :has-error="errorMessage ? true : false"
     @cancel="close"
-    width="300px"
+    width="400px"
   >
+    <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">{{ errorMessage }}</ui-alert>
+
     <form @submit.prevent="createNewUser">
-      <!-- Fields for the user to fill out -->
-      <section class="user-fields">
+      <section>
         <core-textbox
           :label="$tr('name')"
           :autofocus="true"
-          @focus="clearStatus"
+          :required="true"
+          :maxlength="120"
+          :enforceMaxlength="true"
           type="text"
           class="user-field"
-          autocomplete="name"
-          required
-          v-model="fullName"/>
+          v-model.trim="fullName"/>
         <core-textbox
           :label="$tr('username')"
-          @focus="clearStatus"
+          :required="true"
+          :maxlength="30"
+          :enforceMaxlength="true"
+          :invalid="usernameInvalid"
+          :error="usernameInavlidMsg"
           type="text"
           class="user-field"
-          autocomplete="username"
-          required
           v-model="username"/>
         <core-textbox
           :label="$tr('password')"
-          @focus="clearStatus"
+          :required="true"
           type="password"
           class="user-field"
-          autocomplete="password"
-          required
           v-model="password"/>
         <core-textbox
           :label="$tr('confirmPassword')"
-          @focus="clearStatus"
+          :required="true"
+          :invalid="passwordConfirmInvalid"
+          :error="$tr('pwMismatchError')"
           type="password"
           class="user-field"
-          autocomplete="password"
-          required
           v-model="passwordConfirm"/>
 
         <div class="user-field">
           <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
-          <select @focus="clearStatus" v-model="kind" id="user-kind">
+          <select v-model="kind" id="user-kind">
             <option :value="LEARNER"> {{$tr('learner')}} </option>
             <option :value="COACH"> {{$tr('coach')}} </option>
             <option :value="ADMIN"> {{$tr('admin')}} </option>
@@ -55,12 +55,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p :class="{error: errorMessage}" v-if="statusMessage" aria-live="polite">{{statusMessage}}</p>
-        <icon-button
-          class="create-btn"
-          :text="$tr('createAccount')"
-          :primary="true"
-        />
+        <icon-button class="create-btn" :text="$tr('createAccount')" :primary="true" :loading="loading"/>
       </section>
     </form>
   </core-modal>
@@ -91,25 +86,27 @@
       coach: 'Coach',
       admin: 'Admin',
       // Status Messages
-      emptyFieldError: 'All fields are required',
+      usernameAlreadyExists: 'Username already exists',
+      usernameNotAlphaNum: 'Username can only contain letters and digits',
       pwMismatchError: 'Passwords do not match',
-      unknownError: 'Whoops! Something went wrong!',
+      unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'core-textbox': require('kolibri.coreVue.components.textbox'),
+      'ui-alert': require('keen-ui/src/UiAlert'),
     },
     data() {
       return {
+        fullName: '',
         username: '',
         password: '',
         passwordConfirm: '',
-        fullName: '',
         kind: UserKinds.LEARNER,
         errorMessage: '',
-        confirmationMessage: '',
+        loading: false,
       };
     },
     mounted() {
@@ -120,61 +117,70 @@
       LEARNER: () => UserKinds.LEARNER,
       COACH: () => UserKinds.COACH,
       ADMIN: () => UserKinds.ADMIN,
-      statusMessage() {
-        if (this.errorMessage) {
-          return this.errorMessage;
-        } else if (this.confirmationMessage) {
-          return this.confirmationMessage;
+      usernameAlreadyExists() {
+        return this.users.find(user => user.username === this.username);
+      },
+      usernameNotAlphaNum() {
+        if (this.username === '') {
+          return false;
+        }
+        const re = /^\w+$/g;
+        return !re.test(this.username);
+      },
+      usernameInvalid() {
+        if (this.usernameAlreadyExists) {
+          return true;
+        } else if (this.usernameNotAlphaNum) {
+          return true;
         }
         return false;
+      },
+      usernameInavlidMsg() {
+        if (this.usernameAlreadyExists) {
+          return this.$tr('usernameAlreadyExists');
+        } else if (this.usernameNotAlphaNum) {
+          return this.$tr('usernameNotAlphaNum');
+        }
+        return '';
+      },
+      passwordConfirmInvalid() {
+        if (this.passwordConfirm === '') {
+          return false;
+        }
+        return this.password !== this.passwordConfirm;
       },
     },
     methods: {
       createNewUser() {
-        const newUser = {
-          username: this.username,
-          full_name: this.fullName,
-          kind: this.kind,
-        };
+        this.errorMessage = '';
+        if (!this.usernameInvalid && !this.passwordConfirmInvalid) {
+          this.loading = true;
 
-        // check for all fields populated
-        if (!(this.username && this.password && this.fullName && this.kind)) {
-          this.errorMessage = this.$tr('emptyFieldError');
-        // check for password confirmation match
-        } else if (!(this.password === this.passwordConfirm)) {
-          this.errorMessage = this.$tr('pwMismatchError');
-        // create user
-        } else {
-          newUser.password = this.password;
-
-          // loading message
-          this.confirmationMessage = this.$tr('loadingConfirmation');
+          const newUser = {
+            username: this.username,
+            full_name: this.fullName,
+            kind: this.kind,
+            password: this.password,
+          };
           // using promise to ensure that the user is created before closing
           this.createUser(newUser).then(
             () => {
               this.close();
             },
-            (error) => {
-              if (error.status.code === 400) {
-                // access the first error message
-                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
-              } else if (error.status.code === 403) {
-                this.errorMessage = error.entity;
-              } else {
-                this.errorMessage = this.$tr('unknownError');
-              }
+            error => {
+              this.loading = false;
+              this.errorMessage = this.$tr('unknownError');
             });
         }
-      },
-      clearStatus() {
-        this.errorMessage = '';
-        this.confirmationMessage = '';
       },
       close() {
         this.displayModal(false);
       },
     },
     vuex: {
+      getters: {
+        users: state => state.pageState.facilityUsers,
+      },
       actions: {
         createUser: actions.createUser,
         displayModal: actions.displayModal,
@@ -187,10 +193,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  $button-content-size = 1em
-
   .user-field
     margin-bottom: 5%
     select
@@ -199,23 +201,10 @@
       font-weight: bold
       background-color: transparent
 
-  .header
-    text-align: center
-
   .footer
     text-align: center
 
   .create-btn
     width: 200px
-
-  .error
-    color: $core-text-error
-
-  .secondary
-    &:hover
-      color: #ffffff
-      background-color: $core-action-dark
-      svg
-        fill: #ffffff
 
 </style>
