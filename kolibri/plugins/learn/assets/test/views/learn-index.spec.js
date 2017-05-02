@@ -12,14 +12,15 @@ function makeVm(options) {
   return new Ctor(options);
 }
 
-describe.only('learn index', () => {
+describe('learn index', () => {
   const isExamTab = ({ title }) => title === 'Exams';
 
-  it('the exam tab is available if user is logged in', () => {
+  it('the exam tab is available if user is logged in and has memberships', () => {
     const vm = makeVm({
       vuex: {
         getters: {
           isUserLoggedIn: () => true,
+          memberships: () => [{ id: 'membership_1' }],
         },
       },
     });
@@ -32,6 +33,8 @@ describe.only('learn index', () => {
       vuex: {
         getters: {
           isUserLoggedIn: () => false,
+          // if guest user, memerships is initialized with empty array
+          memberships: () => [],
         },
       },
     });
@@ -44,7 +47,7 @@ describe.only('learn index', () => {
       vuex: {
         getters: {
           isUserLoggedIn: () => true,
-          userHasMemberships: () => false,
+          memberships: () => [],
         },
       },
     });
