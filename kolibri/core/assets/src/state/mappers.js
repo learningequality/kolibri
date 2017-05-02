@@ -14,8 +14,8 @@ function assessmentMetaDataState(data) {
   if (!assessmentMetaData) {
     return blankState;
   }
-  const assessmentIds = JSON.parse(assessmentMetaData.assessment_item_ids || '[]');
-  const masteryModel = JSON.parse(assessmentMetaData.mastery_model || '{}');
+  const assessmentIds = assessmentMetaData.assessment_item_ids;
+  const masteryModel = assessmentMetaData.mastery_model;
   if (!assessmentIds.length || !Object.keys(masteryModel).length) {
     return blankState;
   }

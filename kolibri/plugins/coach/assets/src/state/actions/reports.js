@@ -7,6 +7,7 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const { setClassState } = require('./main');
+const { now } = require('kolibri.utils.serverClock');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -26,59 +27,59 @@ const ContentNodeResource = coreApp.resources.ContentNodeResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
+/**
+ * Helper function for _showChannelList
+ * @param {object} channel - to get recentActivity for
+ * @param {string} classId -
+ * @returns {Promise} that resolves channel with lastActive value in object:
+ *   { 'channelId': dateOfLastActivity }
+*/
+function channelLastActivePromise(channel, classId) {
+  const summaryPayload = {
+    channel_id: channel.id,
+    collection_kind: ReportConstants.UserScopes.CLASSROOM,
+    collection_id: classId,
+  };
 
-function _showChannelList(store, classId) {
+  // workaround for conditionalPromise.then() misbehaving
+  return new Promise(
+    (resolve, reject) => {
+      const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
+      getSumm.then(
+        channelSummary => {
+          resolve({ [channel.id]: channelSummary.last_active });
+        },
+        error => reject(error)
+      );
+    }
+  );
+}
+
+function getAllChannelsLastActivePromise(channels, classId) {
+  const promises = channels.map((channel) => channelLastActivePromise(channel, classId));
+  return Promise.all(promises);
+}
+
+function _showChannelList(store, classId, showRecentOnly = false) {
   // don't handle super users
   if (coreGetters.isSuperuser(store.state)) {
     store.dispatch('SET_PAGE_STATE', {});
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    return;
+    return Promise.resolve();
   }
 
-  function channelLastActivePromise(channel) {
-    // helper function for _showChannelList
-    // @param channel to get recentActivity for
-    // @returns promise that resolves channel with lastActive value in object:
-    // {
-    //   'channelId': dateOfLastActivity,
-    // }
-    const summaryPayload = {
-      channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.CLASSROOM,
-      collection_id: classId,
-    };
+  const promises = [
+    getAllChannelsLastActivePromise(store.state.core.channels.list, classId),
+    setClassState(store, classId),
+  ];
 
-    // workaround for conditionalPromise.then() misbehaving
-    return new Promise(
-      (resolve, reject) => {
-        const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
-        getSumm.then(
-          channelSummary => {
-            const channelLastActive = {};
-            channelLastActive[channel.id] = channelSummary.last_active;
-            resolve(channelLastActive);
-          },
-          error => reject(error)
-        );
-      }
-    );
-  }
-
-  const channelLastActivePromises = [];
-  store.state.core.channels.list.forEach(
-    channel => channelLastActivePromises.push(channelLastActivePromise(channel))
-  );
-  channelLastActivePromises.push(setClassState(store, classId));
-
-  Promise.all(channelLastActivePromises).then(
-    allChannelLastActive => {
-      const lastActive = {};
-      allChannelLastActive.forEach(
-        channelLastActive => Object.assign(lastActive, channelLastActive)
-      );
-      const pageState = { lastActive };
-      store.dispatch('SET_PAGE_STATE', pageState);
+  return Promise.all(promises).then(
+    ([allChannelLastActive]) => {
+      store.dispatch('SET_PAGE_STATE', {
+        lastActive: Object.assign({}, ...allChannelLastActive),
+        showRecentOnly,
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     }
@@ -267,16 +268,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     setClassState(store, classId),
   ]).then(
     ([exercises, attemptLogs, summaryLog, user]) => {
-      function parseJSONorUndefined(json) {
-        try {
-          return JSON.parse(json);
-        } catch (e) {
-          if (!(e instanceof SyntaxError)) {
-            throw e;
-          }
-        }
-        return undefined;
-      }
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
@@ -304,8 +295,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
 
       const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
 
-      const currentInteractionHistory =
-        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
+      const currentInteractionHistory = currentAttemptLog.interaction_history || [];
 
       const pageState = {
         // because this is info returned from a collection
@@ -334,7 +324,7 @@ function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showChannelList(store, classId);
+  _showChannelList(store, classId, true /* showRecentOnly */);
 }
 
 
@@ -346,7 +336,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
-      const sevenDaysAgo = new Date();
+      const sevenDaysAgo = now();
       // this is being set by default in the backend
       // backend date data might be unreliable, though
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);

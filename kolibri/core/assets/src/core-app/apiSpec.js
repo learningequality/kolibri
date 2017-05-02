@@ -142,6 +142,9 @@ module.exports = {
       validateLinkObject: {
         module: require('../validateLinkObject'),
       },
+      serverClock: {
+        module: require('../serverClock'),
+      },
     },
   },
 };

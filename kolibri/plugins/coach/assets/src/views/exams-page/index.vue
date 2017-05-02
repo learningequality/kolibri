@@ -79,7 +79,7 @@
     <preview-exam-modal
       v-if="showPreviewExamModal"
       :examChannelId="selectedExam.channelId"
-      :examQuestionSources="JSON.parse(selectedExam.questionSources)"
+      :examQuestionSources="selectedExam.questionSources"
       :examSeed="selectedExam.seed"
       :examNumQuestions="selectedExam.questionCount"
     />
