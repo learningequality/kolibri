@@ -127,7 +127,7 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
 
 .. tip::
 
-  * We've adopted this concatenated version with added cleanup: ``make clean && pip install -r requirements.txt && pip install -e . && yarn install``.
+  * We've adopted this concatenated version with added cleanup: ``make clean && pip install -r requirements.txt --upgrade && pip install -e . && yarn install``.
   * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
 
 
@@ -359,7 +359,7 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 .. code-block:: bash
 
   cd docs
-  sphinx-autobuild . _build
+  sphinx-autobuild --port 8888 . _build
 
 
 Manual Testing
