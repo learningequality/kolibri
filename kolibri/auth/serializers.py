@@ -81,13 +81,17 @@ class ClassroomSerializer(serializers.ModelSerializer):
     admin_count = serializers.SerializerMethodField()
 
     def get_learner_count(self, target_node):
-        return target_node.get_members().count()
+        n_members = target_node.get_members().count()
+        n_coaches = self.get_coach_count(target_node)
+        n_admin = self.get_admin_count(target_node)
+        # the intersection of coaches and admins should be empty, so this shouldn't double count
+        return n_members - n_coaches - n_admin
 
     def get_coach_count(self, target_node):
         return Role.objects.filter(collection=target_node, kind=role_kinds.COACH).count()
 
     def get_admin_count(self, target_node):
-        return Role.objects.filter(collection=target_node, kind=role_kinds.ADMIN).count()
+        return target_node.get_members().filter(roles__kind=role_kinds.ADMIN).count()
 
     class Meta:
         model = Classroom
