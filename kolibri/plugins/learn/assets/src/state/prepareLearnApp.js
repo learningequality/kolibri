@@ -1,9 +1,6 @@
 const { currentUserId } = require('kolibri.coreVue.vuex.getters');
 const { MembershipResource } = require('kolibri').resources;
 
-const LEARN_SET_MEMBERSHIPS = 'LEARN_SET_MEMBERSHIPS';
-const CORE_SET_ERROR = 'CORE_SET_ERROR';
-
 // prepares state that is used for all pages in 'learn' plugin/app
 // currently, this is only the user's memberships
 function prepareLearnApp(store) {
@@ -17,10 +14,10 @@ function prepareLearnApp(store) {
 
   return membershipPromise
   .then((memberships) => {
-    store.dispatch(LEARN_SET_MEMBERSHIPS, memberships);
+    store.dispatch('LEARN_SET_MEMBERSHIPS', memberships);
   })
   .catch((err) => {
-    store.dispatch(CORE_SET_ERROR, err);
+    store.dispatch('CORE_SET_ERROR', err);
   });
 }
 

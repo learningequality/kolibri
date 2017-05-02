@@ -28,7 +28,7 @@ function makeStore() {
   });
 }
 
-describe.only('prepareLearnApp action', () => {
+describe('prepareLearnApp action', () => {
   let mockStore;
 
   beforeEach(() => {

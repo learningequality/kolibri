@@ -10,6 +10,7 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
+  learnAppState: {},
   examLog: {},
   examAttemptLogs: {},
 };
