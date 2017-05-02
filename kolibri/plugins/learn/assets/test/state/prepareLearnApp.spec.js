@@ -52,6 +52,7 @@ describe.only('prepareLearnApp action', () => {
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 101 });
+      assert.deepEqual(mockStore.state.learnAppState.memberships, fakeMemberships);
     });
   });
 });
