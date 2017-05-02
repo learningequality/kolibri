@@ -5,6 +5,7 @@ const Vuex = require('vuex');
 const sinon = require('sinon');
 const assert = require('assert');
 const kolibri = require('kolibri');
+const mutations = require('../../src/state/mutations');
 
 Vue.use(Vuex);
 
@@ -12,6 +13,7 @@ const { MembershipResource } = kolibri.resources;
 
 function makeStore() {
   return new Vuex.Store({
+    mutations,
     state: {
       learnAppState: {},
       core: {
@@ -26,7 +28,6 @@ describe.only('prepareLearnApp action', () => {
 
   beforeEach(() => {
     mockStore = makeStore();
-    mockStore.state.core.session = {};
     MembershipResource.__resetMocks();
   });
 
@@ -36,7 +37,7 @@ describe.only('prepareLearnApp action', () => {
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      assert.equal(mockStore.state.learnAppState.userMemberships, []);
+      assert.deepEqual(mockStore.state.learnAppState.memberships, []);
     });
   });
 

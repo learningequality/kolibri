@@ -22,4 +22,7 @@ module.exports = {
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
     state.pageState.questionsAnswered = questionsAnswered;
   },
+  LEARN_SET_MEMBERSHIPS(state, memberships) {
+    state.learnAppState.memberships = memberships;
+  }
 };
