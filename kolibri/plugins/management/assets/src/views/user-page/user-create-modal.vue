@@ -118,35 +118,24 @@
       COACH: () => UserKinds.COACH,
       ADMIN: () => UserKinds.ADMIN,
       usernameAlreadyExists() {
-        const index = this.users.findIndex(user => user.username === this.username);
-        if (index === -1) {
-          return false;
-        }
-        return true;
+        return this.users.findIndex(user => user.username === this.username) !== -1;
       },
-      usernameNotAlphaNum() {
-        if (this.username === '') {
-          return false;
-        }
-        const re = /^\w+$/g;
-        return !re.test(this.username);
+      usernameIsAlphaNum() {
+        return /^\w+$/g.test(this.username);
       },
       usernameInvalid() {
-        return this.usernameAlreadyExists || this.usernameNotAlphaNum;
+        return this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNum);
       },
       usernameInvalidMsg() {
         if (this.usernameAlreadyExists) {
           return this.$tr('usernameAlreadyExists');
-        } else if (this.usernameNotAlphaNum) {
+        } else if (!this.usernameIsAlphaNum) {
           return this.$tr('usernameNotAlphaNum');
         }
         return '';
       },
       passwordConfirmInvalid() {
-        if (this.passwordConfirm === '') {
-          return false;
-        }
-        return this.password !== this.passwordConfirm;
+        return this.passwordConfirm !== '' && this.password !== this.passwordConfirm;
       },
     },
     methods: {
