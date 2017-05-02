@@ -43,14 +43,13 @@
           class="user-field"
           v-model="passwordConfirm"/>
 
-        <div class="user-field">
-          <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
-          <select v-model="kind" id="user-kind">
-            <option :value="LEARNER"> {{$tr('learner')}} </option>
-            <option :value="COACH"> {{$tr('coach')}} </option>
-            <option :value="ADMIN"> {{$tr('admin')}} </option>
-          </select>
-        </div>
+        <ui-select
+          :name="$tr('userKind')"
+          :label="$tr('userKind')"
+          :options="userKinds"
+          v-model="kind"
+          class="kind-select"
+        />
       </section>
 
       <!-- Button Options at footer of modal -->
@@ -97,6 +96,7 @@
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'core-textbox': require('kolibri.coreVue.components.textbox'),
       'ui-alert': require('keen-ui/src/UiAlert'),
+      'ui-select': require('keen-ui/src/UiSelect'),
     },
     data() {
       return {
@@ -104,7 +104,7 @@
         username: '',
         password: '',
         passwordConfirm: '',
-        kind: UserKinds.LEARNER,
+        kind: {},
         errorMessage: '',
         loading: false,
       };
@@ -112,11 +112,12 @@
     mounted() {
       // clear form on load
       Object.assign(this.$data, this.$options.data());
+      this.kind = {
+        label: this.$tr('learner'),
+        value: UserKinds.LEARNER,
+      };
     },
     computed: {
-      LEARNER: () => UserKinds.LEARNER,
-      COACH: () => UserKinds.COACH,
-      ADMIN: () => UserKinds.ADMIN,
       usernameAlreadyExists() {
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
@@ -137,6 +138,22 @@
       passwordConfirmInvalid() {
         return this.passwordConfirm !== '' && this.password !== this.passwordConfirm;
       },
+      userKinds() {
+        return [
+          {
+            label: this.$tr('learner'),
+            value: UserKinds.LEARNER,
+          },
+          {
+            label: this.$tr('coach'),
+            value: UserKinds.COACH,
+          },
+          {
+            label: this.$tr('admin'),
+            value: UserKinds.ADMIN,
+          },
+        ];
+      },
     },
     methods: {
       createNewUser() {
@@ -147,7 +164,7 @@
           const newUser = {
             username: this.username,
             full_name: this.fullName,
-            kind: this.kind,
+            kind: this.kind.value,
             password: this.password,
           };
           // using promise to ensure that the user is created before closing
@@ -189,18 +206,13 @@
 
 <style lang="stylus" scoped>
 
-  .user-field
-    margin-bottom: 5%
-    select
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-
   .footer
     text-align: center
 
   .create-btn
     width: 200px
+
+  .kind-select
+    margin-bottom: 3em
 
 </style>
