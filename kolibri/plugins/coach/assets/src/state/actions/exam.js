@@ -400,7 +400,7 @@ function createExam(store, classCollection, examObj) {
     channel_id: examObj.channelId,
     title: examObj.title,
     question_count: examObj.numQuestions,
-    question_sources: JSON.stringify(examObj.questionSources),
+    question_sources: examObj.questionSources,
     seed: examObj.seed,
   };
   ExamResource.createModel(examPayload).save().then(
@@ -490,9 +490,9 @@ function showExamReportDetailPage(
   ]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examAttempts, exam, user, examLogs]) => {
-      const examLog = examLogs[0];
+      const examLog = examLogs[0] || {};
       const seed = exam.seed;
-      const questionSources = JSON.parse(exam.question_sources);
+      const questionSources = exam.question_sources;
 
       const questionList = createQuestionList(questionSources);
 
@@ -526,6 +526,7 @@ function showExamReportDetailPage(
                   log.content_id === question.contentId) || {
                     interaction_history: '[]',
                     correct: false,
+                    noattempt: true,
                   };
                 return Object.assign({
                   questionNumber: index + 1,
@@ -539,7 +540,7 @@ function showExamReportDetailPage(
             const itemId = currentQuestion.itemId;
             const exercise = contentNodeMap[currentQuestion.contentId];
             const currentAttempt = allQuestions[questionNumber];
-            const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
+            const currentInteractionHistory = currentAttempt.interaction_history;
             const currentInteraction = currentInteractionHistory[interactionIndex];
             const pageState = {
               exam: _examState(exam),

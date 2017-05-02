@@ -24,7 +24,6 @@ const initialState = {
       facility_id: undefined,
       kind: [UserKinds.ANONYMOUS],
     },
-    loginModalVisible: false,
     loginError: null,
     logging: baseLoggingState,
     totalProgress: null,
@@ -32,23 +31,20 @@ const initialState = {
       list: [],
       currentId: null,
     },
-    // Hardcoded for now. Privileges set according to Zero Rating conf
-    learnerPrivileges: {
-      username: true,
-      name: true,
-      password: true,
-      signup: true,
-      delete: false,
-      // classActivation: false,
-      loginRequired: false,
-    },
+    facilityConfig: {},
+    facilities: [],
   },
 };
 
 const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
-    state.core.loginModalVisible = false;
+  },
+  CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
+    state.core.facilityConfig = facilityConfig;
+  },
+  CORE_SET_FACILITIES(state, facilities) {
+    state.core.facilities = facilities;
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
@@ -63,9 +59,6 @@ const mutations = {
       facility_id: undefined,
       kind: [UserKinds.ANONYMOUS],
     };
-  },
-  CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
-    state.core.loginModalVisible = value;
   },
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
@@ -165,7 +158,7 @@ const mutations = {
       // Can only get it correct on the first try.
       state.core.logging.attempt.correct = correct;
       state.core.logging.attempt.hinted = hinted;
-      state.core.logging.attempt.answer = JSON.stringify(answerState);
+      state.core.logging.attempt.answer = answerState;
       state.core.logging.attempt.simple_answer = simpleAnswer;
     } else if (state.core.logging.attempt.correct < 1) {
       // Only set hinted if attempt has not already been marked as correct

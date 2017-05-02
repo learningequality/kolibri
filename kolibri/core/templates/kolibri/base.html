@@ -51,6 +51,7 @@
   var languageCode = "{{ LANGUAGE_CODE }}";
 </script>
 {% webpack_asset 'default_frontend' %}
+{% kolibri_set_server_time %}
 <script type="text/javascript">
   {% cache 5000 js_urls %}
     {% js_reverse_inline %}

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
+    'jsonfield',
 ] + conf.config['INSTALLED_APPS']
 
 # Add in the external plugins' locale paths. Our frontend messages depends

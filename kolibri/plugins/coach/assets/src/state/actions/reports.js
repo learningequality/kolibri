@@ -8,6 +8,7 @@ const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const { setClassState } = require('./main');
 const assign = require('lodash/assign');
+const { now } = require('kolibri.utils.serverClock');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -268,16 +269,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     setClassState(store, classId),
   ]).then(
     ([exercises, attemptLogs, summaryLog, user]) => {
-      function parseJSONorUndefined(json) {
-        try {
-          return JSON.parse(json);
-        } catch (e) {
-          if (!(e instanceof SyntaxError)) {
-            throw e;
-          }
-        }
-        return undefined;
-      }
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
@@ -305,8 +296,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
 
       const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
 
-      const currentInteractionHistory =
-        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
+      const currentInteractionHistory = currentAttemptLog.interaction_history || [];
 
       const pageState = {
         // because this is info returned from a collection
@@ -347,7 +337,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
-      const sevenDaysAgo = new Date();
+      const sevenDaysAgo = now();
       // this is being set by default in the backend
       // backend date data might be unreliable, though
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);

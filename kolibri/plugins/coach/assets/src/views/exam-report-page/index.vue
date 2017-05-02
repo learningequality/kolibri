@@ -25,9 +25,15 @@
         <tbody>
           <tr class="table-row" v-for="examTaker in examTakers">
             <th scope="row" class="table-text">
-              <router-link :to="examDetailPageLink(examTaker.id)" class="table-name">
+              <router-link
+                v-if="examTaker.progress !== undefined"
+                :to="examDetailPageLink(examTaker.id)"
+                class="table-name">
                 {{examTaker.name}}
               </router-link>
+              <span v-else class="table-name">
+                {{examTaker.name}}
+              </span>
             </th>
 
             <td class="table-data">

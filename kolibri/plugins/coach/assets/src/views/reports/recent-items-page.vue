@@ -42,6 +42,7 @@
 
   const CoachConstants = require('../../constants');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const mainGetters = require('../../state/getters/main');
 
   module.exports = {
     name: 'coachRecentReports',
@@ -50,7 +51,7 @@
       title: 'Recent Activity',
       subHeading: 'Showing recent activity in past 7 days',
       name: 'Name',
-      progress: 'Progress',
+      progress: 'Class progress',
       noRecentProgress: 'No recent progress',
       reportProgress: '{completed} {descriptor}',
       listened: '{proportionCompleted} listened',
@@ -77,12 +78,12 @@
     },
     methods: {
       completedProgress(progress) {
-        return progress.logCountComplete / progress.logCountTotal;
+        return progress.logCountComplete / this.userCount;
       },
       progressString(row) {
         // string representation of a fraction, can't use completedProgress
         const proportionCompleted = `${row.progress[0].logCountComplete}` +
-          `/${row.progress[0].logCountTotal}`;
+          `/${this.userCount}`;
         switch (row.kind) {
           case ContentNodeKinds.AUDIO:
             return this.$tr('listened', { proportionCompleted });
@@ -113,6 +114,7 @@
       getters: {
         classId: state => state.classId,
         pageState: state => state.pageState,
+        userCount: mainGetters.classMemberCount,
       },
     },
   };

@@ -15,6 +15,7 @@ const router = require('kolibri.coreVue.router');
 const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
+const { now } = require('kolibri.utils.serverClock');
 
 /**
  * Vuex State Mappers
@@ -481,17 +482,6 @@ function showExamList(store, channelId) {
 }
 
 
-function parseJSONorUndefined(json) {
-  try {
-    return JSON.parse(json);
-  } catch (e) {
-    if (!(e instanceof SyntaxError)) {
-      throw e;
-    }
-  }
-  return undefined;
-}
-
 function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
   Object.keys(attemptLogs).forEach((key) => {
@@ -566,16 +556,13 @@ function showExam(store, channelId, id, questionNumber) {
               if (!attemptLogs[log.content_id]) {
                 attemptLogs[log.content_id] = {};
               }
-              attemptLogs[log.content_id][log.item] = Object.assign({}, log, {
-                answer: parseJSONorUndefined(log.answer),
-                interaction_history: parseJSONorUndefined(log.interaction_history) || [],
-              });
+              attemptLogs[log.content_id][log.item] = Object.assign({}, log);
             });
           }
         }
 
         const seed = exam.seed;
-        const questionSources = JSON.parse(exam.question_sources);
+        const questionSources = exam.question_sources;
 
         // Create an array of objects with contentId and assessmentItemIndex
         // These will be used to select specific questions from the content node
@@ -634,7 +621,7 @@ function showExam(store, channelId, id, questionNumber) {
                 }
                 if (!attemptLogs[currentQuestion.contentId][itemId]) {
                   attemptLogs[currentQuestion.contentId][itemId] = {
-                    start_timestamp: new Date(),
+                    start_timestamp: now(),
                     completion_timestamp: null,
                     end_timestamp: null,
                     item: itemId,
@@ -667,6 +654,10 @@ function showExam(store, channelId, id, questionNumber) {
 }
 
 function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+  // As soon as this has happened, we should clear any previous cache for the
+  // UserExamResource - as that data has now changed.
+  UserExamResource.clearCache();
+
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
     [contentId]: ({
       [itemId]: currentAttemptLog,
@@ -679,37 +670,35 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     content_id: contentId,
     item: itemId,
   });
+  const attributes = Object.assign({}, currentAttemptLog);
+  attributes.user = store.state.core.session.user_id;
+  attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
   if (!examAttemptLogModel) {
-    examAttemptLogModel = ExamAttemptLogResource.getModel(
-      currentAttemptLog.id);
+    examAttemptLogModel = ExamAttemptLogResource.createModel(
+      attributes);
   }
-  const attributes = Object.assign({}, currentAttemptLog);
-  attributes.interaction_history = JSON.stringify(attributes.interaction_history);
-  attributes.answer = JSON.stringify(attributes.answer);
-  attributes.user = store.state.core.session.user_id;
-  attributes.examlog = store.state.examLog.id;
   const promise = examAttemptLogModel.save(attributes);
-  return promise.then((newExamAttemptLog) => {
-    const log = Object.assign({}, newExamAttemptLog, {
-      answer: parseJSONorUndefined(newExamAttemptLog.answer),
-      interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
-    });
-    store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-      [contentId]: ({
-        [itemId]: log,
-      }),
-    });
-    const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-    store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
-    const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-      user: store.state.core.session.user_id,
-      exam: store.state.pageState.exam.id,
-    });
-    // Add this attempt log to the Collection for future caching.
-    examAttemptLogCollection.set(examAttemptLogModel);
-  });
+  return promise.then((newExamAttemptLog) =>
+    new Promise((resolve, reject) => {
+      const log = Object.assign({}, newExamAttemptLog);
+      store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        [contentId]: ({
+          [itemId]: log,
+        }),
+      });
+      const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+      store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+      const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+        user: store.state.core.session.user_id,
+        exam: store.state.pageState.exam.id,
+      });
+      // Add this attempt log to the Collection for future caching.
+      examAttemptLogCollection.set(examAttemptLogModel);
+      resolve();
+    })
+  );
 }
 
 function closeExam(store) {
