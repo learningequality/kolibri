@@ -33,6 +33,7 @@
   const { PageNames } = require('../../constants');
   const orderBy = require('lodash/orderBy');
   const differenceInDays = require('date-fns/difference_in_days');
+  const { now } = require('kolibri.utils.serverClock');
 
   module.exports = {
     name: 'channelList',
@@ -46,7 +47,7 @@
     },
     data() {
       return {
-        currentDateTime: Date.now(),
+        currentDateTime: now(),
       };
     },
     components: {
