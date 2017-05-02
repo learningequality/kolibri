@@ -1,24 +1,31 @@
 /* eslint-env mocha */
 const prepareLearnApp = require('../../src/state/prepareLearnApp');
+const Vue = require('vue');
+const Vuex = require('vuex');
 const sinon = require('sinon');
+const assert = require('assert');
 const kolibri = require('kolibri');
+
+Vue.use(Vuex);
 
 const { MembershipResource } = kolibri.resources;
 
-describe.only('prepareLearnApp action', () => {
-  const mockStore = {
-    dispatch: sinon.spy(),
+function makeStore() {
+  return new Vuex.Store({
     state: {
+      learnAppState: {},
       core: {
         session: {}
       },
     },
-  };
+  });
+}
 
-  const dispatchSpy = mockStore.dispatch;
+describe.only('prepareLearnApp action', () => {
+  let mockStore;
 
   beforeEach(() => {
-    dispatchSpy.reset();
+    mockStore = makeStore();
     mockStore.state.core.session = {};
     MembershipResource.__resetMocks();
   });
@@ -29,7 +36,7 @@ describe.only('prepareLearnApp action', () => {
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      sinon.assert.calledWith(dispatchSpy, 'LEARN_SET_MEMBERSHIPS', []);
+      assert.equal(mockStore.state.learnAppState.userMemberships, []);
     });
   });
 
