@@ -55,6 +55,7 @@ class KolibriMock {
       RoleResource: {},
       FacilityDatasetResource: new MockResource(),
       FacilityResource: new MockResource(),
+      MembershipResource: new MockResource(),
     };
 
     this.__resetMocks = this.__resetMocks.bind(this);
@@ -63,6 +64,7 @@ class KolibriMock {
   __resetMocks() {
     this.resources.FacilityResource.__resetMocks();
     this.resources.FacilityDatasetResource.__resetMocks();
+    this.resources.MembershipResource.__resetMocks();
   }
 }
 
