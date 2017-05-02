@@ -7,7 +7,6 @@ const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const { setClassState } = require('./main');
-const assign = require('lodash/assign');
 const { now } = require('kolibri.utils.serverClock');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
@@ -78,7 +77,7 @@ function _showChannelList(store, classId, showRecentOnly = false) {
   return Promise.all(promises).then(
     ([allChannelLastActive]) => {
       store.dispatch('SET_PAGE_STATE', {
-        lastActive: assign({}, ...allChannelLastActive),
+        lastActive: Object.assign({}, ...allChannelLastActive),
         showRecentOnly,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
