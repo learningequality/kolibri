@@ -96,7 +96,9 @@
     mounted() {
       this.lastFocus = document.activeElement;
       this.$nextTick(() => {
-        this.focusModal();
+        if (!this.$refs.modal.contains(document.activeElement)) {
+          this.focusModal();
+        }
       });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
