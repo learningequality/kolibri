@@ -64,7 +64,7 @@ class AttemptLogSerializer(serializers.ModelSerializer):
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
 class ExamAttemptLogSerializer(serializers.ModelSerializer):
-    answer = serializers.JSONField(default='{}')
+    answer = serializers.JSONField(default='{}', allow_null=True)
     interaction_history = serializers.JSONField(default='[]')
 
     class Meta:

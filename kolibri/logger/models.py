@@ -194,7 +194,7 @@ class BaseAttemptLog(BaseLogModel):
     correct = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
     hinted = models.BooleanField(default=False)
     # JSON blob that would allow the learner's answer to be rerendered in the frontend interface
-    answer = JSONField(default={})
+    answer = JSONField(default={}, null=True, blank=True)
     # A human readable answer that could be rendered directly in coach reports, can be blank.
     simple_answer = models.CharField(max_length=200, blank=True)
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user

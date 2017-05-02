@@ -628,7 +628,7 @@ function showExam(store, channelId, id, questionNumber) {
                     complete: false,
                     time_spent: 0,
                     correct: 0,
-                    answer: undefined,
+                    answer: null,
                     simple_answer: '',
                     interaction_history: [],
                     hinted: false,
