@@ -109,7 +109,7 @@
       },
       requirementsString() {
         try {
-          const requirements = JSON.parse(this.summaryLog.currentmasterylog.mastery_criterion);
+          const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
           // TODO might be more types?
           // if (requirements.type === 'm_of_n') {
           return this.$tr('requirementsMOfN', {

@@ -268,16 +268,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     setClassState(store, classId),
   ]).then(
     ([exercises, attemptLogs, summaryLog, user]) => {
-      function parseJSONorUndefined(json) {
-        try {
-          return JSON.parse(json);
-        } catch (e) {
-          if (!(e instanceof SyntaxError)) {
-            throw e;
-          }
-        }
-        return undefined;
-      }
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
@@ -305,8 +295,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
 
       const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
 
-      const currentInteractionHistory =
-        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
+      const currentInteractionHistory = currentAttemptLog.interaction_history || [];
 
       const pageState = {
         // because this is info returned from a collection
