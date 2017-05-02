@@ -1,6 +1,9 @@
 Coach
 =====
 
+.. Work in Progress!!!
+
+
 You can view *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises from the **Coach** dashboard.
 
 
@@ -12,7 +15,7 @@ This is the default view when you access the **Coach** dashboard from the main n
 * Percentage of average progress for all recent items
 * List of recently accessed items sorted by average progress percentage.
 
-.. Radina TO-DO: Exclude main navigation bar from the final version of the screenshot for simplicity.
+
 
 .. image:: img/coach_reports_recent.png
   :alt: coach reports recent activity
