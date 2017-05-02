@@ -12,7 +12,7 @@ function makeVm(options) {
   return new Ctor(options);
 }
 
-describe('learn index', () => {
+describe.only('learn index', () => {
   const isExamTab = ({ title }) => title === 'Exams';
 
   it('the exam tab is available if user is logged in', () => {
@@ -32,6 +32,19 @@ describe('learn index', () => {
       vuex: {
         getters: {
           isUserLoggedIn: () => false,
+        },
+      },
+    });
+    const examTabObj = _.find(vm.learnTabs, isExamTab);
+    assert(_.isUndefined(examTabObj));
+  });
+
+  it('the exam tab is not available if user has no memberships/classes', () => {
+    const vm = makeVm({
+      vuex: {
+        getters: {
+          isUserLoggedIn: () => true,
+          userHasMemberships: () => false,
         },
       },
     });
