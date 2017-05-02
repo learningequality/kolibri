@@ -11,6 +11,10 @@ Vue.use(Vuex);
 
 const { MembershipResource } = kolibri.resources;
 
+function getMemberships(store) {
+  return store.state.learnAppState.memberships;
+}
+
 function makeStore() {
   return new Vuex.Store({
     mutations,
@@ -37,7 +41,7 @@ describe.only('prepareLearnApp action', () => {
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      assert.deepEqual(mockStore.state.learnAppState.memberships, []);
+      assert.deepEqual(getMemberships(mockStore), []);
     });
   });
 
@@ -52,7 +56,7 @@ describe.only('prepareLearnApp action', () => {
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 101 });
-      assert.deepEqual(mockStore.state.learnAppState.memberships, fakeMemberships);
+      assert.deepEqual(getMemberships(mockStore), fakeMemberships);
     });
   });
 });

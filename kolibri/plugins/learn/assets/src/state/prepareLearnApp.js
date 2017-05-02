@@ -3,21 +3,19 @@ const { MembershipResource } = require('kolibri').resources;
 
 const LEARN_SET_MEMBERSHIPS = 'LEARN_SET_MEMBERSHIPS';
 
+// prepares state that is used for all pages in 'learn' plugin/app
+// currently, this is only the user's memberships
 function prepareLearnApp(store) {
+  let membershipPromise;
   const userId = currentUserId(store.state);
   if (userId === null) {
-    return Promise.resolve()
-    .then(() => {
-      store.dispatch(LEARN_SET_MEMBERSHIPS, []);
-    });
+    membershipPromise = Promise.resolve([]);
+  } else {
+    membershipPromise = MembershipResource.getCollection({ user_id: userId }).fetch();
   }
 
-  const promises = [
-    MembershipResource.getCollection({ user_id: userId }).fetch(),
-  ];
-
-  return Promise.all(promises)
-  .then(([memberships]) => {
+  return membershipPromise
+  .then((memberships) => {
     store.dispatch(LEARN_SET_MEMBERSHIPS, memberships);
   });
 }
