@@ -16,7 +16,10 @@ function prepareLearnApp(store) {
     MembershipResource.getCollection({ user_id: userId }).fetch(),
   ];
 
-  return Promise.all(promises);
+  return Promise.all(promises)
+  .then(([memberships]) => {
+    store.dispatch(LEARN_SET_MEMBERSHIPS, memberships);
+  });
 }
 
 module.exports = prepareLearnApp;
