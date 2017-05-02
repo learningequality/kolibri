@@ -5,6 +5,7 @@ const Vuex = require('vuex');
 const sinon = require('sinon');
 const assert = require('assert');
 const kolibri = require('kolibri');
+const coreMutations = require('kolibri.coreVue.vuex.store').mutations;
 const mutations = require('../../src/state/mutations');
 
 Vue.use(Vuex);
@@ -17,7 +18,7 @@ function getMemberships(store) {
 
 function makeStore() {
   return new Vuex.Store({
-    mutations,
+    mutations: Object.assign({}, coreMutations, mutations),
     state: {
       learnAppState: {},
       core: {
@@ -57,6 +58,17 @@ describe.only('prepareLearnApp action', () => {
     .then(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 101 });
       assert.deepEqual(getMemberships(mockStore), fakeMemberships);
+    });
+  });
+
+  it('handles errors', () => {
+    mockStore.state.core.session.user_id = 102;
+    MembershipResource.__getCollectionFetchReturns('fetch error', true);
+
+    return prepareLearnApp(mockStore)
+    .catch(() => {
+      sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 102 });
+      assert.deepEqual(mockStore.state.core.error, 'fetch error');
     });
   });
 });
