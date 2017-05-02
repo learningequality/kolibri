@@ -69,6 +69,7 @@ describe('prepareLearnApp action', () => {
     .catch(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 102 });
       assert.deepEqual(mockStore.state.core.error, 'fetch error');
+      assert.equal(getMemberships(mockStore), undefined);
     });
   });
 });
