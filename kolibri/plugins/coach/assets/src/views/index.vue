@@ -38,10 +38,10 @@
     $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      logInPrompt: 'Did you forget to log in?',
-      logInCommand: 'You must be logged in as an Admin to view this page.',
-      superUserPrompt: 'Logged in as device owner',
-      superUserCommand: 'The coach tools cannot be used by a device owner. Please log in as an administrator or coach.',
+      logInPrompt: 'Did you forget to sign in?',
+      logInCommand: 'You must be signed in as an Admin to view this page.',
+      superUserPrompt: 'Signed in as device owner',
+      superUserCommand: 'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
       'top-nav': require('./top-nav'),
