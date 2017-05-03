@@ -319,6 +319,10 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   );
 }
 
+function setReportSorting(store, sortColumn, sortOrder) {
+  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
+}
+
 
 function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
@@ -515,5 +519,6 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
+  setReportSorting,
   _setUserSummary,
 };

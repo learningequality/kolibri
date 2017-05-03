@@ -20,10 +20,24 @@
     <report-table>
       <thead slot="thead">
         <tr>
-          <header-cell :text="$tr('name')" align="left"/>
-          <header-cell :text="$tr('avgExerciseProgress')"/>
-          <header-cell :text="$tr('avgContentProgress')"/>
-          <header-cell :text="$tr('lastActivity')" align="left"/>
+          <header-cell
+            :text="$tr('name')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.NAME"/>
+          <header-cell
+            :text="$tr('avgExerciseProgress')"
+            :sortable="true"
+            :column="tableColumns.EXERCISE"/>
+          <header-cell
+            :text="$tr('avgContentProgress')"
+            :sortable="true"
+            :column="tableColumns.CONTENT"/>
+          <header-cell
+            :text="$tr('lastActivity')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.DATE"/>
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -50,6 +64,7 @@
   const CoachConstants = require('../../constants');
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const reportGetters = require('../../state/getters/reports');
+  const reportConstants = require('../../reportConstants');
 
   module.exports = {
     $trNameSpace: 'itemReportPage',
@@ -90,6 +105,11 @@
             contentId: row.id,
           }
         };
+      },
+    },
+    computed: {
+      tableColumns() {
+        return reportConstants.TableColumns;
       },
     },
     vuex: {

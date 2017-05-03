@@ -7,7 +7,10 @@ const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 
 // Object to be exported by this module.
-const getters = {};
+const getters = {
+  sortColumn: state => state.pageState.sortColumn,
+  sortOrder: state => state.pageState.sortOrder,
+};
 
 
 function _genRow(state, item) {
