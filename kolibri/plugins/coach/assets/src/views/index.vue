@@ -4,7 +4,7 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId"/>
+        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
         <top-nav/>
       </template>
 
@@ -89,6 +89,20 @@
       },
       showTopNav() {
         return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
+      },
+    },
+    methods: {
+      changeClass(classSelectedId) {
+        if (this.pageName === Constants.PageNames.EXAM_REPORT) {
+          this.$router.push({
+            name: Constants.PageNames.EXAMS,
+            params: { classId: classSelectedId },
+          });
+        } else {
+          this.$router.push({
+            params: { classId: classSelectedId },
+          });
+        }
       },
     },
     vuex: {

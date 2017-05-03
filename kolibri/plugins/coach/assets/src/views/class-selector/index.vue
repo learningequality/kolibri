@@ -61,9 +61,7 @@
     },
     methods: {
       changeClass(classSelected) {
-        this.$router.push({
-          params: { classId: classSelected.id },
-        });
+        this.$emit('changeClass', classSelected.id);
       },
     },
   };
