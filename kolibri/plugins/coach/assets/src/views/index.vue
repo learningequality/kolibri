@@ -4,7 +4,7 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <h1>{{ className }}</h1>
+        <class-selector :classes="classList" :currentClassId="classId"/>
         <top-nav/>
       </template>
 
@@ -38,10 +38,10 @@
     $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as an Admin to view this page.',
-      superUserPrompt: 'Signed in as device owner',
-      superUserCommand: 'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
+      logInPrompt: 'Did you forget to log in?',
+      logInCommand: 'You must be logged in as an Admin to view this page.',
+      superUserPrompt: 'Logged in as device owner',
+      superUserCommand: 'The coach tools cannot be used by a device owner. Please log in as an administrator or coach.',
     },
     components: {
       'top-nav': require('./top-nav'),
@@ -58,6 +58,7 @@
       'channel-list-page': require('./reports/channel-list-page'),
       'item-list-page': require('./reports/item-list-page'),
       'learner-list-page': require('./reports/learner-list-page'),
+      'class-selector': require('./class-selector'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -98,6 +99,8 @@
         isSuperuser: coreGetters.isSuperuser,
         isAdmin: coreGetters.isAdmin,
         isCoach: coreGetters.isCoach,
+        classList: state => state.classList,
+        classId: state => state.classId,
       },
     },
     store,
