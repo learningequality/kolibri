@@ -6,6 +6,7 @@
     :disabled="disabled"
     :buttonType="type"
     :size="size"
+    :loading="loading"
     class="koli-icon-button">
     <span v-if="hasIcon && text && alignLeft">
       <ui-icon class="icon-margin"><slot/></ui-icon>
@@ -59,7 +60,11 @@
         validator(value) {
           return value === 'left' || value === 'right';
         },
-      }
+      },
+      loading: {
+        type: Boolean,
+        required: false,
+      },
     },
     computed: {
       hasIcon() {
