@@ -663,6 +663,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
+  const pageState = Object.assign(store.state.pageState);
+  pageState.currentAttempt = currentAttemptLog;
+  store.dispatch('SET_PAGE_STATE', pageState);
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
   // identifying fields, contentId and itemId.
