@@ -44,7 +44,7 @@
     $trNameSpace: 'coachExamReportDetailPageStatus',
     $trs: {
       title: '{name} - Exam Performance',
-      overallScore: 'Overall Score: <strong>{ score, number, plural }</strong>',
+      overallScore: 'Overall Score: <strong>{ score, number, percent }</strong>',
       questionsCorrect: 'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
       completed: 'Completed',
       inProgress: 'In progress',
