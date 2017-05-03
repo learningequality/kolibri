@@ -3,9 +3,9 @@ const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
 const kolibri = require('kolibri');
+const sinon = require('sinon');
 const mutations = require('../../src/state/mutations');
 const prepareLearnApp = require('../../src/state/prepareLearnApp');
-const sinon = require('sinon');
 
 Vue.use(Vuex);
 
@@ -35,13 +35,13 @@ describe('prepareLearnApp action', () => {
     MembershipResource.__resetMocks();
   });
 
-  it('prepares app state for guest user', () => {
+  it('does not modify state for guest user', () => {
     mockStore.state.core.session.user_id = null;
 
     return prepareLearnApp(mockStore)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      assert.deepEqual(getMemberships(mockStore), []);
+      assert.equal(getMemberships(mockStore), undefined);
     });
   });
 
