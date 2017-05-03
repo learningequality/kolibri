@@ -199,7 +199,9 @@
         return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
       },
       maxQuestionsFromSelection() {
-        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssessments, 0);
+        // in case numAssestments is null, return 0
+        return this.selectedExercises.reduce(
+          (sum, exercise) => sum + (exercise.numAssessments || 0), 0);
       },
       numQuestNotWithinRange() {
         return this.validateNumQuestMax ?
