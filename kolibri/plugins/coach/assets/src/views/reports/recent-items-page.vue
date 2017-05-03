@@ -6,23 +6,34 @@
     <h1>{{ $tr('title') }}</h1>
     <sub>{{ $tr('subHeading') }}</sub>
 
-    <report-table v-if="pageState.reports.length">
+    <report-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
-          <header-cell :text="$tr('name')" align="left"/>
-          <header-cell :text="$tr('progress')"/>
-          <header-cell :text="$tr('lastActivity')" align="left"/>
+          <header-cell
+            :text="$tr('name')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.NAME"/>
+          <header-cell
+            :text="$tr('progress')"
+            :sortable="true"
+            :column="tableColumns.CONTENT"/>
+          <header-cell
+            :text="$tr('lastActivity')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.DATE"/>
         </tr>
       </thead>
       <tbody slot="tbody">
-        <tr v-for="row in itemList" :key="row.id">
+        <tr v-for="row in standardDataTable" :key="row.id">
           <name-cell
             :kind="row.kind"
             :title="row.title"
             :link="genLink(row)"
           />
           <td>
-            <progress-bar :show-percentage="false" :progress="completedProgress(row.progress[0])"/>
+            <progress-bar :show-percentage="false" :progress="row.contentProgress"/>
             {{ progressString(row) }}
           </td>
           <activity-cell :date="row.lastActive" />
@@ -41,8 +52,10 @@
 <script>
 
   const CoachConstants = require('../../constants');
+  const reportConstants = require('../../reportConstants');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const mainGetters = require('../../state/getters/main');
+  const reportGetters = require('../../state/getters/reports');
 
   module.exports = {
     name: 'coachRecentReports',
@@ -70,19 +83,14 @@
       'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
     computed: {
-      itemList() {
-        return Array.from(this.pageState.reports).sort(
-          (report1, report2) => new Date(report2.lastActive) - new Date(report1.lastActive)
-        );
+      tableColumns() {
+        return reportConstants.TableColumns;
       },
     },
     methods: {
-      completedProgress(progress) {
-        return progress.logCountComplete / this.userCount;
-      },
       progressString(row) {
         // string representation of a fraction, can't use completedProgress
-        const proportionCompleted = `${row.progress[0].logCountComplete}` +
+        const proportionCompleted = `${row.logCountComplete}` +
           `/${this.userCount}`;
         switch (row.kind) {
           case ContentNodeKinds.AUDIO:
@@ -115,6 +123,7 @@
         classId: state => state.classId,
         pageState: state => state.pageState,
         userCount: mainGetters.classMemberCount,
+        standardDataTable: reportGetters.standardDataTable,
       },
     },
   };

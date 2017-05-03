@@ -356,11 +356,19 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
       recentReportsPromise.then(
         reports => {
-          const pageState = {
-            reports: _recentReportState(reports),
+          store.dispatch('SET_REPORT_TABLE_DATA', _recentReportState(reports));
+          const reportProps = {
             channelId,
+            userScope: ReportConstants.UserScopes.CLASSROOM,
+            userScopeId: classId,
+            viewBy: ReportConstants.ViewBy.RECENT,
           };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+          store.dispatch(
+            'SET_REPORT_SORTING',
+            ReportConstants.TableColumns.DATE,
+            ReportConstants.SortOrders.DESCENDING
+          );
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', 'Recents');

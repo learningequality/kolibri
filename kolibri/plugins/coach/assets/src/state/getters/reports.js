@@ -2,6 +2,7 @@ const ReportConstants = require('../../reportConstants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
 const ReportUtils = require('./reportUtils');
+const { classMemberCount } = require('./main');
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
@@ -37,34 +38,40 @@ function _genRow(state, item) {
     row.title = item.title;
     row.parent = { id: item.parent.id, title: item.parent.title };
 
-    // for content items, set exercise counts and progress appropriately
-    if (item.kind === ContentNodeKinds.TOPIC) {
-      row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
-      row.exerciseProgress = ReportUtils.calcProgress(
-        item.progress,
-        ReportUtils.onlyExercises,
-        row.exerciseCount,
-        getters.userCount(state)
-      );
-      row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
-      row.contentProgress = ReportUtils.calcProgress(
-        item.progress,
-        ReportUtils.onlyContent,
-        row.contentCount,
-        getters.userCount(state)
-      );
-    } else if (ReportUtils.onlyExercises(item)) {
-      row.exerciseCount = 1;
-      row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
-      row.contentCount = 0;
-      row.contentProgress = undefined;
-    } else if (ReportUtils.onlyContent(item)) {
-      row.exerciseCount = 0;
-      row.exerciseProgress = undefined;
-      row.contentCount = 1;
-      row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
+    if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
+      // for content items, set exercise counts and progress appropriately
+      if (item.kind === ContentNodeKinds.TOPIC) {
+        row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
+        row.exerciseProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyExercises,
+          row.exerciseCount,
+          getters.userCount(state)
+        );
+        row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
+        row.contentProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyContent,
+          row.contentCount,
+          getters.userCount(state)
+        );
+      } else if (ReportUtils.onlyExercises(item)) {
+        row.exerciseCount = 1;
+        row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
+        row.contentCount = 0;
+        row.contentProgress = undefined;
+      } else if (ReportUtils.onlyContent(item)) {
+        row.exerciseCount = 0;
+        row.exerciseProgress = undefined;
+        row.contentCount = 1;
+        row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
+      } else {
+        logging.error(`Unhandled item kind: ${item.kind}`);
+      }
     } else {
-      logging.error(`Unhandled item kind: ${item.kind}`);
+      row.contentCount = 1;
+      row.contentProgress = item.progress[0].totalProgress / classMemberCount(state);
+      row.logCountComplete = item.progress[0].logCountComplete;
     }
   }
 
