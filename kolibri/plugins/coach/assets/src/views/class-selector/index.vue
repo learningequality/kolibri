@@ -56,7 +56,7 @@
         return this.classOptions.find(classroom => classroom.id === this.currentClassId);
       },
       classListPage() {
-        return PageNames.CLASS_LIST;
+        return { name: PageNames.CLASS_LIST };
       },
     },
     methods: {
