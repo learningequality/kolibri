@@ -1,13 +1,17 @@
 <template>
 
-  <ui-select
-    :name="$tr('selectClass')"
-    :label="$tr('selectClass')"
-    :value="currentClass"
-    :options="classOptions"
-    @change="changeClass"
-    class="class-selector"
-  />
+  <div>
+    <router-link :to="classListPage"><h2>{{ $tr('allClasses') }}</h2></router-link>
+    <span class="seperator">&#62;</span>
+    <ui-select
+      :name="$tr('selectClass')"
+      :label="$tr('selectClass')"
+      :value="currentClass"
+      :options="classOptions"
+      @change="changeClass"
+      class="class-selector"
+    />
+  </div>
 
 </template>
 
@@ -15,14 +19,18 @@
 <script>
 
   const orderBy = require('lodash/orderBy');
+  const PageNames = require('../../constants').PageNames;
+
 
   module.exports = {
     $trNameSpace: 'classSelector',
     $trs: {
+      allClasses: 'All classes',
       selectClass: 'Class',
     },
     components: {
       'ui-select': require('keen-ui/src/UiSelect'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
     props: {
       classes: {
@@ -47,6 +55,9 @@
       },
       currentClass() {
         return this.classOptions.find(classroom => classroom.id === this.currentClassId);
+      },
+      classListPage() {
+        return PageNames.CLASS_LIST;
       },
     },
     methods: {
@@ -75,5 +86,14 @@
 
   .class-selector
     display: inline-flex
+    vertical-align: middle
+
+  .seperator
+    padding-right: 0.25em
+    padding-left: 0.25em
+
+  h2
+    display: inline-block
+    text-decoration: underline
 
 </style>
