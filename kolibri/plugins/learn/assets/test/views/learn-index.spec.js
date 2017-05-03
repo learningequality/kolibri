@@ -13,33 +13,41 @@ function makeVm(options) {
   return new Ctor(options);
 }
 
-describe.only('learn index', () => {
+describe('learn index', () => {
+  let store;
+
   const isExamTab = ({ title }) => title === 'Exams';
+  const setSessionUserKind = (kind) => {
+    store.state.core.session.kind = [kind];
+  };
+  const setMemberships = (memberships) => {
+    store.state.learnAppState.memberships = memberships;
+  };
+
+  beforeEach(() => {
+    store = makeStore();
+  });
 
   it('the exam tab is available if user is logged in and has memberships', () => {
-    const store = makeStore();
-    store.state.core.session.kind = ['learner'];
-    store.state.learnAppState.memberships = [{ id: 'membership_1' }];
+    // should work for any user 'kind' except for 'anonymous'
+    setSessionUserKind('learner');
+    setMemberships([{ id: 'membership_1' }]);
     const vm = makeVm({ store });
-    const examTabObj = _.find(vm.learnTabs, isExamTab);
-    assert(!_.isUndefined(examTabObj));
+    assert(!_.isUndefined(_.find(vm.learnTabs, isExamTab)));
   });
 
   it('the exam tab is not available if user is not logged in', () => {
-    const store = makeStore();
-    store.state.core.session.kind = ['anonymous'];
-    store.state.learnAppState.memberships = [];
+    // in current implementation, anonymous user implies empty memberships
+    setSessionUserKind('anonymous');
+    setMemberships([]);
     const vm = makeVm({ store });
-    const examTabObj = _.find(vm.learnTabs, isExamTab);
-    assert(_.isUndefined(examTabObj));
+    assert(_.isUndefined(_.find(vm.learnTabs, isExamTab)));
   });
 
   it('the exam tab is not available if user has no memberships/classes', () => {
-    const store = makeStore();
-    store.state.core.session.kind = ['learner'];
-    store.state.learnAppState.memberships = [];
+    setSessionUserKind('learner');
+    setMemberships([]);
     const vm = makeVm({ store });
-    const examTabObj = _.find(vm.learnTabs, isExamTab);
-    assert(_.isUndefined(examTabObj));
+    assert(_.isUndefined(_.find(vm.learnTabs, isExamTab)));
   });
 });
