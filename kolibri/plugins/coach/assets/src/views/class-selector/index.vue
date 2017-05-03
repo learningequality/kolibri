@@ -1,11 +1,10 @@
 <template>
 
   <div>
-    <router-link :to="classListPage"><h2>{{ $tr('allClasses') }}</h2></router-link>
+    <router-link :to="classListPage"><h1>{{ $tr('allClasses') }}</h1></router-link>
     <span class="seperator">&#62;</span>
     <ui-select
       :name="$tr('selectClass')"
-      :label="$tr('selectClass')"
       :value="currentClass"
       :options="classOptions"
       @change="changeClass"
@@ -86,14 +85,18 @@
 
   .class-selector
     display: inline-flex
-    vertical-align: middle
+    vertical-align: bottom
 
   .seperator
+    display: inline-block
+    vertical-align: bottom
     padding-right: 0.25em
     padding-left: 0.25em
+    padding-bottom: 23px
 
-  h2
+  a
     display: inline-block
-    text-decoration: underline
+    vertical-align: bottom
+    margin-bottom: 2px
 
 </style>
