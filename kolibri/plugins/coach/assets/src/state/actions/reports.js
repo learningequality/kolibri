@@ -340,6 +340,10 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   );
 }
 
+function clearReportSorting(store) {
+  store.dispatch('SET_REPORT_SORTING');
+}
+
 function setReportSorting(store, sortColumn, sortOrder) {
   store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
 }
@@ -433,6 +437,7 @@ function showRecentLearnerItemDetails(store, classId, userId, channelId, content
 }
 
 function showTopicChannels(store, classId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -440,6 +445,7 @@ function showTopicChannels(store, classId) {
 }
 
 function showTopicChannelRoot(store, classId, channelId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -461,6 +467,7 @@ function showTopicChannelRoot(store, classId, channelId) {
 }
 
 function showTopicItemList(store, classId, channelId, topicId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -476,6 +483,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
 }
 
 function showTopicLearnersForItem(store, classId, channelId, contentId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
