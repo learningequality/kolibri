@@ -1,30 +1,16 @@
 /* eslint-env mocha */
-const Vue = require('vue');
-const Vuex = require('vuex');
 const assert = require('assert');
-const cloneDeep = require('lodash/cloneDeep');
-const get = require('lodash/fp/get');
 const kolibri = require('kolibri');
 const sinon = require('sinon');
-const mutations = require('../../src/state/mutations');
-const initialState = require('../../src/state/initialState');
 const prepareLearnApp = require('../../src/state/prepareLearnApp');
-
-Vue.use(Vuex);
+const makeStore = require('../util/makeStore');
 
 const { MembershipResource } = kolibri.resources;
-
-function makeStore() {
-  return new Vuex.Store({
-    mutations,
-    state: cloneDeep(initialState)
-  });
-}
 
 describe('prepareLearnApp action', () => {
   let store;
 
-  const getMemberships = get('state.learnAppState.memberships');
+  const getMemberships = ({ state }) => state.learnAppState.memberships;
   const setSessionUserId = (userId) => {
     store.state.core.session.user_id = userId;
   };
