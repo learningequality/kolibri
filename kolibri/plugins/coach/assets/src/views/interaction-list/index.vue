@@ -6,7 +6,7 @@
       <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
       <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
     </template>
-    
+
     <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
 
@@ -70,7 +70,6 @@
 
   .interaction-list
     background-color: $core-bg-light
-    height: 150px
     padding-left: 20px
 
   .header
@@ -78,8 +77,6 @@
     padding-top: 10px
 
   .attempt-container
-    // margin-top: 4px
-    display: inline
     overflow-x: auto
     white-space: nowrap
 
