@@ -189,7 +189,7 @@
     },
     vuex: {
       getters: {
-        memberships: state => state.learnAppState.memberships || [],
+        memberships: state => state.learnAppState.memberships,
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,

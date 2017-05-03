@@ -2,10 +2,12 @@
 const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
+const cloneDeep = require('lodash/cloneDeep');
 const get = require('lodash/fp/get');
 const kolibri = require('kolibri');
 const sinon = require('sinon');
 const mutations = require('../../src/state/mutations');
+const initialState = require('../../src/state/initialState');
 const prepareLearnApp = require('../../src/state/prepareLearnApp');
 
 Vue.use(Vuex);
@@ -15,12 +17,7 @@ const { MembershipResource } = kolibri.resources;
 function makeStore() {
   return new Vuex.Store({
     mutations,
-    state: {
-      learnAppState: {},
-      core: {
-        session: {}
-      },
-    },
+    state: cloneDeep(initialState)
   });
 }
 
@@ -43,7 +40,7 @@ describe('prepareLearnApp action', () => {
     return prepareLearnApp(store)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      assert.equal(getMemberships(store), undefined);
+      assert.deepEqual(getMemberships(store), []);
     });
   });
 
@@ -70,7 +67,7 @@ describe('prepareLearnApp action', () => {
     .catch(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 102 });
       assert.deepEqual(store.state.core.error, 'fetch error');
-      assert.equal(getMemberships(store), undefined);
+      assert.deepEqual(getMemberships(store), []);
     });
   });
 });
