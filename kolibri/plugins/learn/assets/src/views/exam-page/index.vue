@@ -38,7 +38,7 @@
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
-              @interaction="saveAnswer"/>
+              @interaction="throttledSaveAnswer"/>
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
@@ -69,6 +69,7 @@
   const actions = require('../../state/actions');
   const isEqual = require('lodash/isEqual');
   const { now } = require('kolibri.utils.serverClock');
+  const throttle = require('lodash/throttle');
 
   module.exports = {
     $trNameSpace: 'examPage',
@@ -110,6 +111,9 @@
         closeExam: actions.closeExam,
       },
     },
+    created() {
+      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, { leading: false });
+    },
     methods: {
       checkAnswer() {
         if (this.$refs.contentRenderer) {
@@ -117,9 +121,16 @@
         }
         return null;
       },
+      throttledSaveAnswer(...args) {
+        return this._throttledSaveAnswer(...args);
+      },
       saveAnswer() {
-        const answer = this.checkAnswer();
-        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+        const answer = this.checkAnswer() || {
+          answerState: null,
+          simpleAnswer: '',
+          correct: 0,
+        };
+        if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;

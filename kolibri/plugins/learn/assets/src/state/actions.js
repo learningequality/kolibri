@@ -628,7 +628,7 @@ function showExam(store, channelId, id, questionNumber) {
                     complete: false,
                     time_spent: 0,
                     correct: 0,
-                    answer: undefined,
+                    answer: null,
                     simple_answer: '',
                     interaction_history: [],
                     hinted: false,
@@ -663,6 +663,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
+  const pageState = Object.assign(store.state.pageState);
+  pageState.currentAttempt = currentAttemptLog;
+  store.dispatch('SET_PAGE_STATE', pageState);
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
   // identifying fields, contentId and itemId.
