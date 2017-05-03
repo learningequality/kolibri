@@ -86,7 +86,7 @@
       },
       popOverSetTime(newVal, oldVal) {
         if (newVal === true && oldVal !== true) {
-          setTimeout(this.closePopover.bind(this), 5000);
+          setTimeout(this.closePopover, 5000);
         }
       }
     },
