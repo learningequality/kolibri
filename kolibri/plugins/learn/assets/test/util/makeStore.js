@@ -1,8 +1,8 @@
 const Vue = require('vue');
 const Vuex = require('vuex');
 const cloneDeep = require('lodash/cloneDeep');
-const mutations = require('../../src/state/mutations');
-const initialState = require('../../src/state/initialState');
+const mutations = require('./mutations');
+const initialState = require('./initialState');
 
 Vue.use(Vuex);
 
