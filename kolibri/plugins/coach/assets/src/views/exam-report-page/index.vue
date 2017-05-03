@@ -49,7 +49,7 @@
             </td>
 
             <td class="table-data">
-              <span v-if="!examTaker.score">&mdash;</span>
+              <span v-if="examTaker.score === null">&mdash;</span>
               <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
             </td>
 
