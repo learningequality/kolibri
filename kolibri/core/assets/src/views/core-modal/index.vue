@@ -93,8 +93,10 @@
         required: false,
       },
     },
-    mounted() {
+    beforeMount() {
       this.lastFocus = document.activeElement;
+    },
+    mounted() {
       this.$nextTick(() => {
         if (!this.$refs.modal.contains(document.activeElement)) {
           this.focusModal();
