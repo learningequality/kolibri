@@ -1,6 +1,7 @@
 const Vue = require('vue');
+const coreStore = require('kolibri.coreVue.vuex.store');
 
-module.exports = {
+const learnMutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
@@ -26,3 +27,5 @@ module.exports = {
     state.learnAppState.memberships = memberships;
   }
 };
+
+module.exports = Object.assign(coreStore.mutations, learnMutations);

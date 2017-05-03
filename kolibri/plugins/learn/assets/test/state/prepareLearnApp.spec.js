@@ -1,12 +1,11 @@
 /* eslint-env mocha */
-const prepareLearnApp = require('../../src/state/prepareLearnApp');
 const Vue = require('vue');
 const Vuex = require('vuex');
-const sinon = require('sinon');
 const assert = require('assert');
 const kolibri = require('kolibri');
-const coreMutations = require('kolibri.coreVue.vuex.store').mutations;
 const mutations = require('../../src/state/mutations');
+const prepareLearnApp = require('../../src/state/prepareLearnApp');
+const sinon = require('sinon');
 
 Vue.use(Vuex);
 
@@ -18,7 +17,7 @@ function getMemberships(store) {
 
 function makeStore() {
   return new Vuex.Store({
-    mutations: Object.assign({}, coreMutations, mutations),
+    mutations,
     state: {
       learnAppState: {},
       core: {
