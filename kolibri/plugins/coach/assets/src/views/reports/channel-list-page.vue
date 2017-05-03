@@ -9,15 +9,23 @@
     <report-table :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
-          <header-cell :text="$tr('channels')" align="left"/>
-          <header-cell :text="$tr('lastActivity')" align="left"/>
+          <header-cell
+            :text="$tr('channels')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.NAME"/>
+          <header-cell
+            :text="$tr('lastActivity')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.DATE"/>
         </tr>
       </thead>
       <tbody slot="tbody">
-        <template v-for="channel in channelList">
-          <tr v-if="channelIsVisible(lastActive[channel.id])" :key="channel.id">
+        <template v-for="channel in standardDataTable">
+          <tr v-if="channelIsVisible(channel.lastActive)" :key="channel.id">
             <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
-            <activity-cell :date="lastActive[channel.id]"/>
+            <activity-cell :date="channel.lastActive"/>
           </tr>
         </template>
       </tbody>
@@ -31,9 +39,10 @@
 
   const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
   const { PageNames } = require('../../constants');
-  const orderBy = require('lodash/orderBy');
   const differenceInDays = require('date-fns/difference_in_days');
   const { now } = require('kolibri.utils.serverClock');
+  const reportConstants = require('../../reportConstants');
+  const reportGetters = require('../../state/getters/reports');
 
   module.exports = {
     name: 'channelList',
@@ -60,16 +69,8 @@
       CHANNEL() {
         return ContentNodeKinds.CHANNEL;
       },
-      channelList() {
-        const orderByArgs = {
-          [PageNames.RECENT_CHANNELS]: [
-            [channel => this.lastActive[channel.id] || '', 'title'],
-            ['desc', 'asc']
-          ],
-          [PageNames.TOPIC_CHANNELS]: ['title'],
-          [PageNames.LEARNER_CHANNELS]: ['title'],
-        };
-        return orderBy(this.channels, ...orderByArgs[this.pageName]);
+      tableColumns() {
+        return reportConstants.TableColumns;
       },
     },
     methods: {
@@ -99,7 +100,7 @@
     vuex: {
       getters: {
         channels: state => state.core.channels.list,
-        lastActive: state => state.pageState.lastActive,
+        standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,
         showRecentOnly: state => state.pageState.showRecentOnly,

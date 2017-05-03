@@ -31,6 +31,9 @@ function _genRow(state, item) {
     row.contentProgress = ReportUtils.calcProgress(
       item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
     );
+  } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
+    row.id = item.id;
+    row.title = item.title;
   } else {
     // CONTENT NODES
     row.kind = item.kind;
@@ -74,7 +77,6 @@ function _genRow(state, item) {
       row.logCountComplete = item.progress[0].logCountComplete;
     }
   }
-
   row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
   return row;
 }
