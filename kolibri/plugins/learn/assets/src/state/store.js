@@ -1,6 +1,54 @@
+
+const constants = require('../constants');
+const Vue = require('kolibri.lib.vue');
 const Vuex = require('kolibri.lib.vuex');
-const initialState = require('./initialState');
-const mutations = require('./mutations');
+const coreStore = require('kolibri.coreVue.vuex.store');
+
+const initialState = {
+  pageName: constants.PageNames.EXPLORE_CHANNEL,
+  pageState: {
+    topics: [],
+    contents: [],
+    searchTerm: '',
+  },
+  learnAppState: {
+    memberships: []
+  },
+  examLog: {},
+  examAttemptLogs: {},
+};
+
+const mutations = {
+  SET_PAGE_NAME(state, name) {
+    state.pageName = name;
+  },
+  SET_PAGE_STATE(state, pageState) {
+    state.pageState = pageState;
+  },
+  SET_EXAM_LOG(state, examLog) {
+    state.examLog = examLog;
+  },
+  SET_EXAM_ATTEMPT_LOGS(state, examAttemptLogs) {
+    Object.keys(examAttemptLogs).forEach(contentId => {
+      if (!state.examAttemptLogs[contentId]) {
+        Vue.set(state.examAttemptLogs, contentId, {});
+      }
+      Vue.set(state.examAttemptLogs, contentId,
+        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId]));
+    });
+  },
+  SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
+    state.pageState.questionsAnswered = questionsAnswered;
+  },
+  LEARN_SET_MEMBERSHIPS(state, memberships) {
+    state.learnAppState.memberships = memberships;
+  }
+};
+
+// assigns core state and mutations
+Object.assign(initialState, coreStore.initialState);
+Object.assign(mutations, coreStore.mutations);
+
 
 module.exports = new Vuex.Store({
   state: initialState,

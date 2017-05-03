@@ -1,6 +1,7 @@
 const Vue = require('vue');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
+// parallel implemenation of mutations used for testing
 const learnMutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;

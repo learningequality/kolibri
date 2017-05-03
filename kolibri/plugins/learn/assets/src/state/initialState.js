@@ -1,6 +1,7 @@
 const constants = require('../constants');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
+// parallel implementation of initialState used in testing
 const learnInitialState = {
   pageName: constants.PageNames.EXPLORE_CHANNEL,
   pageState: {
