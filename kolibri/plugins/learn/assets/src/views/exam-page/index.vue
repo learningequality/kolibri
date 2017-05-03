@@ -79,7 +79,7 @@
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
       cancel: 'Cancel',
-      areYouSure: 'Are you you want to submit your exam?',
+      areYouSure: 'Are you sure you want to submit your exam?',
       unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
     },
