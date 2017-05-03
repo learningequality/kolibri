@@ -54,6 +54,9 @@
         default: false,
       },
     },
+    watch: {
+      popoverShown: 'popOverSetTime',
+    },
     data: () => ({
       internalPopoverShown: true,
     }),
@@ -81,6 +84,11 @@
       closePopover() {
         this.internalPopoverShown = false;
       },
+      popOverSetTime(newVal, oldVal) {
+        if (newVal === true && oldVal !== true) {
+          setTimeout(this.closePopover, 5000);
+        }
+      }
     },
   };
 
