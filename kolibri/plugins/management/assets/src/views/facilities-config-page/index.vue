@@ -76,8 +76,8 @@
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
-    'learnerCanEditPassword',
-    'learnerCanDeleteAccount',
+    // 'learnerCanEditPassword',
+    // 'learnerCanDeleteAccount',
     'learnerCanSignUp',
   ];
 
