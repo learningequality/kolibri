@@ -9,8 +9,8 @@ const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 // Object to be exported by this module.
 const getters = {
-  sortColumn: state => state.pageState.sortColumn,
-  sortOrder: state => state.pageState.sortOrder,
+  sortColumn: state => (state.pageState || {}).sortColumn,
+  sortOrder: state => (state.pageState || {}).sortOrder,
 };
 
 
