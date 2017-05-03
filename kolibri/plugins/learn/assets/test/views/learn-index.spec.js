@@ -3,6 +3,7 @@ const Vue = require('vue-test');
 const _ = require('lodash');
 const assert = require('assert');
 const LearnIndex = require('../../src/views/index.vue');
+const makeStore = require('../util/makeStore');
 
 function makeVm(options) {
   const Ctor = Vue.extend(LearnIndex);
@@ -12,45 +13,32 @@ function makeVm(options) {
   return new Ctor(options);
 }
 
-describe('learn index', () => {
+describe.only('learn index', () => {
   const isExamTab = ({ title }) => title === 'Exams';
 
   it('the exam tab is available if user is logged in and has memberships', () => {
-    const vm = makeVm({
-      vuex: {
-        getters: {
-          isUserLoggedIn: () => true,
-          memberships: () => [{ id: 'membership_1' }],
-        },
-      },
-    });
+    const store = makeStore();
+    store.state.core.session.kind = ['learner'];
+    store.state.learnAppState.memberships = [{ id: 'membership_1' }];
+    const vm = makeVm({ store });
     const examTabObj = _.find(vm.learnTabs, isExamTab);
     assert(!_.isUndefined(examTabObj));
   });
 
   it('the exam tab is not available if user is not logged in', () => {
-    const vm = makeVm({
-      vuex: {
-        getters: {
-          isUserLoggedIn: () => false,
-          // if guest user, memerships is initialized with empty array
-          memberships: () => [],
-        },
-      },
-    });
+    const store = makeStore();
+    store.state.core.session.kind = ['anonymous'];
+    store.state.learnAppState.memberships = [];
+    const vm = makeVm({ store });
     const examTabObj = _.find(vm.learnTabs, isExamTab);
     assert(_.isUndefined(examTabObj));
   });
 
   it('the exam tab is not available if user has no memberships/classes', () => {
-    const vm = makeVm({
-      vuex: {
-        getters: {
-          isUserLoggedIn: () => true,
-          memberships: () => [],
-        },
-      },
-    });
+    const store = makeStore();
+    store.state.core.session.kind = ['learner'];
+    store.state.learnAppState.memberships = [];
+    const vm = makeVm({ store });
     const examTabObj = _.find(vm.learnTabs, isExamTab);
     assert(_.isUndefined(examTabObj));
   });
