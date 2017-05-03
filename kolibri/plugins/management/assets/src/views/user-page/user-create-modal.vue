@@ -44,8 +44,8 @@
           v-model="passwordConfirm"/>
 
         <ui-select
-          :name="$tr('userKind')"
-          :label="$tr('userKind')"
+          :name="$tr('typeOfUser')"
+          :label="$tr('typeOfUser')"
           :options="userKinds"
           v-model="kind"
           class="kind-select"
@@ -77,7 +77,7 @@
       username: 'Username',
       password: 'Password',
       confirmPassword: 'Confirm Password',
-      userKind: 'User Kind',
+      typeOfUser: 'Type of user',
       // Button Labels
       createAccount: 'Create Account',
       // Select inputs
