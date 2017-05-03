@@ -11,7 +11,9 @@ const PageNames = require('./constants').PageNames;
 
 class LearnModule extends KolibriModule {
   ready() {
-    coreActions.getCurrentSession(store).then(() => {
+    actions.prepareLearnApp(store)
+    .then(() => coreActions.getCurrentSession(store))
+    .then(() => {
       const routes = [
         {
           path: '/',

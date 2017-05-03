@@ -121,6 +121,9 @@
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
       },
+      userHasMemberships() {
+        return this.memberships.length > 0;
+      },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
           this.pageName === PageNames.EXPLORE_TOPIC) {
@@ -172,7 +175,7 @@
           },
         ];
 
-        if (this.isUserLoggedIn) {
+        if (this.isUserLoggedIn && this.userHasMemberships) {
           tabs.push({
             title: this.$tr('exams'),
             icon: 'assignment',
@@ -186,6 +189,7 @@
     },
     vuex: {
       getters: {
+        memberships: state => state.learnAppState.memberships,
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,

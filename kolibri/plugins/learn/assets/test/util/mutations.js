@@ -1,24 +1,8 @@
-
-const constants = require('../constants');
-const Vue = require('kolibri.lib.vue');
-const Vuex = require('kolibri.lib.vuex');
+const Vue = require('vue');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
-const initialState = {
-  pageName: constants.PageNames.EXPLORE_CHANNEL,
-  pageState: {
-    topics: [],
-    contents: [],
-    searchTerm: '',
-  },
-  learnAppState: {
-    memberships: []
-  },
-  examLog: {},
-  examAttemptLogs: {},
-};
-
-const mutations = {
+// parallel implemenation of mutations used for testing
+const learnMutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
@@ -45,12 +29,4 @@ const mutations = {
   }
 };
 
-// assigns core state and mutations
-Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, coreStore.mutations);
-
-
-module.exports = new Vuex.Store({
-  state: initialState,
-  mutations,
-});
+module.exports = Object.assign(coreStore.mutations, learnMutations);

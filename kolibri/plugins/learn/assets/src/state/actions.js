@@ -726,4 +726,5 @@ module.exports = {
   showExamList,
   setAndSaveCurrentExamAttemptLog,
   closeExam,
+  prepareLearnApp: require('./prepareLearnApp'),
 };
