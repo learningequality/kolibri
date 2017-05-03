@@ -2,6 +2,7 @@
 const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
+const get = require('lodash/fp/get');
 const kolibri = require('kolibri');
 const sinon = require('sinon');
 const mutations = require('../../src/state/mutations');
@@ -10,10 +11,6 @@ const prepareLearnApp = require('../../src/state/prepareLearnApp');
 Vue.use(Vuex);
 
 const { MembershipResource } = kolibri.resources;
-
-function getMemberships(store) {
-  return store.state.learnAppState.memberships;
-}
 
 function makeStore() {
   return new Vuex.Store({
@@ -28,47 +25,52 @@ function makeStore() {
 }
 
 describe('prepareLearnApp action', () => {
-  let mockStore;
+  let store;
+
+  const getMemberships = get('state.learnAppState.memberships');
+  const setSessionUserId = (userId) => {
+    store.state.core.session.user_id = userId;
+  };
 
   beforeEach(() => {
-    mockStore = makeStore();
+    store = makeStore();
     MembershipResource.__resetMocks();
   });
 
   it('does not modify state for guest user', () => {
-    mockStore.state.core.session.user_id = null;
+    setSessionUserId(null);
 
-    return prepareLearnApp(mockStore)
+    return prepareLearnApp(store)
     .then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      assert.equal(getMemberships(mockStore), undefined);
+      assert.equal(getMemberships(store), undefined);
     });
   });
 
-  it('prepares app state for logged-in user', () => {
-    mockStore.state.core.session.user_id = 101;
+  it('adds memberships to state for logged-in user', () => {
+    setSessionUserId(101);
     const fakeMemberships = [
       { id: 'membership_1' },
       { id: 'membership_2' },
     ];
     MembershipResource.__getCollectionFetchReturns(fakeMemberships);
 
-    return prepareLearnApp(mockStore)
+    return prepareLearnApp(store)
     .then(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 101 });
-      assert.deepEqual(getMemberships(mockStore), fakeMemberships);
+      assert.deepEqual(getMemberships(store), fakeMemberships);
     });
   });
 
   it('handles errors', () => {
-    mockStore.state.core.session.user_id = 102;
+    setSessionUserId(102);
     MembershipResource.__getCollectionFetchReturns('fetch error', true);
 
-    return prepareLearnApp(mockStore)
+    return prepareLearnApp(store)
     .catch(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 102 });
-      assert.deepEqual(mockStore.state.core.error, 'fetch error');
-      assert.equal(getMemberships(mockStore), undefined);
+      assert.deepEqual(store.state.core.error, 'fetch error');
+      assert.equal(getMemberships(store), undefined);
     });
   });
 });
