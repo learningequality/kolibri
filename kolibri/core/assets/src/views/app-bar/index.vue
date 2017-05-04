@@ -19,10 +19,12 @@
         :has-dropdown="true"
         ref="accountButton"
         class="username-text">
-        {{ username }}
-        <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
-        <template v-if="isAdmin">({{ $tr('admin') }})</template>
-        <template v-if="isCoach">({{ $tr('coach') }})</template>
+        <template v-if="windowSize.breakpoint > 2">
+          {{ username }}
+          <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
+          <template v-if="isAdmin">({{ $tr('admin') }})</template>
+          <template v-if="isCoach">({{ $tr('coach') }})</template>
+        </template>
         <ui-menu
           slot="dropdown"
           :options="accountMenuOptions"
@@ -52,8 +54,10 @@
   const isAdmin = require('kolibri.coreVue.vuex.getters').isAdmin;
   const isCoach = require('kolibri.coreVue.vuex.getters').isCoach;
   const isLearner = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     $trNameSpace: 'appBar',
     $trs: {
       account: 'Account',
