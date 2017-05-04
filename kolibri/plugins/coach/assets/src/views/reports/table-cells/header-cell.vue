@@ -1,7 +1,7 @@
 <template>
 
-  <th @click="setSortOrder" scope="col" :style="{ textAlign: align }">
-    <button v-if="sortable" class="header-text" @click="$emit('click')">
+  <th scope="col" :style="{ textAlign: align }">
+    <button v-if="sortable" class="header-text" @click="setSortOrder">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
         <mat-svg
@@ -70,10 +70,10 @@
       setSortOrder() {
         let sortOrder;
         if (!this.sorted) {
-          // If not currently sorted, sort ascending
-          sortOrder = reportConstants.SortOrders.ASCENDING;
-        } else if (this.sortedAscending) {
+          // If not currently sorted, sort descending
           sortOrder = reportConstants.SortOrders.DESCENDING;
+        } else if (this.sortedDescending) {
+          sortOrder = reportConstants.SortOrders.ASCENDING;
         } else {
           sortOrder = reportConstants.SortOrders.NONE;
         }

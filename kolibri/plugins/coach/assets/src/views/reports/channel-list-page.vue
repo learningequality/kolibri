@@ -3,10 +3,11 @@
   <div>
     <div v-if="showRecentOnly" ref="recentHeader">
       <h1>{{ $tr('recentTitle') }}</h1>
-      <sub>{{ $tr('recentSubHeading') }}</sub>
+      <sub v-if="anyActivity">{{ $tr('recentSubHeading') }}</sub>
+      <sub v-else>{{ $tr('noRecentSubHeading') }}</sub>
     </div>
 
-    <report-table :caption="$tr('channelList')">
+    <report-table v-if="anyActivity" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
           <header-cell
@@ -50,6 +51,7 @@
     $trs: {
       recentTitle: 'Recent Activity',
       recentSubHeading: 'Showing recent activity in past 7 days',
+      noRecentSubHeading: 'No recent activity in past 7 days',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
@@ -71,6 +73,9 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      anyActivity() {
+        return this.standardDataTable.some(channel => this.channelIsVisible(channel.lastActive));
       },
     },
     methods: {

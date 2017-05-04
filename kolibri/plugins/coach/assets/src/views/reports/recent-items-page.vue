@@ -4,7 +4,8 @@
 
     <breadcrumbs/>
     <h1>{{ $tr('title') }}</h1>
-    <sub>{{ $tr('subHeading') }}</sub>
+    <sub v-if="standardDataTable.length">{{ $tr('subHeading') }}</sub>
+    <sub v-else>{{ $tr('noRecentProgress') }}</sub>
 
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
@@ -40,9 +41,7 @@
         </tr>
       </tbody>
     </report-table>
-    <div v-else>
-      {{ $tr('noRecentProgress') }}
-    </div>
+
 
   </div>
 
@@ -65,7 +64,7 @@
       subHeading: 'Showing recent activity in past 7 days',
       name: 'Name',
       progress: 'Class progress',
-      noRecentProgress: 'No recent progress',
+      noRecentProgress: 'No recent activity in past 7 days',
       reportProgress: '{completed} {descriptor}',
       listened: '{proportionCompleted} listened',
       opened: '{proportionCompleted} opened',
