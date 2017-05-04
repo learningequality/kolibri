@@ -193,6 +193,7 @@
     border-color: #4A8DDC
     color: $core-bg-light
     float: right
+    margin-right: 1.5em
     &:hover
       &:not(.is-disabled)
         background-color: #336db1
