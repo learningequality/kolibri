@@ -37,11 +37,11 @@
             </th>
 
             <td class="table-data">
-              <span v-if="examTaker.progress === exam.question_count">
+              <span v-if="examTaker.score">
                 {{ $tr('completed') }}
               </span>
               <span v-else-if="examTaker.progress !== undefined">
-                {{ $tr('incomplete', { num: examTaker.progress, outOf: exam.question_count }) }}
+                {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
               </span>
               <span v-else>
                 {{ $tr('notstarted') }}
@@ -49,7 +49,7 @@
             </td>
 
             <td class="table-data">
-              <span v-if="examTaker.progress === undefined">&mdash;</span>
+              <span v-if="examTaker.score === undefined">&mdash;</span>
               <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
             </td>
 
@@ -118,7 +118,7 @@
       averageScore: 'Average Score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
-      incomplete: '{ num, number } out of { outOf, number }',
+      remaining: '{ num, number } questions remaining',
       notstarted: 'Not started',
       name: 'Name',
       status: 'Status',
