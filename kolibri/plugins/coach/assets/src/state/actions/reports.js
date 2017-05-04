@@ -47,7 +47,10 @@ function channelLastActivePromise(channel, classId) {
       const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
       getSumm.then(
         channelSummary => {
-          resolve({ [channel.id]: channelSummary.last_active });
+          const obj = Object.assign({}, channelSummary, {
+            channelId: channel.id,
+          });
+          resolve(obj);
         },
         error => reject(error)
       );
@@ -58,6 +61,20 @@ function channelLastActivePromise(channel, classId) {
 function getAllChannelsLastActivePromise(channels, classId) {
   const promises = channels.map((channel) => channelLastActivePromise(channel, classId));
   return Promise.all(promises);
+}
+
+function _channelReportState(data) {
+  if (!data) { return []; }
+  return data.map(row => ({
+    lastActive: row.last_active,
+    id: row.channelId,
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
+    title: row.title,
+  }));
 }
 
 function _showChannelList(store, classId, showRecentOnly = false) {
@@ -76,10 +93,14 @@ function _showChannelList(store, classId, showRecentOnly = false) {
 
   return Promise.all(promises).then(
     ([allChannelLastActive]) => {
-      store.dispatch('SET_PAGE_STATE', {
-        lastActive: Object.assign({}, ...allChannelLastActive),
-        showRecentOnly,
-      });
+      store.dispatch('SET_RECENT_ONLY', showRecentOnly);
+      const reportProps = {
+        userScope: ReportConstants.UserScopes.CLASSROOM,
+        userScopeId: classId,
+        viewBy: ReportConstants.ViewBy.CHANNEL,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     }
@@ -319,12 +340,25 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   );
 }
 
+function clearReportSorting(store) {
+  store.dispatch('SET_REPORT_SORTING');
+}
+
+function setReportSorting(store, sortColumn, sortOrder) {
+  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
+}
+
 
 function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, true /* showRecentOnly */);
+  store.dispatch(
+    'SET_REPORT_SORTING',
+    ReportConstants.TableColumns.DATE,
+    ReportConstants.SortOrders.DESCENDING
+  );
 }
 
 
@@ -352,11 +386,19 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
       recentReportsPromise.then(
         reports => {
-          const pageState = {
-            reports: _recentReportState(reports),
+          store.dispatch('SET_REPORT_TABLE_DATA', _recentReportState(reports));
+          const reportProps = {
             channelId,
+            userScope: ReportConstants.UserScopes.CLASSROOM,
+            userScopeId: classId,
+            viewBy: ReportConstants.ViewBy.RECENT,
           };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+          store.dispatch(
+            'SET_REPORT_SORTING',
+            ReportConstants.TableColumns.DATE,
+            ReportConstants.SortOrders.DESCENDING
+          );
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', 'Recents');
@@ -395,6 +437,7 @@ function showRecentLearnerItemDetails(store, classId, userId, channelId, content
 }
 
 function showTopicChannels(store, classId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -402,6 +445,7 @@ function showTopicChannels(store, classId) {
 }
 
 function showTopicChannelRoot(store, classId, channelId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -423,6 +467,7 @@ function showTopicChannelRoot(store, classId, channelId) {
 }
 
 function showTopicItemList(store, classId, channelId, topicId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -438,6 +483,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
 }
 
 function showTopicLearnersForItem(store, classId, channelId, contentId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -515,5 +561,6 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
+  setReportSorting,
   _setUserSummary,
 };

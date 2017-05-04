@@ -1,7 +1,7 @@
 <template>
 
   <th scope="col" :style="{ textAlign: align }">
-    <button v-if="sortable" class="header-text" @click="$emit('click')">
+    <button v-if="sortable" class="header-text" @click="setSortOrder">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
         <mat-svg
@@ -12,12 +12,12 @@
         />
         <mat-svg
           class="icon"
-          :class="{ sorted: !sortedDescending }"
+          :class="{ sorted: sortedAscending }"
           category="hardware"
           name="keyboard_arrow_up"
         />
       </span>
-      <span class="visuallyhidden" v-if="!sortedDescending">{{ $tr('ascending') }}</span>
+      <span class="visuallyhidden" v-if="sortedAscending">{{ $tr('ascending') }}</span>
       <span class="visuallyhidden" v-if="sortedDescending">{{ $tr('descending') }}</span>
     </button>
     <div v-else class="header-text">{{ text }}</div>
@@ -27,6 +27,10 @@
 
 
 <script>
+
+  const reportGetters = require('../../../state/getters/reports');
+  const reportConstants = require('../../../reportConstants');
+  const reportActions = require('../../../state/actions/reports');
 
   module.exports = {
     $trNameSpace: 'headerCell',
@@ -46,11 +50,43 @@
         type: Boolean,
         default: false,
       },
-      sorted: {
-        type: Boolean,
+      column: {
+        type: String,
       },
-      sortedDescending: {
-        type: Boolean,
+    },
+    computed: {
+      sorted() {
+        return this.column === this.sortColumn &&
+          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE);
+      },
+      sortedDescending() {
+        return this.sorted && this.sortOrder === reportConstants.SortOrders.DESCENDING;
+      },
+      sortedAscending() {
+        return this.sorted && this.sortOrder === reportConstants.SortOrders.ASCENDING;
+      },
+    },
+    methods: {
+      setSortOrder() {
+        let sortOrder;
+        if (!this.sorted) {
+          // If not currently sorted, sort descending
+          sortOrder = reportConstants.SortOrders.DESCENDING;
+        } else if (this.sortedDescending) {
+          sortOrder = reportConstants.SortOrders.ASCENDING;
+        } else {
+          sortOrder = reportConstants.SortOrders.NONE;
+        }
+        this.setReportSorting(this.column, sortOrder);
+      },
+    },
+    vuex: {
+      getters: {
+        sortColumn: reportGetters.sortColumn,
+        sortOrder: reportGetters.sortOrder,
+      },
+      actions: {
+        setReportSorting: reportActions.setReportSorting,
       },
     },
   };

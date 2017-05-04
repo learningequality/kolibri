@@ -16,6 +16,7 @@ const ViewBy = {
   CONTENT: 'content',
   LEARNER: 'learner',
   RECENT: 'recent',
+  CHANNEL: 'channel',
 };
 
 const TableColumns = {

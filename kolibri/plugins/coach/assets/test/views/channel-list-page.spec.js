@@ -5,6 +5,7 @@ const assert = require('assert');
 const _ = require('lodash');
 const sinon = require('sinon');
 const ChannelListPage = require('../../src/views/reports/channel-list-page');
+const ReportConstants = require('../../src/reportConstants');
 
 const initialState = () => ({
   classId: '',
@@ -20,11 +21,26 @@ const initialState = () => ({
   },
   pageState: {
     showRecentOnly: false,
-    lastActive: {
-      recent_channel: '2017-04-20T21:17:58.810Z',
-      not_recent_channel: '2017-03-20T21:17:58.810Z',
-      null_channel: null,
-    },
+    tableData: [
+      {
+        title: 'recent_channel',
+        lastActive: new Date('2017-04-20T21:17:58.810Z'),
+        id: 'test1',
+      },
+      {
+        title: 'not_recent_channel',
+        lastActive: new Date('2017-03-20T21:17:58.810Z'),
+        id: 'test2',
+      },
+      {
+        title: 'null_channel',
+        lastActive: null,
+        id: 'test3',
+      },
+    ],
+    viewBy: ReportConstants.ViewBy.CHANNEL,
+    sortColumn: '',
+    sortOrder: '',
   },
 });
 
