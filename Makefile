@@ -1,5 +1,4 @@
 REQUIREMENTS=requirements.txt
-VF_REQUIREMENTS="requirements/vf.txt"
 
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
@@ -67,7 +66,6 @@ release: clean assets
 	python setup.py bdist_wheel upload
 
 staticdeps: clean
-	pip install -t kolibri/dist -r $(VF_REQUIREMENTS)
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
