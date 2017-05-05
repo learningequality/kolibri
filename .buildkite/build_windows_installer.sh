@@ -12,7 +12,7 @@ make writeversion
 
 # Clone kolibri windows installer base in develop branch.
 cd $KOLIBRI_DOCKER_PATH \
-    && git clone https://github.com/learningequality/kolibri-installers.git \
+    && git clone https://github.com/learningequality/kolibri-installer-windows.git \
     && cd kolibri-installers \
     && git checkout develop
 
