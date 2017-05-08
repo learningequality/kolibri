@@ -183,7 +183,9 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      setTimeout(() => {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      }, 5000);
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
         store.dispatch('CORE_SET_TITLE', `Topics - ${currentChannel.title}`);
