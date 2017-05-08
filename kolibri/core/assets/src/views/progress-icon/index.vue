@@ -3,13 +3,13 @@
   <span ref="progress-icon">
     <ui-icon
       v-if="isInProgress"
-      ariaLabel="$tr('inProgress')"
+      :ariaLabel="$tr('inProgress')"
       icon="schedule"
       class="inprogress"
     />
     <ui-icon
       v-else-if="isCompleted"
-      ariaLabel="$tr('completed')"
+      :ariaLabel="$tr('completed')"
       icon="check"
       class="completed"
     />
