@@ -1,6 +1,6 @@
 <template>
 
-  <span>
+  <span ref="progress-icon">
     <ui-icon
       v-if="isInProgress"
       ariaLabel="$tr('inProgress')"
@@ -13,6 +13,9 @@
       icon="check"
       class="completed"
     />
+    <ui-tooltip trigger="progress-icon">
+      {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
+    </ui-tooltip>
   </span>
 
 </template>
@@ -45,6 +48,7 @@
     },
     components: {
       'ui-icon': require('keen-ui/src/UiIcon'),
+      'ui-tooltip': require('keen-ui/src/UiTooltip'),
     },
   };
 
@@ -56,6 +60,8 @@
   .inprogress, .completed
     border-radius: 50%
     color: white
+    cursor: default
+
 
   .inprogress
     background-color: #2196f3
