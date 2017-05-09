@@ -28,16 +28,6 @@ class ContentSummaryLogFactory(factory.DjangoModelFactory):
     start_timestamp = datetime.datetime.now()
 
 
-class ContentRatingLogFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = models.ContentRatingLog
-
-    user = factory.SubFactory(FacilityUserFactory)
-    content_id = uuid.uuid4().hex
-    channel_id = uuid.uuid4().hex
-
-
 class UserSessionLogFactory(factory.DjangoModelFactory):
 
     class Meta:
