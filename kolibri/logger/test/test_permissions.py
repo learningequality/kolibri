@@ -5,7 +5,7 @@ Permissions tests on the logging models.
 from django.test import TestCase
 from kolibri.auth.test.helpers import create_dummy_facility_data
 
-from .factory_logger import ContentSessionLogFactory, ContentSummaryLogFactory, ContentRatingLogFactory, UserSessionLogFactory
+from .factory_logger import ContentSessionLogFactory, ContentSummaryLogFactory, UserSessionLogFactory
 
 
 class ContentSessionLogPermissionsTestCase(TestCase):
@@ -58,31 +58,6 @@ class ContentSummaryLogPermissionsTestCase(TestCase):
         self.assertTrue(learner.can_update(self.data['summary_log']))
         self.assertTrue(learner.can_delete(self.data['summary_log']))
 
-
-class ContentRatingLogPermissionsTestCase(TestCase):
-
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.data['rating_log'] = ContentRatingLogFactory.create(user=self.data["learners_one_group"][1][0])
-
-    def test_facilityadmin_ratinglog_permissions(self):
-        self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['rating_log']))
-        self.assertTrue(self.data['facility_admin'].can_read(self.data['rating_log']))
-        self.assertTrue(self.data['facility_admin'].can_update(self.data['rating_log']))
-        self.assertTrue(self.data['facility_admin'].can_delete(self.data['rating_log']))
-
-    def test_coach_ratinglog_permissions(self):
-        self.assertFalse(self.data['facility_coach'].can_create_instance(self.data['rating_log']))
-        self.assertTrue(self.data['facility_coach'].can_read(self.data['rating_log']))
-        self.assertFalse(self.data['facility_coach'].can_update(self.data['rating_log']))
-        self.assertFalse(self.data['facility_coach'].can_delete(self.data['rating_log']))
-
-    def test_learner_ratinglog_permissions(self):
-        learner = self.data["learners_one_group"][1][0]
-        self.assertTrue(learner.can_create_instance(self.data['rating_log']))
-        self.assertTrue(learner.can_read(self.data['rating_log']))
-        self.assertTrue(learner.can_update(self.data['rating_log']))
-        self.assertTrue(learner.can_delete(self.data['rating_log']))
 
 class UserSessionLogPermissionsTestCase(TestCase):
 

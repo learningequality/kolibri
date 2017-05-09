@@ -32,21 +32,22 @@ oriented data synchronization.
         @itemError="handleItemError"/>
     </div>
 
-    <div class="button-drawer">
+    <div>
       <icon-button
-        @click="checkAnswer"
-        v-show="!complete"
-        class="question-btn"
-        :class="{shaking: shake}"
-        id="check-answer-button"
         :text="$tr('check')"
+        :primary="true"
+        v-show="!complete"
+        @click="checkAnswer"
+        class="question-btn check-answer-button"
+        :class="{shaking: shake}"
       />
       <transition name="delay">
         <icon-button
-          @click="nextQuestion"
-          v-show="complete"
-          class="question-btn next-question-button"
           :text="$tr('correct')"
+          :primary="true"
+          v-show="complete"
+          @click="nextQuestion"
+          class="question-btn next-question-button"
         />
       </transition>
       <slot/>
@@ -400,7 +401,7 @@ oriented data synchronization.
       height: 60px
       width: 100%
       border-radius: 0
-      bottom: $nav-portrait-height
+      bottom: 0
       border-bottom: thin solid $core-text-annotation
       border-top: thin solid $core-text-annotation
       z-index: 10
@@ -413,22 +414,20 @@ oriented data synchronization.
     padding: 16px
     padding-top: 20px
 
-  .button-drawer
-    display: inline-block
-    button
-      margin-left: 5px
-
   .question-btn
-    float: left
     color: $core-bg-light
     padding-left: 16px
     padding-right: 16px
+    margin-left: 1.5em
 
-  #check-answer-button
+  .check-answer-button
     background-color: $core-action-normal
 
   .next-question-button
     background-color: #43A047
+    &:hover
+      &:not(.is-disabled)
+        background-color: #2a7d2e
 
   // next-question-button transition effect
   .delay-enter-active

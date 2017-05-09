@@ -20,7 +20,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </content-renderer>
@@ -37,7 +37,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </assessment-wrapper>
@@ -192,7 +192,11 @@
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
-    position: relative
+    float: right
+    margin-right: 1.5em
+    &:hover
+      &:not(.is-disabled)
+        background-color: #336db1
 
   .next-btn:hover svg
     fill: $core-bg-light

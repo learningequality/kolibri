@@ -5,9 +5,9 @@ from kolibri.auth.models import FacilityUser
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
-from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
+from .models import AttemptLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from .serializers import (
-    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer,
+    AttemptLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer,
     MasteryLogSerializer, TotalContentProgressSerializer, UserSessionLogSerializer
 )
 
@@ -71,22 +71,6 @@ class TotalContentProgressViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = FacilityUser.objects.all()
     serializer_class = TotalContentProgressSerializer
-
-
-class ContentRatingLogFilter(BaseLogFilter):
-
-    class Meta:
-        model = ContentRatingLog
-        fields = ['user_id', 'content_id']
-
-
-class ContentRatingLogViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
-    queryset = ContentRatingLog.objects.all()
-    serializer_class = ContentRatingLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = ContentRatingLogFilter
 
 
 class UserSessionLogFilter(BaseLogFilter):
