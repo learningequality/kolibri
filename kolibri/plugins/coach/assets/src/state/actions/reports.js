@@ -99,6 +99,13 @@ function _showChannelList(store, classId, showRecentOnly = false) {
         userScopeId: classId,
         viewBy: ReportConstants.ViewBy.CHANNEL,
       };
+      const defaultSortCol = showRecentOnly ?
+        ReportConstants.TableColumns.DATE : ReportConstants.TableColumns.NAME;
+      store.dispatch(
+        'SET_REPORT_SORTING',
+        defaultSortCol,
+        ReportConstants.SortOrders.DESCENDING
+      );
       store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -243,6 +250,11 @@ function _showContentList(store, options) {
         userScopeId: options.userScopeId,
         viewBy: ReportConstants.ViewBy.CONTENT,
       };
+      store.dispatch(
+        'SET_REPORT_SORTING',
+        ReportConstants.TableColumns.NAME,
+        ReportConstants.SortOrders.DESCENDING
+      );
       store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -271,6 +283,11 @@ function _showLearnerList(store, options) {
         userScopeId: options.userScopeId,
         viewBy: ReportConstants.ViewBy.LEARNER,
       };
+      store.dispatch(
+        'SET_REPORT_SORTING',
+        ReportConstants.TableColumns.NAME,
+        ReportConstants.SortOrders.DESCENDING
+      );
       store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -354,11 +371,6 @@ function showRecentChannels(store, classId) {
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, true /* showRecentOnly */);
-  store.dispatch(
-    'SET_REPORT_SORTING',
-    ReportConstants.TableColumns.DATE,
-    ReportConstants.SortOrders.DESCENDING
-  );
 }
 
 
