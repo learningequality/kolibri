@@ -14,7 +14,7 @@ def parse_timezonestamp(value):
     if tz_regex.search(value):
         tz = pytz.timezone(tz_regex.search(value).groups()[0])
     else:
-        tz = timezone.get_default_timezone()
+        tz = timezone.get_current_timezone()
     utc_value = tz_regex.sub('', value)
     value = datetime.datetime.strptime(utc_value, date_time_format)
     value = timezone.make_aware(value, pytz.utc)
