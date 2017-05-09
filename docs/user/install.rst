@@ -49,7 +49,7 @@ Open the default browser at http://127.0.0.1:8080 displaying the Kolibri start p
 
  
 Accessing Kolibri from Other Devices in the Network
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+---------------------------------------------------
 
 While **Kolibri server** is up and running, other devices (computers, tablets, even mobile phones) in the same **Local Area Network (LAN)** can access its learning contents.
 
