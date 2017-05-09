@@ -4,10 +4,10 @@
 Manage Exams
 ~~~~~~~~~~~~
 
-You can view, create and delete exams, as well as assign Kolibri leaners in them, using the **Exams** tab in your **Coach** dashboard. Default view displays the list of all exams in a selected class, with the number of enrolled users for each class. 
+You can view, create and delete exams, as well as assign the to leaners, using the **Exams** tab in your **Coach** dashboard. Default view displays the list of all exams in a selected class, with the number of enrolled users for each class. 
 
-.. image:: img/exams.png
-  :alt: manage classes
+.. image:: img/manage-exams.png
+  :alt: manage exams home page
 
 .. note::
   To manage **Exams** in Kolibri classes and groups you must be logged-in as **Coach** or **Admin**.
@@ -16,17 +16,37 @@ You can view, create and delete exams, as well as assign Kolibri leaners in them
 Create New Exam
 ---------------
 
-To add a new class, follow these steps.
+To create a new exam, follow these steps.
 
-#. Click **Add new exam** button.
-#. Fill in the class name. 
-#. Click **Create** to add the new class or **Cancel** to exit. 
+#. Click **+ New exam** button.
+#. Select the channel from which content you wish to select questions for the exam.
+#. Click **Create exam** to confirm or **Cancel** to exit the confirmation window.
+#. Fill in the field for exam title.
+#. Fill in the field for number of questions you want exam to contain.
+#. Navigate through the topic tree and select checkboxes of those with exercises you want to include in the exam.
 
-.. image:: img/add_new_class.png
-  :alt: add new class
+    .. image:: img/add-content-exam.png
+      :alt: add content to your exam
+
+    
+    As you keep adding the exercises you will see confimation messages at the bottom.
+
+#. Click **Preview** button to view the result in overlay window.
+
+    .. image:: img/preview-exam.png
+      :alt: preview the content of your exam
+
+    
+    * Click **Randomize questions** button to present them in the different order from those in the topic origin. 
+    * Click the **Close** (**X**) button in the upper right corner to return to the exam home page.
+
+#. Click **Finish** button to save the result.
 
 
-Delete Class
+
+
+
+Delete Exam
 ------------
 
 To delete class, follow these steps.
@@ -34,7 +54,7 @@ To delete class, follow these steps.
 #. Click **Delete class** button for the chosen class from the list.
 #. Click **Delete class** in the confirmation window to procede or **Cancel** to exit without deleting the class. 
 
-.. image:: img/delete_class.png
+.. image:: img/add-content-exam.png
   :alt: delete class
 
 .. note::

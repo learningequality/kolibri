@@ -49,23 +49,30 @@ To delete a group, follow these steps.
 Manage Learners in Group
 ------------------------
 
-.. image:: img/learner_groups.png
-  :alt: list of learner groups
-
-
 Assign Learners to Group
 ************************
 
-* List in this view contains all the users currently **NOT** assigned to any groups.
-* Use checkboxes to select all the user in the list, or specific users you want to assign to the group.
-* Click **Review & save** button to confirm assigning the selected users.
+Below existing groups there is a list with all learners currently **NOT** assigned to any groups.
+
+#. Use checkboxes to select all the learners in the list, or specific ones you want to assign to the group.
+#. Click **Move learners** button on the right side of the list.
+#. Select the group to which you want to assign the selected learners in the confirmation window.
+#. Click **Move** to procede, or **Cancel** to exit without assigning.
+
+.. image:: img/move_learners.png
+  :alt: move ungrouped learners
 
 
 Move learners between group
-++++++++++++++++++++++++++
+***************************
 
 #. Use checkboxes to select all the user in one group, or specific users you want to assign to another group.
-#. Click **Move learners** to confirm or **Cancel** to exit without removing the user.
+#. Click **Move learners** button on the right side of the origin group.
+#. Select the group to which you want to move the selected learners, or the **Ungrouped** option if you want to remove them from the origin group without assigning to a new one.
+#. Click **Move** to procede, or **Cancel** to exit without moving.
+
+.. image:: img/move_learners2.png
+  :alt: move learners from one group to another
 
 
 
