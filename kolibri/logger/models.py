@@ -22,10 +22,12 @@ from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import Exam, UUIDField
 
+from morango.query import SyncableModelQuerySet
+
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
-class BaseLogQuerySet(models.QuerySet):
+class BaseLogQuerySet(SyncableModelQuerySet):
 
     def filter_by_topic(self, topic, content_id_lookup="content_id"):
         """
@@ -81,11 +83,18 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     objects = BaseLogQuerySet.as_manager()
 
+    def calculate_partition(self):
+        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+
 
 class ContentSessionLog(BaseLogModel):
     """
     This model provides a record of interactions with a content item within a single visit to that content page.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsessionlog"
+    uuid_input_fields = "RANDOM"
+
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
@@ -101,6 +110,10 @@ class ContentSummaryLog(BaseLogModel):
     """
     This model provides a summary of all interactions a user has had with a content item.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsummarylog"
+    uuid_input_fields = ("user_id", "content_id")
+
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
@@ -117,6 +130,10 @@ class UserSessionLog(BaseLogModel):
     """
     This model provides a record of a user session in Kolibri.
     """
+    # Morango syncing settings
+    morango_model_name = "usersessionlog"
+    uuid_input_fields = "RANDOM"
+
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
@@ -145,8 +162,10 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    user = models.ForeignKey(FacilityUser)
+    # Morango syncing settings
+    morango_model_name = "masterylog"
 
+    user = models.ForeignKey(FacilityUser)
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
@@ -163,6 +182,10 @@ class MasteryLog(BaseLogModel):
 
     def infer_dataset(self):
         return self.summarylog.dataset
+
+    def calculate_partition(self):
+        return '{dataset_id}:user-spec:{user_id}'.format(self.dataset_id, self.summarylog.user_id)
+
 
 class BaseAttemptLog(BaseLogModel):
     """

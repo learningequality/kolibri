@@ -24,8 +24,9 @@ user gains through the ``Role``.
 from __future__ import absolute_import, print_function, unicode_literals
 
 import logging as logger
+import uuid
 
-from six import string_types
+import six
 
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
@@ -37,7 +38,10 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
-from mptt.models import MPTTModel, TreeForeignKey
+from morango.models import SyncableModel
+from morango.query import SyncableModelQuerySet
+from morango.utils.morango_mptt import MorangoMPTTModel
+from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds, role_kinds
 from .errors import (
@@ -59,8 +63,16 @@ def _has_permissions_class(obj):
     return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
 
 
+class FacilityDataSyncableModel(SyncableModel):
+
+    morango_profile = "facilitydata"
+
+    class Meta:
+        abstract = True
+
+
 @python_2_unicode_compatible
-class FacilityDataset(models.Model):
+class FacilityDataset(FacilityDataSyncableModel):
     """
     ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``.
     It is also the model that all models storing facility data (data that is associated with a
@@ -69,6 +81,9 @@ class FacilityDataset(models.Model):
     """
 
     permissions = IsAdminOrUserForOwnFacilityDataset()
+
+    # Morango syncing settings
+    morango_model_name = "facilitydataset"
 
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
@@ -87,8 +102,15 @@ class FacilityDataset(models.Model):
         else:
             return "FacilityDataset (no associated Facility)"
 
+    def calculate_source_id(self):
+        # will call certificate methods
+        pass
 
-class AbstractFacilityDataModel(models.Model):
+    def calculate_partition(self):
+        return '{id}'.format(self.id)
+
+
+class AbstractFacilityDataModel(FacilityDataSyncableModel):
     """
     Base model for Kolibri "Facility Data", which is data that is specific to a particular ``Facility``,
     such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
@@ -399,6 +421,9 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     with a hierarchy of ``Collections`` through ``Memberships`` and ``Roles``, which then serve to help determine permissions.
     """
 
+    # Morango syncing settings
+    morango_model_name = "facilityuser"
+
     permissions = (
         IsSelf() |  # FacilityUser can be read and written by itself
         IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
@@ -419,6 +444,12 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     class Meta:
         unique_together = (("username", "facility"),)
+
+    def calculate_partition(self):
+        return "{dataset_id}:user-spec:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
+
+    def calculate_source_id(self):
+        return uuid.uuid4().hex
 
     def infer_dataset(self):
         return self.facility.dataset
@@ -556,12 +587,12 @@ class DeviceOwner(KolibriAbstractBaseUser):
         return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all collections on the device
 
     def has_role_for_user(self, kinds, user):
-        if isinstance(kinds, string_types):
+        if isinstance(kinds, six.string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all users on the device
 
     def has_role_for_collection(self, kinds, coll):
-        if isinstance(kinds, string_types):
+        if isinstance(kinds, six.string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
 
@@ -601,7 +632,7 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
 
 @python_2_unicode_compatible
-class Collection(MPTTModel, AbstractFacilityDataModel):
+class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
     ``Collections`` are hierarchical groups of ``FacilityUsers``, used for grouping users and making decisions about permissions.
     ``FacilityUsers`` can have roles for one or more ``Collections``, by way of obtaining ``Roles`` associated with those ``Collections``.
@@ -609,7 +640,10 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     ``Collections`` are subdivided into several pre-defined levels.
     """
 
-    # Collection can be read by anybody from the facility; writing is only allowed by an admin or coach for the collection.
+    # Morango syncing settings
+    morango_model_name = "collection"
+
+    # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
@@ -625,6 +659,12 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
+
+    def calculate_partition(self):
+        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+
+    def calculate_source_id(self):
+        return "{kind}"
 
     def clean_fields(self, *args, **kwargs):
         self._ensure_kind()
@@ -762,6 +802,10 @@ class Membership(AbstractFacilityDataModel):
     and of the ``Facility`` that contains that ``Classroom``).
     """
 
+    # Morango syncing settings
+    morango_model_name = "membership"
+    uuid_input_fields = ("user_id", "collection_id")
+
     permissions = (
         IsOwn(read_only=True) |  # users can read their own Memberships
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
@@ -782,6 +826,12 @@ class Membership(AbstractFacilityDataModel):
     class Meta:
         unique_together = (("user", "collection"),)
 
+    def calculate_partition(self):
+        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+
+    def calculate_source_id(self):
+        return '{collection_id}'
+
     def infer_dataset(self):
         user_dataset = self.user.dataset
         collection_dataset = self.collection.dataset
@@ -792,6 +842,7 @@ class Membership(AbstractFacilityDataModel):
     def __str__(self):
         return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
 
+
 @python_2_unicode_compatible
 class Role(AbstractFacilityDataModel):
     """
@@ -800,6 +851,10 @@ class Role(AbstractFacilityDataModel):
     implies having that role for all sub-collections of that ``Collection`` (i.e. all the ``Collections`` below it
     in the tree).
     """
+
+    # Morango syncing settings
+    morango_model_name = "role"
+    uuid_input_fields = ("user_id", "collection_id", "kind")
 
     permissions = (
         IsOwn(read_only=True) |  # users can read their own Roles
@@ -821,6 +876,12 @@ class Role(AbstractFacilityDataModel):
     class Meta:
         unique_together = (("user", "collection", "kind"),)
 
+    def calculate_partition(self):
+        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+
+    def calculate_source_id(self):
+        return 'collection_id+kind+user_id?'
+
     def infer_dataset(self):
         user_dataset = self.user.dataset
         collection_dataset = self.collection.dataset
@@ -832,8 +893,8 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
 
 
-class CollectionProxyManager(models.Manager):
-
+# class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):
+class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):  # should this be from_queryset or just MorangoManager
     def get_queryset(self):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
@@ -841,6 +902,7 @@ class CollectionProxyManager(models.Manager):
 @python_2_unicode_compatible
 class Facility(Collection):
 
+    morango_model_name = "facility"
     _KIND = collection_kinds.FACILITY
 
     objects = CollectionProxyManager()
@@ -897,6 +959,7 @@ class Facility(Collection):
 @python_2_unicode_compatible
 class Classroom(Collection):
 
+    morango_model_name = "classroom"
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -950,6 +1013,7 @@ class Classroom(Collection):
 @python_2_unicode_compatible
 class LearnerGroup(Collection):
 
+    morango_model_name = "learnergroup"
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
