@@ -24,6 +24,9 @@ const mutations = {
   },
 
   // report
+  SET_RECENT_ONLY(state, showRecentOnly) {
+    Vue.set(state.pageState, 'showRecentOnly', showRecentOnly);
+  },
   SET_REPORT_SORTING(state, sortColumn, sortOrder) {
     Vue.set(state.pageState, 'sortColumn', sortColumn);
     Vue.set(state.pageState, 'sortOrder', sortOrder);

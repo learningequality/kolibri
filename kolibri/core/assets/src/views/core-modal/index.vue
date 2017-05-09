@@ -93,10 +93,14 @@
         required: false,
       },
     },
-    mounted() {
+    beforeMount() {
       this.lastFocus = document.activeElement;
+    },
+    mounted() {
       this.$nextTick(() => {
-        this.focusModal();
+        if (!this.$refs.modal.contains(document.activeElement)) {
+          this.focusModal();
+        }
       });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);

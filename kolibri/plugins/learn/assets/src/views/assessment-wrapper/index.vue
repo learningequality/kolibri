@@ -244,7 +244,7 @@ oriented data synchronization.
         this.createAttemptLog();
       },
       initMasteryLog() {
-        this.initMasteryLogAction(this.masterySpacingTime, JSON.stringify(this.masteryModel));
+        this.initMasteryLogAction(this.masterySpacingTime, this.masteryModel);
       },
       createAttemptLog() {
         this.ready = false;

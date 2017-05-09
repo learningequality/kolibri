@@ -482,17 +482,6 @@ function showExamList(store, channelId) {
 }
 
 
-function parseJSONorUndefined(json) {
-  try {
-    return JSON.parse(json);
-  } catch (e) {
-    if (!(e instanceof SyntaxError)) {
-      throw e;
-    }
-  }
-  return undefined;
-}
-
 function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
   Object.keys(attemptLogs).forEach((key) => {
@@ -567,16 +556,13 @@ function showExam(store, channelId, id, questionNumber) {
               if (!attemptLogs[log.content_id]) {
                 attemptLogs[log.content_id] = {};
               }
-              attemptLogs[log.content_id][log.item] = Object.assign({}, log, {
-                answer: parseJSONorUndefined(log.answer),
-                interaction_history: parseJSONorUndefined(log.interaction_history) || [],
-              });
+              attemptLogs[log.content_id][log.item] = Object.assign({}, log);
             });
           }
         }
 
         const seed = exam.seed;
-        const questionSources = JSON.parse(exam.question_sources);
+        const questionSources = exam.question_sources;
 
         // Create an array of objects with contentId and assessmentItemIndex
         // These will be used to select specific questions from the content node
@@ -642,7 +628,7 @@ function showExam(store, channelId, id, questionNumber) {
                     complete: false,
                     time_spent: 0,
                     correct: 0,
-                    answer: undefined,
+                    answer: null,
                     simple_answer: '',
                     interaction_history: [],
                     hinted: false,
@@ -677,6 +663,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
+  const pageState = Object.assign(store.state.pageState);
+  pageState.currentAttempt = currentAttemptLog;
+  store.dispatch('SET_PAGE_STATE', pageState);
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
   // identifying fields, contentId and itemId.
@@ -685,8 +674,6 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     item: itemId,
   });
   const attributes = Object.assign({}, currentAttemptLog);
-  attributes.interaction_history = JSON.stringify(attributes.interaction_history);
-  attributes.answer = JSON.stringify(attributes.answer);
   attributes.user = store.state.core.session.user_id;
   attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
@@ -698,10 +685,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   const promise = examAttemptLogModel.save(attributes);
   return promise.then((newExamAttemptLog) =>
     new Promise((resolve, reject) => {
-      const log = Object.assign({}, newExamAttemptLog, {
-        answer: parseJSONorUndefined(newExamAttemptLog.answer),
-        interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
-      });
+      const log = Object.assign({}, newExamAttemptLog);
       store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
         [contentId]: ({
           [itemId]: log,
@@ -745,4 +729,5 @@ module.exports = {
   showExamList,
   setAndSaveCurrentExamAttemptLog,
   closeExam,
+  prepareLearnApp: require('./prepareLearnApp'),
 };

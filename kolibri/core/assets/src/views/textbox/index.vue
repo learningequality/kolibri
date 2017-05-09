@@ -15,6 +15,8 @@
     :type="type"
     :error="error"
     :invalid="invalid"
+    :maxlength="maxlength"
+    :enforceMaxlength="enforceMaxlength"
     ref="textbox"
   />
 
@@ -60,6 +62,13 @@
       },
       type: {
         type: String,
+      },
+      maxlength: {
+        type: Number,
+      },
+      enforceMaxlength: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {

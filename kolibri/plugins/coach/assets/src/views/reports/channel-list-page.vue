@@ -1,36 +1,65 @@
 <template>
 
-  <report-table :caption="$tr('channelList')">
-    <thead slot="thead">
-      <tr>
-        <header-cell :text="$tr('channels')" align="left"/>
-        <header-cell :text="$tr('lastActivity')" align="left"/>
-      </tr>
-    </thead>
-    <tbody slot="tbody">
-      <tr v-for="row in channelList" :key="row.id">
-        <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
-        <activity-cell :date="lastActive[row.id]" />
-      </tr>
-    </tbody>
-  </report-table>
+  <div>
+    <div v-if="showRecentOnly" ref="recentHeader">
+      <h1>{{ $tr('recentTitle') }}</h1>
+      <sub v-if="anyActivity">{{ $tr('recentSubHeading') }}</sub>
+      <sub v-else>{{ $tr('noRecentSubHeading') }}</sub>
+    </div>
+
+    <report-table v-if="anyActivity" :caption="$tr('channelList')">
+      <thead slot="thead">
+        <tr>
+          <header-cell
+            :text="$tr('channels')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.NAME"/>
+          <header-cell
+            :text="$tr('lastActivity')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.DATE"/>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <template v-for="channel in standardDataTable">
+          <tr v-if="channelIsVisible(channel.lastActive)" :key="channel.id">
+            <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
+            <activity-cell :date="channel.lastActive"/>
+          </tr>
+        </template>
+      </tbody>
+    </report-table>
+  </div>
 
 </template>
 
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const PageNames = require('../../constants').PageNames;
-  const orderBy = require('lodash/orderBy');
+  const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
+  const { PageNames } = require('../../constants');
+  const differenceInDays = require('date-fns/difference_in_days');
+  const { now } = require('kolibri.utils.serverClock');
+  const reportConstants = require('../../reportConstants');
+  const reportGetters = require('../../state/getters/reports');
 
   module.exports = {
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
+      recentTitle: 'Recent Activity',
+      recentSubHeading: 'Showing recent activity in past 7 days',
+      noRecentSubHeading: 'No recent activity in past 7 days',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
+    },
+    data() {
+      return {
+        currentDateTime: now(),
+      };
     },
     components: {
       'report-table': require('./report-table'),
@@ -39,21 +68,25 @@
       'activity-cell': require('./table-cells/activity-cell'),
     },
     computed: {
-      CHANNEL() { return ContentNodeKinds.CHANNEL; },
-      channelList() {
-        const orderedLists = {
-          [PageNames.RECENT_CHANNELS]: orderBy(
-            this.channels,
-            [channel => this.lastActive[channel.id] || '', 'title'],
-            ['desc', 'asc']
-          ),
-          [PageNames.TOPIC_CHANNELS]: orderBy(this.channels, ['title']),
-          [PageNames.LEARNER_CHANNELS]: orderBy(this.channels, ['title']),
-        };
-        return orderedLists[this.pageName];
+      CHANNEL() {
+        return ContentNodeKinds.CHANNEL;
+      },
+      tableColumns() {
+        return reportConstants.TableColumns;
+      },
+      anyActivity() {
+        return this.standardDataTable.some(channel => this.channelIsVisible(channel.lastActive));
       },
     },
     methods: {
+      channelIsVisible(lastActiveTime) {
+        const THREHOLD_IN_DAYS = 7;
+        if (!this.showRecentOnly) return true;
+        return (
+          Boolean(lastActiveTime) &&
+          differenceInDays(this.currentDateTime, lastActiveTime) <= THREHOLD_IN_DAYS
+        );
+      },
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,
@@ -72,9 +105,10 @@
     vuex: {
       getters: {
         channels: state => state.core.channels.list,
-        lastActive: state => state.pageState.lastActive,
+        standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,
+        showRecentOnly: state => state.pageState.showRecentOnly,
       },
     },
   };

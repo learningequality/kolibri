@@ -27,59 +27,80 @@ const ContentNodeResource = coreApp.resources.ContentNodeResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
+/**
+ * Helper function for _showChannelList
+ * @param {object} channel - to get recentActivity for
+ * @param {string} classId -
+ * @returns {Promise} that resolves channel with lastActive value in object:
+ *   { 'channelId': dateOfLastActivity }
+*/
+function channelLastActivePromise(channel, classId) {
+  const summaryPayload = {
+    channel_id: channel.id,
+    collection_kind: ReportConstants.UserScopes.CLASSROOM,
+    collection_id: classId,
+  };
 
-function _showChannelList(store, classId) {
+  // workaround for conditionalPromise.then() misbehaving
+  return new Promise(
+    (resolve, reject) => {
+      const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
+      getSumm.then(
+        channelSummary => {
+          const obj = Object.assign({}, channelSummary, {
+            channelId: channel.id,
+          });
+          resolve(obj);
+        },
+        error => reject(error)
+      );
+    }
+  );
+}
+
+function getAllChannelsLastActivePromise(channels, classId) {
+  const promises = channels.map((channel) => channelLastActivePromise(channel, classId));
+  return Promise.all(promises);
+}
+
+function _channelReportState(data) {
+  if (!data) { return []; }
+  return data.map(row => ({
+    lastActive: row.last_active,
+    id: row.channelId,
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
+    title: row.title,
+  }));
+}
+
+function _showChannelList(store, classId, showRecentOnly = false) {
   // don't handle super users
   if (coreGetters.isSuperuser(store.state)) {
     store.dispatch('SET_PAGE_STATE', {});
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    return;
+    return Promise.resolve();
   }
 
-  function channelLastActivePromise(channel) {
-    // helper function for _showChannelList
-    // @param channel to get recentActivity for
-    // @returns promise that resolves channel with lastActive value in object:
-    // {
-    //   'channelId': dateOfLastActivity,
-    // }
-    const summaryPayload = {
-      channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.CLASSROOM,
-      collection_id: classId,
-    };
+  const promises = [
+    getAllChannelsLastActivePromise(store.state.core.channels.list, classId),
+    setClassState(store, classId),
+  ];
 
-    // workaround for conditionalPromise.then() misbehaving
-    return new Promise(
-      (resolve, reject) => {
-        const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
-        getSumm.then(
-          channelSummary => {
-            const channelLastActive = {};
-            channelLastActive[channel.id] = channelSummary.last_active;
-            resolve(channelLastActive);
-          },
-          error => reject(error)
-        );
-      }
-    );
-  }
-
-  const channelLastActivePromises = [];
-  store.state.core.channels.list.forEach(
-    channel => channelLastActivePromises.push(channelLastActivePromise(channel))
-  );
-  channelLastActivePromises.push(setClassState(store, classId));
-
-  Promise.all(channelLastActivePromises).then(
-    allChannelLastActive => {
-      const lastActive = {};
-      allChannelLastActive.forEach(
-        channelLastActive => Object.assign(lastActive, channelLastActive)
-      );
-      const pageState = { lastActive };
-      store.dispatch('SET_PAGE_STATE', pageState);
+  return Promise.all(promises).then(
+    ([allChannelLastActive]) => {
+      store.dispatch('SET_RECENT_ONLY', showRecentOnly);
+      const reportProps = {
+        userScope: ReportConstants.UserScopes.CLASSROOM,
+        userScopeId: classId,
+        viewBy: ReportConstants.ViewBy.CHANNEL,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     }
@@ -268,16 +289,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     setClassState(store, classId),
   ]).then(
     ([exercises, attemptLogs, summaryLog, user]) => {
-      function parseJSONorUndefined(json) {
-        try {
-          return JSON.parse(json);
-        } catch (e) {
-          if (!(e instanceof SyntaxError)) {
-            throw e;
-          }
-        }
-        return undefined;
-      }
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
@@ -305,8 +316,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
 
       const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
 
-      const currentInteractionHistory =
-        parseJSONorUndefined(currentAttemptLog.interaction_history) || [];
+      const currentInteractionHistory = currentAttemptLog.interaction_history || [];
 
       const pageState = {
         // because this is info returned from a collection
@@ -330,12 +340,25 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   );
 }
 
+function clearReportSorting(store) {
+  store.dispatch('SET_REPORT_SORTING');
+}
+
+function setReportSorting(store, sortColumn, sortOrder) {
+  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
+}
+
 
 function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showChannelList(store, classId);
+  _showChannelList(store, classId, true /* showRecentOnly */);
+  store.dispatch(
+    'SET_REPORT_SORTING',
+    ReportConstants.TableColumns.DATE,
+    ReportConstants.SortOrders.DESCENDING
+  );
 }
 
 
@@ -363,11 +386,19 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
       recentReportsPromise.then(
         reports => {
-          const pageState = {
-            reports: _recentReportState(reports),
+          store.dispatch('SET_REPORT_TABLE_DATA', _recentReportState(reports));
+          const reportProps = {
             channelId,
+            userScope: ReportConstants.UserScopes.CLASSROOM,
+            userScopeId: classId,
+            viewBy: ReportConstants.ViewBy.RECENT,
           };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+          store.dispatch(
+            'SET_REPORT_SORTING',
+            ReportConstants.TableColumns.DATE,
+            ReportConstants.SortOrders.DESCENDING
+          );
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', 'Recents');
@@ -406,6 +437,7 @@ function showRecentLearnerItemDetails(store, classId, userId, channelId, content
 }
 
 function showTopicChannels(store, classId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -413,6 +445,7 @@ function showTopicChannels(store, classId) {
 }
 
 function showTopicChannelRoot(store, classId, channelId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -434,6 +467,7 @@ function showTopicChannelRoot(store, classId, channelId) {
 }
 
 function showTopicItemList(store, classId, channelId, topicId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -449,6 +483,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
 }
 
 function showTopicLearnersForItem(store, classId, channelId, contentId) {
+  clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -526,5 +561,6 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
+  setReportSorting,
   _setUserSummary,
 };

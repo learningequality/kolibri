@@ -53,7 +53,7 @@ Checking out the code
 
     cd kolibri  # Change into the newly cloned directory
     git remote add upstream git@github.com:learningequality/kolibri.git  # Add the upstream
-    git fetch  # Check if there are changes upstream
+    git fetch upstream # Check if there are changes upstream
     git checkout develop
 
 .. warning::
@@ -125,6 +125,11 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
     (kolibri)$ yarn install
 
 
+.. tip::
+
+  * We've adopted this concatenated version with added cleanup: ``make clean && pip install -r requirements.txt --upgrade && pip install -e . && yarn install``.
+  * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
+
 
 Running Kolibri server
 ----------------------
@@ -195,6 +200,7 @@ The ``develop`` branch is reserved for active development. When we get close to 
   * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 
 .. _pull_request:
+
 
 Submit Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~
@@ -353,7 +359,7 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 .. code-block:: bash
 
   cd docs
-  sphinx-autobuild . _build
+  sphinx-autobuild --port 8888 . _build
 
 
 Manual Testing

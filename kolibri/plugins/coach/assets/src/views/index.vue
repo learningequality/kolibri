@@ -4,7 +4,7 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <h1>{{ className }}</h1>
+        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
         <top-nav/>
       </template>
 
@@ -29,7 +29,6 @@
 <script>
 
   const store = require('../state/store');
-  const className = require('../state/getters/main').className;
   const Constants = require('../constants');
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
@@ -58,6 +57,7 @@
       'channel-list-page': require('./reports/channel-list-page'),
       'item-list-page': require('./reports/item-list-page'),
       'learner-list-page': require('./reports/learner-list-page'),
+      'class-selector': require('./class-selector'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -91,13 +91,28 @@
         return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
       },
     },
+    methods: {
+      changeClass(classSelectedId) {
+        if (this.pageName === Constants.PageNames.EXAM_REPORT) {
+          this.$router.push({
+            name: Constants.PageNames.EXAMS,
+            params: { classId: classSelectedId },
+          });
+        } else {
+          this.$router.push({
+            params: { classId: classSelectedId },
+          });
+        }
+      },
+    },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        className,
         isSuperuser: coreGetters.isSuperuser,
         isAdmin: coreGetters.isAdmin,
         isCoach: coreGetters.isCoach,
+        classList: state => state.classList,
+        classId: state => state.classId,
       },
     },
     store,
