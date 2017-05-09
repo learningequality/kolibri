@@ -401,7 +401,7 @@ oriented data synchronization.
       height: 60px
       width: 100%
       border-radius: 0
-      bottom: $nav-portrait-height
+      bottom: 0
       border-bottom: thin solid $core-text-annotation
       border-top: thin solid $core-text-annotation
       z-index: 10
