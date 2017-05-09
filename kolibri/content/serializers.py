@@ -53,6 +53,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
+    license = serializers.StringRelatedField(many=False)
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -131,7 +132,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'license', 'license_description', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
             'assessmentmetadata',
         )
 
