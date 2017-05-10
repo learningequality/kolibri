@@ -187,7 +187,7 @@ class BaseAttemptLog(BaseLogModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = JSONField(default=[])
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
         abstract = True
