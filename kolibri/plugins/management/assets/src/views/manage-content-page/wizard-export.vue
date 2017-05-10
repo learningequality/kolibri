@@ -10,56 +10,18 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <template v-if="noDrives">
-            <h2 class="core-text-alert">
-              <mat-svg class="error-svg" category="alert" name="error_outline"/>
-              {{ $tr('noDrivesDetected') }}
-            </h2>
-          </template>
-
-          <template v-else>
-            <p>
-              {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
-              <span id="content-size">{{ exportContentSize }}</span>.
-            </p>
-
-            <h2>{{ $tr('drivesFound') }}</h2>
-            <div class="drive-list">
-
-              <div
-                class="enabled drive-names"
-                v-for="(drive, index) in enabledDrives"
-                @click="selectDriveByID(drive.id)"
-                :name="'drive-'+index"
-              >
-                <ui-radio
-                  :id="'drive-'+index"
-                  :trueValue="drive.id"
-                  v-model="selectedDrive"
-                >
-                  <div>{{ drive.name }}</div>
-                  <div class="drive-detail">
-                    {{ bytesForHumans(drive.freespace) }} {{ $tr('available') }}
-                  </div>
-                </ui-radio>
-              </div>
-
-              <div class="disabled drive-names" v-for="(drive, index) in disabledDrives">
-                <ui-radio
-                  :id="'disabled-drive'+index"
-                  :trueValue="drive.id"
-                  disabled
-                  v-model="selectedDrive"
-                >
-                  <div>{{ drive.name }}</div>
-                  <div class="drive-detail">
-                    {{ $tr('notWritable') }}
-                  </div>
-                </ui-radio>
-              </div>
-
-            </div>
-          </template>
+          <p>
+            {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
+            <span id="content-size">{{ exportContentSize }}</span>.
+          </p>
+          <drive-list
+            :value="selectedDrive"
+            :drives="wizardState.driveList"
+            :enabledDrivePred="isEnabledDrive"
+            :enabledMsg="enabledMsg"
+            :disabledMsg="$tr('notWritable')"
+            @change="(driveId) => selectedDrive = driveId"
+          />
         </div>
 
         <div class="refresh-btn-wrapper">
@@ -115,11 +77,9 @@
     $trs: {
       available: 'available',
       cancel: 'Cancel',
-      drivesFound: 'Drives found:',
       export: 'Start Export',
       exportPromptContentSize: '{numChannels, number} {numChannels, plural, one {Channel} other {Channels}} ({totalSize})',
       exportPromptPrefix: 'You are about to export {numChannels, number} {numChannels, plural, one {Channel} other {Channels}}',
-      noDrivesDetected: 'No drives were detected:',
       notWritable: 'Not writable',
       refresh: 'Refresh',
       title: 'Export to where?',
@@ -127,30 +87,17 @@
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'drive-list': require('./wizards/drive-list'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'ui-radio': require('keen-ui/src/UiRadio'),
       'ui-button': require('keen-ui/src/UiButton'),
     },
     data: () => ({
       selectedDrive: '', // used when there's more than one option
     }),
     computed: {
-      noDrives() {
-        return !Array.isArray(this.wizardState.driveList);
-      },
       drivesLoading() {
         return this.wizardState.driveList === null;
-      },
-      enabledDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => drive.writable
-        );
-      },
-      disabledDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => !drive.writable
-        );
       },
       canSubmit() {
         return (
@@ -175,6 +122,12 @@
       }
     },
     methods: {
+      enabledMsg(drive) {
+        return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;
+      },
+      isEnabledDrive(drive) {
+        return drive.writable;
+      },
       submit() {
         this.triggerLocalContentExportTask(this.selectedDrive);
       },
@@ -182,10 +135,6 @@
         if (!this.wizardState.busy) {
           this.cancelImportExportWizard();
         }
-      },
-      bytesForHumans,
-      selectDriveByID(driveID) {
-        this.selectedDrive = driveID;
       },
     },
     vuex: {
@@ -232,24 +181,6 @@
   .error-svg
     margin-right: 0.2em
     margin-bottom: -6px
-
-  .drive-names
-    padding: 0.6em
-    border: 1px $core-bg-canvas solid
-    &.disabled
-      color: $core-text-disabled
-    &.enabled
-      &:hover
-        background-color: $core-bg-canvas
-      &, label
-        cursor: pointer
-
-  .drive-list:not(first-child)
-    border-top: none
-
-  .drive-detail
-    color: $core-text-annotation
-    font-size: 0.7em
 
   .Buttons
     text-align: right

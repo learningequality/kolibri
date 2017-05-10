@@ -12,7 +12,7 @@
     <div class="main">
 
       <div>
-        <h2>The Internet</h2>
+        <h2>{{ $tr('theInternet') }}</h2>
         <div
           @click="selectedDrive=INTERNET_SOURCE"
           class="enabled drive-names"
@@ -29,8 +29,8 @@
                 <mat-svg category="file" name="file_download" transform="translate(-25, 10)" fill="#00BAFF" />
               </div>
               <div class="InternetSource__description">
-                <div>Enter a channel ID</div>
-                <div>Search for a specific channel</div>
+                <div>{{ $tr('enterChannelId') }}</div>
+                <div>{{ $tr('searchForChannel') }}</div>
               </div>
             </div>
           </ui-radio>
@@ -38,46 +38,13 @@
       </div>
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="noDrives">
-            <mat-svg class="error-svg" category="alert" name="error_outline"/>
-            {{ $tr('noDrivesDetected') }}
-          </h2>
-
-          <template v-else>
-            <h2>{{$tr('drivesFound')}}</h2>
-            <div class="drive-list">
-
-              <div
-                :name="'drive-'+index"
-                @click="selectedDrive=drive.id"
-                class="enabled drive-names"
-                v-for="(drive, index) in enabledDrives"
-              >
-                <ui-radio
-                  :id="'drive-'+index"
-                  :trueValue="drive.id"
-                  v-model="selectedDrive"
-                >
-                  <div>{{ drive.name }}</div>
-                </ui-radio>
-              </div>
-
-              <div class="disabled drive-names" v-for="(drive, index) in disabledDrives">
-                <ui-radio
-                  :id="'disabled-drive-'+index"
-                  :trueValue="drive.id"
-                  disabled
-                  v-model="selectedDrive"
-                >
-                  <div>{{ drive.name }}</div>
-                  <div class="drive-detail">
-                    {{ $tr('incompatible') }}
-                  </div>
-                </ui-radio>
-              </div>
-
-            </div>
-          </template>
+          <drive-list
+            :value="selectedDrive"
+            :drives="wizardState.driveList"
+            :enabledDrivePred="isEnabledDrive"
+            :disabledMsg="$tr('incompatible')"
+            @change="(driveId) => selectedDrive = driveId"
+          />
         </div>
 
         <div class="refresh-btn-wrapper">
@@ -123,39 +90,28 @@
     $trNameSpace: 'wizardLocalImport',
     $trs: {
       title: 'Import from a Local Drive',
-      noDrivesDetected: 'No drives were detected',
-      drivesFound: 'Drives detected:',
       incompatible: 'No content available',
       refresh: 'Refresh',
       cancel: 'Cancel',
       import: 'Import',
+      theInternet: 'The Internet',
+      enterChannelId: 'Enter a channel ID',
+      searchForChannel: 'Search for a specific channel',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'drive-list': require('./wizards/drive-list'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'UiRadio': require('keen-ui/src/UiRadio'),
+      'ui-radio': require('keen-ui/src/UiRadio'),
     },
     data: () => ({
       selectedDrive: '', // used when there's more than one option
     }),
     computed: {
       INTERNET_SOURCE: () => INTERNET_SOURCE,
-      noDrives() {
-        return !Array.isArray(this.wizardState.driveList);
-      },
       drivesLoading() {
         return this.wizardState.driveList === null;
-      },
-      enabledDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => drive.metadata.channels.length > 0
-        );
-      },
-      disabledDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => drive.metadata.channels.length === 0
-        );
       },
       canSubmit() {
         return (
@@ -166,6 +122,9 @@
       },
     },
     methods: {
+      isEnabledDrive(drive) {
+        return drive.metadata.channels.length > 0;
+      },
       submit() {
         if (this.selectedDrive === INTERNET_SOURCE) {
           return this.showImportNetworkWizard();
@@ -236,21 +195,11 @@
     border: 1px $core-bg-canvas solid
     label
       font-size: 0.9em
-    &.disabled
-      color: $core-text-disabled
     &.enabled
       &:hover
         background-color: $core-bg-canvas
       &, label
         cursor: pointer
-
-  .drive-list:not(first-child)
-    border-top: none
-
-  .drive-detail
-    color: $core-text-annotation
-    font-size: 0.7em
-
 
   .button-wrapper
     margin: 1em 0
