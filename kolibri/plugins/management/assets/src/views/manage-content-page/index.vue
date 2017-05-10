@@ -76,7 +76,6 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-network': require('./wizard-import-network'),
-      // 'wizard-import-choose-source' is the new 'wizard-import-source' for now
       'wizard-import-choose-source': require('./wizard-import-choose-source'),
       'wizard-import-preview': require('./wizard-import-preview'),
       'wizard-export': require('./wizard-export'),
@@ -123,7 +122,6 @@
         pollTasksAndChannels: actions.pollTasksAndChannels,
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },
   };
