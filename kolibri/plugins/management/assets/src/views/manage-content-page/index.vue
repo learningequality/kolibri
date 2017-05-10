@@ -75,8 +75,8 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-network': require('./wizard-import-network'),
-      // 'wizard-import-local' is the new 'wizard-import-source' for now
-      'wizard-import-local': require('./wizard-import-local'),
+      // 'wizard-import-choose-source' is the new 'wizard-import-source' for now
+      'wizard-import-choose-source': require('./wizard-import-choose-source'),
       'wizard-import-preview': require('./wizard-import-preview'),
       'wizard-export': require('./wizard-export'),
     },
@@ -104,7 +104,7 @@
       wizardComponent() {
         const pageNameMap = {
           [ContentWizardPages.EXPORT]: 'wizard-export',
-          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-local',
+          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-choose-source',
           [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
           [ContentWizardPages.IMPORT_PREVIEW]: 'wizard-import-preview',
         };

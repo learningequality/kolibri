@@ -4,7 +4,7 @@ const Vuex = require('vuex');
 const simulant = require('simulant');
 const assert = require('assert');
 const sinon = require('sinon');
-const Wizard = require('../../src/views/manage-content-page/wizard-import-local');
+const Wizard = require('../../src/views/manage-content-page/wizard-import-choose-source');
 
 Vue.use(Vuex);
 
@@ -51,9 +51,7 @@ function getElements(vm) {
   };
 }
 
-// this component should be renamed, since it is entry point to
-// both local and network imports
-describe('local import wizard component', () => {
+describe('choose source wizard component', () => {
   describe('selecting an internet source', () => {
     it('sets the correct source when "internet" is selected', () => {
       const vm = makeVm();

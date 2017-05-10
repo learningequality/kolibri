@@ -239,6 +239,7 @@ function triggerRemoteContentImportTask(store, channelId) {
 }
 
 module.exports = {
+  cancelImportExportWizard,
   clearTask,
   deleteChannel,
   pollTasksAndChannels,
@@ -253,4 +254,5 @@ module.exports = {
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
   updateChannelContentInfo,
+  updateWizardLocalDriveList,
 };
