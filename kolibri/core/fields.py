@@ -28,6 +28,17 @@ def create_timezonestamp(value):
     return value
 
 class DateTimeTzField(Field):
+    """
+    A field that stores datetime information as a char in this format:
+
+    %Y-%m-%d %H:%M:%S.%f(<tzinfo>)
+
+    It reads a timezone aware datetime object, and extracts the timezone zone information
+    then parses the datetime into the format above with the timezone information appended.
+
+    As this is ISO formatted, alphabetic sorting should still allow for proper queries
+    against this in the database. Mostly engineered for SQLite usage.
+    """
 
     def db_type(self, connection):
         return "char"
