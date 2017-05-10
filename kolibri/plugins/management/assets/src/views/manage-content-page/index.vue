@@ -28,10 +28,11 @@
               <mat-svg category="content" name="add"/>
             </icon-button>
             <icon-button
+              name="export"
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard()"
+              @click="startExport()"
             >
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
@@ -112,6 +113,12 @@
         return pageNameMap[this.pageState.wizardState.page];
       },
     },
+    methods: {
+      startExport() {
+        this.updateWizardLocalDriveList();
+        this.startExportWizard();
+      }
+    },
     vuex: {
       getters: {
         isSuperuser,
@@ -122,6 +129,7 @@
         pollTasksAndChannels: actions.pollTasksAndChannels,
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },
   };

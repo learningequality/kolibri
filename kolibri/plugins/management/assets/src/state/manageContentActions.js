@@ -108,7 +108,6 @@ function startImportWizard(store) {
 }
 
 function startExportWizard(store) {
-  updateWizardLocalDriveList(store);
   return updateWizardPage(store, ContentWizardPages.EXPORT);
 }
 

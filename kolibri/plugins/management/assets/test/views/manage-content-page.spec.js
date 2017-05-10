@@ -4,6 +4,7 @@ const Vuex = require('vuex');
 const simulant = require('simulant');
 const mutations = require('../../src/state/mutations');
 const assert = require('assert');
+const sinon = require('sinon');
 const ManageContentPage = require('../../src/views/manage-content-page/index.vue');
 
 Vue.use(Vuex);
@@ -33,7 +34,8 @@ function makeVm(options = {}) {
   const components = {
     'channels-grid': '<div>Channels Grid</div>',
     'task-status': '<div>Task Status</div>',
-    'wizard-import-choose-source': '<div>Wizard</div>',
+    'wizard-import-choose-source': '<div>Choose Source Wizard</div>',
+    'wizard-export': '<div>Export Wizard</div>',
   };
   const vuex = {
     actions: {
@@ -53,6 +55,19 @@ describe('manage content page index', () => {
     return Vue.nextTick()
     .then(() => {
       assert.equal(vm.wizardComponent, 'wizard-import-choose-source');
+    });
+  });
+
+  it('clicking "export" goes to "wizard-export"', () => {
+    const vm = makeVm();
+    const importButton = vm.$el.querySelector('button[name="export"]');
+    const updateDriveStub = sinon.stub(vm, 'updateWizardLocalDriveList');
+    simulant.fire(importButton, 'click');
+
+    return Vue.nextTick()
+    .then(() => {
+      sinon.assert.called(updateDriveStub);
+      assert.equal(vm.wizardComponent, 'wizard-export');
     });
   });
 });
