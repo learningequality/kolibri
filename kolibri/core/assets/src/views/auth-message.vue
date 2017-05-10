@@ -1,7 +1,9 @@
 <template>
 
   <div class="LoginMessage">
-    <h1>{{ $tr('loginPrompt') }}</h1>
+    <h1 id="login-prompt">
+      {{ loginPrompt }}
+    </h1>
     <p id="login-command">
       {{ loginCommand }}
     </p>
@@ -17,14 +19,21 @@
       // 'role' or 'learner'
       authorizedRole: {
         type: String,
-        required: true,
         validator(role) {
           return role === 'admin' || role === 'learner';
         },
       },
+      prompt: { type: String },
+      command: { type: String },
     },
     computed: {
+      loginPrompt() {
+        return this.prompt || this.$tr('loginPrompt');
+      },
       loginCommand() {
+        if (this.command) {
+          return this.command;
+        }
         return `${this.$tr('commandStart')} ${this.$tr(this.authorizedRole)} ${this.$tr('commandEnd')}`;
       }
     },
