@@ -19,17 +19,20 @@
           <h1 class="page-title">{{$tr('title')}}</h1>
           <div class="button-wrapper" v-if="!pageState.taskList.length">
             <icon-button
+              name="import"
               :text="$tr('import')"
               class="button"
-              @click="startImportWizard"
-              :primary="true">
+              @click="startImportWizard()"
+              :primary="true"
+            >
               <mat-svg category="content" name="add"/>
             </icon-button>
             <icon-button
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard">
+              @click="startExportWizard()"
+            >
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
           </div>
@@ -122,8 +125,8 @@
       },
       actions: {
         pollTasksAndChannels: actions.pollTasksAndChannels,
-        // short-circuiting the wizard to go local import wizard, first
-        // then augmenting that with the network import option
+        // TODO 'wizard-import-local' and all its associated references should be renamed
+        // to something like the old 'wizard-import-source'
         showImportLocalWizard: actions.showImportLocalWizard,
         startExportWizard: actions.startExportWizard,
       },
