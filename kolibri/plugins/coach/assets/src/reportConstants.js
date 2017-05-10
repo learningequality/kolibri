@@ -32,10 +32,13 @@ const SortOrders = {
   NONE: 'none',
 };
 
+const RECENCY_THREHOLD_IN_DAYS = 7;
+
 module.exports = {
   ContentScopes,
   UserScopes,
   ViewBy,
   TableColumns,
   SortOrders,
+  RECENCY_THREHOLD_IN_DAYS,
 };

@@ -10,6 +10,7 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
+    <report-subheading />
 
     <report-table>
       <thead slot="thead">
@@ -75,6 +76,7 @@
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'breadcrumbs': require('./breadcrumbs'),
       'report-table': require('./report-table'),
+      'report-subheading': require('./report-subheading'),
       'header-cell': require('./table-cells/header-cell'),
       'name-cell': require('./table-cells/name-cell'),
       'progress-cell': require('./table-cells/progress-cell'),

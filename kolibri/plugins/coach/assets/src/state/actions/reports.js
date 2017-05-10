@@ -93,11 +93,11 @@ function _showChannelList(store, classId, showRecentOnly = false) {
 
   return Promise.all(promises).then(
     ([allChannelLastActive]) => {
-      store.dispatch('SET_RECENT_ONLY', showRecentOnly);
       const reportProps = {
         userScope: ReportConstants.UserScopes.CLASSROOM,
         userScopeId: classId,
         viewBy: ReportConstants.ViewBy.CHANNEL,
+        showRecentOnly,
       };
       const defaultSortCol = showRecentOnly ?
         ReportConstants.TableColumns.DATE : ReportConstants.TableColumns.NAME;
@@ -284,6 +284,7 @@ function _showLearnerList(store, options) {
         userScope: options.userScope,
         userScopeId: options.userScopeId,
         viewBy: ReportConstants.ViewBy.LEARNER,
+        showRecentOnly: options.showRecentOnly,
       };
       store.dispatch(
         'SET_REPORT_SORTING',
@@ -384,17 +385,15 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
-      const sevenDaysAgo = now();
-      // this is being set by default in the backend
-      // backend date data might be unreliable, though
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const threshold = now();
+      threshold.setDate(threshold.getDate() - ReportConstants.RECENCY_THREHOLD_IN_DAYS);
 
       const reportPayload = {
         channel_id: channelId,
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
-        last_active_time: sevenDaysAgo,
+        last_active_time: threshold,
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
 
@@ -406,6 +405,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
             userScope: ReportConstants.UserScopes.CLASSROOM,
             userScopeId: classId,
             viewBy: ReportConstants.ViewBy.RECENT,
+            showRecentOnly: true,
           };
           store.dispatch('SET_REPORT_PROPERTIES', reportProps);
           store.dispatch(
@@ -436,6 +436,7 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
     contentScopeId: contentId,
     userScope: ReportConstants.UserScopes.CLASSROOM,
     userScopeId: classId,
+    showRecentOnly: true,
   });
 }
 
@@ -474,6 +475,7 @@ function showTopicChannelRoot(store, classId, channelId) {
         contentScopeId: channelData.root_pk,
         userScope: ReportConstants.UserScopes.CLASSROOM,
         userScopeId: classId,
+        showRecentOnly: false,
       });
     },
     error => coreActions.handleError(store, error)
@@ -493,6 +495,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
     contentScopeId: topicId,
     userScope: ReportConstants.UserScopes.CLASSROOM,
     userScopeId: classId,
+    showRecentOnly: false,
   });
 }
 
@@ -509,6 +512,7 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
     contentScopeId: contentId,
     userScope: ReportConstants.UserScopes.CLASSROOM,
     userScopeId: classId,
+    showRecentOnly: false,
   });
 }
 

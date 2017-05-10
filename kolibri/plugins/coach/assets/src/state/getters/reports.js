@@ -1,8 +1,10 @@
 const ReportConstants = require('../../reportConstants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
+const { now } = require('kolibri.utils.serverClock');
 const ReportUtils = require('./reportUtils');
 const { classMemberCount } = require('./main');
+const differenceInDays = require('date-fns/difference_in_days');
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
@@ -134,6 +136,12 @@ Object.assign(getters, {
     const data = state.pageState.tableData.map(item => _genRow(state, item));
     if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
       data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
+    }
+    if (state.pageState.showRecentOnly) {
+      return data.filter(row =>
+        Boolean(row.lastActive) &&
+        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THREHOLD_IN_DAYS
+      );
     }
     return data;
   },
