@@ -54,6 +54,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     next_content = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     license = serializers.StringRelatedField(many=False)
+    license_description = serializers.SerializerMethodField()
+
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -127,6 +129,9 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # otherwise return root.
         root = target_node.get_root()
         return {'kind': root.kind, 'id': root.id}
+
+    def get_license_description(self, target_node):
+        return target_node.license.license_description
 
     class Meta:
         model = ContentNode
