@@ -93,11 +93,6 @@
         clearInterval(this.intervalId);
       }
     },
-    methods: {
-      startImportWizard() {
-        this.showImportLocalWizard();
-      },
-    },
     computed: {
       sortedChannels() {
         return orderBy(
@@ -128,6 +123,7 @@
         // TODO 'wizard-import-local' and all its associated references should be renamed
         // to something like the old 'wizard-import-source'
         showImportLocalWizard: actions.showImportLocalWizard,
+        startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
       },
     },
