@@ -18,7 +18,7 @@ class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityUser
         fields = (
-            'pk', 'full_name', 'progress', 'last_active',
+            'pk', 'username', 'full_name', 'progress', 'last_active',
         )
 
     def get_progress(self, target_user):
