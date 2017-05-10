@@ -4,10 +4,8 @@
     :title="$tr('title')"
     :error="wizardState.error"
     :enableBgClickCancel="false"
-    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="startImportWizard"
   >
     <div class="main">
 
@@ -89,7 +87,7 @@
   module.exports = {
     $trNameSpace: 'wizardLocalImport',
     $trs: {
-      title: 'Import from a Local Drive',
+      title: 'Import from where?',
       incompatible: 'No content available',
       refresh: 'Refresh',
       cancel: 'Cancel',
@@ -150,8 +148,6 @@
         cancelImportExportWizard: actions.cancelImportExportWizard,
         showImportNetworkWizard: actions.showImportNetworkWizard,
         showLocalImportPreview: actions.showLocalImportPreview,
-        startImportWizard: actions.startImportWizard,
-        triggerLocalContentImportTask: actions.triggerLocalContentImportTask,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },

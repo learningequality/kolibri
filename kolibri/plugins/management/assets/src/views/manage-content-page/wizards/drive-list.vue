@@ -18,7 +18,7 @@
         <ui-radio
           :id="'drive-'+index"
           :trueValue="drive.id"
-          v-model="value"
+          v-model="selectedDrive"
         >
           <div>{{ drive.name }}</div>
           <div v-if="enabledMsg" class="DriveName__detail">
@@ -32,7 +32,7 @@
           :id="'disabled-drive-'+index"
           :trueValue="drive.id"
           disabled
-          v-model="value"
+          v-model="selectedDrive"
         >
           <div>{{ drive.name }}</div>
           <div class="DriveName__detail">
@@ -63,6 +63,9 @@
       disabledMsg: { type: String, required: true },
     },
     computed: {
+      selectedDrive() {
+        return this.value;
+      },
       enabledDrives() {
         return this.drives.filter(drive => this.enabledDrivePred(drive));
       },
@@ -72,7 +75,7 @@
     },
     $trNameSpace: 'wizardDriveList',
     $trs: {
-      drivesFound: 'Drives detected:',
+      drivesFound: 'Drives found:',
       noDrivesDetected: 'No drives were detected',
     },
   };
