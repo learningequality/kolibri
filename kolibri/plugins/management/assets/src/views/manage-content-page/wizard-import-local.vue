@@ -10,53 +10,87 @@
     @back="startImportWizard"
   >
     <div class="main">
+
+      <div>
+        <h2>The Internet</h2>
+        <div
+          @click="selectedDrive=INTERNET_SOURCE"
+          class="enabled drive-names"
+          name="internet_source"
+        >
+          <ui-radio
+            :id="INTERNET_SOURCE"
+            :trueValue="INTERNET_SOURCE"
+            v-model="selectedDrive"
+          >
+            <div class="InternetSource">
+              <div class="InternetSource__icon">
+                <mat-svg category="social" name="public" transform="translate(20, 0)" />
+                <mat-svg category="file" name="file_download" transform="translate(-25, 10)" fill="#00BAFF" />
+              </div>
+              <div class="InternetSource__description">
+                <div>Enter a channel ID</div>
+                <div>Search for a specific channel</div>
+              </div>
+            </div>
+          </ui-radio>
+        </div>
+      </div>
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="noDrives">
             <mat-svg class="error-svg" category="alert" name="error_outline"/>
-            {{$tr('noDrivesDetected')}}
+            {{ $tr('noDrivesDetected') }}
           </h2>
+
           <template v-else>
             <h2>{{$tr('drivesFound')}}</h2>
             <div class="drive-list">
-              <div class="enabled drive-names" v-for="(drive, index) in drivesWithData"
-                @click="selectDriveByID(drive.id)">
-                <input
-                  type="radio"
+
+              <div
+                :name="'drive-'+index"
+                @click="selectedDrive=drive.id"
+                class="enabled drive-names"
+                v-for="(drive, index) in enabledDrives"
+              >
+                <ui-radio
                   :id="'drive-'+index"
-                  :value="drive.id"
+                  :trueValue="drive.id"
                   v-model="selectedDrive"
-                  name="drive-select"
                 >
-                <label :for="'drive-'+index">
-                  {{drive.name}}
-                  <br>
-                </label>
+                  <div>{{ drive.name }}</div>
+                </ui-radio>
               </div>
-              <div class="disabled drive-names" v-for="(drive, index) in drivesWithoutData">
-                <input
-                  type="radio"
-                  disabled
+
+              <div class="disabled drive-names" v-for="(drive, index) in disabledDrives">
+                <ui-radio
                   :id="'disabled-drive-'+index"
+                  :trueValue="drive.id"
+                  disabled
+                  v-model="selectedDrive"
                 >
-                <label :for="'disabled-drive-'+index">
-                  {{drive.name}}
-                  <br>
-                  <span class="drive-detail">{{$tr('incompatible')}}</span>
-                </label>
+                  <div>{{ drive.name }}</div>
+                  <div class="drive-detail">
+                    {{ $tr('incompatible') }}
+                  </div>
+                </ui-radio>
               </div>
+
             </div>
           </template>
         </div>
+
         <div class="refresh-btn-wrapper">
           <icon-button
+            :disabled="wizardState.busy"
             :text="$tr('refresh')"
             @click="updateWizardLocalDriveList"
-            :disabled="wizardState.busy">
+          >
             <mat-svg category="navigation" name="refresh"/>
           </icon-button>
         </div>
       </template>
+
       <loading-spinner v-else :delay="500" class="spinner"/>
     </div>
     <div class="core-text-alert">
@@ -67,6 +101,7 @@
         @click="cancel"
         :text="$tr('cancel')"/>
       <icon-button
+        name="next"
         :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
@@ -79,7 +114,10 @@
 
 <script>
 
+  const find = require('lodash/find');
   const actions = require('../../state/actions');
+
+  const INTERNET_SOURCE = 'internet_source';
 
   module.exports = {
     $trNameSpace: 'wizardLocalImport',
@@ -96,51 +134,53 @@
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      'UiRadio': require('keen-ui/src/UiRadio'),
     },
     data: () => ({
-      selectedDrive: undefined, // used when there's more than one option
+      selectedDrive: '', // used when there's more than one option
     }),
     computed: {
+      INTERNET_SOURCE: () => INTERNET_SOURCE,
       noDrives() {
         return !Array.isArray(this.wizardState.driveList);
-      },
-      driveToUse() {
-        if (this.drivesWithData.length === 1) {
-          return this.drivesWithData[0].id;
-        }
-        return this.selectedDrive;
       },
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
-      drivesWithData() {
+      enabledDrives() {
         return this.wizardState.driveList.filter(
-          (drive) => drive.metadata.channels.length
+          (drive) => drive.metadata.channels.length > 0
         );
       },
-      drivesWithoutData() {
+      disabledDrives() {
         return this.wizardState.driveList.filter(
-          (drive) => !drive.metadata.channels.length
+          (drive) => drive.metadata.channels.length === 0
         );
       },
       canSubmit() {
-        if (this.drivesLoading || this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.driveToUse);
+        return (
+          !this.drivesLoading &&
+          !this.wizardState.busy &&
+          Boolean(this.selectedDrive)
+        );
       },
     },
     methods: {
       submit() {
-        this.triggerLocalContentImportTask(this.driveToUse);
+        if (this.selectedDrive === INTERNET_SOURCE) {
+          return this.showImportNetworkWizard();
+        }
+        const driveInfo = find(this.wizardState.driveList, { id: this.selectedDrive });
+        return this.showLocalImportPreview({
+          driveId: this.selectedDrive,
+          channels: driveInfo.metadata.channels,
+          driveName: driveInfo.name,
+        });
       },
       cancel() {
         if (!this.wizardState.busy) {
           this.cancelImportExportWizard();
         }
-      },
-      selectDriveByID(driveID) {
-        this.selectedDrive = driveID;
       },
     },
     vuex: {
@@ -148,10 +188,12 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
         cancelImportExportWizard: actions.cancelImportExportWizard,
+        showImportNetworkWizard: actions.showImportNetworkWizard,
+        showLocalImportPreview: actions.showLocalImportPreview,
+        startImportWizard: actions.startImportWizard,
         triggerLocalContentImportTask: actions.triggerLocalContentImportTask,
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },
   };
@@ -170,6 +212,15 @@
     margin: 3em 0
     min-height: $min-height
 
+  .InternetSource
+    display: table
+    &__icon
+      display: table-cell
+      vertical-align: middle
+    &__description
+      display: table-cell
+      vertical-align: middle
+
   h2
     font-size: 1em
 
@@ -184,7 +235,6 @@
     padding: 0.6em
     border: 1px $core-bg-canvas solid
     label
-      display: inline-table
       font-size: 0.9em
     &.disabled
       color: $core-text-disabled

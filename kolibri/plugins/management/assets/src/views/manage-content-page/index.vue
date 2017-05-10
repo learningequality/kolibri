@@ -36,17 +36,9 @@
         </div>
         <hr>
         <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
-        <table>
-          <tbody>
-            <tr v-for="channel in sortedChannels">
-              <th scope="row" class="table-cell" width="70%">
-                <span class="channel-name">
-                  {{ channel.title }}
-                </span>
-              </th>
-            </tr>
-          </tbody>
-        </table>
+
+        <channels-grid/>
+
       </div>
     </template>
     <template v-else>
@@ -76,11 +68,13 @@
       notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
+      'channels-grid': require('./channels-grid'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
       'wizard-import-local': require('./wizard-import-local'),
+      'wizard-import-preview': require('./wizard-import-preview'),
       'wizard-export': require('./wizard-export'),
     },
     data: () => ({
@@ -96,6 +90,11 @@
         clearInterval(this.intervalId);
       }
     },
+    methods: {
+      startImportWizard() {
+        this.showImportLocalWizard();
+      },
+    },
     computed: {
       sortedChannels() {
         return orderBy(
@@ -105,18 +104,15 @@
         );
       },
       wizardComponent() {
-        switch (this.pageState.wizardState.page) {
-          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
-            return 'wizard-import-source';
-          case ContentWizardPages.IMPORT_NETWORK:
-            return 'wizard-import-network';
-          case ContentWizardPages.IMPORT_LOCAL:
-            return 'wizard-import-local';
-          case ContentWizardPages.EXPORT:
-            return 'wizard-export';
-          default:
-            return undefined;
-        }
+        const pageNameMap = {
+          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-source',
+          [ContentWizardPages.EXPORT]: 'wizard-export',
+          [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
+          [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
+          [ContentWizardPages.IMPORT_PREVIEW]: 'wizard-import-preview',
+        };
+
+        return pageNameMap[this.pageState.wizardState.page];
       },
     },
     vuex: {
@@ -126,9 +122,11 @@
         pageState: state => state.pageState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        startExportWizard: actions.startExportWizard,
         pollTasksAndChannels: actions.pollTasksAndChannels,
+        // short-circuiting the wizard to go local import wizard, first
+        // then augmenting that with the network import option
+        showImportLocalWizard: actions.showImportLocalWizard,
+        startExportWizard: actions.startExportWizard,
       },
     },
   };

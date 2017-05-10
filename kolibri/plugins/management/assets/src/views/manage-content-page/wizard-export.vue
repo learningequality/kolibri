@@ -10,65 +10,94 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="noDrives">
-            <mat-svg class="error-svg" category="alert" name="error_outline"/>
-            {{$tr('noDrivesDetected')}}
-          </h2>
+          <template v-if="noDrives">
+            <h2 class="core-text-alert">
+              <mat-svg class="error-svg" category="alert" name="error_outline"/>
+              {{ $tr('noDrivesDetected') }}
+            </h2>
+          </template>
+
           <template v-else>
-            <h2>{{$tr('drivesFound')}}</h2>
+            <p>
+              {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
+              <span id="content-size">{{ exportContentSize }}</span>.
+            </p>
+
+            <h2>{{ $tr('drivesFound') }}</h2>
             <div class="drive-list">
-              <div class="enabled drive-names" v-for="(drive, index) in writableDrives"
-                @click="selectDriveByID(drive.id)">
-                <input
-                  type="radio"
+
+              <div
+                class="enabled drive-names"
+                v-for="(drive, index) in enabledDrives"
+                @click="selectDriveByID(drive.id)"
+                :name="'drive-'+index"
+              >
+                <ui-radio
                   :id="'drive-'+index"
-                  :value="drive.id"
+                  :trueValue="drive.id"
                   v-model="selectedDrive"
-                  name="drive-select"
                 >
-                <label :for="'drive-'+index">
-                  {{drive.name}}
-                  <br>
-                  <span class="drive-detail">
-                    {{$tr('available')}} {{bytesForHumans(drive.freespace)}}
-                  </span>
-                </label>
+                  <div>{{ drive.name }}</div>
+                  <div class="drive-detail">
+                    {{ bytesForHumans(drive.freespace) }} {{ $tr('available') }}
+                  </div>
+                </ui-radio>
               </div>
-              <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
-                <input
-                  type="radio"
+
+              <div class="disabled drive-names" v-for="(drive, index) in disabledDrives">
+                <ui-radio
+                  :id="'disabled-drive'+index"
+                  :trueValue="drive.id"
                   disabled
-                  :id="'disabled-drive-'+index"
+                  v-model="selectedDrive"
                 >
-                <label :for="'disabled-drive-'+index">
-                  {{drive.name}}
-                  <br>
-                  <span class="drive-detail">{{$tr('notWritable')}}</span>
-                </label>
+                  <div>{{ drive.name }}</div>
+                  <div class="drive-detail">
+                    {{ $tr('notWritable') }}
+                  </div>
+                </ui-radio>
               </div>
+
             </div>
           </template>
         </div>
+
         <div class="refresh-btn-wrapper">
-          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')">
+          <icon-button
+            :disabled="wizardState.busy"
+            :text="$tr('refresh')"
+            @click="updateWizardLocalDriveList"
+          >
             <mat-svg category="navigation" name="refresh"/>
           </icon-button>
         </div>
       </template>
+
       <loading-spinner v-else :delay="500" class="spinner"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
     </div>
-    <div class="button-wrapper">
-      <icon-button
-        @click="cancel"
-        :text="$tr('cancel')"/>
-      <icon-button
-        :text="$tr('export')"
-        @click="submit"
+    <div class="Buttons">
+      <ui-button
+        type="secondary"
+        @click="cancel()"
+      >
+        {{ $tr('cancel') }}
+      </ui-button>
+      <ui-button
+        name="submit"
         :disabled="!canSubmit"
-        :primary="true"/>
+        :primary="true"
+        @click="submit()"
+        color="primary"
+        type="primary"
+      >
+        {{ $tr('export') }}
+        <span v-if="contentsTotalSize">
+          ({{ contentsTotalSize }})
+        </span>
+      </ui-button>
     </div>
   </core-modal>
 
@@ -77,113 +106,98 @@
 
 <script>
 
+  const sumBy = require('lodash/sumBy');
   const actions = require('../../state/actions');
+  const bytesForHumans = require('./bytesForHumans');
 
   module.exports = {
     $trNameSpace: 'wizardExport',
     $trs: {
-      title: 'Export to a Local Drive',
-      available: 'Available Storage:',
-      noDrivesDetected: 'No drives were detected:',
-      drivesFound: 'Drives detected:',
-      notWritable: 'Not writable',
+      available: 'available',
       cancel: 'Cancel',
-      export: 'Export',
+      drivesFound: 'Drives found:',
+      export: 'Start Export',
+      exportPromptContentSize: '{numChannels, number} {numChannels, plural, one {Channel} other {Channels}} ({totalSize})',
+      exportPromptPrefix: 'You are about to export {numChannels, number} {numChannels, plural, one {Channel} other {Channels}}',
+      noDrivesDetected: 'No drives were detected:',
+      notWritable: 'Not writable',
       refresh: 'Refresh',
+      title: 'Export to where?',
+      waitForTotalSize: 'Calculating total size...',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      'ui-radio': require('keen-ui/src/UiRadio'),
+      'ui-button': require('keen-ui/src/UiButton'),
     },
     data: () => ({
-      selectedDrive: undefined, // used when there's more than one option
+      selectedDrive: '', // used when there's more than one option
     }),
     computed: {
       noDrives() {
         return !Array.isArray(this.wizardState.driveList);
       },
-      driveToUse() {
-        if (this.writableDrives.length === 1) {
-          return this.writableDrives[0].id;
-        }
-        return this.selectedDrive;
-      },
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
-      writableDrives() {
+      enabledDrives() {
         return this.wizardState.driveList.filter(
           (drive) => drive.writable
         );
       },
-      unwritableDrives() {
+      disabledDrives() {
         return this.wizardState.driveList.filter(
           (drive) => !drive.writable
         );
       },
       canSubmit() {
-        if (this.drivesLoading || this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.driveToUse);
+        return (
+          !this.drivesLoading &&
+          !this.wizardState.busy &&
+          Boolean(this.selectedDrive)
+        );
       },
+      exportContentSize() {
+        return this.contentsTotalSize || this.$tr('waitForTotalSize');
+      },
+      allChannelsHaveStats() {
+        // only checks that lengths are same, not that IDs are same too
+        return this.allChannels.length === Object.keys(this.channelsWithStats).length;
+      },
+      contentsTotalSize() {
+        if (this.allChannelsHaveStats) {
+          const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
+          return bytesForHumans(totalSize);
+        }
+        return '';
+      }
     },
     methods: {
       submit() {
-        if (this.canSubmit) {
-          this.triggerLocalContentExportTask(this.driveToUse);
-        }
+        this.triggerLocalContentExportTask(this.selectedDrive);
       },
       cancel() {
         if (!this.wizardState.busy) {
           this.cancelImportExportWizard();
         }
       },
-      bytesForHumans(bytes) {
-        // breaking down byte counts in terms of larger sizes
-        const kilobyte = 1024;
-        const megabyte = kilobyte ** 2;
-        const gigabyte = kilobyte ** 3;
-
-        function kilobyteCalc(byteCount) {
-          const kilos = Math.floor(byteCount / kilobyte);
-          return `${kilos} KB`;
-        }
-        function megabyteCalc(byteCount) {
-          const megs = Math.floor(byteCount / megabyte);
-          return `${megs} MB`;
-        }
-        function gigabyteCalc(byteCount) {
-          const gigs = Math.floor(byteCount / gigabyte);
-          return `${gigs} GB`;
-        }
-        function chooseSize(byteCount) {
-          if (byteCount > gigabyte) {
-            return gigabyteCalc(byteCount);
-          } else if (byteCount > megabyte) {
-            return megabyteCalc(byteCount);
-          } else if (byteCount > kilobyte) {
-            return kilobyteCalc(byteCount);
-          }
-          return `${bytes} B`;
-        }
-
-        return chooseSize(bytes);
-      },
+      bytesForHumans,
       selectDriveByID(driveID) {
         this.selectedDrive = driveID;
       },
     },
     vuex: {
       getters: {
+        allChannels: (state) => state.core.channels.list,
+        channelsWithStats: (state) => state.pageState.channelInfo,
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
         cancelImportExportWizard: actions.cancelImportExportWizard,
         triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },
   };
@@ -194,6 +208,13 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  #content-size
+    font-weight: bold
+    &::before
+      content: "("
+    &::after
+      content: ")"
 
   $min-height = 200px
 
@@ -215,9 +236,6 @@
   .drive-names
     padding: 0.6em
     border: 1px $core-bg-canvas solid
-    label
-      display: inline-table
-      font-size: 0.9em
     &.disabled
       color: $core-text-disabled
     &.enabled
@@ -233,9 +251,8 @@
     color: $core-text-annotation
     font-size: 0.7em
 
-  .button-wrapper
-    margin: 1em 0
-    text-align: center
+  .Buttons
+    text-align: right
 
   button
     margin: 0.4em

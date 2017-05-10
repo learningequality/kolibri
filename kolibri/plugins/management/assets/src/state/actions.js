@@ -7,6 +7,7 @@ const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
+const ChannelResource = coreApp.resources.ChannelResource;
 
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
@@ -24,6 +25,7 @@ const {
   resetFacilityConfig,
   saveFacilityConfig,
 } = require('./facilityConfigPageActions');
+const contentImportExportActions = require('./contentImportExportActions');
 
 const preparePage = require('./preparePage');
 
@@ -490,32 +492,6 @@ function showUserPage(store) {
 // ================================
 // CONTENT IMPORT/EXPORT ACTIONS
 
-
-function showContentPage(store) {
-  preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
-
-  if (!getters.isSuperuser(store.state)) {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return;
-  }
-
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
-    samePageCheckGenerator(store),
-    (taskList) => {
-      const pageState = {
-        taskList: taskList.map(_taskState),
-        wizardState: { shown: false },
-      };
-      coreActions.setChannelInfo(store).then(() => {
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
-}
-
 function updateWizardLocalDriveList(store) {
   const localDrivesPromise = TaskResource.localDrives();
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
@@ -529,60 +505,74 @@ function updateWizardLocalDriveList(store) {
   });
 }
 
-function startImportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
-    error: null,
+function updateWizardPage(store, pageName, meta = {}) {
+  return store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     busy: false,
-    drivesLoading: false,
     driveList: null,
+    drivesLoading: false,
+    error: null,
+    page: pageName,
+    meta,
+    shown: true,
   });
+}
+
+function startImportWizard(store) {
+  return updateWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
 }
 
 function startExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.EXPORT,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
   updateWizardLocalDriveList(store);
+  return updateWizardPage(store, ContentWizardPages.EXPORT);
 }
 
 function showImportNetworkWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_NETWORK,
+  return updateWizardPage(store, ContentWizardPages.IMPORT_NETWORK);
+}
+
+function showLocalImportPreview(store, driveData) {
+  return updateWizardPage(store, ContentWizardPages.IMPORT_PREVIEW, {
+    sourceId: driveData.driveId,
+    sourceName: driveData.driveName,
+    sourceType: 'local',
+    channels: driveData.channels,
     error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
+  });
+}
+
+function showNetworkImportPreview(store, channelId) {
+  const channelMetadataRequest = ChannelResource.getModel(channelId).fetch();
+  const payload = {
+    sourceId: channelId,
+    sourceName: '',
+    sourceType: 'network',
+    channels: [], // just to make types consistent
+    error: null,
+  };
+  return channelMetadataRequest._promise
+  .then((channel) => {
+    updateWizardPage(
+      store,
+      ContentWizardPages.IMPORT_PREVIEW,
+      Object.assign(payload, { sourceName: channel.name })
+    );
+  })
+  .catch((err) => {
+    updateWizardPage(
+      store,
+      ContentWizardPages.IMPORT_PREVIEW,
+      Object.assign(payload, { error: err.entity })
+    );
   });
 }
 
 function showImportLocalWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_LOCAL,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
   updateWizardLocalDriveList(store);
+  return updateWizardPage(store, ContentWizardPages.IMPORT_LOCAL);
 }
 
 function cancelImportExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: false,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  return updateWizardPage(store, ContentWizardPages.NONE);
 }
 
 // called from a timer to continually update UI
@@ -709,13 +699,16 @@ module.exports = {
   addCoachRole: addCoachRoleAction,
   removeCoachRole: removeCoachRoleAction,
 
-  showContentPage,
+  deleteChannel: contentImportExportActions.deleteChannel,
+  showContentPage: contentImportExportActions.showContentPage,
   pollTasksAndChannels,
   clearTask,
   startImportWizard,
   startExportWizard,
   showImportNetworkWizard,
   showImportLocalWizard,
+  showLocalImportPreview,
+  showNetworkImportPreview,
   cancelImportExportWizard,
   triggerLocalContentExportTask,
   triggerLocalContentImportTask,
