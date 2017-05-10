@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 const sinon = require('sinon');
-const actions = require('../../src/state/contentImportExportActions');
+const actions = require('../../src/state/manageContentActions');
 const { FileResource, ChannelResource } = require('kolibri').resources;
 
 const makeFetachable = (pl) => ({ fetch: () => Promise.resolve(pl) });

@@ -62,7 +62,7 @@
 <script>
 
   const bytesForHumans = require('./bytesForHumans');
-  const actions = require('../../state/contentImportExportActions');
+  const actions = require('../../state/actions');
 
   module.exports = {
     data: () => ({
