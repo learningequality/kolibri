@@ -24,6 +24,7 @@ const TableColumns = {
   EXERCISE: 'exercise_progress',
   CONTENT: 'content_progress',
   DATE: 'date',
+  GROUP: 'group',
 };
 
 const SortOrders = {

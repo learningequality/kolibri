@@ -28,6 +28,12 @@
           />
           <header-cell
             align="left"
+            :text="$tr('group')"
+            :column="TableColumns.GROUP"
+            :sortable="true"
+          />
+          <header-cell
+            align="left"
             :text="$tr('lastActivity')"
             :column="TableColumns.DATE"
             :sortable="true"
@@ -45,6 +51,7 @@
             :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
             :isExercise="isExercisePage"
           />
+          <td>{{ row.groupName || '–' }}</td>
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
@@ -66,6 +73,7 @@
     $trNameSpace: 'learnerReportPage',
     $trs: {
       name: 'Name',
+      group: 'Group',
       exerciseProgress: 'Exercise progress',
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',

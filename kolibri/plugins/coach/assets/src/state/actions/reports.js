@@ -26,6 +26,7 @@ const ChannelResource = coreApp.resources.ChannelResource;
 const ContentNodeResource = coreApp.resources.ContentNodeResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
+const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
 
 /**
  * Helper function for _showChannelList
@@ -154,12 +155,17 @@ function _recentReportState(data) {
   }));
 }
 
-function _learnerReportState(data) {
-  if (!data) { return []; }
-  return data.map(row => ({
-    id: row.pk.toString(), // see https://github.com/learningequality/kolibri/issues/1255
+function _learnerReportState(userData, groupData) {
+  if (!userData) { return []; }
+  function getGroupName(userId) {
+    const group = groupData.find(g => g.user_ids.includes(userId));
+    return group ? group.name : undefined;
+  }
+  return userData.map(row => ({
+    id: row.pk,
     fullName: row.full_name,
     lastActive: row.last_active,
+    groupName: getGroupName(row.pk),
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       timeSpent: progressData.time_spent,
@@ -205,12 +211,14 @@ function _setContentReport(store, reportPayload) {
   return reportPromise;
 }
 
-function _setLearnerReport(store, reportPayload) {
-  const reportPromise = UserReportResource.getCollection(reportPayload).fetch();
-  reportPromise.then(report => {
-    store.dispatch('SET_REPORT_TABLE_DATA', _learnerReportState(report));
+function _setLearnerReport(store, reportPayload, classId) {
+  const promises = [
+    UserReportResource.getCollection(reportPayload).fetch(),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+  ];
+  return Promise.all(promises).then(([usersReport, learnerGroups]) => {
+    store.dispatch('SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
   });
-  return reportPromise;
 }
 
 function _setContentSummary(store, contentScopeId, reportPayload) {
@@ -272,7 +280,7 @@ function _showLearnerList(store, options) {
   };
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
-    _setLearnerReport(store, reportPayload),
+    _setLearnerReport(store, reportPayload, options.classId),
     setClassState(store, options.classId),
   ];
   Promise.all(promises).then(

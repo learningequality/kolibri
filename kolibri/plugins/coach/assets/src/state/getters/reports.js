@@ -24,6 +24,7 @@ function _genRow(state, item) {
     row.kind = CoreConstants.USER;
     row.id = item.id;
     row.title = item.fullName;
+    row.groupName = item.groupName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
     // for learners, the exercise counts are the global values
