@@ -1,10 +1,7 @@
 <template>
 
   <div>
-    <div v-if="!isUserLoggedIn" class="login-message">
-      <h1>{{ $tr('logInPrompt') }}</h1>
-      <p>{{ $tr('logInCommand') }}</p>
-    </div>
+    <auth-message v-if="!isUserLoggedIn" authorizedRole="learner" />
 
     <div v-else>
       <page-header :title="$tr('examName')"></page-header>
@@ -53,10 +50,9 @@
       start: 'Start',
       noExams: 'You have no exams assigned',
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as a Learner to view this page.',
     },
     components: {
+      'auth-message': require('kolibri.coreVue.components.authMessage'),
       'page-header': require('../page-header'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
@@ -88,10 +84,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .login-message
-    text-align: center
-    margin-top: 200px
 
   .exams-assigned
     margin-top: 0

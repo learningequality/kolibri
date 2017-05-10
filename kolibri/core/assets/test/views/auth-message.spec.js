@@ -15,7 +15,7 @@ function getElements(vm) {
   };
 }
 
-describe.only('auth message component', () => {
+describe('auth message component', () => {
   it('shows the right command when authorized role is "learner"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'learner' } });
     const { loginCommand } = getElements(vm);
