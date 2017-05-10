@@ -53,9 +53,9 @@
 
 <script>
 
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
+  const { isSuperuser } = require('kolibri.coreVue.vuex.getters');
   const actions = require('../../state/actions');
-  const ContentWizardPages = require('../../constants').ContentWizardPages;
+  const { ContentWizardPages } = require('../../constants');
   const orderBy = require('lodash/orderBy');
 
   module.exports = {
@@ -71,8 +71,8 @@
       'channels-grid': require('./channels-grid'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
-      'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
+      // 'wizard-import-local' is the new 'wizard-import-source' for now
       'wizard-import-local': require('./wizard-import-local'),
       'wizard-import-preview': require('./wizard-import-preview'),
       'wizard-export': require('./wizard-export'),
@@ -105,7 +105,6 @@
       },
       wizardComponent() {
         const pageNameMap = {
-          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-source',
           [ContentWizardPages.EXPORT]: 'wizard-export',
           [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
           [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
