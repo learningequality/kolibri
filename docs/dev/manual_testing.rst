@@ -2,8 +2,8 @@
 Manual Testing & QA
 ===================
 
-Accessibility (A11Y) Testing
----------------------
+Accessibility (A11y) Testing
+----------------------------
 
 Inclusive design benefits all users, and we strive to make Kolibri accessible for all. Testing for accessibility can be challenging, but there are a few features you should check for before submitting your PR:
 
@@ -16,18 +16,18 @@ Inclusive design benefits all users, and we strive to make Kolibri accessible fo
 
 Here are a few tools that we use in testing for accessibility:
 
-* `WAVE Evaluation Tool <http://wave.webaim.org/extension/>`_ - Chrome extension.
+* WAVE Evaluation Tool - `Firefox Add-on <https://addons.mozilla.org/en-US/firefox/addon/wave-accessibility-tool/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/wave-evaluation-tool/jbbplnpkjmmeebjpijfedlgcdilocofh>`_.
 * `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome.
 * `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_ - Chrome extension.
-* aXe Accessibility Engine - `Firefox Addon <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
+* aXe Accessibility Engine - `Firefox Add-on <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
 
-There is a much longer list of tools (specially for color contrast checking) on our `KA Lite Wiki page <https://github.com/learningequality/ka-lite/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
+There is a much longer list on our `Kolibri Accessibility Tools Wiki page <https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
 
 
 Cross-browser and OS Testing
 ----------------------------
 
-It's vital to ensure that our app works across a wide range of browsers and operating systems, particularly older versions of Windows and Android that are common on older and cheaper devices.
+It's vital to ensure that our app works across a wide range of browsers and operating systems, particularly older versions of Windows and Android that are common on old and cheap devices.
 
 In particular, we want to ensure that Kolibri runs on major browsers that match any of `the following criteria <http://browserl.ist/?q=%3E+1%25%2C+last+2+versions%2C+ie+%3E%3D+9%2C+Firefox+ESR>`_:
 
