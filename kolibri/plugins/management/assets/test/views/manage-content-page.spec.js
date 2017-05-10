@@ -4,7 +4,6 @@ const Vuex = require('vuex');
 const simulant = require('simulant');
 const mutations = require('../../src/state/mutations');
 const assert = require('assert');
-const sinon = require('sinon');
 const ManageContentPage = require('../../src/views/manage-content-page/index.vue');
 
 Vue.use(Vuex);

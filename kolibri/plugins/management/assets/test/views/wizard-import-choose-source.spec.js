@@ -4,16 +4,14 @@ const Vuex = require('vuex');
 const simulant = require('simulant');
 const assert = require('assert');
 const sinon = require('sinon');
+const mutations = require('../../src/state/mutations');
 const Wizard = require('../../src/views/manage-content-page/wizard-import-choose-source');
 
 Vue.use(Vuex);
 
 function makeStore() {
   return new Vuex.Store({
-    mutations: {
-      SET_CONTENT_PAGE_WIZARD_STATE() {},
-      SET_CONTENT_PAGE_WIZARD_BUSY() {},
-    },
+    mutations,
     state: {
       pageState: {
         wizardState: {
@@ -60,11 +58,12 @@ function getElements(vm) {
   };
 }
 
+const getWizardState = (state) => state.pageState.wizardState;
+
 describe('choose source wizard component', () => {
-  describe('selecting an internet source', () => {
-    it('sets the correct source when "internet" is selected', () => {
+  describe('when internet source is selected', () => {
+    it('selectedDrive prop is correct', () => {
       const vm = makeVm();
-      // targeting the div containing the Radio element
       const { internetRadioEl } = getElements(vm);
       simulant.fire(internetRadioEl(), 'click');
       return Vue.nextTick()
@@ -75,18 +74,20 @@ describe('choose source wizard component', () => {
 
     it('calls the network import wizard when "next" is clicked', () => {
       const vm = makeVm({ data: { selectedDrive: 'internet_source' } });
-      const showWizardSpy = sinon.spy(vm, 'showImportNetworkWizard');
       const { nextButton } = getElements(vm);
       simulant.fire(nextButton(), 'click');
       return Vue.nextTick()
       .then(() => {
-        sinon.assert.calledOnce(showWizardSpy);
+        const expectedState = {
+          page: 'IMPORT_NETWORK'
+        };
+        sinon.assert.match(getWizardState(vm.$store.state), sinon.match(expectedState));
       });
     });
   });
 
-  describe('selecting a local source', () => {
-    it('sets the correct source when a drive is selected', () => {
+  describe('when a local source is selected', () => {
+    it('selectedDrive props is correct', () => {
       const vm = makeVm();
       const { driveRadioEl } = getElements(vm);
       simulant.fire(driveRadioEl(), 'click');
@@ -96,22 +97,28 @@ describe('choose source wizard component', () => {
       });
     });
 
-    it('clicking "next" calls the import preview wizard', () => {
+    it('calls the import preview wizard when "next" is clicked', () => {
       const vm = makeVm({ data: { selectedDrive: 'awesome_drive_2' } });
-      const showPreviewStub = sinon.stub(vm, 'showLocalImportPreview');
       const { nextButton } = getElements(vm);
       simulant.fire(nextButton(), 'click');
       return Vue.nextTick()
       .then(() => {
-        sinon.assert.calledOnce(showPreviewStub);
-        sinon.assert.calledWith(showPreviewStub, {
-          driveId: 'awesome_drive_2',
-          driveName: 'Toshiba E:',
-          channels: [1, 2],
-        });
+        const expectedState = {
+          page: 'IMPORT_PREVIEW',
+          meta: {
+            sourceType: 'local',
+            sourceName: 'Toshiba E:',
+            channels: [1, 2],
+          },
+        };
+        sinon.assert.match(getWizardState(vm.$store.state), sinon.match(expectedState));
       });
     });
 
-    // not tested: clicking disabled drive is noop
+    // not tested:
+    // cancel button
+    // submit button validation
+    // drive-list contents
+    // refresh button
   });
 });
