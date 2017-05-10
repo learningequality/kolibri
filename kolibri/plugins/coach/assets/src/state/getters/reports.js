@@ -1,4 +1,5 @@
 const ReportConstants = require('../../reportConstants');
+const CoachConstants = require('../../constants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
 const { now } = require('kolibri.utils.serverClock');
@@ -27,13 +28,16 @@ function _genRow(state, item) {
     row.groupName = item.groupName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
-    // for learners, the exercise counts are the global values
-    row.exerciseProgress = ReportUtils.calcProgress(
-      item.progress, ReportUtils.onlyExercises, getters.exerciseCount(state), 1
-    );
-    row.contentProgress = ReportUtils.calcProgress(
-      item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
-    );
+    // for root list (of channels) we don't currently calculate progress
+    if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
+      // for learners, the exercise counts are the global values
+      row.exerciseProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyExercises, getters.exerciseCount(state), 1
+      );
+      row.contentProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
+      );
+    }
   } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
     row.id = item.id;
     row.title = item.title;

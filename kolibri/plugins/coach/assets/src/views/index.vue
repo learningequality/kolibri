@@ -77,7 +77,7 @@
           [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
           [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
           [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [Constants.PageNames.LEARNER_LIST]: 'item-list-page',
+          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
           [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',

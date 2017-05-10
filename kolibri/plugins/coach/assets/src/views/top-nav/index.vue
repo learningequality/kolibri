@@ -11,13 +11,11 @@
       :active="isRecentPage"
       :text="$tr('recent')"
     />
-    <!--
     <nav-link
       :to="learnersLink"
       :active="isLearnerPage"
       :text="$tr('learners')"
     />
-    -->
     <nav-link
       :to="groupsLink"
       :active="pageName === Constants.PageNames.GROUPS"

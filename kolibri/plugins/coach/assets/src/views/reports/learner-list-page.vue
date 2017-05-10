@@ -3,7 +3,7 @@
   <div>
 
     <breadcrumbs/>
-    <h1>
+    <h1 v-if="!isRootLearnerPage">
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
         colorstyle="text-default"
@@ -22,6 +22,7 @@
             :sortable="true"
           />
           <header-cell
+            v-if="!isRootLearnerPage"
             :text="isExercisePage ? $tr('exerciseProgress') : $tr('contentProgress')"
             :column="isExercisePage ? TableColumns.EXERCISE : TableColumns.CONTENT"
             :sortable="true"
@@ -34,6 +35,7 @@
           />
           <header-cell
             align="left"
+            v-if="!isRootLearnerPage"
             :text="$tr('lastActivity')"
             :column="TableColumns.DATE"
             :sortable="true"
@@ -48,11 +50,12 @@
             :link="genLink(row)"
           />
           <progress-cell
+            v-if="!isRootLearnerPage"
             :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
             :isExercise="isExercisePage"
           />
           <td>{{ row.groupName || '–' }}</td>
-          <activity-cell :date="row.lastActive" />
+          <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
     </report-table>
@@ -94,6 +97,9 @@
       isExercisePage() {
         return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
       },
+      isRootLearnerPage() {
+        return this.pageName === CoachConstants.PageNames.LEARNER_LIST;
+      },
       TableColumns() {
         return ReportConstants.TableColumns;
       },
@@ -111,6 +117,14 @@
               userId: row.id,
               channelId: this.pageState.channelId,
               contentId: this.pageState.contentScopeSummary.contentId,
+            }
+          };
+        } else if (this.isRootLearnerPage) {
+          return {
+            name: CoachConstants.PageNames.LEARNER_CHANNELS,
+            params: {
+              classId: this.classId,
+              userId: row.id,
             }
           };
         }
