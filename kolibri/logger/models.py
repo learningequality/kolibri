@@ -24,6 +24,7 @@ from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from morango.query import SyncableModelQuerySet
 from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
@@ -160,7 +161,7 @@ class UserSessionLog(BaseLogModel):
 
             if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
                 user_session_log = cls(user=user)
-            user_session_log.last_interaction_timestamp = timezone.now()
+            user_session_log.last_interaction_timestamp = local_now()
             user_session_log.save()
 
 
