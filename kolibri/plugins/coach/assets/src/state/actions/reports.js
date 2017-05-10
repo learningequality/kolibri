@@ -239,6 +239,7 @@ function _showContentList(store, options) {
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
     _setContentReport(store, reportPayload),
+    setClassState(store, options.classId),
   ];
   Promise.all(promises).then(
     () => {
@@ -272,6 +273,7 @@ function _showLearnerList(store, options) {
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
     _setLearnerReport(store, reportPayload),
+    setClassState(store, options.classId),
   ];
   Promise.all(promises).then(
     () => {
