@@ -14,9 +14,23 @@
     <report-table>
       <thead slot="thead">
         <tr>
-          <header-cell :text="$tr('name')" align="left"/>
-          <header-cell :text="isExercisePage ? $tr('exerciseProgress') : $tr('contentProgress')"/>
-          <header-cell :text="$tr('lastActivity')" align="left"/>
+          <header-cell
+            align="left"
+            :text="$tr('name')"
+            :column="TableColumns.NAME"
+            :sortable="true"
+          />
+          <header-cell
+            :text="isExercisePage ? $tr('exerciseProgress') : $tr('contentProgress')"
+            :column="isExercisePage ? TableColumns.EXERCISE : TableColumns.CONTENT"
+            :sortable="true"
+          />
+          <header-cell
+            align="left"
+            :text="$tr('lastActivity')"
+            :column="TableColumns.DATE"
+            :sortable="true"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -45,6 +59,7 @@
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const CoachConstants = require('../../constants');
   const reportGetters = require('../../state/getters/reports');
+  const ReportConstants = require('../../reportConstants');
 
   module.exports = {
     $trNameSpace: 'learnerReportPage',
@@ -68,6 +83,9 @@
     computed: {
       isExercisePage() {
         return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
+      },
+      TableColumns() {
+        return ReportConstants.TableColumns;
       },
     },
     methods: {
