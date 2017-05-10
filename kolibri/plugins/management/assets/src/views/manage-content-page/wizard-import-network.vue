@@ -80,7 +80,7 @@
         this.cancelImportExportWizard();
       },
       goBack() {
-        this.showImportLocalWizard();
+        this.startImportWizard();
       }
     },
     vuex: {
@@ -89,7 +89,7 @@
       },
       actions: {
         cancelImportExportWizard: actions.cancelImportExportWizard,
-        showImportLocalWizard: actions.showImportLocalWizard,
+        startImportWizard: actions.startImportWizard,
         showNetworkImportPreview: actions.showNetworkImportPreview,
         triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
       },

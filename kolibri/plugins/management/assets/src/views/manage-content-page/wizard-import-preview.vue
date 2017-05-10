@@ -95,7 +95,7 @@
         if (this.contentIsFromNetwork) {
           return this.showImportNetworkWizard();
         }
-        return this.showImportLocalWizard();
+        return this.startImportWizard();
       },
       submit() {
         if (this.contentIsFromNetwork) {
@@ -111,7 +111,7 @@
       },
       actions: {
         cancelImportExportWizard: actions.cancelImportExportWizard,
-        showImportLocalWizard: actions.showImportLocalWizard,
+        startImportWizard: actions.startImportWizard,
         showImportNetworkWizard: actions.showImportNetworkWizard,
         triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
         triggerLocalContentImportTask: actions.triggerLocalContentImportTask,

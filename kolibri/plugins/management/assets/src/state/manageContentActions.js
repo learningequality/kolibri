@@ -151,11 +151,6 @@ function showNetworkImportPreview(store, channelId) {
   });
 }
 
-function showImportLocalWizard(store) {
-  updateWizardLocalDriveList(store);
-  return updateWizardPage(store, ContentWizardPages.IMPORT_LOCAL);
-}
-
 function cancelImportExportWizard(store) {
   return updateWizardPage(store, ContentWizardPages.NONE);
 }
@@ -243,7 +238,6 @@ module.exports = {
   deleteChannel,
   pollTasksAndChannels,
   showContentPage,
-  showImportLocalWizard,
   showImportNetworkWizard,
   showLocalImportPreview,
   showNetworkImportPreview,

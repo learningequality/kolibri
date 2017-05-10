@@ -127,7 +127,7 @@ describe('import preview wizard component', () => {
     it('clicking modal "back" button goes to right screen', () => {
       const vm = makeVm({ store });
       const { modalBackButton } = getElements(vm);
-      const goBackStub = sinon.stub(vm, 'showImportLocalWizard');
+      const goBackStub = sinon.stub(vm, 'startImportWizard');
       simulant.fire(modalBackButton(), 'click');
 
       return Vue.nextTick()
@@ -139,7 +139,7 @@ describe('import preview wizard component', () => {
     it('clicking other "back" button goes to right screen', () => {
       const vm = makeVm({ store });
       const { backButton } = getElements(vm);
-      const goBackStub = sinon.stub(vm, 'showImportLocalWizard');
+      const goBackStub = sinon.stub(vm, 'startImportWizard');
       simulant.fire(backButton(), 'click');
 
       return Vue.nextTick()

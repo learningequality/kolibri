@@ -49,7 +49,7 @@ describe('network import wizard component', () => {
 
   it('clicking "back" buttons goes to the correct screen', () => {
     const vm = makeVm({ data: { contentId: 'awesome_channel' } });
-    const goBackStub = sinon.stub(vm, 'showImportLocalWizard');
+    const goBackStub = sinon.stub(vm, 'startImportWizard');
     const { backButton, modalBackButton } = getElements(vm);
     // cheating and clicking both buttons in one test
     simulant.fire(modalBackButton(), 'click');
