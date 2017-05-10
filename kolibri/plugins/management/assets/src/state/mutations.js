@@ -1,3 +1,5 @@
+const sumBy = require('lodash/sumBy');
+
 // TODO move more mutations here so they can be tested
 
 function CONFIG_PAGE_NOTIFY(state, notificationType) {
@@ -23,10 +25,18 @@ function CONFIG_PAGE_COPY_SETTINGS(state) {
   state.pageState.settingsCopy = Object.assign({}, state.pageState.settings);
 }
 
+function CONTENT_MGMT_UPDATE_CHANNEL_INFO(state, { channelId, files }) {
+  state.pageState.channelInfo[channelId] = {
+    numberOfFiles: files.length,
+    totalFileSizeInBytes: sumBy(files, 'file_size'),
+  };
+}
+
 module.exports = {
   CONFIG_PAGE_NOTIFY,
   CONFIG_PAGE_UNDO_SETTINGS_CHANGE,
   CONFIG_PAGE_MODIFY_SETTING,
   CONFIG_PAGE_MODIFY_ALL_SETTINGS,
   CONFIG_PAGE_COPY_SETTINGS,
+  CONTENT_MGMT_UPDATE_CHANNEL_INFO,
 };

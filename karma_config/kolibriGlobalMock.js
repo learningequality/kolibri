@@ -1,4 +1,5 @@
 const sinon = require('sinon');
+const resources = require('../kolibri/core/assets/src/api-resources');
 
 class MockResource {
   constructor() {
@@ -34,8 +35,26 @@ class MockResource {
     return saveable;
   }
 
+  // allowable verbs: 'delete', 'fetch', 'save'
+  // TODO DRY up rest of methods after merged in
+  __getCrudable(payload, stub, verb, willReject = false) {
+    const model = {};
+    if (willReject) {
+      model[verb] = stub.returns(Promise.reject(payload));
+    } else {
+      model[verb] = stub.returns(Promise.resolve(payload));
+    }
+    return model;
+  }
+
   __getModelFetchReturns(payload, willReject = false) {
     this.getModel.returns(this.__getFetchable(payload, willReject));
+  }
+
+  __getModelDeleteReturns(payload, willReject = false) {
+    const stub = sinon.stub();
+    this.getModel.returns(this.__getCrudable(payload, stub, 'delete', willReject));
+    return stub;
   }
 
   __getModelSaveReturns(payload, willReject = false) {
@@ -51,20 +70,21 @@ class MockResource {
 
 class KolibriMock {
   constructor() {
-    this.resources = {
-      RoleResource: {},
-      FacilityDatasetResource: new MockResource(),
-      FacilityResource: new MockResource(),
-      MembershipResource: new MockResource(),
-    };
+    this.resources = {};
+
+    this.resourceNames = Object.keys(resources);
+
+    this.resourceNames.forEach((resource) => {
+      this.resources[resource] = new MockResource();
+    });
 
     this.__resetMocks = this.__resetMocks.bind(this);
   }
 
   __resetMocks() {
-    this.resources.FacilityResource.__resetMocks();
-    this.resources.FacilityDatasetResource.__resetMocks();
-    this.resources.MembershipResource.__resetMocks();
+    this.resourceNames.forEach((resource) => {
+      this.resources[resource].__resetMocks();
+    });
   }
 }
 
