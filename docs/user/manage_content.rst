@@ -36,7 +36,7 @@ Import Content Channel from the Internet
 #. Wait for the content to be downloaded and appear under the **My Channels** heading.
 
 .. image:: img/import_internet.png
-  :alt: enter content id to import channel from internet
+  :alt: enter content id to import channel from Internet
 
 .. image:: img/import_CC.png
   :alt: wait for import channel to finish

@@ -28,7 +28,7 @@ If the class learners have access to more then one channel, you will first see t
 .. image:: img/recent-item-exercise.png
   :alt: item recent activity
 
-.. TODO: merge between exercise/resource progress TBD
+.. TODO: merge between exercise/resource progress column TBD
 
 
 .. _topic_view:
@@ -42,9 +42,7 @@ Use this view to access the full report of activity progress for the selected cl
   :alt: activity by topic view
 
 
+.. include:: manage_exams.rst
 
 
 .. include:: manage_groups.rst
-
-
-.. include:: manage_exams.rst

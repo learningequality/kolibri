@@ -30,7 +30,7 @@ Kolibri Launcher Menu Options
   #. Once **Kolibri server** has started you will see the notification message *Kolibri server is running...*. The options **Stop Server** and **Load in browser** will now be available.
 * Select **Load in browser** to open the default browser at http://127.0.0.1:8080 displaying the Kolibri start page.
 * Select **Stop Server** when you want to stop the **Kolibri server**.
-* Select **Options** submenu for further configuration.
+* Select **Options** sub-menu for further configuration.
 
   #. Activate **Run Kolibri when user logs in** option if you want **Kolibri launcher** to start automatically when you log into the system.
   #. Activate **Auto-start server when Kolibri is run** option if you want the **Kolibri server** to start at the same time as the **Kolibri launcher**.

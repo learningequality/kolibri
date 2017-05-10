@@ -26,7 +26,7 @@ Kolibri users can have different roles with respective access to features:
   * View content and have their progress tracked
   * View *Coach Reports* to track progress of other users and usage stats for individual exercises
   * Create/Edit/Delete *Classes* and *Groups* and enroll users in them
-  * Create/Edit/Delete *Exams* and asign them to users
+  * Create/Edit/Delete *Exams* and assign them to users
 * **Facility Admins** can:
 
   * View content and have their progress tracked
@@ -79,7 +79,7 @@ To edit username or the full name account, follow these steps.
 
 #. Click on the **Edit** button (pencil icon) next to the user’s name.
 #. Edit **Full name** or **Username** in the **Edit account info** window. 
-#. Click **Confirm** to update the edited information or **Cancel** to exit without saving.
+#. Click **Confirm** to update the edited information, or **Cancel** to exit without saving.
 
 .. image:: img/edit_account_info.png
   :alt: edit account info form
@@ -90,7 +90,7 @@ Reset User’s Password
 
 #. Click **Reset password** in the **Edit account info** window. 
 #. Enter the new password in both fields.
-#. Click **Save** to confirm or **Back** to exit without changing the password.
+#. Click **Save** to confirm, or **Back** to exit without changing the password.
 
 .. image:: img/edit_password.png
   :alt: edit password form
@@ -100,7 +100,7 @@ Delete User’s Account
 *********************
 
 #. Click **Delete user** in the **Edit account info** window.
-#. Click **Yes** to confirm or **No** to exit without deleting the account.
+#. Click **Yes** to confirm, or **No** to exit without deleting the account.
 
 .. image:: img/delete_account_confirm.png
   :alt: confirm delete account
