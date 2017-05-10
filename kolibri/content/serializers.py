@@ -56,7 +56,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     license = serializers.StringRelatedField(many=False)
     license_description = serializers.SerializerMethodField()
 
-
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
         super(ContentNodeSerializer, self).__init__(*args, **kwargs)
