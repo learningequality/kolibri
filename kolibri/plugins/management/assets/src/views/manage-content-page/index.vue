@@ -32,7 +32,7 @@
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExport()"
+              @click="startExportWizard()"
             >
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
@@ -112,12 +112,6 @@
 
         return pageNameMap[this.pageState.wizardState.page];
       },
-    },
-    methods: {
-      startExport() {
-        this.updateWizardLocalDriveList();
-        this.startExportWizard();
-      }
     },
     vuex: {
       getters: {

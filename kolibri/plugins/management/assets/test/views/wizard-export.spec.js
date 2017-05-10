@@ -33,10 +33,15 @@ function makeStore() {
 
 function makeVm(options = {}) {
   const store = options.store || makeStore();
+  const vuex = {
+    actions: {
+      updateWizardLocalDriveList() {},
+    },
+  };
   const Ctor = Vue.extend(Wizard);
   // to silence errors and allow inspection of $tr output
   Ctor.prototype.$tr = (...x) => x;
-  return new Ctor(Object.assign(options, { store })).$mount();
+  return new Ctor(Object.assign(options, { store, vuex })).$mount();
 }
 
 function getElements(vm) {

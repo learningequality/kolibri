@@ -61,12 +61,10 @@ describe('manage content page index', () => {
   it('clicking "export" goes to "wizard-export"', () => {
     const vm = makeVm();
     const importButton = vm.$el.querySelector('button[name="export"]');
-    const updateDriveStub = sinon.stub(vm, 'updateWizardLocalDriveList');
     simulant.fire(importButton, 'click');
 
     return Vue.nextTick()
     .then(() => {
-      sinon.assert.called(updateDriveStub);
       assert.equal(vm.wizardComponent, 'wizard-export');
     });
   });

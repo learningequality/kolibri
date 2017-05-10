@@ -121,6 +121,9 @@
         return '';
       }
     },
+    beforeMount() {
+      this.updateWizardLocalDriveList();
+    },
     methods: {
       enabledMsg(drive) {
         return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;

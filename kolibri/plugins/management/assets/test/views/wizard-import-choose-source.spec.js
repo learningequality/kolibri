@@ -8,8 +8,8 @@ const Wizard = require('../../src/views/manage-content-page/wizard-import-choose
 
 Vue.use(Vuex);
 
-function makeVm(options = {}) {
-  const store = new Vuex.Store({
+function makeStore() {
+  return new Vuex.Store({
     mutations: {
       SET_CONTENT_PAGE_WIZARD_STATE() {},
       SET_CONTENT_PAGE_WIZARD_BUSY() {},
@@ -37,8 +37,17 @@ function makeVm(options = {}) {
       },
     },
   });
+}
+
+function makeVm(options = {}) {
+  const store = options.store || makeStore();
+  const vuex = {
+    actions: {
+      updateWizardLocalDriveList() {},
+    },
+  };
   const Ctor = Vue.extend(Wizard);
-  return new Ctor(Object.assign(options, { store })).$mount();
+  return new Ctor(Object.assign(options, { store, vuex })).$mount();
 }
 
 function getElements(vm) {

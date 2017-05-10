@@ -119,6 +119,9 @@
         );
       },
     },
+    beforeMount() {
+      this.updateWizardLocalDriveList();
+    },
     methods: {
       isEnabledDrive(drive) {
         return drive.metadata.channels.length > 0;
