@@ -81,7 +81,7 @@
           [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
-          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
           [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
         };

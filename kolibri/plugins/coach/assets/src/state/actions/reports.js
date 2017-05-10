@@ -241,7 +241,7 @@ function _showContentList(store, options) {
     channel_id: options.channelId,
     content_node_id: options.contentScopeId,
     collection_kind: options.userScope,
-    collection_id: options.classId,
+    collection_id: options.userScopeId,
   };
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
@@ -577,12 +577,37 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Learners - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  const channelPromise = ChannelResource.getModel(channelId).fetch();
+  channelPromise.then(
+    (channelData) => {
+      _showContentList(store, {
+        classId,
+        channelId,
+        contentScope: ReportConstants.ContentScopes.ROOT,
+        contentScopeId: channelData.root_pk,
+        userScope: ReportConstants.UserScopes.USER,
+        userScopeId: userId,
+        showRecentOnly: false,
+      });
+    },
+    error => coreActions.handleError(store, error)
+  );
 }
 
 function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Learners - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showContentList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.TOPIC,
+    contentScopeId: topicId,
+    userScope: ReportConstants.UserScopes.USER,
+    userScopeId: userId,
+    showRecentOnly: false,
+  });
 }
 
 function showLearnerItemDetails(store, classId, userId, channelId, contentId,

@@ -87,24 +87,47 @@
     },
     methods: {
       genRowLink(row) {
-        if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        if (CoachConstants.TopicReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          }
           return {
-            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
-              topicId: row.id,
-            }
+              contentId: row.id,
+            },
           };
-        }
-        return {
-          name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
-          params: {
-            classId: this.classId,
-            channelId: this.pageState.channelId,
-            contentId: row.id,
+        } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_DETAILS_ROOT,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                contentId: row.contentId,
+              },
+            };
           }
-        };
+        }
+        return null;
       },
     },
     computed: {
@@ -115,6 +138,7 @@
     vuex: {
       getters: {
         classId: state => state.classId,
+        pageName: state => state.pageName,
         pageState: state => state.pageState,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,

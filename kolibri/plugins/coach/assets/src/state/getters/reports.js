@@ -45,6 +45,7 @@ function _genRow(state, item) {
     // CONTENT NODES
     row.kind = item.kind;
     row.id = item.id;
+    row.contentId = item.contentId;
     row.title = item.title;
     row.parent = { id: item.parent.id, title: item.parent.title };
 
