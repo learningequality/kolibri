@@ -104,9 +104,6 @@ const mutations = {
   SET_CONTENT_PAGE_CHANNELS(state, channelList) {
     state.pageState.channelList = channelList;
   },
-  SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
-    state.pageState.wizardState = wizardState;
-  },
   SET_CONTENT_PAGE_WIZARD_DRIVES(state, driveList) {
     state.pageState.wizardState.driveList = driveList;
   },

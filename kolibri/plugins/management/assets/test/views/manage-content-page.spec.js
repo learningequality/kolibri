@@ -2,6 +2,7 @@
 const Vue = require('vue-test');
 const Vuex = require('vuex');
 const simulant = require('simulant');
+const mutations = require('../../src/state/mutations');
 const sinon = require('sinon');
 const assert = require('assert');
 const ManageContentPage = require('../../src/views/manage-content-page/index.vue');
@@ -10,16 +11,11 @@ Vue.use(Vuex);
 
 function makeStore() {
   return new Vuex.Store({
-    mutations: {
-      // fake implementation until we get vuex integration tests setup
-      SET_CONTENT_PAGE_WIZARD_STATE(state, payload) {
-        state.testStuff.wizardPageName = payload.page;
-      },
+    mutations,
+    actions: {
+      cancelImportExportWizard() {},
     },
     state: {
-      testStuff: {
-        wizardPageName: '',
-      },
       core: {
         channels: {
           list: [],
@@ -30,9 +26,7 @@ function makeStore() {
       },
       pageState: {
         taskList: [],
-        wizardState: {
-
-        },
+        wizardState: {},
       },
     },
   });
@@ -42,9 +36,16 @@ function makeVm(options = {}) {
   const store = options.store || makeStore();
   const components = {
     'channels-grid': '<div>Channel Grid</div>',
+    'task-status': '<div>Task Status</div>',
+    'wizard-import-local': '<div>Wizard</div>',
+  };
+  const vuex = {
+    actions: {
+      pollTasksAndChannels() {},
+    }
   };
   const Ctor = Vue.extend(ManageContentPage);
-  return new Ctor(Object.assign(options, { components, store })).$mount();
+  return new Ctor(Object.assign(options, { components, store, vuex })).$mount();
 }
 
 describe.only('manage content page index', () => {
@@ -56,7 +57,7 @@ describe.only('manage content page index', () => {
 
     return Vue.nextTick()
     .then(() => {
-      assert.equal(vm.$store.state.testStuff.wizardPageName, 'CHOOSE_IMPORT_SOURCE');
+      assert.equal(vm.$store.state.pageState.wizardState.page, 'CHOOSE_IMPORT_SOURCE');
     });
   });
 });

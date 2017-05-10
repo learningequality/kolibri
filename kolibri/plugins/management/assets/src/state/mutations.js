@@ -32,6 +32,10 @@ function CONTENT_MGMT_UPDATE_CHANNEL_INFO(state, { channelId, files }) {
   };
 }
 
+function SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
+  state.pageState.wizardState = wizardState;
+}
+
 module.exports = {
   CONFIG_PAGE_NOTIFY,
   CONFIG_PAGE_UNDO_SETTINGS_CHANGE,
@@ -39,4 +43,5 @@ module.exports = {
   CONFIG_PAGE_MODIFY_ALL_SETTINGS,
   CONFIG_PAGE_COPY_SETTINGS,
   CONTENT_MGMT_UPDATE_CHANNEL_INFO,
+  SET_CONTENT_PAGE_WIZARD_STATE,
 };

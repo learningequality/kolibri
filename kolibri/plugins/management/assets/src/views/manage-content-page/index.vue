@@ -104,7 +104,7 @@
       wizardComponent() {
         const pageNameMap = {
           [ContentWizardPages.EXPORT]: 'wizard-export',
-          [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
+          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-local',
           [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
           [ContentWizardPages.IMPORT_PREVIEW]: 'wizard-import-preview',
         };
@@ -120,9 +120,6 @@
       },
       actions: {
         pollTasksAndChannels: actions.pollTasksAndChannels,
-        // TODO 'wizard-import-local' and all its associated references should be renamed
-        // to something like the old 'wizard-import-source'
-        showImportLocalWizard: actions.showImportLocalWizard,
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
       },
