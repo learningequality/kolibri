@@ -17,13 +17,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='attemptlog',
             name='user',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='examattemptlog',
             name='user',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser'),
             preserve_default=False,
         ),
     ]

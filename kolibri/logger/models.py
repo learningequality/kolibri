@@ -86,6 +86,9 @@ class BaseLogModel(AbstractFacilityDataModel):
     def calculate_partition(self):
         return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
+    def calculate_source_id(self):
+        return None
+
 
 class ContentSessionLog(BaseLogModel):
     """
@@ -93,7 +96,6 @@ class ContentSessionLog(BaseLogModel):
     """
     # Morango syncing settings
     morango_model_name = "contentsessionlog"
-    uuid_input_fields = "RANDOM"
 
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
@@ -112,7 +114,6 @@ class ContentSummaryLog(BaseLogModel):
     """
     # Morango syncing settings
     morango_model_name = "contentsummarylog"
-    uuid_input_fields = ("user_id", "content_id")
 
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
@@ -125,6 +126,9 @@ class ContentSummaryLog(BaseLogModel):
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={})
 
+    def calculate_source_id(self):
+        return self.content_id
+
 
 class UserSessionLog(BaseLogModel):
     """
@@ -132,7 +136,6 @@ class UserSessionLog(BaseLogModel):
     """
     # Morango syncing settings
     morango_model_name = "usersessionlog"
-    uuid_input_fields = "RANDOM"
 
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
@@ -183,8 +186,8 @@ class MasteryLog(BaseLogModel):
     def infer_dataset(self):
         return self.summarylog.dataset
 
-    def calculate_partition(self):
-        return '{dataset_id}:user-spec:{user_id}'.format(self.dataset_id, self.summarylog.user_id)
+    def calculate_source_id(self):
+        return self.summarylog_id + ":" + self.mastery_level
 
 
 class BaseAttemptLog(BaseLogModel):
@@ -221,6 +224,9 @@ class AttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an assessment
     """
+
+    morango_model_name = 'attemptlog'
+
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
@@ -234,6 +240,9 @@ class ExamLog(BaseLogModel):
     This model provides a summary of a user's interaction with a particular exam, and serves as
     an aggregation point for individual attempts on that exam.
     """
+
+    morango_model_name = 'examlog'
+
     # Identifies the exam that this is for.
     exam = models.ForeignKey(Exam, related_name="examlogs", blank=False, null=False)
     # Identifies which user this log summarizes interactions for.
@@ -250,6 +259,9 @@ class ExamAttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an exam
     """
+
+    morango_model_name = 'examattemptlog'
+
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here

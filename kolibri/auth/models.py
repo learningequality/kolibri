@@ -103,11 +103,11 @@ class FacilityDataset(FacilityDataSyncableModel):
             return "FacilityDataset (no associated Facility)"
 
     def calculate_source_id(self):
-        # will call certificate methods
-        pass
+        # for now it is a random value
+        return uuid.uuid4().hex
 
     def calculate_partition(self):
-        return '{id}'.format(self.id)
+        return "{id}:cross-user".format(id=self.ID_PLACEHOLDER)
 
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
@@ -120,6 +120,9 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
     class Meta:
         abstract = True
+
+    def calculate_source_id(self):
+        return None
 
     def clean_fields(self, *args, **kwargs):
         # ensure that we have, or can infer, a dataset for the model instance
@@ -447,9 +450,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     def calculate_partition(self):
         return "{dataset_id}:user-spec:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
-
-    def calculate_source_id(self):
-        return uuid.uuid4().hex
 
     def infer_dataset(self):
         return self.facility.dataset
@@ -804,7 +804,6 @@ class Membership(AbstractFacilityDataModel):
 
     # Morango syncing settings
     morango_model_name = "membership"
-    uuid_input_fields = ("user_id", "collection_id")
 
     permissions = (
         IsOwn(read_only=True) |  # users can read their own Memberships
@@ -830,7 +829,7 @@ class Membership(AbstractFacilityDataModel):
         return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
-        return '{collection_id}'
+        return '{collection_id}'.format(collection_id=self.collection_id)
 
     def infer_dataset(self):
         user_dataset = self.user.dataset
@@ -854,7 +853,6 @@ class Role(AbstractFacilityDataModel):
 
     # Morango syncing settings
     morango_model_name = "role"
-    uuid_input_fields = ("user_id", "collection_id", "kind")
 
     permissions = (
         IsOwn(read_only=True) |  # users can read their own Roles
@@ -880,7 +878,7 @@ class Role(AbstractFacilityDataModel):
         return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
-        return 'collection_id+kind+user_id?'
+        return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
 
     def infer_dataset(self):
         user_dataset = self.user.dataset

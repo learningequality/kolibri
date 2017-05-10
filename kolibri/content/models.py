@@ -313,6 +313,9 @@ class Exam(AbstractFacilityDataModel):
     """
     This class stores metadata about teacher created exams to test current student knowledge.
     """
+
+    morango_model_name = "exam"
+
     permissions = RoleBasedPermissions(
         target_field="collection",
         can_be_created_by=(),
@@ -321,7 +324,6 @@ class Exam(AbstractFacilityDataModel):
         can_be_deleted_by=(),
     )
 
-    id = UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=200)
     # The channel this Exam is associated with.
     channel_id = models.CharField(max_length=32)
@@ -351,6 +353,9 @@ class Exam(AbstractFacilityDataModel):
     def infer_dataset(self):
         return self.creator.dataset
 
+    def calculate_partition(self):
+        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+
     def __str__(self):
         return self.title
 
@@ -360,6 +365,9 @@ class ExamAssignment(AbstractFacilityDataModel):
     This class acts as an intermediary to handle assignment of an exam to particular collections
     classes, groups, etc.
     """
+
+    morango_model_name = "examassignment"
+
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
@@ -375,3 +383,6 @@ class ExamAssignment(AbstractFacilityDataModel):
 
     def infer_dataset(self):
         return self.assigned_by.dataset
+
+    def calculate_partition(self):
+        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
