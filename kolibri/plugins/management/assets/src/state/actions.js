@@ -25,7 +25,7 @@ const {
   resetFacilityConfig,
   saveFacilityConfig,
 } = require('./facilityConfigPageActions');
-const contentImportExportActions = require('./contentImportExportActions');
+const manageContentActions = require('./manageContentActions');
 
 const preparePage = require('./preparePage');
 
@@ -676,7 +676,7 @@ function showScratchpad(store) {
 }
 
 
-module.exports = {
+const actions = {
   displayModal,
 
   createClass,
@@ -699,8 +699,6 @@ module.exports = {
   addCoachRole: addCoachRoleAction,
   removeCoachRole: removeCoachRoleAction,
 
-  deleteChannel: contentImportExportActions.deleteChannel,
-  showContentPage: contentImportExportActions.showContentPage,
   pollTasksAndChannels,
   clearTask,
   startImportWizard,
@@ -718,3 +716,5 @@ module.exports = {
   showDataPage,
   showScratchpad,
 };
+
+module.exports = Object.assign(actions, manageContentActions);
