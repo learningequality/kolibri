@@ -84,7 +84,10 @@ class BaseLogModel(AbstractFacilityDataModel):
     objects = BaseLogQuerySet.as_manager()
 
     def calculate_partition(self):
-        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        if self.user_id:
+            return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        else:
+            return '{dataset_id}:anon-user'.format(dataset_id=self.dataset_id)
 
     def calculate_source_id(self):
         return None
