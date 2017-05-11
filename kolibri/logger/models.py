@@ -108,7 +108,7 @@ class ContentSessionLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
-    extra_fields = JSONField(default={})
+    extra_fields = JSONField(default={}, blank=True)
 
 
 class ContentSummaryLog(BaseLogModel):
@@ -127,7 +127,7 @@ class ContentSummaryLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
     kind = models.CharField(max_length=200)
-    extra_fields = JSONField(default={})
+    extra_fields = JSONField(default={}, blank=True)
 
     def calculate_source_id(self):
         return self.content_id
