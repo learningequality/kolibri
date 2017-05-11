@@ -21,13 +21,26 @@ from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import Exam, UUIDField
-
+from morango.manager import SyncableModelManager
 from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
+class BaseLogModelManager(SyncableModelManager):
+
+    def get_queryset(self):
+        return BaseLogQuerySet(self.model, using=self._db)
+
+
 class BaseLogQuerySet(SyncableModelQuerySet):
+
+    def as_manager(cls):
+        manager = BaseLogModelManager.from_queryset(cls)()
+        manager._built_with_as_manager = True
+        return manager
+    as_manager.queryset_only = True
+    as_manager = classmethod(as_manager)
 
     def filter_by_topic(self, topic, content_id_lookup="content_id"):
         """
