@@ -664,7 +664,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
 
     def calculate_source_id(self):
-        return "{kind}"
+        return None
 
     def clean_fields(self, *args, **kwargs):
         self._ensure_kind()
