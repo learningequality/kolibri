@@ -49,7 +49,7 @@
         </table>
       </div>
     </template>
-    <auth-message v-else :command="$tr('notAdmin')" />
+    <auth-message v-else :details="$tr('notAdmin')" />
 
   </div>
 

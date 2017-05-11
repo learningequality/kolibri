@@ -13,8 +13,8 @@
       </div>
       <auth-message
         v-else-if="isSuperuser"
-        :prompt="$tr('superUserPrompt')"
-        :command="$tr('superUserCommand')"
+        :header="$tr('superUserPrompt')"
+        :details="$tr('superUserCommand')"
       />
       <auth-message v-else authorizedRole="admin" />
     </div>

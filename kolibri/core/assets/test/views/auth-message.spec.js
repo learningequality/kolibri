@@ -10,41 +10,48 @@ function makeVm(options) {
 
 function getElements(vm) {
   return {
-    loginCommand: () => vm.$el.querySelector('#login-command').innerText.trim(),
-    loginPrompt: () => vm.$el.querySelector('#login-prompt').innerText.trim(),
+    headerText: () => vm.$el.querySelector('.AuthorizationMsg h1').innerText.trim(),
+    detailsText: () => vm.$el.querySelector('.AuthorizationMsg p').innerText.trim(),
   };
 }
 
-describe('auth message component', () => {
+describe.only('auth message component', () => {
   it('shows the right command when authorized role is "learner"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'learner' } });
-    const { loginCommand } = getElements(vm);
-    assert.equal(
-      loginCommand(),
-      'You must be signed in as a Learner to view this page.'
-    );
+    const { detailsText } = getElements(vm);
+    assert.equal(detailsText(), 'You must be signed in as a Learner to view this page.');
   });
 
   it('shows the right command when authorized role is "admin"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'admin' } });
-    const { loginCommand } = getElements(vm);
-    assert.equal(
-      loginCommand(),
-      'You must be signed in as an Admin to view this page.'
-    );
+    const { detailsText } = getElements(vm);
+    assert.equal(detailsText(), 'You must be signed in as an Admin to view this page.');
   });
 
-  it('shows right text when manually provided as prop', () => {
+  it('shows right text when both texts manually provided as prop', () => {
     const vm = makeVm({
       propsData: {
-        prompt: 'Signed in as device owner',
-        command: 'Cannot be used by device owner',
+        header: 'Signed in as device owner',
+        details: 'Cannot be used by device owner',
       },
     });
 
-    const { loginCommand, loginPrompt } = getElements(vm);
+    const { headerText, detailsText } = getElements(vm);
 
-    assert.equal(loginPrompt(), 'Signed in as device owner');
-    assert.equal(loginCommand(), 'Cannot be used by device owner');
+    assert.equal(headerText(), 'Signed in as device owner');
+    assert.equal(detailsText(), 'Cannot be used by device owner');
+  });
+
+  it('shows right text when one text manually provided as prop', () => {
+    const vm = makeVm({
+      propsData: {
+        details: 'Must be device owner to manage content',
+      },
+    });
+
+    const { headerText, detailsText } = getElements(vm);
+
+    assert.equal(headerText(), 'Did you forget to sign in?');
+    assert.equal(detailsText(), 'Must be device owner to manage content');
   });
 });

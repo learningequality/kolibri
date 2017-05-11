@@ -1,11 +1,11 @@
 <template>
 
-  <div class="LoginMessage">
-    <h1 id="login-prompt">
-      {{ loginPrompt }}
+  <div class="AuthorizationMsg">
+    <h1>
+      {{ header || $tr('loginPrompt') }}
     </h1>
-    <p id="login-command">
-      {{ loginCommand }}
+    <p>
+      {{ details || defaultDetails }}
     </p>
   </div>
 
@@ -23,17 +23,11 @@
           return role === 'admin' || role === 'learner';
         },
       },
-      prompt: { type: String },
-      command: { type: String },
+      header: { type: String },
+      details: { type: String },
     },
     computed: {
-      loginPrompt() {
-        return this.prompt || this.$tr('loginPrompt');
-      },
-      loginCommand() {
-        if (this.command) {
-          return this.command;
-        }
+      defaultDetails() {
         return `${this.$tr('commandStart')} ${this.$tr(this.authorizedRole)} ${this.$tr('commandEnd')}`;
       }
     },
@@ -52,7 +46,7 @@
 
 <style lang="stylus" scoped>
 
-  .LoginMessage
+  .AuthorizationMsg
     text-align: center
 
 </style>
