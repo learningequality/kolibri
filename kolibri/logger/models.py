@@ -200,7 +200,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self):
-        return self.summarylog.dataset
+        return self.user.dataset
 
     def calculate_source_id(self):
         return self.summarylog_id + ":" + self.mastery_level
@@ -229,7 +229,7 @@ class BaseAttemptLog(BaseLogModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = JSONField(default=[])
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
         abstract = True
