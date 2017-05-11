@@ -10,25 +10,25 @@ function makeVm(options) {
 
 function getElements(vm) {
   return {
-    headerText: () => vm.$el.querySelector('.AuthorizationMsg h1').innerText.trim(),
-    detailsText: () => vm.$el.querySelector('.AuthorizationMsg p').innerText.trim(),
+    headerText: () => vm.$el.querySelector('.AuthMessage h1').innerText.trim(),
+    detailsText: () => vm.$el.querySelector('.AuthMessage p').innerText.trim(),
   };
 }
 
 describe('auth message component', () => {
-  it('shows the right command when authorized role is "learner"', () => {
+  it('shows the correct details when authorized role is "learner"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'learner' } });
     const { detailsText } = getElements(vm);
     assert.equal(detailsText(), 'You must be signed in as a Learner to view this page.');
   });
 
-  it('shows the right command when authorized role is "admin"', () => {
+  it('shows the correct details when authorized role is "admin"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'admin' } });
     const { detailsText } = getElements(vm);
     assert.equal(detailsText(), 'You must be signed in as an Admin to view this page.');
   });
 
-  it('shows right text when both texts manually provided as prop', () => {
+  it('shows correct text when both texts manually provided as prop', () => {
     const vm = makeVm({
       propsData: {
         header: 'Signed in as device owner',
@@ -42,7 +42,7 @@ describe('auth message component', () => {
     assert.equal(detailsText(), 'Cannot be used by device owner');
   });
 
-  it('shows right text when one text manually provided as prop', () => {
+  it('shows correct text when one text manually provided as prop', () => {
     const vm = makeVm({
       propsData: {
         details: 'Must be device owner to manage content',
