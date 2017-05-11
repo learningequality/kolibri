@@ -195,6 +195,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     full_name = models.CharField(_('full name'), max_length=120, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
+    is_facility_user = False
+
     def get_short_name(self):
         return self.full_name.split(' ', 1)[0]
 
@@ -445,6 +447,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     # FacilityUsers can't access the Django admin interface
     is_staff = False
     is_superuser = False
+    is_facility_user = True
 
     class Meta:
         unique_together = (("username", "facility"),)
