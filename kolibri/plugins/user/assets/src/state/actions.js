@@ -29,7 +29,7 @@ function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
-    if (coreGetters.isAdmin) {
+    if (coreGetters.isAdmin(store.state)) {
       return DeviceOwnerResource.getModel(session.user_id);
     }
     return FacilityUserResource.getModel(session.user_id);

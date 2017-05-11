@@ -110,24 +110,16 @@
         return '';
       },
       canEditUsername() {
-        if (this.isSuperuser) {
-          return true;
-        } else if (this.isAdmin) {
-          return true;
-        } else if (this.isCoach || this.isLearner) {
+        if (this.isCoach || this.isLearner) {
           return this.facilityConfig.learnerCanEditUsername;
         }
-        return false;
+        return true;
       },
       canEditName() {
-        if (this.isSuperuser) {
-          return true;
-        } else if (this.isAdmin) {
-          return true;
-        } else if (this.isCoach || this.isLearner) {
+        if (this.isCoach || this.isLearner) {
           return this.facilityConfig.learnerCanEditName;
         }
-        return false;
+        return true;
       },
       role() {
         if (this.isSuperuser) {
