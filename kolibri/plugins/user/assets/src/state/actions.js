@@ -6,6 +6,7 @@ const coreGetters = require('kolibri.coreVue.vuex.getters');
 const router = require('kolibri.coreVue.router');
 
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
 
 function redirectToHome() {
   window.location = '/';
@@ -27,7 +28,13 @@ function showRoot(store) {
 function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
-  const savedUserModel = FacilityUserResource.getModel(session.user_id);
+  function getUserModel() {
+    if (coreGetters.isAdmin(store.state)) {
+      return DeviceOwnerResource.getModel(session.user_id);
+    }
+    return FacilityUserResource.getModel(session.user_id);
+  }
+  const savedUserModel = getUserModel();
   const changedValues = {};
 
   // explicit checks for the only values that can be changed
