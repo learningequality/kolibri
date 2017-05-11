@@ -158,13 +158,13 @@
         return this.pageName === PageNames.SEARCH;
       },
       recommendedLink() {
-        return { name: PageNames.LEARN_ROOT };
+        return { name: PageNames.LEARN_CHANNEL, params: { channel_id: this.channelId } };
       },
       topicsLink() {
-        return { name: PageNames.EXPLORE_ROOT };
+        return { name: PageNames.EXPLORE_CHANNEL, params: { channel_id: this.channelId } };
       },
       examsLink() {
-        return { name: PageNames.EXAM_LIST };
+        return { name: PageNames.EXAM_LIST, params: { channel_id: this.channelId } };
       },
       inRecommended() {
         return this.pageMode === PageModes.LEARN;
@@ -183,6 +183,7 @@
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
+        channelId: state => state.core.channels.currentId,
       },
     },
     store, // make this and all child components aware of the store
