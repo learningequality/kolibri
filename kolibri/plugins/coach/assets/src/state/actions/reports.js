@@ -11,13 +11,11 @@ const { now } = require('kolibri.utils.serverClock');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
-const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
 const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
 const ContentReportResourceConstructor = require('../../apiResources/contentReport');
 
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const UserReportResource = new UserReportResourceConstructor(coreApp);
-const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
@@ -196,13 +194,6 @@ function _contentSummaryState(data) {
   };
 }
 
-function _userSummaryState(data) {
-  if (!data) {
-    return {};
-  }
-  return data;
-}
-
 function _setContentReport(store, reportPayload) {
   const reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
   reportPromise.then(report => {
@@ -227,14 +218,6 @@ function _setContentSummary(store, contentScopeId, reportPayload) {
     store.dispatch('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
   });
   return contentPromise;
-}
-
-function _setUserSummary(store, userScopeId, reportPayload) {
-  const userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
-  userPromise.then(userSummary => {
-    store.dispatch('SET_REPORT_USER_SUMMARY', _userSummaryState(userSummary));
-  });
-  return userPromise;
 }
 
 function _showContentList(store, options) {
@@ -588,5 +571,4 @@ module.exports = {
   showLearnerItemList,
   showLearnerItemDetails,
   setReportSorting,
-  _setUserSummary,
 };
