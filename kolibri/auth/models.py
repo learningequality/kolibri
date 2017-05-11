@@ -41,6 +41,7 @@ from kolibri.core.errors import KolibriValidationError
 from morango.models import SyncableModel
 from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
+from morango.utils.uuids import UUIDField
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds, role_kinds
@@ -572,6 +573,8 @@ class DeviceOwner(KolibriAbstractBaseUser):
     """
     permissions = AnybodyCanCreateIfNoDeviceOwner()
     objects = DeviceOwnerManager()
+
+    id = UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
 
     # DeviceOwners can access the Django admin interface
     is_staff = True
