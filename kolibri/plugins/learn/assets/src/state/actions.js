@@ -67,6 +67,7 @@ function _contentState(data) {
     next_content: data.next_content,
     author: data.author,
     license: data.license,
+    license_description: data.license_description,
     license_owner: data.license_owner,
   };
   Object.assign(state, assessmentMetaDataState(data));
