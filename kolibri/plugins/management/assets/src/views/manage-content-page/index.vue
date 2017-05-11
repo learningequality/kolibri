@@ -49,7 +49,7 @@
         </table>
       </div>
     </template>
-    <auth-message v-else :details="$tr('notAdmin')" />
+    <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
 
   </div>
 
@@ -70,7 +70,8 @@
       import: 'Import',
       export: 'Export',
       noChannels: 'No channels installed',
-      notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
+      notAdminHeader: 'You need to sign in as the Device Owner to manage content',
+      notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
     },
     components: {
       'auth-message': require('kolibri.coreVue.components.authMessage'),
