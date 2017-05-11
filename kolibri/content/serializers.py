@@ -5,7 +5,7 @@ from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .content_db_router import default_database_is_attached, get_active_content_database
+# from .content_db_router import default_database_is_attached, get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
@@ -80,19 +80,28 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # we're getting  progress for the currently logged-in user
         user = self.context["request"].user
 
-        # get the content_id for every content node that's under this node
-        leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
+        if target_node.kind == "topic":
+            # # get the content_id for every content node that's under this node
+            # leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
 
-        # get all summary logs for the current user that correspond to the descendant content nodes
-        if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-            channel_alias = get_active_content_database()
-            summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
-        else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-            summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+            # # get all summary logs for the current user that correspond to the descendant content nodes
+            # if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+            #     channel_alias = get_active_content_database()
+            #     summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
+            # else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+            #     summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
 
-        # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
-        return round(overall_progress, 4)
+            # # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+            # overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
+            # return round(overall_progress, 4)
+            return None
+        else:
+            try:
+                # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+                overall_progress = ContentSummaryLog.objects.get(user=user, content_id=target_node.content_id).progress
+            except ContentSummaryLog.DoesNotExist:
+                overall_progress = 0
+            return round(overall_progress, 4)
 
     def get_ancestors(self, target_node):
         """
