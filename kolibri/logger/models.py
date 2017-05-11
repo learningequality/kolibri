@@ -162,7 +162,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self):
-        return self.summarylog.dataset
+        return self.user.dataset
 
 class BaseAttemptLog(BaseLogModel):
     """
