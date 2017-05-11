@@ -89,11 +89,11 @@ class FacilityDataset(FacilityDataSyncableModel):
     location = models.CharField(max_length=200, blank=True)
 
     # Facility specific configuration settings
-    learner_can_edit_username = models.BooleanField(default=False)
-    learner_can_edit_name = models.BooleanField(default=False)
-    learner_can_edit_password = models.BooleanField(default=False)
-    learner_can_sign_up = models.BooleanField(default=False)
-    learner_can_delete_account = models.BooleanField(default=False)
+    learner_can_edit_username = models.BooleanField(default=True)
+    learner_can_edit_name = models.BooleanField(default=True)
+    learner_can_edit_password = models.BooleanField(default=True)
+    learner_can_sign_up = models.BooleanField(default=True)
+    learner_can_delete_account = models.BooleanField(default=True)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
