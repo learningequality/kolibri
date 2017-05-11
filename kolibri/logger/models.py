@@ -203,7 +203,7 @@ class MasteryLog(BaseLogModel):
         return self.user.dataset
 
     def calculate_source_id(self):
-        return self.summarylog_id + ":" + self.mastery_level
+        return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
 
 
 class BaseAttemptLog(BaseLogModel):
