@@ -7,3 +7,4 @@ User Guide
    admin
    learner
    coach
+   faq
