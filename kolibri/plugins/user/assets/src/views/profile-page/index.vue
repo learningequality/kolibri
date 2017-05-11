@@ -21,7 +21,7 @@
       <p>{{ session.username }}</p>
     </template>
 
-    <template v-if="!canEditName && !isSuperuser">
+    <template v-if="!canEditName">
       <h3>{{ $tr('name') }}</h3>
       <p>{{ session.full_name }}</p>
     </template>
@@ -111,7 +111,7 @@
       },
       canEditUsername() {
         if (this.isSuperuser) {
-          return false;
+          return true;
         } else if (this.isAdmin) {
           return true;
         } else if (this.isCoach || this.isLearner) {
@@ -121,7 +121,7 @@
       },
       canEditName() {
         if (this.isSuperuser) {
-          return false;
+          return true;
         } else if (this.isAdmin) {
           return true;
         } else if (this.isCoach || this.isLearner) {
