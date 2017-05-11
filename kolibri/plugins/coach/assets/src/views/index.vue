@@ -16,7 +16,7 @@
         :header="$tr('superUserPrompt')"
         :details="$tr('superUserCommand')"
       />
-      <auth-message v-else authorizedRole="admin" />
+      <auth-message v-else authorizedRole="admin_or_coach" />
     </div>
 
   </core-base>

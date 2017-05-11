@@ -14,13 +14,18 @@
 
 <script>
 
+  const userRoles = [
+    'admin',
+    'admin_or_coach',
+    'learner',
+  ];
+
   module.exports = {
     props: {
-      // 'role' or 'learner'
       authorizedRole: {
         type: String,
         validator(role) {
-          return role === 'admin' || role === 'learner';
+          return userRoles.includes(role);
         },
       },
       header: { type: String },
@@ -35,6 +40,7 @@
     $trs: {
       loginPrompt: 'Did you forget to sign in?',
       admin: 'an Admin',
+      admin_or_coach: 'an Admin or Coach',
       learner: 'a Learner',
       commandStart: 'You must be signed in as',
       commandEnd: 'to view this page.'
