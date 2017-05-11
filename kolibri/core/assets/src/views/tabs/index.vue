@@ -2,7 +2,7 @@
 
   <nav class="tabs">
     <ul>
-      <slot name="items"/>
+      <slot/>
     </ul>
   </nav>
 

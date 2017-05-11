@@ -1,38 +1,36 @@
 <template>
 
   <tabs>
-    <template slot="items">
-      <tab-link
-        :title="$tr('recent')"
-        icon="access_time"
-        :link="recentLink"
-        :selected="isRecentPage"
-      />
-      <tab-link
-        :title="$tr('topics')"
-        icon="folder"
-        :link="topicsLink"
-        :selected="isTopicPage"
-      />
-      <tab-link
-        :title="$tr('exams')"
-        icon="assignments"
-        :link="examsLink"
-        :selected="Constants.ExamPages.includes(pageName)"
-      />
-      <!--<tab-link
-        :title="$tr('learners')"
-        icon="people"
-        :link="learnersLink"
-        :selected="isLearnerPage"
-      />-->
-      <tab-link
-        :title="$tr('groups')"
-        icon="group_work"
-        :link="groupsLink"
-        :selected="pageName === Constants.PageNames.GROUPS"
-      />
-    </template>
+    <tab-link
+      :title="$tr('recent')"
+      icon="access_time"
+      :link="recentLink"
+      :selected="isRecentPage"
+    />
+    <tab-link
+      :title="$tr('topics')"
+      icon="folder"
+      :link="topicsLink"
+      :selected="isTopicPage"
+    />
+    <tab-link
+      :title="$tr('exams')"
+      icon="assignments"
+      :link="examsLink"
+      :selected="Constants.ExamPages.includes(pageName)"
+    />
+    <!--<tab-link
+      :title="$tr('learners')"
+      icon="people"
+      :link="learnersLink"
+      :selected="isLearnerPage"
+    />-->
+    <tab-link
+      :title="$tr('groups')"
+      icon="group_work"
+      :link="groupsLink"
+      :selected="pageName === Constants.PageNames.GROUPS"
+    />
   </tabs>
 
 </template>

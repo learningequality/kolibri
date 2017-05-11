@@ -30,6 +30,8 @@
 
 <script>
 
+  const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
+
   module.exports = {
     props: {
       title: {
@@ -41,8 +43,9 @@
         required: false,
       },
       link: {
-        type: [String, Object],
+        type: Object,
         required: true,
+        validator: ValidateLinkObject,
       },
       selected: {
         type: Boolean,

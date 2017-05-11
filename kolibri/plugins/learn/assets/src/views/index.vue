@@ -15,27 +15,25 @@
 
     <div v-if="!isSearchPage">
       <tabs>
-        <template slot="items">
-          <tab-link
-            :title="$tr('recommended')"
-            icon="forum"
-            :link="recommendedLink"
-            :selected="inRecommended"
-          />
-          <tab-link
-            :title="$tr('topics')"
-            icon="folder"
-            :link="topicsLink"
-            :selected="inTopics"
-          />
-          <tab-link
-            v-if="isUserLoggedIn && userHasMemberships"
-            :title="$tr('exams')"
-            icon="assignments"
-            :link="examsLink"
-            :selected="inExams"
-          />
-        </template>
+        <tab-link
+          :title="$tr('recommended')"
+          icon="forum"
+          :link="recommendedLink"
+          :selected="inRecommended"
+        />
+        <tab-link
+          :title="$tr('topics')"
+          icon="folder"
+          :link="topicsLink"
+          :selected="inTopics"
+        />
+        <tab-link
+          v-if="isUserLoggedIn && userHasMemberships"
+          :title="$tr('exams')"
+          icon="assignments"
+          :link="examsLink"
+          :selected="inExams"
+        />
       </tabs>
     </div>
 

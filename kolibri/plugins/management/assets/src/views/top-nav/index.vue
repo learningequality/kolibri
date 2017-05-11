@@ -1,38 +1,36 @@
 <template>
 
   <tabs>
-    <template slot="items">
-      <tab-link
-        :title="$tr('classes')"
-        icon="domain"
-        :link="classesLink"
-        :selected="classesActive"
-      />
-      <tab-link
-        :title="$tr('users')"
-        icon="people"
-        :link="usersLink"
-        :selected="usersActive"
-      />
-      <tab-link
-        :title="$tr('facilities')"
-        icon="settings"
-        :link="facilitiesConfigLink"
-        :selected="facilitiesConfigActive"
-      />
-      <tab-link
-        :title="$tr('data')"
-        icon="save"
-        :link="dataLink"
-        :selected="dataActive"
-      />
-      <tab-link
-        :title="$tr('content')"
-        icon="view_module"
-        :link="contentLink"
-        :selected="contentActive"
-      />
-    </template>
+    <tab-link
+      :title="$tr('classes')"
+      icon="domain"
+      :link="classesLink"
+      :selected="classesActive"
+    />
+    <tab-link
+      :title="$tr('users')"
+      icon="people"
+      :link="usersLink"
+      :selected="usersActive"
+    />
+    <tab-link
+      :title="$tr('facilities')"
+      icon="settings"
+      :link="facilitiesConfigLink"
+      :selected="facilitiesConfigActive"
+    />
+    <tab-link
+      :title="$tr('data')"
+      icon="save"
+      :link="dataLink"
+      :selected="dataActive"
+    />
+    <tab-link
+      :title="$tr('content')"
+      icon="view_module"
+      :link="contentLink"
+      :selected="contentActive"
+    />
   </tabs>
 
 </template>
