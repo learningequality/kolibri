@@ -49,10 +49,7 @@
         </table>
       </div>
     </template>
-    <template v-else>
-      {{ $tr('notAdmin') }}
-    </template>
-
+    <auth-message v-else :command="$tr('notAdmin')" />
 
   </div>
 
@@ -76,6 +73,7 @@
       notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
+      'auth-message': require('kolibri.coreVue.components.authMessage'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
