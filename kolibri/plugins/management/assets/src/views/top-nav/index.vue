@@ -1,24 +1,39 @@
 <template>
 
-  <div class="top">
-    <div class="links">
-      <router-link :to="classesLink" :class="{active: classesActive}" @click.native="blur">
-        {{$tr('classes')}}
-      </router-link>
-      <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
-        {{$tr('users')}}
-      </router-link>
-      <router-link :to="facilitiesConfigLink" :class="{active: facilitiesConfigActive}" @click.native="blur">
-        {{$tr('facilities')}}
-      </router-link>
-      <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
-        {{$tr('data')}}
-      </router-link>
-      <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur">
-        {{$tr('content')}}
-      </router-link>
-    </div>
-  </div>
+  <tabs>
+    <template slot="items">
+      <tab-link
+        :title="$tr('classes')"
+        icon="domain"
+        :link="classesLink"
+        :selected="classesActive"
+      />
+      <tab-link
+        :title="$tr('users')"
+        icon="people"
+        :link="usersLink"
+        :selected="usersActive"
+      />
+      <tab-link
+        :title="$tr('facilities')"
+        icon="settings"
+        :link="facilitiesConfigLink"
+        :selected="facilitiesConfigActive"
+      />
+      <tab-link
+        :title="$tr('data')"
+        icon="save"
+        :link="dataLink"
+        :selected="dataActive"
+      />
+      <tab-link
+        :title="$tr('content')"
+        icon="view_module"
+        :link="contentLink"
+        :selected="contentActive"
+      />
+    </template>
+  </tabs>
 
 </template>
 
@@ -39,15 +54,14 @@
     $trNameSpace: 'topNav',
     $trs: {
       classes: 'Classes',
-      content: 'Content',
+      content: 'Channels',
       data: 'Data',
       facilities: 'Facility',
       users: 'Users',
     },
-    methods: {
-      blur(evt) {
-        evt.target.blur();
-      },
+    components: {
+      'tabs': require('kolibri.coreVue.components.tabs'),
+      'tab-link': require('kolibri.coreVue.components.tabLink'),
     },
     computed: {
       classesLink() {
@@ -91,25 +105,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .top
-    position: relative
-    padding: 1em 2em
-    background: $core-bg-light
-    border-radius: $radius
-
-  .top a
-    padding: 0.6em 2em
-    text-decoration: none
-    color: $core-text-annotation
-    display: inline-block
-
-  .top .active
-    color: $core-text-default
-    cursor: default
-    border-bottom: 0.3em $core-action-normal solid
-
-</style>
+<style lang="stylus" scoped></style>

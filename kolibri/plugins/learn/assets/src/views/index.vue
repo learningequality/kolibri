@@ -14,11 +14,29 @@
     </div>
 
     <div v-if="!isSearchPage">
-      <tabs
-        :items="learnTabs"
-        type="icon-and-text"
-        @tabclicked="handleTabClick"
-      />
+      <tabs>
+        <template slot="items">
+          <tab-link
+            :title="$tr('recommended')"
+            icon="forum"
+            :link="recommendedLink"
+            :selected="inRecommended"
+          />
+          <tab-link
+            :title="$tr('topics')"
+            icon="folder"
+            :link="topicsLink"
+            :selected="inTopics"
+          />
+          <tab-link
+            v-if="isUserLoggedIn && userHasMemberships"
+            :title="$tr('exams')"
+            icon="assignments"
+            :link="examsLink"
+            :selected="inExams"
+          />
+        </template>
+      </tabs>
     </div>
 
     <div>
@@ -60,6 +78,7 @@
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
+      'tab-link': require('kolibri.coreVue.components.tabLink'),
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
       'total-points': require('./total-points'),
@@ -96,25 +115,6 @@
           name: page,
           params: { channel_id: channelId },
         });
-      },
-      // BUG if a tab is disabled, it still handles clicks
-      handleTabClick(tabIndex) {
-        switch (tabIndex) {
-          case 0:
-            this.$router.push({ name: PageNames.LEARN_ROOT });
-            break;
-
-          case 1:
-            this.$router.push({ name: PageNames.EXPLORE_ROOT });
-            break;
-
-          case 2:
-            this.$router.push({ name: PageNames.EXAM_LIST });
-            break;
-
-          default:
-            break;
-        }
       },
     },
     computed: {
@@ -159,32 +159,23 @@
       isSearchPage() {
         return this.pageName === PageNames.SEARCH;
       },
-      learnTabs() {
-        const tabs = [
-          {
-            title: this.$tr('recommended'),
-            icon: 'forum',
-            selected: this.pageMode === PageModes.LEARN,
-            disabled: false,
-          },
-          {
-            title: this.$tr('topics'),
-            icon: 'folder',
-            selected: this.pageMode === PageModes.EXPLORE,
-            disabled: false,
-          },
-        ];
-
-        if (this.isUserLoggedIn && this.userHasMemberships) {
-          tabs.push({
-            title: this.$tr('exams'),
-            icon: 'assignment',
-            selected: this.pageMode === PageModes.EXAM,
-            disabled: false,
-          });
-        }
-
-        return tabs;
+      recommendedLink() {
+        return { name: PageNames.LEARN_ROOT };
+      },
+      topicsLink() {
+        return { name: PageNames.EXPLORE_ROOT };
+      },
+      examsLink() {
+        return { name: PageNames.EXAM_LIST };
+      },
+      inRecommended() {
+        return this.pageMode === PageModes.LEARN;
+      },
+      inTopics() {
+        return this.pageMode === PageModes.EXPLORE;
+      },
+      inExams() {
+        return this.pageMode === PageModes.EXAM;
       },
     },
     vuex: {

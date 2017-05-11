@@ -99,6 +99,9 @@ module.exports = {
         tabs: {
           module: require('../views/tabs'),
         },
+        tabLink: {
+          module: require('../views/tab-link'),
+        },
         logo: {
           module: require('../views/logo'),
         },

@@ -1,34 +1,39 @@
 <template>
 
-  <div class="top">
-    <nav-link
-      :to="recentLink"
-      :active="isRecentPage"
-      :text="$tr('recent')"
-    />
-    <nav-link
-      :to="topicsLink"
-      :active="isTopicPage"
-      :text="$tr('topics')"
-    />
-    <nav-link
-      :to="examsLink"
-      :active="Constants.ExamPages.includes(pageName)"
-      :text="$tr('exams')"
-    />
-    <!--
-    <nav-link
-      :to="learnersLink"
-      :active="isLearnerPage"
-      :text="$tr('learners')"
-    />
-    -->
-    <nav-link
-      :to="groupsLink"
-      :active="pageName === Constants.PageNames.GROUPS"
-      :text="$tr('groups')"
-    />
-  </div>
+  <tabs>
+    <template slot="items">
+      <tab-link
+        :title="$tr('recent')"
+        icon="access_time"
+        :link="recentLink"
+        :selected="isRecentPage"
+      />
+      <tab-link
+        :title="$tr('topics')"
+        icon="folder"
+        :link="topicsLink"
+        :selected="isTopicPage"
+      />
+      <tab-link
+        :title="$tr('exams')"
+        icon="assignments"
+        :link="examsLink"
+        :selected="Constants.ExamPages.includes(pageName)"
+      />
+      <!--<tab-link
+        :title="$tr('learners')"
+        icon="people"
+        :link="learnersLink"
+        :selected="isLearnerPage"
+      />-->
+      <tab-link
+        :title="$tr('groups')"
+        icon="group_work"
+        :link="groupsLink"
+        :selected="pageName === Constants.PageNames.GROUPS"
+      />
+    </template>
+  </tabs>
 
 </template>
 
@@ -48,7 +53,8 @@
       groups: 'Groups',
     },
     components: {
-      'nav-link': require('./nav-link'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
+      'tab-link': require('kolibri.coreVue.components.tabLink'),
     },
     computed: {
       Constants() {
@@ -99,13 +105,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .top
-    position: relative
-    padding: 8px
-    background: $core-bg-light
-
-</style>
+<style lang="stylus" scoped></style>
