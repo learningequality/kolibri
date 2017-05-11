@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="$tr('allContent')" v-if="all.content.length" ref="grid">
+  <card-grid :header="$tr('allContent')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 

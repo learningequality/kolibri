@@ -248,8 +248,6 @@ function showLearnChannel(store, channelId, page = 1) {
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
 
-  const ALL_PAGE_SIZE = 6;
-
   const sessionPromise = SessionResource.getModel('current').fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([sessionPromise, channelsPromise]).only(
@@ -262,7 +260,6 @@ function showLearnChannel(store, channelId, page = 1) {
       const nextStepsPayload = { next_steps: session.user_id };
       const popularPayload = { popular: session.user_id };
       const resumePayload = { resume: session.user_id };
-      const allPayload = { kind: 'content' };
       const channelPayload = { channel_id: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(
         channelPayload, nextStepsPayload).fetch();
@@ -270,18 +267,11 @@ function showLearnChannel(store, channelId, page = 1) {
         channelPayload, popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(
         channelPayload, resumePayload).fetch();
-      const allContentResource = ContentNodeResource.getPagedCollection(
-        channelPayload,
-        allPayload,
-        ALL_PAGE_SIZE,
-        page
-      );
-      const allPromise = allContentResource.fetch();
       ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise, allPromise]
+        [nextStepsPromise, popularPromise, resumePromise]
       ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume, allContent]) => {
+        ([nextSteps, popular, resume]) => {
           const pageState = {
             recommendations: {
               nextSteps: nextSteps.map(_contentState),
@@ -289,8 +279,8 @@ function showLearnChannel(store, channelId, page = 1) {
               resume: resume.map(_contentState),
             },
             all: {
-              content: allContent.map(_contentState),
-              pageCount: allContentResource.pageCount,
+              content: [],
+              pageCount: 1,
               page,
             },
           };
@@ -300,12 +290,6 @@ function showLearnChannel(store, channelId, page = 1) {
 
           const currentChannel = coreGetters.getCurrentChannelObject(store.state);
           store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
-
-          // preload next page
-          if (allContentResource.hasNext) {
-            ContentNodeResource.getPagedCollection(
-              channelPayload, allPayload, ALL_PAGE_SIZE, page + 1).fetch();
-          }
         },
         error => { coreActions.handleApiError(store, error); }
       );
