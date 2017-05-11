@@ -258,17 +258,18 @@ function showLearnChannel(store, channelId, page = 1) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      const isFacilityUser = coreGetters.isFacilityUser(store.state);
       const nextStepsPayload = { next_steps: session.user_id };
-      const popularPayload = { popular: session.user_id };
+      const popularPayload = { popular: 'true' };
       const resumePayload = { resume: session.user_id };
       const allPayload = { kind: 'content' };
       const channelPayload = { channel_id: channelId };
-      const nextStepsPromise = ContentNodeResource.getCollection(
-        channelPayload, nextStepsPayload).fetch();
+      const nextStepsPromise = isFacilityUser ? ContentNodeResource.getCollection(
+        channelPayload, nextStepsPayload).fetch() : Promise.resolve([]);
+      const resumePromise = isFacilityUser ? ContentNodeResource.getCollection(
+        channelPayload, resumePayload).fetch() : Promise.resolve([]);
       const popularPromise = ContentNodeResource.getCollection(
         channelPayload, popularPayload).fetch();
-      const resumePromise = ContentNodeResource.getCollection(
-        channelPayload, resumePayload).fetch();
       const allContentResource = ContentNodeResource.getPagedCollection(
         channelPayload,
         allPayload,
