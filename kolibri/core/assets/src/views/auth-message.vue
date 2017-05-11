@@ -1,6 +1,6 @@
 <template>
 
-  <div class="AuthMessage">
+  <div class="auth-message">
     <h1>
       {{ header || $tr('loginPrompt') }}
     </h1>
@@ -52,7 +52,7 @@
 
 <style lang="stylus" scoped>
 
-  .AuthMessage
+  .auth-message
     text-align: center
 
 </style>

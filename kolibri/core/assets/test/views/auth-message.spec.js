@@ -10,8 +10,8 @@ function makeVm(options) {
 
 function getElements(vm) {
   return {
-    headerText: () => vm.$el.querySelector('.AuthMessage h1').innerText.trim(),
-    detailsText: () => vm.$el.querySelector('.AuthMessage p').innerText.trim(),
+    headerText: () => vm.$el.querySelector('.auth-message h1').innerText.trim(),
+    detailsText: () => vm.$el.querySelector('.auth-message p').innerText.trim(),
   };
 }
 
