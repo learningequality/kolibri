@@ -339,7 +339,7 @@ class Exam(AbstractFacilityDataModel):
         {"exercise_id": <content_id2>, "number_of_questions": 5}
     ]
     """
-    question_sources = JSONField(default=[])
+    question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam
     seed = models.IntegerField(default=1)
     # Is this exam currently active and visible to students to whom it is assigned?

@@ -228,7 +228,7 @@ class BaseAttemptLog(BaseLogModel):
     simple_answer = models.CharField(max_length=200, blank=True)
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
-    interaction_history = JSONField(default=[])
+    interaction_history = JSONField(default=[], blank=True)
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
