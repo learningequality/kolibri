@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="totalPoints" class="points" ref="points">
+  <div v-if="isUserLoggedIn && !isSuperuser" class="points" ref="points">
     <div class="circle in-points">
       <points-icon class="icon" :active="true"/>
     </div>
@@ -13,7 +13,7 @@
 
 <script>
 
-  const { totalPoints } = require('kolibri.coreVue.vuex.getters');
+  const { totalPoints, currentUserId, isUserLoggedIn, isSuperuser } = require('kolibri.coreVue.vuex.getters');
   const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
@@ -28,13 +28,16 @@
     vuex: {
       getters: {
         totalPoints,
+        currentUserId,
+        isUserLoggedIn,
+        isSuperuser,
       },
       actions: {
         fetchPoints,
       }
     },
-    created() {
-      this.fetchPoints();
+    watch: {
+      currentUserId: 'fetchPoints',
     },
   };
 
