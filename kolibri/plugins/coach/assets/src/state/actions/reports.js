@@ -309,13 +309,13 @@ function _showLearnerList(store, options) {
 function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   attemptLogIndex, interactionIndex) {
   Promise.all([
-    ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
+    ContentNodeResource.getModel(contentId, { channel_id: channelId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
     SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
     FacilityUserResource.getModel(userId).fetch(),
     setClassState(store, classId),
   ]).then(
-    ([exercises, attemptLogs, summaryLog, user]) => {
+    ([exercise, attemptLogs, summaryLog, user]) => {
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
@@ -323,7 +323,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
       // InteractionHistoryState
       // user?
 
-      const exercise = exercises[0];
+      console.log('>>>', exercise);
 
       // FIRST LOOP: Sort them by most recent
       attemptLogs.sort(

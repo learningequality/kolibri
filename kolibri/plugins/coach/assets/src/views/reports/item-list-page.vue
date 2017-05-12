@@ -122,7 +122,7 @@
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
-                contentId: row.contentId,
+                contentId: row.id,
               },
             };
           }

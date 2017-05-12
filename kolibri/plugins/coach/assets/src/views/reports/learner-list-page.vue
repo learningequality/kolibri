@@ -116,7 +116,7 @@
               classId: this.classId,
               userId: row.id,
               channelId: this.pageState.channelId,
-              contentId: this.pageState.contentScopeSummary.contentId,
+              contentId: this.pageState.contentScopeSummary.id,
             }
           };
         } else if (this.isRootLearnerPage) {
