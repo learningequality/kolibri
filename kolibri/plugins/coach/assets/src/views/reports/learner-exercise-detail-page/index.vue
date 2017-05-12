@@ -1,9 +1,6 @@
 <template>
 
-  <immersive-full-screen
-    :backPageLink="backPageLink"
-    :backPageText="$tr('backPrompt', { exerciseTitle: exercise.title })"
-  >
+  <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
     <template>
       <div class="summary-container">
         <attempt-summary
@@ -57,7 +54,7 @@
   module.exports = {
     $trNameSpace: 'coachExerciseRenderPage',
     $trs: {
-      backPrompt: 'Back to { exerciseTitle }',
+      backPrompt: 'Back to { backTitle }',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
@@ -88,20 +85,30 @@
             }
           };
         }
-        return {
-          name: constants.PageNames.LEARNER_ITEM_LIST,
-          params: {
-            classId: this.classId,
-            channelId: this.channelId,
-            contentId: this.exercise.pk,
-          }
-        };
+        if (this.pageName === constants.PageNames.LEARNER_ITEM_DETAILS) {
+          return {
+            name: constants.PageNames.LEARNER_ITEM_LIST,
+            params: {
+              classId: this.classId,
+              channelId: this.channelId,
+              userId: this.user.id,
+              topicId: this.parentTopic.pk,
+            }
+          };
+        }
+        return undefined;
+      },
+      backPageText() {
+        if (constants.LearnerReports.includes(this.pageName)) {
+          return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
+        }
+        return this.$tr('backPrompt', { backTitle: this.exercise.title });
+      },
+      parentTopic() {
+        return this.exercise.ancestors[this.exercise.ancestors.length - 1];
       },
     },
     methods: {
-      backtoText(text) {
-        return this.$tr('backto', { text });
-      },
       navigateToNewAttempt(attemptLogIndex) {
         this.$router.push({
           name: this.pageName,
