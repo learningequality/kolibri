@@ -113,19 +113,6 @@ class ContentSummaryLog(BaseLogModel):
     extra_fields = JSONField(default={})
 
 
-class ContentRatingLog(BaseLogModel):
-    """
-    This model provides a record of user feedback on a content item.
-    """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
-    content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
-    quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    ease = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    learning = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    feedback = models.TextField(blank=True)
-
-
 class UserSessionLog(BaseLogModel):
     """
     This model provides a record of a user session in Kolibri.
@@ -158,7 +145,7 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    permissions = log_permissions("summarylog__user")
+    user = models.ForeignKey(FacilityUser)
 
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
@@ -175,7 +162,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self):
-        return self.summarylog.dataset
+        return self.user.dataset
 
 class BaseAttemptLog(BaseLogModel):
     """
@@ -200,7 +187,7 @@ class BaseAttemptLog(BaseLogModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = JSONField(default=[])
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
         abstract = True

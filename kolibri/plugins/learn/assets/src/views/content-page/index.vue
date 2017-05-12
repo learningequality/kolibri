@@ -20,7 +20,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </content-renderer>
@@ -37,7 +37,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </assessment-wrapper>
@@ -47,20 +47,17 @@
     <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
 
     <div class="metadata">
-      <p>
-        <strong>{{ $tr('author') }}: </strong>
-        <span v-if="content.author">{{ content.author }}</span>
-        <span v-else>-</span>
+      <p v-if="content.author">
+        <strong>{{ $tr('author') }}: </strong>{{ content.author }}
       </p>
-      <p>
-        <strong>{{ $tr('license') }}: </strong>
-        <span v-if="content.license">{{ content.license }}</span>
-        <span v-else>-</span>
+      <p v-if="content.license">
+        <strong>{{ $tr('license') }}: </strong>{{ content.license }}
       </p>
-      <p>
-        <strong>{{ $tr('copyrightHolder') }}: </strong>
-        <span v-if="content.license_owner">{{ content.license_owner }}</span>
-        <span v-else>-</span>
+      <p v-if="content.license_description">
+        <strong>{{ $tr('license') }}: </strong>{{ content.license_description }}
+      </p>
+      <p v-if="content.license_owner">
+        <strong>{{ $tr('copyrightHolder') }}: </strong>{{ content.license_owner }}
       </p>
     </div>
 
@@ -192,7 +189,11 @@
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
-    position: relative
+    float: right
+    margin-right: 1.5em
+    &:hover
+      &:not(.is-disabled)
+        background-color: #336db1
 
   .next-btn:hover svg
     fill: $core-bg-light

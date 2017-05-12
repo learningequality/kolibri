@@ -105,7 +105,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
     user_ids = serializers.SerializerMethodField()
 
     def get_user_ids(self, group):
-        return group.get_members().values_list('id')
+        return [str(user_id['id']) for user_id in group.get_members().values('id')]
 
     class Meta:
         model = LearnerGroup
