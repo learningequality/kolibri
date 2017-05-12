@@ -16,24 +16,24 @@
     <div v-if="!isSearchPage">
       <tabs>
         <tab-link
+          type="icon-and-title"
           :title="$tr('recommended')"
           icon="forum"
           :link="recommendedLink"
-          :selected="inRecommended"
         />
         <tab-link
+          type="icon-and-title"
           :title="$tr('topics')"
           icon="folder"
           :link="topicsLink"
-          :selected="inTopics"
         />
         <tab-link
           name="exam-link"
           v-if="isUserLoggedIn && userHasMemberships"
+          type="icon-and-title"
           :title="$tr('exams')"
           icon="assignments"
           :link="examsLink"
-          :selected="inExams"
         />
       </tabs>
     </div>
@@ -166,15 +166,6 @@
       },
       examsLink() {
         return { name: PageNames.EXAM_LIST, params: { channel_id: this.channelId } };
-      },
-      inRecommended() {
-        return this.pageMode === PageModes.LEARN;
-      },
-      inTopics() {
-        return this.pageMode === PageModes.EXPLORE;
-      },
-      inExams() {
-        return this.pageMode === PageModes.EXAM;
       },
     },
     vuex: {

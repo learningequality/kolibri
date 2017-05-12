@@ -2,34 +2,34 @@
 
   <tabs>
     <tab-link
+      type="icon-and-title"
       :title="$tr('recent')"
       icon="access_time"
       :link="recentLink"
-      :selected="isRecentPage"
     />
     <tab-link
+      type="icon-and-title"
       :title="$tr('topics')"
       icon="folder"
       :link="topicsLink"
-      :selected="isTopicPage"
     />
     <tab-link
+      type="icon-and-title"
       :title="$tr('exams')"
       icon="assignments"
       :link="examsLink"
-      :selected="Constants.ExamPages.includes(pageName)"
     />
     <!--<tab-link
+      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
-      :selected="isLearnerPage"
     />-->
     <tab-link
+      type="icon-and-title"
       :title="$tr('groups')"
       icon="group_work"
       :link="groupsLink"
-      :selected="pageName === Constants.PageNames.GROUPS"
     />
   </tabs>
 
@@ -39,7 +39,6 @@
 <script>
 
   const Constants = require('../../constants');
-  const coachGetters = require('../../state/getters/main');
 
   module.exports = {
     $trNameSpace: 'topNav',
@@ -93,9 +92,6 @@
       getters: {
         pageName: state => state.pageName,
         classId: state => state.classId,
-        isRecentPage: coachGetters.isRecentPage,
-        isTopicPage: coachGetters.isTopicPage,
-        isLearnerPage: coachGetters.isLearnerPage,
       },
     },
   };

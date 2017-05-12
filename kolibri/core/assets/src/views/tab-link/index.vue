@@ -1,24 +1,13 @@
 <template>
 
   <li>
-    <router-link
-      :to="link"
-      class="tab"
-      :class="{ selected: selected, 'tab-icon-title': icon && title }">
+    <router-link :to="link" class="tab" :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }">
 
-      <div
-        v-if="icon"
-        class="tab-icon"
-      >
-        <ui-icon
-          :icon="icon"
-          class="icon"
-        />
+      <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
+        <ui-icon :icon="icon" ariaLabel="title" class="icon"/>
       </div>
 
-      <div
-        v-if="title"
-        class="tab-title">
+      <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
         {{ title }}
       </div>
 
@@ -34,22 +23,25 @@
 
   module.exports = {
     props: {
+      type: {
+        type: String,
+        validator(type) {
+          return ['title', 'icon', 'icon-and-title'].includes(type);
+        },
+        required: true,
+      },
       title: {
         type: String,
-        required: false,
+        required: () => this.type === 'title' || this.type === 'icon-and-title',
       },
       icon: {
         type: String,
-        required: false,
+        required: () => this.type === 'icon' || this.type === 'icon-and-title',
       },
       link: {
         type: Object,
         required: true,
         validator: ValidateLinkObject,
-      },
-      selected: {
-        type: Boolean,
-        default: false,
       },
     },
     components: {
@@ -82,7 +74,7 @@
       color: $core-action-normal
 
 
-  .selected
+  .router-link-active
     border-bottom-style: solid
     border-bottom-width: 2px
     border-bottom-color: $core-action-normal
@@ -104,7 +96,7 @@
     overflow-x: hidden
     text-overflow: ellipsis
 
-  .tab-icon-title
+  .tab-has-icon-and-title
 
     .tab-icon
       padding-top: 10px
