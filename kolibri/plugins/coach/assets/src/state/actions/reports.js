@@ -308,58 +308,49 @@ function _showLearnerList(store, options) {
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   attemptLogIndex, interactionIndex) {
-  Promise.all([
-    ContentNodeResource.getModel(contentId, { channel_id: channelId }).fetch(),
-    AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
-    SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
-    FacilityUserResource.getModel(userId).fetch(),
-    setClassState(store, classId),
-  ]).then(
-    ([exercise, attemptLogs, summaryLog, user]) => {
-      // MAPPERS NEEDED
-      // attemptLogState
-      // attemptLogListState
-      // interactionState
-      // InteractionHistoryState
-      // user?
-
-      console.log('>>>', exercise);
-
-      // FIRST LOOP: Sort them by most recent
-      attemptLogs.sort(
-        (attemptLog1, attemptLog2) =>
-          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-      );
-
-      const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
-      // SECOND LOOP: Add their question number
-      if (exerciseQuestions && exerciseQuestions.length) {
-        attemptLogs.forEach(
-          attemptLog => {
-            attemptLog.questionNumber = (exerciseQuestions.indexOf(attemptLog.item) + 1);
-          }
+  ContentNodeResource.getModel(contentId, { channel_id: channelId }).fetch().then(
+    exercise => {
+      console.log('>>>', exercise.content_id);
+      Promise.all([
+        AttemptLogResource.getCollection({ user: userId, content: exercise.content_id }).fetch(),
+        SummaryLogResource.getCollection(
+          { user_id: userId, content_id: exercise.content_id }
+        ).fetch(),
+        FacilityUserResource.getModel(userId).fetch(),
+        setClassState(store, classId),
+      ]).then(([attemptLogs, summaryLog, user]) => {
+        attemptLogs.sort(
+          (attemptLog1, attemptLog2) =>
+            new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
         );
-      }
+        const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
+        // SECOND LOOP: Add their question number
+        if (exerciseQuestions && exerciseQuestions.length) {
+          attemptLogs.forEach(
+            attemptLog => {
+              attemptLog.questionNumber = (exerciseQuestions.indexOf(attemptLog.item) + 1);
+            }
+          );
+        }
 
-      const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-
-      const currentInteractionHistory = currentAttemptLog.interaction_history || [];
-
-      const pageState = {
-        // because this is info returned from a collection
-        user,
-        exercise,
-        attemptLogs,
-        currentAttemptLog,
-        interactionIndex,
-        currentInteractionHistory,
-        currentInteraction: currentInteractionHistory[interactionIndex],
-        summaryLog: summaryLog[0],
-        channelId,
-        attemptLogIndex,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+        const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
+        const currentInteractionHistory = currentAttemptLog.interaction_history || [];
+        const pageState = {
+          // because this is info returned from a collection
+          user,
+          exercise,
+          attemptLogs,
+          currentAttemptLog,
+          interactionIndex,
+          currentInteractionHistory,
+          currentInteraction: currentInteractionHistory[interactionIndex],
+          summaryLog: summaryLog[0],
+          channelId,
+          attemptLogIndex,
+        };
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
     },
     error => {
       coreActions.handleApiError(store, error);
