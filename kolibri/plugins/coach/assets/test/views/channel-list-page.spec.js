@@ -50,6 +50,7 @@ function makeVm(options = {}, state) {
   });
   const components = {
     'name-cell': '<div></div>',
+    'report-subheading': '<div></div>',
   };
   const Ctor = Vue.extend(ChannelListPage);
   return new Ctor(Object.assign(options, { store, components })).$mount();

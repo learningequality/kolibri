@@ -4,8 +4,7 @@
 
     <breadcrumbs/>
     <h1>{{ $tr('title') }}</h1>
-    <sub v-if="standardDataTable.length">{{ $tr('subHeading') }}</sub>
-    <sub v-else>{{ $tr('noRecentProgress') }}</sub>
+    <report-subheading />
 
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
@@ -61,10 +60,8 @@
     $trNameSpace: 'coachRecentReports',
     $trs: {
       title: 'Recent Activity',
-      subHeading: 'Showing recent activity in past 7 days',
       name: 'Name',
       progress: 'Class progress',
-      noRecentProgress: 'No recent activity in past 7 days',
       reportProgress: '{completed} {descriptor}',
       listened: '{proportionCompleted} listened',
       opened: '{proportionCompleted} opened',
@@ -75,6 +72,7 @@
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'report-table': require('./report-table'),
+      'report-subheading': require('./report-subheading'),
       'header-cell': require('./table-cells/header-cell'),
       'name-cell': require('./table-cells/name-cell'),
       'activity-cell': require('./table-cells/activity-cell'),
