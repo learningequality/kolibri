@@ -72,6 +72,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
+        extra_kwargs = {'id': {'read_only': True}}
         exclude = ("dataset", "kind", "parent")
 
 

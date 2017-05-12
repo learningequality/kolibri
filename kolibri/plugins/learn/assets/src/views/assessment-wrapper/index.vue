@@ -227,7 +227,7 @@ oriented data synchronization.
           if (this.userid) {
             this.itemId = seededShuffle.shuffle(this.assessmentIds, this.userid, true)[index];
           } else {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, new Date(), true)[index];
+            this.itemId = seededShuffle.shuffle(this.assessmentIds, Date.now(), true)[index];
           }
         } else {
           this.itemId = this.assessmentIds[index];
@@ -289,7 +289,7 @@ oriented data synchronization.
     },
     computed: {
       canLogInteractions() {
-        return !this.isSuperuser;
+        return !this.isSuperuser && this.isUserLoggedIn;
       },
       recentAttempts() {
         if (!this.pastattempts) {
@@ -350,6 +350,7 @@ oriented data synchronization.
       },
       getters: {
         isSuperuser: getters.isSuperuser,
+        isUserLoggedIn: getters.isUserLoggedIn,
         totalattempts: (state) => state.core.logging.mastery.totalattempts,
         pastattempts: (state) => state.core.logging.mastery.pastattempts,
         userid: (state) => state.core.session.user_id,

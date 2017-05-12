@@ -43,7 +43,7 @@ class MasteryLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MasteryLog
-        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts', 'totalattempts',
+        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts', 'totalattempts', 'user',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
