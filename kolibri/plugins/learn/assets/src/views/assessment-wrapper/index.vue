@@ -26,10 +26,14 @@ oriented data synchronization.
         :extraFields="content.extra_fields"
         :assessment="true"
         :itemId="itemId"
+        :initSession="initSession"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
         @sessionInitialized="sessionInitialized"
-        @itemError="handleItemError"/>
+        @itemError="handleItemError"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"/>
     </div>
 
     <div>
@@ -116,6 +120,10 @@ oriented data synchronization.
       extraFields: {
         type: String,
         default: '{}',
+      },
+      initSession: {
+        type: Function,
+        default: () => Promise.resolve(),
       },
     },
     watch: {
@@ -285,6 +293,15 @@ oriented data synchronization.
             complete: this.complete,
           });
         }
+      },
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      startTracking(...args) {
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
       },
     },
     computed: {
