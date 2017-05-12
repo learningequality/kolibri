@@ -87,6 +87,7 @@
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
+  const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -158,6 +159,10 @@
       initSession() {
         return this.initSessionAction(this.channelId, this.contentId, this.content.kind);
       },
+      updateProgress(progressPercent, forceSave = false) {
+        const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
+        updateContentNodeProgress(this.channelId, this.contentId, summaryProgress);
+      },
     },
     vuex: {
       getters: {
@@ -186,7 +191,7 @@
       },
       actions: {
         initSessionAction: actions.initContentSession,
-        updateProgress: actions.updateProgress,
+        updateProgressAction: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
       },

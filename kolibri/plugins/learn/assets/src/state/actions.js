@@ -108,6 +108,22 @@ function _examLoggingState(data) {
   return state;
 }
 
+/**
+ * Cache utility functions
+ *
+ * These methods are used to manipulate client side cache to reduce requests
+ */
+
+function updateContentNodeProgress(channelId, contentId, progressFraction) {
+  /*
+   * Update the progress_fraction directly on the model object, so as to prevent having
+   * to cache bust the model (and hence the entire collection), because some progress was
+   * made on this ContentNode.
+   */
+  const model = ContentNodeResource.getModel(contentId, { channel_id: channelId });
+  model.set({ progress_fraction: progressFraction });
+}
+
 
 /**
  * Actions
@@ -715,4 +731,5 @@ module.exports = {
   setAndSaveCurrentExamAttemptLog,
   closeExam,
   prepareLearnApp: require('./prepareLearnApp'),
+  updateContentNodeProgress,
 };

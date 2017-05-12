@@ -81,6 +81,7 @@ oriented data synchronization.
   const { MasteryModelGenerators } = require('kolibri.coreVue.vuex.constants');
   const seededShuffle = require('kolibri.lib.seededshuffle');
   const { now } = require('kolibri.utils.serverClock');
+  const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
     $trNameSpace: 'assessmentWrapper',
@@ -262,6 +263,7 @@ oriented data synchronization.
       },
       updateExerciseProgressMethod() {
         this.updateExerciseProgress(this.exerciseProgress);
+        updateContentNodeProgress(this.channelId, this.contentId, this.exerciseProgress);
       },
       sessionInitialized() {
         // Once the session is initialized we can initialize the mastery log,
