@@ -25,6 +25,7 @@ const { now } = require('kolibri.utils.serverClock');
  */
 
 function _crumbState(ancestors) {
+  console.log(ancestors);
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
     id: ancestor.pk,
@@ -33,12 +34,12 @@ function _crumbState(ancestors) {
 }
 
 
-function _topicState(data) {
+function _topicState(data, ancestors = []) {
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
-    breadcrumbs: _crumbState(data.ancestors),
+    breadcrumbs: _crumbState(ancestors),
     next_content: data.next_content,
   };
   return state;
@@ -63,7 +64,6 @@ function _contentState(data) {
     files: data.files,
     progress,
     content_id: data.content_id,
-    breadcrumbs: _crumbState(data.ancestors),
     next_content: data.next_content,
     author: data.author,
     license: data.license,
@@ -186,16 +186,17 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
   const childrenPromise = ContentNodeResource.getCollection(
     channelPayload, { parent: id }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, channelPayload);
+  ConditionalPromise.all([topicPromise, childrenPromise, ancestorsPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([topic, children]) => {
+    ([topic, children, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
-      pageState.topic = _topicState(topic);
+      pageState.topic = _topicState(topic, ancestors);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
