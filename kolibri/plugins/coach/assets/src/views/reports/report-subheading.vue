@@ -21,7 +21,7 @@
     },
     computed: {
       threshold() {
-        return ReportConstants.RECENCY_THREHOLD_IN_DAYS;
+        return ReportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     vuex: {

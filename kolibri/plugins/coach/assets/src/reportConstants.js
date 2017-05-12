@@ -33,7 +33,7 @@ const SortOrders = {
   NONE: 'none',
 };
 
-const RECENCY_THREHOLD_IN_DAYS = 7;
+const RECENCY_THRESHOLD_IN_DAYS = 7;
 
 module.exports = {
   ContentScopes,
@@ -41,5 +41,5 @@ module.exports = {
   ViewBy,
   TableColumns,
   SortOrders,
-  RECENCY_THREHOLD_IN_DAYS,
+  RECENCY_THRESHOLD_IN_DAYS,
 };

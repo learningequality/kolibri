@@ -384,7 +384,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
       const threshold = now();
-      threshold.setDate(threshold.getDate() - ReportConstants.RECENCY_THREHOLD_IN_DAYS);
+      threshold.setDate(threshold.getDate() - ReportConstants.RECENCY_THRESHOLD_IN_DAYS);
 
       const reportPayload = {
         channel_id: channelId,

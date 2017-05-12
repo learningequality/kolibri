@@ -146,7 +146,7 @@ Object.assign(getters, {
     if (state.pageState.showRecentOnly) {
       return data.filter(row =>
         Boolean(row.lastActive) &&
-        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THREHOLD_IN_DAYS
+        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
       );
     }
     return data;
