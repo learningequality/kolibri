@@ -26,6 +26,7 @@
         @click="close" />
       <icon-button :text="$tr('move')"
         :primary="true"
+        :disabled="!groupSelected"
         @click="moveUsers" />
     </div>
   </core-modal>
