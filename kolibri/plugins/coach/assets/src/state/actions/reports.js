@@ -310,7 +310,6 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   attemptLogIndex, interactionIndex) {
   ContentNodeResource.getModel(contentId, { channel_id: channelId }).fetch().then(
     exercise => {
-      console.log('>>>', exercise.content_id);
       Promise.all([
         AttemptLogResource.getCollection({ user: userId, content: exercise.content_id }).fetch(),
         SummaryLogResource.getCollection(
