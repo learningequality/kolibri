@@ -16,16 +16,25 @@ function getElements(vm) {
 }
 
 describe('auth message component', () => {
+  it('shows the correct details when there are no props', () => {
+    const vm = makeVm({ propsData: {} });
+    const { headerText, detailsText } = getElements(vm);
+    assert.equal(headerText(), 'Did you forget to sign in?');
+    assert.equal(detailsText(), 'You must be signed in as a Registered User to view this page');
+  });
+
   it('shows the correct details when authorized role is "learner"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'learner' } });
-    const { detailsText } = getElements(vm);
-    assert.equal(detailsText(), 'You must be signed in as a Learner to view this page.');
+    const { headerText, detailsText } = getElements(vm);
+    assert.equal(headerText(), 'Did you forget to sign in?');
+    assert.equal(detailsText(), 'You must be signed in as a Learner to view this page');
   });
 
   it('shows the correct details when authorized role is "admin"', () => {
     const vm = makeVm({ propsData: { authorizedRole: 'admin' } });
-    const { detailsText } = getElements(vm);
-    assert.equal(detailsText(), 'You must be signed in as an Admin to view this page.');
+    const { headerText, detailsText } = getElements(vm);
+    assert.equal(headerText(), 'Did you forget to sign in?');
+    assert.equal(detailsText(), 'You must be signed in as an Admin to view this page');
   });
 
   it('shows correct text when both texts manually provided as prop', () => {

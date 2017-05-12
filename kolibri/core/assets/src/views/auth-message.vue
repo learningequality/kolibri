@@ -2,7 +2,7 @@
 
   <div class="auth-message">
     <h1>
-      {{ header || $tr('loginPrompt') }}
+      {{ header }}
     </h1>
     <p>
       {{ details || defaultDetails }}
@@ -16,8 +16,10 @@
 
   const userRoles = [
     'admin',
-    'admin_or_coach',
+    'adminOrCoach',
+    'deviceOwner',
     'learner',
+    'registeredUser'
   ];
 
   module.exports = {
@@ -27,23 +29,30 @@
         validator(role) {
           return userRoles.includes(role);
         },
+        default: 'registeredUser',
       },
-      header: { type: String },
+      header: {
+        type: String,
+        default() {
+          return this.$tr('forgetToSignIn');
+        },
+      },
       details: { type: String },
     },
     computed: {
       defaultDetails() {
-        return `${this.$tr('commandStart')} ${this.$tr(this.authorizedRole)} ${this.$tr('commandEnd')}`;
+        return this.$tr('mustBeSignedInAsRole', { role: this.$tr(this.authorizedRole) });
       }
     },
     $trNameSpace: 'authMessage',
     $trs: {
-      loginPrompt: 'Did you forget to sign in?',
       admin: 'an Admin',
-      admin_or_coach: 'an Admin or Coach',
+      adminOrCoach: 'an Admin or Coach',
+      deviceOwner: 'a Device Owner',
+      forgetToSignIn: 'Did you forget to sign in?',
       learner: 'a Learner',
-      commandStart: 'You must be signed in as',
-      commandEnd: 'to view this page.'
+      mustBeSignedInAsRole: 'You must be signed in as {role} to view this page',
+      registeredUser: 'a Registered User',
     },
   };
 
