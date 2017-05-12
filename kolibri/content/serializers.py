@@ -48,7 +48,6 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
@@ -103,12 +102,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 overall_progress = 0
             return round(overall_progress, 4)
 
-    def get_ancestors(self, target_node):
-        """
-        in descending order (root ancestor first, immediate parent last)
-        """
-        return target_node.get_ancestors().values('pk', 'title')
-
     def get_thumbnail(self, target_node):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
         return thumbnail_model.get_storage_url() if thumbnail_model else None
@@ -145,7 +138,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'license', 'license_description', 'files', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
             'assessmentmetadata',
         )
 
