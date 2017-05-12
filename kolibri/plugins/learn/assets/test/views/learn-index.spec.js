@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 const Vue = require('vue-test');
 const VueRouter = require('vue-router');
-const _ = require('lodash');
 const assert = require('assert');
 const LearnIndex = require('../../src/views/index.vue');
 const makeStore = require('../util/makeStore');
@@ -27,10 +26,15 @@ function makeVm(options) {
   return new Ctor(options).$mount();
 }
 
+function getElements(vm) {
+  return {
+    examLink: () => vm.$el.querySelector('li[name="exam-link"]'),
+  };
+}
+
 describe('learn index', () => {
   let store;
 
-  const isExamTab = ({ title }) => title === 'Exams';
   const setSessionUserKind = (kind) => {
     store.state.core.session.kind = [kind];
   };
@@ -47,7 +51,8 @@ describe('learn index', () => {
     setSessionUserKind('learner');
     setMemberships([{ id: 'membership_1' }]);
     const vm = makeVm({ store });
-    assert(!_.isUndefined(_.find(vm.learnTabs, isExamTab)));
+    const { examLink } = getElements(vm);
+    assert(examLink() !== null);
   });
 
   it('the exam tab is not available if user is not logged in', () => {
@@ -55,13 +60,15 @@ describe('learn index', () => {
     setSessionUserKind('anonymous');
     setMemberships([]);
     const vm = makeVm({ store });
-    assert(_.isUndefined(_.find(vm.learnTabs, isExamTab)));
+    const { examLink } = getElements(vm);
+    assert(examLink() === null);
   });
 
   it('the exam tab is not available if user has no memberships/classes', () => {
     setSessionUserKind('learner');
     setMemberships([]);
     const vm = makeVm({ store });
-    assert(_.isUndefined(_.find(vm.learnTabs, isExamTab)));
+    const { examLink } = getElements(vm);
+    assert(examLink() === null);
   });
 });
