@@ -28,6 +28,7 @@
           :selected="inTopics"
         />
         <tab-link
+          name="exam-link"
           v-if="isUserLoggedIn && userHasMemberships"
           :title="$tr('exams')"
           icon="assignments"
