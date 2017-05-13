@@ -25,7 +25,6 @@ const { now } = require('kolibri.utils.serverClock');
  */
 
 function _crumbState(ancestors) {
-  console.log(ancestors);
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
     id: ancestor.pk,
