@@ -325,9 +325,11 @@ class ContentNodeAPITestCase(APITestCase):
 
         # check that progress is calculated appropriately when user is logged in
         self.client.login(username="learner", password="pass", facility=facility)
-        assert_progress(root, 0.3)
+        # Topic so None
+        assert_progress(root, None)
         assert_progress(c1, 0)
-        assert_progress(c2, 0.4)
+        # Topic so None
+        assert_progress(c2, None)
         assert_progress(c2c1, 0.7)
 
     def tearDown(self):
