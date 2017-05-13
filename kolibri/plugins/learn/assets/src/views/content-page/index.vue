@@ -13,13 +13,17 @@
       v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields">
+      :extraFields="content.extra_fields"
+      :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
@@ -30,13 +34,17 @@
       v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields">
+      :extraFields="content.extra_fields"
+      :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
@@ -78,6 +86,8 @@
   const getters = require('../../state/getters');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const coreGetters = require('kolibri.coreVue.vuex.getters');
+  const actions = require('kolibri.coreVue.vuex.actions');
+  const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -145,7 +155,14 @@
       },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
-      }
+      },
+      initSession() {
+        return this.initSessionAction(this.channelId, this.contentId, this.content.kind);
+      },
+      updateProgress(progressPercent, forceSave = false) {
+        const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
+        updateContentNodeProgress(this.channelId, this.contentId, summaryProgress);
+      },
     },
     vuex: {
       getters: {
@@ -171,6 +188,12 @@
         sessionProgress: (state) => state.core.logging.session.progress,
 
         isSuperuser: coreGetters.isSuperuser,
+      },
+      actions: {
+        initSessionAction: actions.initContentSession,
+        updateProgressAction: actions.updateProgress,
+        startTracking: actions.startTrackingProgress,
+        stopTracking: actions.stopTrackingProgress,
       },
     },
   };
