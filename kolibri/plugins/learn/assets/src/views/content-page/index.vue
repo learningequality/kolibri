@@ -164,6 +164,9 @@
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
     },
+    beforeDestroy() {
+      this.stopTracking();
+    },
     vuex: {
       getters: {
         // general state
