@@ -132,7 +132,9 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return {'kind': root.kind, 'id': root.id}
 
     def get_license_description(self, target_node):
-        return target_node.license.license_description
+        if target_node.license:
+            return target_node.license.license_description
+        return ''
 
     class Meta:
         model = ContentNode
