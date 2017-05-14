@@ -62,6 +62,7 @@ function _contentState(data) {
     available: data.available,
     files: data.files,
     progress,
+    breadcrumbs: [],
     content_id: data.content_id,
     next_content: data.next_content,
     author: data.author,
