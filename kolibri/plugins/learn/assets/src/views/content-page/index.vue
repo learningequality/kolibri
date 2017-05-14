@@ -161,7 +161,7 @@
       },
       updateProgress(progressPercent, forceSave = false) {
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
-        updateContentNodeProgress(this.channelId, this.contentId, summaryProgress);
+        updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
     },
     vuex: {
@@ -177,7 +177,8 @@
 
         // attributes for this content item
         content: (state) => state.pageState.content,
-        contentId: (state) => state.pageState.content.id,
+        contentId: (state) => state.pageState.content.content_id,
+        contentNodeId: (state) => state.pageState.content.id,
         channelId: (state) => state.core.channels.currentId,
         pagename: (state) => state.pageName,
 
