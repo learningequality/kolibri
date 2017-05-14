@@ -116,7 +116,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField()
+    content_id = UUIDField(db_index=True)
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)

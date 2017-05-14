@@ -209,6 +209,10 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         serializer = self.get_serializer(descendants, many=True)
         return Response(serializer.data)
 
+    @detail_route(methods=['get'])
+    def ancestors(self, request, **kwargs):
+        return Response(self.get_object().get_ancestors().values('pk', 'title'))
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer

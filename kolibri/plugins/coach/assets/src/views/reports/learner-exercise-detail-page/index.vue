@@ -1,9 +1,6 @@
 <template>
 
-  <immersive-full-screen
-    :backPageLink="backPageLink"
-    :backPageText="$tr('backPrompt', { exerciseTitle: exercise.title })"
-  >
+  <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
     <template>
       <div class="summary-container">
         <attempt-summary
@@ -57,7 +54,7 @@
   module.exports = {
     $trNameSpace: 'coachExerciseRenderPage',
     $trs: {
-      backPrompt: 'Back to { exerciseTitle }',
+      backPrompt: 'Back to { backTitle }',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
@@ -74,7 +71,7 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.contentId,
+              contentId: this.exercise.pk,
             }
           };
         }
@@ -84,31 +81,41 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.contentId,
+              contentId: this.exercise.pk,
             }
           };
         }
-        return {
-          name: constants.PageNames.LEARNER_ITEM_LIST,
-          params: {
-            classId: this.classId,
-            channelId: this.channelId,
-            contentId: this.contentId,
-          }
-        };
+        if (this.pageName === constants.PageNames.LEARNER_ITEM_DETAILS) {
+          return {
+            name: constants.PageNames.LEARNER_ITEM_LIST,
+            params: {
+              classId: this.classId,
+              channelId: this.channelId,
+              userId: this.user.id,
+              topicId: this.parentTopic.pk,
+            }
+          };
+        }
+        return undefined;
+      },
+      backPageText() {
+        if (constants.LearnerReports.includes(this.pageName)) {
+          return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
+        }
+        return this.$tr('backPrompt', { backTitle: this.exercise.title });
+      },
+      parentTopic() {
+        return this.exercise.ancestors[this.exercise.ancestors.length - 1];
       },
     },
     methods: {
-      backtoText(text) {
-        return this.$tr('backto', { text });
-      },
       navigateToNewAttempt(attemptLogIndex) {
         this.$router.push({
           name: this.pageName,
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.content_id,
+            contentId: this.exercise.pk,
             interactionIndex: 0,
             attemptLogIndex,
           },
@@ -120,7 +127,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.content_id,
+            contentId: this.exercise.pk,
             attemptLogIndex: this.attemptLogIndex,
             interactionIndex,
           },
@@ -136,7 +143,6 @@
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         classId: state => state.classId,
-        contentId: state => state.pageState.exercise.pk,
         channelId: state => state.pageState.channelId,
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,

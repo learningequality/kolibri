@@ -24,9 +24,6 @@ const mutations = {
   },
 
   // report
-  SET_RECENT_ONLY(state, showRecentOnly) {
-    Vue.set(state.pageState, 'showRecentOnly', showRecentOnly);
-  },
   SET_REPORT_SORTING(state, sortColumn, sortOrder) {
     Vue.set(state.pageState, 'sortColumn', sortColumn);
     Vue.set(state.pageState, 'sortOrder', sortOrder);
@@ -38,6 +35,7 @@ const mutations = {
     Vue.set(state.pageState, 'userScope', options.userScope);
     Vue.set(state.pageState, 'userScopeId', options.userScopeId);
     Vue.set(state.pageState, 'viewBy', options.viewBy);
+    Vue.set(state.pageState, 'showRecentOnly', options.showRecentOnly);
   },
   SET_REPORT_TABLE_DATA(state, tableData) {
     Vue.set(state.pageState, 'tableData', tableData);

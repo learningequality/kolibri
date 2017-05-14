@@ -45,8 +45,8 @@ function _breadcrumbsState(topics) {
   return topics.map(topic => _breadcrumbState(topic));
 }
 
-function _currentTopicState(topic) {
-  let breadcrumbs = Array.from(topic.ancestors);
+function _currentTopicState(topic, ancestors = []) {
+  let breadcrumbs = Array.from(ancestors);
   breadcrumbs.push({ pk: topic.pk, title: topic.title });
   breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
@@ -303,15 +303,21 @@ function fetchContent(store, channelId, topicId) {
   return new Promise((resolve, reject) => {
     const channelPayload = { channel_id: channelId };
     const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
+    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId, channelPayload);
     const subtopicsPromise = ContentNodeResource.getCollection(
       channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC, fields: ['pk', 'title', 'ancestors'] }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection(
       channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title', 'assessmentmetadata'] }).fetch();
 
-    ConditionalPromise.all([topicPromise, subtopicsPromise, exercisesPromise]).only(
+    ConditionalPromise.all([
+      topicPromise,
+      subtopicsPromise,
+      exercisesPromise,
+      ancestorsPromise,
+    ]).only(
       CoreActions.samePageCheckGenerator(store),
-      ([topicModel, subtopicsCollection, exercisesCollection]) => {
-        const topic = _currentTopicState(topicModel);
+      ([topicModel, subtopicsCollection, exercisesCollection, ancestors]) => {
+        const topic = _currentTopicState(topicModel, ancestors);
         const exercises = _exercisesState(exercisesCollection);
         let subtopics = _topicsState(subtopicsCollection);
 

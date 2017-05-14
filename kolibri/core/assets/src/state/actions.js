@@ -458,6 +458,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
   if (forceSave || completedContent || progressThresholdMet) {
     saveLogs(store);
   }
+  return summaryProgress;
 }
 
 

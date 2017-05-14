@@ -1,6 +1,7 @@
 {% extends "kolibri/base.html" %}
 {% load learn_tags %}
 {% load kolibri_tags %}
+{% load cache %}
 
 {% block content %}
   <!-- Bootstrapping the initial information for all channels. -->
@@ -21,6 +22,8 @@
     {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' next_steps=user.id kwargs_channel_id=currentChannel.id %}
   {% endif %}
 
-  {% learn_async_assets %}
-  {% learn_assets %}
+  {% cache 5000 learn_assets %}
+    {% learn_async_assets %}
+    {% learn_assets %}
+  {% endcache %}
 {% endblock %}
