@@ -36,6 +36,9 @@
         fetchPoints,
       }
     },
+    created() {
+      this.fetchPoints();
+    },
     watch: {
       currentUserId: 'fetchPoints',
     },
