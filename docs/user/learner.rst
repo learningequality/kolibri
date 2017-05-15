@@ -4,26 +4,33 @@ Learner
 Accessing Kolibri
 -----------------
 
+.. note::
+  If you use Kolibri in your school, education center or facility, your coach or administrator will provide the instructions how to open the sign-in page, and username and password if necessary.
+
 To sign in to **Kolibri** and start learning follow these steps:
 
-#. Click the **Sign in** icon either in the upper right corner, or in the main menu (left or bottom) to open the sign-in page.
-#. Type the username and password provided by Kolibri **Administrator** (or your your teacher/coach).
+#. Type your username and password.
 #. Click the **LOG IN** button.
 
-.. image:: img/login_modal.png
-	:alt: login window
+	.. image:: img/login_modal.png
+		:alt: login window
+
+.. warning::
+   If you start browsing Kolibri as a guest, you need to click the **Sign in** icon either in the upper right corner, or in the main menu (left or bottom) to open the sign-in page.
+
+	.. image:: img/learn_page_signin.png
+		:alt: sign in into kolibri
 
 Once you have logged in into Kolibri, you can see and edit your user data from the **Profile** option in the main menu (below **Learn**).
 
-.. image:: img/update_profile.png
-	:alt: view and edit profile
+	.. image:: img/update_profile.png
+		:alt: view and edit profile
 
 To logout from Kolibri you can either:
+	* Click the user icon in the upper right corner and select **Sign out** option.
+	OR
 
-* Click the user icon in the upper right corner, and select **Sign out** option.
-OR
-
-* Select **Sign out** option in the main menu.
+	* Select **Sign out** option in the main menu.
 
 
 Using Kolibri
@@ -42,9 +49,9 @@ To switch between channels available to you, use the **Channel selector**.
 Learn
 ~~~~~~~~
 
-Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches.
+Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches (not visible if you are browsing as a guest).
 
-The content you see in the **Learn** page will be different for each channel. Change the channel to explore the resto of content you can use in Kolibri.
+The content you see in the **Learn** page will be different for each channel. Change the channel to explore the rest of content you can use in Kolibri.
 
 .. image:: img/learn.png
 	:alt: learn page
@@ -68,12 +75,12 @@ Topics
 Navigate Kolibri topics with breadcrumb links
 *********************************************
 
-When you are browsing a topic in Kolibri, the **Breadcrumb** links indicate all its parent topics. To go back (up one level from where you are currently), click the next to last link in the breadcrumb. 
+When you are browsing a topic in Kolibri, the **Breadcrumb** links indicate previously visited, more general topics. Current topic is at the last position, and you can click any of the previous links in the breadcrumb to go back to a specific broader topic. 
 
 .. image:: img/breadcrumbs.png
 	:alt: breadcrumb links
 
-When you are viewing a video or doing an exercise, the **Breadcrumb** links are not visible anymore. To go back to the parent topic from where you are currently, and see the **Breadcrumb** links again, click the left arrow button above the title.  
+When you are viewing a video or doing an exercise, the **Breadcrumb** links are not visible anymore. To go back to the previous topic you visited, click the left arrow button above the video or exercise title.  
 
 Exams
 ***** 
@@ -96,17 +103,18 @@ If you are looking for a specific subject, topic, or term, use the **Search** fe
 Exercises
 ~~~~~~~~~
 
-Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a checkmark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solving the problem. 
+Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a checkmark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solve the problem. 
 
 Independent of the required action (writing an answer yourself or choosing one of the options), these are the steps to follow.
 
 #. **Read the question carefully**.
-#. When you are ready to submit the answer, click the **Check answer** button.
+#. Write the answer or choose one of the provided options. 
+#. When you are ready to submit, click the **Check answer** button.
 
    * If the answer is correct and a checkmark appears, click the **Next question** button to proceed.
    * If the answer is incorrect, click the **Get a hint** button, read the suggestions, and try to answer again.
 
-#. Once you have achieved 5 correct answers in a row, click the **Next item** button, to continue learning with the rest of the material in that topic.
+#. Once you have achieved the required number of correct answers in a row, click the **Next item** button, to continue learning with the rest of the material in that topic.
 #. If you are unable to solve some questions, try reviewing the videos in the **Recommended** section below the exercise, or seek help from your peers or teacher/coach.
 
 .. image:: img/exercise.png
@@ -132,7 +140,7 @@ To play videos in Kolibri you have several available control buttons at the bott
 * Fullscreen button
 
 
-Use the **Download content** button below the video player to download the video and thumbnail files to your computer. On some videos you will have an option to download videos in high and low resolution.
+Use the **Download content** button below the video player to download the video and thumbnail files to your computer. Some videos will provide multiple resolution options.
 
 
 Audio Player options
