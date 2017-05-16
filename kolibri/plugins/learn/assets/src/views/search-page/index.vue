@@ -1,28 +1,11 @@
 <template>
 
   <div>
-    <form @submit.prevent="submitSearch">
-      <ui-textbox
-        name="search"
-        :label="$tr('search')"
-        :placeholder="`${$tr('searchWithin')} ${channelName}`"
-        type="search"
-        :autofocus="true"
-        v-model="searchInput"
-        class="search-input"/>
-      <ui-icon-button
-        primary="true"
-        color="primary"
-        buttonType="submit"
-        icon="search"
-        :ariaLabel="$tr('submitSearch')"/>
-    </form>
-
     <div>
       <div v-if="!searchTerm">{{ $tr('noSearch') }}</div>
 
       <div v-else>
-        <h1>{{ $tr('showingResultsFor') }} "{{ searchTerm }}"</h1>
+        <h2>{{ $tr('showingResultsFor', { searchTerm, channelName }) }}</h2>
 
         <div v-if="noResults">{{ $tr('noResults') }}</div>
 
@@ -71,21 +54,14 @@
 
     $trs: {
       search: 'Search',
-      searchWithin: 'Search within',
-      noSearch: 'Search by typing something above',
+      noSearch: 'Search by typing something in the search box above',
       noResults: 'No results',
-      submitSearch: 'Submit search',
-      showingResultsFor: 'Showing results for',
+      showingResultsFor: 'Showing results for "{searchTerm}" within {channelName}',
       results: '{count, number, integer} {count, plural, one {result} other {results}}',
       topics: 'Topics',
       content: 'Content',
     },
-    data: () => ({
-      searchInput: '',
-    }),
     components: {
-      'ui-textbox': require('keen-ui/src/UiTextbox'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'topic-list-item': require('../topic-list-item'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
@@ -100,16 +76,6 @@
       },
     },
     methods: {
-      submitSearch() {
-        const searchInput = this.searchInput.trim();
-        if (searchInput) {
-          this.$router.push({
-            name: constants.PageNames.SEARCH,
-            params: { channel_id: this.channelId },
-            query: { query: searchInput },
-          });
-        }
-      },
       genTopicLink(id) {
         return {
           name: constants.PageNames.EXPLORE_TOPIC,
@@ -122,9 +88,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    mounted() {
-      this.searchInput = this.searchTerm;
     },
     vuex: {
       getters: {
@@ -140,10 +103,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .search-input
-    display: inline-block
-    width: calc(100% - 41px)
-
-</style>
+<style lang="stylus" scoped></style>

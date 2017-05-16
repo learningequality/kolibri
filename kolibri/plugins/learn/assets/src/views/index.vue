@@ -2,14 +2,38 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
-      <channel-switcher @switch="switchChannel"/>
-      <router-link :to="searchPage">
+
+      <form
+        @submit.prevent="search"
+        class="search-box">
+        <input
+          type="search"
+          :placeholder="$tr('search')"
+          v-model="searchQuery"
+          class="search-input">
         <ui-icon-button
-          icon="search"
-          type="secondary"
-          color="white"
-          :ariaLabel="$tr('search')"/>
-      </router-link>
+          :ariaLabel="$tr('clear')"
+          icon="clear"
+          color="black"
+          class="search-clear-button"
+          :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
+          @click="searchQuery = ''"
+          size="small"
+        />
+        <div class="search-submit-button-wrapper">
+          <ui-icon-button
+            :ariaLabel="$tr('search')"
+            icon="search"
+            type="secondary"
+            color="white"
+            @click="search"
+            class="search-submit-button"
+          />
+        </div>
+      </form>
+
+      <channel-switcher @switch="switchChannel"/>
+
       <a class="points-link" href="/user"><total-points/></a>
     </div>
 
@@ -62,8 +86,9 @@
       learnTitle: 'Learn',
       recommended: 'Recommended',
       topics: 'Topics',
-      search: 'search',
-      exams: 'Exams'
+      search: 'Search',
+      exams: 'Exams',
+      clear: 'Clear',
     },
     components: {
       'explore-page': require('./explore-page'),
@@ -72,7 +97,6 @@
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'channel-switcher': require('./channel-switcher'),
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
@@ -81,6 +105,13 @@
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
       'total-points': require('./total-points'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
+    },
+    data() {
+      return {
+        searchQuery: this.searchTerm,
+      };
     },
     methods: {
       switchChannel(channelId) {
@@ -115,6 +146,36 @@
           params: { channel_id: channelId },
         });
       },
+<<<<<<< HEAD
+=======
+      // BUG if a tab is disabled, it still handles clicks
+      handleTabClick(tabIndex) {
+        switch (tabIndex) {
+          case 0:
+            this.$router.push({ name: PageNames.LEARN_ROOT });
+            break;
+
+          case 1:
+            this.$router.push({ name: PageNames.EXPLORE_ROOT });
+            break;
+
+          case 2:
+            this.$router.push({ name: PageNames.EXAM_LIST });
+            break;
+
+          default:
+            break;
+        }
+      },
+      search() {
+        if (this.searchQuery !== '') {
+          this.$router.push({
+            name: PageNames.SEARCH,
+            query: { query: this.searchQuery },
+          });
+        }
+      },
+>>>>>>> 5b5c736... :sparkles: Adds search box to Learn's app bar
     },
     computed: {
       topLevelPageName() {
@@ -168,6 +229,11 @@
         return { name: PageNames.EXAM_LIST, params: { channel_id: this.channelId } };
       },
     },
+    watch: {
+      searchTerm(val) {
+        this.searchQuery = val || '';
+      },
+    },
     vuex: {
       getters: {
         memberships: state => state.learnAppState.memberships,
@@ -194,5 +260,42 @@
 
   .points-link
     color: inherit
+
+  .search-box
+    display: inline-block
+    background-color: white
+
+  .search-input
+    background-color: white
+    color: $core-text-default
+    border: none
+    height: 36px
+    padding: 0
+    padding-left: 0.5em
+    padding-right: 0.5em
+    margin: 0
+    vertical-align: middle
+
+  ::placeholder
+      color: $core-text-annotation
+
+  .search-clear-button
+    color: $core-text-default
+    width: 20px
+    height: 20px
+    visibility: hidden
+    vertical-align: middle
+
+  .search-clear-button-visble
+    visibility: visible
+
+  .search-submit-button
+    width: 36px
+    height: 36px
+
+  .search-submit-button-wrapper
+    display: inline-block
+    background-color: $core-action-dark
+    vertical-align: middle
 
 </style>
