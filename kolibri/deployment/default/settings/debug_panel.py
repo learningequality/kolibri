@@ -17,4 +17,4 @@ INSTALLED_APPS += [  # noqa
     'debug_panel',
 ]
 
-DEBUG_PANEL_ACTIVE = True
+ENABLE_DATA_BOOTSTRAPPING = False
