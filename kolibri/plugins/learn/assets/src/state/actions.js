@@ -468,7 +468,7 @@ function showExamList(store, channelId) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      UserExamResource.getCollection({ channel_id: channelId }).fetch().only(
+      UserExamResource.getCollection().fetch().only(
         samePageCheckGenerator(store),
         (exams) => {
           const pageState = {};
@@ -509,7 +509,7 @@ function showExam(store, channelId, id, questionNumber) {
   } else {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
-    const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
+    const examPromise = UserExamResource.getModel(id).fetch();
     const channelsPromise = coreActions.setChannelInfo(store, channelId);
     const examLogPromise = ExamLogResource.getCollection({
       user: store.state.core.session.user_id,

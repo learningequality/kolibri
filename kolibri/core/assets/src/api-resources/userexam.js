@@ -7,11 +7,6 @@ class UserExamResource extends Resource {
   static idKey() {
     return 'id';
   }
-  static resourceIdentifiers() {
-    return [
-      'channel_id',
-    ];
-  }
 }
 
 module.exports = UserExamResource;

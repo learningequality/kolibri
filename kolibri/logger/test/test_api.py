@@ -36,8 +36,8 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
 
         # create logs for each user
-        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user1) for _ in range(3)]
-        [ContentSessionLogFactory.create(user=self.user2) for _ in range(2)]
+        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        [ContentSessionLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(2)]
 
         # create classroom, learner group, add user2
         self.classroom = ClassroomFactory.create(parent=self.facility)
@@ -94,7 +94,7 @@ class ContentSessionLogAPITestCase(APITestCase):
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
-        [ContentSessionLogFactory.create(user=self.user3) for _ in range(1)]
+        [ContentSessionLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(1)]
         response = self.client.get(reverse('contentsessionlog-list'), data={"facility": self.facility2.id})
         expected_count = ContentSessionLog.objects.filter(user__facility_id=self.facility2.id).count()
         self.assertEqual(len(response.data), expected_count)
@@ -129,8 +129,8 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
 
         # create logs for each user
-        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1) for _ in range(3)]
-        [ContentSummaryLogFactory.create(user=self.user2) for _ in range(2)]
+        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        [ContentSummaryLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(2)]
 
         # create classroom, learner group, add user2
         self.classroom = ClassroomFactory.create(parent=self.facility)
@@ -187,7 +187,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
-        [ContentSummaryLogFactory.create(user=self.user3) for _ in range(1)]
+        [ContentSummaryLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(1)]
         response = self.client.get(reverse('contentsummarylog-list'), data={"facility": self.facility2.id})
         expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility2.id).count()
         self.assertEqual(len(response.data), expected_count)
@@ -301,7 +301,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1) for _ in range(3)]
+        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):
@@ -322,7 +322,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user) for _ in range(3)]
+        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):
