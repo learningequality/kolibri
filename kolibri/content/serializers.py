@@ -47,7 +47,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, read_only=True)
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
-    next_content = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     license = serializers.StringRelatedField(many=False)
     license_description = serializers.SerializerMethodField()
@@ -115,19 +114,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         else:
             return None
 
-    def get_next_content(self, target_node):
-        next_content = target_node.get_next_sibling()
-        if hasattr(next_content, 'id'):
-            return {'kind': next_content.kind, 'id': next_content.id}
-        # Has no next sibling meaning reach the end of this topic.
-        # Return next topic or content if there is any.
-        next_item = self._recursive_next_item(target_node)
-        if next_item:
-            return {'kind': next_item.kind, 'id': next_item.id}
-        # otherwise return root.
-        root = target_node.get_root()
-        return {'kind': root.kind, 'id': root.id}
-
     def get_license_description(self, target_node):
         if target_node.license:
             return target_node.license.license_description
@@ -137,6 +123,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'license', 'license_description', 'files', 'parent', 'progress_fraction', 'author',
             'assessmentmetadata',
         )

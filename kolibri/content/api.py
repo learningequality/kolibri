@@ -209,6 +209,19 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     def ancestors(self, request, **kwargs):
         return Response(self.get_object().get_ancestors().values('pk', 'title'))
 
+    @detail_route(methods=['get'])
+    def next_content(self, request, **kwargs):
+        next_content = self.get_object().get_next_sibling()
+        if hasattr(next_content, 'id'):
+            return Response({'kind': next_content.kind, 'id': next_content.id})
+        # Has no next sibling meaning reach the end of this topic.
+        # Return next topic or content if there is any.
+        next_item = self._recursive_next_item(self.get_object())
+        if next_item:
+            return Response({'kind': next_item.kind, 'id': next_item.id})
+        # otherwise return root.
+        root = self.get_object().get_root()
+        return Response({'kind': root.kind, 'id': root.id})
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
