@@ -20,10 +20,24 @@
     <report-table>
       <thead slot="thead">
         <tr>
-          <header-cell :text="$tr('name')" align="left"/>
-          <header-cell :text="$tr('avgExerciseProgress')"/>
-          <header-cell :text="$tr('avgContentProgress')"/>
-          <header-cell :text="$tr('lastActivity')" align="left"/>
+          <header-cell
+            :text="$tr('name')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.NAME"/>
+          <header-cell
+            :text="$tr('avgExerciseProgress')"
+            :sortable="true"
+            :column="tableColumns.EXERCISE"/>
+          <header-cell
+            :text="$tr('avgContentProgress')"
+            :sortable="true"
+            :column="tableColumns.CONTENT"/>
+          <header-cell
+            :text="$tr('lastActivity')"
+            align="left"
+            :sortable="true"
+            :column="tableColumns.DATE"/>
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -50,6 +64,7 @@
   const CoachConstants = require('../../constants');
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const reportGetters = require('../../state/getters/reports');
+  const reportConstants = require('../../reportConstants');
 
   module.exports = {
     $trNameSpace: 'itemReportPage',
@@ -72,29 +87,58 @@
     },
     methods: {
       genRowLink(row) {
-        if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        if (CoachConstants.TopicReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          }
           return {
-            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
-              topicId: row.id,
-            }
+              contentId: row.id,
+            },
           };
-        }
-        return {
-          name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
-          params: {
-            classId: this.classId,
-            channelId: this.pageState.channelId,
-            contentId: row.id,
+        } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_DETAILS_ROOT,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                contentId: row.id,
+              },
+            };
           }
-        };
+        }
+        return null;
+      },
+    },
+    computed: {
+      tableColumns() {
+        return reportConstants.TableColumns;
       },
     },
     vuex: {
       getters: {
         classId: state => state.classId,
+        pageName: state => state.pageName,
         pageState: state => state.pageState,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,

@@ -1,6 +1,5 @@
 
 const constants = require('../constants');
-const Vue = require('kolibri.lib.vue');
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
@@ -10,6 +9,9 @@ const initialState = {
     topics: [],
     contents: [],
     searchTerm: '',
+  },
+  learnAppState: {
+    memberships: []
   },
   examLog: {},
   examAttemptLogs: {},
@@ -26,17 +28,21 @@ const mutations = {
     state.examLog = examLog;
   },
   SET_EXAM_ATTEMPT_LOGS(state, examAttemptLogs) {
+    const newState = Object.assign({}, state.examAttemptLogs);
     Object.keys(examAttemptLogs).forEach(contentId => {
-      if (!state.examAttemptLogs[contentId]) {
-        Vue.set(state.examAttemptLogs, contentId, {});
+      if (!newState[contentId]) {
+        newState[contentId] = {};
       }
-      Vue.set(state.examAttemptLogs, contentId,
-        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId]));
+      Object.assign(newState[contentId], examAttemptLogs[contentId]);
     });
+    state.examAttemptLogs = newState;
   },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
     state.pageState.questionsAnswered = questionsAnswered;
   },
+  LEARN_SET_MEMBERSHIPS(state, memberships) {
+    state.learnAppState.memberships = memberships;
+  }
 };
 
 // assigns core state and mutations

@@ -1,11 +1,13 @@
 from django.db.models import Sum
 from django.utils.timezone import now
 from kolibri.auth.models import FacilityUser
-from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
+from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
 
 
 class ContentSessionLogSerializer(serializers.ModelSerializer):
+
+    extra_fields = serializers.JSONField(default='{}')
 
     class Meta:
         model = ContentSessionLog
@@ -37,10 +39,11 @@ class MasteryLogSerializer(serializers.ModelSerializer):
 
     pastattempts = serializers.SerializerMethodField()
     totalattempts = serializers.SerializerMethodField()
+    mastery_criterion = serializers.JSONField(default='{}')
 
     class Meta:
         model = MasteryLog
-        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts', 'totalattempts',
+        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts', 'totalattempts', 'user',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
@@ -51,6 +54,8 @@ class MasteryLogSerializer(serializers.ModelSerializer):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
 class AttemptLogSerializer(serializers.ModelSerializer):
+    answer = serializers.JSONField(default='{}')
+    interaction_history = serializers.JSONField(default='[]')
 
     class Meta:
         model = AttemptLog
@@ -59,6 +64,8 @@ class AttemptLogSerializer(serializers.ModelSerializer):
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
 class ExamAttemptLogSerializer(serializers.ModelSerializer):
+    answer = serializers.JSONField(default='{}', allow_null=True)
+    interaction_history = serializers.JSONField(default='[]')
 
     class Meta:
         model = ExamAttemptLog
@@ -80,6 +87,7 @@ class ExamAttemptLogSerializer(serializers.ModelSerializer):
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
     currentmasterylog = serializers.SerializerMethodField()
+    extra_fields = serializers.JSONField(default='{}')
 
     class Meta:
         model = ContentSummaryLog
@@ -92,14 +100,6 @@ class ContentSummaryLogSerializer(serializers.ModelSerializer):
             return MasteryLogSerializer(current_log).data
         except MasteryLog.DoesNotExist:
             return None
-
-
-class ContentRatingLogSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ContentRatingLog
-        fields = ('pk', 'user', 'content_id', 'channel_id', 'quality', 'ease', 'learning', 'feedback')
-
 
 class UserSessionLogSerializer(serializers.ModelSerializer):
 

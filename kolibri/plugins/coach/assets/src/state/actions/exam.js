@@ -45,8 +45,8 @@ function _breadcrumbsState(topics) {
   return topics.map(topic => _breadcrumbState(topic));
 }
 
-function _currentTopicState(topic) {
-  let breadcrumbs = Array.from(topic.ancestors);
+function _currentTopicState(topic, ancestors = []) {
+  let breadcrumbs = Array.from(ancestors);
   breadcrumbs.push({ pk: topic.pk, title: topic.title });
   breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
@@ -303,15 +303,21 @@ function fetchContent(store, channelId, topicId) {
   return new Promise((resolve, reject) => {
     const channelPayload = { channel_id: channelId };
     const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
+    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId, channelPayload);
     const subtopicsPromise = ContentNodeResource.getCollection(
       channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC, fields: ['pk', 'title', 'ancestors'] }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection(
       channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title', 'assessmentmetadata'] }).fetch();
 
-    ConditionalPromise.all([topicPromise, subtopicsPromise, exercisesPromise]).only(
+    ConditionalPromise.all([
+      topicPromise,
+      subtopicsPromise,
+      exercisesPromise,
+      ancestorsPromise,
+    ]).only(
       CoreActions.samePageCheckGenerator(store),
-      ([topicModel, subtopicsCollection, exercisesCollection]) => {
-        const topic = _currentTopicState(topicModel);
+      ([topicModel, subtopicsCollection, exercisesCollection, ancestors]) => {
+        const topic = _currentTopicState(topicModel, ancestors);
         const exercises = _exercisesState(exercisesCollection);
         let subtopics = _topicsState(subtopicsCollection);
 
@@ -400,7 +406,7 @@ function createExam(store, classCollection, examObj) {
     channel_id: examObj.channelId,
     title: examObj.title,
     question_count: examObj.numQuestions,
-    question_sources: JSON.stringify(examObj.questionSources),
+    question_sources: examObj.questionSources,
     seed: examObj.seed,
   };
   ExamResource.createModel(examPayload).save().then(
@@ -492,7 +498,7 @@ function showExamReportDetailPage(
     ([examAttempts, exam, user, examLogs]) => {
       const examLog = examLogs[0] || {};
       const seed = exam.seed;
-      const questionSources = JSON.parse(exam.question_sources);
+      const questionSources = exam.question_sources;
 
       const questionList = createQuestionList(questionSources);
 
@@ -540,7 +546,7 @@ function showExamReportDetailPage(
             const itemId = currentQuestion.itemId;
             const exercise = contentNodeMap[currentQuestion.contentId];
             const currentAttempt = allQuestions[questionNumber];
-            const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
+            const currentInteractionHistory = currentAttempt.interaction_history;
             const currentInteraction = currentInteractionHistory[interactionIndex];
             const pageState = {
               exam: _examState(exam),

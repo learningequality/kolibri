@@ -142,7 +142,15 @@ class ContentDBRouter(object):
 
         from .models import ContentDatabaseModel
 
-        model = apps.get_model(app_label=app_label, model_name=model_name) if model_name else None
+        # This can blow up if we are deleting a model, so assume we can migrate if we are deleting a model
+        # So, catch the LookupError, and let the migration proceed.
+        try:
+
+            model = apps.get_model(app_label=app_label, model_name=model_name) if model_name else None
+
+        except LookupError:
+
+            model = None
 
         # allow migrations for ContentDatabaseModels on non-default DBs, and for others only on default DB
         if model and issubclass(model, ContentDatabaseModel):

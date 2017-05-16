@@ -38,7 +38,7 @@
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
-              @interaction="saveAnswer"/>
+              @interaction="throttledSaveAnswer"/>
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
@@ -68,6 +68,8 @@
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const actions = require('../../state/actions');
   const isEqual = require('lodash/isEqual');
+  const { now } = require('kolibri.utils.serverClock');
+  const throttle = require('lodash/throttle');
 
   module.exports = {
     $trNameSpace: 'examPage',
@@ -78,7 +80,7 @@
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
       cancel: 'Cancel',
-      areYouSure: 'Are you you want to submit your exam?',
+      areYouSure: 'Are you sure you want to submit your exam?',
       unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
     },
@@ -109,6 +111,9 @@
         closeExam: actions.closeExam,
       },
     },
+    created() {
+      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, { leading: false });
+    },
     methods: {
       checkAnswer() {
         if (this.$refs.contentRenderer) {
@@ -116,17 +121,24 @@
         }
         return null;
       },
+      throttledSaveAnswer(...args) {
+        return this._throttledSaveAnswer(...args);
+      },
       saveAnswer() {
-        const answer = this.checkAnswer();
-        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+        const answer = this.checkAnswer() || {
+          answerState: null,
+          simpleAnswer: '',
+          correct: 0,
+        };
+        if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
           if (!attempt.completion_timestamp) {
-            attempt.completion_timestamp = new Date();
+            attempt.completion_timestamp = now();
           }
-          attempt.end_timestamp = new Date();
+          attempt.end_timestamp = now();
           attempt.interaction_history.push({
             type: InteractionTypes.answer,
             answer: answer.answerState,

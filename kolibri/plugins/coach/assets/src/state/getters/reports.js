@@ -1,13 +1,20 @@
 const ReportConstants = require('../../reportConstants');
+const CoachConstants = require('../../constants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
+const { now } = require('kolibri.utils.serverClock');
 const ReportUtils = require('./reportUtils');
+const { classMemberCount } = require('./main');
+const differenceInDays = require('date-fns/difference_in_days');
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 
 // Object to be exported by this module.
-const getters = {};
+const getters = {
+  sortColumn: state => (state.pageState || {}).sortColumn,
+  sortOrder: state => (state.pageState || {}).sortOrder,
+};
 
 
 function _genRow(state, item) {
@@ -18,53 +25,66 @@ function _genRow(state, item) {
     row.kind = CoreConstants.USER;
     row.id = item.id;
     row.title = item.fullName;
+    row.groupName = item.groupName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
-    // for learners, the exercise counts are the global values
-    row.exerciseProgress = ReportUtils.calcProgress(
-      item.progress, ReportUtils.onlyExercises, getters.exerciseCount(state), 1
-    );
-    row.contentProgress = ReportUtils.calcProgress(
-      item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
-    );
+    // for root list (of channels) we don't currently calculate progress
+    if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
+      // for learners, the exercise counts are the global values
+      row.exerciseProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyExercises, getters.exerciseCount(state), 1
+      );
+      row.contentProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
+      );
+    }
+  } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
+    row.id = item.id;
+    row.title = item.title;
   } else {
     // CONTENT NODES
     row.kind = item.kind;
     row.id = item.id;
+    row.contentId = item.contentId;
     row.title = item.title;
     row.parent = { id: item.parent.id, title: item.parent.title };
 
-    // for content items, set exercise counts and progress appropriately
-    if (item.kind === ContentNodeKinds.TOPIC) {
-      row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
-      row.exerciseProgress = ReportUtils.calcProgress(
-        item.progress,
-        ReportUtils.onlyExercises,
-        row.exerciseCount,
-        getters.userCount(state)
-      );
-      row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
-      row.contentProgress = ReportUtils.calcProgress(
-        item.progress,
-        ReportUtils.onlyContent,
-        row.contentCount,
-        getters.userCount(state)
-      );
-    } else if (ReportUtils.onlyExercises(item)) {
-      row.exerciseCount = 1;
-      row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
-      row.contentCount = 0;
-      row.contentProgress = undefined;
-    } else if (ReportUtils.onlyContent(item)) {
-      row.exerciseCount = 0;
-      row.exerciseProgress = undefined;
-      row.contentCount = 1;
-      row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
+    if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
+      // for content items, set exercise counts and progress appropriately
+      if (item.kind === ContentNodeKinds.TOPIC) {
+        row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
+        row.exerciseProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyExercises,
+          row.exerciseCount,
+          getters.userCount(state)
+        );
+        row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
+        row.contentProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyContent,
+          row.contentCount,
+          getters.userCount(state)
+        );
+      } else if (ReportUtils.onlyExercises(item)) {
+        row.exerciseCount = 1;
+        row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
+        row.contentCount = 0;
+        row.contentProgress = undefined;
+      } else if (ReportUtils.onlyContent(item)) {
+        row.exerciseCount = 0;
+        row.exerciseProgress = undefined;
+        row.contentCount = 1;
+        row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
+      } else {
+        logging.error(`Unhandled item kind: ${item.kind}`);
+      }
     } else {
-      logging.error(`Unhandled item kind: ${item.kind}`);
+      row.contentCount = 1;
+      row.contentProgress = item.progress[0].totalProgress / classMemberCount(state);
+      row.logCountComplete = item.progress[0].logCountComplete;
     }
   }
-
   row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
   return row;
 }
@@ -122,6 +142,12 @@ Object.assign(getters, {
     const data = state.pageState.tableData.map(item => _genRow(state, item));
     if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
       data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
+    }
+    if (state.pageState.showRecentOnly) {
+      return data.filter(row =>
+        Boolean(row.lastActive) &&
+        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
+      );
     }
     return data;
   },

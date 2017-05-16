@@ -14,17 +14,33 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from jsonfield import JSONField
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import Exam, UUIDField
+from morango.manager import SyncableModelManager
+from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
-class BaseLogQuerySet(models.QuerySet):
+class BaseLogModelManager(SyncableModelManager):
+
+    def get_queryset(self):
+        return BaseLogQuerySet(self.model, using=self._db)
+
+
+class BaseLogQuerySet(SyncableModelQuerySet):
+
+    def as_manager(cls):
+        manager = BaseLogModelManager.from_queryset(cls)()
+        manager._built_with_as_manager = True
+        return manager
+    as_manager.queryset_only = True
+    as_manager = classmethod(as_manager)
 
     def filter_by_topic(self, topic, content_id_lookup="content_id"):
         """
@@ -80,11 +96,23 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     objects = BaseLogQuerySet.as_manager()
 
+    def calculate_partition(self):
+        if self.user_id:
+            return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        else:
+            return '{dataset_id}:anon-user'.format(dataset_id=self.dataset_id)
+
+    def calculate_source_id(self):
+        return None
+
 
 class ContentSessionLog(BaseLogModel):
     """
     This model provides a record of interactions with a content item within a single visit to that content page.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsessionlog"
+
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
@@ -93,13 +121,16 @@ class ContentSessionLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
-    extra_fields = models.TextField(default="{}")
+    extra_fields = JSONField(default={}, blank=True)
 
 
 class ContentSummaryLog(BaseLogModel):
     """
     This model provides a summary of all interactions a user has had with a content item.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsummarylog"
+
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
@@ -109,26 +140,19 @@ class ContentSummaryLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
     kind = models.CharField(max_length=200)
-    extra_fields = models.TextField(default="{}")
+    extra_fields = JSONField(default={}, blank=True)
 
-
-class ContentRatingLog(BaseLogModel):
-    """
-    This model provides a record of user feedback on a content item.
-    """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
-    content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
-    quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    ease = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    learning = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    feedback = models.TextField(blank=True)
+    def calculate_source_id(self):
+        return self.content_id
 
 
 class UserSessionLog(BaseLogModel):
     """
     This model provides a record of a user session in Kolibri.
     """
+    # Morango syncing settings
+    morango_model_name = "usersessionlog"
+
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
@@ -157,14 +181,16 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    permissions = log_permissions("summarylog__user")
+    # Morango syncing settings
+    morango_model_name = "masterylog"
 
+    user = models.ForeignKey(FacilityUser)
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
-    mastery_criterion = models.TextField()
+    mastery_criterion = JSONField(default={})
     start_timestamp = models.DateTimeField()
     end_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
@@ -174,7 +200,11 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self):
-        return self.summarylog.dataset
+        return self.user.dataset
+
+    def calculate_source_id(self):
+        return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
+
 
 class BaseAttemptLog(BaseLogModel):
     """
@@ -193,13 +223,13 @@ class BaseAttemptLog(BaseLogModel):
     correct = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
     hinted = models.BooleanField(default=False)
     # JSON blob that would allow the learner's answer to be rerendered in the frontend interface
-    answer = models.TextField()
+    answer = JSONField(default={}, null=True, blank=True)
     # A human readable answer that could be rendered directly in coach reports, can be blank.
     simple_answer = models.CharField(max_length=200, blank=True)
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
-    interaction_history = models.TextField()
-    user = models.ForeignKey(FacilityUser)
+    interaction_history = JSONField(default=[], blank=True)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -210,6 +240,9 @@ class AttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an assessment
     """
+
+    morango_model_name = 'attemptlog'
+
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
@@ -223,6 +256,9 @@ class ExamLog(BaseLogModel):
     This model provides a summary of a user's interaction with a particular exam, and serves as
     an aggregation point for individual attempts on that exam.
     """
+
+    morango_model_name = 'examlog'
+
     # Identifies the exam that this is for.
     exam = models.ForeignKey(Exam, related_name="examlogs", blank=False, null=False)
     # Identifies which user this log summarizes interactions for.
@@ -239,6 +275,9 @@ class ExamAttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an exam
     """
+
+    morango_model_name = 'examattemptlog'
+
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here

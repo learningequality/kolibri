@@ -5,7 +5,7 @@ from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .content_db_router import default_database_is_attached, get_active_content_database
+# from .content_db_router import default_database_is_attached, get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
@@ -37,6 +37,9 @@ class FileSerializer(serializers.ModelSerializer):
 
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
+    assessment_item_ids = serializers.JSONField(default='[]')
+    mastery_model = serializers.JSONField(default='{}')
+
     class Meta:
         model = AssessmentMetaData
         fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
@@ -45,11 +48,12 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
+    license = serializers.StringRelatedField(many=False)
+    license_description = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -75,25 +79,28 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # we're getting  progress for the currently logged-in user
         user = self.context["request"].user
 
-        # get the content_id for every content node that's under this node
-        leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
+        if target_node.kind == "topic":
+            # # get the content_id for every content node that's under this node
+            # leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
 
-        # get all summary logs for the current user that correspond to the descendant content nodes
-        if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-            channel_alias = get_active_content_database()
-            summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
-        else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-            summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+            # # get all summary logs for the current user that correspond to the descendant content nodes
+            # if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+            #     channel_alias = get_active_content_database()
+            #     summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
+            # else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+            #     summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
 
-        # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
-        return round(overall_progress, 4)
-
-    def get_ancestors(self, target_node):
-        """
-        in descending order (root ancestor first, immediate parent last)
-        """
-        return target_node.get_ancestors().values('pk', 'title')
+            # # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+            # overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
+            # return round(overall_progress, 4)
+            return None
+        else:
+            try:
+                # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+                overall_progress = ContentSummaryLog.objects.get(user=user, content_id=target_node.content_id).progress
+            except ContentSummaryLog.DoesNotExist:
+                overall_progress = 0
+            return round(overall_progress, 4)
 
     def get_thumbnail(self, target_node):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
@@ -124,11 +131,16 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         root = target_node.get_root()
         return {'kind': root.kind, 'id': root.id}
 
+    def get_license_description(self, target_node):
+        if target_node.license:
+            return target_node.license.license_description
+        return ''
+
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'license', 'license_description', 'files', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
             'assessmentmetadata',
         )
 
@@ -169,6 +181,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
 class ExamSerializer(serializers.ModelSerializer):
 
     assignments = ExamAssignmentSerializer(many=True, read_only=True)
+    question_sources = serializers.JSONField(default='[]')
 
     class Meta:
         model = Exam
@@ -189,6 +202,8 @@ class ExamSerializer(serializers.ModelSerializer):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
 
 class UserExamSerializer(serializers.ModelSerializer):
+
+    question_sources = serializers.JSONField()
 
     class Meta:
         # Use the ExamAssignment as the primary model, as the permissions are more easily

@@ -60,7 +60,7 @@
       summaryHeading: 'Summary logs',
       summarySubHeading: 'Total time/progress for each piece of content',
       // info boxes
-      detailsInfo: 'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is logged in.',
+      detailsInfo: 'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
       summaryInfo: 'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
       // button
       download: 'Download',

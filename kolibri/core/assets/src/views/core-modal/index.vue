@@ -93,10 +93,14 @@
         required: false,
       },
     },
-    mounted() {
+    beforeMount() {
       this.lastFocus = document.activeElement;
+    },
+    mounted() {
       this.$nextTick(() => {
-        this.focusModal();
+        if (!this.$refs.modal.contains(document.activeElement)) {
+          this.focusModal();
+        }
       });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
@@ -164,7 +168,7 @@
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 25
+    z-index: 24
 
   .modal
     position: absolute

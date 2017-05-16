@@ -76,8 +76,8 @@
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
-    'learnerCanEditPassword',
-    'learnerCanDeleteAccount',
+    // 'learnerCanEditPassword',
+    // 'learnerCanDeleteAccount',
     'learnerCanSignUp',
   ];
 
@@ -125,7 +125,7 @@
       currentFacilityHeader: 'Your current Facility',
       learnerCanDeleteAccount: 'Allow users to delete their account',
       learnerCanEditName: 'Allow users to edit their full name',
-      learnerCanEditPassword: 'Allow users to change their password when logged in',
+      learnerCanEditPassword: 'Allow users to change their password when signed in',
       learnerCanEditUsername: 'Allow users to edit their username',
       learnerCanSignUp: 'Allow users to sign-up on this device',
       pageDescription: 'Configure and change different Facility settings here.',

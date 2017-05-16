@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
+from jsonfield import JSONField
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
@@ -115,7 +116,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField()
+    content_id = UUIDField(db_index=True)
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -241,6 +242,7 @@ class License(ContentDatabaseModel):
     Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
+    license_description = models.CharField(max_length=400, null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -260,11 +262,11 @@ class AssessmentMetaData(ContentDatabaseModel):
         ContentNode, related_name='assessmentmetadata', blank=True, null=True
     )
     # A JSON blob containing a serialized list of ids for questions that the assessment can present.
-    assessment_item_ids = models.TextField()
+    assessment_item_ids = JSONField(default=[])
     # Length of the above assessment_item_ids for a convenience lookup.
     number_of_assessments = models.IntegerField()
     # A JSON blob describing the mastery model that is used to set this assessment as mastered.
-    mastery_model = models.CharField(max_length=200)
+    mastery_model = JSONField(default={})
     # Should the questions listed in assessment_item_ids be presented in a random order?
     randomize = models.BooleanField(default=False)
     # Is this assessment compatible with being previewed and answer filled for display in coach reports
@@ -312,6 +314,9 @@ class Exam(AbstractFacilityDataModel):
     """
     This class stores metadata about teacher created exams to test current student knowledge.
     """
+
+    morango_model_name = "exam"
+
     permissions = RoleBasedPermissions(
         target_field="collection",
         can_be_created_by=(),
@@ -320,7 +325,6 @@ class Exam(AbstractFacilityDataModel):
         can_be_deleted_by=(),
     )
 
-    id = UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=200)
     # The channel this Exam is associated with.
     channel_id = models.CharField(max_length=32)
@@ -335,7 +339,7 @@ class Exam(AbstractFacilityDataModel):
         {"exercise_id": <content_id2>, "number_of_questions": 5}
     ]
     """
-    question_sources = models.TextField()
+    question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam
     seed = models.IntegerField(default=1)
     # Is this exam currently active and visible to students to whom it is assigned?
@@ -350,6 +354,9 @@ class Exam(AbstractFacilityDataModel):
     def infer_dataset(self):
         return self.creator.dataset
 
+    def calculate_partition(self):
+        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+
     def __str__(self):
         return self.title
 
@@ -359,6 +366,9 @@ class ExamAssignment(AbstractFacilityDataModel):
     This class acts as an intermediary to handle assignment of an exam to particular collections
     classes, groups, etc.
     """
+
+    morango_model_name = "examassignment"
+
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
@@ -374,3 +384,6 @@ class ExamAssignment(AbstractFacilityDataModel):
 
     def infer_dataset(self):
         return self.assigned_by.dataset
+
+    def calculate_partition(self):
+        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)

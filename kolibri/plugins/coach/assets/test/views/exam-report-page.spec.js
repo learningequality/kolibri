@@ -81,6 +81,6 @@ describe('exam report page', () => {
     // score isn't properly formatted
     assert.equal(getTextInScoreColumn(els.tableRows()[0]), '{num, number, percent} ');
     // emdash
-    assert.equal(getTextInScoreColumn(els.tableRows()[1]), '\u2014 ');
+    assert.equal(getTextInScoreColumn(els.tableRows()[1]), '– ');
   });
 });

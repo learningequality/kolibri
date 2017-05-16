@@ -12,6 +12,11 @@ function isSuperuser(state) {
 }
 
 
+function isFacilityUser(state) {
+  return isUserLoggedIn(state) && !isSuperuser(state);
+}
+
+
 function isAdmin(state) {
   return state.core.session.kind[0] === UserKinds.ADMIN;
 }
@@ -26,8 +31,14 @@ function isLearner(state) {
   return state.core.session.kind[0] === UserKinds.LEARNER;
 }
 
+
 function currentFacilityId(state) {
   return state.core.session.facility_id;
+}
+
+
+function currentUserId(state) {
+  return state.core.session.user_id;
 }
 
 /*
@@ -66,6 +77,7 @@ function contentPoints(state) {
 module.exports = {
   isUserLoggedIn,
   isSuperuser,
+  isFacilityUser,
   isAdmin,
   isCoach,
   isLearner,
@@ -74,4 +86,5 @@ module.exports = {
   currentFacilityId,
   totalPoints,
   contentPoints,
+  currentUserId,
 };

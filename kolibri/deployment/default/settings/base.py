@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
+    'jsonfield',
+    'morango',
 ] + conf.config['INSTALLED_APPS']
 
 # Add in the external plugins' locale paths. Our frontend messages depends
@@ -114,6 +116,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 100,
+        }
     },
     'ormq': {
         'ENGINE': 'django.db.backends.sqlite3',

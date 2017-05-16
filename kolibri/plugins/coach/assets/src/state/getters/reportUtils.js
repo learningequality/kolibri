@@ -38,6 +38,7 @@ function genCompareFunc(sortColumn, sortOrder) {
   columnToKey[ReportConstants.TableColumns.EXERCISE] = 'exerciseProgress';
   columnToKey[ReportConstants.TableColumns.CONTENT] = 'contentProgress';
   columnToKey[ReportConstants.TableColumns.DATE] = 'lastActive';
+  columnToKey[ReportConstants.TableColumns.GROUP] = 'groupName';
   const key = columnToKey[sortColumn];
 
   // take into account sort order
