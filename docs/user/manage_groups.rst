@@ -4,13 +4,13 @@
 Manage Groups
 ~~~~~~~~~~~~~
 
-You can create and delete groups, as well as assign learners to them from the **Groups** tab in your **Coach** dashboard. Default view displays the list of all groups for the selected class, with the list of assigned learners for each group. 
+You can create and delete groups, as well as assign learners to them from the **Groups** tab in your **Coach** dashboard. Default view displays the list of all groups for the selected class, with the list of assigned learners for each group.
 
 .. image:: img/groups.png
   :alt: manage learner groups
 
 .. note::
-  To manage groups of learners in Kolibri class you must be logged-in as **Coach** or **Facility Admin**.
+  To manage groups of learners in Kolibri class you must be logged-in as **Coach** or **Admin**.
 
 
 Create a New Group
@@ -67,7 +67,7 @@ To delete a group, follow these steps.
 
 #. Click the down arrow icon on the right edge of the desired group from the list.
 #. Select the **Delete group** from the drop-down menu.
-#. Click **Delete group** button in the confirmation window to proceed, or **Cancel** to exit without deleting the group. 
+#. Click **Delete group** button in the confirmation window to proceed, or **Cancel** to exit without deleting the group.
 
 .. note::
   Learners currently assigned to group will become ungrouped.

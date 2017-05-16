@@ -4,13 +4,13 @@
 Manage Exams
 ~~~~~~~~~~~~
 
-You can view, create and delete exams, as well as assign them to learners, using the **Exams** tab in your **Coach** dashboard. Default view displays the list of all exams in a selected class, with a series of options to set the visibility, (de)activate when required, and view report of students who took them. 
+You can view, create and delete exams, as well as assign them to learners, using the **Exams** tab in your **Coach** dashboard. Default view displays the list of all exams in a selected class, with a series of options to set the visibility, (de)activate when required, and view report of students who took them.
 
 .. image:: img/manage-exams.png
   :alt: manage exams home page
 
 .. note::
-  To manage **Exams** in Kolibri classes and groups you must be logged-in as **Coach** or **Facility Admin**.
+  To manage **Exams** in Kolibri classes and groups you must be logged-in as **Coach** or **Admin**.
 
 
 Create New Exam
@@ -28,7 +28,7 @@ To create a new exam, follow these steps.
     .. image:: img/add-content-exam.png
       :alt: add content to your exam
 
-    
+
     As you keep adding the exercises you will see confirmation messages at the bottom.
 
 #. Click **Preview** button to view the result in overlay window.
@@ -36,8 +36,8 @@ To create a new exam, follow these steps.
     .. image:: img/preview-exam.png
       :alt: preview the content of your exam
 
-    
-    * Click **Randomize questions** button to present them in the different order from those in the topic origin. 
+
+    * Click **Randomize questions** button to present them in the different order from those in the topic origin.
     * Click the **Close** (**X**) button in the upper right corner to return to the exam home page.
 
 #. Click **Finish** button to save the result.
@@ -46,7 +46,7 @@ To create a new exam, follow these steps.
 Change Exam Visibility
 ----------------------
 
-Newly created exam will be visible to entire class. To change exam visibility, meaning to assign it only to one group of learners instead of the whole class, follow these steps. 
+Newly created exam will be visible to entire class. To change exam visibility, meaning to assign it only to one group of learners instead of the whole class, follow these steps.
 
 #. Click **Change** button under the **Visible to** column in the list of exams.
 #. Select the group(s) of learners to whom you wish to assign the exam.
@@ -96,7 +96,7 @@ To delete exam, follow these steps.
 
 #. Click down arrow near the **Activate** button for the desired exam from the list.
 #. Select **Delete** in the drop-down menu.
-#. Click **Delete** button in the confirmation window to proceed, or **Cancel** to exit without deleting the exam. 
+#. Click **Delete** button in the confirmation window to proceed, or **Cancel** to exit without deleting the exam.
 
 .. warning::
   All data from the exam you are deleting will be lost.
@@ -109,4 +109,4 @@ To rename exam, follow these steps.
 #. Click down arrow near the **Activate** button for the desired exam from the list.
 #. Select **Rename** in the drop-down menu.
 #. Change the exam title in the confirmation window.
-#. Click **Rename** button  to proceed, or **Cancel** to exit without renaming the exam. 
+#. Click **Rename** button  to proceed, or **Cancel** to exit without renaming the exam.

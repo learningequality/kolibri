@@ -12,4 +12,4 @@ You can edit facility configuration settings in Kolibri from the **Facility** ta
   :alt: manage facility configuration settings
 
 .. note::
-  To manage facility configuration settings you must be logged-in as **Device Owner** or **Facility Admin**.
+  To manage facility configuration settings you must be logged-in as **Device Owner** or **Admin**.

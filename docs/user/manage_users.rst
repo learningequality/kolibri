@@ -29,7 +29,7 @@ Kolibri users can have different roles with respective access to features:
   * Create/Edit/Delete *Groups* in *Classes* and add users to them
   * Create/Edit/Delete *Exams* and assign them to users
 
-* **Facility Admins** can:
+* **Admins** can:
 
   * View content and have their progress tracked
   * View *Coach Reports* to track progress of other users and usage stats for individual exercises
@@ -46,9 +46,6 @@ Kolibri users can have different roles with respective access to features:
   * View/Edit *Facility configuration* settings
   * Export *Detail* and *Summary* logs usage data
   * Import/Export content
-
-.. note::
-  In order to keep the user interface labels as simple and short possible, specially on mobile devices, the **Facility Admin** role is labeled as **Admin**.
 
 
 Create a New User Account

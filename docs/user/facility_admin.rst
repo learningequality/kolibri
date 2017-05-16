@@ -1,5 +1,5 @@
-Facility Admin
-==============
+Admin
+=====
 
 
 .. include:: manage_facility.rst
@@ -20,7 +20,7 @@ Facility Admin
 Coach View
 ~~~~~~~~~~
 
-As Facility Admin you have access to the same Kolibri **Coach** view as the :doc:`coach` in your facility.
+As an Admin you have access to the same Kolibri **Coach** view as the :doc:`coach` in your facility.
 
 .. image:: img/coach-home.png
   :alt: coach view as facility admin
@@ -29,7 +29,7 @@ As Facility Admin you have access to the same Kolibri **Coach** view as the :doc
 Learn View
 ~~~~~~~~~~
 
-As Facility Admin you have access to the same Kolibri **Learn** view as the :doc:`learner` in your facility.
+As an Admin you have access to the same Kolibri **Learn** view as the :doc:`learner` in your facility.
 
 .. image:: img/learn-admin.png
   :alt: learner view as facility admin
