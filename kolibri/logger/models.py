@@ -20,7 +20,8 @@ from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUse
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
-from kolibri.content.models import Exam, UUIDField
+from kolibri.content.models import UUIDField
+from kolibri.core.exams.models import Exam
 from morango.manager import SyncableModelManager
 from morango.query import SyncableModelQuerySet
 

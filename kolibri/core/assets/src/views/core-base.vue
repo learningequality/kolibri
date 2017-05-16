@@ -86,7 +86,7 @@
       },
     },
     data: () => ({
-      navShown: true,
+      navShown: false,
     }),
     methods: {
       updateDocumentTitle(newTitle) {
