@@ -19,6 +19,7 @@ Including another URLconf
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
@@ -35,3 +36,10 @@ urlpatterns = [
     url(r'^api/', include('kolibri.tasks.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
+
+if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):
+
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
