@@ -192,7 +192,13 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all()
+        return models.ContentNode.objects.all().select_related(
+            'parent',
+            'license',
+        ).prefetch_related(
+            'assessmentmetadata',
+            'files',
+        )
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
@@ -222,6 +228,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         # otherwise return root.
         root = self.get_object().get_root()
         return Response({'kind': root.kind, 'id': root.id})
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
