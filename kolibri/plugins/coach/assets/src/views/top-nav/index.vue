@@ -1,34 +1,37 @@
 <template>
 
-  <div class="top">
-    <nav-link
-      :to="recentLink"
-      :active="isRecentPage"
-      :text="$tr('recent')"
+  <tabs>
+    <tab-link
+      type="icon-and-title"
+      :title="$tr('recent')"
+      icon="access_time"
+      :link="recentLink"
     />
-    <nav-link
-      :to="topicsLink"
-      :active="isTopicPage"
-      :text="$tr('topics')"
+    <tab-link
+      type="icon-and-title"
+      :title="$tr('topics')"
+      icon="folder"
+      :link="topicsLink"
     />
-    <nav-link
-      :to="examsLink"
-      :active="Constants.ExamPages.includes(pageName)"
-      :text="$tr('exams')"
+    <tab-link
+      type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignments"
+      :link="examsLink"
     />
-    <!--
-    <nav-link
-      :to="learnersLink"
-      :active="isLearnerPage"
-      :text="$tr('learners')"
+    <!--<tab-link
+      type="icon-and-title"
+      :title="$tr('learners')"
+      icon="people"
+      :link="learnersLink"
+    />-->
+    <tab-link
+      type="icon-and-title"
+      :title="$tr('groups')"
+      icon="group_work"
+      :link="groupsLink"
     />
-    -->
-    <nav-link
-      :to="groupsLink"
-      :active="pageName === Constants.PageNames.GROUPS"
-      :text="$tr('groups')"
-    />
-  </div>
+  </tabs>
 
 </template>
 
@@ -36,7 +39,6 @@
 <script>
 
   const Constants = require('../../constants');
-  const coachGetters = require('../../state/getters/main');
 
   module.exports = {
     $trNameSpace: 'topNav',
@@ -48,7 +50,8 @@
       groups: 'Groups',
     },
     components: {
-      'nav-link': require('./nav-link'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
+      'tab-link': require('kolibri.coreVue.components.tabLink'),
     },
     computed: {
       Constants() {
@@ -89,9 +92,6 @@
       getters: {
         pageName: state => state.pageName,
         classId: state => state.classId,
-        isRecentPage: coachGetters.isRecentPage,
-        isTopicPage: coachGetters.isTopicPage,
-        isLearnerPage: coachGetters.isLearnerPage,
       },
     },
   };
@@ -99,13 +99,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .top
-    position: relative
-    padding: 8px
-    background: $core-bg-light
-
-</style>
+<style lang="stylus" scoped></style>
