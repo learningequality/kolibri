@@ -45,7 +45,6 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     license = serializers.StringRelatedField(many=False)
@@ -97,10 +96,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             except ContentSummaryLog.DoesNotExist:
                 overall_progress = 0
             return round(overall_progress, 4)
-
-    def get_thumbnail(self, target_node):
-        thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
-        return thumbnail_model.get_storage_url() if thumbnail_model else None
 
     def _recursive_next_item(self, target_node):
         if target_node.parent:

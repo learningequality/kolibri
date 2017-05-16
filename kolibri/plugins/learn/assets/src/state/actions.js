@@ -52,12 +52,13 @@ function _contentState(data, nextContent) {
   } else {
     progress = data.progress_fraction;
   }
+  const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
     title: data.title,
     kind: data.kind,
     description: data.description,
-    thumbnail: data.thumbnail,
+    thumbnail: thumbnail.storage_url,
     available: data.available,
     files: data.files,
     progress,
