@@ -5,26 +5,39 @@
     :error="wizardState.error"
     :enableBgClickCancel="false"
     :enableBackBtn="true"
-    @cancel="cancel"
-    @enter="submit"
-    @back="startImportWizard"
+    @cancel="cancel()"
+    @enter="submit()"
+    @back="goBack()"
   >
     <div class="main">
-      <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
+      <core-textbox
+        :disabled="wizardState.busy"
+        :label="$tr('enterContentChannel')"
+        :placeholder="$tr('enterContentChannelPlaceholder')"
+        v-model="contentId"
+      />
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
     </div>
-    <div class="button-wrapper">
-      <icon-button
-        @click="cancel"
-        :text="$tr('cancel')"
-        :disabled="wizardState.busy"/>
-      <icon-button
-        :text="$tr('import')"
-        @click="submit"
+    <div class="Buttons">
+      <ui-button
+        type="secondary"
+        name="back"
+        @click="goBack()"
+        :disabled="wizardState.busy"
+      >
+        {{ $tr('back') }}
+      </ui-button>
+      <ui-button
+        name="next"
+        type="primary"
+        color="primary"
+        @click="submit()"
         :disabled="!canSubmit"
-        :primary="true"/>
+      >
+        {{ $tr('continue') }}
+      </ui-button>
     </div>
   </core-modal>
 
@@ -38,45 +51,47 @@
   module.exports = {
     $trNameSpace: 'wizardImportNetwork',
     $trs: {
-      title: 'Please choose a source...',
+      title: 'Enter a channel ID',
       enterContentChannel: 'Please enter a content channel ID:',
-      cancel: 'Cancel',
-      import: 'Import',
+      enterContentChannelPlaceholder: 'Channel ID',
+      back: 'Back',
+      continue: 'Continue',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-textbox': require('kolibri.coreVue.components.textbox'),
+      'ui-button': require('keen-ui/src/UiButton'),
     },
     data: () => ({
       contentId: '',
     }),
     computed: {
       canSubmit() {
-        if (this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.contentId);
+        return !(this.wizardState.busy || this.contentId.trim() === '');
       },
     },
     methods: {
       submit() {
         if (this.canSubmit) {
-          this.triggerRemoteContentImportTask(this.contentId);
+          this.showNetworkImportPreview(this.contentId);
         }
       },
       cancel() {
         this.cancelImportExportWizard();
       },
+      goBack() {
+        this.startImportWizard();
+      }
     },
     vuex: {
       getters: {
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
         cancelImportExportWizard: actions.cancelImportExportWizard,
+        startImportWizard: actions.startImportWizard,
+        showNetworkImportPreview: actions.showNetworkImportPreview,
+        triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
       },
     },
   };
@@ -100,12 +115,8 @@
     border: 2px solid $core-action-normal
     border-radius: 4px
 
-  .button-wrapper
-    margin: 1em 0
-    text-align: center
-
-  button
-    margin: 0.4em
+  .Buttons
+    text-align: right
 
   .core-text-alert
     text-align: center

@@ -373,7 +373,7 @@ function _setChannelState(store, currentChannelId, channelList) {
  */
 function setChannelInfo(store, channelId = null) {
   const coreApp = require('kolibri');
-  return coreApp.resources.ChannelResource.getCollection().fetch().then(
+  return coreApp.resources.ChannelResource.getCollection().fetch({}, true).then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       let thisChannelId;

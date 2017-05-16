@@ -19,34 +19,30 @@
           <h1 class="page-title">{{$tr('title')}}</h1>
           <div class="button-wrapper" v-if="!pageState.taskList.length">
             <icon-button
+              name="import"
               :text="$tr('import')"
               class="button"
-              @click="startImportWizard"
-              :primary="true">
+              @click="startImportWizard()"
+              :primary="true"
+            >
               <mat-svg category="content" name="add"/>
             </icon-button>
             <icon-button
+              name="export"
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard">
+              @click="startExportWizard()"
+            >
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
           </div>
         </div>
         <hr>
         <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
-        <table>
-          <tbody>
-            <tr v-for="channel in sortedChannels">
-              <th scope="row" class="table-cell" width="70%">
-                <span class="channel-name">
-                  {{ channel.title }}
-                </span>
-              </th>
-            </tr>
-          </tbody>
-        </table>
+
+        <channels-grid/>
+
       </div>
     </template>
     <template v-else>
@@ -61,9 +57,9 @@
 
 <script>
 
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
+  const { isSuperuser } = require('kolibri.coreVue.vuex.getters');
   const actions = require('../../state/actions');
-  const ContentWizardPages = require('../../constants').ContentWizardPages;
+  const { ContentWizardPages } = require('../../constants');
   const orderBy = require('lodash/orderBy');
 
   module.exports = {
@@ -76,11 +72,12 @@
       notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     components: {
+      'channels-grid': require('./channels-grid'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
-      'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
-      'wizard-import-local': require('./wizard-import-local'),
+      'wizard-import-choose-source': require('./wizard-import-choose-source'),
+      'wizard-import-preview': require('./wizard-import-preview'),
       'wizard-export': require('./wizard-export'),
     },
     data: () => ({
@@ -105,18 +102,14 @@
         );
       },
       wizardComponent() {
-        switch (this.pageState.wizardState.page) {
-          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
-            return 'wizard-import-source';
-          case ContentWizardPages.IMPORT_NETWORK:
-            return 'wizard-import-network';
-          case ContentWizardPages.IMPORT_LOCAL:
-            return 'wizard-import-local';
-          case ContentWizardPages.EXPORT:
-            return 'wizard-export';
-          default:
-            return undefined;
-        }
+        const pageNameMap = {
+          [ContentWizardPages.EXPORT]: 'wizard-export',
+          [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-choose-source',
+          [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
+          [ContentWizardPages.IMPORT_PREVIEW]: 'wizard-import-preview',
+        };
+
+        return pageNameMap[this.pageState.wizardState.page];
       },
     },
     vuex: {
@@ -126,9 +119,9 @@
         pageState: state => state.pageState,
       },
       actions: {
+        pollTasksAndChannels: actions.pollTasksAndChannels,
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
-        pollTasksAndChannels: actions.pollTasksAndChannels,
       },
     },
   };

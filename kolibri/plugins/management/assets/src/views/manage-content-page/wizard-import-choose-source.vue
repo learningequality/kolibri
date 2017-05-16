@@ -2,24 +2,45 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error ? true : false"
+    :error="wizardState.error"
     :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
   >
     <div class="main">
+
+      <div>
+        <h2>{{ $tr('theInternet') }}</h2>
+        <div
+          @click="selectedDrive=INTERNET_SOURCE"
+          class="enabled drive-names"
+          name="internet_source"
+        >
+          <ui-radio
+            :id="INTERNET_SOURCE"
+            :trueValue="INTERNET_SOURCE"
+            v-model="selectedDrive"
+          >
+            <div class="InternetSource">
+              <div class="InternetSource__icon">
+                <mat-svg category="social" name="public" transform="translate(20, 0)" />
+                <mat-svg category="file" name="file_download" transform="translate(-25, 10)" fill="#00BAFF" />
+              </div>
+              <div class="InternetSource__description">
+                <div>{{ $tr('enterChannelId') }}</div>
+                <div>{{ $tr('searchForChannel') }}</div>
+              </div>
+            </div>
+          </ui-radio>
+        </div>
+      </div>
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <p>
-            {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
-            <span id="content-size">{{ exportContentSize }}</span>.
-          </p>
           <drive-list
             :value="selectedDrive"
             :drives="wizardState.driveList"
             :enabledDrivePred="isEnabledDrive"
-            :enabledMsg="enabledMsg"
-            :disabledMsg="$tr('notWritable')"
+            :disabledMsg="$tr('incompatible')"
             @change="(driveId) => selectedDrive = driveId"
           />
         </div>
@@ -40,26 +61,16 @@
     <div class="core-text-alert">
       {{ wizardState.error }}
     </div>
-    <div class="Buttons">
-      <ui-button
-        type="secondary"
-        @click="cancel()"
-      >
-        {{ $tr('cancel') }}
-      </ui-button>
-      <ui-button
-        name="submit"
+    <div class="button-wrapper">
+      <icon-button
+        @click="cancel"
+        :text="$tr('cancel')"/>
+      <icon-button
+        name="next"
+        :text="$tr('import')"
+        @click="submit"
         :disabled="!canSubmit"
-        :primary="true"
-        @click="submit()"
-        color="primary"
-        type="primary"
-      >
-        {{ $tr('export') }}
-        <span v-if="contentsTotalSize">
-          ({{ contentsTotalSize }})
-        </span>
-      </ui-button>
+        :primary="true"/>
     </div>
   </core-modal>
 
@@ -68,34 +79,35 @@
 
 <script>
 
-  const sumBy = require('lodash/sumBy');
+  const find = require('lodash/find');
   const actions = require('../../state/actions');
-  const bytesForHumans = require('./bytesForHumans');
+
+  const INTERNET_SOURCE = 'internet_source';
 
   module.exports = {
-    $trNameSpace: 'wizardExport',
+    $trNameSpace: 'wizardLocalImport',
     $trs: {
-      available: 'available',
-      cancel: 'Cancel',
-      export: 'Start Export',
-      exportPromptContentSize: '{numChannels, number} {numChannels, plural, one {Channel} other {Channels}} ({totalSize})',
-      exportPromptPrefix: 'You are about to export {numChannels, number} {numChannels, plural, one {Channel} other {Channels}}',
-      notWritable: 'Not writable',
+      title: 'Import from where?',
+      incompatible: 'No content available',
       refresh: 'Refresh',
-      title: 'Export to where?',
-      waitForTotalSize: 'Calculating total size...',
+      cancel: 'Cancel',
+      import: 'Import',
+      theInternet: 'The Internet',
+      enterChannelId: 'Enter a channel ID',
+      searchForChannel: 'Search for a specific channel',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'drive-list': require('./wizards/drive-list'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-radio': require('keen-ui/src/UiRadio'),
     },
     data: () => ({
       selectedDrive: '', // used when there's more than one option
     }),
     computed: {
+      INTERNET_SOURCE: () => INTERNET_SOURCE,
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
@@ -106,33 +118,24 @@
           Boolean(this.selectedDrive)
         );
       },
-      exportContentSize() {
-        return this.contentsTotalSize || this.$tr('waitForTotalSize');
-      },
-      allChannelsHaveStats() {
-        // only checks that lengths are same, not that IDs are same too
-        return this.allChannels.length === Object.keys(this.channelsWithStats).length;
-      },
-      contentsTotalSize() {
-        if (this.allChannelsHaveStats) {
-          const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
-          return bytesForHumans(totalSize);
-        }
-        return '';
-      }
     },
     beforeMount() {
       this.updateWizardLocalDriveList();
     },
     methods: {
-      enabledMsg(drive) {
-        return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;
-      },
       isEnabledDrive(drive) {
-        return drive.writable;
+        return drive.metadata.channels.length > 0;
       },
       submit() {
-        this.triggerLocalContentExportTask(this.selectedDrive);
+        if (this.selectedDrive === INTERNET_SOURCE) {
+          return this.showImportNetworkWizard();
+        }
+        const driveInfo = find(this.wizardState.driveList, { id: this.selectedDrive });
+        return this.showLocalImportPreview({
+          driveId: this.selectedDrive,
+          channels: driveInfo.metadata.channels,
+          driveName: driveInfo.name,
+        });
       },
       cancel() {
         if (!this.wizardState.busy) {
@@ -142,13 +145,12 @@
     },
     vuex: {
       getters: {
-        allChannels: (state) => state.core.channels.list,
-        channelsWithStats: (state) => state.pageState.channelInfo,
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
         cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
+        showImportNetworkWizard: actions.showImportNetworkWizard,
+        showLocalImportPreview: actions.showLocalImportPreview,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },
@@ -161,19 +163,21 @@
 
   @require '~kolibri.styles.definitions'
 
-  #content-size
-    font-weight: bold
-    &::before
-      content: "("
-    &::after
-      content: ")"
-
   $min-height = 200px
 
   .main
     text-align: left
     margin: 3em 0
     min-height: $min-height
+
+  .InternetSource
+    display: table
+    &__icon
+      display: table-cell
+      vertical-align: middle
+    &__description
+      display: table-cell
+      vertical-align: middle
 
   h2
     font-size: 1em
@@ -185,8 +189,20 @@
     margin-right: 0.2em
     margin-bottom: -6px
 
-  .Buttons
-    text-align: right
+  .drive-names
+    padding: 0.6em
+    border: 1px $core-bg-canvas solid
+    label
+      font-size: 0.9em
+    &.enabled
+      &:hover
+        background-color: $core-bg-canvas
+      &, label
+        cursor: pointer
+
+  .button-wrapper
+    margin: 1em 0
+    text-align: center
 
   button
     margin: 0.4em
@@ -196,5 +212,8 @@
 
   .spinner
     height: $min-height
+
+  .core-text-alert
+    text-align: center
 
 </style>

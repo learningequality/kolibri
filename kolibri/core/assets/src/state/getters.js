@@ -66,7 +66,6 @@ function contentPoints(state) {
   return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
 }
 
-
 module.exports = {
   isUserLoggedIn,
   isSuperuser,
