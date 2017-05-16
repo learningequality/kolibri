@@ -39,12 +39,11 @@ function _topicState(data, ancestors = []) {
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(ancestors),
-    next_content: data.next_content,
   };
   return state;
 }
 
-function _contentState(data) {
+function _contentState(data, nextContent) {
   let progress;
   if (!data.progress_fraction) {
     progress = 0.0;
@@ -64,7 +63,7 @@ function _contentState(data) {
     progress,
     breadcrumbs: [],
     content_id: data.content_id,
-    next_content: data.next_content,
+    next_content: nextContent,
     author: data.author,
     license: data.license,
     license_description: data.license_description,
@@ -236,16 +235,17 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   const contentPromise = ContentNodeResource.getModel(id, { channel_id: channelId }).fetch();
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id, { channel_id: channelId });
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
     samePageCheckGenerator(store),
-    ([content]) => {
+    ([content, channels, nextContent]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const pageState = { content: _contentState(content) };
+      const pageState = { content: _contentState(content, nextContent) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -325,16 +325,17 @@ function showLearnContent(store, channelId, id) {
   const recommendedPromise = ContentNodeResource.getCollection(
     channelPayload, { recommendations_for: id }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id, { channel_id: channelId });
+  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
     samePageCheckGenerator(store),
-    ([content]) => {
+    ([content, channels, nextContent]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
-        content: _contentState(content),
+        content: _contentState(content, nextContent),
         recommended: store.state.pageState.recommended,
       };
       store.dispatch('SET_PAGE_STATE', pageState);

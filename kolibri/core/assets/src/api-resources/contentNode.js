@@ -45,21 +45,45 @@ class ContentNodeResource extends Resource {
     }
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     let promise;
-    this.detail_cache = this.detail_cache || {};
+    this.ancestor_cache = this.ancestor_cache || {};
     const key = this.cacheKey({ id }, filteredResourceIds);
-    if (!this.detail_cache[key]) {
+    if (!this.ancestor_cache[key]) {
       const url = this.urls[`${this.name}-ancestors`](
         ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
       promise = this.client({ path: url }).then(response => {
         if (Array.isArray(response.entity)) {
-          this.detail_cache[key] = response.entity;
+          this.ancestor_cache[key] = response.entity;
           return Promise.resolve(response.entity);
         }
         logging.debug('Data appears to be malformed', response.entity);
         return Promise.reject(response);
       });
     } else {
-      promise = Promise.resolve(this.detail_cache[key]);
+      promise = Promise.resolve(this.ancestor_cache[key]);
+    }
+    return promise;
+  }
+  fetchNextContent(id, resourceIds = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    let promise;
+    this.next_cache = this.next_cache || {};
+    const key = this.cacheKey({ id }, filteredResourceIds);
+    if (!this.next_cache[key]) {
+      const url = this.urls[`${this.name}-next_content`](
+        ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
+      promise = this.client({ path: url }).then(response => {
+        if (Array.isArray(response.entity)) {
+          this.next_cache[key] = response.entity;
+          return Promise.resolve(response.entity);
+        }
+        logging.debug('Data appears to be malformed', response.entity);
+        return Promise.reject(response);
+      });
+    } else {
+      promise = Promise.resolve(this.next_cache[key]);
     }
     return promise;
   }
