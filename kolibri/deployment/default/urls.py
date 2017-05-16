@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^api/', include('kolibri.content.api_urls')),
     url(r'^api/', include('kolibri.logger.api_urls')),
     url(r'^api/', include('kolibri.tasks.api_urls')),
+    url(r'^api/', include('kolibri.core.exams.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
