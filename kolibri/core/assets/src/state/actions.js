@@ -458,6 +458,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
   if (forceSave || completedContent || progressThresholdMet) {
     saveLogs(store);
   }
+  return summaryProgress;
 }
 
 
@@ -563,6 +564,7 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
   const coreApp = require('kolibri');
   const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
+    user: store.state.core.session.user_id,
     summarylog: store.state.core.logging.summary.id,
     start_timestamp: now(),
     completion_timestamp: null,

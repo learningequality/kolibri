@@ -33,12 +33,12 @@ function _crumbState(ancestors) {
 }
 
 
-function _topicState(data) {
+function _topicState(data, ancestors = []) {
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
-    breadcrumbs: _crumbState(data.ancestors),
+    breadcrumbs: _crumbState(ancestors),
     next_content: data.next_content,
   };
   return state;
@@ -62,11 +62,12 @@ function _contentState(data) {
     available: data.available,
     files: data.files,
     progress,
+    breadcrumbs: [],
     content_id: data.content_id,
-    breadcrumbs: _crumbState(data.ancestors),
     next_content: data.next_content,
     author: data.author,
     license: data.license,
+    license_description: data.license_description,
     license_owner: data.license_owner,
   };
   Object.assign(state, assessmentMetaDataState(data));
@@ -105,6 +106,22 @@ function _examLoggingState(data) {
     closed: data.closed,
   };
   return state;
+}
+
+/**
+ * Cache utility functions
+ *
+ * These methods are used to manipulate client side cache to reduce requests
+ */
+
+function updateContentNodeProgress(channelId, contentId, progressFraction) {
+  /*
+   * Update the progress_fraction directly on the model object, so as to prevent having
+   * to cache bust the model (and hence the entire collection), because some progress was
+   * made on this ContentNode.
+   */
+  const model = ContentNodeResource.getModel(contentId, { channel_id: channelId });
+  model.set({ progress_fraction: progressFraction });
 }
 
 
@@ -169,16 +186,17 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
   const childrenPromise = ContentNodeResource.getCollection(
     channelPayload, { parent: id }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, channelPayload);
+  ConditionalPromise.all([topicPromise, childrenPromise, ancestorsPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([topic, children]) => {
+    ([topic, children, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
-      pageState.topic = _topicState(topic);
+      pageState.topic = _topicState(topic, ancestors);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
@@ -247,8 +265,6 @@ function showLearnChannel(store, channelId, page = 1) {
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
 
-  const ALL_PAGE_SIZE = 6;
-
   const sessionPromise = SessionResource.getModel('current').fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([sessionPromise, channelsPromise]).only(
@@ -258,29 +274,22 @@ function showLearnChannel(store, channelId, page = 1) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      const isFacilityUser = coreGetters.isFacilityUser(store.state);
       const nextStepsPayload = { next_steps: session.user_id };
-      const popularPayload = { popular: session.user_id };
+      const popularPayload = { popular: 'true' };
       const resumePayload = { resume: session.user_id };
-      const allPayload = { kind: 'content' };
       const channelPayload = { channel_id: channelId };
-      const nextStepsPromise = ContentNodeResource.getCollection(
-        channelPayload, nextStepsPayload).fetch();
+      const nextStepsPromise = isFacilityUser ? ContentNodeResource.getCollection(
+        channelPayload, nextStepsPayload).fetch() : Promise.resolve([]);
+      const resumePromise = isFacilityUser ? ContentNodeResource.getCollection(
+        channelPayload, resumePayload).fetch() : Promise.resolve([]);
       const popularPromise = ContentNodeResource.getCollection(
         channelPayload, popularPayload).fetch();
-      const resumePromise = ContentNodeResource.getCollection(
-        channelPayload, resumePayload).fetch();
-      const allContentResource = ContentNodeResource.getPagedCollection(
-        channelPayload,
-        allPayload,
-        ALL_PAGE_SIZE,
-        page
-      );
-      const allPromise = allContentResource.fetch();
       ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise, allPromise]
+        [nextStepsPromise, popularPromise, resumePromise]
       ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume, allContent]) => {
+        ([nextSteps, popular, resume]) => {
           const pageState = {
             recommendations: {
               nextSteps: nextSteps.map(_contentState),
@@ -288,8 +297,8 @@ function showLearnChannel(store, channelId, page = 1) {
               resume: resume.map(_contentState),
             },
             all: {
-              content: allContent.map(_contentState),
-              pageCount: allContentResource.pageCount,
+              content: [],
+              pageCount: 1,
               page,
             },
           };
@@ -299,12 +308,6 @@ function showLearnChannel(store, channelId, page = 1) {
 
           const currentChannel = coreGetters.getCurrentChannelObject(store.state);
           store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
-
-          // preload next page
-          if (allContentResource.hasNext) {
-            ContentNodeResource.getPagedCollection(
-              channelPayload, allPayload, ALL_PAGE_SIZE, page + 1).fetch();
-          }
         },
         error => { coreActions.handleApiError(store, error); }
       );
@@ -730,4 +733,5 @@ module.exports = {
   setAndSaveCurrentExamAttemptLog,
   closeExam,
   prepareLearnApp: require('./prepareLearnApp'),
+  updateContentNodeProgress,
 };

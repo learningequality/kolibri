@@ -49,11 +49,11 @@
             </td>
 
             <td class="table-data">
-              <span v-if="examTaker.score === undefined">&mdash;</span>
+              <span v-if="examTaker.score === undefined">–</span>
               <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
             </td>
 
-            <td class="table-data">{{ examTaker.group.name || $tr('ungrouped') }}</td>
+            <td class="table-data">{{ examTaker.group.name || '–' }}</td>
           </tr>
         </tbody>
       </table>
@@ -126,7 +126,6 @@
       scorePercentage: '{num, number, percent}',
       group: 'Group',
       noExamData: 'No data to show.',
-      ungrouped: 'Ungrouped',
     },
   };
 

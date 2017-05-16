@@ -8,7 +8,7 @@
       <div class="content-wrapper">
         <loading-spinner id="spinner" v-if="!currentViewClass"/>
         <component v-else :is="currentViewClass"
-        @startTracking="wrappedStartTracking"
+        @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
         @answerGiven="answerGiven"
@@ -36,7 +36,6 @@
 <script>
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
-  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -83,6 +82,10 @@
         type: Boolean,
         default: true,
       },
+      initSession: {
+        type: Function,
+        default: () => Promise.resolve(),
+      },
     },
     components: {
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
@@ -127,7 +130,7 @@
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([
-            this.initSession(this.channelId, this.contentId, this.kind),
+            this.initSession(),
             this.Kolibri.retrieveContentRenderer(this.kind, this.extension)
           ]).then(([session, component]) => {
             this.$emit('sessionInitialized');
@@ -152,13 +155,14 @@
       interaction(...args) {
         this.$emit('interaction', ...args);
       },
-      wrappedStartTracking() {
-        // Assume that as soon as we have started tracking data for this content item,
-        // our ContentNode cache is no longer valid.
-        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id, {
-          channel_id: this.channelId
-        });
-        this.startTracking();
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      startTracking(...args) {
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
       },
       checkAnswer() {
         if (this.assessment && this.$refs.contentView && this.$refs.contentView.checkAnswer) {
@@ -171,14 +175,6 @@
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
         return null;
-      },
-    },
-    vuex: {
-      actions: {
-        initSession: actions.initContentSession,
-        updateProgress: actions.updateProgress,
-        startTracking: actions.startTrackingProgress,
-        stopTracking: actions.stopTrackingProgress,
       },
     },
   };

@@ -6,7 +6,7 @@
     :inAppBar="true"
     :displayDisabledAsSelected="true"
     type="primary"
-    color="white"
+    color="primary"
     icon="view_module"
     @select="emitSelection"
   />

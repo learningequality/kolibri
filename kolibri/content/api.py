@@ -95,8 +95,8 @@ class ContentNodeFilter(filters.FilterSet):
         sql_tables_and_aliases = [table.format(**table_names) for table in tables]
         # where conditions joined by ANDs
         where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
-                            "complete_log.user_id = {user_id}".format(user_id=value),
-                            "incomplete_log.user_id = {user_id}".format(user_id=value),
+                            "complete_log.user_id = '{user_id}'".format(user_id=value),
+                            "incomplete_log.user_id = '{user_id}'".format(user_id=value),
                             "complete_log.progress = 1",
                             "complete_node.rght = incomplete_node.lft - 1",
                             "complete_log.content_id = complete_node.content_id"]
@@ -208,6 +208,10 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(descendants, many=True)
         return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def ancestors(self, request, **kwargs):
+        return Response(self.get_object().get_ancestors().values('pk', 'title'))
 
 
 class FileViewset(viewsets.ModelViewSet):

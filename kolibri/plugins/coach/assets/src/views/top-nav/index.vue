@@ -2,31 +2,29 @@
 
   <div class="top">
     <nav-link
-      :to="recentLink"
-      :active="isRecentPage"
-      :text="$tr('recent')"
-    />
-    <nav-link
       :to="topicsLink"
       :active="isTopicPage"
       :text="$tr('topics')"
     />
     <nav-link
-      :to="examsLink"
-      :active="Constants.ExamPages.includes(pageName)"
-      :text="$tr('exams')"
+      :to="recentLink"
+      :active="isRecentPage"
+      :text="$tr('recent')"
     />
-    <!--
     <nav-link
       :to="learnersLink"
       :active="isLearnerPage"
       :text="$tr('learners')"
     />
-    -->
     <nav-link
       :to="groupsLink"
       :active="pageName === Constants.PageNames.GROUPS"
       :text="$tr('groups')"
+    />
+    <nav-link
+      :to="examsLink"
+      :active="Constants.ExamPages.includes(pageName)"
+      :text="$tr('exams')"
     />
   </div>
 
