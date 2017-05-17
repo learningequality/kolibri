@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'kolibri.tasks.apps.KolibriTasksConfig',
     'django_q',
     'kolibri.core.webpack',
+    'kolibri.core.exams',
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
@@ -314,3 +315,5 @@ JS_REVERSE_JS_VAR_NAME = 'urls'
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
+
+ENABLE_DATA_BOOTSTRAPPING = True

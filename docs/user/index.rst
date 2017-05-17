@@ -4,6 +4,9 @@ User Guide
 .. toctree::
    :maxdepth: 1
 
-   admin
-   learner
+   install
+   device_owner
+   facility_admin
    coach
+   learner
+   

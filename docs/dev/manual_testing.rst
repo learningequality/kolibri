@@ -77,3 +77,14 @@ Within the Chrome Dev Tools, navigate to the Network panel. Select a connection 
 
 For Kolibri, our target audience's network condition can be mimicked by setting connectivity to Regular 3G (100ms, 750kb/s, 250 kb/s).
 
+
+Performance Testing with Django Debug Panel
+-------------------------------------------
+
+We have built in support for Django Debug Panel (a Chrome extension that allows tracking of AJAX requests to Django).
+
+To use this, ensure that you have development dependencies installed, and install the `Django Debug Panel Chrome Extension <https://chrome.google.com/webstore/detail/django-debug-panel/nbiajhhibgfgkjegbnflpdccejocmbbn>`_. You can then run the development or production servers with the following environment variable set::
+
+  DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.debug_panel
+
+This will activate the debug panel, and will display in the Dev tools panel of Chrome. This panel will track all page loads and API requests. However, all data bootstrapping into the template will be disabled, as our data bootstrapping prevents the page load request from being profiled, and also does not profile the bootstrapped API requests.

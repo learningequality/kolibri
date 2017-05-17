@@ -68,6 +68,7 @@ const MasteryModelGenerators = {
   num_correct_in_a_row_10: (assessmentIds, masteryModel) => ({ m: 10, n: 10 }),
   num_correct_in_a_row_3: (assessmentIds, masteryModel) => ({ m: 3, n: 3 }),
   num_correct_in_a_row_5: (assessmentIds, masteryModel) => ({ m: 5, n: 5 }),
+  num_correct_in_a_row_2: (assessmentIds, masteryModel) => ({ m: 2, n: 2 }),
   m_of_n: (assessmentIds, masteryModel) => masteryModel,
 };
 

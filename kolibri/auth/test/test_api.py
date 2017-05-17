@@ -175,10 +175,6 @@ class FacilityAPITestCase(APITestCase):
             'name': self.facility1.name,
         }, dict(response.data))
 
-    def test_anonymous_user_gets_empty_list(self):
-        response = self.client.get(reverse('facility-list'), format='json')
-        self.assertEqual(response.data, [])
-
     def test_device_admin_can_create_facility(self):
         new_facility_name = "New Facility"
         self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)

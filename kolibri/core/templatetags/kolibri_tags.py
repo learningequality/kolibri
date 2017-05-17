@@ -62,6 +62,9 @@ def kolibri_set_server_time():
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
@@ -78,6 +81,9 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
