@@ -217,17 +217,12 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def next_content(self, request, **kwargs):
-        next_content = self.get_object().get_next_sibling()
-        if hasattr(next_content, 'id'):
-            return Response({'kind': next_content.kind, 'id': next_content.id})
-        # Has no next sibling meaning reach the end of this topic.
-        # Return next topic or content if there is any.
-        next_item = self._recursive_next_item(self.get_object())
-        if next_item:
-            return Response({'kind': next_item.kind, 'id': next_item.id})
-        # otherwise return root.
-        root = self.get_object().get_root()
-        return Response({'kind': root.kind, 'id': root.id})
+        # retrieve the "next" content node, according to depth-first tree traversal
+        this_item = self.get_object()
+        next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
+        if not next_item:
+            next_item = this_item.get_root()
+        return Response({'kind': next_item.kind, 'id': next_item.id})
 
 
 class FileViewset(viewsets.ModelViewSet):
