@@ -1,8 +1,10 @@
+from django.db.models import Manager
+from django.db.models.query import RawQuerySet
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
-# from .content_db_router import default_database_is_attached, get_active_content_database
+from .content_db_router import default_database_is_attached, get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
@@ -42,10 +44,57 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
         fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
 
 
+def get_progress_fraction(datum, user):
+    from kolibri.logger.models import ContentSummaryLog
+    try:
+        # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=datum.content_id).progress
+    except ContentSummaryLog.DoesNotExist:
+        overall_progress = 0
+    return round(overall_progress, 4)
+
+
+def get_progress_fractions(data, user):
+    from kolibri.logger.models import ContentSummaryLog
+    if isinstance(data, RawQuerySet):
+        leaf_ids = [datum.content_id for datum in data]
+    else:
+        leaf_ids = data.values_list("content_id", flat=True)
+
+    # get all summary logs for the current user that correspond to the descendant content nodes
+    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+        channel_alias = get_active_content_database()
+        summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
+    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+        summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+
+    # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+    overall_progress = {log['content_id']: round(log['progress'], 4) for log in summary_logs.values('content_id', 'progress')}
+    return overall_progress
+
+
+class ContentNodeListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+
+        if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
+            progress_dict = {}
+        else:
+            user = self.context["request"].user
+            progress_dict = get_progress_fractions(data, user)
+
+        # Dealing with nested relationships, data can be a Manager,
+        # so, first get a queryset from the Manager if needed
+        iterable = data.all() if isinstance(data, Manager) else data
+
+        return [
+            self.child.to_representation(item, progress_dict.get(item.content_id, 0)) for item in iterable
+        ]
+
+
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    progress_fraction = serializers.SerializerMethodField()
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     license = serializers.StringRelatedField(many=False)
     license_description = serializers.SerializerMethodField()
@@ -63,39 +112,16 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
-    def get_progress_fraction(self, target_node):
-
-        from kolibri.logger.models import ContentSummaryLog
-
-        # no progress if we don't have a request object or the user isn't a FacilityUser
-        if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
-            return 0
-
-        # we're getting  progress for the currently logged-in user
-        user = self.context["request"].user
-
-        if target_node.kind == "topic":
-            # # get the content_id for every content node that's under this node
-            # leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
-
-            # # get all summary logs for the current user that correspond to the descendant content nodes
-            # if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-            #     channel_alias = get_active_content_database()
-            #     summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
-            # else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-            #     summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
-
-            # # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-            # overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
-            # return round(overall_progress, 4)
-            return None
-        else:
-            try:
-                # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-                overall_progress = ContentSummaryLog.objects.get(user=user, content_id=target_node.content_id).progress
-            except ContentSummaryLog.DoesNotExist:
-                overall_progress = 0
-            return round(overall_progress, 4)
+    def to_representation(self, instance, progress_fraction=None):
+        if progress_fraction is None:
+            if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
+                progress_fraction = 0
+            else:
+                user = self.context["request"].user
+                progress_fraction = get_progress_fraction(instance, user)
+        value = super(ContentNodeSerializer, self).to_representation(instance)
+        value['progress_fraction'] = progress_fraction
+        return value
 
     def _recursive_next_item(self, target_node):
         if target_node.parent:
@@ -110,14 +136,16 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             return None
 
     def get_license_description(self, target_node):
-        if target_node.license:
+        if target_node.license_id:
             return target_node.license.license_description
         return ''
 
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
             'license', 'license_description', 'files', 'parent', 'progress_fraction', 'author',
             'assessmentmetadata',
         )
+
+        list_serializer_class = ContentNodeListSerializer
