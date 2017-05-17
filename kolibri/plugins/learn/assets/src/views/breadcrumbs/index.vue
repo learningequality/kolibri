@@ -101,8 +101,8 @@
     vuex: {
       getters: {
         pageMode: getters.pageMode,
-        topicCrumbs: state => state.pageState.topic.breadcrumbs,
-        contentCrumbs: state => state.pageState.content.breadcrumbs,
+        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
+        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
         topicParent: state => state.pageState.topic.parent,
         contentParent: state => state.pageState.content.parent,
         pageName: state => state.pageName,
