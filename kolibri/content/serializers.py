@@ -144,7 +144,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'parent', 'progress_fraction', 'author',
+            'license', 'license_description', 'files', 'parent', 'author',
             'assessmentmetadata',
         )
 
