@@ -72,10 +72,10 @@ class ContentNodeResource extends Resource {
     this.next_cache = this.next_cache || {};
     const key = this.cacheKey({ id }, filteredResourceIds);
     if (!this.next_cache[key]) {
-      const url = this.urls[`${this.name}-next_content`](
+      const url = this.urls[`${this.name}_next_content`](
         ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
       promise = this.client({ path: url }).then(response => {
-        if (Array.isArray(response.entity)) {
+        if (Object(response.entity) === response.entity) {
           this.next_cache[key] = response.entity;
           return Promise.resolve(response.entity);
         }
