@@ -66,7 +66,7 @@ oriented data synchronization.
         :log="recentAttempts"
       />
       <p class="message">{{ $tr('goal', {count: totalCorrectRequiredM}) }}</p>
-      <p id="try-again" v-if="correct < 1 && !firstAttempt">{{ $tr('tryAgain') }}</p>
+      <p id="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">{{ $tr('tryAgain') }}</p>
     </div>
   </div>
 
@@ -144,6 +144,8 @@ oriented data synchronization.
       complete: false,
       correct: 0,
       itemError: false,
+      // Track whether a user has so far only taken hints
+      onlyHinted: false,
     }),
     methods: {
       updateAttemptLogMasteryLog({
@@ -179,6 +181,7 @@ oriented data synchronization.
         }
       },
       answerGiven({ correct, answerState, simpleAnswer }) {
+        this.onlyHinted = false;
         correct = Number(correct); // eslint-disable-line no-param-reassign
         this.correct = correct;
         if (correct < 1) {
@@ -227,6 +230,7 @@ oriented data synchronization.
             simpleAnswer: '',
           });
           this.firstAttempt = false;
+          this.onlyHinted = true;
         }
         this.saveAttemptLogMasterLog();
       },
@@ -334,6 +338,9 @@ oriented data synchronization.
         return this.mOfNMasteryModel.n;
       },
       exerciseProgress() {
+        if (this.mastered) {
+          return 1.0;
+        }
         if (this.pastattempts) {
           if (this.pastattempts.length > this.attemptsWindowN) {
             return Math.min(
@@ -370,6 +377,7 @@ oriented data synchronization.
       getters: {
         isSuperuser: getters.isSuperuser,
         isUserLoggedIn: getters.isUserLoggedIn,
+        mastered: (state) => state.core.logging.mastery.complete,
         totalattempts: (state) => state.core.logging.mastery.totalattempts,
         pastattempts: (state) => state.core.logging.mastery.pastattempts,
         userid: (state) => state.core.session.user_id,
