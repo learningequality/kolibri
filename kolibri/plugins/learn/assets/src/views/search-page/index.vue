@@ -4,71 +4,73 @@
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
-      <h1>{{ $tr('showingResultsFor', { searchTerm, channelName }) }}</h1>
+      <h1>{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
+      <p>{{ $tr('withinChannel', { channelName }) }}</p>
 
-      <p v-if="noResults">{{ $tr('noResults') }}</p>
+      <tabs>
+        <tab-button
+          type="icon-and-title"
+          :title="$tr('all', { num: all.length } )"
+          icon="layers"
+          @click="filter = 'all'"
+          :selected="filter === 'all'"
+        />
+        <tab-button
+          type="icon-and-title"
+          :title="$tr('topics', { num: topics.length } )"
+          icon="folder"
+          :selected="filter === contentNodeKinds.TOPIC"
+          @click="filter = contentNodeKinds.TOPIC"
+        />
+        <tab-button
+          type="icon-and-title"
+          :title="$tr('exercises', { num: exercises.length } )"
+          icon="star"
+          :selected="filter === contentNodeKinds.EXERCISE"
+          @click="filter = contentNodeKinds.EXERCISE"
+        />
+        <tab-button
+          type="icon-and-title"
+          :title="$tr('videos', { num: videos.length } )"
+          icon="ondemand_video"
+          :selected="filter === contentNodeKinds.VIDEO"
+          @click="filter = contentNodeKinds.VIDEO"
+        />
+        <tab-button
+          type="icon-and-title"
+          :title="$tr('documents', { num: documents.length } )"
+          icon="description"
+          :selected="filter === contentNodeKinds.DOCUMENT"
+          @click="filter = contentNodeKinds.DOCUMENT"
+        />
+        <tab-button
+          type="icon-and-title"
+          icon="widgets"
+          :title="$tr('html5', { num: html5.length } )"
+          :selected="filter === contentNodeKinds.HTML5"
+          @click="filter = contentNodeKinds.HTML5"
+        />
+      </tabs>
 
-      <template v-else>
+      <p v-if="filteredResults.length === 0">
+        <template v-if="filter === 'all'">{{ $tr('noContent', { searchTerm }) }}</template>
+        <template v-else-if="filter === contentNodeKinds.TOPIC">{{ $tr('noTopics', { searchTerm }) }}</template>
+        <template v-else-if="filter === contentNodeKinds.EXERCISE">{{ $tr('noExercises', { searchTerm }) }}</template>
+        <template v-else-if="filter === contentNodeKinds.VIDEO">{{ $tr('noVideos', { searchTerm }) }}</template>
+        <template v-else-if="filter === contentNodeKinds.DOCUMENT">{{ $tr('noDocuments', { searchTerm }) }}</template>
+        <template v-else-if="filter === contentNodeKinds.HTML5">{{ $tr('noHtml5', { searchTerm }) }}</template>
+      </p>
 
-        <h2>{{ $tr('filterContent') }}</h2>
-
-        <tabs>
-          <tab-button
-            type="icon-and-title"
-            :title="$tr('all', { num: all.length } )"
-            icon="layers"
-            @click="filter = 'all'"
-            :selected="filter === 'all'"
-          />
-          <tab-button
-            type="icon-and-title"
-            :title="$tr('exercises', { num: exercises.length } )"
-            icon="star"
-            :selected="filter === contentNodeKinds.EXERCISE"
-            @click="filter = contentNodeKinds.EXERCISE"
-          />
-          <tab-button
-            type="icon-and-title"
-            :title="$tr('videos', { num: videos.length } )"
-            icon="ondemand_video"
-            :selected="filter === contentNodeKinds.VIDEO"
-            @click="filter = contentNodeKinds.VIDEO"
-          />
-          <tab-button
-            type="icon-and-title"
-            :title="$tr('topics', { num: topics.length } )"
-            icon="folder"
-            :selected="filter === contentNodeKinds.TOPIC"
-            @click="filter = contentNodeKinds.TOPIC"
-          />
-          <tab-button
-            type="icon-and-title"
-            :title="$tr('documents', { num: documents.length } )"
-            icon="description"
-            :selected="filter === contentNodeKinds.DOCUMENT"
-            @click="filter = contentNodeKinds.DOCUMENT"
-          />
-          <tab-button
-            type="icon-and-title"
-            icon="widgets"
-            :title="$tr('html5', { num: html5.length } )"
-            :selected="filter === contentNodeKinds.HTML5"
-            @click="filter = contentNodeKinds.HTML5"
-          />
-        </tabs>
-
-        <card-grid>
-          <content-grid-item
-            v-for="item in filteredResults"
-            :title="item.title"
-            :thumbnail="item.thumbnail"
-            :progress="item.progress"
-            :kind="item.kind || 'topic'"
-            :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"
-          />
-        </card-grid>
-
-      </template>
+      <card-grid v-else>
+        <content-grid-item
+          v-for="item in filteredResults"
+          :title="item.title"
+          :thumbnail="item.thumbnail"
+          :progress="item.progress"
+          :kind="item.kind || 'topic'"
+          :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"
+        />
+      </card-grid>
 
     </template>
 
@@ -90,7 +92,8 @@
       search: 'Search',
       noSearch: 'Search by typing something in the search box above',
       noResults: 'No results',
-      showingResultsFor: 'Showing results for "{searchTerm}" within {channelName}',
+      showingResultsFor: 'Search results for "{searchTerm}"',
+      withinChannel: 'Within {channelName}',
       results: '{count, number, integer} {count, plural, one {result} other {results}}',
       filterContent: 'Filter content by: ',
       all: 'All ({ num, number })',
@@ -100,6 +103,12 @@
       topics: 'Topics ({ num, number })',
       documents: 'Documents ({ num, number })',
       html5: 'HTML5 apps ({ num, number })',
+      noContent: 'No content matches "{searchTerm}"',
+      noExercises: 'No exercises match "{searchTerm}"',
+      noVideos: 'No videos match "{searchTerm}"',
+      noTopics: 'No topics match "{searchTerm}"',
+      noDocuments: 'No documents match "{searchTerm}"',
+      noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
       'content-grid-item': require('../content-grid-item'),
