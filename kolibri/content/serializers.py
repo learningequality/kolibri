@@ -76,7 +76,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
 
-        if self.context['request'].user.is_facility_user:
+        if 'request' not in self.context or not self.context['request'].user.is_facility_user:
             progress_dict = {}
         else:
             user = self.context["request"].user
@@ -113,7 +113,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance, progress_fraction=None):
         if progress_fraction is None:
-            if self.context['request'].user.is_facility_user:
+            if 'request' not in self.context or not self.context['request'].user.is_facility_user:
                 progress_fraction = 0
             else:
                 user = self.context["request"].user
