@@ -195,6 +195,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     full_name = models.CharField(_('full name'), max_length=120, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
+    is_staff = False
+    is_superuser = False
     is_facility_user = False
 
     def get_short_name(self):
@@ -444,9 +446,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     facility = models.ForeignKey("Facility")
 
-    # FacilityUsers can't access the Django admin interface
-    is_staff = False
-    is_superuser = False
     is_facility_user = True
 
     class Meta:
