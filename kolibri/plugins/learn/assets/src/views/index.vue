@@ -281,8 +281,8 @@
 
   .search-clear-button
     color: $core-text-default
-    width: 20px
-    height: 20px
+    width: 18px
+    height: 22px
     visibility: hidden
     vertical-align: middle
 
