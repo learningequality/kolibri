@@ -39,6 +39,7 @@ function _topicState(data, ancestors = []) {
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(ancestors),
+    parent: data.parent,
   };
   return state;
 }
@@ -69,6 +70,7 @@ function _contentState(data, nextContent) {
     license: data.license,
     license_description: data.license_description,
     license_owner: data.license_owner,
+    parent: data.parent,
   };
   Object.assign(state, assessmentMetaDataState(data));
   return state;
