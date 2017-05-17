@@ -1,29 +1,35 @@
 <template>
 
-  <div>
-    <transition name="popup">
-      <div v-if="popoverShown" class="popover-container">
-        <div class="popover">
-          <div class="content">
-            <div class="topline">
+  <transition name="popup">
+    <div class="popover-container">
+      <div class="popover">
+        <div class="content">
+          <span class="encourage">{{ $tr('niceWork') }}</span>
+          <div class="points-wrapper">
+            <div class="points">
               <points-icon class="popover-icon" :active="true"/>
               <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
             </div>
-            <span class="encourage">{{ $tr('niceWork') }}</span>
           </div>
-          <ui-close-button
-              size="small"
-              @click="closePopover"
-              class="close"
-          ></ui-close-button>
+          <div class="description">
+            <div class="item-wrapper">
+              <p class="next-item">{{ $tr('nextContent') }}</p>
+              <div class="content-name">
+                <content-icon class="content-icon" :kind="kind"/>
+                <p>{{ title }}</p>
+              </div>
+            </div>
+          </div>
+          <slot name="nextItemBtn"/>
         </div>
+        <ui-close-button
+            size="small"
+            @click="closePopover"
+            class="close"
+        ></ui-close-button>
       </div>
-    </transition>
-    <div class="points" :style="style">
-      <points-icon class="in-points icon" :active="active"/>
-      <span class="count in-points">{{ $formatNumber(maxPoints) }}</span>
     </div>
-  </div>
+  </transition>
 
 </template>
 
@@ -38,10 +44,12 @@
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       niceWork: 'Nice work. Keep it up!',
+      nextContent: 'Next item',
     },
     components: {
       'points-icon': require('kolibri.coreVue.components.pointsIcon'),
       'ui-close-button': require('keen-ui/src/UiCloseButton'),
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
     },
     vuex: {
       getters: {
@@ -49,46 +57,22 @@
       },
     },
     props: {
-      showPopover: {
-        type: Boolean,
-        default: false,
+      kind: {
+        type: String,
+      },
+      title: {
+        type: String,
       },
     },
-    watch: {
-      popoverShown: 'popOverSetTime',
-    },
-    data: () => ({
-      internalPopoverShown: true,
-    }),
     computed: {
       maxPoints() {
         return MaxPointsPerContent;
       },
-      active() {
-        return this.contentPoints === this.maxPoints;
-      },
-      style() {
-        if (this.active) {
-          return {};
-        }
-        return {
-          color: 'grey',
-          boxShadow: 'inset 1px 1px 3px 1px #b3b3b3',
-        };
-      },
-      popoverShown() {
-        return this.showPopover && this.internalPopoverShown;
-      },
     },
     methods: {
       closePopover() {
-        this.internalPopoverShown = false;
+        this.$emit('close');
       },
-      popOverSetTime(newVal, oldVal) {
-        if (newVal === true && oldVal !== true) {
-          setTimeout(this.closePopover, 5000);
-        }
-      }
     },
   };
 
@@ -99,30 +83,11 @@
 
   @require '~kolibri.styles.definitions'
 
-  .points
-    display: inline-block
-    font-weight: bold
-    background-color: #EEEEEE
-    color: $core-accent-color
-    padding: 10px
-
-    .in-points
-      display: table-cell
-      vertical-align: middle
-
-  .icon
-    width: 30px
-    height: 30px
-
-  .count
-    padding-left: 5px
-    font-size: 25px
-
   .popover-container
-    position: absolute
+    position: fixed
     height: 0
-    right: 5%
-    top: 15%
+    left: 10%
+    top: 10%
 
   .popover
     background-color: $core-bg-canvas
@@ -132,8 +97,8 @@
 
   .popover-icon
     float: left
-    width: 20px
-    height: 20px
+    width: 30px
+    height: 30px
 
   .plus-points
     padding-left: 5px
@@ -141,18 +106,24 @@
     font-weight: bold
     color: $core-correct-color
 
-  .topline
-    padding-bottom: 5px
-    clearfix()
+  .points-wrapper
+    margin: 2em
+    text-align: center
+
+  .points
+    display: inline-block
 
   .encourage
-    color: $core-text-annotation
-    font-size: 0.9em
+    color: $core-correct-color
+    font-size: 1.5em
     font-weight: bold
+    margin: auto 3em
 
   .content
     display: inline-table
     margin-right: 10px
+    padding-top: 0.5em
+    text-align: center
 
   .close
     float: right
@@ -168,5 +139,27 @@
   .popup-leave-active
     top: 5%
     opacity: 0
+
+  .content-icon
+    float: left
+    font-size: 1.5em
+    line-height: 0
+    margin-right: 0.5em
+
+  .item-wrapper
+    text-align: left
+    display: inline-block
+
+  .next-item
+    color: $core-accent-color
+    font-weight: bold
+    font-size: 0.9em
+
+  .content-name
+    color: $core-text-annotation
+    font-size: 0.9em
+
+  .description
+    width: 400px
 
 </style>
