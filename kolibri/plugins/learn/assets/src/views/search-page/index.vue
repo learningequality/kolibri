@@ -52,14 +52,7 @@
         />
       </tabs>
 
-      <p v-if="filteredResults.length === 0">
-        <template v-if="filter === 'all'">{{ $tr('noContent', { searchTerm }) }}</template>
-        <template v-else-if="filter === contentNodeKinds.TOPIC">{{ $tr('noTopics', { searchTerm }) }}</template>
-        <template v-else-if="filter === contentNodeKinds.EXERCISE">{{ $tr('noExercises', { searchTerm }) }}</template>
-        <template v-else-if="filter === contentNodeKinds.VIDEO">{{ $tr('noVideos', { searchTerm }) }}</template>
-        <template v-else-if="filter === contentNodeKinds.DOCUMENT">{{ $tr('noDocuments', { searchTerm }) }}</template>
-        <template v-else-if="filter === contentNodeKinds.HTML5">{{ $tr('noHtml5', { searchTerm }) }}</template>
-      </p>
+      <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
       <card-grid v-else>
         <content-grid-item
@@ -160,7 +153,30 @@
       },
       numFiltered() {
         return this.filteredResults.length;
-      }
+      },
+      noResultsMsg() {
+        let tr;
+        switch (this.filter) {
+          case this.contentNodeKinds.TOPIC:
+            tr = 'noTopics';
+            break;
+          case this.contentNodeKinds.EXERCISE:
+            tr = 'noExercises';
+            break;
+          case this.contentNodeKinds.VIDEO:
+            tr = 'noVideos';
+            break;
+          case this.contentNodeKinds.DOCUMENT:
+            tr = 'noDocuments';
+            break;
+          case this.contentNodeKinds.HTML5:
+            tr = 'noHtml5';
+            break;
+          default:
+            tr = 'noContent';
+        }
+        return this.$tr(tr, { searchTerm: this.searchTerm });
+      },
     },
     methods: {
       genTopicLink(id) {
