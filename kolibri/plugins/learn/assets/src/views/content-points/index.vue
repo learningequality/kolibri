@@ -84,14 +84,13 @@
   @require '~kolibri.styles.definitions'
 
   .popover-container
-    position: fixed
+    position: absolute
     height: 0
     left: 10%
-    top: 10%
+    top: 50%
 
   .popover
     background-color: $core-bg-canvas
-    border-left: $core-correct-color solid 3px
     padding: 10px 15px 5px
     box-shadow: grey 2px 2px 5px 1px
 
@@ -148,7 +147,7 @@
 
   .item-wrapper
     text-align: left
-    display: inline-block
+    margin-left: 1em
 
   .next-item
     color: $core-accent-color
