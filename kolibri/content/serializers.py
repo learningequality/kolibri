@@ -49,7 +49,7 @@ def get_progress_fraction(content_id, user):
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
         overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content_id).progress
     except ContentSummaryLog.DoesNotExist:
-        overall_progress = 0
+        return None
     return round(overall_progress, 4)
 
 
@@ -87,7 +87,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         iterable = data.all() if isinstance(data, Manager) else data
 
         return [
-            self.child.to_representation(item, progress_dict.get(item.content_id, 0)) for item in iterable
+            self.child.to_representation(item, progress_dict.get(item.content_id)) for item in iterable
         ]
 
 
