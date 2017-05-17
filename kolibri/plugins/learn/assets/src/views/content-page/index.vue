@@ -125,7 +125,7 @@
         return false;
       },
       showNextBtn() {
-        if (this.content) {
+        if (this.content && this.nextContentLink) {
           return this.content.kind === ContentNodeKinds.EXERCISE;
         }
         return false;
@@ -140,16 +140,19 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
+        if (this.content.next_content) {
+          if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
+            return {
+              name: this.pagename,
+              params: { channel_id: this.channelId, id: this.content.next_content.id },
+            };
+          }
           return {
-            name: this.pagename,
+            name: Constants.PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id: this.content.next_content.id },
           };
         }
-        return {
-          name: Constants.PageNames.EXPLORE_TOPIC,
-          params: { channel_id: this.channelId, id: this.content.next_content.id },
-        };
+        return null;
       },
     },
     components: {

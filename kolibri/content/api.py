@@ -192,7 +192,13 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all()
+        return models.ContentNode.objects.all().select_related(
+            'parent',
+            'license',
+        ).prefetch_related(
+            'assessmentmetadata',
+            'files',
+        )
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
@@ -208,6 +214,15 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
         return Response(self.get_object().get_ancestors().values('pk', 'title'))
+
+    @detail_route(methods=['get'])
+    def next_content(self, request, **kwargs):
+        # retrieve the "next" content node, according to depth-first tree traversal
+        this_item = self.get_object()
+        next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
+        if not next_item:
+            next_item = this_item.get_root()
+        return Response({'kind': next_item.kind, 'id': next_item.id})
 
 
 class FileViewset(viewsets.ModelViewSet):

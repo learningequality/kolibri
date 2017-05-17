@@ -79,14 +79,10 @@
         };
       },
       parentExploreLink() {
-        let breadcrumbs = [];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          breadcrumbs = this.contentCrumbs;
+          return this.topicLink(this.contentParent);
         } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
-          breadcrumbs = this.topicCrumbs;
-        }
-        if (breadcrumbs.length) {
-          return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
+          return this.topicLink(this.topicParent);
         }
         return this.exploreRootLink;
       },
@@ -107,6 +103,8 @@
         pageMode: getters.pageMode,
         topicCrumbs: state => state.pageState.topic.breadcrumbs,
         contentCrumbs: state => state.pageState.content.breadcrumbs,
+        topicParent: state => state.pageState.topic.parent,
+        contentParent: state => state.pageState.content.parent,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
         currentChannelId: state => state.core.channels.currentId,
