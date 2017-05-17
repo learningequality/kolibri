@@ -22,9 +22,10 @@
         category="image"
         name="audiotrack"
         :class="[colorClass]"/>
-      <ion-svg
+      <mat-svg
         v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
-        name="document"
+        category="action"
+        name="description"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.EXERCISE)"
