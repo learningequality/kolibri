@@ -32,6 +32,8 @@
           return this.recentItemCrumbs;
         } else if (this.isTopicPage) {
           return this.topicCrumbs;
+        } else if (this.pageName === CoachConstants.PageNames.LEARNER_ITEM_LIST) {
+          return this.topicCrumbs;
         }
         return [];
       },

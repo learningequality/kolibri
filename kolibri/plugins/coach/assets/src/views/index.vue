@@ -4,7 +4,16 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
+        <router-link :to="classListPage">
+          <h1>{{ $tr('allClasses') }}</h1>
+        </router-link>
+        <span class="header-separator">&#62;</span>
+        <class-selector
+          :name="$tr('selectClass')"
+          :options="classOptions"
+          :value="classId"
+          @change="changeClass"
+        />
         <top-nav/>
       </template>
 
@@ -32,11 +41,14 @@
   const Constants = require('../constants');
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
+      allClasses: 'All classes',
+      selectClass: 'Class',
       logInPrompt: 'Did you forget to sign in?',
       logInCommand: 'You must be signed in as an Admin to view this page.',
       superUserPrompt: 'Signed in as device owner',
@@ -90,6 +102,16 @@
       showTopNav() {
         return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
       },
+      classListPage() {
+        return { name: Constants.PageNames.CLASS_LIST };
+      },
+      classOptions() {
+        return orderBy(
+          this.classList,
+          [classroom => classroom.name.toUpperCase()],
+          ['asc']
+        ).map(classroom => ({ label: classroom.name, value: classroom.id }));
+      },
     },
     methods: {
       changeClass(classSelectedId) {
@@ -132,5 +154,12 @@
   .login-message
     text-align: center
     margin-top: 200px
+
+  .header-separator
+    display: inline-block
+    vertical-align: bottom
+    padding-right: 0.25em
+    padding-left: 0.25em
+    padding-bottom: 23px
 
 </style>
