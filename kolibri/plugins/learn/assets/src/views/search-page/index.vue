@@ -12,12 +12,50 @@
 
         <h2>{{ $tr('filterContent') }}</h2>
 
-        <button @click="filter = 'all'">{{ $tr('all', { num: all.length } ) }}</button>
-        <button @click="filter = contentNodeKinds.EXERCISE">{{ $tr('exercises', { num: exercises.length } ) }}</button>
-        <button @click="filter = contentNodeKinds.VIDEO">{{ $tr('videos', { num: videos.length } ) }}</button>
-        <button @click="filter = contentNodeKinds.TOPIC">{{ $tr('topics', { num: topics.length } ) }}</button>
-        <button @click="filter = contentNodeKinds.DOCUMENT">{{ $tr('documents', { num: documents.length } ) }}</button>
-        <button @click="filter = contentNodeKinds.HTML5">{{ $tr('html5', { num: html5.length } ) }}</button>
+        <tabs>
+          <tab-button
+            type="icon-and-title"
+            :title="$tr('all', { num: all.length } )"
+            icon="layers"
+            @click="filter = 'all'"
+            :selected="filter === 'all'"
+          />
+          <tab-button
+            type="icon-and-title"
+            :title="$tr('exercises', { num: exercises.length } )"
+            icon="star"
+            :selected="filter === contentNodeKinds.EXERCISE"
+            @click="filter = contentNodeKinds.EXERCISE"
+          />
+          <tab-button
+            type="icon-and-title"
+            :title="$tr('videos', { num: videos.length } )"
+            icon="ondemand_video"
+            :selected="filter === contentNodeKinds.VIDEO"
+            @click="filter = contentNodeKinds.VIDEO"
+          />
+          <tab-button
+            type="icon-and-title"
+            :title="$tr('topics', { num: topics.length } )"
+            icon="folder"
+            :selected="filter === contentNodeKinds.TOPIC"
+            @click="filter = contentNodeKinds.TOPIC"
+          />
+          <tab-button
+            type="icon-and-title"
+            :title="$tr('documents', { num: documents.length } )"
+            icon="description"
+            :selected="filter === contentNodeKinds.DOCUMENT"
+            @click="filter = contentNodeKinds.DOCUMENT"
+          />
+          <tab-button
+            type="icon-and-title"
+            icon="widgets"
+            :title="$tr('html5', { num: html5.length } )"
+            :selected="filter === contentNodeKinds.HTML5"
+            @click="filter = contentNodeKinds.HTML5"
+          />
+        </tabs>
 
         <card-grid>
           <content-grid-item
@@ -67,6 +105,8 @@
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
       'card-list': require('../card-list'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
+      'tab-button': require('kolibri.coreVue.components.tabButton'),
     },
     data() {
       return {

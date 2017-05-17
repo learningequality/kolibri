@@ -1,7 +1,11 @@
 <template>
 
   <li>
-    <router-link :to="link" class="tab" :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }">
+    <button
+      class="tab"
+      :class="{ 'tab-has-icon-and-title': type === 'icon-and-title', 'tab-selected': selected }"
+      @click="handleClick"
+      ref="tab">
 
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
         <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>
@@ -10,15 +14,14 @@
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
         {{ title }}
       </div>
-    </router-link>
+
+    </button>
   </li>
 
 </template>
 
 
 <script>
-
-  const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
 
   module.exports = {
     props: {
@@ -37,14 +40,19 @@
         type: String,
         required: false,
       },
-      link: {
-        type: Object,
-        required: true,
-        validator: ValidateLinkObject,
+      selected: {
+        type: Boolean,
+        default: false,
       },
     },
     components: {
       'ui-icon': require('keen-ui/src/UiIcon'),
+    },
+    methods: {
+      handleClick() {
+        this.$emit('click');
+        this.$refs.tab.blur();
+      }
     },
   };
 
