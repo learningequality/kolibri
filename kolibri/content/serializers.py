@@ -123,18 +123,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    def _recursive_next_item(self, target_node):
-        if target_node.parent:
-            next_item = target_node.parent.get_next_sibling()
-            if (next_item):
-                return next_item
-            else:
-                if (target_node.parent == target_node.get_root()):
-                    return None
-                self._recursive_next_item(target_node.parent)
-        else:
-            return None
-
     def get_license_description(self, target_node):
         if target_node.license_id:
             return target_node.license.license_description
