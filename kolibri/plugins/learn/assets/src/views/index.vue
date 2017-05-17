@@ -146,27 +146,6 @@
           params: { channel_id: channelId },
         });
       },
-<<<<<<< HEAD
-=======
-      // BUG if a tab is disabled, it still handles clicks
-      handleTabClick(tabIndex) {
-        switch (tabIndex) {
-          case 0:
-            this.$router.push({ name: PageNames.LEARN_ROOT });
-            break;
-
-          case 1:
-            this.$router.push({ name: PageNames.EXPLORE_ROOT });
-            break;
-
-          case 2:
-            this.$router.push({ name: PageNames.EXAM_LIST });
-            break;
-
-          default:
-            break;
-        }
-      },
       search() {
         if (this.searchQuery !== '') {
           this.$router.push({
@@ -175,7 +154,6 @@
           });
         }
       },
->>>>>>> 5b5c736... :sparkles: Adds search box to Learn's app bar
     },
     computed: {
       topLevelPageName() {
