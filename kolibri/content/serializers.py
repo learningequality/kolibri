@@ -1,6 +1,5 @@
 from django.db.models import Manager
 from django.db.models.query import RawQuerySet
-from kolibri.auth.models import FacilityUser
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
@@ -44,22 +43,22 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
         fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
 
 
-def get_progress_fraction(datum, user):
+def get_progress_fraction(content_id, user):
     from kolibri.logger.models import ContentSummaryLog
     try:
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=datum.content_id).progress
+        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content_id).progress
     except ContentSummaryLog.DoesNotExist:
         overall_progress = 0
     return round(overall_progress, 4)
 
 
-def get_progress_fractions(data, user):
+def get_progress_fractions(nodes, user):
     from kolibri.logger.models import ContentSummaryLog
-    if isinstance(data, RawQuerySet):
-        leaf_ids = [datum.content_id for datum in data]
+    if isinstance(nodes, RawQuerySet):
+        leaf_ids = [datum.content_id for datum in nodes]
     else:
-        leaf_ids = data.values_list("content_id", flat=True)
+        leaf_ids = nodes.values_list("content_id", flat=True)
 
     # get all summary logs for the current user that correspond to the descendant content nodes
     if default_database_is_attached():  # if possible, do a direct join between the content and default databases
@@ -68,7 +67,7 @@ def get_progress_fractions(data, user):
     else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
         summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
 
-    # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+    # make a lookup dict for all logs to allow mapping from content_id to current progress
     overall_progress = {log['content_id']: round(log['progress'], 4) for log in summary_logs.values('content_id', 'progress')}
     return overall_progress
 
@@ -77,7 +76,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
 
-        if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
+        if self.context['request'].user.is_facility_user:
             progress_dict = {}
         else:
             user = self.context["request"].user
@@ -114,11 +113,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance, progress_fraction=None):
         if progress_fraction is None:
-            if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
+            if self.context['request'].user.is_facility_user:
                 progress_fraction = 0
             else:
                 user = self.context["request"].user
-                progress_fraction = get_progress_fraction(instance, user)
+                progress_fraction = get_progress_fraction(instance.content_id, user)
         value = super(ContentNodeSerializer, self).to_representation(instance)
         value['progress_fraction'] = progress_fraction
         return value
