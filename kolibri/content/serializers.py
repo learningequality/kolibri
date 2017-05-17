@@ -1,11 +1,8 @@
-from django.db.models import Sum
-from kolibri.auth.models import Collection, FacilityUser
-from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, Exam, ExamAssignment, File
-from kolibri.logger.models import ExamLog
+from kolibri.auth.models import FacilityUser
+from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
-from .content_db_router import default_database_is_attached, get_active_content_database
+# from .content_db_router import default_database_is_attached, get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
@@ -48,7 +45,6 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
@@ -80,25 +76,28 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # we're getting  progress for the currently logged-in user
         user = self.context["request"].user
 
-        # get the content_id for every content node that's under this node
-        leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
+        if target_node.kind == "topic":
+            # # get the content_id for every content node that's under this node
+            # leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
 
-        # get all summary logs for the current user that correspond to the descendant content nodes
-        if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-            channel_alias = get_active_content_database()
-            summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
-        else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-            summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+            # # get all summary logs for the current user that correspond to the descendant content nodes
+            # if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+            #     channel_alias = get_active_content_database()
+            #     summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
+            # else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+            #     summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
 
-        # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
-        return round(overall_progress, 4)
-
-    def get_ancestors(self, target_node):
-        """
-        in descending order (root ancestor first, immediate parent last)
-        """
-        return target_node.get_ancestors().values('pk', 'title')
+            # # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+            # overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
+            # return round(overall_progress, 4)
+            return None
+        else:
+            try:
+                # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+                overall_progress = ContentSummaryLog.objects.get(user=user, content_id=target_node.content_id).progress
+            except ContentSummaryLog.DoesNotExist:
+                overall_progress = 0
+            return round(overall_progress, 4)
 
     def get_thumbnail(self, target_node):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
@@ -130,103 +129,14 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return {'kind': root.kind, 'id': root.id}
 
     def get_license_description(self, target_node):
-        return target_node.license.license_description
+        if target_node.license:
+            return target_node.license.license_description
+        return ''
 
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'license', 'license_description', 'files', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
             'assessmentmetadata',
         )
-
-class NestedCollectionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Collection
-        fields = (
-            'id', 'name', 'kind',
-        )
-
-class NestedExamAssignmentSerializer(serializers.ModelSerializer):
-
-    collection = NestedCollectionSerializer(read_only=True)
-
-    class Meta:
-        model = ExamAssignment
-        fields = (
-            'id', 'exam', 'collection',
-        )
-
-class ExamAssignmentSerializer(serializers.ModelSerializer):
-
-    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    collection = NestedCollectionSerializer(read_only=False)
-
-    class Meta:
-        model = ExamAssignment
-        fields = (
-            'id', 'exam', 'collection', 'assigned_by',
-        )
-        read_only_fields = ('assigned_by',)
-
-    def create(self, validated_data):
-        validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
-        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
-
-class ExamSerializer(serializers.ModelSerializer):
-
-    assignments = ExamAssignmentSerializer(many=True, read_only=True)
-    question_sources = serializers.JSONField(default='[]')
-
-    class Meta:
-        model = Exam
-        fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments',
-        )
-        read_only_fields = ('creator',)
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Exam.objects.all(),
-                fields=('collection', 'title')
-            )
-        ]
-
-    def create(self, validated_data):
-        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
-
-class UserExamSerializer(serializers.ModelSerializer):
-
-    question_sources = serializers.JSONField()
-
-    class Meta:
-        # Use the ExamAssignment as the primary model, as the permissions are more easily
-        # defined as they are directly attached to a particular user's collection.
-        model = ExamAssignment
-        read_only_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'score', 'archive', 'answer_count', 'closed',
-        )
-
-    def to_representation(self, obj):
-        output = {}
-        exam_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'archive',
-        )
-        for field in exam_fields:
-            output[field] = getattr(obj.exam, field)
-        if isinstance(self.context['request'].user, FacilityUser):
-            try:
-                # Try to add the score from the user's ExamLog attempts.
-                output['score'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.aggregate(
-                    Sum('correct')).get('correct__sum')
-                output['answer_count'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count()
-                output['closed'] = obj.exam.examlogs.get(user=self.context['request'].user).closed
-            except ExamLog.DoesNotExist:
-                output['score'] = None
-                output['answer_count'] = None
-                output['closed'] = False
-        return output

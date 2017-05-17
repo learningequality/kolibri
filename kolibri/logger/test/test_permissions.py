@@ -1,6 +1,7 @@
 """
 Permissions tests on the logging models.
 """
+import uuid
 
 from django.test import TestCase
 from kolibri.auth.test.helpers import create_dummy_facility_data
@@ -12,7 +13,9 @@ class ContentSessionLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['interaction_log'] = ContentSessionLogFactory.create(user=self.data["learners_one_group"][0][0])
+        self.data['interaction_log'] = ContentSessionLogFactory.create(user=self.data["learners_one_group"][0][0],
+                                                                       content_id=uuid.uuid4().hex,
+                                                                       channel_id=uuid.uuid4().hex)
 
     def test_facilityadmin_sessionlog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['interaction_log']))
@@ -37,7 +40,9 @@ class ContentSummaryLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['summary_log'] = ContentSummaryLogFactory.create(user=self.data["learners_one_group"][0][1])
+        self.data['summary_log'] = ContentSummaryLogFactory.create(user=self.data["learners_one_group"][0][1],
+                                                                   content_id=uuid.uuid4().hex,
+                                                                   channel_id=uuid.uuid4().hex)
 
     def test_facilityadmin_summarylog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['summary_log']))

@@ -13,13 +13,17 @@
       v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields">
+      :extraFields="content.extra_fields"
+      :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
@@ -30,36 +34,51 @@
       v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields">
+      :extraFields="content.extra_fields"
+      :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </assessment-wrapper>
 
-    <p class="page-description">{{ content.description }}</p>
+    <p>{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
 
     <div class="metadata">
       <p v-if="content.author">
-        <strong>{{ $tr('author') }}: </strong>{{ content.author }}
+        {{ $tr('author') }}: {{ content.author }}
       </p>
-      <p v-if="content.license">
-        <strong>{{ $tr('license') }}: </strong>{{ content.license }}
+
+      <p v-if="content.license" >
+        {{ $tr('license') }}: {{ content.license }}
+
+        <template v-if="content.license_description">
+          <span ref="licensetooltip">
+            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
+          </span>
+
+          <ui-popover trigger="licensetooltip" class="license-description">
+            {{ content.license_description }}
+          </ui-popover>
+        </template>
+
       </p>
-      <p v-if="content.license_description">
-        <strong>{{ $tr('license') }}: </strong>{{ content.license_description }}
-      </p>
+
       <p v-if="content.license_owner">
-        <strong>{{ $tr('copyrightHolder') }}: </strong>{{ content.license_owner }}
+        {{ $tr('copyrightHolder') }}: {{ content.license_owner }}
       </p>
     </div>
+
+    <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -78,6 +97,8 @@
   const getters = require('../../state/getters');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const coreGetters = require('kolibri.coreVue.vuex.getters');
+  const actions = require('kolibri.coreVue.vuex.actions');
+  const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -86,6 +107,7 @@
       nextContent: 'Next item',
       author: 'Author',
       license: 'License',
+      licenseDescription: 'License description',
       copyrightHolder: 'Copyright holder',
     },
     data: () => ({
@@ -138,6 +160,8 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'assessment-wrapper': require('../assessment-wrapper'),
       'content-points': require('../content-points'),
+      'ui-popover': require('keen-ui/src/UiPopover'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
     methods: {
       nextContentClicked() {
@@ -145,7 +169,17 @@
       },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
-      }
+      },
+      initSession() {
+        return this.initSessionAction(this.channelId, this.contentId, this.content.kind);
+      },
+      updateProgress(progressPercent, forceSave = false) {
+        const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
+        updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
+      },
+    },
+    beforeDestroy() {
+      this.stopTracking();
     },
     vuex: {
       getters: {
@@ -160,7 +194,8 @@
 
         // attributes for this content item
         content: (state) => state.pageState.content,
-        contentId: (state) => state.pageState.content.id,
+        contentId: (state) => state.pageState.content.content_id,
+        contentNodeId: (state) => state.pageState.content.id,
         channelId: (state) => state.core.channels.currentId,
         pagename: (state) => state.pageName,
 
@@ -171,6 +206,12 @@
         sessionProgress: (state) => state.core.logging.session.progress,
 
         isSuperuser: coreGetters.isSuperuser,
+      },
+      actions: {
+        initSessionAction: actions.initContentSession,
+        updateProgressAction: actions.updateProgress,
+        startTracking: actions.startTrackingProgress,
+        stopTracking: actions.stopTrackingProgress,
       },
     },
   };
@@ -205,19 +246,20 @@
     fill: $core-bg-light
 
   .metadata
-    display: inline-block
+    font-size: smaller
 
-  .metadata p
-    font-size: small
+  .download-button
+    display: block
 
-  .page-description
-    margin-top: 1em
-    margin-bottom: 1em
-    line-height: 1.5em
+  .license-tooltip
+    cursor: pointer
+    font-size: 1.25em
+    color: $core-action-dark
 
-  .download-button-left-align
-    vertical-align: top
-    margin-right: 1.5em
+  .license-description
+    max-width: 300px
+    padding: 1em
+    font-size: smaller
 
 </style>
 

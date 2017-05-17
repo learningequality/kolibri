@@ -4,7 +4,7 @@
     <page-header :title="$tr('learnName')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <allcontent/>
+    <allcontent v-if="all.content.length"/>
     <expandable-content-grid
       :contents="recommendations.popular"
       :title="$tr('mostPopular')"/>
@@ -36,6 +36,7 @@
     },
     vuex: {
       getters: {
+        all: state => state.pageState.all,
         recommendations: state => state.pageState.recommendations,
       },
     },

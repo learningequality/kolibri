@@ -26,10 +26,14 @@ oriented data synchronization.
         :extraFields="content.extra_fields"
         :assessment="true"
         :itemId="itemId"
+        :initSession="initSession"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
         @sessionInitialized="sessionInitialized"
-        @itemError="handleItemError"/>
+        @itemError="handleItemError"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"/>
     </div>
 
     <div>
@@ -77,6 +81,7 @@ oriented data synchronization.
   const { MasteryModelGenerators } = require('kolibri.coreVue.vuex.constants');
   const seededShuffle = require('kolibri.lib.seededshuffle');
   const { now } = require('kolibri.utils.serverClock');
+  const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
     $trNameSpace: 'assessmentWrapper',
@@ -116,6 +121,10 @@ oriented data synchronization.
       extraFields: {
         type: String,
         default: '{}',
+      },
+      initSession: {
+        type: Function,
+        default: () => Promise.resolve(),
       },
     },
     watch: {
@@ -254,6 +263,7 @@ oriented data synchronization.
       },
       updateExerciseProgressMethod() {
         this.updateExerciseProgress(this.exerciseProgress);
+        updateContentNodeProgress(this.channelId, this.contentId, this.exerciseProgress);
       },
       sessionInitialized() {
         // Once the session is initialized we can initialize the mastery log,
@@ -285,6 +295,15 @@ oriented data synchronization.
             complete: this.complete,
           });
         }
+      },
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      startTracking(...args) {
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
       },
     },
     computed: {

@@ -3,33 +3,33 @@
   <tabs>
     <tab-link
       type="icon-and-title"
-      :title="$tr('recent')"
-      icon="access_time"
-      :link="recentLink"
-    />
-    <tab-link
-      type="icon-and-title"
       :title="$tr('topics')"
       icon="folder"
       :link="topicsLink"
     />
     <tab-link
       type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignments"
-      :link="examsLink"
+      :title="$tr('recent')"
+      icon="access_time"
+      :link="recentLink"
     />
-    <!--<tab-link
+    <tab-link
       type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
-    />-->
+    />
     <tab-link
       type="icon-and-title"
       :title="$tr('groups')"
       icon="group_work"
       :link="groupsLink"
+    />
+    <tab-link
+      type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignments"
+      :link="examsLink"
     />
   </tabs>
 
