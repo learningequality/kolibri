@@ -20,11 +20,18 @@ def create_callback(encoder):
 class Command(BaseCommand):
     help = "Uploads the local database to a central server for backup and reporting"
 
+    def add_arguments(self, parser):
+        parser.add_argument('project', action='store',
+                            help='Name of the project (single word) with which this data should be associated.')
+
     def handle(self, *args, **options):
 
         self.stdout.write("Uploading database to central server...\n")
 
-        encoder = MultipartEncoder({"file": ("db.sqlite3", open(DB_PATH, "rb"), "application/octet-stream")})
+        encoder = MultipartEncoder({
+            "project": options['project'],
+            "file": ("db.sqlite3", open(DB_PATH, "rb"), "application/octet-stream")
+        })
         monitor = MultipartEncoderMonitor(encoder, create_callback(encoder))
         r = requests.post(CENTRAL_SERVER_DB_UPLOAD_URL, data=monitor, headers={"Content-Type": monitor.content_type})
         print("\nUpload finished! (Returned status {0} {1})".format(r.status_code, r.reason))
