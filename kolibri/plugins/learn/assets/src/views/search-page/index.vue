@@ -138,12 +138,12 @@
         return this.contents.filter(content => content.kind === ContentNodeKinds.HTML5);
       },
       filteredResults() {
-        if (this.filter === ContentNodeKinds.EXERCISE) {
+        if (this.filter === ContentNodeKinds.TOPIC) {
+          return this.topics;
+        } else if (this.filter === ContentNodeKinds.EXERCISE) {
           return this.exercises;
         } else if (this.filter === ContentNodeKinds.VIDEO) {
           return this.videos;
-        } else if (this.filter === ContentNodeKinds.TOPIC) {
-          return this.topics;
         } else if (this.filter === ContentNodeKinds.DOCUMENT) {
           return this.documents;
         } else if (this.filter === ContentNodeKinds.HTML5) {
@@ -155,27 +155,18 @@
         return this.filteredResults.length;
       },
       noResultsMsg() {
-        let tr;
-        switch (this.filter) {
-          case this.contentNodeKinds.TOPIC:
-            tr = 'noTopics';
-            break;
-          case this.contentNodeKinds.EXERCISE:
-            tr = 'noExercises';
-            break;
-          case this.contentNodeKinds.VIDEO:
-            tr = 'noVideos';
-            break;
-          case this.contentNodeKinds.DOCUMENT:
-            tr = 'noDocuments';
-            break;
-          case this.contentNodeKinds.HTML5:
-            tr = 'noHtml5';
-            break;
-          default:
-            tr = 'noContent';
+        if (this.filter === ContentNodeKinds.TOPIC) {
+          return this.$tr('noTopics', { searchTerm: this.searchTerm });
+        } else if (this.filter === ContentNodeKinds.EXERCISE) {
+          return this.$tr('noExercises', { searchTerm: this.searchTerm });
+        } else if (this.filter === ContentNodeKinds.VIDEO) {
+          return this.$tr('noVideos', { searchTerm: this.searchTerm });
+        } else if (this.filter === ContentNodeKinds.DOCUMENT) {
+          return this.$tr('noDocuments', { searchTerm: this.searchTerm });
+        } else if (this.filter === ContentNodeKinds.HTML5) {
+          return this.$tr('noHtml5', { searchTerm: this.searchTerm });
         }
-        return this.$tr(tr, { searchTerm: this.searchTerm });
+        return this.$tr('noContent', { searchTerm: this.searchTerm });
       },
     },
     methods: {
