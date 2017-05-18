@@ -7,8 +7,7 @@
           <ui-close-button
               size="small"
               @click="closePopover"
-              class="close"
-          ></ui-close-button>
+              class="close"/>
           <span class="encourage">{{ $tr('niceWork') }}</span>
           <div class="points-wrapper">
             <div class="points">
@@ -88,7 +87,7 @@
     height: 0
     left: 10%
     top: 50%
-    z-index: 1000
+    z-index: 24
 
   .popover
     background-color: $core-bg-canvas
