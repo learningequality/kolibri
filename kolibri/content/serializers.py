@@ -55,7 +55,7 @@ def get_progress_fraction(content_id, user):
 
 def get_progress_fractions(nodes, user):
     from kolibri.logger.models import ContentSummaryLog
-    if isinstance(nodes, RawQuerySet):
+    if isinstance(nodes, RawQuerySet) or isinstance(nodes, list):
         leaf_ids = [datum.content_id for datum in nodes]
     else:
         leaf_ids = nodes.values_list("content_id", flat=True)
@@ -75,6 +75,9 @@ def get_progress_fractions(nodes, user):
 class ContentNodeListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
+
+        if not data:
+            return data
 
         if 'request' not in self.context or not self.context['request'].user.is_facility_user:
             progress_dict = {}
