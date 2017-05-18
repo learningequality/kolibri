@@ -665,6 +665,11 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
+    def __init__(self, *args, **kwargs):
+        if self._KIND:
+            kwargs["kind"] = self._KIND
+        super(Collection, self).__init__(*args, **kwargs)
+
     def calculate_partition(self):
         return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
 
