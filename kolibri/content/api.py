@@ -222,7 +222,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
-        return Response({'kind': next_item.kind, 'id': next_item.id})
+        return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
 
 class FileViewset(viewsets.ModelViewSet):
