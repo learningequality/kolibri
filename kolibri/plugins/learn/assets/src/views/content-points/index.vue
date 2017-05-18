@@ -114,7 +114,7 @@
     display: inline-block
 
   .encourage
-    color: $core-correct-color
+    color: $core-text-default
     font-size: 1.5em
     font-weight: bold
     margin: auto 3em
