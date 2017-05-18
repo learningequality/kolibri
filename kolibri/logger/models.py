@@ -22,9 +22,10 @@ from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
-from morango.query import SyncableModelQuerySet
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
+from morango.manager import SyncableModelManager
+from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
@@ -144,7 +145,7 @@ class UserSessionLog(BaseLogModel):
 
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
-    start_timestamp = DateTimeTzField(default=timezone.now)
+    start_timestamp = DateTimeTzField(default=local_now)
     last_interaction_timestamp = DateTimeTzField(null=True)
     pages = models.TextField(blank=True)
 
