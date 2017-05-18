@@ -18,3 +18,5 @@ le-utils==0.0.9rc14
 kolibri_exercise_perseus_plugin==0.6.7
 jsonfield==2.0.1
 https://github.com/learningequality/morango/archive/e964c9e3d8225fddd5fe086ec3fb0cf124fdd52c.zip#egg=morango
+requests-toolbelt==0.7.1
+clint==0.5.1
