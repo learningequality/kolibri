@@ -143,6 +143,7 @@
             type: InteractionTypes.answer,
             answer: answer.answerState,
             correct: answer.correct,
+            timestamp: now(),
           });
           return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
         }
