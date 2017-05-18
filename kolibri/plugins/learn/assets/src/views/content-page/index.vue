@@ -3,9 +3,6 @@
   <div>
 
     <page-header :title="content.title">
-      <content-points
-        slot="end-header"
-        :showPopover="progress >= 1 && wasIncomplete"/>
     </page-header>
 
     <content-renderer
@@ -24,7 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </content-renderer>
@@ -45,7 +42,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')" alignment="right">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </assessment-wrapper>
@@ -86,6 +83,17 @@
       :title="recommendedText"
       :contents="recommended"/>
 
+    <content-points
+      v-if="progress >= 1 && wasIncomplete"
+      @close="closeModal"
+      :kind="content.next_content.kind"
+      :title="content.next_content.title">
+
+      <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right">
+        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+      </icon-button>
+    </content-points>
+
   </div>
 
 </template>
@@ -125,10 +133,7 @@
         return false;
       },
       showNextBtn() {
-        if (this.content) {
-          return this.content.kind === ContentNodeKinds.EXERCISE;
-        }
-        return false;
+        return (this.content && this.nextContentLink);
       },
       recommendedText() {
         return this.$tr('recommended');
@@ -140,16 +145,19 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
+        if (this.content.next_content) {
+          if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
+            return {
+              name: this.pagename,
+              params: { channel_id: this.channelId, id: this.content.next_content.id },
+            };
+          }
           return {
-            name: this.pagename,
+            name: Constants.PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id: this.content.next_content.id },
           };
         }
-        return {
-          name: Constants.PageNames.EXPLORE_TOPIC,
-          params: { channel_id: this.channelId, id: this.content.next_content.id },
-        };
+        return null;
       },
     },
     components: {
@@ -176,6 +184,9 @@
       updateProgress(progressPercent, forceSave = false) {
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
+      },
+      closeModal() {
+        this.wasIncomplete = false;
       },
     },
     beforeDestroy() {
@@ -230,14 +241,15 @@
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
-    float: right
-    margin-right: 1.5em
     &:hover
       &:not(.is-disabled)
         background-color: #336db1
 
   .next-btn:hover svg
     fill: $core-bg-light
+
+  .right
+    float: right
 
   .right-arrow
     fill: $core-bg-light
