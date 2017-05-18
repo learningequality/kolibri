@@ -4,6 +4,10 @@
     <div class="popover-container">
       <div class="popover">
         <div class="content">
+          <ui-close-button
+              size="small"
+              @click="closePopover"
+              class="close"/>
           <span class="encourage">{{ $tr('niceWork') }}</span>
           <div class="points-wrapper">
             <div class="points">
@@ -22,11 +26,6 @@
           </div>
           <slot name="nextItemBtn"/>
         </div>
-        <ui-close-button
-            size="small"
-            @click="closePopover"
-            class="close"
-        ></ui-close-button>
       </div>
     </div>
   </transition>
@@ -88,6 +87,7 @@
     height: 0
     left: 10%
     top: 50%
+    z-index: 24
 
   .popover
     background-color: $core-bg-canvas
@@ -113,7 +113,7 @@
     display: inline-block
 
   .encourage
-    color: $core-correct-color
+    color: $core-text-default
     font-size: 1.5em
     font-weight: bold
     margin: auto 3em
@@ -125,8 +125,9 @@
     text-align: center
 
   .close
-    float: right
-    display: inline-table
+    position: absolute
+    right: 10px
+    top: 10px
 
   .popup-enter-active, .popup-leave-active
     transition: all 0.3s ease
