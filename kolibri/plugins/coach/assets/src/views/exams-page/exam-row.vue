@@ -163,7 +163,7 @@
     color: $core-action-normal
 
   .icon-inactive
-    color: #9e9e9e
+    color: $core-grey
 
   .col-visibility, .col-action
     text-align: right
@@ -175,6 +175,6 @@
     height: 10px
     width: 10px
     border-radius: 50%
-    background-color: #4caf50
+    background-color: $core-status-correct
 
 </style>

@@ -210,6 +210,6 @@
     text-align: center
 
   .sign-in-error
-    color: red
+    color: $core-text-error
 
 </style>

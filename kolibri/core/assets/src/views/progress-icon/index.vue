@@ -64,9 +64,9 @@
 
 
   .inprogress
-    background-color: #2196f3
+    background-color: $core-status-progress
 
   .completed
-    background-color: #4caf50
+    background-color: $core-status-correct
 
 </style>

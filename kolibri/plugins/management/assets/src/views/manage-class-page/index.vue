@@ -171,7 +171,7 @@
     right: 0
 
   .delete-class-button
-    color: red
+    color: $core-text-error
     border: none
 
 </style>

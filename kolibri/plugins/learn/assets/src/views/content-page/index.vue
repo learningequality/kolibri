@@ -239,7 +239,7 @@
 
   .next-btn
     background-color: #4A8DDC
-    border-color: #4A8DDC
+    border: none
     color: $core-bg-light
     &:hover
       &:not(.is-disabled)

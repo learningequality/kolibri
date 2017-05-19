@@ -178,7 +178,7 @@
   .card-progress-bar-wrapper
     position: absolute
     bottom: 0
-    background-color: #e0e0e0
+    background-color: $core-grey
     width: 100%
     height: 5px
 

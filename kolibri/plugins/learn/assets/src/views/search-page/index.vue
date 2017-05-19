@@ -123,7 +123,7 @@
         return !this.topics.length && !this.contents.length;
       },
       all() {
-        return this.contents.concat(this.topics);
+        return this.topics.concat(this.contents);
       },
       exercises() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);

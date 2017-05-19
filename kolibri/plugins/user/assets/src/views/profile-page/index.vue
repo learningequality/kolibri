@@ -197,7 +197,7 @@
     height: 2em
 
   .points-num
-    color: #1EB204
+    color: $core-status-correct
     font-size: 3em
     font-weight: bold
 
