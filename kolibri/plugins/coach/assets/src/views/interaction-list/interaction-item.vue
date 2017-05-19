@@ -78,12 +78,12 @@
     padding: 2px
 
   .svg-hint
-    fill: grey
+    fill: $core-text-annotation
 
   .svg-wrong
-    fill: red
+    fill: $core-status-wrong
 
   .svg-correct
-    fill: green
+    fill: $core-status-correct
 
 </style>

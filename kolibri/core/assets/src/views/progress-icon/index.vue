@@ -10,7 +10,7 @@
     <ui-icon
       v-else-if="isCompleted"
       :ariaLabel="$tr('completed')"
-      icon="check"
+      icon="star"
       class="completed"
     />
     <ui-tooltip trigger="progress-icon">
@@ -69,6 +69,6 @@
     background-color: $core-status-progress
 
   .completed
-    background-color: $core-status-correct
+    background-color: $core-status-mastered
 
 </style>

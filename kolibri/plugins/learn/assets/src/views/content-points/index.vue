@@ -103,7 +103,7 @@
     padding-left: 5px
     font-size: 1.5em
     font-weight: bold
-    color: $core-correct-color
+    color: $core-status-correct
 
   .points-wrapper
     margin: 2em
