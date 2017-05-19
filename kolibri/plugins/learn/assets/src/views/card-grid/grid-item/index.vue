@@ -3,6 +3,7 @@
   <router-link :to="link" class="card">
 
     <div class="card-thumbnail" :style="backgroundImg">
+      <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
       <div class="card-progress-icon-wrapper">
         <progress-icon :progress="progress"/>
       </div>
@@ -70,7 +71,10 @@
         return this.progress > 0 && this.progress < 1.0;
       },
       backgroundImg() {
-        return { backgroundImage: `url('${this.thumbnail}')` };
+        if (this.thumbnail) {
+          return { backgroundImage: `url('${this.thumbnail}')` };
+        }
+        return {};
       },
       backgroundClass() {
         if (this.kind === 'exercise') {
@@ -128,7 +132,15 @@
     height: $card-thumbnail-height
     background-size: cover
     background-position: center
-    background-color: black
+    background-color: $core-grey
+
+  .card-thumbnail-backup
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    color: $core-text-annotation
+    font-size: ($card-thumbnail-height / 2)
 
   .card-progress-icon-wrapper
     position: absolute
