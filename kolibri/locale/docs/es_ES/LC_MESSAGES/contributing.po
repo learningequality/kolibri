@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/contributing.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/contributing.po\n"
 "Language: es_ES\n"
 
 #: ../../../CONTRIBUTING.rst:3
@@ -75,7 +75,7 @@ msgstr "Busca características en los issues de GitHub. Cualquier cosa etiquetad
 
 #: ../../../CONTRIBUTING.rst:37
 msgid "Write Documentation"
-msgstr "Escribir documentación"
+msgstr "Escribe documentación"
 
 #: ../../../CONTRIBUTING.rst:39
 msgid "Kolibri could always use more documentation, whether as part of the official Kolibri docs, in docstrings, or even on the web in blog posts, articles, and such."
