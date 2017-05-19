@@ -163,7 +163,7 @@
     color: $core-action-normal
 
   .icon-inactive
-    color: $core-grey
+    color: $core-text-annotation
 
   .col-visibility, .col-action
     text-align: right
