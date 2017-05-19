@@ -7,13 +7,21 @@
         <progress-icon :progress="progress"/>
       </div>
 
-      <div class="card-content-icon-background" :style="contentIconBackground"></div>
+      <div class="card-content-icon-background" :class="backgroundClass"></div>
       <div class="card-content-icon-wrapper">
         <content-icon :kind="kind" class="card-content-icon"/>
       </div>
+
+      <div class="card-progress-bar-wrapper">
+        <div
+          class="card-progress-bar"
+          :style="{ width: `${progress * 100}%` }"
+          :class="{ 'card-progress-bar-mastered': mastered, 'card-progress-bar-progress': inProgress }">
+        </div>
+      </div>
     </div>
 
-    <div class="card-content">
+    <div class="card-text">
       <h3 class="card-title">{{ title }}</h3>
       <h4 class="card-subtitle"></h4>
     </div>
@@ -55,25 +63,28 @@
       },
     },
     computed: {
+      mastered() {
+        return this.progress === 1.0;
+      },
+      inProgress() {
+        return this.progress > 0 && this.progress < 1.0;
+      },
       backgroundImg() {
         return { backgroundImage: `url('${this.thumbnail}')` };
       },
-      contentIconBackground() {
-        let color = '#262626';
-        if (this.kind === 'topics') {
-          color = '#ffca28';
-        } else if (this.kind === 'exercise') {
-          color = '#33A369';
+      backgroundClass() {
+        if (this.kind === 'exercise') {
+          return 'card-content-icon-background-exercise';
         } else if (this.kind === 'video') {
-          color = '#3938A5';
+          return 'card-content-icon-background-video';
         } else if (this.kind === 'audio') {
-          color = '#E65997';
+          return 'card-content-icon-background-audio';
         } else if (this.kind === 'document') {
-          color = '#ED2828';
+          return 'card-content-icon-background-document';
         } else if (this.kind === 'html5') {
-          color = '#FF8B41';
+          return 'card-content-icon-background-html5';
         }
-        return { borderColor: `${color} transparent transparent transparent` };
+        return '';
       },
     },
     components: {
@@ -93,8 +104,8 @@
   $card-height = $card-width
   $card-thumbnail-ratio = (9 / 16)
   $card-thumbnail-height = $card-width * $card-thumbnail-ratio
-  $card-content-height = $card-height - $card-thumbnail-height
-  $card-content-padding = ($card-width / (320 / 24))
+  $card-text-height = $card-height - $card-thumbnail-height
+  $card-text-padding = ($card-width / (320 / 24))
   $card-elevation-resting = 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
   $card-elevation-raised = 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
 
@@ -134,6 +145,25 @@
     height: 0
     border-style: solid
     border-width: 3.5em 3.5em 0 0
+    border-top-color: $core-content-topic
+    border-right-color: transparent
+    border-bottom-color: transparent
+    border-left-color: transparent
+
+  .card-content-icon-background-exercise
+    border-top-color: $core-content-exercise
+
+  .card-content-icon-background-video
+    border-top-color: $core-content-video
+
+  .card-content-icon-background-audio
+    border-top-color: $core-content-audio
+
+  .card-content-icon-background-document
+    border-top-color: $core-content-document
+
+  .card-content-icon-background-html5
+    border-top-color: $core-content-html5
 
   .card-content-icon-wrapper
     position: absolute
@@ -145,9 +175,25 @@
   .card-content-icon
     font-size: 1.25em
 
-  .card-content
-    padding: $card-content-padding
-    height: $card-content-height
+  .card-progress-bar-wrapper
+    position: absolute
+    bottom: 0
+    background-color: #e0e0e0
+    width: 100%
+    height: 5px
+
+  .card-progress-bar
+    height: 100%
+
+  .card-progress-bar-mastered
+    background-color: $core-status-mastered
+
+  .card-progress-bar-progress
+    background-color: $core-status-progress
+
+  .card-text
+    padding: $card-text-padding
+    height: $card-text-height
     color: $core-text-default
 
   .card-title, .card-subtitle
