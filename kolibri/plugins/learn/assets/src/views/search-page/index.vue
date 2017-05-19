@@ -38,6 +38,13 @@
         />
         <tab-button
           type="icon-and-title"
+          :title="$tr('audio', { num: audio.length } )"
+          icon="audiotrack"
+          :selected="filter === contentNodeKinds.AUDIO"
+          @click="filter = contentNodeKinds.AUDIO"
+        />
+        <tab-button
+          type="icon-and-title"
           :title="$tr('documents', { num: documents.length } )"
           icon="description"
           :selected="filter === contentNodeKinds.DOCUMENT"
@@ -93,12 +100,14 @@
       content: 'Content',
       exercises: 'Exercises ({ num, number })',
       videos: 'Videos ({ num, number })',
+      audio: 'Audio ({ num, number })',
       topics: 'Topics ({ num, number })',
       documents: 'Documents ({ num, number })',
       html5: 'HTML5 apps ({ num, number })',
       noContent: 'No content matches "{searchTerm}"',
       noExercises: 'No exercises match "{searchTerm}"',
       noVideos: 'No videos match "{searchTerm}"',
+      noAudio: 'No audio matches "{searchTerm}"',
       noTopics: 'No topics match "{searchTerm}"',
       noDocuments: 'No documents match "{searchTerm}"',
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
@@ -131,6 +140,9 @@
       videos() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.VIDEO);
       },
+      audio() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.AUDIO);
+      },
       documents() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.DOCUMENT);
       },
@@ -144,6 +156,8 @@
           return this.exercises;
         } else if (this.filter === ContentNodeKinds.VIDEO) {
           return this.videos;
+        } else if (this.filter === ContentNodeKinds.AUDIO) {
+          return this.audio;
         } else if (this.filter === ContentNodeKinds.DOCUMENT) {
           return this.documents;
         } else if (this.filter === ContentNodeKinds.HTML5) {
@@ -161,6 +175,8 @@
           return this.$tr('noExercises', { searchTerm: this.searchTerm });
         } else if (this.filter === ContentNodeKinds.VIDEO) {
           return this.$tr('noVideos', { searchTerm: this.searchTerm });
+        } else if (this.filter === ContentNodeKinds.AUDIO) {
+          return this.$tr('noAudio', { searchTerm: this.searchTerm });
         } else if (this.filter === ContentNodeKinds.DOCUMENT) {
           return this.$tr('noDocuments', { searchTerm: this.searchTerm });
         } else if (this.filter === ContentNodeKinds.HTML5) {
