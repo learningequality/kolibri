@@ -131,6 +131,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   $login-overlay = #201A21
   $login-text = #D8D8D8
 

@@ -57,6 +57,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .inprogress, .completed
     border-radius: 50%
     color: white
