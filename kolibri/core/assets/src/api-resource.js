@@ -2,6 +2,8 @@ const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
 const find = require('lodash/find');
 const matches = require('lodash/matches');
+const isEqual = require('lodash/isEqual');
+const cloneDeep = require('./cloneDeep');
 
 
 /** Class representing a single API resource object */
@@ -98,7 +100,7 @@ class Model {
         if (this.synced) {
           // Model is synced with the server, so we can do dirty checking.
           Object.keys(attrs).forEach((key) => {
-            if (attrs[key] !== this.attributes[key]) {
+            if (!isEqual(attrs[key], this.attributes[key])) {
               payload[key] = attrs[key];
             }
           });
@@ -211,7 +213,7 @@ class Model {
         attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
       }
     }
-    Object.assign(this.attributes, attributes);
+    Object.assign(this.attributes, cloneDeep(attributes));
   }
 }
 
