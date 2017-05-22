@@ -121,7 +121,7 @@ A special kind of Kolibri Module is dedicated to rendering particular content ty
     :members:
     :noindex:
 
-The ``ContentRendererModule`` class has one required property ``getRendererComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``defaultFile`` and ``files`` props, defining the files associated with the piece of content.
+The ``ContentRendererModule`` class has one required property ``getRendererComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``defaultFile``, ``files``, ``supplementaryFiles``, and ``thumbnailFiles`` props, defining the files associated with the piece of content.
 
 .. code-block:: javascript
 
