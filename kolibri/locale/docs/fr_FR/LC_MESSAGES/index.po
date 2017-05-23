@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/index.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/index.po\n"
 "Language: fr_FR\n"
 
 #: ../../index.rst:2
@@ -23,7 +23,7 @@ msgstr "Mise en route"
 
 #: ../../../README.rst:3
 msgid "Kolibri"
-msgstr ""
+msgstr "Kolibri"
 
 #: ../../../README.rst:16
 msgid "What is Kolibri?"

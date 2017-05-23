@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/user.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/user.po\n"
 "Language: fr_FR\n"
 
 #: ../../user/admin.rst:2
@@ -395,7 +395,7 @@ msgstr ""
 
 #: ../../user/learner.rst:2
 msgid "Learner"
-msgstr ""
+msgstr "Apprenant"
 
 #: ../../user/learner.rst:5
 msgid "Accessing Kolibri"
@@ -451,7 +451,7 @@ msgstr ""
 
 #: ../../user/learner.rst:40
 msgid "Learn"
-msgstr ""
+msgstr "Apprendre"
 
 #: ../../user/learner.rst:42
 msgid "Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches."
@@ -479,7 +479,7 @@ msgstr ""
 
 #: ../../user/learner.rst:66
 msgid "Search"
-msgstr ""
+msgstr "Rechercher"
 
 #: ../../user/learner.rst:68
 msgid "If you are looking for a specific subject, topic, or term, use the **Search** feature:"
