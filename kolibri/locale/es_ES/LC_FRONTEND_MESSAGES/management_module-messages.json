@@ -82,7 +82,7 @@
   "user-edit-modal.fullName":"Nombre completo",
   "user-edit-modal.username":"Nombre de usuario",
   "user-edit-modal.userKind":"Tipo de usuario",
-  "user-edit-modal.enterNewPw":"Introduce nueva contraseña",
+  "user-edit-modal.enterNewPw":"Escribe nueva contraseña",
   "user-edit-modal.confirmNewPw":"Confirmar nueva contraseña",
   "user-edit-modal.learner":"Estudiante",
   "user-edit-modal.admin":"Administrador",
@@ -97,5 +97,5 @@
   "user-edit-modal.cancel":"Cancelar",
   "user-edit-modal.deleteConfirmation":"¿Seguro que desea eliminar usuario {user}?",
   "user-edit-modal.pwMismatch":"Las contraseñas deben coincidir",
-  "user-edit-modal.noNewPw":"Por favor, introduce una nueva contraseña"
+  "user-edit-modal.noNewPw":"Por favor, escribe una nueva contraseña"
 }
