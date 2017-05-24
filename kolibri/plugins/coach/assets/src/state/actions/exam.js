@@ -453,6 +453,7 @@ function showExamReportPage(store, classId, channelId, examId) {
           group: learnerGroup,
           score: examTakenByUser.score,
           progress: examTakenByUser.progress,
+          closed: examTakenByUser.closed,
         };
       });
       const pageState = {

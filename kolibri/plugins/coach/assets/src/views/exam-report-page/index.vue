@@ -37,7 +37,7 @@
             </th>
 
             <td class="table-data">
-              <span v-if="examTaker.progress === exam.question_count">
+              <span v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
                 {{ $tr('completed') }}
               </span>
               <span v-else-if="examTaker.progress !== undefined">
