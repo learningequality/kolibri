@@ -375,7 +375,7 @@
 
 
   thead
-    color: #686868
+    color: $core-text-annotation
     font-size: small
 
   tbody

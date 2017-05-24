@@ -131,6 +131,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   $login-overlay = #201A21
   $login-text = #D8D8D8
 
@@ -210,6 +212,6 @@
     text-align: center
 
   .sign-in-error
-    color: red
+    color: $core-text-error
 
 </style>

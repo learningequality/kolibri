@@ -397,7 +397,7 @@ oriented data synchronization.
   @require '~kolibri.styles.definitions'
 
   .message
-    color: grey
+    color: $core-text-annotation
     padding: 16px
     font-size: 14px
     @media screen and (max-width: $portrait-breakpoint)
@@ -436,7 +436,7 @@ oriented data synchronization.
       left: 0
 
   #try-again
-    color: #DF0F0F
+    color: $core-text-error
     font-size: 14px
     font-weight: bold
     padding: 16px
@@ -452,14 +452,14 @@ oriented data synchronization.
     background-color: $core-action-normal
 
   .next-question-button
-    background-color: #43A047
+    background-color: $core-status-correct
     &:hover
       &:not(.is-disabled)
         background-color: #2a7d2e
 
   // next-question-button transition effect
   .delay-enter-active
-    background-color: #43A047
+    background-color: $core-status-correct
     transition: background-color 1s
 
   .delay-enter

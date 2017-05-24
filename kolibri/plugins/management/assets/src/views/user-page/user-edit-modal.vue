@@ -339,6 +339,6 @@
     word-break: keep-all
 
   .error
-    color: red
+    color: $core-text-error
 
 </style>

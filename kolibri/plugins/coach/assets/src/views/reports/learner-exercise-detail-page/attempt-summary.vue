@@ -151,7 +151,7 @@
     margin-top: 10px
 
   .in-progress
-    color: #ADADAD
+    color: $core-grey
 
   .svg-item
     display: inline-block

@@ -1,8 +1,7 @@
 <template>
 
   <div :class="sizeClass">
-    <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
-      <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
+    <grid-item :link="link" :title="title" :kind="kind" :progress="progress" :thumbnail="thumbnail">
     </grid-item>
   </div>
 
@@ -28,6 +27,7 @@
       },
       thumbnail: {
         type: String,
+        required: false,
       },
       kind: {
         type: String,

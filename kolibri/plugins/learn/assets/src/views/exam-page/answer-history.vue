@@ -94,6 +94,6 @@
     cursor: pointer
 
   .selected
-    background-color: #EDEDED
+    background-color: $core-grey
 
 </style>

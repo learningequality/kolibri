@@ -189,11 +189,11 @@
     tr
       cursor: pointer
       &:hover
-        background-color: #f1f1f1
+        background-color: $core-grey
 
   thead
     .col-name, .col-username
-      color: #686868
+      color: $core-text-annotation
       font-size: small
 
   .selectedrow

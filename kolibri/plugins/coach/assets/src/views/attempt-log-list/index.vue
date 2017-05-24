@@ -109,16 +109,16 @@
     width: 32px
 
   .svg-hint
-    fill: grey
+    fill: $core-text-annotation
 
   .svg-wrong
-    fill: red
+    fill: $core-status-wrong
 
   .svg-correct
-    fill: green
+    fill: $core-status-correct
 
   .svg-noattempt
-    fill: grey
+    fill: $core-text-annotation
 
   li
     clear: both

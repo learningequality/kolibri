@@ -10,7 +10,7 @@
     <ui-icon
       v-else-if="isCompleted"
       :ariaLabel="$tr('completed')"
-      icon="check"
+      icon="star"
       class="completed"
     />
     <ui-tooltip trigger="progress-icon">
@@ -57,6 +57,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .inprogress, .completed
     border-radius: 50%
     color: white
@@ -64,9 +66,9 @@
 
 
   .inprogress
-    background-color: #2196f3
+    background-color: $core-status-progress
 
   .completed
-    background-color: #4caf50
+    background-color: $core-status-mastered
 
 </style>
