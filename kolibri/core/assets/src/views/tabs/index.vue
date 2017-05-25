@@ -2,7 +2,10 @@
 
   <nav class="tabs">
     <ul>
-      <slot/>
+      <slot
+        :link="$options.components['tab-link']"
+        :button="$options.components['tab-button']"
+      />
     </ul>
   </nav>
 

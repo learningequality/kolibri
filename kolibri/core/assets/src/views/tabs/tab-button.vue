@@ -54,6 +54,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '../tab-items.styl'
+  @require './tab-items.styl'
 
 </style>
