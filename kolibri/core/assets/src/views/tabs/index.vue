@@ -11,7 +11,12 @@
 
 <script>
 
-  module.exports = {};
+  module.exports = {
+    components: {
+      'tab-link': require('./tab-link'),
+      'tab-button': require('./tab-button'),
+    },
+  };
 
 </script>
 
