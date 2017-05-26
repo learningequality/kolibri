@@ -152,6 +152,10 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
+function refreshBrowser(url) {
+  window.location.href = url || window.location.origin;
+}
+
 function kolibriLogin(store, sessionPayload) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
@@ -162,9 +166,9 @@ function kolibriLogin(store, sessionPayload) {
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
     if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
-      window.location.href = window.location.origin + manageURL;
+      refreshBrowser(window.location.origin + manageURL);
     } else {
-      window.location.href = window.location.origin;
+      refreshBrowser();
     }
   }).catch(error => {
     if (error.status.code === 401) {
@@ -181,9 +185,8 @@ function kolibriLogout(store) {
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise.then((response) => {
-    store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
-    window.location.href = window.location.origin;
+    refreshBrowser();
     coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
