@@ -37,7 +37,7 @@
       <a class="points-link" href="/user"><total-points/></a>
     </div>
 
-    <div v-if="!isSearchPage">
+    <div v-if="tabLinksAreVisible" class="tab-links">
       <tabs>
         <tab-link
           type="icon-and-title"
@@ -194,8 +194,11 @@
       searchPage() {
         return { name: PageNames.SEARCH_ROOT };
       },
-      isSearchPage() {
-        return this.pageName === PageNames.SEARCH;
+      tabLinksAreVisible() {
+        return (
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
+          this.pageName !== PageNames.SEARCH
+        );
       },
       recommendedLink() {
         return { name: PageNames.LEARN_CHANNEL, params: { channel_id: this.channelId } };
