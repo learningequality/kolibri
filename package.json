@@ -123,15 +123,5 @@
   },
   "optionalDependencies": {
     "fsevents": "*"
-  },
-  "babel": {
-    "presets": [
-      "es2015-ie"
-    ],
-    "plugins": [
-      "transform-runtime",
-      "transform-strict-mode"
-    ],
-    "comments": false
   }
 }

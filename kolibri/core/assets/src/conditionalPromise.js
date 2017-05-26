@@ -1,3 +1,6 @@
+/**
+ * Conditional Promise
+ */
 class ConditionalPromise {
   /**
    * Create a conditional promise - like a promise, but with an additional method 'only'
@@ -20,13 +23,13 @@ class ConditionalPromise {
     return this;
   }
 
+  /**
+   * When the promise resolves, call resolve function, only if continueCheck evaluates to true.
+   * @param {Function} continueCheck - Function that returns a Boolean,
+   * @param {Function} resolve - Function to call if the Promise succeeds.
+   * @param {FUnction} reject - Function to call if the Promise fails.
+   */
   only(continueCheck, resolve, reject) {
-    /**
-     * When the promise resolves, call resolve function, only if continueCheck evaluates to true.
-     * @param {continueCheck} Function - Function that returns a Boolean,
-     * @param {resolve} Function - Function to call if the Promise succeeds.
-     * @param {reject} Function - Function to call if the Promise fails.
-     */
     this._promise.then((success) => {
       if (continueCheck() && resolve) {
         resolve(success);
@@ -39,11 +42,11 @@ class ConditionalPromise {
     return this;
   }
 
+  /**
+   * Equivalent of Promise.all, but return a ConditionalPromise instead.
+   * @param {Array<Promise>|Array<ConditionalPromise>} promises - an array of Promises
+   */
   static all(promises) {
-    /**
-     * Equivalent of Promise.all, but return a ConditionalPromise instead.
-     * @param {promises} [Promise|ConditionalPromise] - an array of Promises
-     */
     const conditionalPromise = new ConditionalPromise();
     conditionalPromise._promise = Promise.all(promises);
     return conditionalPromise;
