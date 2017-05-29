@@ -38,9 +38,9 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
-  kolibri stop [options] [-- DJANGO_OPTIONS ...]
-  kolibri restart [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground --watch] [--port=<port>] [options]
+  kolibri stop [options]
+  kolibri restart [options]
   kolibri status [options]
   kolibri shell [options] [-- DJANGO_OPTIONS ...]
   kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
