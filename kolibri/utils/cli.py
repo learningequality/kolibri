@@ -61,8 +61,7 @@ Options:
                         or to query an existing server (stop/status)
   DJANGO_OPTIONS        All options are passed on to the django manage command.
                         Notice that all django options must appear *last* and
-                        should not be mixed with other options. Only long-name
-                        options ('--long-name') are supported.
+                        should not be mixed with other options.
 
 Examples:
   kolibri start             Start Kolibri
