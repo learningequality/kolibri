@@ -57,8 +57,6 @@ Options:
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
   --debug               Output debug messages (for development)
-  --port=<arg>          Use a non-default port on which to start the HTTP server
-                        or to query an existing server (stop/status)
   DJANGO_OPTIONS        All options are passed on to the django manage command.
                         Notice that all django options must appear *last* and
                         should not be mixed with other options.
