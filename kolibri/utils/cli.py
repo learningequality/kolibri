@@ -268,20 +268,16 @@ def set_default_language(lang):
         logging.warning(msg)
 
 
-def main(args=None):
+def parse_args(args=None):
     """
-    Kolibri's main function. Parses arguments and calls utility functions.
-    Utility functions should be callable for unit testing purposes, but remember
-    to use main() for integration tests in order to test the argument API.
-    """
+    Parses arguments by invoking docopt. Arguments for django management
+    commands are split out before returning.
 
-    # ensure that Django is set up before we do anything else
-    django.setup()
+    :returns: (parsed_arguments, raw_django_ars)
+    """
 
     if not args:
         args = sys.argv[1:]
-
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
@@ -307,7 +303,22 @@ def main(args=None):
     if args:
         docopt_kwargs['argv'] = args
 
-    arguments = docopt(USAGE, **docopt_kwargs)
+    return docopt(USAGE, **docopt_kwargs), django_args
+
+
+def main(args=None):
+    """
+    Kolibri's main function. Parses arguments and calls utility functions.
+    Utility functions should be callable for unit testing purposes, but remember
+    to use main() for integration tests in order to test the argument API.
+    """
+
+    # ensure that Django is set up before we do anything else
+    django.setup()
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    arguments, django_args = parse_args(args)
 
     debug = arguments['--debug']
 
