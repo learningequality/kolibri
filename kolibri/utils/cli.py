@@ -26,6 +26,9 @@ from docopt import docopt  # noqa
 
 from . import server  # noqa
 
+# This was added in
+# https://github.com/learningequality/kolibri/pull/580
+# ...we need to (re)move it /benjaoming
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
     reload(sys)
@@ -54,9 +57,9 @@ Usage:
 Options:
   -h --help             Show this screen.
   --version             Show version.
+  --debug               Output debug messages (for development)
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
-  --debug               Output debug messages (for development)
   DJANGO_OPTIONS        All options are passed on to the django manage command.
                         Notice that all django options must appear *last* and
                         should not be mixed with other options.
@@ -119,6 +122,19 @@ class PluginDoesNotExist(Exception):
     pass
 
 
+def initialize(debug=False):
+    """
+    Always called before running commands
+
+    :param: debug: Tells initialization to setup logging etc.
+    """
+
+    setup_logging(debug=debug)
+
+    if not os.path.isfile(VERSION_FILE):
+        _first_run()
+
+
 def _first_run():
     """
     Called once at least. Will not run if the .kolibri/.version file is
@@ -152,19 +168,6 @@ def _first_run():
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
-
-
-def initialize(debug=False):
-    """
-    Always called before running commands
-
-    :param: debug: Tells initialization to setup logging etc.
-    """
-
-    setup_logging(debug=debug)
-
-    if not os.path.isfile(VERSION_FILE):
-        _first_run()
 
 
 def setup_logging(debug=False):
@@ -283,8 +286,13 @@ def main(args=None):
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
     if '--' in args:
+        # Include "manage COMMAND" for docopt parsing, but split out the rest
         pivot = args.index('--')
         args, django_args = args[:pivot], args[pivot + 1:]
+    elif 'manage' in args:
+        # Include "manage COMMAND" for docopt parsing, but split out the rest
+        pivot = args.index('manage') + 2
+        args, django_args = args[:pivot], args[pivot:]
     else:
         django_args = []
 
