@@ -108,14 +108,9 @@ describe('Vuex store/actions for core module', () => {
         },
         clearCaches: clearCachesSpy,
       };
-      // fake a session
-      store.state.core.session.id = '123';
-      store.state.core.session.username = 'l_organa';
 
       coreActions.kolibriLogout(store)
         .then(() => {
-          assert.equal(store.state.core.session.id, undefined);
-          assert.equal(store.state.core.session.username, '');
           sinon.assert.calledWith(getModelStub, 'current');
           sinon.assert.calledOnce(clearCachesSpy);
         })
