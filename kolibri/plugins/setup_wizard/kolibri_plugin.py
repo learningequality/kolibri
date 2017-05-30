@@ -3,11 +3,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
-from . import hooks, urls
+from . import hooks
 
 
 class SetupWizardPlugin(KolibriPluginBase):
     def url_module(self):
+        from . import urls
         return urls
 
     def url_slug(self):

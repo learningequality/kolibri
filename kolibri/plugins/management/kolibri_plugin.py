@@ -5,11 +5,12 @@ from kolibri.core.hooks import UserNavigationHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
-from . import hooks, urls
+from . import hooks
 
 
 class ManagementPlugin(KolibriPluginBase):
     def url_module(self):
+        from . import urls
         return urls
 
     def url_slug(self):
