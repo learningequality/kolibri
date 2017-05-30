@@ -168,7 +168,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
 
-In addition to the docs displayed above, you can also run:
+More advanced examples of the ``devserver`` command:
 
 .. code-block:: bash
 

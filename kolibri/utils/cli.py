@@ -46,7 +46,8 @@ Usage:
   kolibri restart [options]
   kolibri status [options]
   kolibri shell [options]
-  kolibri manage [options] COMMAND [DJANGO_OPTIONS ...]
+  kolibri manage COMMAND [DJANGO_OPTIONS ...]
+  kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
   kolibri plugin [options] PLUGIN (enable | disable)
   kolibri language setdefault <langcode>
