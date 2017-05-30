@@ -45,8 +45,8 @@ Usage:
   kolibri stop [options]
   kolibri restart [options]
   kolibri status [options]
-  kolibri shell [options] [-- DJANGO_OPTIONS ...]
-  kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
+  kolibri shell [options]
+  kolibri manage [options] COMMAND [DJANGO_OPTIONS ...]
   kolibri diagnose [options]
   kolibri plugin [options] PLUGIN (enable | disable)
   kolibri language setdefault <langcode>
@@ -60,9 +60,9 @@ Options:
   --debug               Output debug messages (for development)
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
-  DJANGO_OPTIONS        All options are passed on to the django manage command.
-                        Notice that all django options must appear *last* and
-                        should not be mixed with other options.
+  DJANGO_OPTIONS        Command options are passed on to the django manage
+                        command. Notice that all django options must appear
+                        *last* and should not be mixed with other options.
 
 Examples:
   kolibri start             Start Kolibri
@@ -286,7 +286,10 @@ def main(args=None):
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
     if '--' in args:
-        # Include "manage COMMAND" for docopt parsing, but split out the rest
+        # At the moment, we keep this for backwards-compatibility and in case there
+        # is a real case of having to force the parsing of DJANGO_OPTIONS to a
+        # specific location. Example:
+        # kolibri manage commandname --non-django-arg -- --django-arg
         pivot = args.index('--')
         args, django_args = args[:pivot], args[pivot + 1:]
     elif 'manage' in args:
