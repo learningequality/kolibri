@@ -1,7 +1,7 @@
 from django.conf.urls import include, url
 from rest_framework import routers
 
-from .api import ChannelMetadataCacheViewSet, ContentNodeViewset, FileViewset
+from .api import ChannelMetadataCacheViewSet, ContentNodeViewset, FileViewset, ChannelFileSummaryViewSet
 
 router = routers.SimpleRouter()
 router.register('content', ChannelMetadataCacheViewSet, base_name="channel")
@@ -9,6 +9,7 @@ router.register('content', ChannelMetadataCacheViewSet, base_name="channel")
 content_router = routers.SimpleRouter()
 content_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
 content_router.register(r'file', FileViewset, base_name='file')
+content_router.register(r'filesummary', ChannelFileSummaryViewSet, base_name="filesummary")
 
 urlpatterns = [
     url(r'^', include(router.urls)),

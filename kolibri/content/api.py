@@ -2,7 +2,7 @@ from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
@@ -231,3 +231,12 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ChannelFileSummaryViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        file_summary = models.File.objects.aggregate(
+            total_files=Count('pk'),
+            total_file_size=Sum('file_size')
+        )
+        return Response(file_summary)
