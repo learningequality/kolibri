@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="$tr('allContent')" ref="grid">
+  <content-grid :header="$tr('allContent')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -20,7 +20,7 @@
       :progress="content.progress"
       :link="genContentLink(content.id)"/>
 
-  </card-grid>
+  </content-grid>
 
 </template>
 
@@ -78,8 +78,8 @@
       },
     },
     components: {
-      'content-grid-item': require('../card-grid/content-grid-item'),
-      'card-grid': require('../card-grid'),
+      'content-grid-item': require('../content-grid/content-grid-item'),
+      'content-grid': require('../content-grid'),
     },
     vuex: {
       getters: {

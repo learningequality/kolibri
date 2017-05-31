@@ -22,7 +22,7 @@
         :link="genTopicLink(topic.id)"/>
     </card-list>
 
-    <card-grid v-if="contents.length">
+    <content-grid v-if="contents.length">
       <content-grid-item
         v-for="content in contents"
         class="card"
@@ -31,7 +31,7 @@
         :kind="content.kind"
         :progress="content.progress"
         :link="genContentLink(content.id)"/>
-    </card-grid>
+    </content-grid>
 
   </div>
 
@@ -52,8 +52,8 @@
     components: {
       'page-header': require('../page-header'),
       'topic-list-item': require('../topic-list-item'),
-      'content-grid-item': require('../card-grid/content-grid-item'),
-      'card-grid': require('../card-grid'),
+      'content-grid-item': require('../content-grid/content-grid-item'),
+      'content-grid': require('../content-grid'),
       'card-list': require('../card-list'),
     },
     computed: {

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <card-grid :header="computedTitle" v-if="slicedContents.length">
+    <content-grid :header="computedTitle" v-if="slicedContents.length">
       <content-grid-item
         v-for="content in slicedContents"
         :title="content.title"
@@ -9,7 +9,7 @@
         :kind="content.kind"
         :progress="content.progress"
         :link="genContentLink(content.id)"/>
-    </card-grid>
+    </content-grid>
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">
       <icon-button @click="toggle()" :text="less" v-if="expanded">
@@ -55,8 +55,8 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'content-grid-item': require('../card-grid/content-grid-item'),
-      'card-grid': require('../card-grid'),
+      'content-grid-item': require('../content-grid/content-grid-item'),
+      'content-grid': require('../content-grid'),
     },
     data() {
       return {
