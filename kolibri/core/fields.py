@@ -44,7 +44,7 @@ class DateTimeTzField(Field):
     """
 
     def db_type(self, connection):
-        return "char"
+        return "varchar"
 
     def from_db_value(self, value, expression, connection, context):
         if value is None:
