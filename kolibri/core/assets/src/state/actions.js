@@ -649,6 +649,7 @@ const interactionHistoryProperties = [
   'type',
   'correct',
   'answer',
+  'timestamp',
 ];
 
 function updateAttemptLogInteractionHistory(store, interaction) {
@@ -659,6 +660,9 @@ function updateAttemptLogInteractionHistory(store, interaction) {
   });
   if (!interaction.type || !InteractionTypes[interaction.type]) {
     throw new TypeError('No interaction type, or invalid interaction type specified');
+  }
+  if (!interaction.timestamp) {
+    interaction.timestamp = now();
   }
   store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
   // Also update end timestamp on Mastery model.
