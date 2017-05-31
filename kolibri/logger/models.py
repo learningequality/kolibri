@@ -24,7 +24,6 @@ from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
-from morango.manager import SyncableModelManager
 from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
