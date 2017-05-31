@@ -6,6 +6,11 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.5
+___
+ - Add API endpoint for getting number and total size of files in a channel
+
+
 0.4
 ---
 
