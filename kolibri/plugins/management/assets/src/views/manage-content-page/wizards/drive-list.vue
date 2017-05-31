@@ -89,6 +89,10 @@
 
   @require '~kolibri.styles.definitions'
 
+  .error-svg
+    margin-right: 0.2em
+    margin-bottom: -6px
+
   h2
     font-size: 1em
 
@@ -97,7 +101,7 @@
       border-top: none
 
   .drive-list-item
-    padding: 0.6em
+    padding: 1em 0.6em
     font-size: 0.9em
     border: 1px $core-bg-canvas solid
     &-detail

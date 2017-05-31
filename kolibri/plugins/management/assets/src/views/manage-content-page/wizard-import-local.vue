@@ -11,13 +11,15 @@
   >
     <div class="main">
       <template v-if="!drivesLoading">
-        <drive-list
-          :value="selectedDrive"
-          :drives="wizardState.driveList"
-          :enabledDrivePred="driveIsEnabled"
-          :disabledMsg="$tr('incompatible')"
-          @change="(driveId) => selectedDrive = driveId"
-        />
+        <div class="modal-message">
+          <drive-list
+            :value="selectedDrive"
+            :drives="wizardState.driveList"
+            :enabledDrivePred="driveIsEnabled"
+            :disabledMsg="$tr('incompatible')"
+            @change="(driveId) => selectedDrive = driveId"
+          />
+        </div>
         <div class="refresh-btn-wrapper">
           <icon-button
             :text="$tr('refresh')"
@@ -124,10 +126,6 @@
 
   .modal-message
     margin: 2em 0
-
-  .error-svg
-    margin-right: 0.2em
-    margin-bottom: -6px
 
   .button-wrapper
     margin: 1em 0
