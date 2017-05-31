@@ -146,7 +146,7 @@ class UserSessionLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
     start_timestamp = DateTimeTzField(default=local_now)
-    last_interaction_timestamp = DateTimeTzField(null=True)
+    last_interaction_timestamp = DateTimeTzField(null=True, blank=True)
     pages = models.TextField(blank=True)
 
     @classmethod
