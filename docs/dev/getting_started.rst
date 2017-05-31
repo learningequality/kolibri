@@ -168,6 +168,23 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
 
+More advanced examples of the ``devserver`` command:
+
+.. code-block:: bash
+
+  # runs the dev server and rebuild client assets when files change
+  kolibri manage devserver --debug -- --webpack
+
+  # runs the dev server and re-run client-side tests when files changes
+  kolibri manage devserver --debug -- --karma
+
+  # runs the dev server and also spawns the qcluster task queue in the background
+  kolibri manage devserver --debug -- --qcluster
+
+  # runs all of the above
+  kolibri manage devserver --debug -- --webpack --karma --qcluster
+
+
 Running the Production Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
