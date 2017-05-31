@@ -1,69 +1,98 @@
 <template>
 
-  <router-link :to="link" class="card">
+  <div :class="sizeClass">
+    <router-link :to="link" class="card">
 
-    <div class="card-thumbnail" :style="backgroundImg">
-      <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
-      <div class="card-progress-icon-wrapper">
-        <progress-icon :progress="progress"/>
-      </div>
+      <div class="card-thumbnail" :style="backgroundImg">
+        <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
+        <div class="card-progress-icon-wrapper">
+          <progress-icon :progress="progress"/>
+        </div>
 
-      <div class="card-content-icon-background" :class="backgroundClass"></div>
-      <div class="card-content-icon-wrapper">
-        <content-icon :kind="kind" class="card-content-icon"/>
-      </div>
+        <div class="card-content-icon-background" :class="backgroundClass"></div>
+        <div class="card-content-icon-wrapper">
+          <content-icon :kind="kind" class="card-content-icon"/>
+        </div>
 
-      <div class="card-progress-bar-wrapper">
-        <div
-          class="card-progress-bar"
-          :style="{ width: `${progress * 100}%` }"
-          :class="{ 'card-progress-bar-mastered': mastered, 'card-progress-bar-progress': inProgress }">
+        <div class="card-progress-bar-wrapper">
+          <div
+            class="card-progress-bar"
+            :style="{ width: `${progress * 100}%` }"
+            :class="{ 'card-progress-bar-mastered': mastered, 'card-progress-bar-progress': inProgress }">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card-text">
-      <h3 class="card-title">{{ title }}</h3>
-      <h4 class="card-subtitle"></h4>
-    </div>
-  </router-link>
+      <div class="card-text">
+        <h3 class="card-title">{{ title }}</h3>
+        <h4 class="card-subtitle"></h4>
+      </div>
+
+    </router-link>
+  </div>
 
 </template>
 
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash/values');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
   const validateLinkObject = require('kolibri.utils.validateLinkObject');
 
   module.exports = {
+    mixins: [responsiveWindow],
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
         required: true,
       },
-      subtitle: {
+      thumbnail: {
         type: String,
         required: false,
       },
       kind: {
         type: String,
-        required: false,
+        required: true,
+        validator(value) {
+          return values(CoreConstants.ContentNodeKinds).includes(value);
+        },
       },
       progress: {
         type: Number,
-        required: false,
+        required: true,
+        default: 0.0,
+        validator(value) {
+          return (value >= 0.0) && (value <= 1.0);
+        },
       },
       link: {
         type: Object,
         required: true,
         validator: validateLinkObject,
       },
-      thumbnail: {
-        type: String,
-        required: false,
-      },
     },
     computed: {
+      sizeClass() {
+        if (this.windowSize.breakpoint === 0) { return 'pure-u-1-1'; }
+        if (this.windowSize.breakpoint === 1) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 2) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 3) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 4) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 5) { return 'pure-u-1-4'; }
+        return 'pure-u-1-6';
+      },
+      thumb() {
+        if (this.thumbnail) {
+          return `url(${this.thumbnail})`;
+        }
+        return '';
+      },
       mastered() {
         return this.progress === 1.0;
       },
@@ -90,10 +119,6 @@
         }
         return '';
       },
-    },
-    components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
     },
   };
 

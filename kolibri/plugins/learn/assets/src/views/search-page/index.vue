@@ -113,7 +113,7 @@
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
-      'content-grid-item': require('../content-grid-item'),
+      'content-grid-item': require('../card-grid/content-grid-item'),
       'card-grid': require('../card-grid'),
       'card-list': require('../card-list'),
       'tabs': require('kolibri.coreVue.components.tabs'),

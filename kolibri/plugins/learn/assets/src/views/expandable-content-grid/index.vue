@@ -55,7 +55,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'content-grid-item': require('../content-grid-item'),
+      'content-grid-item': require('../card-grid/content-grid-item'),
       'card-grid': require('../card-grid'),
     },
     data() {
