@@ -56,7 +56,7 @@
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
           :title="$tr('exams')"
-          icon="assignments"
+          icon="assignment_late"
           :link="examsLink"
         />
       </tabs>

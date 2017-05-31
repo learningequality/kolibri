@@ -11,7 +11,7 @@
       <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
       <div class="exam-row" v-for="exam in exams">
-        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
+        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
         <h2 class="exam-title">{{ exam.title }}</h2>
         <div class="exam-details" v-if="exam.closed || !exam.active">
           <p class="answer-count">{{ $tr('howManyCorrect', { score: exam.score, outOf: exam.questionCount })}}</p>

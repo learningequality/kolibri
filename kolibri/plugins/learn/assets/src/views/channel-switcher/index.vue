@@ -7,7 +7,7 @@
     :displayDisabledAsSelected="true"
     type="primary"
     color="primary"
-    icon="view_module"
+    icon="apps"
     @select="emitSelection"
   />
 
