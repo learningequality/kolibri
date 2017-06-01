@@ -51,6 +51,7 @@ test-all:
 	tox
 
 assets: staticdeps
+	yarn install
 	yarn run build
 
 coverage:
