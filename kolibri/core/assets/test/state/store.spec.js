@@ -52,6 +52,7 @@ describe('Vuex store/actions for core module', () => {
     after(() => {
       window.onbeforeunload = oldHandler;
       delete kolibri.resources;
+      kolibri.urls = {};
     });
 
     beforeEach(() => {
@@ -60,6 +61,7 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful login', (done) => {
+      kolibri.urls['kolibri:managementplugin:management'] = () => '';
       kolibri.resources.SessionResource = {
         createModel: () => ({
           save: () => Promise.resolve({
