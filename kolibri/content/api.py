@@ -1,3 +1,5 @@
+import os
+import logging as logger
 from functools import reduce
 from random import sample
 
@@ -13,6 +15,9 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from .utils.search import fuzz
+from .utils.paths import get_content_database_file_path
+
+logging = logger.getLogger(__name__)
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
@@ -23,6 +28,19 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
+
+    def perform_destroy(self, instance):
+        '''
+        Destroys the ChannelMetadata row and also the sqlite3 files on the filesystem.
+        '''
+        db_path = get_content_database_file_path(instance.id)
+
+        if os.path.isfile(db_path):
+            logging.debug('Deleting {}'.format(db_path))
+            os.remove(db_path)
+            instance.delete()
+        else:
+            raise Exception('Channel sqlite file not found.')
 
 
 class ContentNodeFilter(filters.FilterSet):
