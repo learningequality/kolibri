@@ -303,8 +303,9 @@ function showLearnChannel(store, channelId, cursor) {
               resume: resume.map(_contentState),
             },
             all: {
-              content: allContent,
-              pageCount: 1,
+              content: allContent.map(_contentState),
+              next: allContentCollection.next,
+              previous: allContentCollection.previous,
             },
           };
           store.dispatch('SET_PAGE_STATE', pageState);
