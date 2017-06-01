@@ -3,15 +3,15 @@
   <li>
     <button
       class="tab"
-      :class="{ 'tab-has-icon-and-title': type === 'icon-and-title', 'tab-selected': selected }"
+      :class="{ 'tab-has-icon-and-title': icon && title, 'tab-selected': selected }"
       @click="handleClick"
       ref="tab">
 
-      <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
+      <div v-if="icon" class="tab-icon">
         <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>
       </div>
 
-      <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
+      <div v-if="title" class="tab-title">
         {{ title }}
       </div>
 
@@ -25,13 +25,6 @@
 
   module.exports = {
     props: {
-      type: {
-        type: String,
-        validator(type) {
-          return ['title', 'icon', 'icon-and-title'].includes(type);
-        },
-        required: true,
-      },
       title: {
         type: String,
         required: false,
@@ -61,6 +54,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '../tab-items.styl'
+  @require './tab-items.styl'
 
 </style>

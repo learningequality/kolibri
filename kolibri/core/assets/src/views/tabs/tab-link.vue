@@ -1,13 +1,13 @@
 <template>
 
   <li>
-    <router-link :to="link" class="tab" :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }">
+    <router-link :to="link" class="tab" :class="{ 'has-icon-and-title': icon && title }">
 
-      <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
+      <div v-if="icon" class="tab-icon">
         <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>
       </div>
 
-      <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
+      <div v-if="title" class="tab-title">
         {{ title }}
       </div>
     </router-link>
@@ -22,13 +22,6 @@
 
   module.exports = {
     props: {
-      type: {
-        type: String,
-        validator(type) {
-          return ['title', 'icon', 'icon-and-title'].includes(type);
-        },
-        required: true,
-      },
       title: {
         type: String,
         required: false,
@@ -53,6 +46,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '../tab-items.styl'
+  @require './tab-items.styl'
 
 </style>

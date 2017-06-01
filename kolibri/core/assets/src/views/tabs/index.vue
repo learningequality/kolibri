@@ -2,7 +2,10 @@
 
   <nav class="tabs">
     <ul>
-      <slot/>
+      <slot
+        :link="$options.components['tab-link']"
+        :button="$options.components['tab-button']"
+      />
     </ul>
   </nav>
 
@@ -11,7 +14,12 @@
 
 <script>
 
-  module.exports = {};
+  module.exports = {
+    components: {
+      'tab-link': require('./tab-link'),
+      'tab-button': require('./tab-button'),
+    },
+  };
 
 </script>
 

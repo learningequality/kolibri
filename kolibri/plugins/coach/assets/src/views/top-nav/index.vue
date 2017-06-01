@@ -1,36 +1,38 @@
 <template>
 
   <tabs>
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('topics')"
-      icon="folder"
-      :link="topicsLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('recent')"
-      icon="access_time"
-      :link="recentLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('learners')"
-      icon="people"
-      :link="learnersLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('groups')"
-      icon="group_work"
-      :link="groupsLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignments"
-      :link="examsLink"
-    />
+    <template scope="tab">
+      <component
+        :is="tab.link"
+        :title="$tr('topics')"
+        icon="folder"
+        :link="topicsLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('recent')"
+        icon="access_time"
+        :link="recentLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('learners')"
+        icon="people"
+        :link="learnersLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('groups')"
+        icon="group_work"
+        :link="groupsLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('exams')"
+        icon="assignments"
+        :link="examsLink"
+      />
+  </template>
   </tabs>
 
 </template>
@@ -50,8 +52,7 @@
       groups: 'Groups',
     },
     components: {
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
+      tabs: require('kolibri.coreVue.components.tabs'),
     },
     computed: {
       Constants() {

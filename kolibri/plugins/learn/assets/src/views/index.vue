@@ -39,26 +39,28 @@
 
     <div v-if="tabLinksAreVisible" class="tab-links">
       <tabs>
-        <tab-link
-          type="icon-and-title"
-          :title="$tr('recommended')"
-          icon="forum"
-          :link="recommendedLink"
-        />
-        <tab-link
-          type="icon-and-title"
-          :title="$tr('topics')"
-          icon="folder"
-          :link="topicsLink"
-        />
-        <tab-link
-          name="exam-link"
-          v-if="isUserLoggedIn && userHasMemberships"
-          type="icon-and-title"
-          :title="$tr('exams')"
-          icon="assignments"
-          :link="examsLink"
-        />
+        <template scope="tab">
+          <component
+            :is="tab.link"
+            :title="$tr('recommended')"
+            icon="forum"
+            :link="recommendedLink"
+          />
+          <component
+            :is="tab.link"
+            :title="$tr('topics')"
+            icon="folder"
+            :link="topicsLink"
+          />
+          <component
+            :is="tab.link"
+            name="exam-link"
+            v-if="isUserLoggedIn && userHasMemberships"
+            :title="$tr('exams')"
+            icon="assignments"
+            :link="examsLink"
+          />
+        </template>
       </tabs>
     </div>
 
@@ -101,7 +103,6 @@
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
       'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
       'total-points': require('./total-points'),

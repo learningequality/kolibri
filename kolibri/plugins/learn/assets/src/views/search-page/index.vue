@@ -8,55 +8,57 @@
       <p>{{ $tr('withinChannel', { channelName }) }}</p>
 
       <tabs>
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('all', { num: all.length } )"
-          icon="layers"
-          @click="filter = 'all'"
-          :selected="filter === 'all'"
-        />
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('topics', { num: topics.length } )"
-          icon="folder"
-          :selected="filter === contentNodeKinds.TOPIC"
-          @click="filter = contentNodeKinds.TOPIC"
-        />
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('exercises', { num: exercises.length } )"
-          icon="star"
-          :selected="filter === contentNodeKinds.EXERCISE"
-          @click="filter = contentNodeKinds.EXERCISE"
-        />
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('videos', { num: videos.length } )"
-          icon="ondemand_video"
-          :selected="filter === contentNodeKinds.VIDEO"
-          @click="filter = contentNodeKinds.VIDEO"
-        />
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('audio', { num: audio.length } )"
-          icon="audiotrack"
-          :selected="filter === contentNodeKinds.AUDIO"
-          @click="filter = contentNodeKinds.AUDIO"
-        />
-        <tab-button
-          type="icon-and-title"
-          :title="$tr('documents', { num: documents.length } )"
-          icon="description"
-          :selected="filter === contentNodeKinds.DOCUMENT"
-          @click="filter = contentNodeKinds.DOCUMENT"
-        />
-        <tab-button
-          type="icon-and-title"
-          icon="widgets"
-          :title="$tr('html5', { num: html5.length } )"
-          :selected="filter === contentNodeKinds.HTML5"
-          @click="filter = contentNodeKinds.HTML5"
-        />
+        <template scope="tab">
+          <component
+            :is="tab.button"
+            :title="$tr('all', { num: all.length } )"
+            icon="layers"
+            @click="filter = 'all'"
+            :selected="filter === 'all'"
+          />
+          <component
+            :is="tab.button"
+            :title="$tr('topics', { num: topics.length } )"
+            icon="folder"
+            :selected="filter === contentNodeKinds.TOPIC"
+            @click="filter = contentNodeKinds.TOPIC"
+          />
+          <component
+            :is="tab.button"
+            :title="$tr('exercises', { num: exercises.length } )"
+            icon="star"
+            :selected="filter === contentNodeKinds.EXERCISE"
+            @click="filter = contentNodeKinds.EXERCISE"
+          />
+          <component
+            :is="tab.button"
+            :title="$tr('videos', { num: videos.length } )"
+            icon="ondemand_video"
+            :selected="filter === contentNodeKinds.VIDEO"
+            @click="filter = contentNodeKinds.VIDEO"
+          />
+          <component
+            :is="tab.button"
+            :title="$tr('audio', { num: audio.length } )"
+            icon="audiotrack"
+            :selected="filter === contentNodeKinds.AUDIO"
+            @click="filter = contentNodeKinds.AUDIO"
+          />
+          <component
+            :is="tab.button"
+            :title="$tr('documents', { num: documents.length } )"
+            icon="description"
+            :selected="filter === contentNodeKinds.DOCUMENT"
+            @click="filter = contentNodeKinds.DOCUMENT"
+          />
+          <component
+            :is="tab.button"
+            icon="widgets"
+            :title="$tr('html5', { num: html5.length } )"
+            :selected="filter === contentNodeKinds.HTML5"
+            @click="filter = contentNodeKinds.HTML5"
+          />
+        </template>
       </tabs>
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
@@ -117,7 +119,6 @@
       'card-grid': require('../card-grid'),
       'card-list': require('../card-list'),
       'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-button': require('kolibri.coreVue.components.tabButton'),
     },
     data() {
       return {

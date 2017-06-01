@@ -1,36 +1,38 @@
 <template>
 
-  <tabs>
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('classes')"
-      icon="domain"
-      :link="classesLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('users')"
-      icon="people"
-      :link="usersLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('facilities')"
-      icon="settings"
-      :link="facilitiesConfigLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('data')"
-      icon="save"
-      :link="dataLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('content')"
-      icon="view_module"
-      :link="contentLink"
-    />
+  <tabs scope="tab">
+    <template scope="tab">
+      <component
+        :is="tab.link"
+        :title="$tr('classes')"
+        icon="domain"
+        :link="classesLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('users')"
+        icon="people"
+        :link="usersLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('facilities')"
+        icon="settings"
+        :link="facilitiesConfigLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('data')"
+        icon="save"
+        :link="dataLink"
+      />
+      <component
+        :is="tab.link"
+        :title="$tr('content')"
+        icon="view_module"
+        :link="contentLink"
+      />
+    </template>
   </tabs>
 
 </template>
@@ -52,8 +54,7 @@
       users: 'Users',
     },
     components: {
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
+      tabs: require('kolibri.coreVue.components.tabs'),
     },
     computed: {
       classesLink() {
