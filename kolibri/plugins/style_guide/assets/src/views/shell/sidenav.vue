@@ -19,13 +19,14 @@
 
 
 <script>
-  const {navigationMenu} = require('./navigation-menu.js');
+
+  const { navigationMenu } = require('./navigation-menu.js');
 
   module.exports = {
     data() {
       return {
         navigationMenu
-      }
+      };
     }
   };
 
@@ -37,6 +38,6 @@
   @require '~kolibri.styles.definitions'
 
   .sidenav
-    border-right: 1px solid black;
+    border-right: 1px solid black
 
 </style>

@@ -43,4 +43,4 @@ const navigationMenuRoutes = _.flatten(
     navigationMenu.map(menuSection =>
         menuSection.sectionLinks.map(link => link.linkRoute)));
 
-module.exports = {navigationMenu, navigationMenuRoutes};
+module.exports = { navigationMenu, navigationMenuRoutes };

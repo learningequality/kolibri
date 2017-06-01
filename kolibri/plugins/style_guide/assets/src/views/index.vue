@@ -12,7 +12,7 @@
 
   module.exports = {
     components: {
-      'sidenav': require('./shell/sidenav'),
+      sidenav: require('./shell/sidenav'),
     }
   };
 
@@ -23,7 +23,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  sidenav-width = 10em;
+  $sidenav-width = 10em
 
   page-section()
     position: absolute
@@ -36,10 +36,10 @@
   .sidenav
     page-section()
     right: initial
-    width: sidenav-width
+    width: $sidenav-width
 
   .content
     page-section()
-    left: sidenav-width
+    left: $sidenav-width
 
 </style>
