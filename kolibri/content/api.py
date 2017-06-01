@@ -10,7 +10,7 @@ from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from .permissions import OnlyDeviceOwnerCanDelete
@@ -212,6 +212,10 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class AllContentCursorPagination(pagination.CursorPagination):
+    page_size = 10
+    ordering = 'lft'
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -251,6 +255,16 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
+    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    def all_content(self, request, **kwargs):
+        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
