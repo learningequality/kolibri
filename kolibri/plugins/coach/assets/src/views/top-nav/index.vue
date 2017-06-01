@@ -28,7 +28,7 @@
     <tab-link
       type="icon-and-title"
       :title="$tr('exams')"
-      icon="assignments"
+      icon="assignment_late"
       :link="examsLink"
     />
   </tabs>

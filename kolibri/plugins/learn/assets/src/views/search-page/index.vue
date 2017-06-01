@@ -25,7 +25,7 @@
         <tab-button
           type="icon-and-title"
           :title="$tr('exercises', { num: exercises.length } )"
-          icon="star"
+          icon="assignment"
           :selected="filter === contentNodeKinds.EXERCISE"
           @click="filter = contentNodeKinds.EXERCISE"
         />
@@ -46,7 +46,7 @@
         <tab-button
           type="icon-and-title"
           :title="$tr('documents', { num: documents.length } )"
-          icon="description"
+          icon="book"
           :selected="filter === contentNodeKinds.DOCUMENT"
           @click="filter = contentNodeKinds.DOCUMENT"
         />
