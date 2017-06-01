@@ -156,7 +156,14 @@ function refreshBrowser(url) {
   window.location.href = url || window.location.origin;
 }
 
-function kolibriLogin(store, sessionPayload, firstDeviceSignIn) {
+/**
+ * Signs in user.
+ *
+ * @param {object} store The store.
+ * @param {object} sessionPayload The session payload.
+ * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
+ */
+function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
@@ -164,7 +171,7 @@ function kolibriLogin(store, sessionPayload, firstDeviceSignIn) {
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     const manageURL = coreApp.urls['kolibri:managementplugin:management']();
-    if (firstDeviceSignIn) {
+    if (isFirstDeviceSignIn) {
       // Hacky way to redirect to content import page after completing setup wizard
       refreshBrowser(`${window.location.origin}${manageURL}#/content`);
     } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
