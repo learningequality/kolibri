@@ -1,10 +1,13 @@
 import os
+
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from future.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -216,6 +219,22 @@ class AllContentCursorPagination(pagination.CursorPagination):
     page_size = 10
     ordering = 'lft'
 
+    def get_paginated_response(self, data):
+        if self.has_next:
+            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
+        else:
+            next_item = None
+        if self.has_previous:
+            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
+        else:
+            prev_item = None
+
+        return Response(OrderedDict([
+            ('next', next_item),
+            ('previous', prev_item),
+            ('results', data)
+        ]))
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -265,6 +284,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
