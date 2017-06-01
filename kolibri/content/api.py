@@ -218,13 +218,26 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
 class AllContentCursorPagination(pagination.CursorPagination):
     page_size = 10
     ordering = 'lft'
+    cursor_query_param = 'cursor'
 
     def get_paginated_response(self, data):
+        """
+        By default the get_paginated_response method of the CursorPagination class returns the url link
+        to the next and previous queries of they exist.
+        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
+        directly querying passed in URLs.
+        Instead, return the cursor value that points to the next and previous items, so that they can be put
+        in a GET parameter in future queries.
+        """
         if self.has_next:
+            # The CursorPagination class has no internal methods to just return the cursor value, only
+            # the url of the next and previous, so we have to generate the URL, parse it, and then
+            # extract the cursor parameter from it to return in the Response.
             next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
         else:
             next_item = None
         if self.has_previous:
+            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
             prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
         else:
             prev_item = None

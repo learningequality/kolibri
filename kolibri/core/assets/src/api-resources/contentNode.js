@@ -87,12 +87,22 @@ class ContentNodeResource extends Resource {
     }
     return promise;
   }
+  /*
+   * Method to return a collection that queries the all_content list endpoint.
+   * @param resourceIds {Object} the resource ids required for this resource.
+   * @param getParams {Object} any getParams for query - most likely the a cursor
+   * key to query a different page of the all content endpoint by cursor reference.
+   * @return {Collection} returns a collection that will fetch from the all content endpoint.
+   */
   getAllContentCollection(resourceIds = {}, getParams = {}) {
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     let collection;
+    // Create a unique cache key so that this collection can be retrieved again with caching.
     const key = this.cacheKey(getParams, { allContent: true }, filteredResourceIds);
     if (!this.collections[key]) {
       collection = this.createCollection(filteredResourceIds, getParams, []);
+      // Edit the url of the collection so that it fetches from the all_content endpoint,
+      // rather than the regular endpoint.
       collection.url = (...args) => this.urls[`${this.name}_all_content`](...args);
     } else {
       collection = this.collections[key];
