@@ -87,6 +87,18 @@ class ContentNodeResource extends Resource {
     }
     return promise;
   }
+  getAllContentCollection(resourceIds = {}, getParams = {}) {
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    let collection;
+    const key = this.cacheKey(getParams, { allContent: true }, filteredResourceIds);
+    if (!this.collections[key]) {
+      collection = this.createCollection(filteredResourceIds, getParams, []);
+      collection.url = (...args) => this.urls[`${this.name}_all_content`](...args);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
+  }
 }
 
 module.exports = ContentNodeResource;

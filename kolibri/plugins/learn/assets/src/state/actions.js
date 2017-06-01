@@ -259,7 +259,7 @@ function showExploreContent(store, channelId, id) {
 }
 
 
-function showLearnChannel(store, channelId, page = 1) {
+function showLearnChannel(store, channelId, cursor) {
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
@@ -288,11 +288,14 @@ function showLearnChannel(store, channelId, page = 1) {
         channelPayload, resumePayload).fetch() : Promise.resolve([]);
       const popularPromise = ContentNodeResource.getCollection(
         channelPayload, popularPayload).fetch();
+      const allContentCollection = ContentNodeResource.getAllContentCollection(
+        channelPayload, { cursor });
+      const allContentPromise = allContentCollection.fetch();
       ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise]
+        [nextStepsPromise, popularPromise, resumePromise, allContentPromise]
       ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume]) => {
+        ([nextSteps, popular, resume, allContent]) => {
           const pageState = {
             recommendations: {
               nextSteps: nextSteps.map(_contentState),
@@ -300,9 +303,8 @@ function showLearnChannel(store, channelId, page = 1) {
               resume: resume.map(_contentState),
             },
             all: {
-              content: [],
+              content: allContent,
               pageCount: 1,
-              page,
             },
           };
           store.dispatch('SET_PAGE_STATE', pageState);
