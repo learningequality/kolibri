@@ -263,7 +263,8 @@ function showLearnChannel(store, channelId, cursor) {
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
-  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+  if (state.pageName !== PageNames.LEARN_CHANNEL ||
+    coreGetters.getCurrentChannelId(state) !== channelId) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
