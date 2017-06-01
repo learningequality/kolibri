@@ -59,6 +59,8 @@ class KolibriMock {
     };
 
     this.__resetMocks = this.__resetMocks.bind(this);
+
+    this.urls = {};
   }
 
   __resetMocks() {
