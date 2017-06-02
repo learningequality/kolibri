@@ -1,21 +1,18 @@
 <template>
 
   <div>
-    <icon-button @click="currentSet--" :disabled="isFirstSet">
+    <icon-button @click="previousSet" :disabled="isFirstSet">
       <mat-svg category="hardware" name="keyboard_arrow_left"/>
     </icon-button>
-    <icon-button @click="currentSet++" :disabled="isLastSet">
+    <icon-button @click="nextSet" :disabled="isLastSet">
       <mat-svg category="hardware" name="keyboard_arrow_right"/>
     </icon-button>
 
-    <transition
-      v-for="(contentSet, setIndex) in contentSets"
-      v-if="isCurrentSet(setIndex)"
-      name="turnPage">
+    <transition mode="out-in" :name="animation">
 
-      <div class="content-set">
+      <div :key="currentSet" class="content-set">
         <content-card
-        v-for="content in contentSet"
+        v-for="content in contentSets[currentSet]"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
@@ -56,6 +53,7 @@
     data() {
       return {
         currentSet: 0,
+        animation: 'next',
       };
     },
     computed: {
@@ -89,14 +87,22 @@
       },
     },
     methods: {
-      isCurrentSet(setIndex) {
-        return setIndex === this.currentSet;
+      isCurrentSet(index) {
+        return index === this.currentSet;
       },
       genContentLink(id) {
         return {
           name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
+      },
+      nextSet() {
+        this.currentSet += 1;
+        this.animation = 'next';
+      },
+      previousSet() {
+        this.currentSet -= 1;
+        this.animation = 'previous';
       },
     },
     vuex: {
@@ -113,8 +119,22 @@
 
   @require '~kolibri.styles.definitions'
 
-  .button-wrapper
-    text-align: center
-    margin-top: 1em
+  .next-enter, .previous-enter
+    opacity: 0.2
+
+
+  .next-enter-active, .previous-enter-active
+    transition: opacity 0.3s ease-in
+
+
+  .next-leave-active, .previous-leave-active
+    transition: opacity 0.3s linear, transform 0.4s ease-out
+    opacity: 0
+
+  .next-leave-active
+    transform: translateX(-200px)
+
+  .previous-leave-active
+    transform: translateX(200px)
 
 </style>
