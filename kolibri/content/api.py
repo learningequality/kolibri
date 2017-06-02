@@ -1,5 +1,4 @@
 import os
-import logging as logger
 from functools import reduce
 from random import sample
 
@@ -17,8 +16,6 @@ from rest_framework.response import Response
 from .utils.search import fuzz
 from .utils.paths import get_content_database_file_path
 
-logging = logger.getLogger(__name__)
-
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
@@ -29,18 +26,27 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
-    def perform_destroy(self, instance):
+    def destroy(self, request, pk=None):
         '''
-        Destroys the ChannelMetadata row and also the sqlite3 files on the filesystem.
+        Destroys the ChannelMetadata object and also the sqlite3 files on the filesystem.
         '''
-        db_path = get_content_database_file_path(instance.id)
+        super(ChannelMetadataCacheViewSet, self).destroy(request)
+
+        if self.delete_content_db_file(pk):
+            response_msg = 'Channel {} removed from device'.format(pk)
+        else:
+            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+        return Response(response_msg)
+
+    def delete_content_db_file(self, channel_id):
+        db_path = get_content_database_file_path(channel_id)
 
         if os.path.isfile(db_path):
-            logging.debug('Deleting {}'.format(db_path))
             os.remove(db_path)
-            instance.delete()
+            return True
         else:
-            raise Exception('Channel sqlite file not found.')
+            return False
 
 
 class ContentNodeFilter(filters.FilterSet):
