@@ -10,9 +10,10 @@
 
     <transition mode="out-in" :name="animation">
 
-      <div :key="currentSet" class="content-set">
+      <div :key="currentSet" class="content-set pure-g">
         <content-card
         v-for="content in contentSets[currentSet]"
+        :class="`pure-u-1-` + contentSetSize"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"

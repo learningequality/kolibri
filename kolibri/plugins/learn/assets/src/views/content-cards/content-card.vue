@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="sizeClass">
+  <div>
     <router-link :to="link" class="card">
 
       <div class="card-thumbnail" :style="backgroundImg">
@@ -78,15 +78,6 @@
       },
     },
     computed: {
-      sizeClass() {
-        if (this.windowSize.breakpoint === 0) { return 'pure-u-1-1'; }
-        if (this.windowSize.breakpoint === 1) { return 'pure-u-1-2'; }
-        if (this.windowSize.breakpoint === 2) { return 'pure-u-1-2'; }
-        if (this.windowSize.breakpoint === 3) { return 'pure-u-1-3'; }
-        if (this.windowSize.breakpoint === 4) { return 'pure-u-1-3'; }
-        if (this.windowSize.breakpoint === 5) { return 'pure-u-1-4'; }
-        return 'pure-u-1-6';
-      },
       thumb() {
         if (this.thumbnail) {
           return `url(${this.thumbnail})`;
