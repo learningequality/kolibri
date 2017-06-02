@@ -1,12 +1,14 @@
 <template>
 
   <div>
-    <icon-button @click="previousSet" :disabled="isFirstSet">
-      <mat-svg category="hardware" name="keyboard_arrow_left"/>
-    </icon-button>
-    <icon-button @click="nextSet" :disabled="isLastSet">
-      <mat-svg category="hardware" name="keyboard_arrow_right"/>
-    </icon-button>
+    <div class="controls">
+      <icon-button @click="previousSet" :disabled="isFirstSet">
+        <mat-svg category="hardware" name="keyboard_arrow_left"/>
+      </icon-button>
+      <icon-button @click="nextSet" :disabled="isLastSet">
+        <mat-svg category="hardware" name="keyboard_arrow_right"/>
+      </icon-button>
+    </div>
 
     <transition mode="out-in" :name="animation">
 
@@ -44,7 +46,7 @@
     props: {
       contents: {
         type: Array,
-        default: () => [],
+        required: true,
       },
     },
     components: {
@@ -120,13 +122,14 @@
 
   @require '~kolibri.styles.definitions'
 
+  .controls
+    text-align: right
+
   .next-enter, .previous-enter
     opacity: 0.2
 
-
   .next-enter-active, .previous-enter-active
     transition: opacity 0.3s ease-in
-
 
   .next-leave-active, .previous-leave-active
     transition: opacity 0.3s linear, transform 0.4s ease-out

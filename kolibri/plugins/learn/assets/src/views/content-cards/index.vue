@@ -16,12 +16,21 @@
 <script>
 
   module.exports = {
-    props: [
-      'title',
-      'container',
-      'contents',
-      'title',
-    ],
+    props: {
+      title: {
+        type: String,
+      },
+      container: {
+        type: String,
+        default: 'grid',
+      },
+      contents: {
+        type: Array,
+        validator(contents) {
+          return contents.length;
+        },
+      },
+    },
     components: {
       carousel: require('./content-carousel'),
       grid: require('./content-grid'),
