@@ -1,22 +1,30 @@
 <template>
 
   <div>
-      <content-card
-        v-for="content in slicedContents"
+    <icon-button @click="currentSet--" :disabled="isFirstSet">
+      <mat-svg category="hardware" name="keyboard_arrow_left"/>
+    </icon-button>
+    <icon-button @click="currentSet++" :disabled="isLastSet">
+      <mat-svg category="hardware" name="keyboard_arrow_right"/>
+    </icon-button>
+
+    <transition
+      v-for="(contentSet, setIndex) in contentSets"
+      v-if="isCurrentSet(setIndex)"
+      name="turnPage">
+
+      <div class="content-set">
+        <content-card
+        v-for="content in contentSet"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
         :link="genContentLink(content.id)"/>
+      </div>
 
-    <div class="button-wrapper" v-if="contents.length > nCollapsed">
-      <icon-button @click="toggle()" :text="less" v-if="expanded">
-        <mat-svg category="hardware" name="keyboard_arrow_up"/>
-      </icon-button>
-      <icon-button @click="toggle()" :text="more" v-else>
-        <mat-svg category="hardware" name="keyboard_arrow_down"/>
-      </icon-button>
-    </div>
+    </transition>
+
   </div>
 
 </template>
@@ -25,30 +33,20 @@
 <script>
 
   const PageNames = require('../../constants').PageNames;
+  const chunk = require('lodash/chunk');
+  // use window for reference for now. Could use element later
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
-    $trNameSpace: 'learnExpandable',
+    $trNameSpace: 'Content Carousel Strip',
     $trs: {
-      less: 'Show less',
-      more: 'Show more',
       defaultTitle: 'Contents',
     },
+    mixins: [responsiveWindow],
     props: {
-      title: {
-        type: String,
-        default: '',
-      },
       contents: {
         type: Array,
         default: () => [],
-      },
-      nCollapsed: {
-        type: Number,
-        default: 3,
-      },
-      nExpanded: {
-        type: Number,
-        default: 9,
       },
     },
     components: {
@@ -57,27 +55,42 @@
     },
     data() {
       return {
-        expanded: false,
+        currentSet: 0,
       };
     },
     computed: {
-      slicedContents() {
-        const num = this.expanded ? this.nExpanded : this.nCollapsed;
-        return this.contents.slice(0, num);
+      contentSets() {
+        return chunk(this.contents, this.contentSetSize);
       },
-      less() {
-        return this.$tr('less');
+      isFirstSet() {
+        return this.currentSet === 0;
       },
-      more() {
-        return this.$tr('more');
+      isLastSet() {
+        return this.currentSet === (this.contentSets.length - 1);
       },
-      computedTitle() {
-        return this.title.length ? this.title : this.$tr('defaultTitle');
+      contentSetSize() {
+        // we can calculate these based off of the size of the cards later
+        switch (this.windowSize.breakpoint) {
+          case 0:
+            return 1;
+          case 1:
+            return 2;
+          case 2:
+            return 2;
+          case 3:
+            return 3;
+          case 4:
+            return 3;
+          case 5:
+            return 4;
+          default:
+            return 6;
+        }
       },
     },
     methods: {
-      toggle() {
-        this.expanded = !this.expanded;
+      isCurrentSet(setIndex) {
+        return setIndex === this.currentSet;
       },
       genContentLink(id) {
         return {
