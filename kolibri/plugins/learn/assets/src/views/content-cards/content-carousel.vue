@@ -3,12 +3,12 @@
   <section class="content-carousel">
 
     <div class="pure-g">
-      <header class="pure-u-1-2 carousel-header">
+      <header class="pure-u-1-2 content-carousel-header">
         <h2 v-if="header"> {{header}} </h2>
         <sub v-if="subheader"> {{subheader}} </sub>
       </header>
 
-      <div class="pure-u-1-2 carousel-controls">
+      <div class="pure-u-1-2 content-carousel-controls">
         <icon-button @click="previousSet" :disabled="isFirstSet">
           <mat-svg category="hardware" name="keyboard_arrow_left"/>
         </icon-button>
@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <transition mode="out-in" :name="animation">
+    <transition :name="animation">
 
       <div :key="currentSet" class="content-set pure-g">
         <content-card
@@ -132,7 +132,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .carousel
+  .content-carousel
     &-header, &-controls
       margin-top: 1em
     &-header
@@ -142,23 +142,37 @@
     &-controls
       text-align: right
 
-    border-top: 1px grey
-    border-bottom: 1px grey
+    border-top: 1px solid grey
+    border-bottom: 1px solid grey
 
-  .next-enter, .previous-enter
-    opacity: 0.2
 
-  .next-enter-active, .previous-enter-active
-    transition: opacity 0.3s ease-in
+  .next-enter-active, .previous-enter-active, .next-leave-active, .previous-leave-active
 
-  .next-leave-active, .previous-leave-active
-    transition: opacity 0.3s linear, transform 0.4s ease-out
-    opacity: 0
+  // Applies to both 'next' animation and previous' animation
+  .next, .previous
+    // setting the animation for seamless movements
+    &-enter-active, &-leave-active
+      transition: transform 0.5s ease
+    // set leave to absolute so that the elements can overlap while they're animating
+    &-leave-active
+      position: absolute
 
-  .next-leave-active
-    transform: translateX(-200px)
+  // 'next' animation specific styles
+  .next
+    // set starting point for incoming content sets
+    &-enter
+      transform: translateX(100%)
+    // set ending point for outgoing content set
+    &-leave-active
+      transform: translateX(-100%)
 
-  .previous-leave-active
-    transform: translateX(200px)
+  // 'previous' animation specific styles
+  .previous
+    // set starting point for incoming content sets
+    &-enter
+      transform: translateX(-100%)
+    // set ending point for outgoing content sets
+    &-leave-active
+      transform: translateX(100%)
 
 </style>
