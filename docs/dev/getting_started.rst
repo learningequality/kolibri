@@ -143,13 +143,13 @@ Linux and Mac:
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri manage devserver --debug -- --webpack --qcluster
+  (kolibri)$ kolibri --debug manage devserver --webpack --qcluster
 
 Windows:
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri manage devserver --debug -- --webpack
+  (kolibri)$ kolibri --debug manage devserver --webpack
 
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
@@ -163,7 +163,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   .. code-block:: bash
 
     (kolibri)$ yarn run build
-    (kolibri)$ kolibri manage devserver --debug -- 0.0.0.0:8000 --qcluster
+    (kolibri)$ kolibri --debug manage devserver -- 0.0.0.0:8000 --qcluster
 
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
@@ -173,16 +173,16 @@ More advanced examples of the ``devserver`` command:
 .. code-block:: bash
 
   # runs the dev server and rebuild client assets when files change
-  kolibri manage devserver --debug -- --webpack
+  kolibri --debug manage devserver --webpack
 
   # runs the dev server and re-run client-side tests when files changes
-  kolibri manage devserver --debug -- --karma
+  kolibri --debug manage devserver --karma
 
   # runs the dev server and also spawns the qcluster task queue in the background
-  kolibri manage devserver --debug -- --qcluster
+  kolibri --debug manage devserver --qcluster
 
   # runs all of the above
-  kolibri manage devserver --debug -- --webpack --karma --qcluster
+  kolibri --debug manage devserver --webpack --karma --qcluster
 
 
 Running the Production Server
@@ -290,7 +290,7 @@ To improve build times, and facilitate rapid development, Javascript linting is 
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack --qcluster --lint
+  kolibri --debug manage devserver --webpack --qcluster --lint
 
 
 Code Testing
@@ -340,7 +340,7 @@ Alternatively, this can be run as a subprocess in the development server with th
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --karma
+  kolibri --debug manage devserver --karma
 
 You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command:
 
