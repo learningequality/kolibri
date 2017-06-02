@@ -1,14 +1,6 @@
 <template>
 
-  <div>
-    <div class="title">
-      <h2 v-if="title">{{title}}</h2>
-      <slot name="titlebox"/>
-    </div>
-    <component :contents="contents" :is="container">
-      <slot/>
-    </component>
-  </div>
+  <component :header="header" :subheader="subheader" :contents="contents" :is="container" />
 
 </template>
 
@@ -17,8 +9,13 @@
 
   module.exports = {
     props: {
-      title: {
+      header: {
         type: String,
+        required: false,
+      },
+      subheader: {
+        type: String,
+        required: false,
       },
       container: {
         type: String,
@@ -41,13 +38,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .title
-    margin-top: 2em
-    margin-bottom: 1.4em
-
-  .title h2
-    display: inline
-
-</style>
+<style lang="stylus" scoped></style>

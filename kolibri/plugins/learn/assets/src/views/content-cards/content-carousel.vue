@@ -1,13 +1,21 @@
 <template>
 
-  <div>
-    <div class="controls">
-      <icon-button @click="previousSet" :disabled="isFirstSet">
-        <mat-svg category="hardware" name="keyboard_arrow_left"/>
-      </icon-button>
-      <icon-button @click="nextSet" :disabled="isLastSet">
-        <mat-svg category="hardware" name="keyboard_arrow_right"/>
-      </icon-button>
+  <section class="content-carousel">
+
+    <div class="pure-g">
+      <header class="pure-u-1-2 carousel-header">
+        <h2 v-if="header"> {{header}} </h2>
+        <sub v-if="subheader"> {{subheader}} </sub>
+      </header>
+
+      <div class="pure-u-1-2 carousel-controls">
+        <icon-button @click="previousSet" :disabled="isFirstSet">
+          <mat-svg category="hardware" name="keyboard_arrow_left"/>
+        </icon-button>
+        <icon-button @click="nextSet" :disabled="isLastSet">
+          <mat-svg category="hardware" name="keyboard_arrow_right"/>
+        </icon-button>
+      </div>
     </div>
 
     <transition mode="out-in" :name="animation">
@@ -25,7 +33,7 @@
 
     </transition>
 
-  </div>
+  </section>
 
 </template>
 
@@ -38,15 +46,17 @@
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
-    $trNameSpace: 'Content Carousel Strip',
-    $trs: {
-      defaultTitle: 'Contents',
-    },
     mixins: [responsiveWindow],
     props: {
       contents: {
         type: Array,
         required: true,
+      },
+      header: {
+        type: String,
+      },
+      subheader: {
+        type: String,
       },
     },
     components: {
@@ -122,8 +132,18 @@
 
   @require '~kolibri.styles.definitions'
 
-  .controls
-    text-align: right
+  .carousel
+    &-header, &-controls
+      margin-top: 1em
+    &-header
+      text-align: left
+      h2
+        margin: 0
+    &-controls
+      text-align: right
+
+    border-top: 1px grey
+    border-bottom: 1px grey
 
   .next-enter, .previous-enter
     opacity: 0.2

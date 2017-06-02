@@ -1,22 +1,28 @@
 <template>
 
   <div>
-    <page-header :title="$tr('learnName')">
+    <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
     <allcontent v-if="all.content.length"/>
     <content-cards
+      v-if="recommendations.popular.length"
       container="carousel"
       :contents="recommendations.popular"
-      :title="$tr('mostPopular')"/>
+      :header="$tr('popularSectionHeader')"
+      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
     <content-cards
+      v-if="recommendations.nextSteps.length"
       container="carousel"
       :contents="recommendations.nextSteps"
-      :title="$tr('nextSteps')"/>
+      :header="$tr('suggestedNextStepsSectionHeader')"
+      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
     <content-cards
+      v-if="recommendations.resume.length"
       container="carousel"
       :contents="recommendations.resume"
-      :title="$tr('resume')"/>
+      :header="$tr('resumeSectionHeader')"
+      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
   </div>
 
 </template>
@@ -25,12 +31,15 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'learnIndex',
+    $trNameSpace: 'learnPageIndex',
     $trs: {
-      learnName: 'Recommended',
-      mostPopular: 'Most popular',
-      nextSteps: 'Next steps',
-      resume: 'Resume',
+      pageHeader: 'Recommended',
+      popularSectionHeader: 'Most popular',
+      suggestedNextStepsSectionHeader: 'Next steps',
+      resumeSectionHeader: 'Resume',
+      popularSectionSubHeader: '{numOfItems, number} popular items',
+      suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
+      resumeSectionSubHeader: '{numOfItems, number} itemss to be resumed',
     },
     components: {
       'page-header': require('../page-header'),
