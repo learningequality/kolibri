@@ -1,6 +1,6 @@
 <template>
 
-  <content-grid :header="$tr('allContent')" ref="grid">
+  <content-cards container="grid" :title="$tr('allContent')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -12,7 +12,7 @@
 
     </div>
 
-    <content-grid-item
+    <content-card
       v-for="content in contentToShow"
       :title="content.title"
       :thumbnail="content.thumbnail"
@@ -20,7 +20,7 @@
       :progress="content.progress"
       :link="genContentLink(content.id)"/>
 
-  </content-grid>
+  </content-cards>
 
 </template>
 
@@ -78,8 +78,8 @@
       },
     },
     components: {
-      'content-grid-item': require('../content-grid/content-grid-item'),
-      'content-grid': require('../content-grid'),
+      'content-card': require('../content-cards/content-card'),
+      'content-cards': require('../content-cards'),
     },
     vuex: {
       getters: {

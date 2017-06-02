@@ -61,8 +61,8 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <content-grid v-else>
-        <content-grid-item
+      <content-cards container="grid" v-else>
+        <content-card
           v-for="item in filteredResults"
           :title="item.title"
           :thumbnail="item.thumbnail"
@@ -70,7 +70,7 @@
           :kind="item.kind || 'topic'"
           :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"
         />
-      </content-grid>
+      </content-cards>
 
     </template>
 
@@ -113,9 +113,8 @@
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
-      'content-grid-item': require('../content-grid/content-grid-item'),
-      'content-grid': require('../content-grid'),
-      'card-list': require('../card-list'),
+      'content-card': require('../content-cards/content-card'),
+      'content-cards': require('../content-cards'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'tab-button': require('kolibri.coreVue.components.tabButton'),
     },

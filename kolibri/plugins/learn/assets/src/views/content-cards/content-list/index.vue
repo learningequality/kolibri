@@ -2,7 +2,7 @@
 
   <div>
     <h2 v-if="header">{{header}}</h2>
-    <div class="card-list">
+    <div class="content-cards">
       <slot/>
     </div>
   </div>

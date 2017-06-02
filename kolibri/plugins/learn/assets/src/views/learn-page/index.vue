@@ -5,13 +5,16 @@
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
     <allcontent v-if="all.content.length"/>
-    <expandable-content-grid
+    <content-cards
+      container="carousel"
       :contents="recommendations.popular"
       :title="$tr('mostPopular')"/>
-    <expandable-content-grid
+    <content-cards
+      container="carousel"
       :contents="recommendations.nextSteps"
       :title="$tr('nextSteps')"/>
-    <expandable-content-grid
+    <content-cards
+      container="carousel"
       :contents="recommendations.resume"
       :title="$tr('resume')"/>
   </div>
@@ -32,7 +35,7 @@
     components: {
       'page-header': require('../page-header'),
       'allcontent': require('./allcontent'),
-      'expandable-content-grid': require('../expandable-content-grid'),
+      'content-cards': require('../content-cards'),
     },
     vuex: {
       getters: {

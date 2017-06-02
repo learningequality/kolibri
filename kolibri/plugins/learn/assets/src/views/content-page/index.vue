@@ -77,7 +77,8 @@
 
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
-    <expandable-content-grid
+    <content-cards
+      container="carousel"
       class="recommendation-section"
       v-if="pageMode === Constants.PageModes.LEARN"
       :title="recommendedText"
@@ -162,7 +163,7 @@
     },
     components: {
       'page-header': require('../page-header'),
-      'expandable-content-grid': require('../expandable-content-grid'),
+      'content-cards': require('../content-cards'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'download-button': require('kolibri.coreVue.components.downloadButton'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),

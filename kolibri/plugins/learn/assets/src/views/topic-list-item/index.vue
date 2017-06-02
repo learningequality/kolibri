@@ -13,7 +13,7 @@
 
   module.exports = {
     components: {
-      'list-item': require('../card-list/list-item'),
+      'list-item': require('../content-cards/content-list/list-item'),
     },
     props: {
       title: {
