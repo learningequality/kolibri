@@ -1,6 +1,7 @@
-from django.db.models import Manager
+from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
+from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from .content_db_router import default_database_is_attached, get_active_content_database
@@ -43,29 +44,41 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
         fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
 
 
-def get_progress_fraction(content_id, user):
+def get_summary_logs(content_ids, user):
+    from kolibri.logger.models import ContentSummaryLog
+    if not content_ids:
+        return ContentSummaryLog.objects.none()
+    # get all summary logs for the current user that correspond to the descendant content nodes
+    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+        channel_alias = get_active_content_database()
+        return ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=content_ids)
+    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+        return ContentSummaryLog.objects.filter(user=user, content_id__in=list(content_ids))
+
+
+def get_topic_progress_fraction(topic, user):
+    leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
+        kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+    return (get_summary_logs(leaf_ids, user).aggregate(Sum('progress')['progress__sum']) or 0)/(len(leaf_ids) or 1)
+
+
+def get_progress_fraction(content, user):
     from kolibri.logger.models import ContentSummaryLog
     try:
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content_id).progress
+        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content.content_id).progress
     except ContentSummaryLog.DoesNotExist:
         return None
     return round(overall_progress, 4)
 
 
 def get_progress_fractions(nodes, user):
-    from kolibri.logger.models import ContentSummaryLog
     if isinstance(nodes, RawQuerySet) or isinstance(nodes, list):
         leaf_ids = [datum.content_id for datum in nodes]
     else:
-        leaf_ids = nodes.values_list("content_id", flat=True)
+        leaf_ids = nodes.exclude(kind=content_kinds.TOPIC).values_list("content_id", flat=True)
 
-    # get all summary logs for the current user that correspond to the descendant content nodes
-    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-        channel_alias = get_active_content_database()
-        summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
-    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-        summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+    summary_logs = get_summary_logs(leaf_ids, user)
 
     # make a lookup dict for all logs to allow mapping from content_id to current progress
     overall_progress = {log['content_id']: round(log['progress'], 4) for log in summary_logs.values('content_id', 'progress')}
@@ -120,7 +133,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 progress_fraction = 0
             else:
                 user = self.context["request"].user
-                progress_fraction = get_progress_fraction(instance.content_id, user)
+                progress_fraction = get_progress_fraction(instance, user)
         value = super(ContentNodeSerializer, self).to_representation(instance)
         value['progress_fraction'] = progress_fraction
         return value
