@@ -88,15 +88,12 @@ class ContentNodeFilter(filters.FilterSet):
         """
         Recommend items that are similar to this piece of content.
         """
-        recc_node = queryset.get(pk=value)
-        descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
-        siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
-        data = descendants | siblings  # concatenates different querysets
-        return data
+        return queryset.get(pk=value).get_siblings(
+            include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
 
     def filter_next_steps(self, queryset, value):
         """
-        Recommend uncompleted content, content that has user completed content as a prerequisite.
+        Recommend content that has user completed content as a prerequisite, or leftward sibling.
 
         :param queryset: all content nodes for this channel
         :param value: id of currently logged in user, or none if user is anonymous
@@ -107,31 +104,18 @@ class ContentNodeFilter(filters.FilterSet):
         if not value:
             return queryset.none()
 
-        tables = [
-            '"{summarylog_table}" AS "complete_log"',
-            '"{summarylog_table}" AS "incomplete_log"',
-            '"{content_table}" AS "complete_node"',
-            '"{content_table}" AS "incomplete_node"',
-        ]
-        table_names = {
-            "summarylog_table": ContentSummaryLog._meta.db_table,
-            "content_table": models.ContentNode._meta.db_table,
-        }
-        # aliases for sql table names
-        sql_tables_and_aliases = [table.format(**table_names) for table in tables]
-        # where conditions joined by ANDs
-        where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
-                            "complete_log.user_id = '{user_id}'".format(user_id=value),
-                            "incomplete_log.user_id = '{user_id}'".format(user_id=value),
-                            "complete_log.progress = 1",
-                            "complete_node.rght = incomplete_node.lft - 1",
-                            "complete_log.content_id = complete_node.content_id"]
-        # custom SQL query to get uncompleted content based on mptt algorithm
-        next_steps_recommendations = "SELECT incomplete_node.* FROM {tables} WHERE {where}".format(
-            tables=", ".join(sql_tables_and_aliases),
-            where=_join_with_logical_operator(where_statements, "AND")
-        )
-        return models.ContentNode.objects.raw(next_steps_recommendations)
+        completed_content_ids = ContentSummaryLog.objects.filter(
+            user=value, progress=1).values_list('content_id', flat=True)
+
+        # If no logs, don't bother doing the other queries
+        if not completed_content_ids:
+            return queryset.none()
+
+        completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
+
+        return queryset.filter(
+            Q(has_prerequisite__in=completed_content_nodes) |
+            Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])).order_by()
 
     def filter_popular(self, queryset, value):
         """
@@ -143,8 +127,10 @@ class ContentNodeFilter(filters.FilterSet):
         """
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
-            count = min(pks.count(), 25)
+            pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
+            # .count scales with table size, so can get slow on larger channels
+            count_cache_key = 'content_count_for_{}'.format(get_active_content_database())
+            count = cache.get(count_cache_key) or min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
         cache_key = 'popular_for_{}'.format(get_active_content_database())
@@ -184,6 +170,10 @@ class ContentNodeFilter(filters.FilterSet):
             .order_by('end_timestamp') \
             .values_list('content_id', flat=True) \
             .distinct()
+
+        # If no logs, don't bother doing the other queries
+        if not content_ids:
+            return queryset.none()
 
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
@@ -255,13 +245,10 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().select_related(
-            'parent',
-            'license',
-        ).prefetch_related(
+        return models.ContentNode.objects.all().prefetch_related(
             'assessmentmetadata',
             'files',
-        )
+        ).select_related('license')
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
