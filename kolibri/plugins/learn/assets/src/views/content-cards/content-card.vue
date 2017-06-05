@@ -1,35 +1,33 @@
 <template>
 
-  <div>
-    <router-link :to="link" class="card">
+  <router-link :to="link" class="card">
 
-      <div class="card-thumbnail" :style="backgroundImg">
-        <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
-        <div class="card-progress-icon-wrapper">
-          <progress-icon :progress="progress"/>
-        </div>
-
-        <div class="card-content-icon-background" :class="backgroundClass"></div>
-        <div class="card-content-icon-wrapper">
-          <content-icon :kind="kind" class="card-content-icon"/>
-        </div>
-
-        <div class="card-progress-bar-wrapper">
-          <div
-            class="card-progress-bar"
-            :style="{ width: `${progress * 100}%` }"
-            :class="{ 'card-progress-bar-mastered': mastered, 'card-progress-bar-progress': inProgress }">
-          </div>
-        </div>
+    <div class="card-thumbnail" :style="backgroundImg">
+      <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
+      <div class="card-progress-icon-wrapper">
+        <progress-icon :progress="progress"/>
       </div>
 
-      <div class="card-text">
-        <h3 class="card-title">{{ title }}</h3>
-        <h4 class="card-subtitle"></h4>
+      <div class="card-content-icon-background" :class="backgroundClass"></div>
+      <div class="card-content-icon-wrapper">
+        <content-icon :kind="kind" class="card-content-icon"/>
       </div>
 
-    </router-link>
-  </div>
+      <div class="card-progress-bar-wrapper">
+        <div
+          class="card-progress-bar"
+          :style="{ width: `${progress * 100}%` }"
+          :class="{ 'card-progress-bar-mastered': mastered, 'card-progress-bar-progress': inProgress }">
+        </div>
+      </div>
+    </div>
+
+    <div class="card-text">
+      <h3 class="card-title">{{ title }}</h3>
+      <h4 class="card-subtitle"></h4>
+    </div>
+
+  </router-link>
 
 </template>
 

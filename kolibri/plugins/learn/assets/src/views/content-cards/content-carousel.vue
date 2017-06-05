@@ -20,10 +20,10 @@
 
     <transition :name="animation">
 
-      <div :key="currentSet" class="content-set pure-g">
+      <div :key="currentSet" :style="widthOfCarousel" class="content-set">
         <content-card
         v-for="content in contentSets[currentSet]"
-        :class="`pure-u-1-` + contentSetSize"
+        class="content-card"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
@@ -91,12 +91,26 @@
           case 3:
             return 3;
           case 4:
-            return 3;
+            return 4;
           case 5:
             return 4;
+          case 6:
+            return 5;
           default:
             return 6;
         }
+      },
+      widthOfCarousel() {
+        const cardWidth = 210;
+        const cardMargin = 10;
+
+        const cardGutterWidth = cardMargin * 2;
+        const allGuttersWidth = this.contentSetSize * cardGutterWidth;
+        const allCardsWidth = this.contentSetSize * cardWidth;
+
+        return {
+          width: `${allGuttersWidth + allCardsWidth}px`,
+        };
       },
     },
     methods: {
@@ -132,6 +146,16 @@
 
   @require '~kolibri.styles.definitions'
 
+  $card-gutter = 10px
+
+  .content-card
+    margin-right: $card-gutter
+    margin-left: $card-gutter
+    &:first-child
+      margin-left: 0
+    &:last-child
+      margin-right: 0
+
   .content-carousel
     &-header, &-controls
       margin-top: 1em
@@ -142,17 +166,11 @@
     &-controls
       text-align: right
 
-    border-top: 1px solid grey
-    border-bottom: 1px solid grey
-
-
-  .next-enter-active, .previous-enter-active, .next-leave-active, .previous-leave-active
-
   // Applies to both 'next' animation and previous' animation
   .next, .previous
     // setting the animation for seamless movements
     &-enter-active, &-leave-active
-      transition: transform 0.5s ease
+      transition: transform 0.5s linear
     // set leave to absolute so that the elements can overlap while they're animating
     &-leave-active
       position: absolute
