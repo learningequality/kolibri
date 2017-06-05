@@ -17,9 +17,11 @@ from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.search import fuzz
 from .utils.paths import get_content_database_file_path
 
+
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
+
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     permission_classes = (OnlyDeviceOwnerCanDelete,)
@@ -30,7 +32,8 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         '''
-        Destroys the ChannelMetadata object and also the sqlite3 files on the filesystem.
+        Destroys the ChannelMetadata object and also the sqlite3 files on the
+        filesystem.
         '''
         super(ChannelMetadataCacheViewSet, self).destroy(request)
 
