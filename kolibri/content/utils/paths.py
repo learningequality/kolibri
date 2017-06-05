@@ -28,7 +28,7 @@ def get_content_folder_path(datafolder):
 def get_content_database_folder_path(datafolder=None):
     """
     Returns the path to the content sqlite databases
-    ($HOME/.kolibri/content/databases on POSIX systems)
+    ($HOME/.kolibri/content/databases on POSIX systems, by default)
     """
     return os.path.join(
         get_content_folder_path(datafolder),
@@ -38,7 +38,7 @@ def get_content_database_folder_path(datafolder=None):
 def get_content_database_file_path(channel_id, datafolder=None):
     """
     Given a channel_id, returns the path to the sqlite3 file
-    ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems)
+    ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems, by default)
     """
     return os.path.join(
         get_content_database_folder_path(datafolder),
