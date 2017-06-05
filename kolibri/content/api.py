@@ -13,6 +13,7 @@ from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.search import fuzz
 from .utils.paths import get_content_database_file_path
 
@@ -21,6 +22,7 @@ def _join_with_logical_operator(lst, operator):
     return "(({items}))".format(items=op.join(lst))
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
+    permission_classes = (OnlyDeviceOwnerCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):
@@ -45,7 +47,7 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         try:
             os.remove(db_path)
             return True
-        except OSError, e:
+        except OSError:
             return False
 
 
