@@ -36,6 +36,7 @@ buildkite-agent artifact download 'dist/*.pex' dist/
 buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.zip' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
+buildkite-agent artifact download 'installer/*.exe' dist/
 $PYTHON_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't execute '$PYTHON_CMD'."
