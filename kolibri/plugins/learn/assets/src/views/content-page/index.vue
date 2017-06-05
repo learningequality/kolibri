@@ -112,7 +112,7 @@
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
-      nextContent: 'Next item',
+      nextContent: 'Go to next item',
       author: 'Author',
       license: 'License',
       licenseDescription: 'License description',

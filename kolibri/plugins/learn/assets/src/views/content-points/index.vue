@@ -1,34 +1,28 @@
 <template>
 
-  <transition name="popup">
-    <div class="popover-container">
-      <div class="popover">
-        <div class="content">
-          <ui-close-button
-              size="small"
-              @click="closePopover"
-              class="close"/>
-          <span class="encourage">{{ $tr('niceWork') }}</span>
-          <div class="points-wrapper">
-            <div class="points">
-              <points-icon class="popover-icon" :active="true"/>
-              <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
-            </div>
-          </div>
-          <div class="description">
-            <div class="item-wrapper">
-              <p class="next-item">{{ $tr('nextContent') }}</p>
-              <div class="content-name">
-                <content-icon class="content-icon" :kind="kind"/>
-                <p>{{ title }}</p>
-              </div>
-            </div>
-          </div>
-          <slot name="nextItemBtn"/>
-        </div>
+  <core-modal :title="$tr('niceWork')" @cancel="closePopover">
+
+    <div class="points-wrapper">
+      <div class="points">
+        <points-icon class="points-icon" :active="true"/>
+        <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
       </div>
     </div>
-  </transition>
+
+    <div class="next-item-section">
+      <h2 class="next-item-heading">{{ $tr('nextContent') }}</h2>
+      <div>
+        <content-icon class="content-icon" :kind="kind"/>
+        <span>{{ title }}</span>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <icon-button :text="$tr('close')" @click="closePopover"/>
+      <slot name="nextItemBtn"/>
+    </div>
+
+  </core-modal>
 
 </template>
 
@@ -36,19 +30,28 @@
 <script>
 
   const { contentPoints } = require('kolibri.coreVue.vuex.getters');
-  const { MaxPointsPerContent } = require('kolibri.coreVue.vuex.constants');
+  const { MaxPointsPerContent, ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
     $trNameSpace: 'contentPoints',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
-      niceWork: 'Nice work. Keep it up!',
-      nextContent: 'Next item',
+      niceWork: 'Great work! Keep it up!',
+      nextContent: 'Next Item',
+      topic: 'Topic',
+      exercise: 'Exercise',
+      video: 'Video',
+      audio: 'Audio',
+      document: 'Document',
+      html5: 'HTML5 app',
+      item: 'Item',
+      close: 'Close',
     },
     components: {
       'points-icon': require('kolibri.coreVue.components.pointsIcon'),
-      'ui-close-button': require('keen-ui/src/UiCloseButton'),
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     vuex: {
       getters: {
@@ -67,6 +70,23 @@
       maxPoints() {
         return MaxPointsPerContent;
       },
+      nextKind() {
+        const kind = this.kind;
+        if (kind === ContentNodeKinds.TOPIC) {
+          return this.$tr('topic');
+        } else if (kind === ContentNodeKinds.EXERCISE) {
+          return this.$tr('exercise');
+        } else if (kind === ContentNodeKinds.VIDEO) {
+          return this.$tr('video');
+        } else if (kind === ContentNodeKinds.AUDIO) {
+          return this.$tr('audio');
+        } else if (kind === ContentNodeKinds.DOCUMENT) {
+          return this.$tr('document');
+        } else if (kind === ContentNodeKinds.HTML5) {
+          return this.$tr('html5');
+        }
+        return this.$tr('item');
+      },
     },
     methods: {
       closePopover() {
@@ -82,19 +102,14 @@
 
   @require '~kolibri.styles.definitions'
 
-  .popover-container
-    position: absolute
-    height: 0
-    left: 10%
-    top: 50%
-    z-index: 24
+  .points-wrapper
+    margin: 2em
+    text-align: center
 
-  .popover
-    background-color: $core-bg-canvas
-    padding: 10px 15px 5px
-    box-shadow: grey 2px 2px 5px 1px
+  .points
+    display: inline-block
 
-  .popover-icon
+  .points-icon
     float: left
     width: 30px
     height: 30px
@@ -105,61 +120,17 @@
     font-weight: bold
     color: $core-status-correct
 
-  .points-wrapper
-    margin: 2em
-    text-align: center
-
-  .points
-    display: inline-block
-
-  .encourage
-    color: $core-text-default
-    font-size: 1.5em
-    font-weight: bold
-    margin: auto 3em
-
-  .content
-    display: inline-table
-    margin-right: 10px
-    padding-top: 0.5em
-    text-align: center
-
-  .close
-    position: absolute
-    right: 10px
-    top: 10px
-
-  .popup-enter-active, .popup-leave-active
-    transition: all 0.3s ease
-
-  .popup-enter
-    top: 25%
-    opacity: 0
-
-  .popup-leave-active
-    top: 5%
-    opacity: 0
-
   .content-icon
-    float: left
     font-size: 1.5em
-    line-height: 0
-    margin-right: 0.5em
 
-  .item-wrapper
-    text-align: left
-    margin-left: 1em
+  .next-item-section
+    text-align: center
+    padding: 0 2em 2em 2em
 
-  .next-item
-    color: $core-accent-color
-    font-weight: bold
-    font-size: 0.9em
+  .buttons
+    text-align: center
 
-  .content-name
-    color: $core-text-annotation
-    font-size: 0.9em
-
-  .description
-    width: 400px
+  .next-item-heading
+    margin: 0
 
 </style>
