@@ -16,6 +16,7 @@ const seededShuffle = require('kolibri.lib.seededshuffle');
 const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
 const { now } = require('kolibri.utils.serverClock');
+const uniqBy = require('lodash/uniqBy');
 
 /**
  * Vuex State Mappers
@@ -295,9 +296,12 @@ function showLearnChannel(store, channelId, page = 1) {
         ([nextSteps, popular, resume]) => {
           const pageState = {
             recommendations: {
-              nextSteps: nextSteps.map(_contentState),
-              popular: popular.map(_contentState),
-              resume: resume.map(_contentState),
+              // Hard to guarantee this uniqueness on the database side, so
+              // do a uniqBy content_id here, to prevent confusing repeated
+              // content items.
+              nextSteps: uniqBy(nextSteps, 'content_id').map(_contentState),
+              popular: uniqBy(popular, 'content_id').map(_contentState),
+              resume: uniqBy(resume, 'content_id').map(_contentState),
             },
             all: {
               content: [],
