@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 
 from ..content_db_router import using_content_database
@@ -7,7 +8,8 @@ from .channels import get_channel_ids_for_content_database_dir
 
 def update_channel_metadata_cache():
     """
-    Scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
+    After a channel is imported, or when the devserver is started,
+    scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
     and pull the data from each database's ChannelMetadata object to update the ChannelMetadataCache
     object in the default database to ensure they are in sync.
     """
@@ -16,6 +18,11 @@ def update_channel_metadata_cache():
     ChannelMetadataCache.objects.exclude(id__in=db_names).delete()
     # sync the ChannelMetadata objects in default db with ChannelMetadata objects in CONTENT_DATABASE_DIR
     for db_name in db_names:
+        last_updated_datetime = datetime.now().isoformat()
         with using_content_database(db_name):
             update_values = ChannelMetadata.objects.values()[0]
-        ChannelMetadataCache.objects.update_or_create(id=db_name, defaults=update_values)
+            update_values['last_updated'] = last_updated_datetime
+        ChannelMetadataCache.objects.update_or_create(
+            id=db_name,
+            defaults=update_values,
+        )
