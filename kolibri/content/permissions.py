@@ -9,3 +9,5 @@ class OnlyDeviceOwnerCanDelete(BasePermission):
 
         if request.method == 'DELETE':
             return request.user.is_superuser
+
+        return False

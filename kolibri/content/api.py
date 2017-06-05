@@ -31,10 +31,10 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         return models.ChannelMetadataCache.objects.all()
 
     def destroy(self, request, pk=None):
-        '''
-        Destroys the ChannelMetadata object and also the sqlite3 files on the
-        filesystem.
-        '''
+        """
+        Destroys the ChannelMetadata object and its associated sqlite3 file on
+        the filesystem.
+        """
         super(ChannelMetadataCacheViewSet, self).destroy(request)
 
         if self.delete_content_db_file(pk):
@@ -45,10 +45,8 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         return Response(response_msg)
 
     def delete_content_db_file(self, channel_id):
-        db_path = get_content_database_file_path(channel_id)
-
         try:
-            os.remove(db_path)
+            os.remove(get_content_database_file_path(channel_id))
             return True
         except OSError:
             return False
