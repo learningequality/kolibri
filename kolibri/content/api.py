@@ -55,14 +55,23 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
             return False
 
 
-class ContentNodeFilter(filters.FilterSet):
+class IdFilter(filters.FilterSet):
+    ids = filters.django_filters.MethodFilter()
+
+    def filter_ids(self, queryset, value):
+        return queryset.filter(pk__in=value.split(','))
+
+    class Meta:
+        fields = ['ids', ]
+
+
+class ContentNodeFilter(IdFilter):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
     kind = filters.django_filters.MethodFilter()
-    ids = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -191,9 +200,6 @@ class ContentNodeFilter(filters.FilterSet):
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
 
-    def filter_ids(self, queryset, value):
-        return queryset.filter(pk__in=value.split(','))
-
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
@@ -284,6 +290,19 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class ContentNodeProgressFilter(IdFilter):
+    class Meta:
+        model = models.ContentNode
+
+class ContentNodeProgressViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ContentNodeProgressSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ContentNodeProgressFilter
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
 
 
 class FileViewset(viewsets.ModelViewSet):
