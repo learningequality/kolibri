@@ -5,6 +5,10 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.5
+---
+ - Update all user logging related timestamps to a custom datetime field that includes timezone info
+
 
 0.4
 ---
