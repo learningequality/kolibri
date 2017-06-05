@@ -151,10 +151,6 @@
   .content-card
     margin-right: $card-gutter
     margin-left: $card-gutter
-    &:first-child
-      margin-left: 0
-    &:last-child
-      margin-right: 0
 
   .content-carousel
     &-header, &-controls
