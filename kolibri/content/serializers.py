@@ -90,7 +90,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         iterable = data.all() if isinstance(data, Manager) else data
 
         return [
-            self.child.to_representation(item, progress_dict.get(item.content_id)) for item in iterable
+            self.child.to_representation(item, progress_fraction=progress_dict.get(item.content_id, 0)) for item in iterable
         ]
 
 
