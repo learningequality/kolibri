@@ -42,10 +42,10 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def delete_content_db_file(self, channel_id):
         db_path = get_content_database_file_path(channel_id)
 
-        if os.path.isfile(db_path):
+        try:
             os.remove(db_path)
             return True
-        else:
+        except OSError, e:
             return False
 
 
