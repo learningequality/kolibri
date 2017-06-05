@@ -1,4 +1,5 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
+const ContentNodeProgressResource = require('kolibri').resources.ContentNodeProgressResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('../constants');
 const UserExamResource = require('kolibri').resources.UserExamResource;
@@ -33,27 +34,31 @@ function _crumbState(ancestors) {
   }));
 }
 
+function validateProgress(data) {
+  if (!data.progress_fraction) {
+    return 0.0;
+  } else if (data.progress_fraction > 1.0) {
+    return 1.0;
+  }
+  return data.progress_fraction;
+}
 
 function _topicState(data, ancestors = []) {
+  const progress = validateProgress(data);
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
+    kind: data.kind,
+    progress,
   };
   return state;
 }
 
 function _contentState(data, nextContent) {
-  let progress;
-  if (!data.progress_fraction) {
-    progress = 0.0;
-  } else if (data.progress_fraction > 1.0) {
-    progress = 1.0;
-  } else {
-    progress = data.progress_fraction;
-  }
+  const progress = validateProgress(data);
   const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
@@ -79,13 +84,13 @@ function _contentState(data, nextContent) {
 
 
 function _collectionState(data) {
-  const topics = data
-    .filter((item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _topicState(item));
-  const contents = data
-    .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _contentState(item));
-  return { topics, contents };
+  return data
+    .map((item) => {
+      if (item.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        return _topicState(item);
+      }
+      return _contentState(item);
+    });
 }
 
 function _examState(data) {
@@ -201,9 +206,19 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       const pageState = {};
       pageState.topic = _topicState(topic, ancestors);
       const collection = _collectionState(children);
-      pageState.subtopics = collection.topics;
-      pageState.contents = collection.contents;
+      pageState.contents = collection;
       store.dispatch('SET_PAGE_STATE', pageState);
+      // Topics are expensive to compute progress for, so we lazily load progress for them.
+      const subtopicIds = collection.filter(
+        (item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC).map(subtopic => subtopic.id);
+      if (subtopicIds.length) {
+        const topicProgressPromise = ContentNodeProgressResource.getCollection(channelPayload, {
+          ids: subtopicIds,
+        }).fetch();
+        topicProgressPromise.then(progressArray => {
+          store.dispatch('SET_TOPIC_PROGRESS', progressArray);
+        });
+      }
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
