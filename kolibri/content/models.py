@@ -269,6 +269,7 @@ class AssessmentMetaData(ContentDatabaseModel):
     # and use in summative and formative tests?
     is_manipulable = models.BooleanField(default=False)
 
+
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """

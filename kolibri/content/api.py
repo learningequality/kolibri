@@ -18,6 +18,7 @@ from .utils.search import fuzz
 from .utils.paths import get_content_database_file_path
 
 
+
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
