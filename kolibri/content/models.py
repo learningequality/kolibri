@@ -303,5 +303,7 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
     This class stores the channel metadata cached/denormed into the primary database.
     """
 
+    last_updated = models.DateTimeField(null=True)
+
     class Admin:
         pass

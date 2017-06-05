@@ -10,7 +10,7 @@ class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChannelMetadataCache
-        fields = ('root_pk', 'id', 'name', 'description', 'author')
+        fields = ('root_pk', 'id', 'name', 'description', 'author', 'last_updated')
 
 
 class FileSerializer(serializers.ModelSerializer):
