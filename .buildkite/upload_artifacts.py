@@ -6,12 +6,10 @@ import logging
 
 from os import listdir
 from gcloud import storage
-import subprocess
 
 logging.getLogger().setLevel(logging.INFO)
 
-USERNAME = os.getenv("GITHUB_USERNAME")
-PASSWORD = os.getenv('GITHUB_PASSWORD')
+ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
 REPO_OWNER = "learningequality"
 REPO_NAME = "kolibri"
 ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
@@ -65,12 +63,12 @@ def create_github_comment(artifacts):
                            "Tar file: [%s](%s)\r\n"
                            % (exe_file, exe_url, pex_file, pex_url, whl_file, whl_url, zip_file, zip_url,
                               tar_gz_file, tar_gz_url)}
-    
-    r = session.post(url, json.dumps(comment_message), auth=(REPO_OWNER, PASSWORD))
+    headers = {'Authorization': 'token %s'% ACCESS_TOKEN}
+    r = session.post(url, json.dumps(comment_message), headers=headers)
     if r.status_code == 201:
         logging.info('Successfully created Github comment(%s).' % url)
     else:
-        logging.info('Could not create Github comment. Now exiting!')
+        logging.info('Error encounter(%s). Now exiting!' % r.status_code)
         sys.exit(1)
 
 
@@ -85,8 +83,8 @@ def collect_local_artifacts():
                     "file_location": "%s/%s" % (artifact_dir, artifact)}
             logging.info("Collect file data: (%s)" % data)
             artifacts_dict.append(data)
-    create_artifact_data(DIST_DIR)   
-    create_artifact_data(INSTALLER_DIR)     
+    create_artifact_data(DIST_DIR)
+    create_artifact_data(INSTALLER_DIR)
     return artifacts_dict
 
 
