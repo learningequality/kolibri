@@ -7,7 +7,7 @@ module.exports = function() {
   var webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
   // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-  execSync('python -m kolibri manage webpack_json -- --outputfile ' + webpack_json_tempfile);
+  execSync("kolibri manage webpack_json --outputfile " + webpack_json_tempfile, {env: process.env});
 
   var result = fs.readFileSync(webpack_json_tempfile);
 
