@@ -1,6 +1,9 @@
 """
 Utilities for local system calls, everything here is cross-platform.
 
+become_daemon was originally taken from Django:
+https://github.com/django/django/commit/5836a5771f2aefca83349b111f4191d6485af1d5#diff-f7d80be2ccf77f4f009d08dcac4b7736
+
 We might want to refactor this into:
 
 system/__init__.py

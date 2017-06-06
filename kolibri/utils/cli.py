@@ -282,7 +282,7 @@ status.codes = {
     server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
     server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
     server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
-    server.STATUS_UNKNOW: 'Could not determine status',
+    server.STATUS_UNKNOWN: 'Could not determine status',
 }
 
 

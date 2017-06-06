@@ -22,7 +22,7 @@ STATUS_UNKNOWN_INSTANCE = 8
 STATUS_SERVER_CONFIGURATION_ERROR = 9
 STATUS_PID_FILE_READ_ERROR = 99
 STATUS_PID_FILE_INVALID = 100
-STATUS_UNKNOW = 101
+STATUS_UNKNOWN = 101
 
 # Used to store PID and port number (both in foreground and daemon mode)
 PID_FILE = os.path.join(
@@ -70,7 +70,7 @@ def start_background_workers():
     p.start()
 
 
-def start(port=8080, daemon=True):
+def start(port=8080):
     """
     Starts the server.
 
@@ -85,6 +85,11 @@ def start(port=8080, daemon=True):
     # Write the new PID
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
+
+    def rm_pid_file():
+        os.unlink(PID_FILE)
+
+    atexit.register(rm_pid_file)
 
     run_server(port=port)
 
