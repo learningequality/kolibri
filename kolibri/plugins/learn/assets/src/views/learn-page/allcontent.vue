@@ -39,24 +39,24 @@
         return this.all.content.slice(0, nCols);
       },
       hasNext() {
-        return this.all.page < this.all.pageCount;
+        return Boolean(this.all.next);
       },
       nextPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
           channel_id: this.currentChannel,
-          query: { page: this.all.page + 1 },
+          query: { cursor: this.all.next },
           replace: true,
         };
       },
       hasPrev() {
-        return this.all.page > 1;
+        return Boolean(this.all.previous);
       },
       prevPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
           channel_id: this.currentChannel,
-          query: { page: this.all.page - 1 },
+          query: { cursor: this.all.previous },
           replace: true,
         };
       },

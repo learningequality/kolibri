@@ -42,6 +42,12 @@ const mutations = {
   },
   LEARN_SET_MEMBERSHIPS(state, memberships) {
     state.learnAppState.memberships = memberships;
+  },
+  SET_TOPIC_PROGRESS(state, progressArray) {
+    progressArray.forEach(progress => {
+      const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
+      topic.progress = progress.progress_fraction;
+    });
   }
 };
 

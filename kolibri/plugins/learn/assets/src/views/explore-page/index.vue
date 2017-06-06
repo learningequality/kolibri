@@ -15,7 +15,7 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <content-cards container="grid" :contents="subtopics" v-if="subtopics.length" />
+    <!-- <content-cards container="grid" :contents="subtopics" v-if="subtopics.length" /> -->
 
     <content-cards container="grid" :contents="contents" v-if="contents.length" />
 
@@ -27,6 +27,7 @@
 <script>
 
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 
   module.exports = {
     $trNameSpace: 'learnExplore',
@@ -42,11 +43,13 @@
       title() {
         return this.isRoot ? this.$tr('explore') : this.topic.title;
       },
+      subtopics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
     },
     vuex: {
       getters: {
         topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
         isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
         channelId: (state) => getCurrentChannelObject(state).id,
