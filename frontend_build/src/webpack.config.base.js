@@ -151,7 +151,7 @@ if (lint) {
             loader: 'eslint-loader',
             options: { failOnError: true }
           },
-          exclude: /node_modules|third_party/
+          exclude: /node_modules/
         },
         {
           test: /\.(vue|html)/,

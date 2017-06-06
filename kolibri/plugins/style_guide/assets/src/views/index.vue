@@ -21,7 +21,7 @@
 
 <style lang="stylus" scoped>
 
-  @import '../third_party/vuep/vuep.css'
+  @import '~vuep/dist/vuep.css'
 
   $sidenav-width = 10em
 
