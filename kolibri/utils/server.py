@@ -1,4 +1,5 @@
 import atexit
+import logging
 import multiprocessing
 import os
 import platform
@@ -9,7 +10,9 @@ from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
 
-from .system import pid_exists
+from .system import kill_pid, pid_exists
+
+logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
 STATUS_RUNNING = 0
@@ -92,6 +95,33 @@ def start(port=8080):
     atexit.register(rm_pid_file)
 
     run_server(port=port)
+
+
+def stop(pid=None, force=False):
+    """
+    Stops the kalite server, either from PID or through a management command
+
+    :param args: List of options to parse to the django management command
+    :raises: NotRunning
+    """
+
+    if not force:
+        # Kill the KA lite server
+        kill_pid(pid)
+    else:
+        try:
+            pid, __ = _read_pid_file(PID_FILE)
+            kill_pid(pid)
+        except ValueError:
+            logger.error("Could not find PID in .pid file\n")
+        except OSError:
+            logger.error("Could not read .pid file\n")
+
+    # TODO: Check that server has in fact been killed, otherwise we should
+    # raise an error...
+
+    # Finally, remove the PID file
+    os.unlink(PID_FILE)
 
 
 def run_server(port):

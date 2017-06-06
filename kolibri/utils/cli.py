@@ -215,9 +215,9 @@ def start(port=8080, daemon=True):
     """
 
     if not daemon:
-        logger.info("Running 'kolibri start' in foreground...\n")
+        logger.info("Running 'kolibri start' in foreground...")
     else:
-        logger.info("Running 'kolibri start' as daemon (system service)\n")
+        logger.info("Running 'kolibri start' as daemon (system service)")
 
     # TODO: moved from server.start() but not sure where it should ideally be
     # located. Question is if it should be run every time the server is started
@@ -232,13 +232,51 @@ def start(port=8080, daemon=True):
         # Truncate the file
         open(server.DAEMON_LOG, "w").truncate()
         logger.info(
-            "Going to daemon mode, logging to {0}\n".format(server.DAEMON_LOG)
+            "Going to daemon mode, logging to {0}".format(server.DAEMON_LOG)
         )
         kwargs['out_log'] = server.DAEMON_LOG
         kwargs['err_log'] = server.DAEMON_LOG
         become_daemon(**kwargs)
 
     server.start(port=port)
+
+
+def stop():
+    """
+    Stops the server unless it isn't running
+    """
+    try:
+        pid, __, __ = server.get_status()
+        server.stop(pid=pid)
+        stopped = True
+    except server.NotRunning as e:
+        verbose_status = "{msg:s} ({code:d})".format(
+            code=e.status_code,
+            msg=status.codes[e.status_code]
+        )
+        if e.status_code == server.STATUS_STOPPED:
+            logger.info("Already stopped: {}".format(verbose_status))
+            stopped = True
+        elif e.status_code == server.STATUS_STARTING_UP:
+            logger.error(
+                "Not stopped: {}".format(verbose_status)
+            )
+            sys.exit(e.status_code)
+        else:
+            logger.error(
+                "During graceful shutdown, server says: {}".format(
+                    verbose_status
+                )
+            )
+            logger.error(
+                "Not responding, killing with force"
+            )
+            server.stop(force=True)
+            stopped = True
+
+    if stopped:
+        logger.info("Server stopped")
+        sys.exit(0)
 
 
 def status():
@@ -460,6 +498,10 @@ def main(args=None):
     if arguments['start']:
         port = int(arguments['--port'] or 8080)
         start(port)
+        return
+
+    if arguments['stop']:
+        stop()
         return
 
     if arguments['status']:
