@@ -1,16 +1,19 @@
 import os
+
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from future.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from .permissions import OnlyDeviceOwnerCanDelete
@@ -212,6 +215,39 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class AllContentCursorPagination(pagination.CursorPagination):
+    page_size = 10
+    ordering = 'lft'
+    cursor_query_param = 'cursor'
+
+    def get_paginated_response(self, data):
+        """
+        By default the get_paginated_response method of the CursorPagination class returns the url link
+        to the next and previous queries of they exist.
+        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
+        directly querying passed in URLs.
+        Instead, return the cursor value that points to the next and previous items, so that they can be put
+        in a GET parameter in future queries.
+        """
+        if self.has_next:
+            # The CursorPagination class has no internal methods to just return the cursor value, only
+            # the url of the next and previous, so we have to generate the URL, parse it, and then
+            # extract the cursor parameter from it to return in the Response.
+            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
+        else:
+            next_item = None
+        if self.has_previous:
+            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
+            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
+        else:
+            prev_item = None
+
+        return Response(OrderedDict([
+            ('next', next_item),
+            ('previous', prev_item),
+            ('results', data)
+        ]))
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -250,6 +286,17 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         if not next_item:
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
+
+    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    def all_content(self, request, **kwargs):
+        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class FileViewset(viewsets.ModelViewSet):

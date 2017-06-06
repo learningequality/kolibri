@@ -259,11 +259,12 @@ function showExploreContent(store, channelId, id) {
 }
 
 
-function showLearnChannel(store, channelId, page = 1) {
+function showLearnChannel(store, channelId, cursor) {
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
-  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+  if (state.pageName !== PageNames.LEARN_CHANNEL ||
+    coreGetters.getCurrentChannelId(state) !== channelId) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
@@ -288,11 +289,14 @@ function showLearnChannel(store, channelId, page = 1) {
         channelPayload, resumePayload).fetch() : Promise.resolve([]);
       const popularPromise = ContentNodeResource.getCollection(
         channelPayload, popularPayload).fetch();
+      const allContentCollection = ContentNodeResource.getAllContentCollection(
+        channelPayload, { cursor });
+      const allContentPromise = allContentCollection.fetch();
       ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise]
+        [nextStepsPromise, popularPromise, resumePromise, allContentPromise]
       ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume]) => {
+        ([nextSteps, popular, resume, allContent]) => {
           const pageState = {
             recommendations: {
               nextSteps: nextSteps.map(_contentState),
@@ -300,9 +304,9 @@ function showLearnChannel(store, channelId, page = 1) {
               resume: resume.map(_contentState),
             },
             all: {
-              content: [],
-              pageCount: 1,
-              page,
+              content: allContent.map(_contentState),
+              next: allContentCollection.next,
+              previous: allContentCollection.previous,
             },
           };
           store.dispatch('SET_PAGE_STATE', pageState);
