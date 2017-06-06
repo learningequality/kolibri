@@ -2,37 +2,35 @@
 
   <section class="content-carousel">
 
-    <div class="pure-g">
-      <header class="pure-u-1-2 content-carousel-header">
-        <h2 v-if="header"> {{header}} </h2>
-        <sub v-if="subheader"> {{subheader}} </sub>
-      </header>
+    <header class="content-carousel-header">
+      <h2 v-if="header"> {{header}} </h2>
+      <sub v-if="subheader"> {{subheader}} </sub>
+    </header>
 
-      <div class="pure-u-1-2 content-carousel-controls">
-        <icon-button @click="previousSet" :disabled="isFirstSet">
+    <div class="content-carousel-set">
+      <transition :name="animation">
+        <div :key="currentSetIndex" class="content-carousel-cards" :style="widthOfCarousel">
+          <content-card
+          v-for="content in contentSets[currentSetIndex]"
+          class="content-card"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress"
+          :link="genContentLink(content.id)"/>
+        </div>
+      </transition>
+
+      <div class="content-carousel-controls">
+        <icon-button class="previous" @click="previousSet" v-if="!isFirstSet">
           <mat-svg category="hardware" name="keyboard_arrow_left"/>
         </icon-button>
-        <icon-button @click="nextSet" :disabled="isLastSet">
+        <icon-button class="next" @click="nextSet" v-if="!isLastSet">
           <mat-svg category="hardware" name="keyboard_arrow_right"/>
         </icon-button>
       </div>
+
     </div>
-
-    <transition :name="animation">
-
-      <div :key="currentSet" :style="widthOfCarousel" class="content-set">
-        <content-card
-        v-for="content in contentSets[currentSet]"
-        class="content-card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genContentLink(content.id)"/>
-      </div>
-
-    </transition>
-
   </section>
 
 </template>
@@ -65,19 +63,23 @@
     },
     data() {
       return {
-        currentSet: 0,
+        currentSetIndex: 0,
         animation: 'next',
       };
     },
     computed: {
       contentSets() {
-        return chunk(this.contents, this.contentSetSize);
+        const contentSetsArray = chunk(this.contents, this.contentSetSize);
+        if (this.currentSetIndex >= contentSetsArray.length) {
+          this.currentSetIndex = contentSetsArray.length - 1;
+        }
+        return contentSetsArray;
       },
       isFirstSet() {
-        return this.currentSet === 0;
+        return this.currentSetIndex === 0;
       },
       isLastSet() {
-        return this.currentSet === (this.contentSets.length - 1);
+        return this.currentSetIndex === (this.contentSets.length - 1);
       },
       contentSetSize() {
         // we can calculate these based off of the size of the cards later
@@ -114,9 +116,6 @@
       },
     },
     methods: {
-      isCurrentSet(index) {
-        return index === this.currentSet;
-      },
       genContentLink(id) {
         return {
           name: PageNames.LEARN_CONTENT,
@@ -124,11 +123,11 @@
         };
       },
       nextSet() {
-        this.currentSet += 1;
+        this.currentSetIndex += 1;
         this.animation = 'next';
       },
       previousSet() {
-        this.currentSet -= 1;
+        this.currentSetIndex -= 1;
         this.animation = 'previous';
       },
     },
@@ -147,29 +146,43 @@
   @require '~kolibri.styles.definitions'
 
   $card-gutter = 10px
+  $card-height = 210px
+
+  .content-carousel
+    // position: absolute
+    &-header
+      text-align: left
+      margin-bottom: 1em
+      h2
+        margin: 0
+    &-controls
+      position: relative
+      top: -($card-height / 2)
+      clearfix()
+      .next, .previous
+        position: relative
+      .next
+        float: right
+      .previous
+        float: left
+
+    &-cards
+      margin-left: auto
+      margin-right: auto
 
   .content-card
     margin-right: $card-gutter
     margin-left: $card-gutter
 
-  .content-carousel
-    &-header, &-controls
-      margin-top: 1em
-    &-header
-      text-align: left
-      h2
-        margin: 0
-    &-controls
-      text-align: right
-
   // Applies to both 'next' animation and previous' animation
   .next, .previous
     // setting the animation for seamless movements
     &-enter-active, &-leave-active
-      transition: transform 0.5s linear
+      transition: all 0.5s linear
     // set leave to absolute so that the elements can overlap while they're animating
     &-leave-active
       position: absolute
+      opacity: 0
 
   // 'next' animation specific styles
   .next
