@@ -215,7 +215,8 @@
         );
       },
       pointsAreVisible() {
-        return this.pageName !== PageNames.SEARCH;
+        return this.windowSize.breakpoint > 0 &&
+          this.pageName !== PageNames.SEARCH;
       },
       recommendedLink() {
         return { name: PageNames.LEARN_CHANNEL, params: { channel_id: this.channelId } };
@@ -300,12 +301,7 @@
     vertical-align: middle
 
   .points-wrapper
-    text-align: right
-    margin-bottom: 1em
+    margin-top: -70px
     float: right
-
-  .tab-links, .points-wrapper
-    display: inline-block
-    vertical-align: middle
 
 </style>
