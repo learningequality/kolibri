@@ -28,7 +28,7 @@
           <td>
             <!-- {{ totalSizeOfFilesInChannel(channel.id) }} -->
           </td>
-          <td>{{ lastUpdatedDate(channel.id) }}</td>
+          <td>{{ channel.last_updated }}</td>
           <td>
             <button
               @click="selectedChannelIdx=idx"
