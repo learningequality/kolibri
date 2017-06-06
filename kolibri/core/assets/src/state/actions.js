@@ -152,19 +152,33 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-function kolibriLogin(store, sessionPayload) {
+function refreshBrowser(url) {
+  window.location.href = url || window.location.origin;
+}
+
+/**
+ * Signs in user.
+ *
+ * @param {object} store The store.
+ * @param {object} sessionPayload The session payload.
+ * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
+ */
+function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-    /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-    if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
-      const manageURL = coreApp.urls['kolibri:managementplugin:management']();
-      window.location.href = window.location.origin + manageURL;
+    const manageURL = coreApp.urls['kolibri:managementplugin:management']();
+    if (isFirstDeviceSignIn) {
+      // Hacky way to redirect to content import page after completing setup wizard
+      refreshBrowser(`${window.location.origin}${manageURL}#/content`);
+    } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
+      /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
+      refreshBrowser(window.location.origin + manageURL);
     } else {
-      window.location.href = window.location.origin;
+      refreshBrowser();
     }
   }).catch(error => {
     if (error.status.code === 401) {
@@ -181,9 +195,8 @@ function kolibriLogout(store) {
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise.then((response) => {
-    store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
-    window.location.href = window.location.origin;
+    refreshBrowser();
     coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }

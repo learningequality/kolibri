@@ -12,8 +12,7 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
   const promises = [deviceOwnerPromise, facilityPromise];
   Promise.all(promises).then(
     responses => {
-      // redirect to learn page after successfully created the DeviceOwner and Facility.
-      window.location = coreApp.urls['kolibri:learnplugin:learn']();
+      coreActions.kolibriLogin(store, deviceownerpayload, true);
     },
     error => { coreActions.handleApiError(store, error); }
   );

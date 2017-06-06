@@ -11,14 +11,12 @@
       <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
       </div>
-      <div v-else-if="isSuperuser">
-        <h1>{{ $tr('superUserPrompt') }}</h1>
-        <p>{{ $tr('superUserCommand') }}</p>
-      </div>
-      <div v-else class="login-message">
-        <h1>{{ $tr('logInPrompt') }}</h1>
-        <p>{{ $tr('logInCommand') }}</p>
-      </div>
+      <auth-message
+        v-else-if="isSuperuser"
+        :header="$tr('superUserPrompt')"
+        :details="$tr('superUserCommand')"
+      />
+      <auth-message v-else authorizedRole="adminOrCoach" />
     </div>
 
   </core-base>
@@ -37,12 +35,11 @@
     $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as an Admin to view this page.',
       superUserPrompt: 'Signed in as device owner',
       superUserCommand: 'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
+      'auth-message': require('kolibri.coreVue.components.authMessage'),
       'top-nav': require('./top-nav'),
       'class-list-page': require('./class-list-page'),
       'exams-page': require('./exams-page'),
@@ -128,9 +125,5 @@
   .content
     background-color: $core-bg-light
     padding: 1em
-
-  .login-message
-    text-align: center
-    margin-top: 200px
 
 </style>

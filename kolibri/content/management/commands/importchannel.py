@@ -11,6 +11,7 @@ logging = logger.getLogger(__name__)
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 
+
 class Command(AsyncCommand):
 
     def add_arguments(self, parser):

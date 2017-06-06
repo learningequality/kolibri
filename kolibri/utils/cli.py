@@ -26,6 +26,9 @@ from docopt import docopt  # noqa
 
 from . import server  # noqa
 
+# This was added in
+# https://github.com/learningequality/kolibri/pull/580
+# ...we need to (re)move it /benjaoming
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
     reload(sys)
@@ -38,12 +41,13 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
-  kolibri stop [options] [-- DJANGO_OPTIONS ...]
-  kolibri restart [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground --watch] [--port=<port>] [options]
+  kolibri stop [options]
+  kolibri restart [options]
   kolibri status [options]
-  kolibri shell [options] [-- DJANGO_OPTIONS ...]
-  kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
+  kolibri shell [options]
+  kolibri manage COMMAND [DJANGO_OPTIONS ...]
+  kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
   kolibri plugin [options] PLUGIN (enable | disable)
   kolibri language setdefault <langcode>
@@ -54,15 +58,12 @@ Usage:
 Options:
   -h --help             Show this screen.
   --version             Show version.
+  --debug               Output debug messages (for development)
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
-  --debug               Output debug messages (for development)
-  --port=<arg>          Use a non-default port on which to start the HTTP server
-                        or to query an existing server (stop/status)
-  DJANGO_OPTIONS        All options are passed on to the django manage command.
-                        Notice that all django options must appear *last* and
-                        should not be mixed with other options. Only long-name
-                        options ('--long-name') are supported.
+  DJANGO_OPTIONS        Command options are passed on to the django manage
+                        command. Notice that all django options must appear
+                        *last* and should not be mixed with other options.
 
 Examples:
   kolibri start             Start Kolibri
@@ -122,6 +123,19 @@ class PluginDoesNotExist(Exception):
     pass
 
 
+def initialize(debug=False):
+    """
+    Always called before running commands
+
+    :param: debug: Tells initialization to setup logging etc.
+    """
+
+    setup_logging(debug=debug)
+
+    if not os.path.isfile(VERSION_FILE):
+        _first_run()
+
+
 def _first_run():
     """
     Called once at least. Will not run if the .kolibri/.version file is
@@ -155,19 +169,6 @@ def _first_run():
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
-
-
-def initialize(debug=False):
-    """
-    Always called before running commands
-
-    :param: debug: Tells initialization to setup logging etc.
-    """
-
-    setup_logging(debug=debug)
-
-    if not os.path.isfile(VERSION_FILE):
-        _first_run()
 
 
 def setup_logging(debug=False):
@@ -268,26 +269,30 @@ def set_default_language(lang):
         logging.warning(msg)
 
 
-def main(args=None):
+def parse_args(args=None):
     """
-    Kolibri's main function. Parses arguments and calls utility functions.
-    Utility functions should be callable for unit testing purposes, but remember
-    to use main() for integration tests in order to test the argument API.
-    """
+    Parses arguments by invoking docopt. Arguments for django management
+    commands are split out before returning.
 
-    # ensure that Django is set up before we do anything else
-    django.setup()
+    :returns: (parsed_arguments, raw_django_ars)
+    """
 
     if not args:
         args = sys.argv[1:]
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
     if '--' in args:
+        # At the moment, we keep this for backwards-compatibility and in case there
+        # is a real case of having to force the parsing of DJANGO_OPTIONS to a
+        # specific location. Example:
+        # kolibri manage commandname --non-django-arg -- --django-arg
         pivot = args.index('--')
         args, django_args = args[:pivot], args[pivot + 1:]
+    elif 'manage' in args:
+        # Include "manage COMMAND" for docopt parsing, but split out the rest
+        pivot = args.index('manage') + 2
+        args, django_args = args[:pivot], args[pivot:]
     else:
         django_args = []
 
@@ -299,7 +304,22 @@ def main(args=None):
     if args:
         docopt_kwargs['argv'] = args
 
-    arguments = docopt(USAGE, **docopt_kwargs)
+    return docopt(USAGE, **docopt_kwargs), django_args
+
+
+def main(args=None):
+    """
+    Kolibri's main function. Parses arguments and calls utility functions.
+    Utility functions should be callable for unit testing purposes, but remember
+    to use main() for integration tests in order to test the argument API.
+    """
+
+    # ensure that Django is set up before we do anything else
+    django.setup()
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    arguments, django_args = parse_args(args)
 
     debug = arguments['--debug']
 

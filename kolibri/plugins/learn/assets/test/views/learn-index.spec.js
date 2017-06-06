@@ -20,6 +20,7 @@ function makeVm(options) {
     components: {
       coreBase,
       'explore-page': '<div>Explore Page</div>',
+      'content-unavailable-page': '<div>Content Unavailable</div>',
     },
     router,
   });
@@ -29,6 +30,7 @@ function makeVm(options) {
 function getElements(vm) {
   return {
     examLink: () => vm.$el.querySelector('li[name="exam-link"]'),
+    tabLinks: () => vm.$el.querySelector('.tab-links'),
   };
 }
 
@@ -41,9 +43,19 @@ describe('learn index', () => {
   const setMemberships = (memberships) => {
     store.state.learnAppState.memberships = memberships;
   };
+  const setPageName = (pageName) => {
+    store.state.pageName = pageName;
+  };
 
   beforeEach(() => {
     store = makeStore();
+  });
+
+  it('there are no tabs if showing content unavailable page', () => {
+    setPageName('CONTENT_UNAVAILABLE');
+    const vm = makeVm({ store });
+    const { tabLinks } = getElements(vm);
+    assert(tabLinks() === null);
   });
 
   it('the exam tab is available if user is logged in and has memberships', () => {
