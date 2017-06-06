@@ -2,23 +2,21 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import importlib  # noqa
 import logging  # noqa
-# Do this before importing anything else, we need to add bundled requirements
-# from the distributed version in case it exists before importing anything
-# else.
-# TODO: Do we want to manage the path at an even more fundametal place like
-# kolibri.__init__ !? Load order will still matter...
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-from logging import config as logging_config  # noqa
+
+# Do this before importing anything else, we need to add bundled requirements
+# from the distributed version in case it exists before importing anything
+# else.
+# TODO: Do we want to manage the path at an even more fundamental place like
+# kolibri.__init__ !? Load order will still matter...
 
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
-
-# Setup path in case we are running with dependencies bundled into Kolibri
-# (NOTE: This *must* come before imports below, of django etc, or whl/pex will fail)
-sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-            ] + sys.path
+sys.path = [
+    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+] + sys.path
 
 import django  # noqa
 from django.core.management import call_command  # noqa
@@ -183,7 +181,7 @@ def setup_logging(debug=False):
         settings.DEBUG = True
         LOGGING['handlers']['console']['level'] = 'DEBUG'
         LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
-    logging_config.dictConfig(LOGGING)
+    logging.config.dictConfig(LOGGING)
     logger.debug("Debug mode is on!")
 
 
