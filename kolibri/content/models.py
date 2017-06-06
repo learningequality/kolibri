@@ -17,6 +17,7 @@ from jsonfield import JSONField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
 
+from kolibri.core.fields import DateTimeTzField
 from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
 
@@ -303,7 +304,7 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
     This class stores the channel metadata cached/denormed into the primary database.
     """
 
-    last_updated = models.DateTimeField(null=True)
+    last_updated = DateTimeTzField(null=True)
 
     class Admin:
         pass
