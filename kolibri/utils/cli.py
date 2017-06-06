@@ -49,7 +49,7 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [--port=<port>] [options]
+  kolibri start [--foreground] [--port=<port>] [options]
   kolibri stop [options]
   kolibri restart [options]
   kolibri status [options]
@@ -497,7 +497,7 @@ def main(args=None):
 
     if arguments['start']:
         port = int(arguments['--port'] or 8080)
-        start(port)
+        start(port, daemon=not arguments['--foreground'])
         return
 
     if arguments['stop']:
