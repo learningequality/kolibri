@@ -28,7 +28,9 @@
           <td>
             <!-- {{ totalSizeOfFilesInChannel(channel.id) }} -->
           </td>
-          <td>{{ channel.last_updated }}</td>
+          <td>
+            {{ lastUpdatedDate(channel) }}
+          </td>
           <td>
             <button
               @click="selectedChannelIdx=idx"
@@ -55,12 +57,15 @@
 
 <script>
 
+  const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
   const actions = require('../../state/actions');
+  const { now } = require('kolibri.utils.serverClock');
 
   module.exports = {
     data: () => ({
       selectedChannelIdx: null,
+      currentTime: null,
     }),
     computed: {
       channelIsSelected() {
@@ -78,6 +83,9 @@
       'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
       'delete-channel-modal': require('./delete-channel-modal'),
     },
+    mounted() {
+      this.currentTime = now();
+    },
     methods: {
       handleDeleteChannel() {
         if (this.selectedChannelIdx !== null) {
@@ -93,10 +101,9 @@
         const channel = this.channelInfo[channelId];
         return this.channelInfo[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
       },
-      lastUpdatedDate(channelId) {
-        // constant function until this data is available
-        return this.$tr('notAvailable');
-      }
+      lastUpdatedDate(channel) {
+        return distanceInWords(this.currentTime, channel.last_updated, { addSuffix: true });
+      },
     },
     vuex: {
       getters: {
