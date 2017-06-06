@@ -11,6 +11,8 @@ Changes are ordered reverse-chronologically.
  - Update all user logging related timestamps to a custom datetime field that includes timezone info
  - Added daemon mode (system service) to run ``kolibri start`` in background (default!) #1548
  - Implemented ``kolibri stop`` and ``kolibri status`` #1548
+ - Newly imported channels are given a 'last_updated' timestamp
+ - Add progress annotation for topics, lazily loaded to increase page load performance
 
 
 0.4

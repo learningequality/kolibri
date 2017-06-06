@@ -279,6 +279,8 @@ class Collection {
               this.pageCount = Math.ceil(response.entity.count / this.pageSize);
               this.hasNext = Boolean(response.entity.next);
               this.hasPrev = Boolean(response.entity.previous);
+              this.next = response.entity.next;
+              this.previous = response.entity.previous;
               // Mark that the fetch has completed.
               this.synced = true;
             } else {
