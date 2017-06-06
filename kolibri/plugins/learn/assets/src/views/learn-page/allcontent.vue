@@ -1,6 +1,6 @@
 <template>
 
-  <content-cards container="grid" :contents="contentToShow" :header="$tr('allContent')" ref="grid">
+  <content-cards container="grid" :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
