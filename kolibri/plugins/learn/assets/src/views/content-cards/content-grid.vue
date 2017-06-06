@@ -2,7 +2,7 @@
 
   <div class="content-grid">
     <header v-if="header" class="content-grid-header">
-      <h2 v-if="header"> {{header}} </h2>
+      <h2> {{header}} </h2>
       <sub v-if="subheader"> {{subheader}} </sub>
     </header>
     <content-card

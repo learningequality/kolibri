@@ -24,7 +24,7 @@
 
     <div class="card-text">
       <h3 class="card-title">{{ title }}</h3>
-      <h4 class="card-subtitle"></h4>
+      <h4 v-if="subtitle" class="card-subtitle">{{ subtitle }}</h4>
     </div>
 
   </router-link>
@@ -49,6 +49,10 @@
       title: {
         type: String,
         required: true,
+      },
+      subtitle: {
+        type: String,
+        required: false,
       },
       thumbnail: {
         type: String,

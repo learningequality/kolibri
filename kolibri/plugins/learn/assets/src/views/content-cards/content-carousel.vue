@@ -11,13 +11,13 @@
       <transition :name="animation">
         <div :key="currentSetIndex" class="content-carousel-cards" :style="widthOfCarousel">
           <content-card
-          v-for="content in contentSets[currentSetIndex]"
-          class="content-card"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :link="genContentLink(content.id)"/>
+            v-for="content in contentSets[currentSetIndex]"
+            class="content-card"
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :kind="content.kind"
+            :progress="content.progress"
+            :link="genContentLink(content.id)"/>
         </div>
       </transition>
 
