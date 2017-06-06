@@ -19,13 +19,15 @@
             {{ channel.title }}
           </td>
           <td>
-            <ui-progress-circular
+            <!-- <ui-progress-circular
               color="primary"
               v-show="!numberOfFilesInChannel(channel.id)"
             />
-            {{ numberOfFilesInChannel(channel.id) }}
+            {{ numberOfFilesInChannel(channel.id) }} -->
           </td>
-          <td>{{ totalSizeOfFilesInChannel(channel.id) }}</td>
+          <td>
+            <!-- {{ totalSizeOfFilesInChannel(channel.id) }} -->
+          </td>
           <td>{{ lastUpdatedDate(channel.id) }}</td>
           <td>
             <button
