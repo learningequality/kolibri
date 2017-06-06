@@ -5,9 +5,11 @@
     @cancel="handleClickCancel()"
   >
     <div>
-      <p>{{ $tr('deleteActionDescription') }}: {{ channelTitle }}</p>
-      <p>{{ $tr('confirmationQuestion') }}</p>
+      <p class="action-description">
+        {{ $tr('deleteActionDescription') }}: {{ channelTitle }}
+      </p>
       <p>{{ $tr('restorationInstructions') }}</p>
+      <p>{{ $tr('confirmationQuestion') }}</p>
     </div>
 
     <div class="buttons">
@@ -56,7 +58,7 @@
     $trNameSpace: 'deleteChannelModal',
     $trs: {
       deleteActionDescription: 'This channel will be deleted',
-      confirmationQuestion: 'Are you sure?',
+      confirmationQuestion: 'Are you sure you want to do this?',
       restorationInstructions: 'To restore this channel, you will need to re-import it from the internet or a storage device',
       title: 'Delete channel',
       cancelButtonLabel: 'Cancel',
@@ -68,6 +70,9 @@
 
 
 <style lang="stylus" scoped>
+
+  .action-description
+    font-weight: bold
 
   .buttons
     text-align: right

@@ -1,3 +1,4 @@
+const { ChannelResource } = require('kolibri').resources;
 /**
  * Delete a Channel from the device
  * @param store - vuex store object
@@ -5,7 +6,10 @@
  * @returns {Promise}
  */
 function deleteChannel(store, channelId) {
-  return Promise.resolve();
+  return ChannelResource.getModel(channelId).delete()
+    .then((msg) => {
+      console.log('deleted ', msg);
+    });
 }
 
 module.exports = {

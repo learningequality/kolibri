@@ -60,6 +60,7 @@
   const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
   const actions = require('../../state/actions');
+  const manageContentActions = require('../../state/manageContentActions');
   const { now } = require('kolibri.utils.serverClock');
 
   module.exports = {
@@ -112,7 +113,7 @@
         pageState: state => state.pageState,
       },
       actions: {
-        deleteChannel: actions.deleteChannel,
+        deleteChannel: manageContentActions.deleteChannel,
       },
     },
     $trNameSpace: 'channelsGrid',
