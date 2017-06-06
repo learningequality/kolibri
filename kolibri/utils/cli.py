@@ -32,6 +32,7 @@ from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
 
 from . import server  # noqa
+from .system import become_daemon  # noqa
 
 # This was added in
 # https://github.com/learningequality/kolibri/pull/580
@@ -223,6 +224,19 @@ def start(port=8080, daemon=True):
     # or if it depends on some kind of state change.
     from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
+
+    # Daemonize at this point, no more user output is needed
+    if daemon:
+
+        kwargs = {}
+        # Truncate the file
+        open(server.DAEMON_LOG, "w").truncate()
+        logger.info(
+            "Going to daemon mode, logging to {0}\n".format(server.DAEMON_LOG)
+        )
+        kwargs['out_log'] = server.DAEMON_LOG
+        kwargs['err_log'] = server.DAEMON_LOG
+        become_daemon(**kwargs)
 
     server.start(port=port)
 

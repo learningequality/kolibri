@@ -70,7 +70,7 @@ def start_background_workers():
     p.start()
 
 
-def start(port=8080):
+def start(port=8080, daemon=True):
     """
     Starts the server.
 
@@ -81,6 +81,10 @@ def start(port=8080):
     # don't run on windows; we don't run a full cluster there.
     if platform.system() != "Windows":
         start_background_workers()
+
+    # Write the new PID
+    with open(PID_FILE, 'w') as f:
+        f.write("%d\n%d" % (os.getpid(), port))
 
     run_server(port=port)
 
