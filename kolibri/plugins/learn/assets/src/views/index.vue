@@ -11,7 +11,8 @@
           :placeholder="$tr('search')"
           v-model="searchQuery"
           class="search-input"
-          :style="searchInputStyle" >
+          :style="searchInputStyle"
+        >
         <ui-icon-button
           :ariaLabel="$tr('clear')"
           icon="clear"

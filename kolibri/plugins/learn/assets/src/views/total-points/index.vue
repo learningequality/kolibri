@@ -19,7 +19,6 @@
   module.exports = {
     $trNameSpace: 'totalPoints',
     $trs: {
-      totalPoints: 'Total points',
       pointsTooltip: 'You have earned { points, number } points!',
     },
     components: {
