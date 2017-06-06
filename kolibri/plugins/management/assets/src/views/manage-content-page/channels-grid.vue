@@ -40,22 +40,12 @@
 
     </table>
 
-    <modal
-      title="Delete channel"
+    <delete-channel-modal
       v-if="channelIsSelected"
+      :channelTitle="selectedChannelTitle"
+      @confirm="handleDeleteChannel()"
       @cancel="selectedChannelIdx=null"
-    >
-      <div>
-        <p>Are you sure you want to delete <b>{{ selectedChannelTitle }}</b> and its contents?</p>
-        <p>To restore this channel, you will need to re-import it from the internet or storage device.</p>
-      </div>
-
-      <div class="buttons">
-        <ui-button type="secondary" @click="selectedChannelIdx=null">Cancel</ui-button>
-        <ui-button type="primary" color="primary" @click="handleDeleteChannel()">Confirm</ui-button>
-      </div>
-
-    </modal>
+    />
   <div>
 
 </template>
@@ -82,9 +72,9 @@
       }
     },
     components: {
-      modal: require('kolibri.coreVue.components.coreModal'),
-      UiButton: require('keen-ui/src/UiButton'),
-      UiProgressCircular: require('keen-ui/src/UiProgressCircular'),
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
+      'delete-channel-modal': require('./delete-channel-modal'),
     },
     methods: {
       handleDeleteChannel() {
@@ -151,9 +141,6 @@
 
   .table-cell-title
     font-weight: bold
-
-  .buttons
-    text-align: right
 
   .delete-button
     $red = rgb(255, 0 , 0)
