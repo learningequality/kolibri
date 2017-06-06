@@ -1,3 +1,4 @@
+/* eslint-disable prefer-arrow-callback */
 const { ChannelResource } = require('kolibri').resources;
 /**
  * Delete a Channel from the device
@@ -7,7 +8,8 @@ const { ChannelResource } = require('kolibri').resources;
  */
 function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId).delete()
-    .then((msg) => {
+    .then(function onSuccess(msg) {
+      // force an update of the channel list
       console.log('deleted ', msg);
     });
 }

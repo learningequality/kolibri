@@ -50,6 +50,10 @@
       @confirm="handleDeleteChannel()"
       @cancel="selectedChannelIdx=null"
     />
+
+    <ui-alert v-if="notification" @dismiss="notification=null">
+      {{ notification }}
+    </ui-alert>
   <div>
 
 </template>
@@ -59,7 +63,7 @@
 
   const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
-  const actions = require('../../state/actions');
+  // const actions = require('../../state/actions');
   const manageContentActions = require('../../state/manageContentActions');
   const { now } = require('kolibri.utils.serverClock');
 
@@ -67,6 +71,7 @@
     data: () => ({
       selectedChannelIdx: null,
       currentTime: null,
+      notification: null,
     }),
     computed: {
       channelIsSelected() {
@@ -80,6 +85,7 @@
       }
     },
     components: {
+      'ui-alert': require('keen-ui/src/UiAlert'),
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
       'delete-channel-modal': require('./delete-channel-modal'),
@@ -90,8 +96,15 @@
     methods: {
       handleDeleteChannel() {
         if (this.selectedChannelIdx !== null) {
-          this.deleteChannel(this.channelList[this.selectedChannelIdx].id)
-          .then(() => { this.selectedChannelIdx = null; });
+          const channelId = this.channelList[this.selectedChannelIdx].id;
+          this.selectedChannelIdx = null;
+          this.deleteChannel(channelId)
+          .then(() => {
+            this.notification = 'Deleted';
+          })
+          .catch(() => {
+            this.notification = 'Error';
+          });
         }
       },
       numberOfFilesInChannel(channelId) {
