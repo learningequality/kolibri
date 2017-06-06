@@ -3,8 +3,8 @@
   <section class="content-carousel">
 
     <header v-if="header" class="content-carousel-header">
-      <h2 v-if="header"> {{header}} </h2>
-      <sub v-if="subheader"> {{subheader}} </sub>
+      <h2> {{header}} </h2>
+      <span v-if="subheader"> {{subheader}} </span>
     </header>
 
     <div class="content-carousel-set">
