@@ -18,6 +18,15 @@ sys.path = [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
 ] + sys.path
 
+# Set default env
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+)
+os.environ.setdefault(
+    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
+)
+os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
+
 import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
@@ -98,15 +107,6 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 """.format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
 
-# Set default env
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
-)
-os.environ.setdefault(
-    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
-)
-os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
-
 logger = logging.getLogger(__name__)
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
@@ -123,15 +123,30 @@ class PluginDoesNotExist(Exception):
 
 def initialize(debug=False):
     """
-    Always called before running commands
+    Currently, always called before running commands. This may change in case
+    commands that conflict with this behavior show up.
 
     :param: debug: Tells initialization to setup logging etc.
     """
+
+    # TODO: We'll move this to a more deliberate location whereby we can
+    # ensure that some parts of kolibri can run without the whole django stack
+    django.setup()
 
     setup_logging(debug=debug)
 
     if not os.path.isfile(VERSION_FILE):
         _first_run()
+    else:
+        version = open(VERSION_FILE, "r").read()
+        if kolibri.__version__ != version.strip():
+            logger.info(
+                "Version was {old}, new version: {new}".format(
+                    old=version,
+                    new=kolibri.__version__
+                )
+            )
+            update()
 
 
 def _first_run():
@@ -150,12 +165,13 @@ def _first_run():
         "to wait a bit while we create a blank database...\n\n"
     )
 
-    django.setup()
-
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
 
+    # We need to migrate the database before enabling plugins, because they
+    # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False)
+        call_command("migrate", interactive=False, database="default")
+        call_command("migrate", interactive=False, database="ormq")
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -165,13 +181,105 @@ def _first_run():
 
     logger.info("Automatically enabling applications.")
 
+    # Finally collect static assets and run migrations again
+    update()
+
+
+def update():
+    """
+    Called whenever a version change in kolibri is detected
+
+    TODO: We should look at version numbers of external plugins, too!
+    """
+    logger.info("Running update routines for new version...")
+    call_command("collectstatic", interactive=False)
+    call_command("collectstatic_js_reverse", interactive=False)
+
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
+
+    if not SKIP_AUTO_DATABASE_MIGRATION:
+        call_command("migrate", interactive=False, database="default")
+        call_command("migrate", interactive=False, database="ormq")
+
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
 
 
+def start(port=8080, daemon=True):
+    """
+    Start the server on given port.
+
+    :param: port: Port number (default: 8080)
+    :param: daemon: Fork to background process (default: True)
+    """
+
+    if not daemon:
+        logger.info("Running 'kolibri start' in foreground...\n")
+    else:
+        logger.info("Running 'kolibri start' as daemon (system service)\n")
+
+    # TODO: moved from server.start() but not sure where it should ideally be
+    # located. Question is if it should be run every time the server is started
+    # or if it depends on some kind of state change.
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
+    update_channel_metadata_cache()
+
+    server.start(port=port)
+
+
+def status():
+    """
+    Check the server's status. For possible statuses, see the status dictionary
+    status.codes
+
+    Status *always* outputs the current status in the first line of stderr.
+    The following lines contain optional information such as the addresses where
+    the server is listening.
+
+    TODO: We can't guarantee the above behavior because of the django stack
+    being loaded regardless
+
+    :returns: status_code, key has description in status.codes
+    """
+    status_code, urls = server.get_urls()
+
+    if status_code == server.STATUS_RUNNING:
+        sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
+        sys.stderr.write("Kolibri running on:\n\n")
+        for addr in urls:
+            sys.stderr.write("\t{}\n".format(addr))
+        return server.STATUS_RUNNING
+    else:
+        verbose_status = status.codes[status_code]
+        sys.stderr.write("{msg:s} ({code:d})\n".format(
+            code=status_code, msg=verbose_status))
+        return status_code
+
+
+status.codes = {
+    server.STATUS_RUNNING: 'OK, running',
+    server.STATUS_STOPPED: 'Stopped',
+    server.STATUS_STARTING_UP: 'Starting up',
+    server.STATUS_NOT_RESPONDING: 'Not responding',
+    server.STATUS_FAILED_TO_START:
+        'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
+    server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
+    server.STATUS_UNKNOWN_INSTANCE: 'Unknown KA Lite running on port',
+    server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
+    server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
+    server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
+    server.STATUS_UNKNOW: 'Could not determine status',
+}
+
+
 def setup_logging(debug=False):
-    """Configures logging in cases where a Django environment is not supposed
-    to be configured"""
+    """
+    Configures logging in cases where a Django environment is not supposed
+    to be configured.
+
+    TODO: This is really confusing, importing django settings is allowed to
+    fail when debug=False, but if it's true it can fail?
+    """
     try:
         from django.conf.settings import LOGGING
     except ImportError:
@@ -312,9 +420,6 @@ def main(args=None):
     to use main() for integration tests in order to test the argument API.
     """
 
-    # ensure that Django is set up before we do anything else
-    django.setup()
-
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     arguments, django_args = parse_args(args)
@@ -340,7 +445,12 @@ def main(args=None):
 
     if arguments['start']:
         port = int(arguments['--port'] or 8080)
-        server.start(port=port)
+        start(port)
+        return
+
+    if arguments['status']:
+        status_code = status()
+        sys.exit(status_code)
         return
 
     if arguments['language'] and arguments['setdefault']:
