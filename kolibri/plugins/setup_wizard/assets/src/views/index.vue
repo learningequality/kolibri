@@ -5,7 +5,7 @@
       <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
 
 
-      <form @submit.prevent="submitSetupForm" class="container">
+      <form @submit.prevent="submitSetupForm" novalidate class="container">
         <h1>{{ $tr('formHeader') }}</h1>
 
         <ui-alert @dismiss="clearGlobalError()" type="error" v-if="globalError">
