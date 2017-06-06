@@ -1,11 +1,11 @@
 <template>
 
   <div v-if="isUserLoggedIn && !isSuperuser" class="points" ref="points">
-    <div class="circle in-points">
-      <points-icon class="icon" :active="true"/>
+    <points-icon class="icon" :active="true"/>
+    <div class="description">
+      <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
-    <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
-    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('totalPoints', { points: totalPoints }) }}</ui-tooltip>
+    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('pointsTooltip', { points: totalPoints }) }}</ui-tooltip>
   </div>
 
 </template>
@@ -19,7 +19,8 @@
   module.exports = {
     $trNameSpace: 'totalPoints',
     $trs: {
-      totalPoints: 'You have earned { points, number } points!',
+      totalPoints: 'Total points',
+      pointsTooltip: 'You have earned { points, number } points!',
     },
     components: {
       'points-icon': require('kolibri.coreVue.components.pointsIcon'),
@@ -52,25 +53,19 @@
   @require '~kolibri.styles.definitions'
 
   .points
-    display: inline-block
     font-weight: bold
-    .in-points
-      display: inline-block
-
-  .circle
-    border-radius: 50%
-    width: 25px
-    height: 25px
-    background-color: white
+    font-size: small
 
   .icon
-    position: relative
-    top: 2.5px
-    left: 2.5px
+    display: inline-block
     width: 20px
     height: 20px
 
-  .total
-    padding-left: 5px
+  .description
+    display: inline-block
+    padding-left: 0.25em
+
+  .description-value
+    font-size: x-large
 
 </style>
