@@ -59,8 +59,10 @@ def get_summary_logs(content_ids, user):
 def get_topic_progress_fraction(topic, user):
     leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
         kind=content_kinds.TOPIC).values_list("content_id", flat=True)
-    return (get_summary_logs(leaf_ids, user).aggregate(Sum('progress')['progress__sum']) or 0)/(len(leaf_ids) or 1)
-
+    return round(
+        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0)/(len(leaf_ids) or 1),
+        4
+    )
 
 def get_content_progress_fraction(content, user):
     from kolibri.logger.models import ContentSummaryLog
