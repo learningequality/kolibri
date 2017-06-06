@@ -21,7 +21,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '../third_party/vuep/vuep.css'
 
   $sidenav-width = 10em
 
