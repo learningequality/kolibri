@@ -15,13 +15,6 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <card-list v-if="subtopics.length">
-      <topic-list-item
-        v-for="topic in subtopics"
-        :title="topic.title"
-        :link="genTopicLink(topic.id)"/>
-    </card-list>
-
     <card-grid v-if="contents.length">
       <content-grid-item
         v-for="content in contents"
@@ -30,7 +23,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :link="genContentLink(content.id)"/>
+        :link="genLink(content)"/>
     </card-grid>
 
   </div>
@@ -42,6 +35,7 @@
 
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
   const PageNames = require('../../constants').PageNames;
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 
   module.exports = {
     $trNameSpace: 'learnExplore',
@@ -60,25 +54,27 @@
       title() {
         return this.isRoot ? this.$tr('explore') : this.topic.title;
       },
+      subtopics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
     },
     methods: {
-      genTopicLink(id) {
+      genLink(node) {
+        if (node.kind !== ContentNodeKinds.TOPIC) {
+          return {
+            name: PageNames.EXPLORE_CONTENT,
+            params: { channel_id: this.channelId, id: node.id },
+          };
+        }
         return {
           name: PageNames.EXPLORE_TOPIC,
-          params: { channel_id: this.channelId, id },
-        };
-      },
-      genContentLink(id) {
-        return {
-          name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id },
+          params: { channel_id: this.channelId, id: node.id },
         };
       },
     },
     vuex: {
       getters: {
         topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
         isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
         channelId: (state) => getCurrentChannelObject(state).id,
