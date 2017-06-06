@@ -15,23 +15,9 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <content-cards container="list" v-if="subtopics.length">
-      <topic-list-item
-        v-for="topic in subtopics"
-        :title="topic.title"
-        :link="genTopicLink(topic.id)"/>
-    </content-cards>
+    <content-cards container="grid" :contents="subtopics" v-if="subtopics.length" />
 
-    <content-cards container="grid" v-if="contents.length">
-      <content-card
-        v-for="content in contents"
-        class="card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genContentLink(content.id)"/>
-    </content-cards>
+    <content-cards container="grid" :contents="contents" v-if="contents.length" />
 
   </div>
 
@@ -51,8 +37,6 @@
     },
     components: {
       'page-header': require('../page-header'),
-      'topic-list-item': require('../topic-list-item'),
-      'content-card': require('../content-cards/content-card'),
       'content-cards': require('../content-cards'),
     },
     computed: {

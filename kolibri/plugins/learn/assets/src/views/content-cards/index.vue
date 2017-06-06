@@ -31,7 +31,6 @@
     components: {
       carousel: require('./content-carousel'),
       grid: require('./content-grid'),
-      list: require('./content-list'),
     },
   };
 

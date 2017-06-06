@@ -2,7 +2,7 @@
 
   <section class="content-carousel">
 
-    <header class="content-carousel-header">
+    <header v-if="header" class="content-carousel-header">
       <h2 v-if="header"> {{header}} </h2>
       <sub v-if="subheader"> {{subheader}} </sub>
     </header>

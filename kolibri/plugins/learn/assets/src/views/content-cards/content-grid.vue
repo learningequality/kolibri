@@ -1,6 +1,10 @@
 <template>
 
-  <div>
+  <div class="content-grid">
+    <header v-if="header" class="content-grid-header">
+      <h2 v-if="header"> {{header}} </h2>
+      <sub v-if="subheader"> {{subheader}} </sub>
+    </header>
     <content-card
       class="content-card"
       v-for="content in contents"
@@ -8,7 +12,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind || 'topic'"
       :progress="content.progress"
-      :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"/>
+      :link="content.kind ? genContentLink(content.id) : genTopicLink(content.id)"/>
   </div>
 
 </template>
@@ -24,6 +28,12 @@
         type: Array,
         required: true,
       },
+      header: {
+        type: String,
+      },
+      subheader: {
+        type: String,
+      }
     },
     components: {
       'content-card': require('./content-card'),
@@ -52,12 +62,11 @@
 </script>
 
 
-<style>
+<style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
 
   .content-card
-    margin-left: 10px
-    margin-right: 10px
+    margin: 10px
 
 </style>

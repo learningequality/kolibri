@@ -80,8 +80,8 @@
     <content-cards
       container="carousel"
       class="recommendation-section"
-      v-if="pageMode === Constants.PageModes.LEARN"
-      :title="recommendedText"
+      v-if="pageMode === Constants.PageModes.LEARN && recommended"
+      :header="recommendedText"
       :contents="recommended"/>
 
     <content-points

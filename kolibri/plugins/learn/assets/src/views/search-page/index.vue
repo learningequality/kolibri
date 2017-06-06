@@ -61,16 +61,7 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <content-cards container="grid" v-else>
-        <content-card
-          v-for="item in filteredResults"
-          :title="item.title"
-          :thumbnail="item.thumbnail"
-          :progress="item.progress"
-          :kind="item.kind || 'topic'"
-          :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"
-        />
-      </content-cards>
+      <content-cards container="grid" :contents="filteredResults" v-else />
 
     </template>
 
@@ -82,7 +73,6 @@
 <script>
 
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const PageNames = require('../../constants').PageNames;
   const GetCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
 
   module.exports = {
@@ -182,20 +172,6 @@
           return this.$tr('noHtml5', { searchTerm: this.searchTerm });
         }
         return this.$tr('noContent', { searchTerm: this.searchTerm });
-      },
-    },
-    methods: {
-      genTopicLink(id) {
-        return {
-          name: PageNames.EXPLORE_TOPIC,
-          params: { channel_id: this.channelId, id },
-        };
-      },
-      genContentLink(id) {
-        return {
-          name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id },
-        };
       },
     },
     vuex: {

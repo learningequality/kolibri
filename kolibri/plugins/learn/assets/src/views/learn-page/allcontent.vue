@@ -1,6 +1,6 @@
 <template>
 
-  <content-cards container="grid" :title="$tr('allContent')" ref="grid">
+  <content-cards container="grid" :contents="contentToShow" :header="$tr('allContent')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -11,14 +11,6 @@
       <span v-else class="allnav-item allnav-disabled">{{ $tr('next') }}</span>
 
     </div>
-
-    <content-card
-      v-for="content in contentToShow"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :link="genContentLink(content.id)"/>
 
   </content-cards>
 
@@ -36,7 +28,7 @@
       prev: 'Previous',
       next: 'Next',
       pagesLabel: 'Browse all content',
-      allContent: 'All content',
+      allContentPageHeader: 'All content',
     },
     mixins: [responsiveElement],
     computed: {
