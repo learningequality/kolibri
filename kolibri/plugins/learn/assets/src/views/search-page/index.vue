@@ -61,7 +61,7 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <content-cards container="grid" :contents="filteredResults" v-else />
+      <content-cards v-else container="grid" :contents="filteredResults" />
 
     </template>
 
