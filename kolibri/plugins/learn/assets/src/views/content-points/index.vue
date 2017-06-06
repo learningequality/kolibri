@@ -18,7 +18,7 @@
     </div>
 
     <div class="buttons">
-      <icon-button :text="$tr('close')" @click="closePopover"/>
+      <icon-button :text="$tr('close')" @click="closePopover" class="close-button"/>
       <slot name="nextItemBtn"/>
     </div>
 
@@ -125,12 +125,16 @@
 
   .next-item-section
     text-align: center
-    padding: 0 2em 2em 2em
+    padding: 0 2em 2em
 
   .buttons
     text-align: center
+    padding: 0 0 0.5em
 
   .next-item-heading
     margin: 0
+
+  .close-button
+    margin-right: 0.5em
 
 </style>
