@@ -1,3 +1,4 @@
+import os
 from functools import reduce
 from random import sample
 
@@ -12,17 +13,43 @@ from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.search import fuzz
+from .utils.paths import get_content_database_file_path
+
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
 
+
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
+    permission_classes = (OnlyDeviceOwnerCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
+
+    def destroy(self, request, pk=None):
+        """
+        Destroys the ChannelMetadata object and its associated sqlite3 file on
+        the filesystem.
+        """
+        super(ChannelMetadataCacheViewSet, self).destroy(request)
+
+        if self.delete_content_db_file(pk):
+            response_msg = 'Channel {} removed from device'.format(pk)
+        else:
+            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+        return Response(response_msg)
+
+    def delete_content_db_file(self, channel_id):
+        try:
+            os.remove(get_content_database_file_path(channel_id))
+            return True
+        except OSError:
+            return False
 
 
 class ContentNodeFilter(filters.FilterSet):
