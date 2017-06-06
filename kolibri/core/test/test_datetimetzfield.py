@@ -25,12 +25,30 @@ class DateTimeTzFieldTestCase(TestCase):
         self.assertEqual(obj.timestamp.tzinfo, aware_datetime().tzinfo)
         timezone.deactivate()
 
+    def test_timestamp_utc_read(self):
+        # Regression test for https://github.com/learningequality/kolibri/issues/1602
+        timezone.activate(pytz.utc)
+        obj = DateTimeTzModel.objects.create(timestamp=aware_datetime())
+        obj.refresh_from_db()
+        self.assertEqual(obj.timestamp, aware_datetime())
+        timezone.deactivate()
+
     def test_timestamp_arbitrary_create(self):
         tz = pytz.timezone('Africa/Nairobi')
         timezone.activate(tz)
         timestamp = aware_datetime()
         obj = DateTimeTzModel.objects.create(timestamp=timestamp)
         self.assertEqual(obj.timestamp.tzinfo, timestamp.tzinfo)
+        timezone.deactivate()
+
+    def test_timestamp_arbitrary_read(self):
+        # Regression test for https://github.com/learningequality/kolibri/issues/1602
+        tz = pytz.timezone('Africa/Nairobi')
+        timezone.activate(tz)
+        timestamp = aware_datetime()
+        obj = DateTimeTzModel.objects.create(timestamp=timestamp)
+        obj.refresh_from_db()
+        self.assertEqual(obj.timestamp, timestamp)
         timezone.deactivate()
 
     def test_default_utc_create(self):
