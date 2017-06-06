@@ -3,31 +3,64 @@
   <div class="device-owner-creation">
     <div class="wrapper" role="main">
       <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
-      <div class="container">
+
+      <form @submit="submitSetupForm" class="container">
+
         <h1>{{ $tr('header') }}</h1>
         <h2 class="title">{{ $tr('deviceOwner') }}</h2>
         <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
+
         <div class="creation-form">
-          <p class="error-message" role="alert" aria-atomic="true">{{ errormessage }}</p>
-          <label for="nameinput" class="inputlabel">{{ $tr('username') }}:</label>
-          <input id="nameinput" :class="{ 'input-error': username_error }" type="text" v-model="username">
-          <label for="passwordinput" class="inputlabel">{{ $tr('password') }}:</label>
-          <input id="passwordinput" :class="{ 'input-error': password_error }" type="password" v-model="password">
-          <label for="confirminput" class="inputlabel">{{ $tr('confirmPassword') }}:</label>
-          <input id="confirminput" :class="{ 'input-error': password_error }" type="password" v-model="confirm_password">
+          <p class="error-message" role="alert" aria-atomic="true">{{ globalError }}</p>
+
+          <core-textbox
+          @focus="firstUsernameFieldVisit || validateUsername()"
+          @blur="validateUsername"
+          :invalid="!!usernameError"
+          :error="usernameError"
+          v-model="username"
+          :required="true"
+          :label="$tr('username')"/>
+
+          <core-textbox
+          @focus="firstPasswordFieldsVisit || validatePassword()"
+          :invalid="!!passwordError"
+          :error="passwordError"
+          type="password"
+          v-model="password"
+          :required="true"
+          :label="$tr('password')"/>
+
+          <core-textbox
+          @blur="validatePassword()"
+          :invalid="!!passwordError"
+          type="password"
+          v-model="passwordConfirm"
+          :required="true"
+          :label="$tr('confirmPassword')"/>
+
         </div>
         <h2 class="title">{{ $tr('facility') }}</h2>
         <div class="description">{{ $tr('facilityDescription') }}</div>
-        <label for="facilityinput" class="inputlabel">{{ $tr('facilityName') }}:</label>
-        <input id="facilityinput" :class="{ 'input-error': facility_error }" type="text" v-model="facility">
+
+        <core-textbox
+        @focus="firstFacilityFieldVisit || validateFacility()"
+        @blur=""
+        :invalid="!!facilityError"
+        :error="facilityError"
+        v-model="facility"
+        :required="true"
+        :label="$tr('facilityName')"/>
+
         <br>
         <br>
         <br>
+
         <div class="btn-wrapper">
-          <button class="create-btn" type="button" @click="createBoth">{{ $tr('getStarted') }}</button>
+          <button class="create-btn" type="submit">{{ $tr('getStarted') }}</button>
         </div>
-      </div>
-      <br>
+      </form>
+
     </div>
   </div>
 
@@ -56,19 +89,53 @@
     data() {
       return {
         username: '',
-        username_error: false,
+        usernameError: null,
         password: '',
-        confirm_password: '',
-        password_error: false,
+        passwordConfirm: '',
+        passwordError: null,
         facility: '',
-        facility_error: false,
-        errormessage: '',
+        facilityError: null,
+        globalError: null,
       };
     },
+    components: {
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
+    },
+    computed: {
+      firstUsernameFieldVisit() {
+        return this.usernameError === null;
+      },
+      usernameFieldPopulated() {
+        return !!this.username;
+      },
+      firstPasswordFieldsVisit() {
+        return this.passwordError === null;
+      },
+      passwordFieldsMatch() {
+        return this.password === this.passwordConfirm;
+      },
+      passwordFieldsPopulated() {
+        return !!(this.password && this.passwordConfirm);
+      },
+      facilityFieldPopulated() {
+        return !!this.facility;
+      },
+      firstFacilityFieldVisit() {
+        return this.facilityError === null;
+      },
+      allFieldsPopulated() {
+        return this.passwordFieldsPopulated &&
+          this.usernameFieldPopulated &&
+          this.facilityFieldPopulated;
+      },
+      canSubmit() {
+        return this.passwordFieldsMatch && this.allFieldsPopulated;
+      },
+    },
     methods: {
-      createBoth() {
-        if (this.username && this.password && this.facility
-          && this.password === this.confirm_password) {
+      submitSetupForm() {
+        this.globalErrorMessage = '';
+        if (this.canSubmit) {
           const deviceOwnerPayload = {
             password: this.password,
             username: this.username,
@@ -78,18 +145,32 @@
           };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
-          this.username_error = !this.username;
-          this.facility_error = !this.facility;
-          if (!this.password && !this.confirm_password) {
-            this.password_error = true;
-            this.errormessage = 'Password cannot be empty!';
-          } else if (this.password !== this.confirm_password) {
-            this.password_error = true;
-            this.errormessage = 'Password does not match the confirm password!';
-          } else {
-            this.errormessage = '';
-            this.password_error = false;
-          }
+          this.globalErrorMessage = 'Please resolve the errors below';
+        }
+        // TODO add errors from backend
+      },
+      validateUsername() {
+        this.usernameError = '';
+        if (!this.usernameFieldPopulated) {
+          this.usernameError = 'Password cannot be empty!';
+        }
+        // if (!this.userNameStringValid) {
+        //   this.usernameError = 'Password does not match the confirm password!';
+        // }
+      },
+      validatePassword() {
+        this.passwordError = '';
+        if (!this.passwordFieldsPopulated) {
+          this.passwordError = 'Password cannot be empty!';
+        }
+        if (!this.passwordFieldsMatch) {
+          this.passwordError = 'Password does not match the confirm password!';
+        }
+      },
+      validateFacility() {
+        this.facilityError = '';
+        if (!this.facilityFieldPopulated) {
+          this.facilityError = 'Password cannot be empty!';
         }
       },
     },
