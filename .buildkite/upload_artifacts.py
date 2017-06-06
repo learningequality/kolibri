@@ -12,7 +12,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 USERNAME = os.getenv("GITHUB_USERNAME")
 PASSWORD = os.getenv('GITHUB_PASSWORD')
-ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
+BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 REPO_OWNER = "learningequality"
 REPO_NAME = "kolibri"
 
@@ -87,12 +87,14 @@ def upload_artifacts():
     bucket = client.bucket("le-downloads")
     artifacts = collect_local_artifacts()
     is_release = os.getenv("IS_KOLIBRI_RELEASE")
+    if os.getenv("BUILDKITE_PULL_REQUEST") != "false":
+        BUILD_ID = os.getenv("BUILDKITE_PULL_REQUEST")
     for file_data in artifacts:
         logging.info("Uploading file (%s)" % (file_data.get("name")))
         if is_release:
             blob = bucket.blob('kolibri/%s/%s' % (RELEASE_DIR, file_data.get("name")))
         else:
-            blob = bucket.blob('kolibri/buildkite/build-%s/%s' % (ISSUE_ID, file_data.get("name")))
+            blob = bucket.blob('kolibri/buildkite/build-%s/%s' % (BUILD_ID, file_data.get("name")))
         blob.upload_from_filename(filename=file_data.get("file_location"))
         blob.make_public()
         file_data.update({'media_url': blob.media_link})
