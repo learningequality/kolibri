@@ -8,6 +8,7 @@ Changes are ordered reverse-chronologically.
 0.5
 ---
  - Update all user logging related timestamps to a custom datetime field that includes timezone info
+ - Newly imported channels are given a 'last_updated' timestamp
 
 
 0.4

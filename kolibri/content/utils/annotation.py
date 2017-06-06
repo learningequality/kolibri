@@ -1,4 +1,4 @@
-from django.utils import timezone
+from kolibri.utils.time import local_now
 from django.conf import settings
 
 from ..content_db_router import using_content_database
@@ -30,5 +30,5 @@ def update_channel_metadata_cache():
         # handle case where channel's version is upgraded, which is not
         # yet supported on UI anyway
         if ch_metadata_obj.last_updated is None:
-            ch_metadata_obj.last_updated = timezone.now()
+            ch_metadata_obj.last_updated = local_now()
             ch_metadata_obj.save()
