@@ -70,7 +70,7 @@ release: clean assets
 	@echo ""
 	@echo "Now run something like twine -s dist/* to upload all results in the dist/ folder"
 
-staticdeps: clean
+staticdeps:
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
