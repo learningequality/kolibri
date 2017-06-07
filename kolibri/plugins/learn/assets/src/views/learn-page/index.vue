@@ -4,7 +4,11 @@
     <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <allcontent v-if="all.content.length"/>
+    <!-- <allcontent v-if="all.content.length"/> -->
+    <content-cards
+      v-if="all.content.length"
+      container="carousel"
+      :contents="all.content" />
     <content-cards
       v-if="recommendations.popular.length"
       container="carousel"
