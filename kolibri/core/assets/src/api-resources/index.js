@@ -23,4 +23,5 @@ module.exports = {
   FacilityDatasetResource: require('./facilityDataset'),
   UserProgressResource: require('./userProgress'),
   ContentNodeProgressResource: require('./contentNodeProgress'),
+  FileSummaryResource: require('./fileSummary'),
 };

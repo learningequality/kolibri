@@ -506,6 +506,7 @@ function showContentPage(store) {
       const pageState = {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
+        channelFileSummaries: {},
       };
       coreActions.setChannelInfo(store).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
