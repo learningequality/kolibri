@@ -38,8 +38,9 @@ class TasksViewSet(viewsets.ViewSet):
     permission_classes = (IsDeviceOwnerOnly,)
 
     def list(self, request):
-        tasks_response = [_task_to_response(t) for t in client.all_jobs()]
-        return Response(tasks_response)
+        # tasks_response = [_task_to_response(t) for t in client.all_jobs()]
+        # return Response(tasks_response)
+        return Response([])
 
     def create(self, request):
         # unimplemented. Call out to the task-specific APIs for now.
