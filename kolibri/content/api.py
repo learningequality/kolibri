@@ -296,6 +296,7 @@ class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
 
+
 class ContentNodeProgressViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -319,5 +320,6 @@ class ChannelFileSummaryViewSet(viewsets.ViewSet):
             total_files=Count('pk'),
             total_file_size=Sum('file_size')
         )
+        file_summary['channel_id'] = get_active_content_database()
         # Need to wrap in an array to be fetchable as a Collection on client
         return Response([file_summary])
