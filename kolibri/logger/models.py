@@ -73,7 +73,7 @@ class BaseLogModel(AbstractFacilityDataModel):
     class Meta:
         abstract = True
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         if self.user:
             return self.user.dataset
         else:
@@ -85,9 +85,9 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         if self.user_id:
-            return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+            return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
         else:
-            return '{dataset_id}:anon-user'.format(dataset_id=self.dataset_id)
+            return '{dataset_id}:anonymous'.format(dataset_id=self.dataset_id)
 
     def calculate_source_id(self):
         return None
@@ -186,7 +186,7 @@ class MasteryLog(BaseLogModel):
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.user.dataset
 
     def calculate_source_id(self):
@@ -234,7 +234,7 @@ class AttemptLog(BaseAttemptLog):
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.sessionlog.dataset
 
 
@@ -271,5 +271,5 @@ class ExamAttemptLog(BaseAttemptLog):
     content_id = UUIDField()
     channel_id = UUIDField()
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.examlog.dataset
