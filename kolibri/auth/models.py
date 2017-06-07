@@ -112,7 +112,7 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     @staticmethod
     def compute_namespaced_id(partition_value, source_id_value, model_name):
-        assert partition_value.startswith(source_id_value)
+        assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
         assert model_name == FacilityDataset.morango_model_name
         # we use the source_id as the ID for the FacilityDataset
         return source_id_value
