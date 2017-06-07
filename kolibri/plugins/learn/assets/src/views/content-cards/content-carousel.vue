@@ -9,7 +9,7 @@
 
     <div class="content-carousel-set">
       <transition :name="animation">
-        <div :key="currentSetIndex" class="content-carousel-cards" :style="widthOfCarousel">
+        <div :key="currentSetIndex" :style="widthOfCarousel" class="content-carousel-cards">
           <content-card
             v-for="content in contentSets[currentSetIndex]"
             class="content-card"
@@ -40,11 +40,13 @@
 
   const PageNames = require('../../constants').PageNames;
   const chunk = require('lodash/chunk');
-  // use window for reference for now. Could use element later
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
+
+  // body width + L margin + R margin
+  const contentCardWidth = 210 + (10 * 2);
 
   module.exports = {
-    mixins: [responsiveWindow],
+    mixins: [responsiveElement],
     props: {
       contents: {
         type: Array,
@@ -70,9 +72,12 @@
     computed: {
       contentSets() {
         const contentSetsArray = chunk(this.contents, this.contentSetSize);
-        if (this.currentSetIndex >= contentSetsArray.length) {
+
+        // in case screen expands while rendered
+        if (this.currentSetIndex && this.currentSetIndex >= contentSetsArray.length) {
           this.currentSetIndex = contentSetsArray.length - 1;
         }
+
         return contentSetsArray;
       },
       isFirstSet() {
@@ -82,36 +87,13 @@
         return this.currentSetIndex === (this.contentSets.length - 1);
       },
       contentSetSize() {
-        // we can calculate these based off of the size of the cards later
-        switch (this.windowSize.breakpoint) {
-          case 0:
-            return 1;
-          case 1:
-            return 2;
-          case 2:
-            return 2;
-          case 3:
-            return 3;
-          case 4:
-            return 4;
-          case 5:
-            return 4;
-          case 6:
-            return 5;
-          default:
-            return 6;
-        }
+        return Math.floor(this.elSize.width / contentCardWidth);
       },
       widthOfCarousel() {
-        const cardWidth = 210;
-        const cardMargin = 10;
-
-        const cardGutterWidth = cardMargin * 2;
-        const allGuttersWidth = this.contentSetSize * cardGutterWidth;
-        const allCardsWidth = this.contentSetSize * cardWidth;
-
+        // maintains the width of the carousel at fixed width relative to parent for animation
         return {
-          width: `${allGuttersWidth + allCardsWidth}px`,
+          'width': `${contentCardWidth * this.contentSetSize}px`,
+          'min-width': `${contentCardWidth}px`,
         };
       },
     },
@@ -149,7 +131,6 @@
   $card-height = 210px
 
   .content-carousel
-    // position: absolute
     &-header
       text-align: left
       margin-bottom: 1em
