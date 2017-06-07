@@ -22,9 +22,11 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <card-grid v-if="filteredContents.length">
+    <card-grid v-if="contents.length">
       <content-grid-item
-        v-for="content in filteredContents"
+        v-for="content in contents"
+        v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
+        :key="content.id"
         class="card"
         :title="content.title"
         :thumbnail="content.thumbnail"
@@ -43,6 +45,8 @@
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
   const PageNames = require('../../constants').PageNames;
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const some = require('lodash/some');
+  const forEach = require('lodash/forEach');
 
   module.exports = {
     $trNameSpace: 'learnExplore',
@@ -72,24 +76,19 @@
     computed: {
       filterOptions() {
         const options = [{ label: this.$tr('all'), value: 'all' }];
-        if (this.contentsContain(ContentNodeKinds.TOPIC)) {
-          options.push({ label: this.$tr('topics'), value: ContentNodeKinds.TOPIC });
-        }
-        if (this.contentsContain(ContentNodeKinds.EXERCISE)) {
-          options.push({ label: this.$tr('exercises'), value: ContentNodeKinds.EXERCISE });
-        }
-        if (this.contentsContain(ContentNodeKinds.VIDEO)) {
-          options.push({ label: this.$tr('videos'), value: ContentNodeKinds.VIDEO });
-        }
-        if (this.contentsContain(ContentNodeKinds.AUDIO)) {
-          options.push({ label: this.$tr('audio'), value: ContentNodeKinds.AUDIO });
-        }
-        if (this.contentsContain(ContentNodeKinds.DOCUMENT)) {
-          options.push({ label: this.$tr('documents'), value: ContentNodeKinds.DOCUMENT });
-        }
-        if (this.contentsContain(ContentNodeKinds.HTML5)) {
-          options.push({ label: this.$tr('html5'), value: ContentNodeKinds.HTML5 });
-        }
+        const kindLabelsMap = {
+          [ContentNodeKinds.TOPIC]: this.$tr('topics'),
+          [ContentNodeKinds.EXERCISE]: this.$tr('exercises'),
+          [ContentNodeKinds.VIDEO]: this.$tr('videos'),
+          [ContentNodeKinds.AUDIO]: this.$tr('audio'),
+          [ContentNodeKinds.DOCUMENT]: this.$tr('documents'),
+          [ContentNodeKinds.HTML5]: this.$tr('html5'),
+        };
+        forEach(kindLabelsMap, (value, key) => {
+          if (this.contentsContain(key)) {
+            options.push({ label: value, value: key });
+          }
+        });
         return options;
       },
       title() {
@@ -98,16 +97,10 @@
       subtopics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
       },
-      filteredContents() {
-        if (this.selectedFilter.value === 'all') {
-          return this.contents;
-        }
-        return this.contents.filter(content => content.kind === this.selectedFilter.value);
-      },
     },
     methods: {
       contentsContain(kind) {
-        return Boolean(this.contents.filter(content => content.kind === kind).length);
+        return some(this.contents, content => content.kind === kind);
       },
       genLink(node) {
         if (node.kind !== ContentNodeKinds.TOPIC) {
