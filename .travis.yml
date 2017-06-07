@@ -86,6 +86,7 @@ script:
   - tox -e $TOX_ENV
 
 after_success:
+  - coverage combine
   - codecov
 
 notifications:
