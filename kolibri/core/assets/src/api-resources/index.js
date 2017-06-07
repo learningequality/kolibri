@@ -22,4 +22,5 @@ module.exports = {
   ExamAttemptLogResource: require('./examAttemptLog'),
   FacilityDatasetResource: require('./facilityDataset'),
   UserProgressResource: require('./userProgress'),
+  ContentNodeProgressResource: require('./contentNodeProgress'),
 };

@@ -156,16 +156,26 @@ function refreshBrowser(url) {
   window.location.href = url || window.location.origin;
 }
 
-function kolibriLogin(store, sessionPayload) {
+/**
+ * Signs in user.
+ *
+ * @param {object} store The store.
+ * @param {object} sessionPayload The session payload.
+ * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
+ */
+function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-    /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-    if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
-      const manageURL = coreApp.urls['kolibri:managementplugin:management']();
+    const manageURL = coreApp.urls['kolibri:managementplugin:management']();
+    if (isFirstDeviceSignIn) {
+      // Hacky way to redirect to content import page after completing setup wizard
+      refreshBrowser(`${window.location.origin}${manageURL}#/content`);
+    } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
+      /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
       refreshBrowser(window.location.origin + manageURL);
     } else {
       refreshBrowser();

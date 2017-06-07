@@ -20,3 +20,4 @@ jsonfield==2.0.1
 https://github.com/learningequality/morango/archive/e964c9e3d8225fddd5fe086ec3fb0cf124fdd52c.zip#egg=morango
 requests-toolbelt==0.7.1
 clint==0.5.1
+tzlocal==1.4
