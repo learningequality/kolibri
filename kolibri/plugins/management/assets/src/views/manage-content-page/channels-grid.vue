@@ -66,6 +66,7 @@
   // const actions = require('../../state/actions');
   const manageContentActions = require('../../state/manageContentActions');
   const { now } = require('kolibri.utils.serverClock');
+  const map = require('lodash/map');
 
   module.exports = {
     data: () => ({
@@ -92,6 +93,7 @@
     },
     mounted() {
       this.currentTime = now();
+      this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     methods: {
       handleDeleteChannel() {
@@ -127,6 +129,7 @@
       },
       actions: {
         deleteChannel: manageContentActions.deleteChannel,
+        addChannelFileSummaries: manageContentActions.addChannelFileSummaries,
       },
     },
     $trNameSpace: 'channelsGrid',
