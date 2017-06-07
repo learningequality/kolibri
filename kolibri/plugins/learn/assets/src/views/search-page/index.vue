@@ -10,7 +10,7 @@
       <tabs>
         <tab-button
           type="icon-and-title"
-          :title="$tr('all', { num: all.length } )"
+          :title="$tr('all', { num: contents.length } )"
           icon="layers"
           @click="filter = 'all'"
           :selected="filter === 'all'"
@@ -63,12 +63,14 @@
 
       <card-grid v-else>
         <content-grid-item
-          v-for="item in filteredResults"
-          :title="item.title"
-          :thumbnail="item.thumbnail"
-          :progress="item.progress"
-          :kind="item.kind || 'topic'"
-          :link="item.kind ? genContentLink(item.id) : genTopicLink(item.id)"
+          v-for="content in contents"
+          v-show="filter === 'all' || filter === content.kind"
+          :key="content.id"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :progress="content.progress"
+          :kind="content.kind"
+          :link="genLink(content)"
         />
       </card-grid>
 
@@ -89,13 +91,9 @@
     $trNameSpace: 'learnSearch',
 
     $trs: {
-      search: 'Search',
       noSearch: 'Search by typing something in the search box above',
-      noResults: 'No results',
       showingResultsFor: 'Search results for "{searchTerm}"',
       withinChannel: 'Within {channelName}',
-      results: '{count, number, integer} {count, plural, one {result} other {results}}',
-      filterContent: 'Filter content by: ',
       all: 'All ({ num, number })',
       content: 'Content',
       exercises: 'Exercises ({ num, number })',
@@ -115,7 +113,6 @@
     components: {
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
-      'card-list': require('../card-list'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'tab-button': require('kolibri.coreVue.components.tabButton'),
     },
@@ -128,11 +125,8 @@
       contentNodeKinds() {
         return ContentNodeKinds;
       },
-      noResults() {
-        return !this.topics.length && !this.contents.length;
-      },
-      all() {
-        return this.topics.concat(this.contents);
+      topics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
       },
       exercises() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
@@ -163,10 +157,7 @@
         } else if (this.filter === ContentNodeKinds.HTML5) {
           return this.html5;
         }
-        return this.all;
-      },
-      numFiltered() {
-        return this.filteredResults.length;
+        return this.contents;
       },
       noResultsMsg() {
         if (this.filter === ContentNodeKinds.TOPIC) {
@@ -186,23 +177,22 @@
       },
     },
     methods: {
-      genTopicLink(id) {
-        return {
-          name: PageNames.EXPLORE_TOPIC,
-          params: { channel_id: this.channelId, id },
-        };
-      },
-      genContentLink(id) {
+      genLink(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id: content.id },
+          };
+        }
         return {
           name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id },
+          params: { channel_id: this.channelId, id: content.id },
         };
       },
     },
     vuex: {
       getters: {
         contents: state => state.pageState.contents,
-        topics: state => state.pageState.topics,
         searchTerm: state => state.pageState.searchTerm,
         channelId: (state) => state.core.channels.currentId,
         channelName: state => GetCurrentChannelObject(state).title,
