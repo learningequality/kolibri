@@ -35,7 +35,6 @@
           </div>
         </div>
         <hr>
-        <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
 
         <channels-grid />
 
@@ -53,7 +52,6 @@
   const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
-  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -61,7 +59,6 @@
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      noChannels: 'No channels installed',
       notAdminHeader: 'You need to sign in as the Device Owner to manage content',
       notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
     },
@@ -89,13 +86,6 @@
       }
     },
     computed: {
-      sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
-      },
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
@@ -114,7 +104,6 @@
     vuex: {
       getters: {
         isSuperuser,
-        channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
       actions: {
