@@ -14,9 +14,9 @@ import sys  # noqa
 
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
-sys.path = [
+sys.path = sys.path + [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-] + sys.path
+]
 
 # Set default env
 os.environ.setdefault(
