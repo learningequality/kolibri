@@ -36,7 +36,7 @@
               @click="selectedChannelIdx=idx"
               class="delete-button"
             >
-              {{ $tr('delete') }}
+              {{ $tr('deleteButtonLabel') }}
             </button>
           </td>
         </tr>
@@ -51,10 +51,21 @@
       @cancel="selectedChannelIdx=null"
     />
 
-    <ui-alert v-if="notification" @dismiss="notification=null">
-      {{ notification }}
+    <ui-alert
+      v-if="notification==='deleteSuccess'"
+      @dismiss="notification=null"
+      type="success"
+    >
+      {{ $tr('deleteSuccessNotification') }}
     </ui-alert>
-  <div>
+    <ui-alert
+      v-if="notification==='deleteFailure'"
+      @dismiss="notification=null"
+      type="error"
+    >
+      {{ $tr('deleteFailureNotification') }}
+    </ui-alert>
+  </div>
 
 </template>
 
@@ -63,7 +74,6 @@
 
   const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
-  // const actions = require('../../state/actions');
   const manageContentActions = require('../../state/manageContentActions');
   const { now } = require('kolibri.utils.serverClock');
   const map = require('lodash/map');
@@ -83,7 +93,7 @@
           return this.channelList[this.selectedChannelIdx].title;
         }
         return '';
-      }
+      },
     },
     components: {
       'ui-alert': require('keen-ui/src/UiAlert'),
@@ -102,10 +112,10 @@
           this.selectedChannelIdx = null;
           this.deleteChannel(channelId)
           .then(() => {
-            this.notification = 'Deleted';
+            this.notification = 'deleteSuccess';
           })
           .catch(() => {
-            this.notification = 'Error';
+            this.notification = 'deleteFailure';
           });
         }
       },
@@ -134,13 +144,13 @@
     },
     $trNameSpace: 'channelsGrid',
     $trs: {
-      delete: 'Delete',
+      deleteButtonLabel: 'Delete',
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
-      notAvailable: 'Not available',
       numContentsHeader: '# Contents',
-      pleaseWait: 'Please wait...',
       sizeHeader: 'Size',
+      deleteFailureNotification: 'There was a problem deleting this channel',
+      deleteSuccessNotification: 'The channel has been removed from this device',
     }
   };
 
