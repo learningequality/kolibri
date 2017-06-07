@@ -29,7 +29,8 @@ function deleteChannel(store, channelId) {
  */
 function addChannelFileSummary(store, channelId) {
   return FileSummaryResource.getCollection({ channel_id: channelId }).fetch()
-  .then(function onSuccess(data) {
+  // FileSummary is wrapped in an array
+  .then(function onSuccess([data]) {
     store.dispatch(actionTypes.ADD_CHANNEL_FILE_SUMMARY, data);
   })
   .catch(function onFailure(err) {
