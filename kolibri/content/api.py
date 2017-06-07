@@ -319,4 +319,5 @@ class ChannelFileSummaryViewSet(viewsets.ViewSet):
             total_files=Count('pk'),
             total_file_size=Sum('file_size')
         )
-        return Response(file_summary)
+        # Need to wrap in an array to be fetchable as a Collection on client
+        return Response([file_summary])
