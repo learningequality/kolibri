@@ -403,9 +403,7 @@ function triggerSearch(store, channelId, searchTerm) {
 
   searchResultsPromise.then((results) => {
     const searchState = { searchTerm };
-    const collection = _collectionState(results);
-    searchState.topics = collection.topics;
-    searchState.contents = collection.contents;
+    searchState.contents = _collectionState(results);
     store.dispatch('SET_PAGE_STATE', searchState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
