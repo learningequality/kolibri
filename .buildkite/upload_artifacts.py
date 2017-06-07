@@ -11,7 +11,7 @@
     * GITHUB_ACCESS_TOKEN = Personal access token used to authenticate in your Github account via API.
     * BUILDKITE_BUILD_NUMBER = Build identifier for each directory created.
     * BUILDKITE_PULL_REQUEST = Pull request issue or the value is false.
-    * 
+    * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
 """
 import json
 import requests
@@ -28,6 +28,8 @@ ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
 REPO_OWNER = "learningequality"
 REPO_NAME = "kolibri"
 ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
+BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
+
 
 RELEASE_DIR = 'release'
 PROJECT_PATH = os.path.join(os.getcwd())
@@ -40,7 +42,9 @@ INSTALLER_DIR = os.path.join(PROJECT_PATH, "installer")
 
 
 def create_github_comment(artifacts):
-    """Create an comment on github.com using the given dict."""
+    """
+    Create an comment on github.com using the given dict.
+    """
     url = 'https://api.github.com/repos/%s/%s/issues/%s/comments' % (REPO_OWNER, REPO_NAME, ISSUE_ID)
     session = requests.Session()
     exe_file, exe_url = None, None
@@ -113,14 +117,12 @@ def upload_artifacts():
     artifacts = collect_local_artifacts()
     is_release = os.getenv("IS_KOLIBRI_RELEASE")
     build_id = os.getenv("BUILDKITE_BUILD_NUMBER")
-    if os.getenv("BUILDKITE_PULL_REQUEST") != "false":
-        build_id = ISSUE_ID
     for file_data in artifacts:
         logging.info("Uploading file (%s)" % (file_data.get("name")))
         if is_release:
-            blob = bucket.blob('kolibri/%s/%s' % (RELEASE_DIR, file_data.get("name")))
+            blob = bucket.blob('kolibri/%s/%s/%s' % (RELEASE_DIR, BUILD_ID, file_data.get("name")))
         else:
-            blob = bucket.blob('kolibri/buildkite/build-%s/%s' % (build_id, file_data.get("name")))
+            blob = bucket.blob('kolibri/buildkite/build-%s/%s/%s' % (ISSUE_ID, BUILD_ID, file_data.get("name")))
         blob.upload_from_filename(filename=file_data.get("file_location"))
         blob.make_public()
         file_data.update({'media_url': blob.media_link})
