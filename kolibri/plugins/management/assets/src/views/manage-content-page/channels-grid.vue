@@ -19,14 +19,14 @@
             {{ channel.title }}
           </td>
           <td>
-            <!-- <ui-progress-circular
+            <ui-progress-circular
               color="primary"
               v-show="!numberOfFilesInChannel(channel.id)"
             />
-            {{ numberOfFilesInChannel(channel.id) }} -->
+            {{ numberOfFilesInChannel(channel.id) }}
           </td>
           <td>
-            <!-- {{ totalSizeOfFilesInChannel(channel.id) }} -->
+            {{ totalSizeOfFilesInChannel(channel.id) }}
           </td>
           <td>
             {{ lastUpdatedDate(channel) }}
@@ -110,12 +110,12 @@
         }
       },
       numberOfFilesInChannel(channelId) {
-        const channel = this.channelInfo[channelId];
+        const channel = this.channelFileSummaries[channelId];
         return channel ? channel.numberOfFiles : '';
       },
       totalSizeOfFilesInChannel(channelId) {
-        const channel = this.channelInfo[channelId];
-        return this.channelInfo[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
+        const channel = this.channelFileSummaries[channelId];
+        return this.channelFileSummaries[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
       },
       lastUpdatedDate(channel) {
         return distanceInWords(this.currentTime, channel.last_updated, { addSuffix: true });
@@ -123,7 +123,7 @@
     },
     vuex: {
       getters: {
-        channelInfo: state => state.pageState.channelInfo,
+        channelFileSummaries: state => state.pageState.channelFileSummaries,
         channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },

@@ -5,11 +5,11 @@ const namespace = 'MANAGE_CONTENT';
 
 const actionTypes = {
   ADD_CHANNEL_FILE_SUMMARY: `${namespace}_ADD_CHANNEL_FILE_SUMMARY`,
-  REMOVE_CHANNEL: `${namespace}_REMOVE_CHANNEL`,
 };
 
 /**
  * Delete a Channel from the device
+ *
  * @param store - vuex store object
  * @param {string} channelId - a valid channel UUID
  * @returns {Promise}
@@ -17,19 +17,22 @@ const actionTypes = {
 function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId).delete()
   .then(function onSuccess(msg) {
-    store.dispatch(actionTypes.REMOVE_CHANNEL, channelId);
+    // Bust the cache of ChannelResource. Page state should be updated
+    // on next poll.
+    ChannelResource.getCollection().fetch({}, true);
   });
 }
 
 /**
  * Request and hydrate pageState with file summary info for single channel
+ *
  * @param store - vuex store object
  * @param {string} channelId - channel UUID
  * @returns {Promise}
  */
 function addChannelFileSummary(store, channelId) {
   return FileSummaryResource.getCollection({ channel_id: channelId }).fetch()
-  // FileSummary is wrapped in an array
+  // FileSummary response is wrapped in an array as workaround on server side
   .then(function onSuccess([data]) {
     store.dispatch(actionTypes.ADD_CHANNEL_FILE_SUMMARY, data);
   })
