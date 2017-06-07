@@ -21,30 +21,35 @@
 
 
           <core-textbox
-          @focus="firstUsernameFieldVisit || visitUsername()"
-          @blur="validateUsername()"
-          :invalid="!!usernameError"
-          :error="usernameError"
-          v-model="username"
-          :required="true"
-          :label="$tr('usernameInputLabel')"/>
+            @focus="firstUsernameFieldVisit || visitUsername()"
+            @blur="validateUsername()"
+            :invalid="!!usernameError"
+            :error="usernameError"
+            :required="true"
+            :label="$tr('usernameInputLabel')"
+            :maxlength="30"
+            :enforceMaxlength="true"
+            v-model="username"
+          />
 
           <core-textbox
-          @focus="firstPasswordFieldsVisit || visitPassword()"
-          :invalid="!!passwordError"
-          :error="passwordError"
-          type="password"
-          v-model="password"
-          :required="true"
-          :label="$tr('passwordInputLabel')"/>
+            @focus="firstPasswordFieldsVisit || visitPassword()"
+            :invalid="!!passwordError"
+            :error="passwordError"
+            :required="true"
+            :label="$tr('passwordInputLabel')"
+            type="password"
+            v-model="password"
+          />
 
           <core-textbox
-          @blur="validatePassword()"
-          :invalid="!!passwordError"
-          type="password"
-          v-model="passwordConfirm"
-          :required="true"
-          :label="$tr('confirmPasswordInputLabel')"/>
+            @blur="validatePassword()"
+            :invalid="!!passwordError"
+            :required="true"
+            :label="$tr('confirmPasswordInputLabel')"
+            type="password"
+            v-model="passwordConfirm"
+          />
 
         </section>
         <section class="setup-facility">
@@ -55,13 +60,16 @@
           </header>
 
           <core-textbox
-          @focus="firstFacilityFieldVisit || visitFacility()"
-          @blur="validateFacility"
-          :invalid="!!facilityError"
-          :error="facilityError"
-          v-model="facility"
-          :required="true"
-          :label="$tr('facilityInputLabel')"/>
+            @focus="firstFacilityFieldVisit || visitFacility()"
+            @blur="validateFacility"
+            :invalid="!!facilityError"
+            :error="facilityError"
+            :required="true"
+            :label="$tr('facilityInputLabel')"
+            :maxlength="100"
+            :enforceMaxlength="true"
+            v-model="facility"
+          />
         </section>
 
         <section class="setup-submission">
@@ -94,7 +102,7 @@
       facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location',
       formSubmissionButton: 'Create and get started',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
-      usernameCharacterErrorMessage: 'Username cannot contain a "."',
+      usernameCharacterErrorMessage: 'Username can only contain letters and digits',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
       passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
@@ -126,8 +134,7 @@
         return !!this.username;
       },
       usernameValidityCheck() {
-        const containsDot = new RegExp(/^[^.]*$/);
-        return containsDot.test(this.username);
+        return /^\w+$/g.test(this.username);
       },
       firstPasswordFieldsVisit() {
         return this.passwordError === null;
