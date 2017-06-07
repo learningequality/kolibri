@@ -7,7 +7,7 @@ from random import sample
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
-from future.moves.urllib.parse import parse_qs, urlparse
+from six.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
