@@ -27,9 +27,6 @@
         // These are all the anchors to show in the TOC.
         // They are objects with the "hash" and "label" properties.
         anchors: [],
-
-        // This will be auto-populated to the current route.
-        route: ''
       };
     },
     mounted() {
