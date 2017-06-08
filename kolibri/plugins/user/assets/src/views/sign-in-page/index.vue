@@ -30,7 +30,7 @@
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link class="group-btn" :to="signUp">
+        <router-link v-if="canSignUp" class="group-btn" :to="signUp">
           <icon-button id="signup-button" :text="$tr('createAccount')" :primary="true"/>
         </router-link>
         <a class="group-btn" href="/learn">
@@ -48,6 +48,7 @@
 
   const actions = require('kolibri.coreVue.vuex.actions');
   const PageNames = require('../../constants').PageNames;
+  const getters = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'signInPage',
@@ -80,6 +81,9 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
       },
+      canSignUp() {
+        return this.facilityConfig.learnerCanSignUp;
+      },
     },
     methods: {
       signIn() {
@@ -91,6 +95,7 @@
     },
     vuex: {
       getters: {
+        facilityConfig: getters.facilityConfig,
         loginError: state => state.core.loginError === 401,
       },
       actions: {
