@@ -85,7 +85,7 @@ class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
         return queryset.none()
 
 
-class IsAdminOrUserForOwnFacilityDataset(BasePermissions):
+class IsAdminCanEditForOwnFacilityDataset(BasePermissions):
     """
     Permission class that allows access to dataset settings if they are admin or user for facility.
     """
@@ -129,6 +129,16 @@ class IsAdminOrUserForOwnFacilityDataset(BasePermissions):
         return queryset.filter(id=user.dataset_id)
 
 
+class AllCanReadFacilityDataset(BasePermissions):
+    """
+    Permission class that allows read access to dataset settings for anyone.
+    """
+
+    def user_can_read_object(self, user, obj):
+        return True
+
+    def readable_by_user_filter(self, user, queryset):
+        return queryset
 class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def _user_is_coach_for_classroom(self, user, obj):
         # make sure the target object is a group and user is a coach for the group's classroom

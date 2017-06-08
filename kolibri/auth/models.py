@@ -52,8 +52,9 @@ from .errors import (
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AnonUserCanReadFacilitiesThatAllowSignUps, AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CoachesCanManageGroupsForTheirClasses,
-    CoachesCanManageMembershipsForTheirGroups, CollectionSpecificRoleBasedPermissions, IsAdminOrUserForOwnFacilityDataset
+    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility,
+    CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups, CollectionSpecificRoleBasedPermissions,
+    IsAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -82,7 +83,10 @@ class FacilityDataset(FacilityDataSyncableModel):
     to indicate that they belong to this particular ``Facility``.
     """
 
-    permissions = IsAdminOrUserForOwnFacilityDataset()
+    permissions = (
+        AllCanReadFacilityDataset() |
+        IsAdminCanEditForOwnFacilityDataset()
+    )
 
     # Morango syncing settings
     morango_model_name = "facilitydataset"
