@@ -70,6 +70,7 @@
     "exports-loader": "0.6.3",
     "fg-loadcss": "1.2.0",
     "file-loader": "0.9.0",
+    "glob": "^7.1.2",
     "htmlhint": "0.9.13",
     "htmlhint-loader": "0.1.0",
     "imports-loader": "0.6.5",

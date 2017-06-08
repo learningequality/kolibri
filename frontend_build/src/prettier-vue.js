@@ -53,6 +53,7 @@ function prettierVue({
                 reject(error.message);
                 return;
               }
+              console.log(`Rewriting a prettier version of ${file}`);
               resolve('success!');
             });
           }
@@ -66,6 +67,7 @@ function prettierVue({
 
 if (require.main === module) {
   const program = require('commander');
+  const glob = require('glob');
 
   program
     .version('0.0.1')
@@ -76,21 +78,38 @@ if (require.main === module) {
     .option('--prettierPath <filePath>', 'Path to prettier bin')
     .parse(process.argv);
   const file = program.args[0];
+  const baseOptions = Object.assign({}, program);
+  if (baseOptions.prettierPath) {
+    baseOptions.prettierOptions = require(path.resolve(process.cwd(), baseOptions.prettierPath));
+    delete baseOptions.prettierPath;
+  }
+  const logSuccess = formatted => {
+    if (!baseOptions.write) {
+      console.log(formatted);
+    }
+  }
   if (!file) {
     program.help();
   } else {
-    const options = Object.assign({}, program, { file });
-    if (options.prettierPath) {
-      /* eslint-disable import/no-dynamic-require */
-      options.prettierOptions = require(path.resolve(process.cwd(), options.prettierPath));
-      /* eslint-enable import/no-dynamic-require */
-      delete options.prettierPath;
+    if (glob.hasMagic(file)) {
+      glob(file, (err, matches) => {
+        if (err) {
+          console.log('Error: ', err);
+        } else {
+          matches.forEach(globbedFile => {
+            prettierVue(Object.assign({}, baseOptions, { file: globbedFile })
+              .then(logSuccess)
+              .catch(
+                error => console.log('Error: ', error)));
+          });
+        }
+      });
+    } else {
+      prettierVue(Object.assign({}, baseOptions, { file })
+        .then(logSuccess)
+        .catch(
+          error => console.log('Error: ', error)));
     }
-    prettierVue(options)
-      .then(
-        formatted => console.log(formatted))
-      .catch(
-        error => console.log('Error: ', error));
   }
 }
 
