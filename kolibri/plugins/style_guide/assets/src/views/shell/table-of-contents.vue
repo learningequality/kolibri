@@ -30,8 +30,6 @@
       };
     },
     mounted() {
-      this.route = this.$route.path.replace('/', '#');
-
       this.anchors = map(
         this.$parent.$el.querySelectorAll('[id]'),
         (sectionHeadingEl) => ({
