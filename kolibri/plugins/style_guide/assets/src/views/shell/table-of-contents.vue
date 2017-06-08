@@ -13,13 +13,12 @@
 
 <script>
 
+  const map = require('lodash/map');
+
   /**
    * A component for auto-generating a table of contents for a page. All
    * elements with an [id] attribute defined will be shown in the TOC.
    */
-
-  const map = require('lodash/map');
-
   module.exports = {
     name: 'TableOfContents',
     data() {
