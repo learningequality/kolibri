@@ -18,16 +18,22 @@
   FullVue.component('textbox', require('kolibri.coreVue.components.textbox'));
 
   // Define the examples as the initial content of the Vuep editor.
+  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
+  // need to work around it by dynamically constructing them.
+  const script = 'script';
   const codeExamplesTemplate = `
-const examples = \`
-  <!-- require('kolibri.coreVue.components.textbox') -->
+<template>
   <textbox v-model="value"/>
-\`;
+</template>
 
-module.exports = {
-  template: '<div>' + examples + '</div>',
-  data: () => ({ value: 'Example' })
-}
+<${script}>
+  module.exports = {
+    data: () => ({ value: 'Example' }),
+    components: {
+      // textbox: require('kolibri.coreVue.components.textbox')
+    }
+  };
+</${script}>
 `;
 
   module.exports = {

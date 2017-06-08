@@ -23,6 +23,8 @@
 
   @import '~vuep/dist/vuep.css'
 
+  // Sidenav styles
+
   $sidenav-width = 10em
 
   page-section()
@@ -41,5 +43,21 @@
   .content
     page-section()
     left: $sidenav-width
+
+</style>
+
+
+<style lang="stylus">
+
+  // Code editor & preview styles
+  .vuep
+    flex-direction: column-reverse
+
+    .vuep-preview,
+    .vuep-editor
+      width: 100%
+
+    .vuep-editor
+      height: 50em
 
 </style>
