@@ -689,6 +689,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   UserExamResource.clearCache();
 
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+    // prettier-ignore
     [contentId]: ({
       [itemId]: currentAttemptLog,
     }),
@@ -717,6 +718,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     new Promise((resolve, reject) => {
       const log = Object.assign({}, newExamAttemptLog);
       store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        // prettier-ignore
         [contentId]: ({
           [itemId]: log,
         }),
