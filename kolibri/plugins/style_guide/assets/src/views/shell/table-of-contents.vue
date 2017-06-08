@@ -41,7 +41,7 @@
     },
     methods: {
       getAnchorLink(hash) {
-        return this.$route.path + hash;
+        return this.$route.path + hash; // E.g. /style_guide/foo#bar
       },
     },
   };
