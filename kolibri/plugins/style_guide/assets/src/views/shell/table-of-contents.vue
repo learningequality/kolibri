@@ -2,9 +2,9 @@
 
   <ul>
     <li v-for="anchor in anchors">
-      <a :href="route" @click="goToAnchor(anchor.hash)">
+      <router-link :to="getAnchorLink(anchor.hash)">
         {{ anchor.label }}
-      </a>
+      </router-link>
     </li>
   </ul>
 
@@ -43,12 +43,9 @@
         }));
     },
     methods: {
-      // Uses the provided hash (e.g. "#heading") as the ID to find the element
-      // with anchor behavior, and scrolls it into view.
-      goToAnchor(hash) {
-        // Notes: scrollIntoView() may not be available in older browsers.
-        document.querySelector(hash).scrollIntoView();
-      }
+      getAnchorLink(hash) {
+        return this.$route.path + hash;
+      },
     },
   };
 

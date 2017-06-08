@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const base = '/style_guide';
+
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -11,7 +13,7 @@ const navigationMenu = [
       {
         linkLabel: 'Typography',
         linkRoute: {
-          path: '/typograhy',
+          path: `${base}/typography`,
           component: require('../content/typography')
         }
       },
@@ -23,21 +25,21 @@ const navigationMenu = [
       {
         linkLabel: 'Button',
         linkRoute: {
-          path: '/button',
+          path: `${base}/button`,
           component: require('../content/button')
         }
       },
       {
         linkLabel: 'Tab',
         linkRoute: {
-          path: '/tab',
+          path: `${base}/tab`,
           component: require('../content/tab')
         }
       },
       {
         linkLabel: 'Textbox',
         linkRoute: {
-          path: '/textbox',
+          path: `${base}/textbox`,
           component: require('../content/components/textbox')
         }
       }
