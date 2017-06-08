@@ -53,7 +53,6 @@
     "vuex": "1.0.0"
   },
   "devDependencies": {
-    "@vuedoc/parser": "https://github.com/learningequality/parser",
     "autoprefixer": "6.7.2",
     "buble": "0.15.2",
     "buble-loader": "0.4.0",

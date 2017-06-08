@@ -26,10 +26,6 @@
   @require '~kolibri.styles.definitions'
 
   $sidenav-width = 10em
-  $component-table-width = 25em
-
-  .component-table
-    width: 100%  
 
   page-section()
     position: absolute

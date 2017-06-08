@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <h1>Textbox</h1>
-    <h2>Source Code: kolibri/kolibri/core/assets/src/views/textbox/index.vue</h2> 
+    <h1>Icon Button</h1>
+    <h2>Source Code: kolibri/kolibri/core/assets/src/views/icon-button/index.vue</h2> 
     <documentation-component :componentApi="api"></documentation-component>
   </div>
 
@@ -11,7 +11,7 @@
 
 <script>
 
-  var api = require('!vue-doc!kolibri.coreVue.components.textbox'); // eslint-disable-line
+  var api = require('!vue-doc!kolibri.coreVue.components.iconButton'); // eslint-disable-line
 
   module.exports = {
     components: {
@@ -28,5 +28,10 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  $table-width = 25em
+
+  .table
+    width: 100%  
 
 </style>

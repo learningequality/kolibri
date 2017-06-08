@@ -2,5 +2,8 @@
   "name": "style_guide",
   "description": "Kolibri's living style guide",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "@vuedoc/parser": "https://github.com/learningequality/parser"
+  },
+  "devDependencies": {}
 }

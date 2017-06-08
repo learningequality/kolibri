@@ -21,10 +21,10 @@ const navigationMenu = [
     sectionHeading: 'Components',
     sectionLinks: [
       {
-        linkLabel: 'Button',
+        linkLabel: 'Icon Button',
         linkRoute: {
-          path: '/button',
-          component: require('../content/button')
+          path: '/iconbutton',
+          component: require('../content/icon-button')
         }
       },
       {
