@@ -1,7 +1,9 @@
 {
-  "name": "Style guide",
+  "name": "style_guide",
   "description": "Kolibri's living style guide",
   "private": true,
   "dependencies": {
+    "codemirror": "^5.26.0",
+    "vuep": "^0.7.0"
   }
 }
