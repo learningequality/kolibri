@@ -216,7 +216,7 @@ class SessionViewSet(viewsets.ViewSet):
                     'username': '',
                     'full_name': '',
                     'user_id': None,
-                    'facility_id': None,
+                    'facility_id': Facility.get_default_facility().id,
                     'kind': ['anonymous'],
                     'error': '200'}
 
@@ -225,7 +225,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None,
+            session.update({'facility_id': Facility.get_default_facility().id,
                             'kind': ['superuser'],
                             'error': '200'})
             return session

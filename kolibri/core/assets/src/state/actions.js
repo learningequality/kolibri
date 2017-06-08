@@ -190,7 +190,7 @@ function kolibriLogout(store) {
 
 function getCurrentSession(store, force = false) {
   const coreApp = require('kolibri');
-  const { SessionResource, FacilityResource } = coreApp.resources;
+  const { SessionResource } = coreApp.resources;
   let sessionPromise;
   if (force) {
     sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
@@ -199,20 +199,9 @@ function getCurrentSession(store, force = false) {
   }
   return sessionPromise
   .then((session) => {
-    if (!session.facility_id) {
-      // device owners users aren't associated with a facility, so just choose one
-      logging.info('No facilty ID set on session. Fetching facility list...');
-      const facilityCollection = FacilityResource.getCollection();
-      const facilityPromise = facilityCollection.fetch();
-      return facilityPromise.then(facilities => {
-        session.facility_id = (facilities[0] || {}).id;
-        logging.info(`Setting facility ${session.facility_id}`);
-        store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      });
-    }
     logging.info('Session set.');
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-    return null;
+    return session;
   })
   .catch(error => { handleApiError(store, error); });
 }
@@ -220,25 +209,20 @@ function getCurrentSession(store, force = false) {
 
 function getFacilityConfig(store) {
   const coreApp = require('kolibri');
-  const FacilityCollection = coreApp.resources.FacilityResource
-    .getCollection()
-    .fetch();
 
-  return FacilityCollection.then(facilities => {
-    store.dispatch('CORE_SET_FACILITIES', facilities);
-    const currentFacilityId = facilities[0].id; // assumes there is only 1 facility for now
-    const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
-      .getCollection({ facility_id: currentFacilityId })
-      .fetch();
-    return facilityConfigCollection.then(facilityConfig => {
-      let config = {};
-      const facility = facilityConfig[0];
-      if (facility) {
-        config = CoreMappers.convertKeysToCamelCase(facility);
-      }
-      store.dispatch('CORE_SET_FACILITY_CONFIG', config);
-    });
-  }).catch(error => handleApiError(store, error));
+  // assumes session is loaded
+  const currentFacilityId = getters.currentFacilityId(store.state);
+  const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
+    .getCollection({ facility_id: currentFacilityId })
+    .fetch();
+  return facilityConfigCollection.then(facilityConfig => {
+    let config = {};
+    const facility = facilityConfig[0];
+    if (facility) {
+      config = CoreMappers.convertKeysToCamelCase(facility);
+    }
+    store.dispatch('CORE_SET_FACILITY_CONFIG', config);
+  });
 }
 
 

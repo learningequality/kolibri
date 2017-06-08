@@ -153,7 +153,7 @@
     },
     vuex: {
       getters: {
-        facilityConfig: state => state.core.facilityConfig,
+        facilityConfig: getters.facilityConfig,
         session: state => state.core.session,
         error: state => state.pageState.error,
         success: state => state.pageState.success,
