@@ -32,6 +32,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
+var PrettierVuePlugin = require('./prettier-vue-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = (process.env.LINT || production);
@@ -141,19 +142,11 @@ if (lint) {
 
   // adds custom rules
   require('./htmlhint_custom');
+  var prettierOptions = require('../../.prettier');
 
   var lintConfig = {
     module: {
       rules: [
-        {
-          test: /\.(vue|js)$/,
-          enforce: 'pre',
-          use: {
-            loader: 'eslint-loader',
-            options: { failOnError: true }
-          },
-          exclude: /node_modules/
-        },
         {
           test: /\.(vue|html)/,
           enforce: 'pre',
@@ -169,7 +162,14 @@ if (lint) {
           loader: 'stylint-loader'
         }
       ]
-    }
+    },
+    plugins: [
+      new PrettierVuePlugin({
+        extensions: ['.js', '.vue'],
+        logLevel: 'warn',
+        prettierOptions,
+      })
+    ],
   };
   config = merge.smart(config, lintConfig);
 }

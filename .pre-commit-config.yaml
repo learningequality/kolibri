@@ -13,8 +13,3 @@
     -   id: python-import-sorter
         args:
         - --silent-overwrite
--   repo: git://github.com/pre-commit/mirrors-eslint
-    sha: v3.14.0
-    hooks:
-    -   id: eslint
-        additional_dependencies: [ 'eslint', 'eslint-plugin-html', 'eslint-config-airbnb', 'eslint-plugin-import', 'eslint-plugin-jsx-a11y']
