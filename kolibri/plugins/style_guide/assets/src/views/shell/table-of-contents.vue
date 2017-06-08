@@ -14,28 +14,25 @@
 <script>
 
   /**
-   * A component for auto-generating a table of content for a page. All elements
-   * with an [id] attribute defined will be shown in the TOC.
+   * A component for auto-generating a table of contents for a page. All
+   * elements with an [id] attribute defined will be shown in the TOC.
    */
 
   const map = require('lodash/map');
 
   module.exports = {
-    name: 'TableOfContent',
-    props: {
-      /** The route of the current page. E.g. "#button" */
-      route: {
-        type: String,
-      },
-    },
+    name: 'TableOfContents',
     data() {
       return {
         // These are all the anchors to show in the TOC.
         // They are objects with the "hash" and "label" properties.
         anchors: [],
+        route: ''
       };
     },
     mounted() {
+      this.route = this.$route.path.replace('/', '#');
+
       this.anchors = map(
         this.$parent.$el.querySelectorAll('[id]'),
         (sectionHeadingEl) => ({
