@@ -61,7 +61,7 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <content-cards v-else container="grid" :contents="filteredResults" />
+      <content-card-grid v-else :contents="filteredResults" :gen-link="genLink"/>
 
     </template>
 
@@ -74,6 +74,7 @@
 
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const GetCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+  const PageNames = require('../../constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'learnSearch',
@@ -103,8 +104,7 @@
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
-      'content-card': require('../content-cards/content-card'),
-      'content-cards': require('../content-cards'),
+      'content-card-grid': require('../content-card-grid'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'tab-button': require('kolibri.coreVue.components.tabButton'),
     },
@@ -112,6 +112,20 @@
       return {
         filter: 'all',
       };
+    },
+    methods: {
+      genLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      }
     },
     computed: {
       contentNodeKinds() {

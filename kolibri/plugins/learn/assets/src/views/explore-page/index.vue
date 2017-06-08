@@ -15,9 +15,7 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <!-- <content-cards container="grid" :contents="subtopics" v-if="subtopics.length" /> -->
-
-    <content-cards container="grid" :contents="contents" v-if="contents.length" />
+    <content-card-grid :contents="contents" v-if="contents.length" :gen-link="genLink"/>
 
   </div>
 
@@ -28,6 +26,7 @@
 
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const { PageNames } = require('../../constants');
 
   module.exports = {
     $trNameSpace: 'learnExplore',
@@ -37,7 +36,7 @@
     },
     components: {
       'page-header': require('../page-header'),
-      'content-cards': require('../content-cards'),
+      'content-card-grid': require('../content-card-grid'),
     },
     computed: {
       title() {
@@ -45,6 +44,20 @@
       },
       subtopics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
+    },
+    methods: {
+      genLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
       },
     },
     vuex: {

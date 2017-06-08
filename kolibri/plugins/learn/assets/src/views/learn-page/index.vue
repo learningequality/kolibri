@@ -4,35 +4,38 @@
     <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <!-- <allcontent v-if="all.content.length"/> -->
-    <content-cards
-      v-if="all.content.length"
-      container="carousel"
-      :contents="all.content" />
-    <content-cards
+    <content-card-carousel
       v-if="recommendations.popular.length"
-      container="carousel"
+      :gen-link="genLink"
       :contents="recommendations.popular"
       :header="$tr('popularSectionHeader')"
       :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
-    <content-cards
+    <content-card-carousel
       v-if="recommendations.nextSteps.length"
-      container="carousel"
+      :gen-link="genLink"
       :contents="recommendations.nextSteps"
       :header="$tr('suggestedNextStepsSectionHeader')"
       :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
-    <content-cards
+    <content-card-carousel
       v-if="recommendations.resume.length"
-      container="carousel"
+      :gen-link="genLink"
       :contents="recommendations.resume"
       :header="$tr('resumeSectionHeader')"
       :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
+    <content-card-carousel
+      v-if="all.content.length"
+      :gen-link="genLink"
+      :header="$tr('allContentSectionHeader')"
+      :contents="all.content" />
   </div>
 
 </template>
 
 
 <script>
+
+  const { PageNames } = require('../../constants');
+
 
   module.exports = {
     $trNameSpace: 'learnPageIndex',
@@ -43,12 +46,26 @@
       resumeSectionHeader: 'Resume',
       popularSectionSubHeader: '{numOfItems, number} popular items',
       suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
-      resumeSectionSubHeader: '{numOfItems, number} itemss to be resumed',
+      resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
+      allContentSectionHeader: 'All items',
     },
     components: {
       'page-header': require('../page-header'),
-      'allcontent': require('./allcontent'),
-      'content-cards': require('../content-cards'),
+      'content-card-carousel': require('../content-card-carousel'),
+    },
+    methods: {
+      genLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      }
     },
     vuex: {
       getters: {

@@ -8,16 +8,23 @@
     </header>
 
     <div class="content-carousel-set">
+
       <transition :name="animation">
         <div :key="currentSetIndex" :style="widthOfCarousel" class="content-carousel-cards">
-          <content-card
+          <slot
             v-for="content in contentSets[currentSetIndex]"
-            class="content-card"
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :kind="content.kind"
-            :progress="content.progress"
-            :link="genContentLink(content.id)"/>
+            class="content-card">
+
+              <!-- uses props if scoped slot is unused -->
+              <content-card
+                :title="content.title"
+                :thumbnail="content.thumbnail"
+                :kind="content.kind"
+                :progress="content.progress"
+                :link="genLink(content.id, content.kind)"/>
+
+          </slot>
+
         </div>
       </transition>
 
@@ -38,9 +45,9 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
   const chunk = require('lodash/chunk');
   const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
+  const validateLinkObject = require('kolibri.utils.validateLinkObject');
 
   // body width + L margin + R margin
   const contentCardWidth = 210 + (10 * 2);
@@ -58,10 +65,16 @@
       subheader: {
         type: String,
       },
+      genLink: {
+        type: Function,
+        validator(value) {
+          return validateLinkObject(value(1, 'exercise'));
+        },
+      },
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'content-card': require('./content-card'),
+      'content-card': require('../content-card'),
     },
     data() {
       return {
@@ -98,12 +111,6 @@
       },
     },
     methods: {
-      genContentLink(id) {
-        return {
-          name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
-        };
-      },
       nextSet() {
         this.currentSetIndex += 1;
         this.animation = 'next';
@@ -111,11 +118,6 @@
       previousSet() {
         this.currentSetIndex -= 1;
         this.animation = 'previous';
-      },
-    },
-    vuex: {
-      getters: {
-        channelId: (state) => state.core.channels.currentId,
       },
     },
   };
