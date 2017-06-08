@@ -78,7 +78,7 @@
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
     <content-card-carousel
-      v-if="pageMode === Constants.PageModes.LEARN && recommended"
+      v-if="pageMode === Constants.PageModes.LEARN && recommended.length"
       :gen-link="genLink"
       :header="recommendedText"
       :contents="recommended"/>

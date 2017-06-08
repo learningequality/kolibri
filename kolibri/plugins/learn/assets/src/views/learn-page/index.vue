@@ -35,7 +35,7 @@
 <script>
 
   const { PageNames } = require('../../constants');
-
+  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
 
   module.exports = {
     $trNameSpace: 'learnPageIndex',
@@ -70,6 +70,7 @@
     vuex: {
       getters: {
         all: state => state.pageState.all,
+        channelId: (state) => getCurrentChannelObject(state).id,
         recommendations: state => state.pageState.recommendations,
       },
     },

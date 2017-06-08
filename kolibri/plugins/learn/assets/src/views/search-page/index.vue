@@ -10,7 +10,7 @@
       <tabs>
         <tab-button
           type="icon-and-title"
-          :title="$tr('all', { num: all.length } )"
+          :title="$tr('all', { num: contents.length } )"
           icon="layers"
           @click="filter = 'all'"
           :selected="filter === 'all'"
@@ -61,7 +61,19 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <content-card-grid v-else :contents="filteredResults" :gen-link="genLink"/>
+      <content-card-grid v-else :contents="filteredResults">
+        <template scope="content">
+          <content-card
+            v-show="filter === 'all' || filter === content.kind"
+            :key="content.id"
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :progress="content.progress"
+            :kind="content.kind"
+            :link="genLink(content)"
+          />
+        </template>
+      </content-card-grid>
 
     </template>
 
@@ -80,13 +92,9 @@
     $trNameSpace: 'learnSearch',
 
     $trs: {
-      search: 'Search',
       noSearch: 'Search by typing something in the search box above',
-      noResults: 'No results',
       showingResultsFor: 'Search results for "{searchTerm}"',
       withinChannel: 'Within {channelName}',
-      results: '{count, number, integer} {count, plural, one {result} other {results}}',
-      filterContent: 'Filter content by: ',
       all: 'All ({ num, number })',
       content: 'Content',
       exercises: 'Exercises ({ num, number })',
@@ -105,6 +113,7 @@
     },
     components: {
       'content-card-grid': require('../content-card-grid'),
+      'content-card': require('../content-card'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'tab-button': require('kolibri.coreVue.components.tabButton'),
     },
@@ -113,29 +122,12 @@
         filter: 'all',
       };
     },
-    methods: {
-      genLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
-        return {
-          name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
-        };
-      }
-    },
     computed: {
       contentNodeKinds() {
         return ContentNodeKinds;
       },
-      noResults() {
-        return !this.topics.length && !this.contents.length;
-      },
-      all() {
-        return this.topics.concat(this.contents);
+      topics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
       },
       exercises() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
@@ -166,10 +158,7 @@
         } else if (this.filter === ContentNodeKinds.HTML5) {
           return this.html5;
         }
-        return this.all;
-      },
-      numFiltered() {
-        return this.filteredResults.length;
+        return this.contents;
       },
       noResultsMsg() {
         if (this.filter === ContentNodeKinds.TOPIC) {
@@ -188,10 +177,23 @@
         return this.$tr('noContent', { searchTerm: this.searchTerm });
       },
     },
+    methods: {
+      genLink(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id: content.id },
+          };
+        }
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { channel_id: this.channelId, id: content.id },
+        };
+      },
+    },
     vuex: {
       getters: {
         contents: state => state.pageState.contents,
-        topics: state => state.pageState.topics,
         searchTerm: state => state.pageState.searchTerm,
         channelId: (state) => state.core.channels.currentId,
         channelName: state => GetCurrentChannelObject(state).title,

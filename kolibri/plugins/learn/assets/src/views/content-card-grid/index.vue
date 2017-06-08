@@ -7,7 +7,12 @@
     </header>
 
     <slot
-      v-for="content in contents">
+      v-for="content in contents"
+      :title="content.title"
+      :thumbnail="content.thumnail"
+      :kind="content.kind"
+      :progress="content.progress"
+      :id="content.id">
 
         <content-card
           :title="content.title"
@@ -46,7 +51,8 @@
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));
         },
-        require: false,
+        default: () => {},
+        required: false,
       },
     },
     components: {

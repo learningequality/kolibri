@@ -13,7 +13,11 @@
         <div :key="currentSetIndex" :style="widthOfCarousel" class="content-carousel-cards">
           <slot
             v-for="content in contentSets[currentSetIndex]"
-            class="content-card">
+            :title="content.title"
+            :thumbnail="content.thumnail"
+            :kind="content.kind"
+            :progress="content.progress"
+            :id="content.id">
 
               <!-- uses props if scoped slot is unused -->
               <content-card
