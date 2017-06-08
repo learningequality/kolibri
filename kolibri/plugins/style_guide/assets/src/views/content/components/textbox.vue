@@ -18,7 +18,7 @@
   FullVue.component('textbox', require('kolibri.coreVue.components.textbox'));
 
   // Define the examples as the initial content of the Vuep editor.
-  // Notes: htmllint would incorrectly warn about nested script tags, so we'd
+  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
