@@ -19,9 +19,9 @@
     <div class="content-carousel-set">
 
       <transition :name="animation">
-        <div :key="currentSetIndex" :style="widthOfCarousel" class="content-carousel-cards">
+        <div :key="controlCounter" :style="widthOfCarousel" class="content-carousel-cards">
           <slot
-            v-for="content in contentSets[currentSetIndex]"
+            v-for="content in contentSet"
             :title="content.title"
             :thumbnail="content.thumnail"
             :kind="content.kind"
@@ -63,7 +63,6 @@
 
 <script>
 
-  const chunk = require('lodash/chunk');
   const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
   const validateLinkObject = require('kolibri.utils.validateLinkObject');
 
@@ -104,29 +103,29 @@
     },
     data() {
       return {
-        currentSetIndex: 0,
+        contentSetStartIndex: 0,
+        controlCounter: 0,
         animation: 'next',
       };
     },
     computed: {
-      contentSets() {
-        const contentSetsArray = chunk(this.contents, this.contentSetSize);
-
-        // in case screen expands while rendered
-        if (this.currentSetIndex && this.currentSetIndex >= contentSetsArray.length) {
-          this.currentSetIndex = contentSetsArray.length - 1;
-        }
-
-        return contentSetsArray;
-      },
-      isFirstSet() {
-        return this.currentSetIndex === 0;
-      },
-      isLastSet() {
-        return this.currentSetIndex === (this.contentSets.length - 1);
-      },
       contentSetSize() {
         return Math.floor(this.elSize.width / contentCardWidth);
+      },
+      nextContentSetStartIndex() {
+        return this.contentSetStartIndex + this.contentSetSize;
+      },
+      contentSetEndIndex() {
+        return this.nextContentSetStartIndex - 1;
+      },
+      contentSet() {
+        return this.contents.slice(this.contentSetStartIndex, this.nextContentSetStartIndex);
+      },
+      isFirstSet() {
+        return this.contentSetStartIndex === 0;
+      },
+      isLastSet() {
+        return this.contentSetEndIndex === (this.contents.length - 1);
       },
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
@@ -138,11 +137,29 @@
     },
     methods: {
       nextSet() {
-        this.currentSetIndex += 1;
+        const lastIndex = this.contents.length - 1;
+
+        this.controlCounter += 1;
+
+        const nextEndIndex = (this.nextContentSetStartIndex + this.contentSetSize) - 1;
+        if (nextEndIndex > lastIndex) {
+          this.contentSetStartIndex = this.contents.length - this.contentSetSize;
+        } else {
+          this.contentSetStartIndex = this.nextContentSetStartIndex;
+        }
+
         this.animation = 'next';
       },
       previousSet() {
-        this.currentSetIndex -= 1;
+        this.controlCounter += 1;
+
+        const prevStartIndex = this.contentSetStartIndex - this.contentSetSize;
+        if (prevStartIndex < 0) {
+          this.contentSetStartIndex = 0;
+        } else {
+          this.contentSetStartIndex = prevStartIndex;
+        }
+
         this.animation = 'previous';
       },
     },
