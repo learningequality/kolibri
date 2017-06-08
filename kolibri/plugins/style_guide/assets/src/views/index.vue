@@ -2,12 +2,8 @@
 
   <div>
 
-    <h1>Style Guide</h1>
-    
-    <h2>Dropdown Menu</h2>
-    <h3>Path to file: kolibri/kolibri/core/assets/src/views/dropdown-menu/index.vue</h3>
-    <component-table class="component-table"></component-table>
-    <documentation-component></documentation-component>
+    <sidenav class="sidenav"></sidenav>
+    <router-view class="content"></router-view>
 
   </div>
 
@@ -18,9 +14,8 @@
 
   module.exports = {
     components: {
-      'component-table': require('./component_table'),
-      'documentation-component': require('./documentation_component'),
-    },
+      sidenav: require('./shell/sidenav'),
+    }
   };
 
 </script>
@@ -30,9 +25,27 @@
 
   @require '~kolibri.styles.definitions'
 
+  $sidenav-width = 10em
   $component-table-width = 25em
 
   .component-table
-    width: 100%
+    width: 100%  
+
+  page-section()
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    overflow-y: auto
+
+  .sidenav
+    page-section()
+    right: initial
+    width: $sidenav-width
+
+  .content
+    page-section()
+    left: $sidenav-width
 
 </style>
