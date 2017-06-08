@@ -24,6 +24,7 @@
       :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
     <content-card-carousel
       v-if="all.content.length"
+      :showViewAll="true"
       :gen-link="genLink"
       :header="$tr('allContentSectionHeader')"
       :contents="all.content" />
