@@ -1,6 +1,6 @@
 <template>
 
-  <content-cards container="grid" :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
+  <content-card-grid :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -12,7 +12,7 @@
 
     </div>
 
-  </content-cards>
+  </content-card-grid>
 
 </template>
 
@@ -71,7 +71,7 @@
     },
     components: {
       'content-card': require('../content-cards/content-card'),
-      'content-cards': require('../content-cards'),
+      'content-card-grid': require('../content-card-grid'),
     },
     vuex: {
       getters: {
