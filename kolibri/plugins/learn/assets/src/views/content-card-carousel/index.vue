@@ -33,12 +33,17 @@
       </transition>
 
       <div class="content-carousel-controls">
-        <icon-button class="previous" @click="previousSet" v-if="!isFirstSet">
-          <mat-svg category="hardware" name="keyboard_arrow_left"/>
-        </icon-button>
-        <icon-button class="next" @click="nextSet" v-if="!isLastSet">
-          <mat-svg category="hardware" name="keyboard_arrow_right"/>
-        </icon-button>
+        <ui-icon-button
+          v-if="!isFirstSet"
+          icon="arrow_back"
+          size="large"
+          class="previous"
+          @click="previousSet" />
+        <ui-icon-button
+          v-if="!isLastSet"
+          icon="arrow_forward"
+          size="large"
+          class="next" @click="nextSet" />
       </div>
 
     </div>
@@ -77,7 +82,7 @@
       },
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'content-card': require('../content-card'),
     },
     data() {
@@ -133,7 +138,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  $card-gutter = 10px
   $card-height = 210px
 
   .content-carousel
