@@ -78,7 +78,7 @@
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
     <content-card-carousel
-      v-if="pageMode === Constants.PageModes.LEARN && recommended.length"
+      v-if="showRecommended"
       :gen-link="genLink"
       :header="recommendedText"
       :contents="recommended"/>
@@ -159,6 +159,12 @@
           };
         }
         return null;
+      },
+      showRecommended() {
+        if (this.recommended && this.pageMode === Constants.PageModes.LEARN) {
+          return true;
+        }
+        return false;
       },
     },
     components: {
