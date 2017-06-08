@@ -1,7 +1,6 @@
 {
-  "name": "Style guide",
+  "name": "style_guide",
   "description": "Kolibri's living style guide",
   "private": true,
-  "dependencies": {
-  }
+  "dependencies": {}
 }
