@@ -1,10 +1,8 @@
 <template>
 
   <div>
-
     <sidenav class="sidenav"></sidenav>
     <router-view class="content"></router-view>
-
   </div>
 
 </template>
