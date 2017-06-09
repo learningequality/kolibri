@@ -5,6 +5,7 @@ const CoreMappers = require('kolibri.coreVue.vuex.mappers');
 const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
+const LoginErrors = require('../constants').LoginErrors;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 const { now } = require('kolibri.utils.serverClock');
@@ -168,7 +169,9 @@ function kolibriLogin(store, sessionPayload) {
     }
   }).catch(error => {
     if (error.status.code === 401) {
-      store.dispatch('CORE_SET_LOGIN_ERROR', 401);
+      store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+    } else if (error.status.code === 400 && error.entity.missing_field === 'password') {
+      store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
     } else {
       handleApiError(store, error);
     }
