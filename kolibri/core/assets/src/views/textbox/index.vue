@@ -3,7 +3,8 @@
   <ui-textbox
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    @input="updateText()"
+    @input="updateText"
+    @keydown="emitKeydown"
     v-model="currentText"
     :disabled="disabled"
     :placeholder="placeholder"
@@ -76,14 +77,23 @@
         currentText: this.value,
       };
     },
+    watch: {
+      value: 'setCurrentText',
+    },
     methods: {
       updateText(text) {
         // v-model is just a :value + @input
         this.$emit('input', this.currentText);
       },
+      setCurrentText(text) {
+        this.currentText = text;
+      },
       reset() {
         this.$refs.textbox.reset();
       },
+      emitKeydown(e) {
+        this.$emit('keydown', e);
+      }
     },
     components: {
       'ui-textbox': require('keen-ui/src/UiTextbox'),
