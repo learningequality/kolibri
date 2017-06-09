@@ -21,7 +21,7 @@
           :ref="`visibleCrumb${index}`"
           class="breadcrumbs-visible-item breadcrumb-visible-item-last"
           :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">
-          <strong>{{ crumb.text }}</strong>
+          {{ crumb.text }}
         </li>
 
         <li v-else :ref="`visibleCrumb${index}`" class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast">
@@ -38,12 +38,12 @@
 <script>
 
   const ResponsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-  // const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
+  const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
   const filter = require('lodash/filter');
   const startsWith = require('lodash/startsWith');
   const throttle = require('lodash/throttle');
 
-  const DROPDOWN_WIDTH = 48;
+  const DROPDOWN_WIDTH = 55;
 
   module.exports = {
     mixins: [ResponsiveElement],
@@ -67,8 +67,7 @@
           }
           crumbs.pop();
           // All, but the last, must have a valid router link
-          // return items.every(item => ValidateLinkObject(item.link));
-          return true;
+          return crumbs.every(item => ValidateLinkObject(item.link));
         },
       },
     },
@@ -124,7 +123,6 @@
               });
               return;
             }
-
             lastCrumbWidth = Math.ceil(
                 tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width);
 
@@ -148,11 +146,11 @@
       parentWidth: 'throttleUpdateCrumbs',
     },
     mounted() {
-      this.updateCrumbs();
-      window.addEventListener('load', this.updateCrumbs);
+      this.throttleUpdateCrumbs();
+      window.addEventListener('load', this.throttleUpdateCrumbs);
     },
     beforeDestroy() {
-      window.removeEventListener('load', this.updateCrumbs);
+      window.removeEventListener('load', this.throttleUpdateCrumbs);
     },
   };
 
@@ -166,7 +164,7 @@
   .breadcrumbs
     margin-top: 1em
     margin-bottom: 1em
-    font-size: small
+    font-size: 16px
     background-color: white
 
   .breadcrumbs-dropdown-wrapper
@@ -178,7 +176,7 @@
 
   .breadcrumbs-dropdown
     padding: 0.5em
-    font-size: small
+    font-size: 16px
 
   .breadcrumbs-dropdown-items
     padding: 0.25em
@@ -192,18 +190,24 @@
     text-overflow: ellipsis
     padding-top: 0.5em
     padding-bottom: 0.5em
+    a
+      display: inline-block
 
   .breadcrumbs-visible-items
     display: inline-block
     // vertical-align: middle
     margin: 0
-    padding: 0
+    padding: 12px
     list-style: none // get rid of whitespace
     font-size: 0
+    padding: 12px
 
   .breadcrumbs-visible-item
     display: inline-block
-    font-size: small
+    font-size: 16px
+    vertical-align: middle
+    a
+      display: inline-block
 
   .breadcrumbs-visible-item-notlast
     &:after

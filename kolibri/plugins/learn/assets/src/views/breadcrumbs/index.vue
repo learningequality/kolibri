@@ -1,47 +1,7 @@
 <template>
 
-  <div>
-    <nav class="breadcrumbs" role="navigation" :aria-label="$tr('youAreHere')">
-
-      <span v-if="pageName === PageNames.LEARN_CONTENT">
-        <router-link :to="learnRootLink">
-          <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <mat-svg category="navigation" name="arrow_back"/>
-        </router-link>
-      </span>
-
-      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <router-link :to="parentExploreLink">
-          <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <mat-svg category="navigation" name="arrow_back"/>
-        </router-link>
-      </span>
-
-      <span v-if="pageName === PageNames.EXPLORE_TOPIC">
-
-        <span class="first-breadcrumb landscape">
-          <router-link :to="exploreRootLink">{{ $tr('explore') }}</router-link>
-        </span>
-
-        <span class="portrait">
-          <router-link :to="parentExploreLink">
-            <span class="visuallyhidden">{{ $tr('back') }}</span>
-            <mat-svg category="navigation" name="arrow_back"/>
-          </router-link>
-        </span>
-
-        <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
-          <router-link :to="topicLink(crumb.id)">{{ crumb.title }}</router-link>
-        </span>
-
-        <span class="middle-breadcrumb landscape">
-          {{ title }}
-        </span>
-
-      </span>
-
-    </nav>
-  </div>
+  <breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
+  <breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
 
 </template>
 
@@ -51,40 +11,61 @@
   const PageNames = require('../../constants').PageNames;
   const PageModes = require('../../constants').PageModes;
   const getters = require('../../state/getters');
+  const { getCurrentChannelObject } = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learnBreadcrumbs',
     $trs: {
-      explore: 'Topics',
-      youAreHere: 'You are here:',
-      back: 'Back to previous topic',
+      recommended: 'Recommended',
+    },
+    components: {
+      breadcrumbs: require('kolibri.coreVue.components.breadcrumbs'),
     },
     computed: {
-      PageModes() {
-        return PageModes;
-      },
-      PageNames() {
-        return PageNames;
+      inLearn() {
+        return this.pageMode === PageModes.LEARN;
       },
       learnRootLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel_id: this.currentChannelId,
+          channel_id: this.channelId,
         };
+      },
+      learnBreadcrumbs() {
+        const crumbs = [{ text: this.$tr('recommended'), link: this.learnRootLink }];
+        if (this.pageName === PageNames.LEARN_CONTENT) {
+          crumbs.push({ text: this.contentTitle });
+        }
+        return crumbs;
+      },
+      inExplore() {
+        return this.pageMode === PageModes.EXPLORE;
+      },
+      inExploreRoot() {
+        return this.pageName === PageNames.EXPLORE_CHANNEL;
       },
       exploreRootLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          channel_id: this.currentChannelId,
+          channel_id: this.channelId,
         };
       },
-      parentExploreLink() {
+      exploreBreadcrumbs() {
+        const crumbs = [{ text: this.channelTitle, link: this.exploreRootLink }];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          return this.topicLink(this.contentParent);
-        } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
-          return this.topicLink(this.topicParent);
+          this.contentCrumbs.forEach(
+            crumb => crumbs.push({ text: crumb.title, link: this.topicLink(crumb.id) })
+          );
+          crumbs.push({ text: this.contentTitle });
+        } else {
+          this.topicCrumbs.forEach(
+            crumb => crumbs.push({ text: crumb.title, link: this.topicLink(crumb.id) })
+          );
+          if (!this.inExploreRoot) {
+            crumbs.push({ text: this.topicTitle });
+          }
         }
-        return this.exploreRootLink;
+        return crumbs;
       },
     },
     methods: {
@@ -92,7 +73,7 @@
         return {
           name: PageNames.EXPLORE_TOPIC,
           params: {
-            channel_id: this.currentChannelId,
+            channel_id: this.channelId,
             id: topicId,
           },
         };
@@ -100,15 +81,14 @@
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
-        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
-        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
-        topicParent: state => state.pageState.topic.parent,
-        contentParent: state => state.pageState.content.parent,
         pageName: state => state.pageName,
-        pageState: state => state.pageState,
-        currentChannelId: state => state.core.channels.currentId,
-        title: state => state.pageState.topic.title,
+        pageMode: getters.pageMode,
+        channelId: state => getCurrentChannelObject(state).id,
+        channelTitle: state => getCurrentChannelObject(state).title,
+        topicTitle: state => state.pageState.topic.title,
+        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
+        contentTitle: state => state.pageState.content.title,
+        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
       },
     },
   };
@@ -116,39 +96,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-  @require '../learn.styl'
-
-  .middle-breadcrumb::before
-    content: '>'
-    margin-left: 0.5em
-    margin-right: 0.5em
-    color: $core-text-annotation
-
-  .middle-breadcrumb, .first-breadcrumb
-    vertical-align: middle
-    font-size: 0.9em
-    font-weight: 300
-    max-width: 140px
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
-    a
-      color: $core-text-annotation
-      display: inline-block
-
-  .landscape
-    @media screen and (max-width: $portrait-breakpoint)
-      display: none
-
-  .portrait
-    display: none
-    @media screen and (max-width: $portrait-breakpoint)
-      display: initial
-
-  svg
-    fill: $core-text-annotation
-
-</style>
+<style lang="stylus" scoped></style>

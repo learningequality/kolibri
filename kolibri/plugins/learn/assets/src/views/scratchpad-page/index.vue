@@ -1,7 +1,8 @@
 <template>
 
   <div>
-    <breadcrumbs :items="items"/>
+    <h1>Learn Scratchpad</h1>
+    <p>Use this page for in-progress component prototyping.</p>
   </div>
 
 </template>
@@ -9,33 +10,7 @@
 
 <script>
 
-  module.exports = {
-    components: {
-      breadcrumbs: require('./breadcrumbs'),
-    },
-    computed: {
-      items() {
-        return [
-          {
-            text: 'Decimals (CK-12)',
-            link: '#'
-          },
-          {
-            text: 'Combinations of Decimal Money Amounts',
-            link: '#'
-          },
-          {
-            text: 'Adding and subtracting fractions with like denominators',
-            link: '#'
-          },
-          {
-            text: 'Dividing unit fractions and whole numbers',
-            link: '#'
-          },
-        ];
-      },
-    },
-  };
+  module.exports = {};
 
 </script>
 
