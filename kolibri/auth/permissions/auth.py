@@ -139,6 +139,8 @@ class AllCanReadFacilityDataset(BasePermissions):
 
     def readable_by_user_filter(self, user, queryset):
         return queryset
+
+
 class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def _user_is_coach_for_classroom(self, user, obj):
         # make sure the target object is a group and user is a coach for the group's classroom

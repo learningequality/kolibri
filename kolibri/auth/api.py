@@ -206,6 +206,13 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
+        elif not password and (FacilityUser.objects.filter(username=username, facility=facility_id).exists() or
+                               DeviceOwner.objects.filter(username=username).exists()):
+            # Password was missing, but username is valid, prompt to give password
+            return Response({
+                "message": "Please provide password for user",
+                "missing_field": "password"
+            }, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Respond with error
             return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
