@@ -16,17 +16,16 @@
     </div>
 
 
-    <div class="content-carousel-set">
+    <div :style="widthOfWrapper" class="content-carousel-set">
 
-        <div :style="widthOfCarousel" class="content-carousel-cards">
+        <div :style="widthOfCarousel" ref="cardCarousel" class="content-carousel-cards">
           <transition-group
             :name="animation"
-            :duration="500"
             tag="div"
-            @before-enter="enterStyleStart"
-            @leave="leaveStyleStart"
-            @after-leave="leaveStyleEnd"
-            @enter="enterStyleEnd">
+            @before-enter="beforeEnterStyle"
+            @enter="enterStyle"
+            @leave="leaveStyle"
+            @after-leave="afterLeaveStyle">
 
             <slot
               v-for="content in contentSet"
@@ -140,29 +139,39 @@
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
         return {
-          // 'width': `${contentCardWidth * this.contentSetSize * 2}px`,
-          // 'transform': `translateX(-50%)`,
           'min-width': `${contentCardWidth}px`,
+        };
+      },
+      widthOfWrapper() {
+        // keeps cards in between the control buttons
+        return {
+          width: `${this.contentSetSize * contentCardWidth}px`,
         };
       },
     },
     methods: {
-      enterStyleStart(el, done) {
+      beforeEnterStyle(el) {
         const sign = this.animation === 'next' ? '' : '-';
         el.style.transform = `translateX(${sign}${this.contentSetSize * contentCardWidth}px)`;
+        el.style.opacity = 0;
       },
-      enterStyleEnd(el, done) {
-        el.style.transform = '';
-        done();
+      enterStyle(el, done) {
+        window.setTimeout(() => {
+          el.style.opacity = '';
+          el.style.transform = '';
+          done();
+        }, 500);
       },
-      leaveStyleStart(el, done) {
+      leaveStyle(el, done) {
         const sign = this.animation === 'next' ? '-' : '';
         el.style.transform = `translateX(${sign}${this.contentSetSize * contentCardWidth}px)`;
-        el.style.display = 'block';
-        el.style.position = 'absolute';
-        setTimeout(done, 500);
+        el.style.opacity = 0;
+        this.$refs.cardCarousel.style.width = `${2 * this.contentSetSize * contentCardWidth}px`;
+
+        window.setTimeout(done, 500);
       },
-      leaveStyleEnd(el) {
+      afterLeaveStyle(el) {
+        this.$refs.cardCarousel.style.width = `${this.contentSetSize * contentCardWidth}px`;
       },
       nextSet() {
         const lastIndex = this.contents.length - 1;
@@ -229,24 +238,11 @@
         float: left
 
     &-set
-      width: 100%
-
-    &-cards
       margin-left: auto
       margin-right: auto
-      // text-align:center
+      overflow: hide
 
   .content-card
     transition: all 0.5s ease
-
-  // // Applies to both 'next' animation and previous' animation
-  // .next, .previous
-  //   // setting the animation for seamless movements
-  //   &-enter-active, &-leave-active
-  //     transition: all 5s linear
-  //   // set leave to absolute so that the elements can overlap while they're animating
-    // &-leave-active
-    //   position: absolute
-  //     opacity: 0
 
 </style>
