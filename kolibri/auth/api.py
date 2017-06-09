@@ -11,8 +11,8 @@ from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
-    MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer,
+    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
 )
 
 
@@ -101,6 +101,14 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+
+
+class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
+    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True)
+    serializer_class = FacilityUsernameSerializer
+    filter_fields = ('facility', )
+    search_fields = ('^username', )
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
