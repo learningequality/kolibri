@@ -194,7 +194,6 @@ def update():
     """
     logger.info("Running update routines for new version...")
     call_command("collectstatic", interactive=False)
-    call_command("collectstatic_js_reverse", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
