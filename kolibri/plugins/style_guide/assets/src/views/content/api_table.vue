@@ -79,16 +79,11 @@
 <script>
 
   module.exports = {
-    components: {
-    },
     props: {
       api: {
         type: Object,
       },
     },
-
-    data: () => ({
-    })
   };
 
 </script>

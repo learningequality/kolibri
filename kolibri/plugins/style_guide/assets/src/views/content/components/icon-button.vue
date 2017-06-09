@@ -16,9 +16,7 @@
     components: {
       'api-table': require('../api_table'),
     },
-    data: () => ({
-      api
-    })
+    data: () => ({ api })
   };
 
 </script>
