@@ -43,7 +43,10 @@
     components: {
       'api-table': require('../api_table'),
     },
-    data: () => ({ codeExamplesTemplate, api })
+    data: () => ({
+      codeExamplesTemplate,
+      api
+    })
   };
 
 </script>
