@@ -24,7 +24,7 @@ const navigationMenu = [
         linkLabel: 'Icon Button',
         linkRoute: {
           path: '/iconbutton',
-          component: require('../content/icon-button')
+          component: require('../content/components/icon-button')
         }
       },
       {
