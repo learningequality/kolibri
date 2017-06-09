@@ -103,7 +103,7 @@
         return some(this.contents, content => content.kind === kind);
       },
       genLink(node) {
-        if (node.kind !== ContentNodeKinds.TOPIC) {
+        if (node.kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id: node.id },

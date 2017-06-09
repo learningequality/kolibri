@@ -117,9 +117,9 @@
       },
       contentSet() {
         if (this.nextContentSetStartIndex > this.contents.length) {
-          this.next();
+          this.nextSet();
         } else if (this.nextContentSetStartIndex < 0) {
-          this.previous();
+          this.previousSet();
         }
         return this.contents.slice(this.contentSetStartIndex, this.nextContentSetStartIndex);
       },
