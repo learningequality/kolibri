@@ -7,12 +7,6 @@
         <h2> {{header}} </h2>
         <span v-if="subheader"> {{subheader}} </span>
       </header>
-
-      <icon-button
-        :text="$tr('viewAllButtonLabel')"
-        v-if="showViewAll"
-        @click="$emit('viewAllClicked')"
-        class="content-carousel-details-view-all" />
     </div>
 
 
@@ -24,8 +18,7 @@
             tag="div"
             @before-enter="beforeEnterStyle"
             @enter="enterStyle"
-            @leave="leaveStyle"
-            @after-leave="afterLeaveStyle">
+            @leave="leaveStyle">
 
             <slot
               v-for="content in contentSet"
@@ -50,20 +43,20 @@
           </transition-group>
         </div>
 
-      <div class="content-carousel-controls">
-        <ui-icon-button
-          v-if="!isFirstSet"
-          icon="arrow_back"
-          size="large"
-          class="previous"
-          @click="previousSet" />
-        <ui-icon-button
-          v-if="!isLastSet"
-          icon="arrow_forward"
-          size="large"
-          class="next" @click="nextSet" />
-      </div>
+    </div>
 
+    <div class="content-carousel-controls">
+      <ui-icon-button
+      v-if="!isFirstSet"
+      icon="arrow_back"
+      size="large"
+      class="previous"
+      @click="previousSet" />
+      <ui-icon-button
+      v-if="!isLastSet"
+      icon="arrow_forward"
+      size="large"
+      class="next" @click="nextSet" />
     </div>
   </section>
 
@@ -95,9 +88,6 @@
       subheader: {
         type: String,
       },
-      showViewAll: {
-        type: Boolean,
-      },
       genLink: {
         type: Function,
         validator(value) {
@@ -128,6 +118,11 @@
         return this.nextContentSetStartIndex - 1;
       },
       contentSet() {
+        if (this.nextContentSetStartIndex > this.contents.length) {
+          this.next();
+        } else if (this.nextContentSetStartIndex < 0) {
+          this.previous();
+        }
         return this.contents.slice(this.contentSetStartIndex, this.nextContentSetStartIndex);
       },
       isFirstSet() {
@@ -139,6 +134,7 @@
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
         return {
+          'width': `${2 * this.contentSetSize * contentCardWidth}px`,
           'min-width': `${contentCardWidth}px`,
         };
       },
@@ -166,12 +162,8 @@
         const sign = this.animation === 'next' ? '-' : '';
         el.style.transform = `translateX(${sign}${this.contentSetSize * contentCardWidth}px)`;
         el.style.opacity = 0;
-        this.$refs.cardCarousel.style.width = `${2 * this.contentSetSize * contentCardWidth}px`;
 
         window.setTimeout(done, 500);
-      },
-      afterLeaveStyle(el) {
-        this.$refs.cardCarousel.style.width = `${this.contentSetSize * contentCardWidth}px`;
       },
       nextSet() {
         const lastIndex = this.contents.length - 1;
@@ -212,6 +204,10 @@
   $card-height = 210px
 
   .content-carousel
+    margin-top: 1em
+    margin-bottom: 1em
+    clearfix()
+
     &-details
       clearfix()
       &-header
@@ -225,22 +221,23 @@
         color: white
         background-color: $core-action-normal
 
-    &-controls
-      position: relative
-      top: -($card-height / 2)
-      clearfix()
-      .next, .previous
-        position: relative
-        transform: translateY(-50%)
-      .next
-        float: right
-      .previous
-        float: left
-
     &-set
       margin-left: auto
       margin-right: auto
       overflow: hide
+
+    &-controls
+      position: absolute
+      width: 100%
+      clearfix();
+      .next, .previous
+        position: absolute
+        bottom: ($card-height / 2)
+        transform: translateY(50%)
+      .next
+        right: 0
+      .previous
+        left: 0
 
   .content-card
     transition: all 0.5s ease
