@@ -75,22 +75,24 @@
 
 </template>
 
+
 <script>
 
   module.exports = {
     components: {
     },
     props: {
-        api: {
-          type: Object,
-        },
+      api: {
+        type: Object,
+      },
     },
 
     data: () => ({
     })
-  }
+  };
 
 </script>
+
 
 <style lang="stylus" scoped>
 
