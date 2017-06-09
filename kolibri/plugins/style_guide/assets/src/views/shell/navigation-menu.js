@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
+
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -7,7 +9,7 @@ const _ = require('lodash');
 const navigationMenu = [
   {
     sectionHeading: 'Styles',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
       {
         linkLabel: 'Typography',
         linkRoute: {
@@ -15,11 +17,18 @@ const navigationMenu = [
           component: require('../content/typography')
         }
       },
-    ]
+    ])
   },
   {
     sectionHeading: 'Components',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
+      {
+        linkLabel: 'Checkbox',
+        linkRoute: {
+          path: '/checkbox',
+          component: require('../content/components/checkbox')
+        }
+      },
       {
         linkLabel: 'Button',
         linkRoute: {
@@ -41,7 +50,7 @@ const navigationMenu = [
           component: require('../content/components/textbox')
         }
       }
-    ]
+    ])
   }
 ];
 
