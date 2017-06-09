@@ -88,16 +88,14 @@
   <div class="checkbox_examples">
     <div class="checkbox_examples_section">
       <h4>Normal</h4>
-      <ui-radio v-model="selected" :true-value="true"></ui-radio>
-      <ui-radio v-model="unselected" :true-value="true"></ui-radio>
+      <ui-radio v-model="value" true-value="1"></ui-radio>
+      <ui-radio v-model="value" true-value="2"></ui-radio>
     </div>
 
     <div class="checkbox_examples_section">
       <h4>Disabled</h4>
-      <ui-radio :disabled="true" v-model="selected" :true-value="true">
-      </ui-radio>
-      <ui-radio :disabled="true" v-model="unselected" :true-value="true">
-      </ui-radio>
+      <ui-radio :disabled="true" v-model="value" :true-value="1"></ui-radio>
+      <ui-radio :disabled="true" v-model="value" :true-value="2"></ui-radio>
     </div>
   </div>
 </template>
@@ -105,8 +103,7 @@
 <${script}>
   module.exports = {
     data: () => ({
-      selected: true,
-      unselected: false
+      value: '1',
     }),
     components: {
       // textbox: require('keen-ui/src/UiRadio')
