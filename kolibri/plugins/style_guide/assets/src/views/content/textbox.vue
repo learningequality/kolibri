@@ -2,8 +2,7 @@
 
   <div>
     <h1>Textbox</h1>
-    <h2>Source Code: kolibri/kolibri/core/assets/src/views/textbox/index.vue</h2> 
-    <documentation-component :componentApi="api"></documentation-component>
+    <api-table :api="api"></api-table>
   </div>
 
 </template>
@@ -15,7 +14,7 @@
 
   module.exports = {
     components: {
-      'documentation-component': require('../documentation_component'),
+      'api-table': require('../api_table'),
     },
     data: () => ({
       api

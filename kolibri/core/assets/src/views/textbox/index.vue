@@ -24,7 +24,7 @@
 
 
 <script>
-
+  
   module.exports = {
     name: 'KolibriTextBox',
     props: {
