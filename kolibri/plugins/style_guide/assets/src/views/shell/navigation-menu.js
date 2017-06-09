@@ -38,9 +38,9 @@ const navigationMenu = [
         linkLabel: 'Textbox',
         linkRoute: {
           path: '/textbox',
-          component: require('../content/textbox')
+          component: require('../content/components/textbox')
         }
-      },
+      }
     ]
   }
 ];
