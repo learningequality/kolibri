@@ -1,29 +1,35 @@
 <template>
 
   <div>
-    <h1>Checkboxes</h1>
+    <h1>Radio Buttons</h1>
     <p>
-      Use if you want to allow the user to select multiple items within a list.
-      Actions should be selectable independently of each other.
+      Radio buttons allow the selection of a single option from a set of 3 or
+      more options.
     </p>
 
     <h2>Guidelines & Usage</h2>
 
     <h3>Usage</h3>
     <p>
-      Use checkboxes in tables and lists only.
+      In particular, radio buttons aid the user when they need to see all
+      available options side-by-side.
     </p>
     <p>
-      Selected state of controls generally denote “positives” (yes/select/etc.)
+      If it is not necessary to see all available options, a dropdown may be
+      used.
+    </p>
+    <p>
+      Selected state of controls generally denote "positives"
+      (yes/selected/etc.)
     </p>
 
     <h3>Do not</h3>
     <ul>
       <li>
-        Use checkboxes as a filter in a table or a list.
+        Use radio buttons as a filter in a table or a list.
       </li>
       <li>
-        Nest checkboxes.
+        Nest radio buttons.
       </li>
     </ul>
 
@@ -32,13 +38,12 @@
       Kolibri utilizes the default styles + padding from Keen UI.
     </p>
     <p>
-      Selected checkbox is the action color.
+      Selected option is the action color, other available options are dark
+      grey.
     </p>
     <p>
-      Partially selected checkbox is medium grey.
-    </p>
-    <p>
-      Unselected checkbox are dark grey.
+      Where possible, avoid using icons with radio buttons. If necessary, the
+      icon should sit within the label area, pushing the label to the right.
     </p>
 
     <h3>Language</h3>
@@ -50,14 +55,14 @@
 
     <h3>Layout</h3>
     <p>
-      Checkboxes are always left-aligned.
+      Radio buttons are always left-aligned.
     </p>
     <p>
-      No inset padding, checkboxes left-align with the content of their
+      No inset padding, radio buttons left-align with the content of their
       container.
     </p>
     <p>
-      Checkboxes are vertically stacked.
+      Radio buttons are vertically stacked.
     </p>
 
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
@@ -72,7 +77,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-checkbox', require('keen-ui/src/UiCheckbox'));
+  FullVue.component('ui-radio', require('keen-ui/src/UiRadio'));
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
@@ -83,15 +88,16 @@
   <div class="checkbox_examples">
     <div class="checkbox_examples_section">
       <h4>Normal</h4>
-      <ui-checkbox v-model="selected"></ui-checkbox>
-      <ui-checkbox v-model="unselected"></ui-checkbox>
-      <input type="checkbox" :indeterminate.prop="true">
+      <ui-radio v-model="selected" :true-value="true"></ui-radio>
+      <ui-radio v-model="unselected" :true-value="true"></ui-radio>
     </div>
 
     <div class="checkbox_examples_section">
       <h4>Disabled</h4>
-      <ui-checkbox :disabled="true" v-model="selected"></ui-checkbox>
-      <ui-checkbox :disabled="true" v-model="unselected"></ui-checkbox>
+      <ui-radio :disabled="true" v-model="selected" :true-value="true">
+      </ui-radio>
+      <ui-radio :disabled="true" v-model="unselected" :true-value="true">
+      </ui-radio>
     </div>
   </div>
 </template>
@@ -103,7 +109,7 @@
       unselected: false
     }),
     components: {
-      // textbox: require('keen-ui/src/UiCheckbox')
+      // textbox: require('keen-ui/src/UiRadio')
     }
   };
 </${script}>

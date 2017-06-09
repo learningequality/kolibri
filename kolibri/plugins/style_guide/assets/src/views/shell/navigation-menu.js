@@ -13,8 +13,8 @@ const navigationMenu = [
       {
         linkLabel: 'Typography',
         linkRoute: {
-          path: '/typograhy',
-          component: require('../content/typography')
+          path: '/style/typograhy',
+          component: require('../content/style/typography')
         }
       },
     ])
@@ -23,31 +23,31 @@ const navigationMenu = [
     sectionHeading: 'Components',
     sectionLinks: sortSectionLink([
       {
-        linkLabel: 'Checkbox',
+        linkLabel: 'Checkboxes',
         linkRoute: {
-          path: '/checkbox',
-          component: require('../content/components/checkbox')
+          path: '/components/checkboxes',
+          component: require('../content/components/checkboxes')
         }
       },
       {
-        linkLabel: 'Button',
+        linkLabel: 'Radio buttons',
         linkRoute: {
-          path: '/button',
-          component: require('../content/button')
+          path: '/components/radio_buttons',
+          component: require('../content/components/radio_buttons')
         }
       },
       {
-        linkLabel: 'Tab',
+        linkLabel: 'Buttons',
         linkRoute: {
-          path: '/tab',
-          component: require('../content/tab')
+          path: '/components/buttons',
+          component: require('../content/components/buttons')
         }
       },
       {
-        linkLabel: 'Textbox',
+        linkLabel: 'Text fields',
         linkRoute: {
-          path: '/textbox',
-          component: require('../content/components/textbox')
+          path: '/components/text_fields',
+          component: require('../content/components/text_fields')
         }
       }
     ])
