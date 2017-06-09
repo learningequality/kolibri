@@ -9,9 +9,21 @@
       </header>
     </div>
 
+    <div class="content-carousel-controls">
+      <ui-icon-button
+      v-if="!isFirstSet"
+      icon="arrow_back"
+      size="large"
+      class="previous"
+      @click="previousSet" />
+      <ui-icon-button
+      v-if="!isLastSet"
+      icon="arrow_forward"
+      size="large"
+      class="next" @click="nextSet" />
+    </div>
 
     <div :style="widthOfWrapper" class="content-carousel-set">
-
         <div :style="widthOfCarousel" ref="cardCarousel" class="content-carousel-cards">
           <transition-group
             :name="animation"
@@ -42,22 +54,8 @@
 
           </transition-group>
         </div>
-
     </div>
 
-    <div class="content-carousel-controls">
-      <ui-icon-button
-      v-if="!isFirstSet"
-      icon="arrow_back"
-      size="large"
-      class="previous"
-      @click="previousSet" />
-      <ui-icon-button
-      v-if="!isLastSet"
-      icon="arrow_forward"
-      size="large"
-      class="next" @click="nextSet" />
-    </div>
   </section>
 
 </template>
@@ -229,11 +227,10 @@
     &-controls
       position: absolute
       width: 100%
-      clearfix();
+      clearfix()
       .next, .previous
         position: absolute
-        bottom: ($card-height / 2)
-        transform: translateY(50%)
+        top: ($card-height / 2)
       .next
         right: 0
       .previous
