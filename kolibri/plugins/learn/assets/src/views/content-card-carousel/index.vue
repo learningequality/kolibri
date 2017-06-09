@@ -175,6 +175,10 @@
           this.contentSetStartIndex = this.nextContentSetStartIndex;
         }
 
+        if (this.isLastSet) {
+          this.$emit('end');
+        }
+
         this.animation = 'next';
       },
       previousSet() {
