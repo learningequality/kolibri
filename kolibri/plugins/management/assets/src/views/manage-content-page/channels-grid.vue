@@ -1,7 +1,11 @@
 <template>
 
   <div>
-    <table class="table">
+    <p class="core-text-alert" v-if="sortedChannels.length===0">
+      {{ $tr('emptyChannelListMessage') }}
+    </p>
+
+    <table v-else class="table">
 
       <thead class="table-header">
         <tr>
@@ -14,7 +18,7 @@
       </thead>
 
       <tbody class="table-body">
-        <tr v-for="(channel, idx) in channelList">
+        <tr v-for="(channel, idx) in sortedChannels">
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
@@ -77,6 +81,7 @@
   const manageContentActions = require('../../state/manageContentActions');
   const { now } = require('kolibri.utils.serverClock');
   const map = require('lodash/map');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     data: () => ({
@@ -93,6 +98,13 @@
           return this.channelList[this.selectedChannelIdx].title;
         }
         return '';
+      },
+      sortedChannels() {
+        return orderBy(
+          this.channelList,
+          [channel => channel.title.toUpperCase()],
+          ['asc']
+        );
       },
     },
     components: {
@@ -144,6 +156,7 @@
     },
     $trNameSpace: 'channelsGrid',
     $trs: {
+      emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
