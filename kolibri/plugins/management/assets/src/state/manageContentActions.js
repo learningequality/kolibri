@@ -74,9 +74,13 @@ function transitionToWizardStage(store, transition, params) {
 
   // At Choose Source Wizard
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
+    // Now: Shows list of local drives
+    // Later: `source` is driveId, and next screen is preview of imported channels
     if (transition === FORWARD && params.source === 'local') {
       return actions.showImportLocalWizard(store);
     }
+    // Now: Show text box to get channelId
+    // Later: Same
     if (transition === FORWARD && params.source === 'network') {
       return actions.showImportNetworkWizard(store);
     }
@@ -91,9 +95,24 @@ function transitionToWizardStage(store, transition, params) {
       return actions.startImportWizard(store);
     }
     // Now: Start downloading immediately
-    // Later: Preview of imported channels
+    // Later: Show preview of imported channels
     if (transition === FORWARD) {
       return actions.triggerLocalContentImportTask(store, params.driveId);
+    }
+    if (transition === CANCEL) {
+      return actions.cancelImportExportWizard(store);
+    }
+  }
+
+  // At Network Import Wizard
+  if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
+    if (transition === BACKWARD) {
+      return actions.startImportWizard(store);
+    }
+    // Now: Start downloading immediately
+    // Later: Show preview of imported channels
+    if (transition === FORWARD) {
+      return actions.triggerRemoteContentImportTask(store, params.contentId);
     }
     if (transition === CANCEL) {
       return actions.cancelImportExportWizard(store);
