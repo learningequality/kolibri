@@ -6,7 +6,7 @@
     <h2>Description: {{ api.description }}</h2>
 
     <div v-if="api.props.length">
-      <h2>Props</h2>
+      <h2>Props: {{ api.props }}</h2>
       <table>
       <tr>
         <th>Name</th>
@@ -18,7 +18,7 @@
       <tr v-for="prop in api.props">
         <td>{{ prop.name }}</td>
         <td>{{ prop.value.type }}</td>
-        <td>{{ prop.required ? prop.required : 'No'}}</td>
+        <td>{{ prop.value.required ? 'true' : 'false' }}</td>
         <td>{{ prop.value.default ? prop.value.default : 'None' }}</td>
         <td>{{ prop.description }}</td>
       </tr>

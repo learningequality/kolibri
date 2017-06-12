@@ -2,6 +2,11 @@ const vuedoc = require('@vuedoc/parser');
 const path = require('path');
 const mkdirp = require('mkdirp');
 
+/**
+ * Loader that extracts the props, events, slots and methods from a Vue component
+ * file.
+ * Uses a Kolibri fork of @vuedoc/parser.
+ */
 module.exports = function(content) {
 
   var callback = this.async();
