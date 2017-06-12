@@ -3,14 +3,14 @@
   <div>
 
     <p><b>Name:</b> {{ api.name }}</p>
-    <p><b>Description:</p> {{ 'This is the end of the world' + api.description }}</h3></p>
+    <p><b>Description:</b> {{ api.description }}</p>
 
-    <div v-if="api.props.length">
+    <template v-if="api.props.length">
       <h3>Props</h3>
       <table>
         <tr>
           <th>Name</th>
-          <th>Type</th> 
+          <th>Type</th>
           <th>Required</th>
           <th>Default</th>
           <th>Description</th>
@@ -23,14 +23,14 @@
           <td>{{ prop.description }}</td>
         </tr>
       </table>
-    </div>
+    </template>
 
     <div v-if="api.events.length">
       <h3>Emitted events</h3>
       <table>
         <tr>
           <th>Name</th>
-          <th>Type</th> 
+          <th>Type</th>
           <th>Default</th>
           <th>Description</th>
         </tr>
@@ -87,16 +87,16 @@
     methods: {
       parseType(type) {
         if (!type) {
-          return 'null'
-        } 
+          return 'null';
+        }
         if (type.type === 'ArrayExpression') {
-          arrayType = '[';
-          for (index in type.elements) {
-            if (index != 0) {
+          let arrayType = '[';
+          type.elements.forEach((element, index) => {
+            if (index !== 0) {
               arrayType += ', ';
             }
             arrayType += type.elements[index].name;
-          }
+          });
           arrayType += ']';
           return arrayType;
         }

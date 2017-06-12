@@ -128,7 +128,7 @@
     components: {
       'api-table': require('../api_table'),
     },
-    data: () => ({ 
+    data: () => ({
       codeExamplesTemplate,
       api
     })
