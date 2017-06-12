@@ -1,6 +1,7 @@
 const _ = require('lodash');
 
 const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
+const base = '/style_guide';
 
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
@@ -13,7 +14,7 @@ const navigationMenu = [
       {
         linkLabel: 'Typography',
         linkRoute: {
-          path: '/style/typograhy',
+          path: `${base}/typography`,
           component: require('../content/style/typography')
         }
       },
@@ -32,21 +33,21 @@ const navigationMenu = [
       {
         linkLabel: 'Radio buttons',
         linkRoute: {
-          path: '/components/radio_buttons',
+          path: `${base}/button`,
           component: require('../content/components/radio_buttons')
         }
       },
       {
         linkLabel: 'Buttons',
         linkRoute: {
-          path: '/components/buttons',
+          path: `${base}/tab`,
           component: require('../content/components/buttons')
         }
       },
       {
         linkLabel: 'Text fields',
         linkRoute: {
-          path: '/components/text_fields',
+          path: `${base}/textbox`,
           component: require('../content/components/text_fields')
         }
       }

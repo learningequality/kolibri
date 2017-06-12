@@ -19,37 +19,33 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
   @import '~vuep/dist/vuep.css'
 
-  // Sidenav styles
-
   $sidenav-width = 10em
 
-  page-section()
-    position: absolute
+  // Reset some of the styles inherited from the main Kolibri theme.
+  // TODO: Remove that inheritance and have a clean slate style-wise.
+  html,
+  body
+    height: auto
+
+  html
+    overflow: initial
+
+  body
+    padding-left: $sidenav-width
+
+  .sidenav
+    position: fixed
     top: 0
     bottom: 0
     left: 0
-    right: 0
-    overflow-y: auto
-
-  .sidenav
-    page-section()
     right: initial
+    overflow-y: auto
     width: $sidenav-width
 
-  .content
-    page-section()
-    left: $sidenav-width
-
-</style>
-
-
-<style lang="stylus">
-
-  // Code editor & preview styles
   .vuep
     flex-direction: column-reverse
 
