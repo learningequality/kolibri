@@ -61,15 +61,15 @@
     },
     methods: {
       goBack() {
-        this.transitionToWizardStage('backward');
+        this.transitionWizardPage('backward');
       },
       submit() {
         if (this.canSubmit) {
-          this.transitionToWizardStage('forward', { contentId: this.contentId });
+          this.transitionWizardPage('forward', { contentId: this.contentId });
         }
       },
       cancel() {
-        this.transitionToWizardStage('cancel');
+        this.transitionWizardPage('cancel');
       },
     },
     vuex: {
@@ -77,7 +77,7 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        transitionToWizardStage: manageContentActions.transitionToWizardStage,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
       },
     },
   };

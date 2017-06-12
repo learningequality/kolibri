@@ -43,10 +43,10 @@
     },
     methods: {
       goForward(source) {
-        return this.transitionToWizardStage('forward', { source });
+        return this.transitionWizardPage('forward', { source });
       },
       cancel() {
-        return this.transitionToWizardStage('cancel');
+        return this.transitionWizardPage('cancel');
       }
     },
     components: {
@@ -55,7 +55,7 @@
     },
     vuex: {
       actions: {
-        transitionToWizardStage: manageContentActions.transitionToWizardStage,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
       },
     },
   };

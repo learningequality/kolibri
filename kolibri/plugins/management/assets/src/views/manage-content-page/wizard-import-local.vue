@@ -87,14 +87,14 @@
     methods: {
       driveIsEnabled: (drive) => drive.metadata.channels.length > 0,
       goBack() {
-        this.transitionToWizardStage('backward');
+        this.transitionWizardPage('backward');
       },
       submit() {
-        this.transitionToWizardStage('forward', { driveId: this.selectedDrive });
+        this.transitionWizardPage('forward', { driveId: this.selectedDrive });
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.transitionToWizardStage('cancel');
+          this.transitionWizardPage('cancel');
         }
       },
     },
@@ -103,7 +103,7 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        transitionToWizardStage: manageContentActions.transitionToWizardStage,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
       },
     },

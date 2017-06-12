@@ -66,7 +66,7 @@ function addChannelFileSummaries(store, channelIds) {
  * @param {Object} params - data needed to execute transition
  * @returns {undefined}
  */
-function transitionToWizardStage(store, transition, params) {
+function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
   const FORWARD = 'forward';
   const BACKWARD = 'backward';
@@ -121,5 +121,5 @@ module.exports = {
   actionTypes,
   addChannelFileSummaries,
   deleteChannel,
-  transitionToWizardStage,
+  transitionWizardPage,
 };
