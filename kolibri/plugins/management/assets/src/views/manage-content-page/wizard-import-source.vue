@@ -1,20 +1,27 @@
 <template>
 
-  <core-modal
-    :title="$tr('title')"
-    @cancel="cancelImportExportWizard"
-  >
+  <core-modal :title="$tr('title')" @cancel="cancel">
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" :text="$tr('internet')" :showTextBelowIcon="true" @click="showImportNetworkWizard">
+        <icon-button
+          class="large-icon-button"
+          :text="$tr('internet')"
+          :showTextBelowIcon="true"
+          @click="goForward('local')"
+        >
           <mat-svg class="icon" category="action" name="language"/>
         </icon-button>
-        <icon-button class="large-icon-button" :text="$tr('localDrives')" :showTextBelowIcon="true" @click="showImportLocalWizard">
+        <icon-button
+          class="large-icon-button"
+          :text="$tr('localDrives')"
+          :showTextBelowIcon="true"
+          @click="goForward('network')"
+        >
           <mat-svg class="icon" category="device" name="storage"/>
         </icon-button>
       </div>
       <icon-button
-        @click="cancelImportExportWizard"
+        @click="cancel"
         :text="$tr('cancel')"/>
     </div>
   </core-modal>
@@ -24,7 +31,7 @@
 
 <script>
 
-  const actions = require('../../state/actions');
+  const manageContentActions = require('../../state/manageContentActions');
 
   module.exports = {
     $trNameSpace: 'wizardImportSource',
@@ -34,15 +41,21 @@
       localDrives: 'Local Drives',
       cancel: 'Cancel',
     },
+    methods: {
+      goForward(source) {
+        return this.transitionToWizardStage('forward', { source });
+      },
+      cancel() {
+        return this.transitionToWizardStage('cancel');
+      }
+    },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     vuex: {
       actions: {
-        showImportNetworkWizard: actions.showImportNetworkWizard,
-        showImportLocalWizard: actions.showImportLocalWizard,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
+        transitionToWizardStage: manageContentActions.transitionToWizardStage,
       },
     },
   };

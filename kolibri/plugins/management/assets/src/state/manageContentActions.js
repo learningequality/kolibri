@@ -1,5 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 const { ChannelResource, FileSummaryResource } = require('kolibri').resources;
+const { ContentWizardPages } = require('../constants');
+const actions = require('./actions');
 
 const namespace = 'MANAGE_CONTENT';
 
@@ -55,8 +57,38 @@ function addChannelFileSummaries(store, channelIds) {
   });
 }
 
+/**
+ * State machine for the Import wizards
+ * @param store - vuex store object
+ * @param {string} transition - 'forward', 'back', or 'cancel'
+ * @param {Object} params - data needed to execute transition
+ * @returns {undefined}
+ */
+function transitionToWizardStage(store, transition, params) {
+  const wizardPage = store.state.pageState.wizardState.page;
+  const FORWARD = 'forward';
+  const BACKWARD = 'backward';
+  const CANCEL = 'cancel';
+
+  // At Choose Source Wizard
+  if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
+    if (transition === FORWARD && params.source === 'local') {
+      return actions.showImportLocalWizard(store);
+    }
+    if (transition === FORWARD && params.source === 'network') {
+      return actions.showImportNetworkWizard(store);
+    }
+    if (transition === CANCEL) {
+      return actions.cancelImportExportWizard(store);
+    }
+  }
+
+  return undefined;
+}
+
 module.exports = {
   actionTypes,
   addChannelFileSummaries,
   deleteChannel,
+  transitionToWizardStage,
 };
