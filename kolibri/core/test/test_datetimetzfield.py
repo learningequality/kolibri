@@ -4,7 +4,7 @@ import datetime
 import pytz
 
 from django.db import models
-from django.test import TestCase
+from django.test import override_settings, TestCase
 from django.utils import timezone
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
@@ -17,7 +17,8 @@ class DateTimeTzModel(models.Model):
     default_timestamp = DateTimeTzField(default=aware_datetime)
 
 
-class DateTimeTzFieldTestCase(TestCase):
+@override_settings(USE_TZ=True)
+class AwareDateTimeTzFieldTestCase(TestCase):
 
     def test_timestamp_utc_create(self):
         timezone.activate(pytz.utc)
@@ -63,6 +64,26 @@ class DateTimeTzFieldTestCase(TestCase):
         timestamp = aware_datetime()
         obj = DateTimeTzModel.objects.create()
         self.assertEqual(obj.default_timestamp.tzinfo, timestamp.tzinfo)
+        timezone.deactivate()
+
+
+@override_settings(USE_TZ=False)
+class NaiveDateTimeTzFieldTestCase(TestCase):
+
+    def test_timestamp_create(self):
+        obj = DateTimeTzModel.objects.create(timestamp=aware_datetime())
+        self.assertEqual(obj.timestamp.tzinfo, aware_datetime().tzinfo)
+
+    def test_timestamp_utc_read(self):
+        # Regression test for https://github.com/learningequality/kolibri/issues/1602
+        obj = DateTimeTzModel.objects.create(timestamp=aware_datetime())
+        obj.refresh_from_db()
+        self.assertEqual(obj.timestamp, aware_datetime())
+
+    def test_default_utc_create(self):
+        timezone.activate(pytz.utc)
+        obj = DateTimeTzModel.objects.create()
+        self.assertEqual(obj.default_timestamp.tzinfo, pytz.utc)
         timezone.deactivate()
 
 
