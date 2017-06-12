@@ -7,7 +7,7 @@
           class="large-icon-button"
           :text="$tr('internet')"
           :showTextBelowIcon="true"
-          @click="goForward('local')"
+          @click="goForward('network')"
         >
           <mat-svg class="icon" category="action" name="language"/>
         </icon-button>
@@ -15,7 +15,7 @@
           class="large-icon-button"
           :text="$tr('localDrives')"
           :showTextBelowIcon="true"
-          @click="goForward('network')"
+          @click="goForward('local')"
         >
           <mat-svg class="icon" category="device" name="storage"/>
         </icon-button>

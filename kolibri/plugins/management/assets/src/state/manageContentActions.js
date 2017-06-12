@@ -58,7 +58,9 @@ function addChannelFileSummaries(store, channelIds) {
 }
 
 /**
- * State machine for the Import wizards
+ * State machine for the Import wizards.
+ * Only handles forward, back, and cancel transitions.
+ *
  * @param store - vuex store object
  * @param {string} transition - 'forward', 'back', or 'cancel'
  * @param {Object} params - data needed to execute transition
@@ -77,6 +79,21 @@ function transitionToWizardStage(store, transition, params) {
     }
     if (transition === FORWARD && params.source === 'network') {
       return actions.showImportNetworkWizard(store);
+    }
+    if (transition === CANCEL) {
+      return actions.cancelImportExportWizard(store);
+    }
+  }
+
+  // At Local Import Wizard
+  if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
+    if (transition === BACKWARD) {
+      return actions.startImportWizard(store);
+    }
+    // Now: Start downloading immediately
+    // Later: Preview of imported channels
+    if (transition === FORWARD) {
+      return actions.triggerLocalContentImportTask(store, params.driveId);
     }
     if (transition === CANCEL) {
       return actions.cancelImportExportWizard(store);

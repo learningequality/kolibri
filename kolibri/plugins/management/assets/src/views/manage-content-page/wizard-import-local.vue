@@ -7,7 +7,7 @@
     :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="startImportWizard"
+    @back="goBack"
   >
     <div class="main">
       <template v-if="!drivesLoading">
@@ -52,6 +52,7 @@
 <script>
 
   const actions = require('../../state/actions');
+  const manageContentActions = require('../../state/manageContentActions');
 
   module.exports = {
     $trNameSpace: 'wizardLocalImport',
@@ -85,12 +86,15 @@
     },
     methods: {
       driveIsEnabled: (drive) => drive.metadata.channels.length > 0,
+      goBack() {
+        this.transitionToWizardStage('backward');
+      },
       submit() {
-        this.triggerLocalContentImportTask(this.selectedDrive);
+        this.transitionToWizardStage('forward', { driveId: this.selectedDrive });
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.cancelImportExportWizard();
+          this.transitionToWizardStage('cancel');
         }
       },
     },
@@ -99,10 +103,8 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
+        transitionToWizardStage: manageContentActions.transitionToWizardStage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentImportTask: actions.triggerLocalContentImportTask,
       },
     },
   };
