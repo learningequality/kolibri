@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
+
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -7,41 +9,48 @@ const _ = require('lodash');
 const navigationMenu = [
   {
     sectionHeading: 'Styles',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
       {
         linkLabel: 'Typography',
         linkRoute: {
-          path: '/typograhy',
-          component: require('../content/typography')
+          path: '/style/typograhy',
+          component: require('../content/style/typography')
         }
       },
-    ]
+    ])
   },
   {
     sectionHeading: 'Components',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
       {
-        linkLabel: 'Button',
+        linkLabel: 'Checkboxes',
         linkRoute: {
-          path: '/button',
-          component: require('../content/button')
+          path: '/components/checkboxes',
+          component: require('../content/components/checkboxes')
         }
       },
       {
-        linkLabel: 'Tab',
+        linkLabel: 'Radio buttons',
         linkRoute: {
-          path: '/tab',
-          component: require('../content/tab')
+          path: '/components/radio_buttons',
+          component: require('../content/components/radio_buttons')
         }
       },
       {
-        linkLabel: 'Textbox',
+        linkLabel: 'Buttons',
         linkRoute: {
-          path: '/textbox',
-          component: require('../content/components/textbox')
+          path: '/components/buttons',
+          component: require('../content/components/buttons')
+        }
+      },
+      {
+        linkLabel: 'Text fields',
+        linkRoute: {
+          path: '/components/text_fields',
+          component: require('../content/components/text_fields')
         }
       }
-    ]
+    ])
   }
 ];
 
