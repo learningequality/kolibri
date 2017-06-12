@@ -1,5 +1,5 @@
 django-filter==0.13.0
-django-js-reverse==0.7.2
+django-js-reverse==0.7.3
 six==1.10.0
 djangorestframework==3.3.3
 django==1.9.7
