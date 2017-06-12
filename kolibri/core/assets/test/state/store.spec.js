@@ -52,6 +52,7 @@ describe('Vuex store/actions for core module', () => {
     after(() => {
       window.onbeforeunload = oldHandler;
       delete kolibri.resources;
+      kolibri.urls = {};
     });
 
     beforeEach(() => {
@@ -60,6 +61,7 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful login', (done) => {
+      kolibri.urls['kolibri:managementplugin:management'] = () => '';
       kolibri.resources.SessionResource = {
         createModel: () => ({
           save: () => Promise.resolve({
@@ -108,14 +110,9 @@ describe('Vuex store/actions for core module', () => {
         },
         clearCaches: clearCachesSpy,
       };
-      // fake a session
-      store.state.core.session.id = '123';
-      store.state.core.session.username = 'l_organa';
 
       coreActions.kolibriLogout(store)
         .then(() => {
-          assert.equal(store.state.core.session.id, undefined);
-          assert.equal(store.state.core.session.username, '');
           sinon.assert.calledWith(getModelStub, 'current');
           sinon.assert.calledOnce(clearCachesSpy);
         })

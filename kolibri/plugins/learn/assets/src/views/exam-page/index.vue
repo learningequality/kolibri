@@ -8,7 +8,7 @@
     <template>
       <div class="container">
         <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>

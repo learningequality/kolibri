@@ -22,6 +22,8 @@ from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
@@ -103,8 +105,8 @@ class ContentSessionLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
@@ -121,9 +123,9 @@ class ContentSummaryLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
     kind = models.CharField(max_length=200)
@@ -142,8 +144,8 @@ class UserSessionLog(BaseLogModel):
 
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
-    start_timestamp = models.DateTimeField(auto_now_add=True)
-    last_interaction_timestamp = models.DateTimeField(auto_now=True, null=True)
+    start_timestamp = DateTimeTzField(default=local_now)
+    last_interaction_timestamp = DateTimeTzField(null=True, blank=True)
     pages = models.TextField(blank=True)
 
     @classmethod
@@ -159,9 +161,8 @@ class UserSessionLog(BaseLogModel):
 
             if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
                 user_session_log = cls(user=user)
-                user_session_log.save()
-            else:
-                user_session_log.save()
+            user_session_log.last_interaction_timestamp = local_now()
+            user_session_log.save()
 
 
 class MasteryLog(BaseLogModel):
@@ -178,9 +179,9 @@ class MasteryLog(BaseLogModel):
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
     mastery_criterion = JSONField(default={})
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
     mastery_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     # Has this mastery level been completed?
@@ -201,9 +202,9 @@ class BaseAttemptLog(BaseLogModel):
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField()
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField()
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.
@@ -254,7 +255,7 @@ class ExamLog(BaseLogModel):
     # Used to end user engagement with an exam when it has been deactivated.
     closed = models.BooleanField(default=False)
     # when was this exam finished?
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
 
 
 class ExamAttemptLog(BaseAttemptLog):
