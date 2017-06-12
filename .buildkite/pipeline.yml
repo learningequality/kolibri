@@ -14,3 +14,8 @@ steps:
 
   - label: Build kolibri windows installer
     command: .buildkite/build_windows_installer.sh
+
+  - wait
+
+  - label: Build the Android APK file
+    command: mkdir -p dist && .buildkite/build_apk.sh
