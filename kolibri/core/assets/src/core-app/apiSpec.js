@@ -117,6 +117,9 @@ module.exports = {
         pointsIcon: {
           module: require('../views/points-icon'),
         },
+        authMessage: {
+          module: require('../views/auth-message'),
+        },
       },
       router: {
         module: require('../router'),

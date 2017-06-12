@@ -4,8 +4,8 @@
     <ui-icon>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.CHANNEL)"
-        category="action"
-        name="view_module"
+        category="navigation"
+        name="apps"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.TOPIC)"
@@ -25,12 +25,12 @@
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
         category="action"
-        name="description"
+        name="book"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-        category="toggle"
-        name="star"
+        category="action"
+        name="assignment"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.HTML5)"

@@ -34,10 +34,11 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
-from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 from morango.models import SyncableModel
 from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
@@ -193,7 +194,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         ],
     )
     full_name = models.CharField(_('full name'), max_length=120, blank=True)
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
+    date_joined = DateTimeTzField(_('date joined'), default=local_now, editable=False)
 
     is_staff = False
     is_superuser = False

@@ -21,7 +21,6 @@
   @require '~kolibri.styles.definitions'
 
   .tabs
-    background-color: white
     white-space: nowrap
     overflow-x: auto
     overflow-y: hidden

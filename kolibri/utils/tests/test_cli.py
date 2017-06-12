@@ -4,11 +4,8 @@ Tests for `kolibri` module.
 from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
-import os
-import shutil
-import tempfile
 
-from kolibri.utils.cli import main
+from kolibri.utils import cli
 
 from .base import KolibriTestBase
 
@@ -17,19 +14,38 @@ logger = logging.getLogger(__name__)
 
 class TestKolibriCLI(KolibriTestBase):
 
-    @classmethod
-    def setup_class(cls):
-        os.environ["KOLIBRI_HOME"] = tempfile.mkdtemp()
-
     def test_cli(self):
         logger.debug("This is a unit test in the main Kolibri app space")
         # Test the -h
         with self.assertRaises(SystemExit):
-            main("-h")
+            cli.main("-h")
+        with self.assertRaises(SystemExit):
+            cli.main("--version")
 
-    @classmethod
-    def teardown_class(cls):
-        try:
-            shutil.rmtree(os.environ["KOLIBRI_HOME"])
-        except WindowsError as e:
-            logger.debug("Couldn't delete temporary file because\n\t" + str(e))
+    def test_parsing(self):
+        test_patterns = (
+            (['start'], {'start': True}, []),
+            (['stop'], {'stop': True}, []),
+            (['shell'], {'shell': True}, []),
+            (['manage', 'shell'], {'manage': True, 'COMMAND': 'shell'}, []),
+            (['manage', 'help'], {'manage': True, 'COMMAND': 'help'}, []),
+            (['manage', 'blah'], {'manage': True, 'COMMAND': 'blah'}, []),
+            (
+                ['manage', 'blah', '--debug', '--', '--django-arg'],
+                {'manage': True, 'COMMAND': 'blah', '--debug': True},
+                ['--django-arg']
+            ),
+            (
+                ['manage', 'blah', '--django-arg'],
+                {'manage': True, 'COMMAND': 'blah'},
+                ['--django-arg']
+            ),
+        )
+
+        for p, docopt_expected, django_expected in test_patterns:
+            docopt, django = cli.parse_args(p)
+
+            for k, v in docopt_expected.items():
+                assert docopt[k] == v
+
+            assert django == django_expected

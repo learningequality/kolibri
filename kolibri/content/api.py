@@ -1,38 +1,77 @@
+import os
+
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
+from future.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
+from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.search import fuzz
+from .utils.paths import get_content_database_file_path
+
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
 
+
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
+    permission_classes = (OnlyDeviceOwnerCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
+    def destroy(self, request, pk=None):
+        """
+        Destroys the ChannelMetadata object and its associated sqlite3 file on
+        the filesystem.
+        """
+        super(ChannelMetadataCacheViewSet, self).destroy(request)
 
-class ContentNodeFilter(filters.FilterSet):
+        if self.delete_content_db_file(pk):
+            response_msg = 'Channel {} removed from device'.format(pk)
+        else:
+            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+        return Response(response_msg)
+
+    def delete_content_db_file(self, channel_id):
+        try:
+            os.remove(get_content_database_file_path(channel_id))
+            return True
+        except OSError:
+            return False
+
+
+class IdFilter(filters.FilterSet):
+    ids = filters.django_filters.MethodFilter()
+
+    def filter_ids(self, queryset, value):
+        return queryset.filter(pk__in=value.split(','))
+
+    class Meta:
+        fields = ['ids', ]
+
+
+class ContentNodeFilter(IdFilter):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
     kind = filters.django_filters.MethodFilter()
-    ids = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -58,15 +97,12 @@ class ContentNodeFilter(filters.FilterSet):
         """
         Recommend items that are similar to this piece of content.
         """
-        recc_node = queryset.get(pk=value)
-        descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
-        siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
-        data = descendants | siblings  # concatenates different querysets
-        return data
+        return queryset.get(pk=value).get_siblings(
+            include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
 
     def filter_next_steps(self, queryset, value):
         """
-        Recommend uncompleted content, content that has user completed content as a prerequisite.
+        Recommend content that has user completed content as a prerequisite, or leftward sibling.
 
         :param queryset: all content nodes for this channel
         :param value: id of currently logged in user, or none if user is anonymous
@@ -77,31 +113,18 @@ class ContentNodeFilter(filters.FilterSet):
         if not value:
             return queryset.none()
 
-        tables = [
-            '"{summarylog_table}" AS "complete_log"',
-            '"{summarylog_table}" AS "incomplete_log"',
-            '"{content_table}" AS "complete_node"',
-            '"{content_table}" AS "incomplete_node"',
-        ]
-        table_names = {
-            "summarylog_table": ContentSummaryLog._meta.db_table,
-            "content_table": models.ContentNode._meta.db_table,
-        }
-        # aliases for sql table names
-        sql_tables_and_aliases = [table.format(**table_names) for table in tables]
-        # where conditions joined by ANDs
-        where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
-                            "complete_log.user_id = '{user_id}'".format(user_id=value),
-                            "incomplete_log.user_id = '{user_id}'".format(user_id=value),
-                            "complete_log.progress = 1",
-                            "complete_node.rght = incomplete_node.lft - 1",
-                            "complete_log.content_id = complete_node.content_id"]
-        # custom SQL query to get uncompleted content based on mptt algorithm
-        next_steps_recommendations = "SELECT incomplete_node.* FROM {tables} WHERE {where}".format(
-            tables=", ".join(sql_tables_and_aliases),
-            where=_join_with_logical_operator(where_statements, "AND")
-        )
-        return models.ContentNode.objects.raw(next_steps_recommendations)
+        completed_content_ids = ContentSummaryLog.objects.filter(
+            user=value, progress=1).values_list('content_id', flat=True)
+
+        # If no logs, don't bother doing the other queries
+        if not completed_content_ids:
+            return queryset.none()
+
+        completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
+
+        return queryset.filter(
+            Q(has_prerequisite__in=completed_content_nodes) |
+            Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])).order_by()
 
     def filter_popular(self, queryset, value):
         """
@@ -113,8 +136,10 @@ class ContentNodeFilter(filters.FilterSet):
         """
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
-            count = min(pks.count(), 25)
+            pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
+            # .count scales with table size, so can get slow on larger channels
+            count_cache_key = 'content_count_for_{}'.format(get_active_content_database())
+            count = cache.get(count_cache_key) or min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
         cache_key = 'popular_for_{}'.format(get_active_content_database())
@@ -155,6 +180,10 @@ class ContentNodeFilter(filters.FilterSet):
             .values_list('content_id', flat=True) \
             .distinct()
 
+        # If no logs, don't bother doing the other queries
+        if not content_ids:
+            return queryset.none()
+
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
         return resume
@@ -171,9 +200,6 @@ class ContentNodeFilter(filters.FilterSet):
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
 
-    def filter_ids(self, queryset, value):
-        return queryset.filter(pk__in=value.split(','))
-
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
@@ -185,6 +211,39 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class AllContentCursorPagination(pagination.CursorPagination):
+    page_size = 10
+    ordering = 'lft'
+    cursor_query_param = 'cursor'
+
+    def get_paginated_response(self, data):
+        """
+        By default the get_paginated_response method of the CursorPagination class returns the url link
+        to the next and previous queries of they exist.
+        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
+        directly querying passed in URLs.
+        Instead, return the cursor value that points to the next and previous items, so that they can be put
+        in a GET parameter in future queries.
+        """
+        if self.has_next:
+            # The CursorPagination class has no internal methods to just return the cursor value, only
+            # the url of the next and previous, so we have to generate the URL, parse it, and then
+            # extract the cursor parameter from it to return in the Response.
+            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
+        else:
+            next_item = None
+        if self.has_previous:
+            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
+            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
+        else:
+            prev_item = None
+
+        return Response(OrderedDict([
+            ('next', next_item),
+            ('previous', prev_item),
+            ('results', data)
+        ]))
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -192,13 +251,10 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().select_related(
-            'parent',
-            'license',
-        ).prefetch_related(
+        return models.ContentNode.objects.all().prefetch_related(
             'assessmentmetadata',
             'files',
-        )
+        ).select_related('license')
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
@@ -224,6 +280,31 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
+    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    def all_content(self, request, **kwargs):
+        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ContentNodeProgressFilter(IdFilter):
+    class Meta:
+        model = models.ContentNode
+
+
+class ContentNodeProgressViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ContentNodeProgressSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ContentNodeProgressFilter
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
@@ -231,3 +312,14 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ChannelFileSummaryViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        file_summary = models.File.objects.aggregate(
+            total_files=Count('pk'),
+            total_file_size=Sum('file_size')
+        )
+        file_summary['channel_id'] = get_active_content_database()
+        # Need to wrap in an array to be fetchable as a Collection on client
+        return Response([file_summary])
