@@ -13,7 +13,20 @@ class StyleGuideModule extends KolibriModule {
       el: 'rootvue',
       name: 'StyleGuideRoot',
       render: createElement => createElement(RootVue),
-      router: router.init(navigationMenuRoutes)
+      router: router.init(navigationMenuRoutes, {
+        // Enable the anchor scrolling behavior (which requires the vue-router
+        // to use the HTML5 History API).
+        mode: 'history',
+        scrollBehavior(to, from, savedPosition) {
+          if (to.hash) {
+            return { selector: to.hash };
+          } else if (savedPosition) {
+            return savedPosition;
+          }
+
+          return { x: 0, y: 0 };
+        }
+      })
     });
   }
 }
