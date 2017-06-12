@@ -16,7 +16,9 @@ from django.utils.text import get_valid_filename
 from jsonfield import JSONField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
+from kolibri.core.fields import DateTimeTzField
 from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
 
@@ -64,7 +66,7 @@ class UUIDField(models.CharField):
         return value
 
 
-class ContentQuerySet(models.QuerySet):
+class ContentQuerySet(TreeQuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
@@ -125,7 +127,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     objects = ContentQuerySet.as_manager()
 
     class Meta:
-        ordering = ('sort_order',)
+        ordering = ('lft',)
 
     def __str__(self):
         return self.title
@@ -269,6 +271,7 @@ class AssessmentMetaData(ContentDatabaseModel):
     # and use in summative and formative tests?
     is_manipulable = models.BooleanField(default=False)
 
+
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """
@@ -301,6 +304,8 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
     """
     This class stores the channel metadata cached/denormed into the primary database.
     """
+
+    last_updated = DateTimeTzField(null=True)
 
     class Admin:
         pass

@@ -60,9 +60,13 @@ function getDefaultChannelId(channelList) {
   return null;
 }
 
+function getCurrentChannelId(state) {
+  return state.core.channels.currentId;
+}
+
 /* return the current channel object, according to vuex state */
 function getCurrentChannelObject(state) {
-  return state.core.channels.list.find(channel => channel.id === state.core.channels.currentId);
+  return state.core.channels.list.find(channel => channel.id === getCurrentChannelId(state));
 }
 
 function totalPoints(state) {
@@ -82,6 +86,7 @@ module.exports = {
   isCoach,
   isLearner,
   getDefaultChannelId,
+  getCurrentChannelId,
   getCurrentChannelObject,
   currentFacilityId,
   totalPoints,

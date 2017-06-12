@@ -268,9 +268,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertTrue("pk" not in response.data)
 
     def test_contentnode_recommendations(self):
-        root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 4)
+        id = content.ContentNode.objects.get(title="c2c2").id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
+        self.assertEqual(len(response.data), 2)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -292,8 +292,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
         self.assertEqual(response.data['preset'], 'High Resolution')
 
-    def test_contentnode_progress(self):
-
+    def _setup_contentnode_progress(self):
         # set up data for testing progress_fraction field on content node endpoint
         facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="learner", facility=facility)
@@ -313,6 +312,12 @@ class ContentNodeAPITestCase(APITestCase):
                 start_timestamp=datetime.datetime.now()
             )
 
+        return facility, root, c1, c2, c2c1, c2c3
+
+    def test_contentnode_progress(self):
+
+        facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
+
         def assert_progress(node, progress):
             response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': node.id}))
             self.assertEqual(response.data["progress_fraction"], progress)
@@ -331,6 +336,55 @@ class ContentNodeAPITestCase(APITestCase):
         # Topic so None
         assert_progress(c2, None)
         assert_progress(c2c1, 0.7)
+
+    def test_contentnode_progress_detail_endpoint(self):
+
+        facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
+
+        def assert_progress(node, progress):
+            response = self.client.get(self._reverse_channel_url("contentnodeprogress-detail", {'pk': node.id}))
+            self.assertEqual(response.data["progress_fraction"], progress)
+
+        # check that there is no progress when not logged in
+        assert_progress(root, 0)
+        assert_progress(c1, 0)
+        assert_progress(c2, 0)
+        assert_progress(c2c1, 0)
+
+        # check that progress is calculated appropriately when user is logged in
+        self.client.login(username="learner", password="pass", facility=facility)
+
+        # The progress endpoint is used, so should report progress for topics
+        assert_progress(root, 0.3)
+        assert_progress(c1, 0)
+        assert_progress(c2, 0.4)
+        assert_progress(c2c1, 0.7)
+
+    def test_contentnode_progress_list_endpoint(self):
+
+        facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
+
+        response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
+
+        def get_progress_fraction(node):
+            return list(filter(lambda x: x['pk'] == node.pk, response.data))[0]['progress_fraction']
+
+        # check that there is no progress when not logged in
+        self.assertEqual(get_progress_fraction(root), 0)
+        self.assertEqual(get_progress_fraction(c1), 0)
+        self.assertEqual(get_progress_fraction(c2), 0)
+        self.assertEqual(get_progress_fraction(c2c1), 0)
+
+        # check that progress is calculated appropriately when user is logged in
+        self.client.login(username="learner", password="pass", facility=facility)
+
+        response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
+
+        # The progress endpoint is used, so should report progress for topics
+        self.assertEqual(get_progress_fraction(root), 0.3)
+        self.assertEqual(get_progress_fraction(c1), 0)
+        self.assertEqual(get_progress_fraction(c2), 0.4)
+        self.assertEqual(get_progress_fraction(c2c1), 0.7)
 
     def tearDown(self):
         """

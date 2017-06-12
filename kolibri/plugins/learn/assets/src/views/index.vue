@@ -10,7 +10,9 @@
           type="search"
           :placeholder="$tr('search')"
           v-model="searchQuery"
-          class="search-input">
+          class="search-input"
+          :style="searchInputStyle"
+        >
         <ui-icon-button
           :ariaLabel="$tr('clear')"
           icon="clear"
@@ -34,10 +36,9 @@
 
       <channel-switcher @switch="switchChannel"/>
 
-      <a class="points-link" href="/user"><total-points/></a>
     </div>
 
-    <div v-if="!isSearchPage">
+    <div v-if="tabLinksAreVisible" class="tab-links">
       <tabs>
         <tab-link
           type="icon-and-title"
@@ -56,10 +57,14 @@
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
           :title="$tr('exams')"
-          icon="assignments"
+          icon="assignment_late"
           :link="examsLink"
         />
       </tabs>
+    </div>
+
+    <div v-if="pointsAreVisible" class="points-wrapper">
+      <a class="points-link" href="/user"><total-points/></a>
     </div>
 
     <div>
@@ -79,8 +84,10 @@
   const { PageNames, PageModes } = require('../constants');
   const { TopLevelPageNames } = require('kolibri.coreVue.vuex.constants');
   const { isUserLoggedIn } = require('kolibri.coreVue.vuex.getters');
+  const ResponsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [ResponsiveWindow],
     $trNameSpace: 'learn',
     $trs: {
       learnTitle: 'Learn',
@@ -156,6 +163,14 @@
       },
     },
     computed: {
+      searchInputStyle() {
+        if (this.windowSize.breakpoint === 0) {
+          return { width: '40px' };
+        } else if (this.windowSize.breakpoint === 1) {
+          return { width: '150px' };
+        }
+        return {};
+      },
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
       },
@@ -194,8 +209,15 @@
       searchPage() {
         return { name: PageNames.SEARCH_ROOT };
       },
-      isSearchPage() {
-        return this.pageName === PageNames.SEARCH;
+      tabLinksAreVisible() {
+        return (
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
+          this.pageName !== PageNames.SEARCH
+        );
+      },
+      pointsAreVisible() {
+        return this.windowSize.breakpoint > 0 &&
+          this.pageName !== PageNames.SEARCH;
       },
       recommendedLink() {
         return { name: PageNames.LEARN_CHANNEL, params: { channel_id: this.channelId } };
@@ -237,16 +259,19 @@
     margin: auto
 
   .points-link
-    color: inherit
+    display: inline-block
+    text-decoration: none
 
   .search-box
     display: inline-block
+    margin-left: 0.5em
     background-color: white
 
   .search-input
     background-color: white
     color: $core-text-default
     border: none
+    width: 150px
     height: 36px
     padding: 0
     padding-left: 0.5em
@@ -275,5 +300,9 @@
     display: inline-block
     background-color: $core-action-dark
     vertical-align: middle
+
+  .points-wrapper
+    margin-top: -70px
+    float: right
 
 </style>

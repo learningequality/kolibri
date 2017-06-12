@@ -2,30 +2,41 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import importlib  # noqa
 import logging  # noqa
-# Do this before importing anything else, we need to add bundled requirements
-# from the distributed version in case it exists before importing anything
-# else.
-# TODO: Do we want to manage the path at an even more fundametal place like
-# kolibri.__init__ !? Load order will still matter...
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-from logging import config as logging_config  # noqa
+
+# Do this before importing anything else, we need to add bundled requirements
+# from the distributed version in case it exists before importing anything
+# else.
+# TODO: Do we want to manage the path at an even more fundamental place like
+# kolibri.__init__ !? Load order will still matter...
 
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
+sys.path = [
+    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+] + sys.path
 
-# Setup path in case we are running with dependencies bundled into Kolibri
-# (NOTE: This *must* come before imports below, of django etc, or whl/pex will fail)
-sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-            ] + sys.path
+# Set default env
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+)
+os.environ.setdefault(
+    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
+)
+os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
 
 from . import server  # noqa
+from .system import become_daemon  # noqa
 
+# This was added in
+# https://github.com/learningequality/kolibri/pull/580
+# ...we need to (re)move it /benjaoming
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
     reload(sys)
@@ -38,12 +49,13 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
-  kolibri stop [options] [-- DJANGO_OPTIONS ...]
-  kolibri restart [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground] [--port=<port>] [options]
+  kolibri stop [options]
+  kolibri restart [options]
   kolibri status [options]
-  kolibri shell [options] [-- DJANGO_OPTIONS ...]
-  kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
+  kolibri shell [options]
+  kolibri manage COMMAND [DJANGO_OPTIONS ...]
+  kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
   kolibri plugin [options] PLUGIN (enable | disable)
   kolibri language setdefault <langcode>
@@ -54,15 +66,12 @@ Usage:
 Options:
   -h --help             Show this screen.
   --version             Show version.
+  --debug               Output debug messages (for development)
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
-  --debug               Output debug messages (for development)
-  --port=<arg>          Use a non-default port on which to start the HTTP server
-                        or to query an existing server (stop/status)
-  DJANGO_OPTIONS        All options are passed on to the django manage command.
-                        Notice that all django options must appear *last* and
-                        should not be mixed with other options. Only long-name
-                        options ('--long-name') are supported.
+  DJANGO_OPTIONS        Command options are passed on to the django manage
+                        command. Notice that all django options must appear
+                        *last* and should not be mixed with other options.
 
 Examples:
   kolibri start             Start Kolibri
@@ -99,15 +108,6 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 """.format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
 
-# Set default env
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
-)
-os.environ.setdefault(
-    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
-)
-os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
-
 logger = logging.getLogger(__name__)
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
@@ -120,6 +120,34 @@ class PluginDoesNotExist(Exception):
     on a plugin that cannot be loaded.
     """
     pass
+
+
+def initialize(debug=False):
+    """
+    Currently, always called before running commands. This may change in case
+    commands that conflict with this behavior show up.
+
+    :param: debug: Tells initialization to setup logging etc.
+    """
+
+    # TODO: We'll move this to a more deliberate location whereby we can
+    # ensure that some parts of kolibri can run without the whole django stack
+    django.setup()
+
+    setup_logging(debug=debug)
+
+    if not os.path.isfile(VERSION_FILE):
+        _first_run()
+    else:
+        version = open(VERSION_FILE, "r").read()
+        if kolibri.__version__ != version.strip():
+            logger.info(
+                "Version was {old}, new version: {new}".format(
+                    old=version,
+                    new=kolibri.__version__
+                )
+            )
+            update()
 
 
 def _first_run():
@@ -138,12 +166,13 @@ def _first_run():
         "to wait a bit while we create a blank database...\n\n"
     )
 
-    django.setup()
-
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
 
+    # We need to migrate the database before enabling plugins, because they
+    # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False)
+        call_command("migrate", interactive=False, database="default")
+        call_command("migrate", interactive=False, database="ormq")
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -153,26 +182,156 @@ def _first_run():
 
     logger.info("Automatically enabling applications.")
 
+    # Finally collect static assets and run migrations again
+    update()
+
+
+def update():
+    """
+    Called whenever a version change in kolibri is detected
+
+    TODO: We should look at version numbers of external plugins, too!
+    """
+    logger.info("Running update routines for new version...")
+    call_command("collectstatic", interactive=False)
+    call_command("collectstatic_js_reverse", interactive=False)
+
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
+
+    if not SKIP_AUTO_DATABASE_MIGRATION:
+        call_command("migrate", interactive=False, database="default")
+        call_command("migrate", interactive=False, database="ormq")
+
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
 
 
-def initialize(debug=False):
+def start(port=8080, daemon=True):
     """
-    Always called before running commands
+    Start the server on given port.
 
-    :param: debug: Tells initialization to setup logging etc.
+    :param: port: Port number (default: 8080)
+    :param: daemon: Fork to background process (default: True)
     """
 
-    setup_logging(debug=debug)
+    if not daemon:
+        logger.info("Running 'kolibri start' in foreground...")
+    else:
+        logger.info("Running 'kolibri start' as daemon (system service)")
 
-    if not os.path.isfile(VERSION_FILE):
-        _first_run()
+    # TODO: moved from server.start() but not sure where it should ideally be
+    # located. Question is if it should be run every time the server is started
+    # or if it depends on some kind of state change.
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
+    update_channel_metadata_cache()
+
+    # Daemonize at this point, no more user output is needed
+    if daemon:
+
+        kwargs = {}
+        # Truncate the file
+        open(server.DAEMON_LOG, "w").truncate()
+        logger.info(
+            "Going to daemon mode, logging to {0}".format(server.DAEMON_LOG)
+        )
+        kwargs['out_log'] = server.DAEMON_LOG
+        kwargs['err_log'] = server.DAEMON_LOG
+        become_daemon(**kwargs)
+
+    server.start(port=port)
+
+
+def stop():
+    """
+    Stops the server unless it isn't running
+    """
+    try:
+        pid, __, __ = server.get_status()
+        server.stop(pid=pid)
+        stopped = True
+    except server.NotRunning as e:
+        verbose_status = "{msg:s} ({code:d})".format(
+            code=e.status_code,
+            msg=status.codes[e.status_code]
+        )
+        if e.status_code == server.STATUS_STOPPED:
+            logger.info("Already stopped: {}".format(verbose_status))
+            stopped = True
+        elif e.status_code == server.STATUS_STARTING_UP:
+            logger.error(
+                "Not stopped: {}".format(verbose_status)
+            )
+            sys.exit(e.status_code)
+        else:
+            logger.error(
+                "During graceful shutdown, server says: {}".format(
+                    verbose_status
+                )
+            )
+            logger.error(
+                "Not responding, killing with force"
+            )
+            server.stop(force=True)
+            stopped = True
+
+    if stopped:
+        logger.info("Server stopped")
+        sys.exit(0)
+
+
+def status():
+    """
+    Check the server's status. For possible statuses, see the status dictionary
+    status.codes
+
+    Status *always* outputs the current status in the first line of stderr.
+    The following lines contain optional information such as the addresses where
+    the server is listening.
+
+    TODO: We can't guarantee the above behavior because of the django stack
+    being loaded regardless
+
+    :returns: status_code, key has description in status.codes
+    """
+    status_code, urls = server.get_urls()
+
+    if status_code == server.STATUS_RUNNING:
+        sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
+        sys.stderr.write("Kolibri running on:\n\n")
+        for addr in urls:
+            sys.stderr.write("\t{}\n".format(addr))
+        return server.STATUS_RUNNING
+    else:
+        verbose_status = status.codes[status_code]
+        sys.stderr.write("{msg:s} ({code:d})\n".format(
+            code=status_code, msg=verbose_status))
+        return status_code
+
+
+status.codes = {
+    server.STATUS_RUNNING: 'OK, running',
+    server.STATUS_STOPPED: 'Stopped',
+    server.STATUS_STARTING_UP: 'Starting up',
+    server.STATUS_NOT_RESPONDING: 'Not responding',
+    server.STATUS_FAILED_TO_START:
+        'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
+    server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
+    server.STATUS_UNKNOWN_INSTANCE: 'Unknown KA Lite running on port',
+    server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
+    server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
+    server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
+    server.STATUS_UNKNOWN: 'Could not determine status',
+}
 
 
 def setup_logging(debug=False):
-    """Configures logging in cases where a Django environment is not supposed
-    to be configured"""
+    """
+    Configures logging in cases where a Django environment is not supposed
+    to be configured.
+
+    TODO: This is really confusing, importing django settings is allowed to
+    fail when debug=False, but if it's true it can fail?
+    """
     try:
         from django.conf.settings import LOGGING
     except ImportError:
@@ -182,7 +341,7 @@ def setup_logging(debug=False):
         settings.DEBUG = True
         LOGGING['handlers']['console']['level'] = 'DEBUG'
         LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
-    logging_config.dictConfig(LOGGING)
+    logging.config.dictConfig(LOGGING)
     logger.debug("Debug mode is on!")
 
 
@@ -268,26 +427,30 @@ def set_default_language(lang):
         logging.warning(msg)
 
 
-def main(args=None):
+def parse_args(args=None):
     """
-    Kolibri's main function. Parses arguments and calls utility functions.
-    Utility functions should be callable for unit testing purposes, but remember
-    to use main() for integration tests in order to test the argument API.
-    """
+    Parses arguments by invoking docopt. Arguments for django management
+    commands are split out before returning.
 
-    # ensure that Django is set up before we do anything else
-    django.setup()
+    :returns: (parsed_arguments, raw_django_ars)
+    """
 
     if not args:
         args = sys.argv[1:]
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
     if '--' in args:
+        # At the moment, we keep this for backwards-compatibility and in case there
+        # is a real case of having to force the parsing of DJANGO_OPTIONS to a
+        # specific location. Example:
+        # kolibri manage commandname --non-django-arg -- --django-arg
         pivot = args.index('--')
         args, django_args = args[:pivot], args[pivot + 1:]
+    elif 'manage' in args:
+        # Include "manage COMMAND" for docopt parsing, but split out the rest
+        pivot = args.index('manage') + 2
+        args, django_args = args[:pivot], args[pivot:]
     else:
         django_args = []
 
@@ -299,7 +462,19 @@ def main(args=None):
     if args:
         docopt_kwargs['argv'] = args
 
-    arguments = docopt(USAGE, **docopt_kwargs)
+    return docopt(USAGE, **docopt_kwargs), django_args
+
+
+def main(args=None):
+    """
+    Kolibri's main function. Parses arguments and calls utility functions.
+    Utility functions should be callable for unit testing purposes, but remember
+    to use main() for integration tests in order to test the argument API.
+    """
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    arguments, django_args = parse_args(args)
 
     debug = arguments['--debug']
 
@@ -322,7 +497,16 @@ def main(args=None):
 
     if arguments['start']:
         port = int(arguments['--port'] or 8080)
-        server.start(port=port)
+        start(port, daemon=not arguments['--foreground'])
+        return
+
+    if arguments['stop']:
+        stop()
+        return
+
+    if arguments['status']:
+        status_code = status()
+        sys.exit(status_code)
         return
 
     if arguments['language'] and arguments['setdefault']:
