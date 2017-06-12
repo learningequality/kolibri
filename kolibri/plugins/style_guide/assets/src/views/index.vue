@@ -89,6 +89,7 @@
 
     p
       margin-top: 0
+      max-width: 50em
 
     ul
       margin-top: 0.5em
