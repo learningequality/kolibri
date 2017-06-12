@@ -229,12 +229,21 @@
       overflow: hide
 
     &-controls
+      // set up the parent element that the buttons use for reference
       position: absolute
       width: 100%
       clearfix()
       .next, .previous
+        // uses parent div as reference
         position: absolute
         top: ($card-height / 2)
+
+        // using material definition for resting Raised Button
+        z-index: 2
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        &:active
+          z-index: 8
+          box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
       .next
         right: 0
       .previous
