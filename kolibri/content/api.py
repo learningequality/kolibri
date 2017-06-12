@@ -5,7 +5,7 @@ from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from future.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
@@ -296,6 +296,7 @@ class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
 
+
 class ContentNodeProgressViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -311,3 +312,14 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ChannelFileSummaryViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        file_summary = models.File.objects.aggregate(
+            total_files=Count('pk'),
+            total_file_size=Sum('file_size')
+        )
+        file_summary['channel_id'] = get_active_content_database()
+        # Need to wrap in an array to be fetchable as a Collection on client
+        return Response([file_summary])
