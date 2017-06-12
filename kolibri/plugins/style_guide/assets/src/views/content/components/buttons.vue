@@ -140,7 +140,9 @@
 
     <h2 id="code-examples">Code Examples</h2>
 
-    <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
+    <div class="code-examples">
+      <vuep :template="codeExamplesTemplate"></vuep>
+    </div>
 
     <h2 id="api">API</h2>
 
@@ -219,10 +221,4 @@
 </script>
 
 
-<style lang="stylus">
-
-  .code-examples.vuep
-    .vuep-preview
-      height: 40em
-
-</style>
+<style lang="stylus" scoped></style>

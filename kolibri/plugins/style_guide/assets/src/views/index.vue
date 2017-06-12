@@ -1,6 +1,9 @@
 <template>
 
   <div>
+    <div class="page-header">
+      <h1>Kolibri Style Guide</h1>
+    </div>
     <sidenav class="sidenav"></sidenav>
     <router-view class="content"></router-view>
   </div>
@@ -23,35 +26,81 @@
 
   @import '~vuep/dist/vuep.css'
 
-  $sidenav-width = 10em
+  $sidenav-width = 13em
+  $page-header-height = 3em
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
   html,
   body
     height: auto
+    background: white
 
   html
     overflow: initial
 
   body
     padding-left: $sidenav-width
+    color: 606060
+
+  .page-header
+    background: #996189
+    color: white
+
+    height: $page-header-height
+    line-height: $page-header-height
+
+    padding-left: 2em
+    position: fixed
+    left: 0
+    right: 0
+    top: 0
+
+    h1
+      margin: 0
+      font-size: 1.125em
+      font-weight: 500
 
   .sidenav
     position: fixed
-    top: 0
+    top: $page-header-height
     bottom: 0
     left: 0
     right: initial
     overflow-y: auto
     width: $sidenav-width
 
+  .content
+    padding: 2em
+    padding-top: $page-header-height
+
+    h1,
+    h2,
+    h3
+      color: #333
+
+    h2,
+    h3
+      margin-top: 2em
+      margin-bottom: 0.5em
+
+    h4
+      margin-bottom: 0.5em
+
+    p
+      margin-top: 0
+
+    ul
+      margin-top: 0.5em
+
   .vuep
     flex-direction: column-reverse
+    margin-top: 1.3em
 
     .vuep-preview,
     .vuep-editor
       width: 100%
+      height: 40em
 
     .vuep-editor
       height: auto
