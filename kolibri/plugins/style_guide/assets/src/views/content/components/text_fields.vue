@@ -37,7 +37,10 @@
 `;
 
   module.exports = {
-    data: () => ({ codeExamplesTemplate })
+    data: () => ({ codeExamplesTemplate }),
+    components: {
+      'table-of-contents': require('../../shell/table-of-contents'),
+    },
   };
 
 </script>

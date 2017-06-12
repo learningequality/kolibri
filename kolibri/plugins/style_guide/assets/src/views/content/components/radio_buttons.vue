@@ -7,7 +7,9 @@
       more options.
     </p>
 
-    <h2>Guidelines & Usage</h2>
+    <table-of-contents></table-of-contents>
+
+    <h2 id="guidelines-and-usage">Guidelines & Usage</h2>
 
     <h3>Usage</h3>
     <p>
@@ -65,7 +67,14 @@
       Radio buttons are vertically stacked.
     </p>
 
+    <h2 id="code-examples">Code Examples</h2>
+
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
+
+    <h2 id="api">API</h2>
+
+    <!-- <api-table :api="api"></api-table> -->
+
   </div>
 
 </template>
@@ -122,7 +131,10 @@
 `;
 
   module.exports = {
-    data: () => ({ codeExamplesTemplate })
+    data: () => ({ codeExamplesTemplate }),
+    components: {
+      'table-of-contents': require('../../shell/table-of-contents'),
+    },
   };
 
 </script>

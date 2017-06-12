@@ -54,6 +54,6 @@
       width: 100%
 
     .vuep-editor
-      height: 50em
+      height: auto
 
 </style>
