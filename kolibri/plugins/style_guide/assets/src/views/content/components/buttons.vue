@@ -135,8 +135,12 @@
         <li>Right aligned on modals</li>
         <li>Top right for major creation actions</li>
       </ul>
-
+    
+    <h2>Examples and Code</h2>
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
+
+    <h2>API</h2>
+    <api-table :api="api"></api-table>
   </div>
 
 </template>
@@ -200,8 +204,16 @@
 </style>
 `;
 
+  const api = require('!vue-doc!keen-ui/src/UiButton'); // eslint-disable-line
+
   module.exports = {
-    data: () => ({ codeExamplesTemplate })
+    components: {
+      'api-table': require('../api_table'),
+    },
+    data: () => ({ 
+      codeExamplesTemplate,
+      api
+    })
   };
 
 </script>

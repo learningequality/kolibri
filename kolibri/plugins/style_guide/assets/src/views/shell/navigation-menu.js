@@ -31,17 +31,10 @@ const navigationMenu = [
         }
       },
       {
-<<<<<<< HEAD
-        linkLabel: 'Icon Button',
-        linkRoute: {
-          path: '/iconbutton',
-          component: require('../content/components/icon-button')
-=======
         linkLabel: 'Radio buttons',
         linkRoute: {
           path: `${base}/button`,
           component: require('../content/components/radio_buttons')
->>>>>>> upstream/style_guide
         }
       },
       {

@@ -1,9 +1,12 @@
 <template>
 
   <div>
-    Textbox
+    <h1>Textbox</h1>
 
+    <h2>Examples and Code</h2>
     <vuep :template="codeExamplesTemplate"></vuep>
+
+    <h2>API</h2>
     <api-table :api="api"></api-table>
   </div>
 
@@ -11,8 +14,6 @@
 
 
 <script>
-
-  const api = require('!vue-doc!kolibri.coreVue.components.textbox'); // eslint-disable-line
 
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
@@ -38,6 +39,8 @@
   };
 </${script}>
 `;
+
+  const api = require('!vue-doc!kolibri.coreVue.components.textbox'); // eslint-disable-line
 
   module.exports = {
     components: {

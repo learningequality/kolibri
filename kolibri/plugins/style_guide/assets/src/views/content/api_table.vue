@@ -2,11 +2,11 @@
 
   <div>
 
-    <h2>Name: {{ api.name }}</h2>
-    <h2>Description: {{ api.description }}</h2>
+    <h3>Name: {{ api.name }}</h3>
+    <h3>Description: {{ api.description }}</h3>
 
     <div v-if="api.props.length">
-      <h2>Props</h2>
+      <h3>Props</h3>
       <table>
       <tr>
         <th>Name</th>
@@ -26,7 +26,7 @@
     </div>
 
     <div v-if="api.events.length">
-      <h2>Emitted events</h2>
+      <h3>Emitted events</h3>
       <table>
       <tr>
         <th>Name</th>
@@ -44,7 +44,7 @@
     </div>
 
     <div v-if="api.slots.length">
-      <h2>Slots</h2>
+      <h3>Slots</h3>
       <table>
       <tr>
         <th>Name</th>
@@ -58,7 +58,7 @@
     </div>
 
     <div v-if="api.methods.length">
-      <h2>Methods</h2>
+      <h3>Methods</h3>
       <table>
       <tr>
         <th>Name</th>
