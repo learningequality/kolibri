@@ -8,6 +8,15 @@ const actionTypes = {
 };
 
 /**
+ * Force-refresh the ChannelResource Collection
+ *
+ * @param store
+ */
+function refreshChannelList(store) {
+  return ChannelResource.getCollection().fetch({}, true);
+}
+
+/**
  * Delete a Channel from the device
  *
  * @param store - vuex store object
@@ -16,11 +25,7 @@ const actionTypes = {
  */
 function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId).delete()
-  .then(function onSuccess(msg) {
-    // Bust the cache of ChannelResource. Page state should be updated
-    // on next poll.
-    ChannelResource.getCollection().fetch({}, true);
-  });
+  .then(refreshChannelList);
 }
 
 /**
@@ -59,4 +64,5 @@ module.exports = {
   actionTypes,
   addChannelFileSummaries,
   deleteChannel,
+  refreshChannelList,
 };
