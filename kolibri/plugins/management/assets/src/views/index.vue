@@ -9,10 +9,7 @@
       <component class="manage-content page" :is="currentPage"/>
     </div>
 
-    <div v-else class="login-message">
-      <h1>{{ $tr('logInPrompt') }}</h1>
-      <p>{{ $tr('logInCommand') }}</p>
-    </div>
+    <auth-message v-else authorizedRole="admin" />
 
   </core-base>
 
@@ -41,10 +38,9 @@
     $trNameSpace: 'managementRoot',
     $trs: {
       managementTitle: 'Management',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as an Admin to view this page.',
     },
     components: {
+      'auth-message': require('kolibri.coreVue.components.authMessage'),
       'class-edit-page': require('./class-edit-page'),
       'class-enroll-page': require('./class-enroll-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
@@ -92,9 +88,5 @@
     background-color: $core-bg-light
     margin-top: 1em
     border-radius: $radius
-
-  .login-message
-    text-align: center
-    margin-top: 200px
 
 </style>
