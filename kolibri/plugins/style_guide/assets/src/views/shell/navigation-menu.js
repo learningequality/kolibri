@@ -1,5 +1,8 @@
 const _ = require('lodash');
 
+const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
+const base = '/style_guide';
+
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -7,41 +10,55 @@ const _ = require('lodash');
 const navigationMenu = [
   {
     sectionHeading: 'Styles',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
       {
         linkLabel: 'Typography',
         linkRoute: {
-          path: '/typograhy',
-          component: require('../content/typography')
+          path: `${base}/typography`,
+          component: require('../content/style/typography')
         }
       },
-    ]
+    ])
   },
   {
     sectionHeading: 'Components',
-    sectionLinks: [
+    sectionLinks: sortSectionLink([
       {
+        linkLabel: 'Checkboxes',
+        linkRoute: {
+          path: '/components/checkboxes',
+          component: require('../content/components/checkboxes')
+        }
+      },
+      {
+<<<<<<< HEAD
         linkLabel: 'Icon Button',
         linkRoute: {
           path: '/iconbutton',
           component: require('../content/components/icon-button')
+=======
+        linkLabel: 'Radio buttons',
+        linkRoute: {
+          path: `${base}/button`,
+          component: require('../content/components/radio_buttons')
+>>>>>>> upstream/style_guide
         }
       },
       {
-        linkLabel: 'Tab',
+        linkLabel: 'Buttons',
         linkRoute: {
-          path: '/tab',
-          component: require('../content/tab')
+          path: `${base}/tab`,
+          component: require('../content/components/buttons')
         }
       },
       {
-        linkLabel: 'Textbox',
+        linkLabel: 'Text fields',
         linkRoute: {
-          path: '/textbox',
-          component: require('../content/components/textbox')
+          path: `${base}/textbox`,
+          component: require('../content/components/text_fields')
         }
       }
-    ]
+    ])
   }
 ];
 
