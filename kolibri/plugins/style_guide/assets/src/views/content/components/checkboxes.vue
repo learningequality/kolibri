@@ -128,7 +128,6 @@
   const api = require('!vue-doc!keen-ui/src/UiCheckbox'); // eslint-disable-line
 
   module.exports = {
-<<<<<<< HEAD
     components: {
       'component-api': require('../component_api'),
       'table-of-contents': require('../../shell/table-of-contents'),
@@ -136,13 +135,7 @@
     data: () => ({
       codeExamplesTemplate,
       api
-    })
-=======
-    data: () => ({ codeExamplesTemplate }),
-    components: {
-      'table-of-contents': require('../../shell/table-of-contents'),
-    },
->>>>>>> chao/add_toc_and_fix_bugs
+    }),
   };
 
 </script>
