@@ -1,74 +1,68 @@
 <template>
 
-  <div>
-    <h1>Checkboxes</h1>
-    <p>
+  <component-style-guide
+      :codeExamplesTemplate="codeExamplesTemplate"
+      :api="api">
+
+    <h1 slot="title">Checkboxes</h1>
+    <p slot="summary">
       Use if you want to allow the user to select multiple items within a list.
       Actions should be selectable independently of each other.
     </p>
 
-    <table-of-contents></table-of-contents>
+    <div slot="guidelines-and-usage">
+      <h3>Usage</h3>
+      <p>
+        Use checkboxes in tables and lists only.
+      </p>
+      <p>
+        Selected state of controls generally denote “positives” (yes/select/etc.)
+      </p>
 
-    <h2 id="guidelines-and-usage">Guidelines & Usage</h2>
+      <h3>Do not</h3>
+      <ul>
+        <li>
+          Use checkboxes as a filter in a table or a list.
+        </li>
+        <li>
+          Nest checkboxes.
+        </li>
+      </ul>
 
-    <h3>Usage</h3>
-    <p>
-      Use checkboxes in tables and lists only.
-    </p>
-    <p>
-      Selected state of controls generally denote “positives” (yes/select/etc.)
-    </p>
+      <h3>Style</h3>
+      <p>
+        Kolibri utilizes the default styles + padding from Keen UI.
+      </p>
+      <p>
+        Selected checkbox is the action color.
+      </p>
+      <p>
+        Partially selected checkbox is medium grey.
+      </p>
+      <p>
+        Unselected checkbox are dark grey.
+      </p>
 
-    <h3>Do not</h3>
-    <ul>
-      <li>
-        Use checkboxes as a filter in a table or a list.
-      </li>
-      <li>
-        Nest checkboxes.
-      </li>
-    </ul>
+      <h3>Language</h3>
+      <h4>Labels & option text:</h4>
+      <p>
+        Keep these short, concise, and easy for the user to understand. Should not
+        be structured as a sentence.
+      </p>
 
-    <h3>Style</h3>
-    <p>
-      Kolibri utilizes the default styles + padding from Keen UI.
-    </p>
-    <p>
-      Selected checkbox is the action color.
-    </p>
-    <p>
-      Partially selected checkbox is medium grey.
-    </p>
-    <p>
-      Unselected checkbox are dark grey.
-    </p>
-
-    <h3>Language</h3>
-    <h4>Labels & option text:</h4>
-    <p>
-      Keep these short, concise, and easy for the user to understand. Should not
-      be structured as a sentence.
-    </p>
-
-    <h3>Layout</h3>
-    <p>
-      Checkboxes are always left-aligned.
-    </p>
-    <p>
-      No inset padding, checkboxes left-align with the content of their
-      container.
-    </p>
-    <p>
-      Checkboxes are vertically stacked.
-    </p>
-
-    <h2 id="code-examples">Examples and Code</h2>
-    <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
-
-    <h2 id="api">API</h2>
-    <component-api :api="api"></component-api>
-
-  </div>
+      <h3>Layout</h3>
+      <p>
+        Checkboxes are always left-aligned.
+      </p>
+      <p>
+        No inset padding, checkboxes left-align with the content of their
+        container.
+      </p>
+      <p>
+        Checkboxes are vertically stacked.
+      </p>
+    </div>
+  </component-style-guide>
 
 </template>
 
@@ -125,16 +119,13 @@
 </style>
 `;
 
-  const api = require('!vue-doc!keen-ui/src/UiCheckbox'); // eslint-disable-line
-
   module.exports = {
     components: {
-      'component-api': require('../component_api'),
-      'table-of-contents': require('../../shell/table-of-contents'),
+      'component-style-guide': require('../../shell/component-style-guide'),
     },
     data: () => ({
       codeExamplesTemplate,
-      api
+      api: require('!vue-doc!keen-ui/src/UiCheckbox'), // eslint-disable-line
     })
   };
 
