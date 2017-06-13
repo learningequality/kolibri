@@ -1,9 +1,13 @@
 <template>
 
   <div>
-    Textbox
+    <h1>Textbox</h1>
 
+    <h2>Examples and Code</h2>
     <vuep :template="codeExamplesTemplate"></vuep>
+
+    <h2>API</h2>
+    <component-api :api="api"></component-api>
   </div>
 
 </template>
@@ -36,8 +40,16 @@
 </${script}>
 `;
 
+  const api = require('!vue-doc!kolibri.coreVue.components.textbox'); // eslint-disable-line
+
   module.exports = {
-    data: () => ({ codeExamplesTemplate })
+    components: {
+      'component-api': require('../component_api'),
+    },
+    data: () => ({
+      codeExamplesTemplate,
+      api
+    })
   };
 
 </script>
