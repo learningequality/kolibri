@@ -95,6 +95,9 @@ function createGroup(store, groupName) {
       const groups = store.state.pageState.groups;
       groups.push(_groupState(group));
 
+      // Clear cache for future fetches
+      LearnerGroupResource.clearCache();
+
       store.dispatch('SET_GROUPS', groups);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       displayModal(store, false);
@@ -150,6 +153,9 @@ function _addUserToGroup(store, groupId, userId) {
         const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
         groups[groupIndex].users.push(userObject);
 
+        // Clear cache for future fetches
+        LearnerGroupResource.clearCache();
+
         store.dispatch('SET_GROUPS', groups);
         resolve();
       },
@@ -183,6 +189,9 @@ function _removeUserfromGroup(store, groupId, userId) {
             const groups = store.state.pageState.groups;
             const groupIndex = groups.findIndex(group => group.id === groupId);
             groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
+
+            // Clear cache for future fetches
+            LearnerGroupResource.clearCache();
 
             store.dispatch('SET_GROUPS', groups);
             resolve();
