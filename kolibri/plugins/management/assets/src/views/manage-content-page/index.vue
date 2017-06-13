@@ -11,6 +11,7 @@
           :status="pageState.taskList[0].status"
           :percentage="pageState.taskList[0].percentage"
           :id="pageState.taskList[0].id"
+          @importsuccess="handleSuccessfulImport"
         />
       </div>
 
@@ -37,7 +38,7 @@
         <hr>
         <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
 
-        <channels-grid />
+        <channels-grid ref="channelGrid" />
 
       </div>
     </template>
@@ -86,6 +87,11 @@
     destroyed() {
       if (this.isSuperuser) {
         clearInterval(this.intervalId);
+      }
+    },
+    methods: {
+      handleSuccessfulImport() {
+        this.$refs.channelGrid.notification = 'importSuccess';
       }
     },
     computed: {

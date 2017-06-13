@@ -65,6 +65,13 @@
     >
       {{ $tr('deleteFailureNotification') }}
     </ui-alert>
+    <ui-alert
+      v-if="notification==='importSuccess'"
+      @dismiss="notification=null"
+      type="success"
+    >
+      {{ $tr('successfulImportNotification') }}
+    </ui-alert>
   </div>
 
 </template>
@@ -104,6 +111,11 @@
     mounted() {
       this.currentTime = now();
       this.addChannelFileSummaries(map(this.channelList, 'id'));
+    },
+    watch: {
+      channelList(val, newVal) {
+        this.addChannelFileSummaries(map(newVal, 'id'));
+      }
     },
     methods: {
       handleDeleteChannel() {
@@ -151,6 +163,7 @@
       sizeHeader: 'Size',
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',
+      successfulImportNotification: 'A channel has been added to this device',
     }
   };
 

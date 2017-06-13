@@ -75,6 +75,7 @@
     methods: {
       clearTaskHandler() {
         if (this.statusSuccess) {
+          this.$emit('importsuccess');
           this.refreshChannelList();
         }
         this.clearTask(this.id);

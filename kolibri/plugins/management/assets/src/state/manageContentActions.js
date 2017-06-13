@@ -10,7 +10,7 @@ const actionTypes = {
 /**
  * Force-refresh the ChannelResource Collection
  *
- * @param store
+ * @param {Object} store - vuex store object
  */
 function refreshChannelList(store) {
   return ChannelResource.getCollection().fetch({}, true);
@@ -19,7 +19,7 @@ function refreshChannelList(store) {
 /**
  * Delete a Channel from the device
  *
- * @param store - vuex store object
+ * @param {Object} store - vuex store object
  * @param {string} channelId - a valid channel UUID
  * @returns {Promise}
  */
@@ -31,7 +31,7 @@ function deleteChannel(store, channelId) {
 /**
  * Request and hydrate pageState with file summary info for single channel
  *
- * @param store - vuex store object
+ * @param {Object} store - vuex store object
  * @param {string} channelId - channel UUID
  * @returns {Promise}
  */
@@ -50,7 +50,7 @@ function addChannelFileSummary(store, channelId) {
  * Hydrate the manage content pageState with file summary info for all channels.
  * Requests for individual channels are non-blocking.
  *
- * @param store - vuex store object
+ * @param {Object} store - vuex store object
  * @param {Array<String>} channelIds - an array of channelIds
  * @return {undefined}
  */
