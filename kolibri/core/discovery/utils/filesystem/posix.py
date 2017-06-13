@@ -17,6 +17,11 @@ OSX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) \((?P<filesystem
 #  /dev/sdb2 on /media/user/KEEPOD type ext4 (rw,nosuid,nodev,uhelper=udisks2)
 LINUX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) type (?P<filesystem>\S+)", flags=re.MULTILINE)
 
+# Regex parser for the contents of `/proc/mounts` (mostly needed for Android), which contains rows that looks like:
+#  /dev/block/bootdevice/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,noauto_da_alloc,data=ordered 0 0
+RAW_MOUNT_PARSER = re.compile("^(?P<device>\S+) (?P<path>.+) (?P<filesystem>\S+)", flags=re.MULTILINE)
+
+
 FILESYSTEM_BLACKLIST = set(["anon_inodefs", "bdev", "binfmt_misc", "cgroup", "cpuset", "debugfs", "devpts", "devtmpfs",
                             "ecryptfs", "fuse", "fuse.gvfsd-fuse", "fusectl", "hugetlbfs", "mqueue", "nfs", "nfs4", "nfsd",
                             "pipefs", "proc", "pstore", "ramfs", "rootfs", "rpc_pipefs", "securityfs", "sockfs", "sysfs",
@@ -30,20 +35,25 @@ def get_drive_list():
     Disk size/usage comes from shutil.disk_usage or os.statvfs, and name/type info from dbus (Linux) or diskutil (OSX).
     """
 
-    drivelist = subprocess.Popen('mount', shell=True, stdout=subprocess.PIPE)
-    drivelisto, err = drivelist.communicate()
-
-    drives = []
-
     if sys.platform == "darwin":
         MOUNT_PARSER = OSX_MOUNT_PARSER
     else:
         MOUNT_PARSER = LINUX_MOUNT_PARSER
 
+    try:
+        drivelist = subprocess.Popen('mount', shell=True, stdout=subprocess.PIPE)
+        drivelisto, err = drivelist.communicate()
+    except OSError:  # couldn't run `mount`, let's try reading the /etc/mounts listing directly
+        with open("/proc/mounts") as f:
+            drivelisto = f.read()
+        MOUNT_PARSER = RAW_MOUNT_PARSER
+
+    drives = []
+
     for drivematch in MOUNT_PARSER.finditer(drivelisto.decode()):
 
         drive = drivematch.groupdict()
-        path = drive["path"]
+        path = drive["path"].replace("\\040", " ").replace("\\011", "\t").replace("\\012", "\n").replace("\\134", "\\")
 
         # skip the drive if the filesystem or path is in a blacklist
         if drive["filesystem"] in FILESYSTEM_BLACKLIST or any(path.startswith(p) for p in PATH_PREFIX_BLACKLIST):
