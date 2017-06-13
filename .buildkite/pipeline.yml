@@ -14,3 +14,6 @@ steps:
 
   - label: Build kolibri windows installer
     command: .buildkite/build_windows_installer.sh
+
+  - label: Upload artifacts
+    command: .buildkite/setup_and_upload_artifact.sh
