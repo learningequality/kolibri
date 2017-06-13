@@ -2,12 +2,6 @@
 
   <div>
     <h1>Textbox</h1>
-
-    <h2>Examples and Code</h2>
-    <vuep :template="codeExamplesTemplate"></vuep>
-
-    <h2>API</h2>
-    <component-api :api="api"></component-api>
   </div>
 
 </template>
@@ -44,8 +38,6 @@
 
   module.exports = {
     components: {
-      'component-api': require('../component_api'),
-      'table-of-contents': require('../../shell/table-of-contents'),
     },
     data: () => ({
       codeExamplesTemplate,
