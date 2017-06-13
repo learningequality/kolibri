@@ -33,7 +33,7 @@
             {{ totalSizeOfFilesInChannel(channel.id) }}
           </td>
           <td>
-            {{ lastUpdatedDate(channel) }}
+            <elapsed-time :date="channel.last_updated" />
           </td>
           <td>
             <button
@@ -61,17 +61,14 @@
 
 <script>
 
-  const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
   const manageContentActions = require('../../state/manageContentActions');
-  const { now } = require('kolibri.utils.serverClock');
   const map = require('lodash/map');
   const orderBy = require('lodash/orderBy');
 
   module.exports = {
     data: () => ({
       selectedChannelIdx: null,
-      currentTime: null,
       notification: null,
     }),
     computed: {
@@ -96,9 +93,9 @@
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
       'delete-channel-modal': require('./delete-channel-modal'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     mounted() {
-      this.currentTime = now();
       this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     watch: {
@@ -127,9 +124,6 @@
       totalSizeOfFilesInChannel(channelId) {
         const channel = this.channelFileSummaries[channelId];
         return this.channelFileSummaries[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
-      },
-      lastUpdatedDate(channel) {
-        return distanceInWords(this.currentTime, channel.last_updated, { addSuffix: true });
       },
     },
     vuex: {
