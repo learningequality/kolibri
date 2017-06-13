@@ -25,7 +25,7 @@
       </table>
     </template>
 
-    <div v-if="api.events.length">
+    <template v-if="api.props.length">
       <h3>Emitted events</h3>
       <table>
         <tr>
@@ -41,9 +41,9 @@
           <td>{{ event.description }}</td>
         </tr>
       </table>
-    </div>
+    </template>
 
-    <div v-if="api.slots.length">
+    <template v-if="api.props.length">
       <h3>Slots</h3>
       <table>
         <tr>
@@ -55,9 +55,9 @@
           <td>{{ slot.description }}</td>
         </tr>
       </table>
-    </div>
+    </template>
 
-    <div v-if="api.methods.length">
+    <template v-if="api.props.length">
       <h3>Methods</h3>
       <table>
         <tr>
@@ -69,7 +69,7 @@
           <td>{{ method.description }}</td>
         </tr>
       </table>
-    </div>
+    </template>
 
   </div>
 
