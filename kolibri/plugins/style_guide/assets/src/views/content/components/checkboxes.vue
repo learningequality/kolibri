@@ -134,7 +134,7 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api
+      api,
     })
   };
 
