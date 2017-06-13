@@ -37,7 +37,7 @@
 
         <div class="advanced-options" @keydown.enter.stop>
           <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
-          <button @click="usr_delete=!usr_delete"> {{$tr('deleteUsr')}}</button>
+          <button @click="usr_delete=!usr_delete" :disabled="'disabled' ? userid === session_user_id : null"> {{$tr('deleteUsr')}}</button>
         </div>
 
         <hr class="end-modal">
