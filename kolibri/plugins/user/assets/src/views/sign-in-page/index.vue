@@ -7,7 +7,6 @@
       <form id="login-form" ref="form" @submit.prevent="signIn">
         <transition name="textbox">
           <core-textbox
-            v-if="(!simpleLogin || !passwordMissing)"
             :label="$tr('username')"
             id="username"
             :placeholder="$tr('enterUsername')"
@@ -20,7 +19,9 @@
             @keydown="handleKeyboardNav"/>
         </transition>
         <transition name="list">
-          <ul class="suggestions" v-if="simpleLogin && suggestions.length && !uniqueMatch && !passwordMissing"
+          <ul
+            class="suggestions"
+            v-if="simpleLogin && suggestions.length && !uniqueMatch"
             v-show="showDropdown">
             <ui-autocomplete-suggestion v-for="(suggestion, i) in suggestions"
               :suggestion="suggestion"
@@ -38,7 +39,9 @@
             :aria-label="$tr('password')"
             v-model="password"
             autocomplete="current-password"
-            required/>
+            :required="!simpleLogin"
+            :invalid="passwordMissing"
+            :error="passwordMissing ? $tr('enterPassword') : ''"/>
         </transition>
         <icon-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
 
@@ -126,20 +129,24 @@
     },
     methods: {
       handleKeyboardNav(e) {
-        switch (e.code) {
-          case 'ArrowDown':
-            this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.suggestions.length - 1);
-            break;
-          case 'Enter':
-            this.fillUsername(this.suggestions[this.highlightedIndex]);
-            break;
-          case 'Escape':
-            this.showDropdown = false;
-            break;
-          case 'ArrowUp':
-            this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
-            break;
-          default:
+        if (this.showDropdown && this.suggestions.length) {
+          switch (e.code) {
+            case 'ArrowDown':
+              this.highlightedIndex = Math.min(
+                this.highlightedIndex + 1, this.suggestions.length - 1);
+              break;
+            case 'Enter':
+              this.fillUsername(this.suggestions[this.highlightedIndex]);
+              e.preventDefault();
+              break;
+            case 'Escape':
+              this.showDropdown = false;
+              break;
+            case 'ArrowUp':
+              this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+              break;
+            default:
+          }
         }
       },
       signIn() {
@@ -297,7 +304,7 @@
     background-color: $core-text-annotation
     background-color: $login-text
     margin: auto
-    margin-top: 16px
+    margin-top: 24px
 
   .version
     text-align: center
@@ -318,7 +325,7 @@
     margin: 0
     width: 100%
     padding: 0
-    z-index: 10
+    z-index: 8
     // Move up snug against the textbox
     margin-top: -1em
     position: absolute
@@ -327,10 +334,10 @@
     background-color: rgba(black, 0.10)
 
   .textbox-enter-active
-    transition: transform 0.5s
+    transition: opacity 0.5s
 
   .textbox-enter
-    transform: translateX(100%)
+    opacity: 0
 
   .list-leave-active
     transition: opacity 0.1s

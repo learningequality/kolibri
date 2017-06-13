@@ -87,7 +87,7 @@ class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
 
 class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
     """
-    Permission class that allows access to dataset settings if they are admin for facility.
+    Permission class that allows write access to dataset settings if they are admin for facility.
     """
 
     def _facility_dataset_is_same(self, user, obj):
