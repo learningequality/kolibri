@@ -74,6 +74,7 @@
   .content
     padding: 2em
     padding-top: $page-header-height
+    line-height: 1.3em
 
     h1,
     h2,
@@ -106,5 +107,16 @@
 
     .vuep-editor
       height: auto
+
+  table, th, td
+    border: 1px solid darkgray
+    border-collapse: collapse
+
+  th, td
+    padding: 0.6em
+
+  th
+    background: #e0e0e0
+    text-align: left
 
 </style>

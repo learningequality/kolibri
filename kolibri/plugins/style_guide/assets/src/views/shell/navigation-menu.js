@@ -50,6 +50,13 @@ const navigationMenu = [
           path: `${base}/components/text_fields`,
           component: require('../content/components/text_fields')
         }
+      },
+      {
+        linkLabel: 'Simple modals',
+        linkRoute: {
+          path: `${base}/components/simple_modals`,
+          component: require('../content/components/simple_modals')
+        }
       }
     ])
   }
