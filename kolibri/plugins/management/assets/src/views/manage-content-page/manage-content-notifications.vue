@@ -3,7 +3,7 @@
   <div>
     <ui-alert
       type="success"
-      v-if="notification==='deletesuccess'"
+      v-if="notification===notificationTypes.CHANNEL_DELETE_SUCCESS"
       @dismiss="dismiss()"
     >
       {{ $tr('deleteSuccessNotification') }}
@@ -11,7 +11,7 @@
 
     <ui-alert
       type="error"
-      v-if="notification==='deletefailure'"
+      v-if="notification===notificationTypes.CHANNEL_DELETE_FAILURE"
       @dismiss="dismiss()"
     >
       {{ $tr('deleteFailureNotification') }}
@@ -19,7 +19,7 @@
 
     <ui-alert
       type="success"
-      v-if="notification==='importsuccess'"
+      v-if="notification===notificationTypes.CHANNEL_IMPORT_SUCCESS"
       @dismiss="dismiss()"
     >
       {{ $tr('successfulImportNotification') }}
@@ -31,6 +31,8 @@
 
 <script>
 
+  const { notificationTypes } = require('../../constants');
+
   module.exports = {
     props: {
       notification: {
@@ -40,6 +42,9 @@
     },
     components: {
       'ui-alert': require('keen-ui/src/UiAlert'),
+    },
+    computed: {
+      notificationTypes: () => notificationTypes,
     },
     methods: {
       dismiss() {

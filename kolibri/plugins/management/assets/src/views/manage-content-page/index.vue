@@ -11,7 +11,7 @@
           :status="pageState.taskList[0].status"
           :percentage="pageState.taskList[0].percentage"
           :id="pageState.taskList[0].id"
-          @importsuccess="notification='importsuccess'"
+          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
         />
       </div>
 
@@ -38,8 +38,8 @@
         <hr>
 
         <channels-grid
-          @deletefailure="notification='deletefailure'"
-          @deletesuccess="notification='deletesuccess'"
+          @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
+          @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
         />
 
         <notifications
@@ -59,7 +59,7 @@
 
   const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
-  const ContentWizardPages = require('../../constants').ContentWizardPages;
+  const { ContentWizardPages, notificationTypes } = require('../../constants');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -96,6 +96,7 @@
       }
     },
     computed: {
+      notificationTypes: () => notificationTypes,
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:

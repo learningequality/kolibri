@@ -79,7 +79,7 @@ describe('facility config page actions', () => {
       const expectedPageState = {
         facilityName: '',
         settings: null,
-        notification: 'pageload_failure',
+        notification: 'PAGELOAD_FAILURE',
       };
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
