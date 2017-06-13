@@ -27,11 +27,7 @@ from .permissions import IsDeviceOwnerOnly
 
 logging = logger.getLogger(__name__)
 
-client = InMemClient(app="kolibri", namespace="kolibri")
-
-
-def make_async_call(target_func, *args, **kwargs):
-    return client.schedule(target_func, *args, **kwargs)
+client = InMemClient(app="kolibri", namespace="contentimport")
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -40,14 +36,15 @@ class TasksViewSet(viewsets.ViewSet):
     def list(self, request):
         # tasks_response = [_task_to_response(t) for t in client.all_jobs()]
         # return Response(tasks_response)
-        return Response([])
+        jobs_response = [_job_to_response(j) for j in client.all_jobs()]
+        return Response(jobs_response)
 
     def create(self, request):
         # unimplemented. Call out to the task-specific APIs for now.
         pass
 
     def retrieve(self, request, pk=None):
-        task = _task_to_response(client.status(pk))
+        task = _job_to_response(client.status(pk))
         return Response(task)
 
     def destroy(self, request, pk=None):
@@ -72,29 +69,28 @@ class TasksViewSet(viewsets.ViewSet):
         if status == 404:
             raise Http404(_("The requested channel does not exist on the content server"))
 
-        task_id = make_async_call(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
+        task_id = client.schedule(_networkimport, channel_id, track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _task_to_response(client.status(task_id), task_type=TASKTYPE, task_id=task_id)
+        resp = _job_to_response(client.status(task_id))
 
         return Response(resp)
 
     @list_route(methods=['post'])
     def startlocalimport(self, request):
-        '''
+        """
         Import a channel from a local drive, and copy content to the local machine.
-
-        '''
+        """
         # Importing django/running setup because Windows...
         TASKTYPE = "localimport"
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
 
-        task_id = make_async_call(_localimport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+        job_id = client.schedule(_localimport, request.data['drive_id'], track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _task_to_response(client.status(task_id), task_type=TASKTYPE, task_id=task_id)
+        resp = _job_to_response(client.status(job_id))
 
         return Response(resp)
 
@@ -109,10 +105,10 @@ class TasksViewSet(viewsets.ViewSet):
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
 
-        task_id = make_async_call(_localexport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+        job_id = client.schedule(_localexport, request.data['drive_id'], track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _task_to_response(client.status(task_id), task_type=TASKTYPE, task_id=task_id)
+        resp = _job_to_response(client.status(job_id))
 
         return Response(resp)
 
@@ -125,11 +121,11 @@ class TasksViewSet(viewsets.ViewSet):
         if 'task_id' not in request.data:
             raise serializers.ValidationError("The 'task_id' field is required.")
 
-        task_id = request.data['task_id']
+        job_id = request.data['task_id']
 
         # Attempt to kill running task.
-        client.status(task_id).cancel()
-        client.clear(task_id)
+        # client.status(job_id).cancel()
+        client.clear()
         return Response({})
 
     @list_route(methods=['get'])
@@ -143,58 +139,42 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(out)
 
 
-def _networkimport(channel_id, update_state=None):
+def _networkimport(channel_id, update_progress=None):
     call_command("importchannel", "network", channel_id)
-    call_command("importcontent", "network", channel_id, update_state=update_state)
+    call_command("importcontent", "network", channel_id, update_progress=update_progress)
 
 
-def _localimport(drive_id, update_state=None):
+def _localimport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in drive.metadata["channels"]:
         call_command("importchannel", "local", channel["id"], drive.datafolder)
-        call_command("importcontent", "local", channel["id"], drive.datafolder, update_state=update_state)
+        call_command("importcontent", "local", channel["id"], drive.datafolder, update_progress=update_progress)
 
 
-def _localexport(drive_id, update_state=None):
+def _localexport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in ChannelMetadataCache.objects.all():
         call_command("exportchannel", channel.id, drive.datafolder)
-        call_command("exportcontent", channel.id, drive.datafolder, update_state=update_state)
+        call_command("exportcontent", channel.id, drive.datafolder, update_progress=update_progress)
 
 
-def _task_to_response(task_instance, task_type=None, task_id=None):
-    """"
-    Converts a Task object to a dict with the attributes that the frontend expects.
-    """
-
-    if not task_instance:
+def _job_to_response(job):
+    if not job:
         return {
-            "type": task_type,
-            "status": "PENDING",
+            "type": "remoteimport",
+            "status": "SCHEDULED",
             "percentage": 0,
             "progress": [],
-            "id": task_id,
+            "id": job.job_id,
         }
-
     else:
-        try:
-            progress_data = iter(task_instance.progress_data)
-
-            outputable_progress_data = []
-            for p in progress_data:
-                outputable_progress = p._asdict() if hasattr(p, '_asdict') else p.__dict__
-                outputable_progress_data.append(outputable_progress)
-
-            progress_data = outputable_progress_data
-        except TypeError:  # progress_data not iterable, just return it
-            progress_data = task_instance.progress_data
-
         return {
-            "type": task_instance.group,
-            "status": task_instance.task_status,
-            "percentage": task_instance.progress_fraction,
-            "progress": progress_data,
-            "id": task_instance.id,
+            "type": "remoteimport",
+            "status": job.state,
+            "exception": str(job.exception),
+            "traceback": str(job.traceback),
+            "percentage": job.total_progress,
+            "id": job.job_id,
         }
