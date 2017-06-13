@@ -64,7 +64,7 @@
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
     <h2>API</h2>
-    <api-table :api="api"></api-table>
+    <component-api :api="api"></component-api>
   </div>
 
 </template>
@@ -126,7 +126,7 @@
 
   module.exports = {
     components: {
-      'api-table': require('../api_table'),
+      'component-api': require('../component_api'),
     },
     data: () => ({
       codeExamplesTemplate,
