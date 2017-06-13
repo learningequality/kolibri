@@ -142,7 +142,7 @@
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
     <h2 id="api">API</h2>
-    <component-api :api="api"></component-api>
+    <component-api :api="api" :requirePath="requirePath"></component-api>
 
   </div>
 
@@ -207,8 +207,6 @@
 </style>
 `;
 
-  const api = require('!vue-doc!keen-ui/src/UiButton'); // eslint-disable-line
-
   module.exports = {
     components: {
       'component-api': require('../component_api'),
@@ -216,7 +214,8 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api
+      api: require('!vue-doc!keen-ui/src/UiButton'), // eslint-disable-line
+      requirePath: 'keen-ui/src/UiButton'
     })
   };
 

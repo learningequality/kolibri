@@ -7,7 +7,7 @@
     <vuep :template="codeExamplesTemplate"></vuep>
 
     <h2>API</h2>
-    <component-api :api="api"></component-api>
+    <component-api :api="api" :requirePath="requirePath"></component-api>
   </div>
 
 </template>
@@ -40,8 +40,6 @@
 </${script}>
 `;
 
-  const api = require('!vue-doc!kolibri.coreVue.components.textbox'); // eslint-disable-line
-
   module.exports = {
     components: {
       'component-api': require('../component_api'),
@@ -49,7 +47,8 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api
+      api: require('!vue-doc!kolibri.coreVue.components.textbox'), // eslint-disable-line
+      requirePath: 'kolibri.coreVue.components.textbox'
     })
   };
 
