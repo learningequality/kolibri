@@ -138,15 +138,11 @@
         <li>Top right for major creation actions</li>
       </ul>
 
-    <h2 id="code-examples">Code Examples</h2>
-
-    <div class="code-examples">
-      <vuep :template="codeExamplesTemplate"></vuep>
-    </div>
+    <h2 id="code-examples">Examples and Code</h2>
+    <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
     <h2 id="api">API</h2>
-
-    <!-- <api-table :api="api"></api-table> -->
+    <component-api :api="api"></component-api>
 
   </div>
 
@@ -211,11 +207,17 @@
 </style>
 `;
 
+  const api = require('!vue-doc!keen-ui/src/UiButton'); // eslint-disable-line
+
   module.exports = {
-    data: () => ({ codeExamplesTemplate }),
     components: {
+      'component-api': require('../component_api'),
       'table-of-contents': require('../../shell/table-of-contents'),
     },
+    data: () => ({
+      codeExamplesTemplate,
+      api
+    })
   };
 
 </script>
