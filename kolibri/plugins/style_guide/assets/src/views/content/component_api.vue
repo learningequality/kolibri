@@ -25,7 +25,7 @@
       </table>
     </template>
 
-    <template v-if="api.props.length">
+    <template v-if="api.events.length">
       <h3>Emitted events</h3>
       <table>
         <tr>
@@ -43,7 +43,7 @@
       </table>
     </template>
 
-    <template v-if="api.props.length">
+    <template v-if="api.slots.length">
       <h3>Slots</h3>
       <table>
         <tr>
@@ -57,7 +57,7 @@
       </table>
     </template>
 
-    <template v-if="api.props.length">
+    <template v-if="api.methods.length">
       <h3>Methods</h3>
       <table>
         <tr>

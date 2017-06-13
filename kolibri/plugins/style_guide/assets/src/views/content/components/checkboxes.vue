@@ -135,7 +135,7 @@
     data: () => ({
       codeExamplesTemplate,
       api
-    }),
+    })
   };
 
 </script>
