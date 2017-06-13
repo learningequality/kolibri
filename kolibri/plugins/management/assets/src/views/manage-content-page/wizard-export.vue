@@ -48,6 +48,7 @@
 <script>
 
   const actions = require('../../state/actions');
+  const manageContentActions = require('../../state/manageContentActions');
   const bytesForHumans = require('./bytesForHumans');
 
   module.exports = {
@@ -90,12 +91,12 @@
       },
       submit() {
         if (this.canSubmit) {
-          this.triggerLocalContentExportTask(this.selectedDrive);
+          this.transitionWizardPage('forward', { driveId: this.selectedDrive });
         }
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.cancelImportExportWizard();
+          this.transitionWizardPage('cancel');
         }
       },
       selectDriveByID(driveID) {
@@ -107,10 +108,8 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
       },
     },
   };

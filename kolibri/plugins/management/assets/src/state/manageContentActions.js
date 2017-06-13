@@ -58,11 +58,11 @@ function addChannelFileSummaries(store, channelIds) {
 }
 
 /**
- * State machine for the Import wizards.
+ * State machine for the Import/Export wizards.
  * Only handles forward, back, and cancel transitions.
  *
  * @param store - vuex store object
- * @param {string} transition - 'forward', 'back', or 'cancel'
+ * @param {string} transition - 'forward', 'backward', or 'cancel'
  * @param {Object} params - data needed to execute transition
  * @returns {undefined}
  */
@@ -111,6 +111,15 @@ function transitionWizardPage(store, transition, params) {
     // Later: Show preview of imported channels
     if (transition === FORWARD) {
       return actions.triggerRemoteContentImportTask(store, params.contentId);
+    }
+  }
+
+  // At Export Wizard
+  if (wizardPage === ContentWizardPages.EXPORT) {
+    // Now: Start exporting immediately
+    // Later: Show preview of exported channels
+    if (transition === FORWARD) {
+      return actions.triggerLocalContentExportTask(store, params.driveId);
     }
   }
 
