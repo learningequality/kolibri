@@ -27,7 +27,7 @@
             <icon-button
               :text="$tr('import')"
               class="button"
-              @click="startImportWizard"
+              @click="openWizard('import')"
               :primary="true">
               <mat-svg category="content" name="add"/>
             </icon-button>
@@ -35,7 +35,7 @@
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard">
+              @click="openWizard('export')">
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
           </div>
@@ -94,6 +94,15 @@
       if (this.isSuperuser) {
         clearInterval(this.intervalId);
       }
+    },
+    methods: {
+      openWizard(action) {
+        this.notification = null;
+        if (action === 'import') {
+          return this.startImportWizard();
+        }
+        return this.startExportWizard();
+      },
     },
     computed: {
       notificationTypes: () => notificationTypes,
