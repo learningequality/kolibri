@@ -11,7 +11,7 @@
           :status="pageState.taskList[0].status"
           :percentage="pageState.taskList[0].percentage"
           :id="pageState.taskList[0].id"
-          @importsuccess="handleSuccessfulImport"
+          @importsuccess="notification='importsuccess'"
         />
       </div>
 
@@ -37,8 +37,15 @@
         </div>
         <hr>
 
-        <channels-grid ref="channelGrid" />
+        <channels-grid
+          @deletefailure="notification='deletefailure'"
+          @deletesuccess="notification='deletesuccess'"
+        />
 
+        <notifications
+          v-bind="{notification}"
+          @dismiss="notification=null"
+        />
       </div>
     </template>
     <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
@@ -67,6 +74,7 @@
       'auth-message': require('kolibri.coreVue.components.authMessage'),
       'channels-grid': require('./channels-grid'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'notifications': require('./manage-content-notifications'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
@@ -75,6 +83,7 @@
     },
     data: () => ({
       intervalId: undefined,
+      notification: null,
     }),
     mounted() {
       if (this.isSuperuser) {
@@ -84,11 +93,6 @@
     destroyed() {
       if (this.isSuperuser) {
         clearInterval(this.intervalId);
-      }
-    },
-    methods: {
-      handleSuccessfulImport() {
-        this.$refs.channelGrid.notification = 'importSuccess';
       }
     },
     computed: {

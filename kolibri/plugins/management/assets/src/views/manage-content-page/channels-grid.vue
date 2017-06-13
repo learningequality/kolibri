@@ -54,28 +54,6 @@
       @confirm="handleDeleteChannel()"
       @cancel="selectedChannelIdx=null"
     />
-
-    <ui-alert
-      v-if="notification==='deleteSuccess'"
-      @dismiss="notification=null"
-      type="success"
-    >
-      {{ $tr('deleteSuccessNotification') }}
-    </ui-alert>
-    <ui-alert
-      v-if="notification==='deleteFailure'"
-      @dismiss="notification=null"
-      type="error"
-    >
-      {{ $tr('deleteFailureNotification') }}
-    </ui-alert>
-    <ui-alert
-      v-if="notification==='importSuccess'"
-      @dismiss="notification=null"
-      type="success"
-    >
-      {{ $tr('successfulImportNotification') }}
-    </ui-alert>
   </div>
 
 </template>
@@ -115,7 +93,6 @@
       },
     },
     components: {
-      'ui-alert': require('keen-ui/src/UiAlert'),
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
       'delete-channel-modal': require('./delete-channel-modal'),
@@ -136,10 +113,10 @@
           this.selectedChannelIdx = null;
           this.deleteChannel(channelId)
           .then(() => {
-            this.notification = 'deleteSuccess';
+            this.$emit('deletesuccess');
           })
           .catch(() => {
-            this.notification = 'deleteFailure';
+            this.$emit('deletefailure');
           });
         }
       },
@@ -174,9 +151,6 @@
       nameHeader: 'Channel',
       numContentsHeader: '# Contents',
       sizeHeader: 'Size',
-      deleteFailureNotification: 'There was a problem deleting this channel',
-      deleteSuccessNotification: 'The channel has been removed from this device',
-      successfulImportNotification: 'A channel has been added to this device',
     }
   };
 
