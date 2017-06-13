@@ -1,0 +1,312 @@
+<template>
+
+  <div>
+    <h1>Simple modals</h1>
+    <p>
+      Simple modals break the user’s attention away from the main UI in order to
+      focus attention on a singular action or task. They can contain alerts
+      about important information and allow the user to edit data.
+    </p>
+
+    <table-of-contents></table-of-contents>
+
+    <h2 id="guidelines-and-usage">Guidelines & Usage</h2>
+
+    <h3>Accessibility</h3>
+    <p>
+      Modals should be keyboard accessible for users who use assistive
+      technology.
+    </p>
+    <p>
+      Tabbing should limit the user to the options within a modal only and not
+      extend to the UI beneath it.
+    </p>
+
+    <h3>URL behavior</h3>
+    <p>
+      Simple modals should not have a URL (i.e. if user refreshes page, or uses
+      "back" in browser, it returns them to the page below the modal).
+    </p>
+
+    <h3>Dismissing modals</h3>
+    <p>
+      Modals can be dismissed in 2 ways: through a "cancel/close" button within
+      the modal or pressing ESC.
+    </p>
+    <p>
+      Modals are never dismissible by clicking the backdrop.
+    </p>
+
+    <h3>Error states</h3>
+    <p>
+      See modal slots below.
+    </p>
+
+    <h3>Internationalization</h3>
+    <p>
+      If a button group happens to exceed the width of a modal, the buttons
+      should wrap, with the secondary action appearing below the primary action.
+      Buttons should still right-align.
+    </p>
+
+    <h3>Layout</h3>
+    <p>
+      Modals have 3 sections that are always present: title, content, and
+      actions.
+    </p>
+    <p>Optional:</p>
+    <ul>
+      <li>Text prop below title</li>
+      <li>Secondary button</li>
+    </ul>
+
+    <h4>Title</h4>
+    <p>
+      Keep this short, concise, and easy for the user to understand. Should not
+      be structured as a sentence or question.
+    </p>
+
+    <h4>Content</h4>
+    <p>
+      Along with text, the following UI elements are allowed in the content
+      section of a modal:
+    </p>
+    <ul>
+      <li>Text field</li>
+      <li>Checkboxes</li>
+      <li>Radio</li>
+      <li>Select dropdown</li>
+      <li>List with vertical scrollbar</li>
+    </ul>
+
+    <h4>Actions</h4>
+    <p>
+      There is always a raised action button present at the bottom right. Should
+      always be affirmative (i.e. will save data or continue user to the next
+      step).
+    </p>
+    <p>
+      If there is a need for a secondary action, use a flat secondary button
+      that is placed to the left of the action button. Secondary actions should
+      always be dismissive (i.e. does not save any altered data, or cancels a
+      next step).
+    </p>
+    <p>
+      The button group should be right-aligned.
+    </p>
+
+    <h4>Do not</h4>
+    <ul>
+      <li>
+        Use buttons or other actions in the content section. If it's needed, the
+        UX may need to be changed.
+      </li>
+      <li>
+        Present unclear or ambiguous actions. Actions should be directly related
+        to the title and content in the modal.
+      </li>
+      <li>
+        Use an 'X' button. Avoid creating redundant actions.
+      </li>
+      <li>
+        Use a back button, or otherwise create a multi-step process.
+      </li>
+      <li>
+        Insert a table within a simple modal.
+      </li>
+      <li>
+        Introduce a horizontal scrollbar.
+      </li>
+    </ul>
+
+    <h4>Style</h4>
+    <p>
+      Generally, modals should be of two sizes to accommodate varied screen
+      sizes:
+    </p>
+    <ul>
+      <li>
+        Mobile (breakpoint: defined by material)
+        <ul>
+          <li>Width: 80%</li>
+          <li>Max width: 336px</li>
+          <li>Max height: 80% of browser height</li>
+        </ul>
+      </li>
+      <li>
+        Tablet/desktop
+        <ul>
+          <li>Fixed width: 448px</li>
+          <li>Max height: 60% of browser height</li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      Scrim should be rgba(0,0,0,0.7).
+    </p>
+    <p>
+      If there are cases that a simple modal should be increased in width,
+      follow material’s guide: increment by 56px.
+    </p>
+
+    <h4>Scrolling</h4>
+    <p>
+      If a modal happens to have a content section that expands beyond the max
+      height, enable vertical scrolling. See code example below for
+      implementation details and style.
+    </p>
+    <p>
+      There should never be horizontal scrolling inside a modal.
+    </p>
+
+
+    <h2 id="code-examples">Examples and Code</h2>
+    <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
+
+    <h2 id="api">API</h2>
+    <component-api :api="api"></component-api>
+
+  </div>
+
+</template>
+
+
+<script>
+
+  // Globally register the Kolibri components to make them accessible in the
+  // Vuep renderer. This has to be done on the compiler-included version of Vue
+  // because that's what Vuep uses to dynamically render template.
+  const FullVue = require('vue/dist/vue.common');
+  FullVue.component(
+      'core-modal',
+      require('kolibri.coreVue.components.coreModal'));
+  FullVue.component('ui-button', require('keen-ui/src/UiButton'));
+  FullVue.component('ui-radio', require('keen-ui/src/UiRadio'));
+
+  // core-modal depends on the global $tr method, so we'd need to add it.
+  FullVue.prototype.$tr = (text) => text;
+
+  // Define the examples as the initial content of the Vuep editor.
+  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
+  // need to work around it by dynamically constructing them.
+  const script = 'script';
+  const codeExamplesTemplate = `
+<template>
+  <div>
+
+    <ui-button
+      @click="isConfirmationModalShown = true">
+      Open confirmation modal
+    </ui-button>
+
+    <core-modal
+        v-if="isConfirmationModalShown"
+        :title="'Confirmation Title'"
+        @cancel="closeConfirmationModal">
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
+        sagittis vel ipsum finibus mattis.
+      </p>
+
+      <div class="button-section">
+        <ui-button
+            type="secondary"
+            @click="closeConfirmationModal">
+          CANCEL
+        </ui-button>
+        <ui-button
+            raised
+            color="primary"
+            @click="closeConfirmationModal" >
+          CONFIRM
+        </ui-button>
+      </div>
+    </core-modal>
+
+    <ui-button
+      @click="isFormModalShown = true">
+      Open form modal
+    </ui-button>
+
+    <core-modal
+        v-if="isFormModalShown"
+        :title="'Form Title'"
+        @cancel="closeFormModal">
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
+        sagittis vel ipsum finibus mattis.
+      </p>
+      <ui-radio v-model="value" true-value="1">Option 1</ui-radio>
+      <ui-radio v-model="value" true-value="2">Option 2</ui-radio>
+      <ui-radio v-model="value" true-value="3">Option 3</ui-radio>
+
+      <div class="button-section">
+        <ui-button
+            type="secondary"
+            @click="closeFormModal">
+          CANCEL
+        </ui-button>
+        <ui-button
+            raised
+            color="primary"
+            @click="closeFormModal" >
+          SAVE
+        </ui-button>
+      </div>
+    </core-modal>
+
+  </div>
+</template>
+
+<${script}>
+  module.exports = {
+    data: () => ({
+      isConfirmationModalShown: false,
+      isFormModalShown: false,
+      value: '1'
+    }),
+    methods: {
+      closeConfirmationModal() {
+        this.isConfirmationModalShown = false;
+      },
+      closeFormModal() {
+        this.isFormModalShown = false;
+      }
+    },
+    components: {
+      // 'core-modal': require('kolibri.coreVue.components.coreModal')
+    }
+  };
+</${script}>
+
+<style>
+</style>
+`;
+
+  const api = require('!vue-doc!kolibri.coreVue.components.coreModal'); // eslint-disable-line
+
+  module.exports = {
+    components: {
+      'component-api': require('../component_api'),
+      'table-of-contents': require('../../shell/table-of-contents'),
+    },
+    data: () => ({
+      codeExamplesTemplate,
+      api
+    })
+  };
+
+</script>
+
+
+<style lang="stylus">
+
+  .code-examples
+    height: 530px
+
+  #modal-window .ui-radio
+    margin-bottom: 0.5em
+
+</style>
