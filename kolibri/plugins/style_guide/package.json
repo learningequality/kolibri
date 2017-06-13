@@ -3,7 +3,6 @@
   "description": "Kolibri's living style guide",
   "private": true,
   "dependencies": {
-    "@vuedoc/parser": "https://github.com/learningequality/parser",
     "codemirror": "^5.26.0",
     "vuep": "^0.7.0"
   }
