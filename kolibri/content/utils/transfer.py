@@ -45,8 +45,11 @@ class Transfer(object):
         self.finalized = False
         self.closed = False
 
-        signal.signal(signal.SIGINT, self._kill_gracefully)
-        signal.signal(signal.SIGTERM, self._kill_gracefully)
+        # TODO (aron): Instead of using signals, have bbq/iceqube add
+        # hooks that the app calls every so often to determine whether it
+        # should shut down or not.
+        # signal.signal(signal.SIGINT, self._kill_gracefully)
+        # signal.signal(signal.SIGTERM, self._kill_gracefully)
 
         assert not os.path.isdir(dest), "dest must include the target filename, not just directory path"
 
