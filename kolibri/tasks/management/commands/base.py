@@ -87,7 +87,7 @@ class AsyncCommand(BaseCommand):
             self.update_progress(progress_list[0].progress_fraction, progress_list)
 
     def handle(self, *args, **options):
-        self.update_progress = options.pop("update_state", None)
+        self.update_progress = options.pop("update_progress", None)
         return self.handle_async(*args, **options)
 
     def start_progress(self, total=100):
