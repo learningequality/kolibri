@@ -15,6 +15,11 @@
         />
       </div>
 
+      <notifications
+        v-bind="{notification}"
+        @dismiss="notification=null"
+      />
+
       <div class="main light-bg">
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
@@ -40,11 +45,6 @@
         <channels-grid
           @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
           @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
-        />
-
-        <notifications
-          v-bind="{notification}"
-          @dismiss="notification=null"
         />
       </div>
     </template>
