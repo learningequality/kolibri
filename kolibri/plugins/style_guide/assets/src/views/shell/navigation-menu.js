@@ -26,28 +26,28 @@ const navigationMenu = [
       {
         linkLabel: 'Checkboxes',
         linkRoute: {
-          path: '/components/checkboxes',
+          path: `${base}/components/checkboxes`,
           component: require('../content/components/checkboxes')
         }
       },
       {
         linkLabel: 'Radio buttons',
         linkRoute: {
-          path: `${base}/button`,
+          path: `${base}/components/radio_buttons`,
           component: require('../content/components/radio_buttons')
         }
       },
       {
         linkLabel: 'Buttons',
         linkRoute: {
-          path: `${base}/tab`,
+          path: `${base}/components/buttons`,
           component: require('../content/components/buttons')
         }
       },
       {
         linkLabel: 'Text fields',
         linkRoute: {
-          path: `${base}/textbox`,
+          path: `${base}/components/text_fields`,
           component: require('../content/components/text_fields')
         }
       }

@@ -50,5 +50,12 @@
 
   ul
     list-style-type: none
+    padding-left: 0
+
+    li
+      padding: 0.2em 0
+
+      a
+        text-decoration: none
 
 </style>

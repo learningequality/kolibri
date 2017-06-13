@@ -3,7 +3,7 @@
   <nav class="sidenav">
 
     <template v-for="menuSection in navigationMenu">
-      <h1>{{ menuSection.sectionHeading }}</h1>
+      <h2>{{ menuSection.sectionHeading }}</h2>
       <ul>
         <li v-for="sectionLink in menuSection.sectionLinks">
           <router-link :to="sectionLink.linkRoute">
@@ -35,9 +35,27 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .sidenav
-    border-right: 1px solid black
+    border-right: 1px solid #e0e0e0
+    padding-left: 2em
+    background: #f7f7f7
+
+    h2
+      margin-top: 1.2em
+      margin-bottom: 0
+
+    ul
+      list-style-type: none
+      padding-left: 0
+      margin-top: 0.5em
+
+      li
+        padding: 0.2em 0
+
+        a
+          text-decoration: none
+
+          &.router-link-active
+            font-weight: bold
 
 </style>

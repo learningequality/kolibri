@@ -45,6 +45,7 @@
   module.exports = {
     components: {
       'component-api': require('../component_api'),
+      'table-of-contents': require('../../shell/table-of-contents'),
     },
     data: () => ({
       codeExamplesTemplate,

@@ -7,7 +7,9 @@
       Actions should be selectable independently of each other.
     </p>
 
-    <h2>Guidelines & Usage</h2>
+    <table-of-contents></table-of-contents>
+
+    <h2 id="guidelines-and-usage">Guidelines & Usage</h2>
 
     <h3>Usage</h3>
     <p>
@@ -60,11 +62,12 @@
       Checkboxes are vertically stacked.
     </p>
 
-    <h2>Examples and Code</h2>
+    <h2 id="code-examples">Examples and Code</h2>
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
-    <h2>API</h2>
+    <h2 id="api">API</h2>
     <component-api :api="api"></component-api>
+
   </div>
 
 </template>
@@ -125,6 +128,7 @@
   const api = require('!vue-doc!keen-ui/src/UiCheckbox'); // eslint-disable-line
 
   module.exports = {
+<<<<<<< HEAD
     components: {
       'component-api': require('../component_api'),
     },
@@ -132,6 +136,12 @@
       codeExamplesTemplate,
       api
     })
+=======
+    data: () => ({ codeExamplesTemplate }),
+    components: {
+      'table-of-contents': require('../../shell/table-of-contents'),
+    },
+>>>>>>> chao/add_toc_and_fix_bugs
   };
 
 </script>
