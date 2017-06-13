@@ -41,7 +41,6 @@
 
   body
     padding-left: $sidenav-width
-    color: 606060
 
   .page-header
     background: #996189
