@@ -37,8 +37,8 @@ const TaskTypes = {
 };
 
 const TaskStatuses = {
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
+  IN_PROGRESS: 'INPROGRESS',
+  SUCCESS: 'COMPLETED',
   FAILED: 'FAILED',
   PENDING: 'PENDING',
 };
