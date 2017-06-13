@@ -49,7 +49,7 @@ class FacilityUsernameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FacilityUser
-        fields = ('id', 'username', )
+        fields = ('username', )
 
 
 class DeviceOwnerSerializer(BaseKolibriUserSerializer):

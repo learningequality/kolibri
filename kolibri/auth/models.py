@@ -54,7 +54,7 @@ from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
     AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility,
     CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups, CollectionSpecificRoleBasedPermissions,
-    IsAdminCanEditForOwnFacilityDataset
+    FacilityAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -85,7 +85,7 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     permissions = (
         AllCanReadFacilityDataset() |
-        IsAdminCanEditForOwnFacilityDataset()
+        FacilityAdminCanEditForOwnFacilityDataset()
     )
 
     # Morango syncing settings

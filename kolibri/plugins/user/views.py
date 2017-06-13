@@ -9,6 +9,10 @@ class UserView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserView, self).get_context_data(**kwargs)
 
+        # Put the default facility id into the page so that we can bootstrap the
+        # dataset for this facility into the page and allow for quicker rendering
+        # of the login page, without having to wait for an AJAX call.
+
         context['currentFacilityId'] = Facility.get_default_facility().id
 
         return context
