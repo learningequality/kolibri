@@ -105,6 +105,9 @@
       width: 100%
       height: 40em
 
+    .vuep-preview
+      padding: 10px
+
     .vuep-editor
       height: auto
 

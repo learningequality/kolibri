@@ -1,6 +1,7 @@
 <template>
 
   <component-style-guide
+      class="checkbox-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api">
 
@@ -132,9 +133,13 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  .code-examples
-    height: 530px
+  .checkbox-style-guide
+    .vuep-preview
+      height: 20em
+
+    .code-examples
+      height: 530px
 
 </style>

@@ -1,6 +1,7 @@
 <template>
 
   <component-style-guide
+    class="radio-style-guide"
     :codeExamplesTemplate="codeExamplesTemplate"
     :api="api">
 
@@ -90,14 +91,22 @@
   <div class="checkbox_examples">
     <div class="checkbox_examples_section">
       <h4>Normal</h4>
-      <ui-radio v-model="value" true-value="1"></ui-radio>
-      <ui-radio v-model="value" true-value="2"></ui-radio>
+      <ui-radio v-model="value" true-value="1">
+        Orange
+      </ui-radio>
+      <ui-radio v-model="value" true-value="2">
+        Apple
+      </ui-radio>
     </div>
 
     <div class="checkbox_examples_section">
       <h4>Disabled</h4>
-      <ui-radio :disabled="true" v-model="value" :true-value="1"></ui-radio>
-      <ui-radio :disabled="true" v-model="value" :true-value="2"></ui-radio>
+      <ui-radio :disabled="true" v-model="value" :true-value="1">
+        Orange
+      </ui-radio>
+      <ui-radio :disabled="true" v-model="value" :true-value="2">
+        Apple
+      </ui-radio>
     </div>
   </div>
 </template>
@@ -136,9 +145,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
+
+  .radio-style-guide
+    .vuep-preview
+      height: 18em
 
   .code-examples
     height: 530px
+
+  .ui-radio
+    padding: 1em
 
 </style>

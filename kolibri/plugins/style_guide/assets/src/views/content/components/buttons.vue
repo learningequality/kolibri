@@ -1,6 +1,7 @@
 <template>
 
   <component-style-guide
+      class="button-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api">
 
@@ -192,12 +193,6 @@
 </${script}>
 
 <style scoped>
-  .checkbox_examples {
-    display: flex;
-  }
-  .checkbox_examples_section {
-    margin: 0 2em;
-  }
 </style>
 `;
 
@@ -214,4 +209,16 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus">
+
+  .button-style-guide
+    .vuep-preview
+      height: 20em
+
+    .checkbox_examples
+      display: flex
+
+    .checkbox_examples_section
+      margin: 0 2em
+
+</style>

@@ -146,7 +146,7 @@
 <template>
   <div>
 
-    <div class="text_field_example">
+    <div class="text-field-example">
       <h4>Normal</h4>
       <div>
         <textbox
@@ -157,7 +157,7 @@
       </div>
     </div>
 
-    <div class="text_field_example">
+    <div class="text-field-example">
       <h4>Disabled</h4>
       <div>
         <textbox
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <div class="text_field_example">
+    <div class="text-field-example">
       <h4>With counter</h4>
       <div>
         <textbox
@@ -182,7 +182,7 @@
       </div>
     </div>
 
-    <div class="text_field_example">
+    <div class="text-field-example">
       <h4>With error</h4>
       <div>
         <textbox
@@ -210,7 +210,7 @@
 </${script}>
 
 <style scoped>
-  .text_field_example:not:first-child {
+  .text-field-example:not:first-child {
     margin-top: 2em;
   }
 </style>
