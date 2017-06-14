@@ -32,13 +32,14 @@
         <transition name="textbox">
           <core-textbox
             :label="$tr('password')"
-            v-if="(!simpleLogin || (simpleLogin && passwordMissing))"
+            v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
             id="password"
             type="password"
             :placeholder="$tr('enterPassword')"
             :aria-label="$tr('password')"
             v-model="password"
             autocomplete="current-password"
+            :autofocus="simpleLogin"
             :required="!simpleLogin"
             :invalid="passwordMissing"
             :error="passwordMissing ? $tr('enterPassword') : ''"/>
