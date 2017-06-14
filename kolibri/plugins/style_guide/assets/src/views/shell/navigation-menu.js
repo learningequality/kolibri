@@ -34,7 +34,7 @@ const navigationMenu = [
         linkLabel: 'Radio buttons',
         linkRoute: {
           path: `${base}/components/radio_buttons`,
-          component: require('../content/components/radio_buttons')
+          component: require('../content/components/radio-buttons')
         }
       },
       {
@@ -48,14 +48,14 @@ const navigationMenu = [
         linkLabel: 'Text fields',
         linkRoute: {
           path: `${base}/components/text_fields`,
-          component: require('../content/components/text_fields')
+          component: require('../content/components/text-fields')
         }
       },
       {
         linkLabel: 'Simple modals',
         linkRoute: {
           path: `${base}/components/simple_modals`,
-          component: require('../content/components/simple_modals')
+          component: require('../content/components/simple-modals')
         }
       }
     ])
