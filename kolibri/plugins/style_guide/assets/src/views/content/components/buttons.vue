@@ -190,7 +190,7 @@
       unselected: false
     }),
     components: {
-      // textbox: require('keen-ui/src/UiCheckbox')
+      // textbox: require('keen-ui/src/UiButton')
     }
   };
 </${script}>

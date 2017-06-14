@@ -186,7 +186,7 @@
       searchFilter: ''
     }),
     components: {
-      // textbox: require('keen-ui/src/UiTextbox')
+      // textbox: require('keen-ui/src/UiSelect')
     }
   };
 </${script}>
