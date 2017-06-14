@@ -13,6 +13,6 @@ class UserView(TemplateView):
         # dataset for this facility into the page and allow for quicker rendering
         # of the login page, without having to wait for an AJAX call.
 
-        context['currentFacilityId'] = Facility.get_default_facility().id
+        context['currentFacilityId'] = getattr(Facility.get_default_facility(), 'id', None)
 
         return context

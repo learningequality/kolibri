@@ -231,7 +231,7 @@ class SessionViewSet(viewsets.ViewSet):
                     'username': '',
                     'full_name': '',
                     'user_id': None,
-                    'facility_id': Facility.get_default_facility().id,
+                    'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                     'kind': ['anonymous'],
                     'error': '200'}
 
@@ -240,7 +240,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': Facility.get_default_facility().id,
+            session.update({'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                             'kind': ['superuser'],
                             'error': '200'})
             return session
