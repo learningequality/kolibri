@@ -21,7 +21,7 @@
         <tr v-for="prop in api.props">
           <td>{{ prop.name }}</td>
           <td>{{ parsePropType(prop.value.type) }}</td>
-          <td>{{ prop.value.required ? 'true' : 'false' }}</td>
+          <td>{{ parsePropRequired(prop.value.required) }}</td>
           <td>{{ parsePropDefault(prop.value.type, prop.value.default) }}</td>
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
@@ -103,6 +103,15 @@
           return arrayDescription;
         }
         return propType;
+      },
+      parsePropRequired(propRequired) {
+        if (!propRequired) {
+          return 'false';
+        }
+        if (propRequired === true) {
+          return 'true';
+        }
+        return escodegen.generate(propRequired);
       },
       parsePropDefault(propType, propDefault) {
         if (!propDefault) {
