@@ -1,6 +1,7 @@
 <template>
 
   <component-style-guide
+      class="text-fields-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api">
 
@@ -135,7 +136,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-textbox', require('keen-ui/src/UiTextbox'));
+  FullVue.component('textbox', require('kolibri.coreVue.components.textbox'));
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
@@ -148,36 +149,48 @@
     <div class="text_field_example">
       <h4>Normal</h4>
       <div>
-        <ui-textbox
+        <textbox
             floating-label
             label="Name"
             v-model="name">
-        </ui-textbox>
+        </textbox>
       </div>
     </div>
 
     <div class="text_field_example">
       <h4>Disabled</h4>
       <div>
-        <ui-textbox
+        <textbox
             disabled
             floating-label
             label="Name"
             v-model="name">
-        </ui-textbox>
+        </textbox>
       </div>
     </div>
 
     <div class="text_field_example">
-      <h4>With validation and counter</h4>
+      <h4>With counter</h4>
       <div>
-        <ui-textbox
+        <textbox
             error="Use at most 16 characters"
             label="Name"
             :maxlength="16"
             :invalid="nameWithMaxLength.length > 16"
             v-model="nameWithMaxLength">
-        </ui-textbox>
+        </textbox>
+      </div>
+    </div>
+
+    <div class="text_field_example">
+      <h4>With error</h4>
+      <div>
+        <textbox
+            :invalid="true"
+            :error="'Error'"
+            label="Name"
+            v-model="name">
+        </textbox>
       </div>
     </div>
 
@@ -209,16 +222,16 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiTextbox') // eslint-disable-line
+      api: require('!vue-doc!kolibri.coreVue.components.textbox') // eslint-disable-line
     })
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  .code-examples
-    height: 67em
+  .text-fields-style-guide .vuep
+    height: 100em
 
 </style>
