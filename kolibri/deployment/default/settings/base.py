@@ -89,6 +89,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
+QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
+
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
 TEMPLATES = [
