@@ -121,7 +121,7 @@
 
       <h3>Required fields</h3>
       <p>
-        <!-- TBD -->
+        Required (post-google work)
       </p>
     </div>
 

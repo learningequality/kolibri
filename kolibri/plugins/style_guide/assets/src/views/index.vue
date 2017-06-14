@@ -96,6 +96,9 @@
     ul
       margin-top: 0.5em
 
+      li
+        margin-bottom: 0.3em
+
   .vuep
     flex-direction: column-reverse
     margin-top: 1.3em
