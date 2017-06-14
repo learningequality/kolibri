@@ -1,6 +1,7 @@
 <template>
 
   <component-style-guide
+      class="modal-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api">
 
@@ -274,9 +275,6 @@
     }
   };
 </${script}>
-
-<style>
-</style>
 `;
 
   module.exports = {
@@ -294,8 +292,9 @@
 
 <style lang="stylus">
 
-  .code-examples
-    height: 530px
+  .modal-style-guide
+    .vuep-preview
+      height: 20em
 
   #modal-window .ui-radio
     margin-bottom: 0.5em

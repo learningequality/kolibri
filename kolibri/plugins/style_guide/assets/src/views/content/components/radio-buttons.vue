@@ -88,8 +88,8 @@
   const script = 'script';
   const codeExamplesTemplate = `
 <template>
-  <div class="checkbox_examples">
-    <div class="checkbox_examples_section">
+  <div class="examples">
+    <div class="example">
       <h4>Normal</h4>
       <ui-radio v-model="value" true-value="1">
         Orange
@@ -99,7 +99,7 @@
       </ui-radio>
     </div>
 
-    <div class="checkbox_examples_section">
+    <div class="example">
       <h4>Disabled</h4>
       <ui-radio :disabled="true" v-model="value" :true-value="1">
         Orange
@@ -121,15 +121,6 @@
     }
   };
 </${script}>
-
-<style scoped>
-  .checkbox_examples {
-    display: flex;
-  }
-  .checkbox_examples_section {
-    margin: 0 5em;
-  }
-</style>
 `;
 
   module.exports = {
@@ -149,12 +140,15 @@
 
   .radio-style-guide
     .vuep-preview
-      height: 18em
+      height: 20em
 
-  .code-examples
-    height: 530px
+    .examples
+      display: flex
 
-  .ui-radio
-    padding: 1em
+      .example
+        margin: 0 5em
+
+      .ui-radio
+        padding: 1em
 
 </style>

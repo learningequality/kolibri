@@ -82,15 +82,15 @@
   const script = 'script';
   const codeExamplesTemplate = `
 <template>
-  <div class="checkbox_examples">
-    <div class="checkbox_examples_section">
+  <div class="examples">
+    <div class="example">
       <h4>Normal</h4>
       <ui-checkbox v-model="selected"></ui-checkbox>
       <ui-checkbox v-model="unselected"></ui-checkbox>
       <input type="checkbox" :indeterminate.prop="true">
     </div>
 
-    <div class="checkbox_examples_section">
+    <div class="example">
       <h4>Disabled</h4>
       <ui-checkbox :disabled="true" v-model="selected"></ui-checkbox>
       <ui-checkbox :disabled="true" v-model="unselected"></ui-checkbox>
@@ -109,15 +109,6 @@
     }
   };
 </${script}>
-
-<style scoped>
-  .checkbox_examples {
-    display: flex;
-  }
-  .checkbox_examples_section {
-    margin: 0 5em;
-  }
-</style>
 `;
 
   module.exports = {
@@ -139,7 +130,10 @@
     .vuep-preview
       height: 20em
 
-    .code-examples
-      height: 530px
+    .examples
+      display: flex
+
+      .example
+        margin: 0 5em
 
 </style>

@@ -209,7 +209,7 @@
 
   .filter-style-guide
     .vuep-preview
-      height: 55em
+      height: 100em
 
     .dropdown-filter-examples
       display: flex

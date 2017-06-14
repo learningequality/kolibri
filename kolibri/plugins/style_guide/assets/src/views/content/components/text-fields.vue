@@ -146,7 +146,7 @@
 <template>
   <div>
 
-    <div class="text-field-example">
+    <div class="example">
       <h4>Normal</h4>
       <div>
         <textbox
@@ -157,7 +157,7 @@
       </div>
     </div>
 
-    <div class="text-field-example">
+    <div class="example">
       <h4>Disabled</h4>
       <div>
         <textbox
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <div class="text-field-example">
+    <div class="example">
       <h4>With counter</h4>
       <div>
         <textbox
@@ -182,7 +182,7 @@
       </div>
     </div>
 
-    <div class="text-field-example">
+    <div class="example">
       <h4>With error</h4>
       <div>
         <textbox
@@ -208,12 +208,6 @@
     }
   };
 </${script}>
-
-<style scoped>
-  .text-field-example:not:first-child {
-    margin-top: 2em;
-  }
-</style>
 `;
 
   module.exports = {
@@ -231,7 +225,11 @@
 
 <style lang="stylus">
 
-  .text-fields-style-guide .vuep
-    height: 100em
+  .text-fields-style-guide
+    .vuep
+      height: 100em
+
+    .example
+      margin-top: 2em
 
 </style>

@@ -158,20 +158,20 @@
   const script = 'script';
   const codeExamplesTemplate = `
 <template>
-  <div class="checkbox_examples">
-    <div class="checkbox_examples_section">
+  <div class="examples">
+    <div class="example">
       <h4>Raised</h4>
       <ui-button raised>Confirm</ui-button>
       <ui-button disabled>Confirm</ui-button>
     </div>
 
-    <div class="checkbox_examples_section">
+    <div class="example">
       <h4>Flat</h4>
       <ui-button>Confirm</ui-button>
       <ui-button disabled>Confirm</ui-button>
     </div>
 
-    <div class="checkbox_examples_section">
+    <div class="example">
       <h4>Link</h4>
       <ui-button type="secondary">Confirm</ui-button>
       <ui-button type="secondary" disabled>Confirm</ui-button>
@@ -191,9 +191,6 @@
     }
   };
 </${script}>
-
-<style scoped>
-</style>
 `;
 
   module.exports = {
@@ -213,12 +210,16 @@
 
   .button-style-guide
     .vuep-preview
-      height: 20em
+      height: 50em
 
-    .checkbox_examples
+    .examples
       display: flex
 
-    .checkbox_examples_section
+    .example
       margin: 0 2em
+
+      .ui-button
+        display: block
+        margin: 1em 0
 
 </style>
