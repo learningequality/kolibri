@@ -175,6 +175,6 @@ def _job_to_response(job):
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
-            "percentage": job.total_progress,
+            "percentage": job.percentage_progress,
             "id": job.job_id,
         }
