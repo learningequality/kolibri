@@ -11,8 +11,14 @@
           :status="pageState.taskList[0].status"
           :percentage="pageState.taskList[0].percentage"
           :id="pageState.taskList[0].id"
+          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
         />
       </div>
+
+      <notifications
+        v-bind="{notification}"
+        @dismiss="notification=null"
+      />
 
       <div class="main light-bg">
         <div class="table-title">
@@ -21,7 +27,7 @@
             <icon-button
               :text="$tr('import')"
               class="button"
-              @click="startImportWizard"
+              @click="openWizard('import')"
               :primary="true">
               <mat-svg category="content" name="add"/>
             </icon-button>
@@ -29,16 +35,17 @@
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard">
+              @click="openWizard('export')">
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
           </div>
         </div>
         <hr>
-        <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
 
-        <channels-grid />
-
+        <channels-grid
+          @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
+          @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
+        />
       </div>
     </template>
     <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
@@ -52,8 +59,7 @@
 
   const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
   const actions = require('../../state/actions');
-  const ContentWizardPages = require('../../constants').ContentWizardPages;
-  const orderBy = require('lodash/orderBy');
+  const { ContentWizardPages, notificationTypes } = require('../../constants');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -61,7 +67,6 @@
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      noChannels: 'No channels installed',
       notAdminHeader: 'You need to sign in as the Device Owner to manage content',
       notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
     },
@@ -69,6 +74,7 @@
       'auth-message': require('kolibri.coreVue.components.authMessage'),
       'channels-grid': require('./channels-grid'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'notifications': require('./manage-content-notifications'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
@@ -77,6 +83,7 @@
     },
     data: () => ({
       intervalId: undefined,
+      notification: null,
     }),
     mounted() {
       if (this.isSuperuser) {
@@ -88,14 +95,17 @@
         clearInterval(this.intervalId);
       }
     },
-    computed: {
-      sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
+    methods: {
+      openWizard(action) {
+        this.notification = null;
+        if (action === 'import') {
+          return this.startImportWizard();
+        }
+        return this.startExportWizard();
       },
+    },
+    computed: {
+      notificationTypes: () => notificationTypes,
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
@@ -114,7 +124,6 @@
     vuex: {
       getters: {
         isSuperuser,
-        channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
       actions: {

@@ -25,7 +25,8 @@ def create_timezonestamp(value):
         tz = value.tzinfo.zone
     else:
         tz = timezone.get_current_timezone().zone
-    date_time_string = value.strftime(date_time_format)
+        value = timezone.make_aware(value, timezone.get_current_timezone())
+    date_time_string = value.astimezone(pytz.utc).strftime(date_time_format)
     tz_string = tz_format.format(tz=tz)
     value = db_storage_string.format(date_time_string=date_time_string, tz_string=tz_string)
     return value

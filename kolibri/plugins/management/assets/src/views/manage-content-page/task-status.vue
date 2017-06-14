@@ -13,6 +13,7 @@
 
 <script>
 
+  const manageContentActions = require('../../state/manageContentActions');
   const actions = require('../../state/actions');
   const logging = require('kolibri.lib.logging');
   const constants = require('../../constants');
@@ -73,6 +74,10 @@
     },
     methods: {
       clearTaskHandler() {
+        if (this.statusSuccess) {
+          this.$emit('importsuccess');
+          this.refreshChannelList();
+        }
         this.clearTask(this.id);
       },
     },
@@ -97,6 +102,7 @@
     vuex: {
       actions: {
         clearTask: actions.clearTask,
+        refreshChannelList: manageContentActions.refreshChannelList,
       },
     },
   };
