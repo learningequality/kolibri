@@ -51,6 +51,7 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.setup_wizard",
     "kolibri.plugins.coach",
     "kolibri.plugins.user",
+    "kolibri.plugins.style_guide", # TODO - remove before merging in to a release branch
     "kolibri_exercise_perseus_plugin"
 ]
 
