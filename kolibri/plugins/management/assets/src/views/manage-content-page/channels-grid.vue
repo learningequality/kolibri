@@ -1,7 +1,11 @@
 <template>
 
   <div>
-    <table class="table">
+    <p class="core-text-alert" v-if="sortedChannels.length===0">
+      {{ $tr('emptyChannelListMessage') }}
+    </p>
+
+    <table v-else class="table">
 
       <thead class="table-header">
         <tr>
@@ -14,7 +18,7 @@
       </thead>
 
       <tbody class="table-body">
-        <tr v-for="(channel, idx) in channelList">
+        <tr v-for="(channel, idx) in sortedChannels">
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
@@ -29,7 +33,7 @@
             {{ totalSizeOfFilesInChannel(channel.id) }}
           </td>
           <td>
-            {{ lastUpdatedDate(channel) }}
+            <elapsed-time :date="channel.last_updated" />
           </td>
           <td>
             <button
@@ -50,21 +54,6 @@
       @confirm="handleDeleteChannel()"
       @cancel="selectedChannelIdx=null"
     />
-
-    <ui-alert
-      v-if="notification==='deleteSuccess'"
-      @dismiss="notification=null"
-      type="success"
-    >
-      {{ $tr('deleteSuccessNotification') }}
-    </ui-alert>
-    <ui-alert
-      v-if="notification==='deleteFailure'"
-      @dismiss="notification=null"
-      type="error"
-    >
-      {{ $tr('deleteFailureNotification') }}
-    </ui-alert>
   </div>
 
 </template>
@@ -72,16 +61,14 @@
 
 <script>
 
-  const distanceInWords = require('date-fns/distance_in_words');
   const bytesForHumans = require('./bytesForHumans');
   const manageContentActions = require('../../state/manageContentActions');
-  const { now } = require('kolibri.utils.serverClock');
   const map = require('lodash/map');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     data: () => ({
       selectedChannelIdx: null,
-      currentTime: null,
       notification: null,
     }),
     computed: {
@@ -94,16 +81,27 @@
         }
         return '';
       },
+      sortedChannels() {
+        return orderBy(
+          this.channelList,
+          [channel => channel.title.toUpperCase()],
+          ['asc']
+        );
+      },
     },
     components: {
-      'ui-alert': require('keen-ui/src/UiAlert'),
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
       'delete-channel-modal': require('./delete-channel-modal'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     mounted() {
-      this.currentTime = now();
       this.addChannelFileSummaries(map(this.channelList, 'id'));
+    },
+    watch: {
+      channelList(val, newVal) {
+        this.addChannelFileSummaries(map(newVal, 'id'));
+      }
     },
     methods: {
       handleDeleteChannel() {
@@ -112,10 +110,10 @@
           this.selectedChannelIdx = null;
           this.deleteChannel(channelId)
           .then(() => {
-            this.notification = 'deleteSuccess';
+            this.$emit('deletesuccess');
           })
           .catch(() => {
-            this.notification = 'deleteFailure';
+            this.$emit('deletefailure');
           });
         }
       },
@@ -126,9 +124,6 @@
       totalSizeOfFilesInChannel(channelId) {
         const channel = this.channelFileSummaries[channelId];
         return this.channelFileSummaries[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
-      },
-      lastUpdatedDate(channel) {
-        return distanceInWords(this.currentTime, channel.last_updated, { addSuffix: true });
       },
     },
     vuex: {
@@ -144,13 +139,12 @@
     },
     $trNameSpace: 'channelsGrid',
     $trs: {
+      emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
       numContentsHeader: '# Contents',
       sizeHeader: 'Size',
-      deleteFailureNotification: 'There was a problem deleting this channel',
-      deleteSuccessNotification: 'The channel has been removed from this device',
     }
   };
 

@@ -79,7 +79,7 @@ describe('facility config page actions', () => {
       const expectedPageState = {
         facilityName: '',
         settings: null,
-        notification: 'pageload_failure',
+        notification: 'PAGELOAD_FAILURE',
       };
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
@@ -130,7 +130,7 @@ describe('facility config page actions', () => {
       .then(() => {
         sinon.assert.calledWith(DatasetStub.getModel, 1000);
         sinon.assert.calledWith(saveStub, sinon.match(expectedRequest));
-        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_success');
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'SAVE_SUCCESS');
       });
     });
 
@@ -139,7 +139,7 @@ describe('facility config page actions', () => {
       return actions.saveFacilityConfig(storeMock)
       .then(() => {
         sinon.assert.called(saveStub);
-        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_failure');
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'SAVE_FAILURE');
         sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
       });
     });
