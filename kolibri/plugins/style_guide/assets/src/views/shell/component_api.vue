@@ -20,9 +20,9 @@
         </tr>
         <tr v-for="prop in api.props">
           <td>{{ prop.name }}</td>
-          <td>{{ parseType(prop.value.type) }}</td>
+          <td>{{ parsePropType(prop.value.type) }}</td>
           <td>{{ prop.value.required ? 'true' : 'false' }}</td>
-          <td>{{ prop.value.default ? prop.value.default : '-' }}</td>
+          <td>{{ parsePropDefault(prop.value.type, prop.value.default) }}</td>
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
       </table>
@@ -33,12 +33,10 @@
       <table>
         <tr>
           <th>Name</th>
-          <th>Default</th>
           <th>Description</th>
         </tr>
         <tr v-for="event in api.events">
           <td>{{ event.name }}</td>
-          <td>{{ event.default ? event.default : '-' }}</td>
           <td>{{ event.description ? event.description : '-' }}</td>
         </tr>
       </table>
@@ -65,6 +63,8 @@
 
 <script>
 
+  const escodegen = require('escodegen');
+
   /**
    * The programming API for the specific component: its require path, its description,
    * and tables storing a list of its props, events, and slots.
@@ -87,22 +87,34 @@
       }
     },
     methods: {
-      parseType(type) {
-        if (!type) {
+      parsePropType(propType) {
+        if (!propType) {
           return 'null';
         }
-        if (type.type === 'ArrayExpression') {
-          let arrayType = '[';
-          type.elements.forEach((element, index) => {
+        if (propType.type === 'ArrayExpression') {
+          let arrayDescription = '[';
+          propType.elements.forEach((element, index) => {
             if (index !== 0) {
-              arrayType += ', ';
+              arrayDescription += ', ';
             }
-            arrayType += type.elements[index].name;
+            arrayDescription += propType.elements[index].name;
           });
-          arrayType += ']';
-          return arrayType;
+          arrayDescription += ']';
+          return arrayDescription;
         }
-        return type;
+        return propType;
+      },
+      parsePropDefault(propType, propDefault) {
+        if (!propDefault) {
+          return '-';
+        }
+        if (propType === 'String') {
+          return JSON.stringify(propDefault);
+        }
+        if (propDefault.type) {
+          return escodegen.generate(propDefault);
+        }
+        return propDefault;
       }
     }
   };

@@ -5,6 +5,7 @@
   "dependencies": {
     "@vuedoc/parser": "https://github.com/learningequality/parser",
     "codemirror": "^5.26.0",
+    "escodegen": "^1.8.1",
     "vuep": "^0.7.0"
   }
 }
