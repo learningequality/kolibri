@@ -218,25 +218,25 @@
     .examples
       display: flex
 
-    .example
-      margin: 0 2em
+      .example
+        margin: 0 2em
 
-      .ui-button
-        display: block
-        margin: 1em 0
+        .ui-button
+          display: block
+          margin: 1em 0
 
-      &.links
-        h4
-          margin-bottom: 1.3em
+        &.links
+          h4
+            margin-bottom: 1.3em
 
-      a
-        display: block
-        margin-bottom: 1.8em
+        a
+          display: block
+          margin-bottom: 29px
 
-      a.secondary
-        color: rgba(0, 0, 0, 0.87)
+          &.secondary
+            color: rgba(0, 0, 0, 0.87)
 
-      a.disabled
-        color: rgba(0, 0, 0, 0.4)
+          &.disabled
+            color: rgba(0, 0, 0, 0.4)
 
 </style>
