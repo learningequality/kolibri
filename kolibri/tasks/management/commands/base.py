@@ -84,7 +84,11 @@ class AsyncCommand(BaseCommand):
     def _update_all_progress(self, progress_fraction, progress):
         if callable(self.update_progress):
             progress_list = [p.get_progress() for p in self.progresstrackers]
-            self.update_progress(progress_list[0].progress_fraction, progress_list)
+            # HACK (aron): self.update_progress' signature has changed between django_q
+            # and iceqube/bbq. It now expects the current progress,
+            # the total progress, and then derives the
+            # percentage progress manually.
+            self.update_progress(progress_list[0].progress_fraction, 1.)
 
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_progress", None)
