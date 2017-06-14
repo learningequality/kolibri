@@ -161,20 +161,23 @@
   <div class="examples">
     <div class="example">
       <h4>Raised</h4>
-      <ui-button raised>Confirm</ui-button>
-      <ui-button disabled>Confirm</ui-button>
+      <ui-button raised color="primary">PRIMARY</ui-button>
+      <ui-button raised>SECONDARY</ui-button>
+      <ui-button raised disabled>DISABLED</ui-button>
     </div>
 
     <div class="example">
       <h4>Flat</h4>
-      <ui-button>Confirm</ui-button>
-      <ui-button disabled>Confirm</ui-button>
+      <ui-button type="secondary" color="primary">PRIMARY</ui-button>
+      <ui-button type="secondary">SECONDARY</ui-button>
+      <ui-button type="secondary" disabled>DISABLED</ui-button>
     </div>
 
-    <div class="example">
+    <div class="example links">
       <h4>Link</h4>
-      <ui-button type="secondary">Confirm</ui-button>
-      <ui-button type="secondary" disabled>Confirm</ui-button>
+      <a href="javascript:void(0)">Primary</a>
+      <a href="javascript:void(0)" class="secondary">Secondary</a>
+      <a href="javascript:void(0)" class="disabled">Disabled</a>
     </div>
 
   </div>
@@ -210,7 +213,7 @@
 
   .button-style-guide
     .vuep-preview
-      height: 50em
+      height: 60em
 
     .examples
       display: flex
@@ -221,5 +224,19 @@
       .ui-button
         display: block
         margin: 1em 0
+
+      &.links
+        h4
+          margin-bottom: 1.3em
+
+      a
+        display: block
+        margin-bottom: 1.8em
+
+      a.secondary
+        color: rgba(0, 0, 0, 0.87)
+
+      a.disabled
+        color: rgba(0, 0, 0, 0.4)
 
 </style>
