@@ -73,7 +73,7 @@
     props: {
       /*
        * A JSON object returned from the vue-loader when parsing the specific component file.
-       * Should correspond to require('!vue-loader!path/to/component/file').
+       * Should correspond to the output of require('!vue-loader!path/to/component/file').
        */
       api: {
         type: Object
