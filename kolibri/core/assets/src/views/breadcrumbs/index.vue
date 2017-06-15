@@ -4,10 +4,12 @@
 
     <div v-if="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
       <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
-        <div slot="dropdown" class="breadcrumbs-dropdown" :style="{ maxWidth: `${parentWidth}px` }">
+        <div slot="dropdown" class="breadcrumbs-dropdown">
           <ol class="breadcrumbs-dropdown-items">
             <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
-              <router-link :to="crumb.link">{{ crumb.text }}</router-link>
+              <router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
+                {{ crumb.text }}
+              </router-link>
             </li>
           </ol>
         </div>
@@ -29,8 +31,8 @@
           v-else
           :ref="`crumb${index}`"
           class="breadcrumbs-visible-item breadcrumb-visible-item-last"
-          :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">
-          <span>{{ crumb.text }}</span>
+        >
+          <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
         </li>
       </template>
     </ol>
@@ -49,7 +51,8 @@
   const startsWith = require('lodash/startsWith');
   const throttle = require('lodash/throttle');
 
-  const DROPDOWN_WIDTH = 55;
+  const DROPDOWN_BTN_WIDTH = 55;
+  const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   module.exports = {
@@ -97,9 +100,12 @@
 
       lastCrumbMaxWidth() {
         if (this.collapsedCrumbs.length) {
-          return Math.min(this.parentWidth - DROPDOWN_WIDTH, MAX_CRUMB_WIDTH);
+          return Math.min(this.parentWidth - DROPDOWN_BTN_WIDTH, MAX_CRUMB_WIDTH);
         }
         return Math.min(this.parentWidth, MAX_CRUMB_WIDTH);
+      },
+      collapsedCrumbMaxWidth() {
+        return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
       },
     },
 
@@ -135,7 +141,7 @@
         this.$nextTick(() => {
           const tempCrumbs = Array.from(this.crumbs);
           let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
-          let remainingWidth = this.parentWidth - DROPDOWN_WIDTH - lastCrumbWidth;
+          let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
           while (tempCrumbs.length) {
             if (remainingWidth <= 0) {
               tempCrumbs.forEach((crumb, index) => {
