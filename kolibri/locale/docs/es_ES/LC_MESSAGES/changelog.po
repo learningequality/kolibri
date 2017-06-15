@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/changelog.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/changelog.po\n"
 "Language: es_ES\n"
 
 #: ../../../CHANGELOG.rst:4
@@ -23,71 +23,71 @@ msgstr "Notas de la versión"
 
 #: ../../../CHANGELOG.rst:6
 msgid "All notable changes to this project will be documented in this file. This project adheres to `Semantic Versioning <http://semver.org/>`_."
-msgstr ""
+msgstr "Todos los cambios notables a este proyecto serán documentados en este archivo. Este proyecto se adhiere al 'Varsionado Semántico <http://semver.org/>'_."
 
 #: ../../../CHANGELOG.rst:9
 msgid "*Don’t let your friends dump git logs into CHANGELOGs™*"
-msgstr ""
+msgstr "*No dejes que vuestros amigos lancen bitácoras de git en los CHANGELOGs™*"
 
 #: ../../../CHANGELOG.rst:11
 msgid "`http://keepachangelog.com/ <http://keepachangelog.com/>`_"
-msgstr ""
+msgstr "`http://keepachangelog.com/ <http://keepachangelog.com/>`_"
 
 #: ../../../CHANGELOG.rst:14
 msgid "[0.0.1] - UNRELEASED"
-msgstr ""
+msgstr "[0.0.1] - SIN LANZAMIENTO"
 
 #: ../../../CHANGELOG.rst:17
 msgid "Please add new stuff chronologically, we should try chunking up the list into components at some point"
-msgstr ""
+msgstr "Por favor agrega nuevas cosas cronológicamente, podríamos fragmentar la lista en componentes en algún punto"
 
 #: ../../../CHANGELOG.rst:21
 msgid "Added"
-msgstr ""
+msgstr "Añadido"
 
 #: ../../../CHANGELOG.rst:23
 msgid "Begin development of core auth app."
-msgstr ""
+msgstr "Inicio del desarrollo del núcleo del app de autenticación."
 
 #: ../../../CHANGELOG.rst:24
 msgid "Add core user types (BaseUser, FacilityUser, DeviceOwner)"
-msgstr ""
+msgstr "Añadidos tipos de usuario principales (UsuarioBase, UsuarioCentroEducativo, PropietarioDispositivo)"
 
 #: ../../../CHANGELOG.rst:25
 msgid "Add Collections and Roles, implemented using a special tree structure for efficient querying"
-msgstr ""
+msgstr "Añadidas Colecciones y Roles, implementando una estructura especial de árbol para consultas más eficientes"
 
 #: ../../../CHANGELOG.rst:26
 msgid "Add authentication & authorization backends"
-msgstr ""
+msgstr "Añadido backend de autenticación y autorización"
 
 #: ../../../CHANGELOG.rst:27
 msgid "Implement permissions for FacilityUsers by checking hierarchy relationships"
-msgstr ""
+msgstr "Implementados permisos para UsuarioCentroEducativo por medio de la revisión de relaciones jerárquicas"
 
 #: ../../../CHANGELOG.rst:28
 msgid "Adds pipelining and integration for building frontend assets with webpack and dynamically serving them in Django."
-msgstr ""
+msgstr "Añadidas canalización e integración para construir paquetes de frontend con empacado web y servicio dinámico de Django."
 
 #: ../../../CHANGELOG.rst:29
 msgid "Updates to  - Users, Collections, and Roles, mostly to account for multiple facilities in one database"
-msgstr ""
+msgstr "Actualizaciones a - Usuarios, Colecciones y Roles, principalmente para cuentas en múltiples centros educativos en una base de datos"
 
 #: ../../../CHANGELOG.rst:30
 msgid "Plugin API with hooks, documented and implemented"
-msgstr ""
+msgstr "Plugin API con hooks, documentada e implementada"
 
 #: ../../../CHANGELOG.rst:31
 msgid "Adds Django JS Reverse and loads into kolibriGlobal object"
-msgstr ""
+msgstr "Añade Django JS Reverse y carga en el objeto kolibriGlobal"
 
 #: ../../../CHANGELOG.rst:32
 msgid "Creates kolibri.auth API endpoint filtering"
-msgstr ""
+msgstr "Crea un punto de acceso y filtro a kolibri.auth API"
 
 #: ../../../CHANGELOG.rst:33
 msgid "Adds management plugin for managing learners, classrooms, and groups"
-msgstr ""
+msgstr "Añade plugin de administración para administrar alumnos, clases y grupos"
 
 #: ../../../CHANGELOG.rst:34
 msgid "Automatic inclusion of requirements in a static build"
@@ -99,7 +99,7 @@ msgstr ""
 
 #: ../../../CHANGELOG.rst:38
 msgid "Changed"
-msgstr ""
+msgstr "Cambiado"
 
 #: ../../../CHANGELOG.rst:40
 msgid "Webpack build process now compatible with plugins housed outside the kolibri directory."

@@ -136,6 +136,9 @@
 
 <style lang="stylus" scoped>
 
+  .app-bar
+    overflow: hidden
+
   .username-text
     text-transform: none
 

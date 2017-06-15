@@ -48,11 +48,11 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
     archive = models.BooleanField(default=False)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.creator.dataset
 
     def calculate_partition(self):
-        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)
 
     def __str__(self):
         return self.title
@@ -79,8 +79,8 @@ class ExamAssignment(AbstractFacilityDataModel):
     collection = models.ForeignKey(Collection, related_name='assigned_exams', blank=False, null=False)
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.assigned_by.dataset
 
     def calculate_partition(self):
-        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)

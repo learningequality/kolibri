@@ -6,10 +6,14 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
-DEVELOP
--------
+0.4
+---
 
  - Class and group management
+ - Learner reports #1464
+ - Performance optimizations #1499
+ - Anonymous exercises fixed #1466
+ - Integrated Morango, to prep for data syncing (will require fresh database)
 
 
 0.3.0

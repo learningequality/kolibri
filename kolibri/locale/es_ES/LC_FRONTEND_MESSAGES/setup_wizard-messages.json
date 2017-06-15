@@ -6,7 +6,7 @@
   "setupWizard.password":"Contraseña",
   "setupWizard.confirmPassword":"Confirmar contraseña",
   "setupWizard.facility":"Centro educativo",
-  "setupWizard.facilityDescription":"También necesitas crear un Centro educativo, que representa tu escuela, centro de capacitación, o cualquier otro lugar donde esta instalación será usada.",
+  "setupWizard.facilityDescription":"También necesitas crear un Centro educativo, que representa tu escuela, centro de capacitación, o cualquier otro lugar donde esta instalación de Kolibri será usada.",
   "setupWizard.facilityName":"Nombre del Centro educativo",
   "setupWizard.getStarted":"Crear y empezar"
 }

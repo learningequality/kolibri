@@ -20,6 +20,8 @@
         :itemId="itemId"
         :answerState="answerState"
         :allowHints="allowHints"
+        :supplementaryFiles="supplementaryFiles"
+        :thumbnailFiles="thumbnailFiles"
         ref="contentView"
         />
       </div>
@@ -106,6 +108,12 @@
       defaultFile() {
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      supplementaryFiles() {
+        return this.files.filter(file => file.supplementary && file.available);
+      },
+      thumbnailFiles() {
+        return this.files.filter(file => file.thumbnail && file.available);
       },
     },
     created() {

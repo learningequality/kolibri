@@ -38,6 +38,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
+from morango.certificates import Certificate
 from morango.models import SyncableModel
 from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
@@ -104,11 +105,27 @@ class FacilityDataset(FacilityDataSyncableModel):
             return "FacilityDataset (no associated Facility)"
 
     def calculate_source_id(self):
-        # for now it is a random value
-        return uuid.uuid4().hex
+        # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
+        if not self._morango_source_id:
+            self._morango_source_id = Certificate.generate_root_certificate("full-facility").id
+        return self._morango_source_id
+
+    @staticmethod
+    def compute_namespaced_id(partition_value, source_id_value, model_name):
+        assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
+        assert model_name == FacilityDataset.morango_model_name
+        # we use the source_id as the ID for the FacilityDataset
+        return source_id_value
 
     def calculate_partition(self):
-        return "{id}:cross-user".format(id=self.ID_PLACEHOLDER)
+        return "{id}:crossuser".format(id=self.ID_PLACEHOLDER)
+
+    def get_root_certificate(self):
+        return Certificate.objects.get(id=self.id)
+
+    def get_owned_certificates(self):
+        # return all certificates associated with this facility dataset for which we have the private key
+        return Certificate.objects.filter(tree_id=self.get_root_certificate().tree_id).exclude(_private_key=None)
 
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
@@ -123,12 +140,17 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         abstract = True
 
     def calculate_source_id(self):
+        # by default, we'll use randomly generated source IDs; this can be overridden as desired
         return None
 
     def clean_fields(self, *args, **kwargs):
         # ensure that we have, or can infer, a dataset for the model instance
-        self.ensure_dataset()
+        self.ensure_dataset(validating=True)
         super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
+
+    def full_clean(self, *args, **kwargs):
+        kwargs["exclude"] = kwargs.get("exclude", []) + getattr(self, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", [])
+        super(AbstractFacilityDataModel, self).full_clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
 
@@ -141,13 +163,13 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
         super(AbstractFacilityDataModel, self).save(*args, **kwargs)
 
-    def ensure_dataset(self):
+    def ensure_dataset(self, *args, **kwargs):
         """
         If no dataset has yet been specified, try to infer it. If a dataset has already been specified, to prevent
         inconsistencies, make sure it matches the inferred dataset, otherwise raise a ``KolibriValidationError``.
         If we have no dataset and it can't be inferred, we raise a ``KolibriValidationError`` exception as well.
         """
-        inferred_dataset = self.infer_dataset()
+        inferred_dataset = self.infer_dataset(*args, **kwargs)
         if self.dataset_id:
             # make sure currently stored dataset matches inferred dataset, if any
             if inferred_dataset and inferred_dataset != self.dataset:
@@ -159,7 +181,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
             else:
                 raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         """
         This method is used by `ensure_dataset` to "infer" which dataset should be associated with this instance.
         It should be overridden in any subclass of ``AbstractFacilityDataModel``, to define a model-specific inference.
@@ -195,6 +217,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     full_name = models.CharField(_('full name'), max_length=120, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
+    is_staff = False
+    is_superuser = False
     is_facility_user = False
 
     def get_short_name(self):
@@ -282,13 +306,12 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         """
         try:
             instance = Model(**data)
-            instance.clean_fields()
+            instance.clean_fields(exclude=getattr(Model, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", None))
             instance.clean()
         except TypeError as e:
             logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking
         except ValidationError as e:
-            logging.error("ValidationError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data does not validate, don't continue checking
         # now that we have an instance, defer to the permission-checking method that works with instances
         return self.can_create_instance(instance)
@@ -444,18 +467,15 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     facility = models.ForeignKey("Facility")
 
-    # FacilityUsers can't access the Django admin interface
-    is_staff = False
-    is_superuser = False
     is_facility_user = True
 
     class Meta:
         unique_together = (("username", "facility"),)
 
     def calculate_partition(self):
-        return "{dataset_id}:user-spec:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
+        return "{dataset_id}:userspecific:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.facility.dataset
 
     def is_member_of(self, coll):
@@ -666,8 +686,13 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
+    def __init__(self, *args, **kwargs):
+        if self._KIND:
+            kwargs["kind"] = self._KIND
+        super(Collection, self).__init__(*args, **kwargs)
+
     def calculate_partition(self):
-        return "{dataset_id}:cross-user".format(dataset_id=self.dataset_id)
+        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)
 
     def calculate_source_id(self):
         return None
@@ -787,7 +812,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
             raise UserIsMemberOnlyIndirectlyThroughHierarchyError(
                 "Membership cannot be removed, as user is a member only indirectly, through the collection hierarchy.")
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         if self.parent:
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
@@ -832,12 +857,12 @@ class Membership(AbstractFacilityDataModel):
         unique_together = (("user", "collection"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
         return '{collection_id}'.format(collection_id=self.collection_id)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         user_dataset = self.user.dataset
         collection_dataset = self.collection.dataset
         if user_dataset != collection_dataset:
@@ -881,12 +906,12 @@ class Role(AbstractFacilityDataModel):
         unique_together = (("user", "collection", "kind"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
         return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         user_dataset = self.user.dataset
         collection_dataset = self.collection.dataset
         if user_dataset != collection_dataset:
@@ -906,6 +931,9 @@ class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)
 @python_2_unicode_compatible
 class Facility(Collection):
 
+    # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
+    FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
+
     morango_model_name = "facility"
     _KIND = collection_kinds.FACILITY
 
@@ -924,7 +952,13 @@ class Facility(Collection):
             raise IntegrityError("Facility must be the root of a collection tree, and cannot have a parent.")
         super(Facility, self).save(*args, **kwargs)
 
-    def infer_dataset(self):
+    def ensure_dataset(self, *args, **kwargs):
+        # if we're just validating, we don't want to trigger creation of a FacilityDataset
+        if kwargs.get("validating"):
+            return
+        super(Facility, self).ensure_dataset(*args, **kwargs)
+
+    def infer_dataset(self, *args, **kwargs):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
             self.dataset = FacilityDataset.objects.create()

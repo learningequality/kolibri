@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: sw-TZ\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/user.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/user.po\n"
 "Language: sw_TZ\n"
 
 #: ../../user/admin.rst:2
@@ -223,7 +223,7 @@ msgstr "Hariri **Jina Kamili** au **Jina la mtumiaji** ndani **Hariri taarifa za
 
 #: ../../user/admin.rst:123
 msgid "Click **Confirm** to update the edited information or **Cancel** to exit without saving."
-msgstr "Bofya ** Thibitisha** kusasilisha taarifa zilizohaririwa au**Katisha** kutoka bila kuhifadhi."
+msgstr "Bofya **Thibitisha**kusasilisha taarifa zilizohaririwa au **Katisha** kutoka bila kuhifadhi."
 
 #: ../../user/admin.rst:130
 msgid "Reset User’s Password"
@@ -263,7 +263,7 @@ msgstr "Kudhibiti utumiaji taarifa kwenye Kolibri ni lazima uruhusiwe kuingia ka
 
 #: ../../user/admin.rst:156
 msgid "You can download Kolibri *Detail* and *Summary* logs usage data and export in the CSV format from the **Data** tab in your **Manage** dashboard."
-msgstr "Unaweza kupakua Kolibri *Maelezo* na *Suhtasari* weka taarifa ya utumiaji na badilisha tarifa ziwe kwenye mfumo wa CSV kutoka ya **Data** kichupo katika yako **Kudhibiti** dashibodi."
+msgstr "Unaweza kupakua Kolibri *Maelezo* na *Muhtasari* weka taarifa ya utumiaji na badilisha tarifa ziwe kwenye mfumo wa CSV kutoka ya **Data** kichupo katika yako **Kudhibiti** dashibodi."
 
 #: ../../user/admin.rst:163
 msgid "Manage Content"
@@ -287,11 +287,11 @@ msgstr "Ingiza njia ya maudhui kwenye Kolibri"
 
 #: ../../user/admin.rst:180
 msgid "To import **Content Channel** to Kolibri, follow these steps."
-msgstr "Kuleta **njia za maudhui** kwa Kolibri, fuata hatua hizi."
+msgstr "Kuleta **Njia za maudhui** kwa Kolibri, fuata hatua hizi."
 
 #: ../../user/admin.rst:182
 msgid "Click **Import** button in **My Channels** pane."
-msgstr "Bofya kitufe cha **kuagiza** katika kidirisha cha **njia yangu**."
+msgstr "Bofya kitufe cha **Kuagiza** katika kidirisha cha **Njia yangu**."
 
 #: ../../user/admin.rst:183
 msgid "Choose the source option (*Internet* or *Local Drives*)."
@@ -315,7 +315,7 @@ msgstr "Bofya kitufe cha **Kuingiza**."
 
 #: ../../user/admin.rst:195
 msgid "Wait for the content to be downloaded and appear under the **My Channels** heading."
-msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **njia yangu**."
+msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **Njia yangu**."
 
 #: ../../user/admin.rst:205
 msgid "Import Content Channel from a Local Drive"
@@ -323,7 +323,7 @@ msgstr "Ingiza njia ya yaliyomo kutoka kwenye kiendeshi ndani"
 
 #: ../../user/admin.rst:207
 msgid "Choose option for *Local Drives*."
-msgstr "Chagua chaguo kwa *viendeshi ndani*."
+msgstr "Chagua chaguo kwa * Vindeshi ndani*."
 
 #: ../../user/admin.rst:208
 msgid "Kolibri will automatically detect the drive(s) with available content files."
@@ -331,7 +331,7 @@ msgstr "Kolibri itatambua moja kwa moja kiendeshi chenye majalada ya maudhui yal
 
 #: ../../user/admin.rst:210
 msgid "Wait for the content to be imported and appear under the **My Channels** heading."
-msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **njia yangu**."
+msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **Njia yangu**."
 
 #: ../../user/admin.rst:216
 msgid "If the local drive is not detected, try re-inserting the storage device (USB key or external hard disk) and pressing the button **Refresh**."
@@ -343,11 +343,11 @@ msgstr "Hamisha kutoka Kolibri kwenye kiendeshi ndani"
 
 #: ../../user/admin.rst:222
 msgid "Click **Export** button in **My Channels** pane."
-msgstr "Bofya kitufe cha **kuagiza** katika kidirisha cha **njia yangu**."
+msgstr "Bofya kitufe cha **Kuagiza** katika kidirisha cha **Njia yangu**."
 
 #: ../../user/admin.rst:223
 msgid "Select the local drive where you wish to export **Kolibri** content."
-msgstr "Chagua kiendeshi ndani ambacho unataka kupeleka maudhui ya **Kolibri**."
+msgstr "Chagua kiendeshi ndani ambacho unataka kupeleka maudhui ya **Kolibri **."
 
 #: ../../user/admin.rst:224
 msgid "Click **Export** button."

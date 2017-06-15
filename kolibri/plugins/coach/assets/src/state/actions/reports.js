@@ -316,8 +316,9 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
           { user_id: userId, content_id: exercise.content_id }
         ).fetch(),
         FacilityUserResource.getModel(userId).fetch(),
+        ContentNodeResource.fetchAncestors(contentId, { channel_id: channelId }),
         setClassState(store, classId),
-      ]).then(([attemptLogs, summaryLog, user]) => {
+      ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
         attemptLogs.sort(
           (attemptLog1, attemptLog2) =>
             new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
@@ -334,6 +335,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
 
         const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
         const currentInteractionHistory = currentAttemptLog.interaction_history || [];
+        Object.assign(exercise, { ancestors });
         const pageState = {
           // because this is info returned from a collection
           user,

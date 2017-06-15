@@ -9,8 +9,8 @@
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
-        <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+        <template v-for="(track, index) in trackSources">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="index === 0">
         </template>
       </video>
     </div>
@@ -44,6 +44,12 @@
         type: Array,
         required: true,
       },
+      supplementaryFiles: {
+        type: Array,
+      },
+      thumbnailFiles: {
+        type: Array,
+      },
     },
 
     data: () => ({
@@ -56,8 +62,8 @@
     computed: {
       posterSource() {
         const posterFileExtensions = ['png', 'jpg'];
-        const posterArray =
-          this.files.filter(file => posterFileExtensions.some(ext => ext === file.extension));
+        const posterArray = this.thumbnailFiles.filter(
+          file => posterFileExtensions.some(ext => ext === file.extension));
         if (posterArray.length === 0) {
           return '';
         }
@@ -71,7 +77,8 @@
 
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        return this.files.filter(file => trackFileExtensions.some(ext => ext === file.extension));
+        return this.supplementaryFiles.filter(
+          file => trackFileExtensions.some(ext => ext === file.extension));
       },
     },
 

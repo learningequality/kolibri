@@ -22,26 +22,12 @@ from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
-from morango.manager import SyncableModelManager
 from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
-class BaseLogModelManager(SyncableModelManager):
-
-    def get_queryset(self):
-        return BaseLogQuerySet(self.model, using=self._db)
-
-
 class BaseLogQuerySet(SyncableModelQuerySet):
-
-    def as_manager(cls):
-        manager = BaseLogModelManager.from_queryset(cls)()
-        manager._built_with_as_manager = True
-        return manager
-    as_manager.queryset_only = True
-    as_manager = classmethod(as_manager)
 
     def filter_by_topic(self, topic, content_id_lookup="content_id"):
         """
@@ -87,7 +73,7 @@ class BaseLogModel(AbstractFacilityDataModel):
     class Meta:
         abstract = True
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         if self.user:
             return self.user.dataset
         else:
@@ -99,9 +85,9 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         if self.user_id:
-            return '{dataset_id}:user-spec:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+            return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
         else:
-            return '{dataset_id}:anon-user'.format(dataset_id=self.dataset_id)
+            return '{dataset_id}:anonymous'.format(dataset_id=self.dataset_id)
 
     def calculate_source_id(self):
         return None
@@ -200,7 +186,7 @@ class MasteryLog(BaseLogModel):
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.user.dataset
 
     def calculate_source_id(self):
@@ -248,7 +234,7 @@ class AttemptLog(BaseAttemptLog):
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.sessionlog.dataset
 
 
@@ -285,5 +271,5 @@ class ExamAttemptLog(BaseAttemptLog):
     content_id = UUIDField()
     channel_id = UUIDField()
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.examlog.dataset

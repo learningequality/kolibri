@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,66 +14,66 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/authors.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/authors.po\n"
 "Language: fr_FR\n"
 
 #: ../../../AUTHORS.rst:3
 msgid "Credits"
-msgstr ""
+msgstr "Remerciements"
 
 #: ../../../AUTHORS.rst:6
 msgid "Development Lead and Copyright Holder"
-msgstr ""
+msgstr "Responsable du développement et titulaire des droits d’auteur"
 
 #: ../../../AUTHORS.rst:8
 msgid "Learning Equality – info@learningequality.org"
-msgstr ""
+msgstr "Apprentissage de l’égalité – info@learningequality.org"
 
 #: ../../../AUTHORS.rst:11
 msgid "Community"
-msgstr ""
+msgstr "Communauté"
 
 #: ../../../AUTHORS.rst:13
 msgid "Please feel free to add your name on this list if you do a PR!"
-msgstr ""
+msgstr "S’il vous plaît n’hésitez pas à ajouter votre nom sur cette liste, si vous faites une relation publique!"
 
 #: ../../../AUTHORS.rst:15
 msgid "Benjamin Bach (benjaoming)"
-msgstr ""
+msgstr "Benjamin Bach (benjaoming)"
 
 #: ../../../AUTHORS.rst:16
 msgid "Michael Gallaspy (MCGallaspy)"
-msgstr ""
+msgstr "Michael Gallaspy (MCGallaspy)"
 
 #: ../../../AUTHORS.rst:17
 msgid "Richard Tibbles (rtibbles)"
-msgstr ""
+msgstr "Richard Tibbles (rtibbles)"
 
 #: ../../../AUTHORS.rst:18
 msgid "Jamie Alexandre (jamalex)"
-msgstr ""
+msgstr "Jamie Alexandre (jamalex)"
 
 #: ../../../AUTHORS.rst:19
 msgid "David Cañas (dxcanas)"
-msgstr ""
+msgstr "David Cañas (dxcanas)"
 
 #: ../../../AUTHORS.rst:20
 msgid "Eli Dai (66eli77)"
-msgstr ""
+msgstr "Eli Dai (66eli77)"
 
 #: ../../../AUTHORS.rst:21
 msgid "Devon Rueckner (indirectlylit)"
-msgstr ""
+msgstr "Devon Rueckner (indirectlylit)"
 
 #: ../../../AUTHORS.rst:22
 msgid "Rafael Aguayo (ralphiee22)"
-msgstr ""
+msgstr "Rafael Aguayo (ralphiee22)"
 
 #: ../../../AUTHORS.rst:23
 msgid "Christian Memije (christianmemije)"
-msgstr ""
+msgstr "Christian Memije (christianmemije)"
 
 #: ../../../AUTHORS.rst:24
 msgid "Radina Matic (radinamatic)"
-msgstr ""
+msgstr "Radina Matic (radinamatic)"
 

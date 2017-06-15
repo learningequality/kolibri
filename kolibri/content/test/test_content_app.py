@@ -327,7 +327,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username="learner", password="pass", facility=facility)
         # Topic so None
         assert_progress(root, None)
-        assert_progress(c1, 0)
+        assert_progress(c1, None)
         # Topic so None
         assert_progress(c2, None)
         assert_progress(c2c1, 0.7)
