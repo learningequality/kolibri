@@ -6,7 +6,7 @@
       :api="api"
       :requirePath="requirePath">
 
-    <h1 slot="title">Buttons</h1>
+    <h1 slot="title">Breadcrumbs</h1>
     <p slot="summary">
       Include breadcrumbs whenever the topic tree is introduced within a
       Kolibri page
