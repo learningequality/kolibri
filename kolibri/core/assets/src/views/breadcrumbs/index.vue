@@ -30,7 +30,7 @@
           :ref="`crumb${index}`"
           class="breadcrumbs-visible-item breadcrumb-visible-item-last"
           :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">
-          {{ crumb.text }}
+          <span>{{ crumb.text }}</span>
         </li>
       </template>
     </ol>
@@ -198,10 +198,10 @@
       content: '\203A'
       margin-right: 8px
       margin-left: 8px
+      vertical-align: middle
 
   .breadcrumbs-dropdown
-    padding: 8px
-    font-size: 16px
+    padding: 16px
     font-weight: bold
 
   .breadcrumbs-dropdown-items
@@ -211,13 +211,13 @@
 
   .breadcrumbs-dropdown-item
     display: block
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
-    max-width: 300px
     padding-top: 8px
     padding-bottom: 8px
     a
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+      max-width: 300px
       display: inline-block
 
   .breadcrumbs-visible-items
@@ -228,25 +228,21 @@
     list-style: none
 
   .breadcrumbs-visible-item
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
     display: inline-block
-    max-width: 300px
-    font-size: 16px
     vertical-align: middle
-    a
+    a, span
       display: inline-block
+      max-width: 300px
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+      vertical-align: middle
 
   .breadcrumbs-visible-item-notlast
     &:after
       content: '\203A'
       margin-right: 8px
       margin-left: 8px
-
-  .breadcrumb-visible-item-last
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
+      vertical-align: middle
 
 </style>
