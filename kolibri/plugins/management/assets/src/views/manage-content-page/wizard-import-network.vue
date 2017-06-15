@@ -7,7 +7,7 @@
     :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="startImportWizard"
+    @back="goBack"
   >
     <div class="main">
       <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
@@ -33,7 +33,7 @@
 
 <script>
 
-  const actions = require('../../state/actions');
+  const manageContentActions = require('../../state/manageContentActions');
 
   module.exports = {
     $trNameSpace: 'wizardImportNetwork',
@@ -60,13 +60,16 @@
       },
     },
     methods: {
+      goBack() {
+        this.transitionWizardPage('backward');
+      },
       submit() {
         if (this.canSubmit) {
-          this.triggerRemoteContentImportTask(this.contentId);
+          this.transitionWizardPage('forward', { contentId: this.contentId });
         }
       },
       cancel() {
-        this.cancelImportExportWizard();
+        this.transitionWizardPage('cancel');
       },
     },
     vuex: {
@@ -74,9 +77,7 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
       },
     },
   };
