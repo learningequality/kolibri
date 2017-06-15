@@ -124,14 +124,15 @@
     background: #e0e0e0
     text-align: left
 
-  // Add some hidden space before all the elements with ID, so when we use
-  // anchor link to jump to them, they won't be partially obscured by the fixed
-  // page header.
-  *[id]:before
-    content: ''
-    display: block
-    visibility: hidden
-    height: $page-header-height
-    margin-top: (-1 * $page-header-height)
+  // Add some hidden space before all the heading elements with ID, so when we
+  // use anchor link to jump to them, they won't be partially obscured by the
+  // fixed page header.
+  h1, h2, h3, h4
+    &[id]:before
+      content: ''
+      display: block
+      visibility: hidden
+      height: $page-header-height
+      margin-top: (-1 * $page-header-height)
 
 </style>
