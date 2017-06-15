@@ -4,7 +4,7 @@
       class="filter-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api"
-    >
+      :requirePath="requirePath">
 
     <h1 slot="title">Filters</h1>
     <p slot="summary">
@@ -200,7 +200,8 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiSelect') // eslint-disable-line
+      api: require('!vue-doc!keen-ui/src/UiSelect'), // eslint-disable-line
+      requirePath: 'keen-ui/src/UiSelect',
     })
   };
 

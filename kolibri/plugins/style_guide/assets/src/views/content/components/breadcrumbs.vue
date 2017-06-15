@@ -137,8 +137,6 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiButton'), // eslint-disable-line
-      requirePath: 'keen-ui/src/UiButton',
     })
   };
 
