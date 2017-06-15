@@ -45,7 +45,7 @@ class Transfer(object):
         self.finalized = False
         self.closed = False
 
-        self._old_sigint_handler = signal.signal(signal.SIGINT, self._kill_gracefully)
+        signal.signal(signal.SIGINT, self._kill_gracefully)
         signal.signal(signal.SIGTERM, self._kill_gracefully)
 
         assert not os.path.isdir(dest), "dest must include the target filename, not just directory path"
@@ -124,7 +124,6 @@ class Transfer(object):
     def close(self):
         self.dest_file_obj.close()
         self.closed = True
-        signal.signal(signal.SIGINT, self._old_sigint_handler)
 
 
 class FileDownload(Transfer):
