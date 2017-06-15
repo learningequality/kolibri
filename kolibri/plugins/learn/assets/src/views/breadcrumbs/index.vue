@@ -28,7 +28,6 @@
       learnRootLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel_id: this.channelId,
         };
       },
       learnBreadcrumbs() {
@@ -47,7 +46,6 @@
       exploreRootLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          channel_id: this.channelId,
         };
       },
       exploreBreadcrumbs() {

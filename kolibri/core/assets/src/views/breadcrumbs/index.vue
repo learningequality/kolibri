@@ -65,7 +65,6 @@
         type: Array,
         required: true,
         validator(crumbItems) {
-          console.log('validating');
           const crumbs = Array.from(crumbItems);
           // Must not be empty
           if (!crumbs.length) {
@@ -101,14 +100,6 @@
     },
 
     methods: {
-      resetCollapsedState() {
-        this.crumbs = this.crumbs.map(crumb => {
-          const updatedCrumb = crumb;
-          updatedCrumb.collapsed = false;
-          return updatedCrumb;
-        });
-      },
-
       attachSensors() {
         this.$nextTick(() => {
           const crumbRefs = filter(this.$refs, (value, key) => startsWith(key, 'crumb'));
@@ -116,10 +107,19 @@
             const updatedCrumb = crumb;
             updatedCrumb.ref = crumbRefs[index];
             updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, () => {
-              this.updateCrumbs();
+              this.throttleUpdateCrumbs();
             });
             return updatedCrumb;
           });
+          this.updateCrumbs();
+        });
+      },
+
+      resetCollapsedState() {
+        this.crumbs = this.crumbs.map(crumb => {
+          const updatedCrumb = crumb;
+          updatedCrumb.collapsed = false;
+          return updatedCrumb;
         });
       },
 
@@ -166,7 +166,6 @@
 
     created() {
       this.crumbs = Array.from(this.items);
-      this.resetCollapsedState();
     },
 
     mounted() {
@@ -190,6 +189,7 @@
 
   .breadcrumbs-dropdown-wrapper
     display: inline-block
+    vertical-align: middle
     &:after
       content: '\203A'
       margin-right: 8px
