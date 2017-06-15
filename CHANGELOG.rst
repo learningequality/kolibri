@@ -23,6 +23,7 @@ Changes are ordered reverse-chronologically.
  - Learner reports #1464
  - Performance optimizations #1499
  - Anonymous exercises fixed #1466
+ - Integrated Morango, to prep for data syncing (will require fresh database)
 
 
 0.3.0
