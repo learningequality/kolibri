@@ -18,15 +18,16 @@
       <template v-for="(crumb, index) in crumbs">
         <li
           v-if="index !== crumbs.length - 1"
-          :ref="`visibleCrumb${index}`"
+          :ref="`crumb${index}`"
           class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
-          :style="{ display: crumb.collapsed ? 'none' : '' }">
+          v-show="!crumb.collapsed"
+         >
           <router-link :to="crumb.link">{{ crumb.text }}</router-link>
         </li>
 
         <li
           v-else
-          :ref="`visibleCrumb${index}`"
+          :ref="`crumb${index}`"
           class="breadcrumbs-visible-item breadcrumb-visible-item-last"
           :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">
           {{ crumb.text }}
@@ -41,6 +42,7 @@
 
 <script>
 
+  const ResizeSensor = require('css-element-queries/src/ResizeSensor');
   const ResponsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
   const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
   const filter = require('lodash/filter');
@@ -48,20 +50,23 @@
   const throttle = require('lodash/throttle');
 
   const DROPDOWN_WIDTH = 55;
-  const BREADCRUMBS_PADDING = 0; // pulled from style
 
   module.exports = {
-    mixins: [ResponsiveElement],
     $trNameSpace: 'breadcrumbs',
+
+    mixins: [ResponsiveElement],
+
     components: {
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
     },
+
     props: {
       items: {
         type: Array,
         required: true,
-        validator(items) {
-          const crumbs = Array.from(items);
+        validator(crumbItems) {
+          console.log('validating');
+          const crumbs = Array.from(crumbItems);
           // Must not be empty
           if (!crumbs.length) {
             return false;
@@ -72,55 +77,80 @@
           }
           crumbs.pop();
           // All, but the last, must have a valid router link
-          return crumbs.every(item => ValidateLinkObject(item.link));
+          return crumbs.every(crumb => ValidateLinkObject(crumb.link));
         },
       },
     },
+
     data: () => ({
       crumbs: [],
     }),
+
     computed: {
       collapsedCrumbs() {
         return this.crumbs.filter(crumb => crumb.collapsed === true).reverse();
       },
+
       parentWidth() {
-        return this.elSize.width - BREADCRUMBS_PADDING;
+        return this.elSize.width;
       },
+
       lastCrumbMaxWidth() {
         return this.parentWidth - DROPDOWN_WIDTH;
       },
     },
-    methods: {
-      updateCrumbs() {
-        this.$nextTick(() => {
-          const crumbRefs = filter(this.$refs, (value, key) => startsWith(key, 'visibleCrumb'));
-          this.crumbs = this.crumbs.map((item, index) => {
-            item.collapsed = false;
-            item.ref = crumbRefs[index];
-            return item;
-          });
 
+    methods: {
+      resetCollapsedState() {
+        this.crumbs = this.crumbs.map(crumb => {
+          const updatedCrumb = crumb;
+          updatedCrumb.collapsed = false;
+          return updatedCrumb;
+        });
+      },
+
+      attachSensors() {
+        this.$nextTick(() => {
+          const crumbRefs = filter(this.$refs, (value, key) => startsWith(key, 'crumb'));
+          this.crumbs = this.crumbs.map((crumb, index) => {
+            const updatedCrumb = crumb;
+            updatedCrumb.ref = crumbRefs[index];
+            updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, () => {
+              this.updateCrumbs();
+            });
+            return updatedCrumb;
+          });
+        });
+      },
+
+      updateCrumbs() {
+        // reset collapsed values
+        this.resetCollapsedState();
+
+        // wait until next tick so that collapsed crumbs are uncollapsed
+        this.$nextTick(() => {
           const tempCrumbs = Array.from(this.crumbs);
           let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
           let remainingWidth = this.lastCrumbMaxWidth - lastCrumbWidth;
-
           while (tempCrumbs.length) {
-            console.log('lastCrumbWidth', lastCrumbWidth);
             if (remainingWidth <= 0) {
               tempCrumbs.forEach((crumb, index) => {
-                this.crumbs[index].collapsed = true;
+                const updatedCrumb = crumb;
+                updatedCrumb.collapsed = true;
+                this.crumbs.splice(index, 1, updatedCrumb);
               });
-              return;
+              break;
             }
 
             lastCrumbWidth = Math.ceil(
               tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width);
-
             if (lastCrumbWidth > remainingWidth) {
               tempCrumbs.forEach((crumb, index) => {
-                this.crumbs[index].collapsed = true;
+                const updatedCrumb = crumb;
+                updatedCrumb.collapsed = true;
+                this.crumbs.splice(index, 1, updatedCrumb);
               });
-              return;
+              break;
             }
 
             remainingWidth -= lastCrumbWidth;
@@ -128,16 +158,19 @@
           }
         });
       },
+
       throttleUpdateCrumbs: throttle(function updateCrumbs() {
         this.updateCrumbs();
       }, 250),
     },
+
     created() {
       this.crumbs = Array.from(this.items);
+      this.resetCollapsedState();
     },
+
     mounted() {
-      this.updateCrumbs();
-      window.addEventListener('load', this.updateCrumbs);
+      this.attachSensors();
       this.$watch('parentWidth', this.throttleUpdateCrumbs);
     },
   };
@@ -187,8 +220,7 @@
     vertical-align: middle
     margin: 0
     padding: 0
-    list-style: none // get rid of whitespace
-    font-size: 0
+    list-style: none
 
   .breadcrumbs-visible-item
     // max-width: 250px
