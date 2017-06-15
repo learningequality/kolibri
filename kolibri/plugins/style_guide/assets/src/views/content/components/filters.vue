@@ -9,7 +9,7 @@
     <h1 slot="title">Filters</h1>
     <p slot="summary">
       Filters are used to display certain data types within a larger data
-      collection.
+      collection
     </p>
 
     <div slot="guidelines-and-usage">
@@ -25,15 +25,15 @@
           items between facets are selected.
         </li>
         <li>
-          Filters don’t disappear when other filters are applied.
+          Filters don’t disappear when other filters are applied
         </li>
         <li>
           Filters will apply until they are cleared/toggled off/navigated away
-          from.
+          from
         </li>
         <li>
           If there aren’t any items/content types available to show, show the
-          filter but have it disabled.
+          filter but have it disabled
         </li>
       </ul>
 
@@ -44,7 +44,7 @@
           <ul>
               <li>
                 Text filters will search for and show any results for the
-                provided keyword.
+                provided keyword
               </li>
           </ul>
         </li>
@@ -52,7 +52,7 @@
           Bounded single select
           <ul>
             <li>
-              A user can select a single option from a list of a finite options.
+              A user can select a single option from a list of a finite options
             </li>
           </ul>
         </li>
@@ -61,32 +61,32 @@
           <ul>
             <li>
               A user can select a single option from a list of a variable amount
-              of options.
+              of options
             </li>
           </ul>
         </li>
-        <li>Bounded multi-select (not yet used).</li>
-        <li>Unbounded multiselect (not yet used).</li>
+        <li>Bounded multi-select (not yet used)</li>
+        <li>Unbounded multiselect (not yet used)</li>
       </ul>
 
       <h3>Specifications</h3>
       <ul>
         <li>
-          Filter components should always be left aligned to the page.
+          Filter components should always be left aligned to the page
         </li>
         <li>
           Filters should be floating directly above the content that it is
-          intended to filter through.
+          intended to filter through
         </li>
         <li>
-          Filters should be spaced 8px apart from one another.
+          Filters should be spaced 8px apart from one another
         </li>
         <li>
           Filter option verbiage should not be long sentences and instead be 1-2
-          words depicting the filter data type (e.g. coach, user, HTML apps).
+          words depicting the filter data type (e.g. coach, user, HTML apps)
         </li>
         <li>
-          The first filter option is always selected by default.
+          The first filter option is always selected by default
         </li>
         <li>
           Upon navigating to another page and going back, the filter should
@@ -98,11 +98,11 @@
         </li>
         <li>
           (text filter) Filter results will populate as the user types. An
-          example would be a search filter.
+          example would be a search filter
         </li>
         <li>
           (text filter) Upon navigating to another page and going back, the
-          filter field should clear itself.
+          filter field should clear itself
         </li>
         <li>
           (text filter) Min width: 240px
@@ -211,7 +211,7 @@
 
   .filter-style-guide
     .vuep-preview
-      height: 140em
+      height: 400px
 
     .dropdown-filter-examples
       display: flex

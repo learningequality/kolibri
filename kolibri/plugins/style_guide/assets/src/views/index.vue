@@ -13,6 +13,16 @@
 
 <script>
 
+  const FullVue = require('vue/dist/vue.common');
+  const VueRouter = require('vue-router');
+
+  // To illustrate how user-facing text should always be translated, we will
+  // set up a fake $tr, and use it in the code example.
+  FullVue.prototype.$tr = (text) => text;
+
+  // Some components (e.g. <tab-link>) need the router.
+  FullVue.use(VueRouter);
+
   module.exports = {
     components: {
       sidenav: require('./shell/sidenav'),
@@ -101,17 +111,18 @@
   .vuep
     flex-direction: column-reverse
     margin-top: 1.3em
+    height: 1000px
 
     .vuep-preview,
     .vuep-editor
       width: 100%
-      height: 40em
 
     .vuep-preview
+      height: 100px
       padding: 10px
 
     .vuep-editor
-      height: auto
+      height: 100%
 
   table, th, td
     border: 1px solid darkgray

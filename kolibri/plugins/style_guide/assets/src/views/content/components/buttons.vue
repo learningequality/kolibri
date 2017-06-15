@@ -10,7 +10,7 @@
     <h1 slot="title">Buttons</h1>
     <p slot="summary">
       Buttons initialize actions and communicate what will happen upon clicking
-      them.
+      them
     </p>
 
     <div slot="guidelines-and-usage">
@@ -25,76 +25,83 @@
       <h3>Types of buttons</h3>
       <p>
         There are 3 main types of buttons, each to map to a different level of
-        visual hierarchy.
+        visual hierarchy
       </p>
       <ul>
-        <li>Raised buttons for more prominent actions.</li>
-        <li>Flat buttons for less prominent or actions that repeat in a list.</li>
-        <li>Hyperlink text for very deemphasized actions or in paragraphs.</li>
+        <li>
+          Raised buttons for more prominent actions
+        </li>
+        <li>
+          Flat buttons for less prominent or actions that repeat in a list
+        </li>
+        <li>
+          Hyperlink text for very deemphasized actions or in paragraphs.
+        </li>
       </ul>
 
       <h3>Dropdown buttons</h3>
       <p>
-        In areas where multiple actions are necessary, raised or flat buttons can
-        be made into dropdown buttons, which have multiple actions nested
-        underneath them in a menu.
+        In areas where multiple actions are necessary, raised or flat buttons
+        can be made into dropdown buttons, which have multiple actions nested
+        underneath them in a menu
       </p>
       <p>
-        The label on a dropdown button is not an action itself, but rather should
-        label the group of actions that are nested under the button.
+        The label on a dropdown button is not an action itself, but rather
+        should label the group of actions that are nested under the button
       </p>
       <p>
-        If a single action is more important or prominent than the others, it can
-        be brought out as its own individual button, next to the menu with more
-        actions.
+        If a single action is more important or prominent than the others, it
+        can be brought out as its own individual button, next to the menu with
+        more actions
       </p>
 
       <h3>Language</h3>
       <p>
-        Buttons should aim to have a single word in them, with two at most.
+        Buttons should aim to have a single word in them, with two at most
       </p>
       <p>
-        The buttons language should avoid any ambiguity, be specific to the action
-        you are completing. For example, use ‘Save’ instead of ‘OK’.
+        The buttons language should avoid any ambiguity, be specific to the
+        action you are completing. For example, use ‘Save’ instead of ‘OK’.
       </p>
       <p>
-        Never use commas or other punctuation in buttons.
+        Never use commas or other punctuation in buttons
       </p>
 
       <h3>Color usage</h3>
       <p>
-        Primary/affirmative actions should be purple.
+        Primary/affirmative actions should be purple
       </p>
       <p>
-        Secondary/cancel actions should be grey.
+        Secondary/cancel actions should be grey
       </p>
       <p>
-        Tertiary links should always use purple.
+        Tertiary links should always use purple
       </p>
 
       <h3>Button placement</h3>
       <p>
-        Buttons should be right aligned in modals.
+        Buttons should be right aligned in modals
       </p>
       <p>
-        Global actions on tables should be put above the table and right aligned.
+        Global actions on tables should be put above the table and right aligned
       </p>
       <p>
-        Deviates from these patterns are fine with common sense.
+        Deviates from these patterns are fine with common sense
       </p>
 
       <h3>Iconography</h3>
       <p>
-        Aside from the dropdown icon, there is no iconography in buttons.
+        Aside from the dropdown icon, there is no iconography in buttons
       </p>
 
       <h3>Responsive</h3>
       <p>
         Buttons should be determined by the size of the text in them, with a min
-        width. They should not generally transform based on the size of the page.
+        width. They should not generally transform based on the size of the
+        page.
       </p>
       <p>
-        Buttons should elide if you really really really have but pls don’t thx.
+        Buttons should elide if you really really really have but pls don’t thx
       </p>
 
       <h3>
@@ -216,7 +223,7 @@
 
   .button-style-guide
     .vuep-preview
-      height: 60em
+      height: 300px
 
     .examples
       display: flex

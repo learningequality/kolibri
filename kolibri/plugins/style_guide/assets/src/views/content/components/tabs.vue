@@ -105,7 +105,6 @@
   const FullVue = require('vue/dist/vue.common');
   FullVue.component('tabs', require('kolibri.coreVue.components.tabs'));
   FullVue.component('tab-link', require('kolibri.coreVue.components.tabLink'));
-  FullVue.component('ui-icon', require('keen-ui/src/UiIcon'));
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
@@ -173,7 +172,7 @@
     data: () => ({
       codeExamplesTemplate,
       api: require('!vue-doc!kolibri.coreVue.components.tabLink'), // eslint-disable-line
-      requirePath: 'kolibri.coreVue.components.tabs',
+      requirePath: 'kolibri.coreVue.components.tabLink',
     })
   };
 

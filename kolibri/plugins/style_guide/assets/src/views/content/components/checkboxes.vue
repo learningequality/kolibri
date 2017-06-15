@@ -16,53 +16,54 @@
     <div slot="guidelines-and-usage">
       <h3>Usage</h3>
       <p>
-        Use checkboxes in tables and lists only.
+        Use checkboxes in tables and lists only
       </p>
       <p>
-        Selected state of controls generally denote “positives” (yes/select/etc.)
+        Selected state of controls generally denote “positives”
+        (yes/select/etc.)
       </p>
 
       <h3>Do not</h3>
       <ul>
         <li>
-          Use checkboxes as a filter in a table or a list.
+          Use checkboxes as a filter in a table or a list
         </li>
         <li>
-          Nest checkboxes.
+          Nest checkboxes
         </li>
       </ul>
 
       <h3>Style</h3>
       <p>
-        Kolibri utilizes the default styles + padding from Keen UI.
+        Kolibri utilizes the default styles + padding from Keen UI
       </p>
       <p>
-        Selected checkbox is the action color.
+        Selected checkbox is the action color
       </p>
       <p>
-        Partially selected checkbox is medium grey.
+        Partially selected checkbox is medium grey
       </p>
       <p>
-        Unselected checkbox are dark grey.
+        Unselected checkbox are dark grey
       </p>
 
       <h3>Language</h3>
       <h4>Labels & option text:</h4>
       <p>
-        Keep these short, concise, and easy for the user to understand. Should not
-        be structured as a sentence.
+        Keep these short, concise, and easy for the user to understand. Should
+        not be structured as a sentence.
       </p>
 
       <h3>Layout</h3>
       <p>
-        Checkboxes are always left-aligned.
+        Checkboxes are always left-aligned
       </p>
       <p>
         No inset padding, checkboxes left-align with the content of their
-        container.
+        container
       </p>
       <p>
-        Checkboxes are vertically stacked.
+        Checkboxes are vertically stacked
       </p>
     </div>
 
@@ -132,7 +133,7 @@
 
   .checkbox-style-guide
     .vuep-preview
-      height: 20em
+      height: 200px
 
     .examples
       display: flex

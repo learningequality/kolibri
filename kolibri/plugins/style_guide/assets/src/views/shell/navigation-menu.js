@@ -64,7 +64,21 @@ const navigationMenu = [
           path: `${base}/components/filters`,
           component: require('../content/components/filters')
         }
-      }
+      },
+      {
+        linkLabel: 'Breadcrumbs',
+        linkRoute: {
+          path: `${base}/components/breadcrumbs`,
+          component: require('../content/components/breadcrumbs')
+        }
+      },
+      {
+        linkLabel: 'Tabs',
+        linkRoute: {
+          path: `${base}/components/tabs`,
+          component: require('../content/components/tabs')
+        }
+      },
     ])
   }
 ];

@@ -10,7 +10,7 @@
     <h1 slot="title">Radio Buttons</h1>
     <p slot="summary">
       Radio buttons allow the selection of a single option from a set of 3 or
-      more options.
+      more options
     </p>
 
     <div slot="guidelines-and-usage">
@@ -18,11 +18,11 @@
       <h3>Usage</h3>
       <p>
         In particular, radio buttons aid the user when they need to see all
-        available options side-by-side.
+        available options side-by-side
       </p>
       <p>
         If it is not necessary to see all available options, a dropdown may be
-        used.
+        used
       </p>
       <p>
         Selected state of controls generally denote "positives"
@@ -32,20 +32,20 @@
       <h3>Do not</h3>
       <ul>
         <li>
-          Use radio buttons as a filter in a table or a list.
+          Use radio buttons as a filter in a table or a list
         </li>
         <li>
-          Nest radio buttons.
+          Nest radio buttons
         </li>
       </ul>
 
       <h3>Style</h3>
       <p>
-        Kolibri utilizes the default styles + padding from Keen UI.
+        Kolibri utilizes the default styles + padding from Keen UI
       </p>
       <p>
         Selected option is the action color, other available options are dark
-        grey.
+        grey
       </p>
       <p>
         Where possible, avoid using icons with radio buttons. If necessary, the
@@ -55,20 +55,20 @@
       <h3>Language</h3>
       <h4>Labels & option text:</h4>
       <p>
-        Keep these short, concise, and easy for the user to understand. Should not
-        be structured as a sentence.
+        Keep these short, concise, and easy for the user to understand. Should
+        not be structured as a sentence.
       </p>
 
       <h3>Layout</h3>
       <p>
-        Radio buttons are always left-aligned.
+        Radio buttons are always left-aligned
       </p>
       <p>
         No inset padding, radio buttons left-align with the content of their
-        container.
+        container
       </p>
       <p>
-        Radio buttons are vertically stacked.
+        Radio buttons are vertically stacked
       </p>
     </div>
   </component-style-guide>
@@ -143,7 +143,7 @@
 
   .radio-style-guide
     .vuep-preview
-      height: 20em
+      height: 200px
 
     .examples
       display: flex
