@@ -73,6 +73,7 @@
   .content
     padding: 2em
     padding-top: $page-header-height
+    line-height: 1.3em
 
     h1,
     h2,
@@ -94,6 +95,9 @@
     ul
       margin-top: 0.5em
 
+      li
+        margin-bottom: 0.3em
+
   .vuep
     flex-direction: column-reverse
     margin-top: 1.3em
@@ -103,8 +107,22 @@
       width: 100%
       height: 40em
 
+    .vuep-preview
+      padding: 10px
+
     .vuep-editor
       height: auto
+
+  table, th, td
+    border: 1px solid darkgray
+    border-collapse: collapse
+
+  th, td
+    padding: 0.6em
+
+  th
+    background: #e0e0e0
+    text-align: left
 
   // Add some hidden space before all the elements with ID, so when we use
   // anchor link to jump to them, they won't be partially obscured by the fixed
