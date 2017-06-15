@@ -3,7 +3,9 @@
   <component-style-guide
     class="radio-style-guide"
     :codeExamplesTemplate="codeExamplesTemplate"
-    :api="api">
+    :api="api"
+    :requirePath="requirePath"
+  >
 
     <h1 slot="title">Radio Buttons</h1>
     <p slot="summary">
@@ -130,6 +132,7 @@
     data: () => ({
       codeExamplesTemplate,
       api: require('!vue-doc!keen-ui/src/UiRadio'), // eslint-disable-line
+      requirePath: 'keen-ui/src/UiRadio',
     })
   };
 

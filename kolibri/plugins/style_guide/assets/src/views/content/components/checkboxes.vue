@@ -3,7 +3,9 @@
   <component-style-guide
       class="checkbox-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api">
+      :api="api"
+      :requirePath="requirePath"
+    >
 
     <h1 slot="title">Checkboxes</h1>
     <p slot="summary">
@@ -63,6 +65,7 @@
         Checkboxes are vertically stacked.
       </p>
     </div>
+
   </component-style-guide>
 
 </template>
@@ -118,6 +121,7 @@
     data: () => ({
       codeExamplesTemplate,
       api: require('!vue-doc!keen-ui/src/UiCheckbox'), // eslint-disable-line
+      requirePath: 'keen-ui/src/UiCheckbox',
     })
   };
 

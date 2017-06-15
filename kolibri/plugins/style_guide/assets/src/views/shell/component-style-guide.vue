@@ -14,7 +14,7 @@
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
     <h2 id="api">API</h2>
-    <component-api :api="api"></component-api>
+    <component-api :api="api" :requirePath="requirePath"></component-api>
 
   </div>
 
@@ -32,10 +32,13 @@
       api: {
         type: Object,
         required: true,
-      }
+      },
+      requirePath: {
+        type: String,
+      },
     },
     components: {
-      'component-api': require('./component_api'),
+      'component-api': require('./component-api'),
       'table-of-contents': require('./table-of-contents'),
     },
   };

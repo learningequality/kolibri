@@ -3,7 +3,9 @@
   <component-style-guide
       class="text-fields-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api">
+      :api="api"
+      :requirePath="requirePath"
+    >
 
     <h1 slot="title">Text fields</h1>
     <p slot="summary">
@@ -216,7 +218,8 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!kolibri.coreVue.components.textbox') // eslint-disable-line
+      api: require('!vue-doc!kolibri.coreVue.components.textbox'), // eslint-disable-line
+      requirePath: 'kolibri.coreVue.components.textbox',
     })
   };
 

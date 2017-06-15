@@ -3,7 +3,9 @@
   <component-style-guide
       class="button-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api">
+      :api="api"
+      :requirePath="requirePath"
+    >
 
     <h1 slot="title">Buttons</h1>
     <p slot="summary">
@@ -203,6 +205,7 @@
     data: () => ({
       codeExamplesTemplate,
       api: require('!vue-doc!keen-ui/src/UiButton'), // eslint-disable-line
+      requirePath: 'keen-ui/src/UiButton',
     })
   };
 
