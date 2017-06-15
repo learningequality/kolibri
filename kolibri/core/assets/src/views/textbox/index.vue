@@ -77,16 +77,10 @@
         currentText: this.value,
       };
     },
-    watch: {
-      value: 'setCurrentText',
-    },
     methods: {
       updateText(text) {
         // v-model is just a :value + @input
         this.$emit('input', this.currentText);
-      },
-      setCurrentText(text) {
-        this.currentText = text;
       },
       reset() {
         this.$refs.textbox.reset();
@@ -94,6 +88,11 @@
       emitKeydown(e) {
         this.$emit('keydown', e);
       }
+    },
+    watch: {
+      value(val) {
+        this.currentText = val;
+      },
     },
     components: {
       'ui-textbox': require('keen-ui/src/UiTextbox'),
