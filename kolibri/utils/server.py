@@ -1,13 +1,10 @@
 import atexit
 import logging
-import multiprocessing
 import os
-import platform
 
 import cherrypy
 import requests
 from django.conf import settings
-from django.core.management import call_command
 from kolibri.content.utils import paths
 
 from .system import kill_pid, pid_exists
@@ -28,24 +25,15 @@ STATUS_PID_FILE_INVALID = 100
 STATUS_UNKNOWN = 101
 
 # Used to store PID and port number (both in foreground and daemon mode)
-PID_FILE = os.path.join(
-    os.environ['KOLIBRI_HOME'],
-    "server.pid"
-)
+PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], "server.pid")
 
 # Used to PID, port during certain exclusive startup process, before we fork
 # to daemon mode
-STARTUP_LOCK = os.path.join(
-    os.environ['KOLIBRI_HOME'],
-    "server.lock"
-)
+STARTUP_LOCK = os.path.join(os.environ['KOLIBRI_HOME'], "server.lock")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
-DAEMON_LOG = os.path.join(
-    os.environ['KOLIBRI_HOME'],
-    "server.log"
-)
+DAEMON_LOG = os.path.join(os.environ['KOLIBRI_HOME'], "server.log")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
@@ -79,6 +67,7 @@ def start(port=8080):
     atexit.register(rm_pid_file)
 
     run_server(port=port)
+
 
 def stop(pid=None, force=False):
     """
@@ -114,12 +103,10 @@ def run_server(port):
     cherrypy.tree.graft(application, "/")
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(
-        settings.CONTENT_DATABASE_DIR, paths.get_content_database_url("/")
-    )
-    serve_static_dir(
-        settings.CONTENT_STORAGE_DIR, paths.get_content_storage_url("/")
-    )
+    serve_static_dir(settings.CONTENT_DATABASE_DIR,
+                     paths.get_content_database_url("/"))
+    serve_static_dir(settings.CONTENT_STORAGE_DIR,
+                     paths.get_content_storage_url("/"))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -145,8 +132,7 @@ def serve_static_dir(root, url):
     static_handler = cherrypy.tools.staticdir.handler(
         section="/",
         dir=os.path.split(root)[1],
-        root=os.path.abspath(os.path.split(root)[0])
-    )
+        root=os.path.abspath(os.path.split(root)[0]))
     cherrypy.tree.mount(static_handler, url)
 
 
@@ -235,10 +221,9 @@ def get_status():  # noqa: max-complexity=16
         # be configurable
         # TODO: HTTP might not be the protocol if server has SSL
         response = requests.get(
-            "http://{}:{}".format("127.0.0.1", listen_port),
-            timeout=3
-        )
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+            "http://{}:{}".format("127.0.0.1", listen_port), timeout=3)
+    except (requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectionError):
         raise NotRunning(STATUS_NOT_RESPONDING)
     except (requests.exceptions.RequestException):
         if os.path.isfile(STARTUP_LOCK):

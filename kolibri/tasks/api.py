@@ -59,7 +59,6 @@ class TasksViewSet(viewsets.ViewSet):
         download its content.
 
         '''
-        TASKTYPE = "remoteimport"
 
         if "channel_id" not in request.data:
             raise serializers.ValidationError(
@@ -108,7 +107,6 @@ class TasksViewSet(viewsets.ViewSet):
         Export a channel to a local drive, and copy content to the drive.
 
         '''
-        TASKTYPE = "localexport"
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError(
@@ -132,10 +130,6 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
 
-        job_id = request.data['task_id']
-
-        # Attempt to kill running task.
-        # client.status(job_id).cancel()
         client.clear()
         return Response({})
 
