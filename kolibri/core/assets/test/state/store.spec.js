@@ -5,6 +5,7 @@ const assert = require('assert');
 const _ = require('lodash');
 const s = require('../../src/state/store');
 const getters = require('../../src/state/getters');
+const constants = require('../../src/constants');
 const coreActions = require('../../src/state/actions');
 const kolibri = require('kolibri');
 const sinon = require('sinon');
@@ -92,7 +93,7 @@ describe('Vuex store/actions for core module', () => {
 
       coreActions.kolibriLogin(store, {})
         .then(() => {
-          assert.equal(store.state.core.loginError, 401);
+          assert.equal(store.state.core.loginError, constants.LoginErrors.INVALID_CREDENTIALS);
         })
         .then(done, done);
     });

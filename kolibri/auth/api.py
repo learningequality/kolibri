@@ -11,8 +11,8 @@ from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
-    MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer,
+    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
 )
 
 
@@ -101,6 +101,14 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+
+
+class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
+    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None)
+    serializer_class = FacilityUsernameSerializer
+    filter_fields = ('facility', )
+    search_fields = ('^username', )
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
@@ -198,6 +206,13 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
+        elif not password and (FacilityUser.objects.filter(username=username, facility=facility_id).exists() or
+                               DeviceOwner.objects.filter(username=username).exists()):
+            # Password was missing, but username is valid, prompt to give password
+            return Response({
+                "message": "Please provide password for user",
+                "missing_field": "password"
+            }, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Respond with error
             return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
@@ -216,7 +231,7 @@ class SessionViewSet(viewsets.ViewSet):
                     'username': '',
                     'full_name': '',
                     'user_id': None,
-                    'facility_id': None,
+                    'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                     'kind': ['anonymous'],
                     'error': '200'}
 
@@ -225,7 +240,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None,
+            session.update({'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                             'kind': ['superuser'],
                             'error': '200'})
             return session
