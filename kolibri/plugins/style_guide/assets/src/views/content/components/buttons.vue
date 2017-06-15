@@ -241,5 +241,6 @@
 
           &.disabled
             color: rgba(0, 0, 0, 0.4)
+            pointer-events: none
 
 </style>

@@ -4,7 +4,7 @@
 
 "@vuedoc/parser@https://github.com/learningequality/vuedoc-parser":
   version "0.3.4"
-  resolved "https://github.com/learningequality/vuedoc-parser#ba1e6781fec80e00a88e5e3f2aae9d8b01f38044"
+  resolved "https://github.com/learningequality/vuedoc-parser#8e19b53f89f16ab6747463df10855430d8384102"
   dependencies:
     cheerio "^0.22.0"
     espree "^3.4.2"

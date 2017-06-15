@@ -35,12 +35,14 @@
 
 <style lang="stylus" scoped>
 
+  $left-padding = 25px
+
   .sidenav
     border-right: 1px solid #e0e0e0
-    padding-left: 2em
     background: #f7f7f7
 
     h2
+      padding-left: $left-padding
       margin-top: 1.2em
       margin-bottom: 0
 
@@ -50,12 +52,14 @@
       margin-top: 0.5em
 
       li
-        padding: 0.2em 0
 
         a
+          padding: 12px $left-padding
           text-decoration: none
+          display: block
 
           &.router-link-active
             font-weight: bold
+            background: #e4e4e4
 
 </style>

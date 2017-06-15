@@ -25,6 +25,9 @@
 
 <script>
 
+  /**
+   * A simple textbox that emits an event when its text is updated.
+   */
   module.exports = {
     name: 'KolibriTextBox',
     props: {

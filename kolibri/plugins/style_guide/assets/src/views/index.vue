@@ -28,6 +28,7 @@
 
   $sidenav-width = 13em
   $page-header-height = 3em
+  $left-padding = 25px
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
@@ -48,7 +49,7 @@
 
     height: $page-header-height
     line-height: $page-header-height
-    padding-left: 2em
+    padding-left: $left-padding
 
     position: fixed
     left: 0
@@ -109,11 +110,14 @@
 
     .vuep-preview
       padding: 10px
+      border: none
 
     .vuep-editor
       height: auto
 
-  table, th, td
+  table,
+  th,
+  td
     border: 1px solid darkgray
     border-collapse: collapse
 
