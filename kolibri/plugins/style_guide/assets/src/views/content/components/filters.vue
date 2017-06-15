@@ -3,7 +3,8 @@
   <component-style-guide
       class="filter-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api">
+      :api="api"
+    >
 
     <h1 slot="title">Filters</h1>
     <p slot="summary">
