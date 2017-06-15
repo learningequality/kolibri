@@ -50,6 +50,7 @@
   const throttle = require('lodash/throttle');
 
   const DROPDOWN_WIDTH = 55;
+  const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   module.exports = {
     $trNameSpace: 'breadcrumbs',
@@ -95,7 +96,10 @@
       },
 
       lastCrumbMaxWidth() {
-        return this.parentWidth - DROPDOWN_WIDTH;
+        if (this.collapsedCrumbs.length) {
+          return Math.min(this.parentWidth - DROPDOWN_WIDTH, MAX_CRUMB_WIDTH);
+        }
+        return Math.min(this.parentWidth, MAX_CRUMB_WIDTH);
       },
     },
 
@@ -131,7 +135,7 @@
         this.$nextTick(() => {
           const tempCrumbs = Array.from(this.crumbs);
           let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
-          let remainingWidth = this.lastCrumbMaxWidth - lastCrumbWidth;
+          let remainingWidth = this.parentWidth - DROPDOWN_WIDTH - lastCrumbWidth;
           while (tempCrumbs.length) {
             if (remainingWidth <= 0) {
               tempCrumbs.forEach((crumb, index) => {
@@ -182,8 +186,8 @@
   @require '~kolibri.styles.definitions'
 
   .breadcrumbs
-    margin-top: 16px
-    margin-bottom: 16px
+    margin-top: 24px
+    margin-bottom: 24px
     font-size: 16px
     font-weight: bold
 
@@ -210,6 +214,7 @@
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
+    max-width: 300px
     padding-top: 8px
     padding-bottom: 8px
     a
@@ -223,11 +228,11 @@
     list-style: none
 
   .breadcrumbs-visible-item
-    // max-width: 250px
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
     display: inline-block
+    max-width: 300px
     font-size: 16px
     vertical-align: middle
     a
