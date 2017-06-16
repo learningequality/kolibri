@@ -3,6 +3,13 @@ const _ = require('lodash');
 const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
 const base = '/style_guide';
 
+const homeRoute = [
+  {
+    path: `${base}/`,
+    component: require('../content/home/home-page')
+  }
+]
+
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -70,8 +77,9 @@ const navigationMenu = [
 ];
 
 // Extract the routes from the sideNavMenu so they can be added to VueRouter.
-const navigationMenuRoutes = _.flatten(
+// Add in the path to the home page.
+const navigationMenuRoutes = _.flatten(homeRoute.concat(
     navigationMenu.map(menuSection =>
-        menuSection.sectionLinks.map(link => link.linkRoute)));
+        menuSection.sectionLinks.map(link => link.linkRoute))));
 
 module.exports = { navigationMenu, navigationMenuRoutes };

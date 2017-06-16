@@ -1,11 +1,9 @@
 <template>
 
   <div>
-    <div class="page-header">
-      <h1>Kolibri Style Guide</h1>
-    </div>
+    <pageHeader></pageHeader>
     <sidenav class="sidenav"></sidenav>
-    <router-view class="content"></router-view>
+    <router-view class="content">Welcome to the Style Guide!</router-view>
   </div>
 
 </template>
@@ -16,6 +14,7 @@
   module.exports = {
     components: {
       sidenav: require('./shell/sidenav'),
+      pageHeader: require('./shell/page-header'),
     }
   };
 
@@ -75,6 +74,9 @@
     padding: 2em
     padding-top: $page-header-height
     line-height: 1.3em
+
+    h1
+      line-height: 1.7em
 
     h1,
     h2,
