@@ -3,7 +3,7 @@
   <div>
     <pageHeader></pageHeader>
     <sidenav class="sidenav"></sidenav>
-    <router-view class="content">Welcome to the Style Guide!</router-view>
+    <router-view class="content"></router-view>
   </div>
 
 </template>

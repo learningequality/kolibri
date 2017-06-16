@@ -1,14 +1,24 @@
 <template>
 
   <div class="page-header">
-    <h1>Kolibri Style Guide</h1>
+    <h1 style="cursor:pointer" v-on:click="goHome">
+      Kolibri Style Guide
+    </h1>
   </div>
 
 </template>
 
 <script>
 
+  const router = require('kolibri.coreVue.router');
+
   module.exports = {
+    methods: {
+      goHome() {
+        router.getInstance().replace({
+           path: '/style_guide/' });
+      }
+    }
   };
 
 </script>
@@ -33,5 +43,6 @@
       margin: 0
       font-size: 1.125em
       font-weight: 500
+      cursor: pointer
 
 </style>
