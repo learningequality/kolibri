@@ -23,37 +23,32 @@
       class="next" @click="nextSet" />
     </div>
 
-    <div :style="widthOfWrapper" class="content-carousel-set">
-        <div :style="widthOfCarousel" ref="cardCarousel" class="content-carousel-cards">
-          <transition-group
-            :name="animation"
-            tag="div"
-            @before-enter="beforeEnterStyle"
-            @enter="enterStyle"
-            @leave="leaveStyle">
+    <div :style="widthOfCarousel" class="content-carousel-set">
+        <transition-group @leave="leaveTest">
 
-            <slot
-              v-for="content in contentSet"
-              :title="content.title"
-              :thumbnail="content.thumnail"
-              :kind="content.kind"
-              :progress="content.progress"
-              :id="content.id">
+          <div class="content-card"
+            v-for="(content, index) in contents"
+            v-if="isInThisSet(index)"
+            :style="positionCalc(index)"
+            :key="content.id">
+            <!-- uses props if scoped slot is unused -->
+              <slot
+                :title="content.title"
+                :thumbnail="content.thumnail"
+                :kind="content.kind"
+                :progress="content.progress"
+                :id="content.id">
 
-                <!-- uses props if scoped slot is unused -->
                 <content-card
-                  class="content-card"
-                  :key="content.id"
-                  :title="content.title"
-                  :thumbnail="content.thumbnail"
-                  :kind="content.kind"
-                  :progress="content.progress"
-                  :link="genLink(content.id, content.kind)"/>
+                :title="content.title"
+                :thumbnail="content.thumbnail"
+                :kind="content.kind"
+                :progress="content.progress"
+                :link="genLink(content.id, content.kind)"/>
+              </slot>
+          </div>
 
-            </slot>
-
-          </transition-group>
-        </div>
+        </transition-group>
     </div>
 
   </section>
@@ -100,34 +95,37 @@
     },
     data() {
       return {
-        contentSetStartIndex: 0,
-        controlCounter: 0,
-        animation: 'next',
+        contentSetStart: 0,
+        contentSetEnd: null,
       };
+    },
+    mounted() {
+      // mixin isn't present until mounted
+      this.contentSetEnd = this.contentSetSize - 1;
+    },
+    watch: {
+      contentSetStart(startIndex) {
+        if (startIndex < 0) {
+          this.contentSetStart = 0;
+          this.contentSetEnd = this.contentSetSize - 1;
+        }
+      },
+      contentSetEnd(endIndex) {
+        if (endIndex >= this.contents.length) {
+          this.contentSetEnd = this.contents.length - 1;
+          this.contentSetStart = this.contents.length - this.contentSetSize;
+        }
+      },
     },
     computed: {
       contentSetSize() {
         return Math.floor(this.elSize.width / contentCardWidth);
       },
-      nextContentSetStartIndex() {
-        return this.contentSetStartIndex + this.contentSetSize;
-      },
-      contentSetEndIndex() {
-        return this.nextContentSetStartIndex - 1;
-      },
-      contentSet() {
-        if (this.nextContentSetStartIndex > this.contents.length) {
-          this.nextSet();
-        } else if (this.nextContentSetStartIndex < 0) {
-          this.previousSet();
-        }
-        return this.contents.slice(this.contentSetStartIndex, this.nextContentSetStartIndex);
-      },
       isFirstSet() {
-        return this.contentSetStartIndex === 0;
+        return this.contentSetStart === 0;
       },
       isLastSet() {
-        return this.contentSetEndIndex === (this.contents.length - 1);
+        return this.contentSetEnd === this.contents.length;
       },
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
@@ -136,62 +134,29 @@
           'min-width': `${contentCardWidth}px`,
         };
       },
-      widthOfWrapper() {
-        // keeps cards in between the control buttons
-        return {
-          width: `${this.contentSetSize * contentCardWidth}px`,
-        };
-      },
     },
     methods: {
-      beforeEnterStyle(el) {
-        const sign = this.animation === 'next' ? '' : '-';
-        el.style.transform = `translateX(${sign}${this.contentSetSize * contentCardWidth}px)`;
-        el.style.opacity = 0;
+      positionCalc(index) {
+        const cardOffset = (index - this.contentSetStart) * contentCardWidth;
+        return {
+          left: `${cardOffset}px`
+        };
       },
-      enterStyle(el, done) {
-        window.setTimeout(() => {
-          el.style.opacity = '';
-          el.style.transform = '';
-          done();
-        }, 500);
+      leaveTest(el) {
+        const restingPosition = parseInt(el.style.left, 10);
+        console.log(restingPosition);
+        el.style.left = `${restingPosition * -1}px`;
       },
-      leaveStyle(el, done) {
-        const sign = this.animation === 'next' ? '-' : '';
-        el.style.transform = `translateX(${sign}${this.contentSetSize * contentCardWidth}px)`;
-        el.style.opacity = 0;
-
-        window.setTimeout(done, 500);
+      isInThisSet(index) {
+        return this.contentSetStart <= index && index < this.contentSetEnd;
       },
       nextSet() {
-        const lastIndex = this.contents.length - 1;
-
-        this.controlCounter += 1;
-
-        const nextEndIndex = (this.nextContentSetStartIndex + this.contentSetSize) - 1;
-        if (nextEndIndex > lastIndex) {
-          this.contentSetStartIndex = this.contents.length - this.contentSetSize;
-        } else {
-          this.contentSetStartIndex = this.nextContentSetStartIndex;
-        }
-
-        if (this.isLastSet) {
-          this.$emit('end');
-        }
-
-        this.animation = 'next';
+        this.contentSetStart += this.contentSetSize;
+        this.contentSetEnd += this.contentSetSize;
       },
       previousSet() {
-        this.controlCounter += 1;
-
-        const prevStartIndex = this.contentSetStartIndex - this.contentSetSize;
-        if (prevStartIndex < 0) {
-          this.contentSetStartIndex = 0;
-        } else {
-          this.contentSetStartIndex = prevStartIndex;
-        }
-
-        this.animation = 'previous';
+        this.contentSetStart -= this.contentSetSize;
+        this.contentSetEnd -= this.contentSetSize;
       },
     },
   };
@@ -226,7 +191,8 @@
     &-set
       margin-left: auto
       margin-right: auto
-      overflow: hide
+      position: relative
+      height: $card-height
 
     &-controls
       // set up the parent element that the buttons use for reference
@@ -240,16 +206,17 @@
 
         // using material definition for resting Raised Button
         z-index: 2
-        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
         &:active
           z-index: 8
-          box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)
       .next
         right: 0
       .previous
         left: 0
 
-  .content-card
-    transition: all 0.5s ease
+  .content-card, .next-enter
+    transition: all 5s ease
+    position: absolute
 
 </style>
