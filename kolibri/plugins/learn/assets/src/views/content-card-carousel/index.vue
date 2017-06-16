@@ -24,7 +24,7 @@
     </div>
 
     <div :style="widthOfCarousel" class="content-carousel-set">
-        <transition-group @leave="leaveTest">
+        <transition-group @leave="leaveStyle" @before-enter="beforeEnterStyle" @enter="enterStyle">
 
           <div class="content-card"
             v-for="(content, index) in contents"
@@ -96,24 +96,16 @@
     data() {
       return {
         contentSetStart: 0,
-        contentSetEnd: null,
+        leftToRight: false,
       };
     },
-    mounted() {
-      // mixin isn't present until mounted
-      this.contentSetEnd = this.contentSetSize - 1;
-    },
     watch: {
-      contentSetStart(startIndex) {
-        if (startIndex < 0) {
-          this.contentSetStart = 0;
-          this.contentSetEnd = this.contentSetSize - 1;
-        }
-      },
-      contentSetEnd(endIndex) {
-        if (endIndex >= this.contents.length) {
-          this.contentSetEnd = this.contents.length - 1;
+      contentSetStart(newStartIndex, oldStartIndex) {
+        if (newStartIndex > oldStartIndex && this.contentSetEnd >= this.contents.length) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
+          // gone past the beginning
+        } else if (newStartIndex < oldStartIndex && newStartIndex < 0) {
+          this.contentSetStart = 0;
         }
       },
     },
@@ -121,16 +113,19 @@
       contentSetSize() {
         return Math.floor(this.elSize.width / contentCardWidth);
       },
+      contentSetEnd() {
+        return this.contentSetStart + (this.contentSetSize - 1);
+      },
       isFirstSet() {
         return this.contentSetStart === 0;
       },
       isLastSet() {
-        return this.contentSetEnd === this.contents.length;
+        return this.contentSetEnd === this.contents.length - 1;
       },
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
         return {
-          'width': `${2 * this.contentSetSize * contentCardWidth}px`,
+          'width': `${this.contentSetSize * contentCardWidth}px`,
           'min-width': `${contentCardWidth}px`,
         };
       },
@@ -142,21 +137,34 @@
           left: `${cardOffset}px`
         };
       },
-      leaveTest(el) {
+      beforeEnterStyle(el) {
         const restingPosition = parseInt(el.style.left, 10);
-        console.log(restingPosition);
-        el.style.left = `${restingPosition * -1}px`;
+        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
+        const sign = this.leftToRight ? -1 : 1;
+        el.style.left = `${(sign * carouselContainerOffset) + restingPosition}px`;
+      },
+      enterStyle(el) {
+        const offsetPosition = parseInt(el.style.left, 10);
+        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
+        const sign = this.leftToRight ? 1 : -1;
+        el.style.left = `${(sign * carouselContainerOffset) + offsetPosition}px`;
+      },
+      leaveStyle(el) {
+        const restingPosition = parseInt(el.style.left, 10);
+        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
+        const sign = this.leftToRight ? 1 : -1;
+        el.style.left = `${(sign * carouselContainerOffset) + restingPosition}px`;
       },
       isInThisSet(index) {
-        return this.contentSetStart <= index && index < this.contentSetEnd;
+        return this.contentSetStart <= index && index <= this.contentSetEnd;
       },
       nextSet() {
         this.contentSetStart += this.contentSetSize;
-        this.contentSetEnd += this.contentSetSize;
+        this.leftToRight = false;
       },
       previousSet() {
         this.contentSetStart -= this.contentSetSize;
-        this.contentSetEnd -= this.contentSetSize;
+        this.leftToRight = true;
       },
     },
   };
@@ -216,7 +224,7 @@
         left: 0
 
   .content-card, .next-enter
-    transition: all 5s ease
+    transition: all 0.5s linear
     position: absolute
 
 </style>
