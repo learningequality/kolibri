@@ -9,7 +9,7 @@
       </header>
     </div>
 
-    <div class="content-carousel-controls">
+    <div :style="widthOfCarousel" class="content-carousel-controls">
       <ui-icon-button
       v-if="!isFirstSet"
       icon="arrow_back"
@@ -61,8 +61,8 @@
   const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
   const validateLinkObject = require('kolibri.utils.validateLinkObject');
 
-  // body width + L margin + R margin
-  const contentCardWidth = 210 + (10 * 2);
+  const contentCardWidth = 210;
+  const gutterWidth = 20;
 
   module.exports = {
     mixins: [responsiveElement],
@@ -101,17 +101,46 @@
     },
     watch: {
       contentSetStart(newStartIndex, oldStartIndex) {
-        if (newStartIndex > oldStartIndex && this.contentSetEnd >= this.contents.length) {
+        const nextSet = newStartIndex > oldStartIndex;
+        const previousSet = newStartIndex < oldStartIndex;
+        const newIndexTooLarge = this.contentSetEnd >= this.contents.length;
+        const newIndexTooSmall = newStartIndex < 0;
+        const enoughContentForASet = this.contents.length >= this.contentSetSize;
+
+        if (nextSet && newIndexTooLarge && enoughContentForASet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
-          // gone past the beginning
-        } else if (newStartIndex < oldStartIndex && newStartIndex < 0) {
+        } else if (previousSet && newIndexTooSmall) {
           this.contentSetStart = 0;
+        }
+      },
+      contentSetSize(newSetSize, oldSetSize) {
+        const addingCards = newSetSize > oldSetSize;
+        const removingCards = oldSetSize > newSetSize;
+
+        this.leftToRight = removingCards;
+
+        if (this.isLastSet && addingCards) {
+          this.contentSetStart = this.contents.length - this.contentSetSize;
         }
       },
     },
     computed: {
       contentSetSize() {
-        return Math.floor(this.elSize.width / contentCardWidth);
+        if (this.elSize.width > (2 * contentCardWidth)) {
+          const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
+          const numOfGutters = numOfCards - 1;
+
+          const totalWidth = (numOfCards * contentCardWidth) + (numOfGutters * gutterWidth);
+
+          if (this.elSize.width >= totalWidth) {
+            // enough room for all cards with gutter
+            return numOfCards;
+          }
+
+          // going to have to drop down one card to make room for gutter
+          return numOfCards - 1;
+        }
+        return 1;
       },
       contentSetEnd() {
         return this.contentSetStart + (this.contentSetSize - 1);
@@ -120,7 +149,7 @@
         return this.contentSetStart === 0;
       },
       isLastSet() {
-        return this.contentSetEnd === this.contents.length - 1;
+        return this.contentSetEnd >= this.contents.length - 1;
       },
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
@@ -138,6 +167,7 @@
         };
       },
       beforeEnterStyle(el) {
+        // posibility for optimization by deleting elements as soon as they're not visible?
         const restingPosition = parseInt(el.style.left, 10);
         const carouselContainerOffset = this.contentSetSize * contentCardWidth;
         const sign = this.leftToRight ? -1 : 1;
@@ -176,6 +206,7 @@
 
   @require '~kolibri.styles.definitions'
 
+  // width of card + gutter
   $card-height = 210px
 
   .content-carousel
@@ -197,12 +228,13 @@
         background-color: $core-action-normal
 
     &-set
-      margin-left: auto
-      margin-right: auto
       position: relative
       height: $card-height
+      overflow-x: hidden
 
     &-controls
+      $icon-button-height = 48
+      $icon-button-width = $icon-button-height
       // set up the parent element that the buttons use for reference
       position: absolute
       width: 100%
@@ -211,6 +243,7 @@
         // uses parent div as reference
         position: absolute
         top: ($card-height / 2)
+        transform: translateY(-($icon-button-height / 2)px)
 
         // using material definition for resting Raised Button
         z-index: 2
@@ -219,12 +252,12 @@
           z-index: 8
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)
       .next
-        right: 0
+        right: -($icon-button-width/2)px
       .previous
-        left: 0
+        left: -($icon-button-width/2)px
 
-  .content-card, .next-enter
-    transition: all 0.5s linear
+  .content-card
+    transition: left 0.5s linear
     position: absolute
 
 </style>

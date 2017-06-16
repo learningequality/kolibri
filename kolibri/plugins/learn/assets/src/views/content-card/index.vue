@@ -139,7 +139,6 @@
     width: $card-width
     height: $card-height
     border-radius: 2px
-    margin: 10px
     background-color: $core-bg-light
     box-shadow: $card-elevation-resting
     &:hover, &:focus
