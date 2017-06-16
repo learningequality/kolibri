@@ -25,10 +25,10 @@
 <style lang="stylus">
 
   @import '~vuep/dist/vuep.css'
+  @import '../styles/core-theme.styl'
 
   $sidenav-width = 13em
   $page-header-height = 3em
-  $left-padding = 25px
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
@@ -49,7 +49,7 @@
 
     height: $page-header-height
     line-height: $page-header-height
-    padding-left: $left-padding
+    padding-left: $nav-padding-left
 
     position: fixed
     left: 0

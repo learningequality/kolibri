@@ -35,14 +35,14 @@
 
 <style lang="stylus" scoped>
 
-  $left-padding = 25px
+  @import '../../styles/core-theme.styl'
 
   .sidenav
     border-right: 1px solid #e0e0e0
     background: #f7f7f7
 
     h2
-      padding-left: $left-padding
+      padding-left: $nav-padding-left
       margin-top: 1.2em
       margin-bottom: 0
 
@@ -54,7 +54,7 @@
       li
 
         a
-          padding: 12px $left-padding
+          padding: 12px $nav-padding-left
           text-decoration: none
           display: block
 
