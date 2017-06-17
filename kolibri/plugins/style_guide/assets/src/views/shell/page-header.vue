@@ -1,8 +1,8 @@
 <template>
 
   <div class="page-header">
-    <h1 style="cursor:pointer" v-on:click="goHome">
-      Kolibri Style Guide
+    <h1 v-on:click="goHome">
+        Kolibri Style Guide
     </h1>
   </div>
 
@@ -23,9 +23,11 @@
 
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  page-header
+  @import '../../styles/core-theme.styl'
+
+  .page-header
     background: #996189
     color: white
 
@@ -43,6 +45,7 @@
       margin: 0
       font-size: 1.125em
       font-weight: 500
+      display: inline
       cursor: pointer
 
 </style>
