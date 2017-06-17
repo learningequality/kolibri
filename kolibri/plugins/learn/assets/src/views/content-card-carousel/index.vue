@@ -24,7 +24,7 @@
     </div>
 
     <div :style="widthOfCarousel" class="content-carousel-set">
-        <transition-group @leave="leaveStyle" @before-enter="beforeEnterStyle" @enter="enterStyle">
+        <transition-group @leave="slide" @before-enter="beforeEnterStyle" @enter="slide">
 
           <div class="content-card"
             v-for="(content, index) in contents"
@@ -153,37 +153,39 @@
       },
       widthOfCarousel() {
         // maintains the width of the carousel at fixed width relative to parent for animation
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
-          'width': `${this.contentSetSize * contentCardWidth}px`,
+          'width': `${cards + gutters}px`,
           'min-width': `${contentCardWidth}px`,
         };
       },
     },
     methods: {
       positionCalc(index) {
-        const cardOffset = (index - this.contentSetStart) * contentCardWidth;
+        const indexInSet = index - this.contentSetStart;
+        const gutterOffset = indexInSet * gutterWidth;
+        const cardOffset = indexInSet * contentCardWidth;
         return {
-          left: `${cardOffset}px`
+          left: `${cardOffset + gutterOffset}px`
         };
       },
       beforeEnterStyle(el) {
         // posibility for optimization by deleting elements as soon as they're not visible?
-        const restingPosition = parseInt(el.style.left, 10);
-        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
+        const originalPosition = parseInt(el.style.left, 10);
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
-        el.style.left = `${(sign * carouselContainerOffset) + restingPosition}px`;
+        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
       },
-      enterStyle(el) {
-        const offsetPosition = parseInt(el.style.left, 10);
-        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
+      slide(el) {
+        const originalPosition = parseInt(el.style.left, 10);
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${(sign * carouselContainerOffset) + offsetPosition}px`;
-      },
-      leaveStyle(el) {
-        const restingPosition = parseInt(el.style.left, 10);
-        const carouselContainerOffset = this.contentSetSize * contentCardWidth;
-        const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${(sign * carouselContainerOffset) + restingPosition}px`;
+        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
       },
       isInThisSet(index) {
         return this.contentSetStart <= index && index <= this.contentSetEnd;
