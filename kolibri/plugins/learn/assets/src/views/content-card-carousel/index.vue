@@ -10,46 +10,56 @@
     </div>
 
     <div :style="widthOfCarousel" class="content-carousel-controls">
-      <ui-icon-button
-      v-if="!isFirstSet"
-      icon="arrow_back"
-      size="large"
-      class="previous"
-      @click="previousSet" />
-      <ui-icon-button
-      v-if="!isLastSet"
-      icon="arrow_forward"
-      size="large"
-      class="next" @click="nextSet" />
+      <div class="previous" @click="previousSet">
+        <ui-icon-button
+        class="previous-button"
+        v-show="!isFirstSet"
+        :disabled="isFirstSet"
+        icon="arrow_back"
+        size="large" />
+      </div>
+
+      <div class="next" @click="nextSet">
+        <ui-icon-button
+        class="next-button"
+        v-show="!isLastSet"
+        :disabled="isLastSet"
+        icon="arrow_forward"
+        size="large"/>
+      </div>
     </div>
 
-    <div :style="widthOfCarousel" class="content-carousel-set">
-        <transition-group @leave="slide" @before-enter="beforeEnterStyle" @enter="slide">
+    <transition-group
+      :style="widthOfCarousel"
+      class="content-carousel-set"
+      tag="div"
+      @leave="slide"
+      @before-enter="setStartPosition"
+      @enter="slide">
 
-          <div class="content-card"
-            v-for="(content, index) in contents"
-            v-if="isInThisSet(index)"
-            :style="positionCalc(index)"
-            :key="content.id">
-            <!-- uses props if scoped slot is unused -->
-              <slot
-                :title="content.title"
-                :thumbnail="content.thumnail"
-                :kind="content.kind"
-                :progress="content.progress"
-                :id="content.id">
+      <div class="content-carousel-card"
+        v-for="(content, index) in contents"
+        v-if="isInThisSet(index)"
+        :style="positionCalc(index)"
+        :key="content.id">
+        <!-- uses props if scoped slot is unused -->
+          <slot
+            :title="content.title"
+            :thumbnail="content.thumnail"
+            :kind="content.kind"
+            :progress="content.progress"
+            :id="content.id">
 
-                <content-card
-                :title="content.title"
-                :thumbnail="content.thumbnail"
-                :kind="content.kind"
-                :progress="content.progress"
-                :link="genLink(content.id, content.kind)"/>
-              </slot>
-          </div>
+            <content-card
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :kind="content.kind"
+            :progress="content.progress"
+            :link="genLink(content.id, content.kind)"/>
+          </slot>
+      </div>
 
-        </transition-group>
-    </div>
+    </transition-group>
 
   </section>
 
@@ -121,6 +131,9 @@
 
         if (this.isLastSet && addingCards) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
+
+          // adding cards on the left rather than the right.
+          this.leftToRight = true;
         }
       },
     },
@@ -170,7 +183,7 @@
           left: `${cardOffset + gutterOffset}px`
         };
       },
-      beforeEnterStyle(el) {
+      setStartPosition(el) {
         // posibility for optimization by deleting elements as soon as they're not visible?
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
@@ -218,6 +231,7 @@
 
     &-details
       clearfix()
+
       &-header
         float: left
         text-align: left
@@ -229,37 +243,54 @@
         color: white
         background-color: $core-action-normal
 
+
+    &-controls
+      $hit-height = 100px
+
+      $hit-width = $hit-height
+      // set up the parent element that the buttons use for reference
+      position: absolute
+      width: 100%
+      clearfix()
+
+      // styles that apply to both control buttons
+      .next, .previous
+        &:active
+          z-index: 8 // material
+          // goes up one reference (Stylus partial reference)
+          ^[-1]-button
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
+
+        z-index: 2 // material
+        position: absolute
+        top: ($card-height / 2)
+        transform: translateY(-($hit-height / 2))
+        height: $hit-height
+        width: $hit-width
+        text-align: center
+        vertical-align: middle
+
+        &-button
+          box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+          // center align within hitbox
+          position: absolute
+          top: 50%
+          left: 50%
+          transform: translate(-50%, -50%)
+
+      // position-specific styles for each control button
+      .next
+        right: -($hit-width/2)
+      .previous
+        left: -($hit-width/2)
+
     &-set
       position: relative
       height: $card-height
       overflow-x: hidden
 
-    &-controls
-      $icon-button-height = 48
-      $icon-button-width = $icon-button-height
-      // set up the parent element that the buttons use for reference
+    &-card
+      transition: left 0.5s linear
       position: absolute
-      width: 100%
-      clearfix()
-      .next, .previous
-        // uses parent div as reference
-        position: absolute
-        top: ($card-height / 2)
-        transform: translateY(-($icon-button-height / 2)px)
-
-        // using material definition for resting Raised Button
-        z-index: 2
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
-        &:active
-          z-index: 8
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)
-      .next
-        right: -($icon-button-width/2)px
-      .previous
-        left: -($icon-button-width/2)px
-
-  .content-card
-    transition: left 0.5s linear
-    position: absolute
 
 </style>
