@@ -36,8 +36,6 @@ class TasksViewSet(viewsets.ViewSet):
     permission_classes = (IsDeviceOwnerOnly, )
 
     def list(self, request):
-        # tasks_response = [_task_to_response(t) for t in client.all_jobs()]
-        # return Response(tasks_response)
         jobs_response = [_job_to_response(j) for j in client.all_jobs()]
         return Response(jobs_response)
 
