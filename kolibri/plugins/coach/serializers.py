@@ -1,5 +1,4 @@
 from dateutil.parser import parse
-
 from django.db.models import Case, Count, F, IntegerField, Sum, Value as V, When
 from django.db.models.functions import Coalesce
 from kolibri.auth.models import FacilityUser
@@ -68,12 +67,11 @@ class UserReportSerializer(serializers.ModelSerializer):
 class ContentReportSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     last_active = serializers.SerializerMethodField()
-    parent = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active', 'parent',
+            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active',
         )
 
     def get_progress(self, target_node):
@@ -125,10 +123,6 @@ class ContentReportSerializer(serializers.ModelSerializer):
                     .latest('end_timestamp').end_timestamp
         except ContentSummaryLog.DoesNotExist:
             return None
-
-    def get_parent(self, target_node):
-        # returns immediate parent
-        return target_node.get_ancestors().values('pk', 'title').last()
 
 
 class ContentSummarySerializer(ContentReportSerializer):

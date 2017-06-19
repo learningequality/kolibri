@@ -124,10 +124,6 @@ function _contentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    parent: {
-      id: row.parent.pk,
-      title: row.parent.title,
-    },
     id: row.pk,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
@@ -144,10 +140,6 @@ function _recentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    parent: {
-      id: row.parent.pk,
-      title: row.parent.title,
-    },
     id: row.pk,
     progress: row.progress.map(progressData => ({
       logCountComplete: progressData.log_count_complete,
