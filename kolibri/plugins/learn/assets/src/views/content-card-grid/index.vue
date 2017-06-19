@@ -6,13 +6,13 @@
       <span v-if="subheader"> {{subheader}} </span>
     </header>
 
-    <slot
-      v-for="content in contents"
-      :title="content.title"
-      :thumbnail="content.thumnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.id">
+    <span v-for="content in contents" class="content-card">
+      <slot
+        :title="content.title"
+        :thumbnail="content.thumnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :id="content.id">
 
         <content-card
           :title="content.title"
@@ -21,7 +21,8 @@
           :progress="content.progress"
           :link="genLink(content.id, content.kind)"/>
 
-    </slot>
+      </slot>
+    </span>
 
   </div>
 
@@ -71,5 +72,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .content-card
+    margin: 10px
 
 </style>

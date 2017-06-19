@@ -80,12 +80,6 @@
       },
     },
     computed: {
-      thumb() {
-        if (this.thumbnail) {
-          return `url(${this.thumbnail})`;
-        }
-        return '';
-      },
       mastered() {
         return this.progress === 1.0;
       },

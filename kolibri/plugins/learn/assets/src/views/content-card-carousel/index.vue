@@ -165,7 +165,6 @@
         return this.contentSetEnd >= this.contents.length - 1;
       },
       widthOfCarousel() {
-        // maintains the width of the carousel at fixed width relative to parent for animation
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
@@ -184,7 +183,7 @@
         };
       },
       setStartPosition(el) {
-        // posibility for optimization by deleting elements as soon as they're not visible?
+        // posibility room for optimization by deleting elements as soon as they're out of sight
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
@@ -258,8 +257,6 @@
         &:active
           z-index: 8 // material
           // goes up one reference (Stylus partial reference)
-          ^[-1]-button
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
 
         z-index: 2 // material
         position: absolute
@@ -271,6 +268,8 @@
         vertical-align: middle
 
         &-button
+          &:active
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
           box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
           // center align within hitbox
           position: absolute
@@ -285,12 +284,14 @@
         left: -($hit-width/2)
 
     &-set
+      $max-card-shadow-offset = 10px
       position: relative
-      height: $card-height
+      height: $card-height + $max-card-shadow-offset
       overflow-x: hidden
+      overflow-y: visible
 
     &-card
-      transition: left 0.5s linear
+      transition: left 0.4s linear
       position: absolute
 
 </style>
