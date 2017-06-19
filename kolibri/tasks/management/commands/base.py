@@ -1,3 +1,4 @@
+import abc
 from collections import namedtuple
 
 from django.core.management.base import BaseCommand
@@ -99,3 +100,10 @@ class AsyncCommand(BaseCommand):
         tracker = ProgressTracker(total=total, level=level, update_callback=self._update_all_progress)
         self.progresstrackers.append(tracker)
         return tracker
+
+    @abc.abstractmethod
+    def handle_async(self, *args, **options):
+        """
+        handle_async should be reimplemented by any Subclass of AsyncCommand.
+        """
+        pass
