@@ -1,8 +1,7 @@
 from functools import reduce
 
 from dateutil.parser import parse
-from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, Value as V, When
-from django.db.models.functions import Coalesce
+from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
 from kolibri.auth.models import FacilityUser
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import ContentNode
@@ -67,65 +66,109 @@ class UserReportSerializer(serializers.ModelSerializer):
             return None
 
 
-progress_keys = [
-    'total_progress',
-    'log_count_total',
-    'log_count_complete'
-]
-
-
-def sum_progress_dicts(dict_a, dict_b):
-    return {
-        'total_progress': dict_a.get('total_progress', 0) + dict_b.get('total_progress', 0),
-    }
-
+def sum_progress_dicts(total_progress, progress_dict):
+    return total_progress + progress_dict.get('total_progress', 0)
 
 def get_progress_and_last_active(target_nodes, **kwargs):
+    # Prepare dictionaries to output the progress and last active, keyed by content_id
     output_progress_dict = {}
     output_last_active_dict = {}
+    # Get a list of all the users that we are querying
     users = list(get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']))
+
+    # Get a list of all content ids for all target nodes and their descendants
     content_ids = target_nodes.get_descendants(include_self=True).order_by().values_list("content_id", flat=True)
-    # get all summary logs for the current user that correspond to the descendant content nodes
+    # get all summary logs for the current user that correspond to the content nodes and descendant content nodes
     if default_database_is_attached():  # if possible, do a direct join between the content and default databases
         channel_alias = get_active_content_database()
         SummaryLogManager = ContentSummaryLog.objects.using(channel_alias)
     else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
         SummaryLogManager = ContentSummaryLog.objects
         content_ids = list(content_ids)
+    # Filter by users and the content ids
     progress_query = SummaryLogManager \
         .filter(user__in=users, content_id__in=content_ids)
+    # Conditionally filter by last active time
     if kwargs.get('last_active_time'):
         progress_query.filter(end_timestamp__gte=parse(kwargs.get('last_active_time')))
+    # Get an annotated list of dicts of type:
+    # {
+    #   'content_id': <content_id>,
+    #   'kind': <kind>,
+    #   'total_progress': <sum of all progress for this content>,
+    #   'log_count_total': <number of summary logs for this content>,
+    #   'log_count_complete': <number of complete summary logs for this content>,
+    #   'last_active': <most recent end_timestamp for this content>,
+    # }
     progress_list = progress_query.values('content_id', 'kind').annotate(
-        total_progress=Coalesce(Sum('progress'), V(0)),
-        log_count_total=Coalesce(Count('pk'), V(0)),
-        log_count_complete=Coalesce(Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())), V(0)),
+        total_progress=Sum('progress'),
+        log_count_total=Count('pk'),
+        log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())),
         last_active=Max('end_timestamp'))
+    # Evaluate query and make a loop dict of all progress
     progress_dict = {item.get('content_id'): item for item in progress_list}
     if isinstance(target_nodes, ContentNode):
         # Have been passed an individual model
         target_nodes = [target_nodes]
+    # Loop through each node to add progress and last active information to the output dicts
     for target_node in target_nodes:
+        # In the case of a topic, we need to look at the progress and last active from each of its descendants
         if target_node.kind == content_kinds.TOPIC:
-            leaf_nodes = target_node.get_descendants(include_self=False).order_by().values('content_id', 'kind')
-            leaf_ids = set([leaf_node.get('content_id') for leaf_node in leaf_nodes if leaf_node.get('kind') != content_kinds.TOPIC])
-            leaf_kinds = sorted(set([leaf_node.get('kind') for leaf_node in leaf_nodes if leaf_node.get('kind') != content_kinds.TOPIC]))
+            # Get all the content_ids and kinds of each leaf node as a tuple
+            # (about half the size of the dict from 'values' method)
+            leaf_nodes = target_node.get_descendants(include_self=False).order_by().values_list('content_id', 'kind')
+            # Get a unique set of all non-topic content_ids
+            # Do the filtering here, rather than in the query to reduce query time as 'kind' is not an indexed column
+            leaf_ids = set(leaf_node[0] for leaf_node in leaf_nodes if leaf_node[1] != content_kinds.TOPIC)
+            # Get a unique set of all non-topic content kinds
+            leaf_kinds = sorted(set(leaf_node[1] for leaf_node in leaf_nodes if leaf_node[1] != content_kinds.TOPIC))
+            # Create a list of progress summary dicts for each content kind
             progress = [{
+                # For total progress sum across all the progress dicts for the descendant content leaf nodes
                 'total_progress': reduce(
+                    # Reduce with a function that just adds the total_progress of the passed in dict to the accumulator
                     sum_progress_dicts,
-                    [progress_dict.get(leaf_id, {}) for leaf_id in leaf_ids if progress_dict.get(leaf_id, {}).get('kind') == kind],
-                    sum_progress_dicts({}, {})
-                ).get('total_progress'),
+                    # Get all dicts of progress for every leaf_id that has some progress recorded
+                    (progress_dict.get(leaf_id) for leaf_id in leaf_ids if leaf_id in progress_dict),
+                    # Pass in an initial value of total_progress as zero to initialize the reduce
+                    0,
+                ),
                 'kind': kind,
-                'node_count': reduce(lambda x, y: x + int(y.get('kind') == kind), leaf_nodes, 0)
+                # Count the number of leaf nodes of this particular kind
+                'node_count': reduce(lambda x, y: x + int(y[1] == kind), leaf_nodes, 0)
             } for kind in leaf_kinds]
+            # Set the output progress for this topic to this list of progress dicts
             output_progress_dict[target_node.content_id] = progress
-            last_active_times = [progress_dict.get(leaf_id, {}).get('last_active') for leaf_id in leaf_ids if progress_dict.get(leaf_id, {}).get('last_active')]
-            output_last_active_dict[target_node.content_id] = max(last_active_times) if last_active_times else None
+            # Create a generator of last active times for the leaf_ids
+            last_active_times = map(
+                # Return the last active time for this leaf_id
+                lambda leaf_id: progress_dict[leaf_id]['last_active'],
+                filter(
+                    # Filter leaf_ids to those that are in the progress_dict
+                    lambda leaf_id: leaf_id in progress_dict,
+                    leaf_ids))
+            # Max does not handle empty iterables, so try this
+            try:
+                # If it is not empty, great!
+                output_last_active_dict[target_node.content_id] = max(last_active_times)
+            except ValueError:
+                # If it is empty, catch the value error and set the last active time to None
+                output_last_active_dict[target_node.content_id] = None
         else:
-            # return as array for consistency in api
-            output_progress_dict[target_node.content_id] = [{key: progress_dict.get(target_node.content_id, {}).get(key, 0) for key in progress_keys}]
-            output_last_active_dict[target_node.content_id] = progress_dict.get(target_node.content_id, {}).get('last_active')
+            if target_node.content_id in progress_dict:
+                progress = progress_dict.pop(target_node.content_id)
+                output_last_active_dict[target_node.content_id] = progress.pop('last_active')
+                # return as array for consistency in api
+                # with last_active popped, remainder is just progress
+                output_progress_dict[target_node.content_id] = [progress]
+            elif target_node.content_id not in output_progress_dict:
+                # Not in the progress dict, but also not in our output, so supply default values
+                output_last_active_dict[target_node.content_id] = None
+                output_progress_dict[target_node.content_id] = {
+                    'total_progress': 0,
+                    'log_count_total': 0,
+                    'log_count_complete': 0,
+                }
     return output_progress_dict, output_last_active_dict
 
 
