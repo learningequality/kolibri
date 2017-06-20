@@ -57,7 +57,7 @@ function _topicState(data, ancestors = []) {
   return state;
 }
 
-function _contentState(data, nextContent) {
+function _contentState(data, nextContent, ancestors = []) {
   const progress = validateProgress(data);
   const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
@@ -69,7 +69,7 @@ function _contentState(data, nextContent) {
     available: data.available,
     files: data.files,
     progress,
-    breadcrumbs: [],
+    breadcrumbs: _crumbState(ancestors),
     content_id: data.content_id,
     next_content: nextContent,
     author: data.author,
@@ -256,15 +256,17 @@ function showExploreContent(store, channelId, id) {
   const contentPromise = ContentNodeResource.getModel(id, { channel_id: channelId }).fetch();
   const nextContentPromise = ContentNodeResource.fetchNextContent(id, { channel_id: channelId });
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, { channel_id: channelId });
+  ConditionalPromise.all(
+    [contentPromise, channelsPromise, nextContentPromise, ancestorsPromise]).only(
     samePageCheckGenerator(store),
-    ([content, channels, nextContent]) => {
+    ([content, channels, nextContent, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const pageState = { content: _contentState(content, nextContent) };
+      const pageState = { content: _contentState(content, nextContent, ancestors) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
