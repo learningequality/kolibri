@@ -15,6 +15,7 @@
         class="previous-button"
         v-show="!isFirstSet"
         :disabled="isFirstSet"
+        :disable-ripple="true"
         icon="arrow_back"
         size="large" />
       </div>
@@ -24,6 +25,7 @@
         class="next-button"
         v-show="!isLastSet"
         :disabled="isLastSet"
+        :disable-ripple="true"
         icon="arrow_forward"
         size="large"/>
       </div>
