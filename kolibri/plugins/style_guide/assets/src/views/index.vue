@@ -35,6 +35,7 @@
 <style lang="stylus">
 
   @import '~vuep/dist/vuep.css'
+  @import '~material-design-icons/iconfont/material-icons.css'
 
   $sidenav-width = 13em
   $page-header-height = 3em
