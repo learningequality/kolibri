@@ -139,6 +139,7 @@
     },
     computed: {
       contentSetSize() {
+        // need space for at least 2 cards and a gutter
         if (this.elSize.width > (2 * contentCardWidth)) {
           const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
           const numOfGutters = numOfCards - 1;
@@ -146,13 +147,15 @@
           const totalWidth = (numOfCards * contentCardWidth) + (numOfGutters * gutterWidth);
 
           if (this.elSize.width >= totalWidth) {
-            // enough room for all cards with gutter
+            // enough room for all cards with gutters
             return numOfCards;
           }
 
-          // going to have to drop down one card to make room for gutter
+          // going to have to drop down one card to make room for other cards' gutters
           return numOfCards - 1;
         }
+
+        // 1 is the minimum amount of cards and there is no gutter in this case
         return 1;
       },
       contentSetEnd() {
