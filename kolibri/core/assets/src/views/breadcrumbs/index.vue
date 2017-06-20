@@ -1,43 +1,64 @@
 <template>
 
-  <nav class="breadcrumbs">
+  <div>
+    <nav class="breadcrumbs">
+      <div v-if="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
+        <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
+          <div slot="dropdown" class="breadcrumbs-dropdown">
+            <ol class="breadcrumbs-dropdown-items">
+              <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
+                <router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
+                  {{ crumb.text }}
+                </router-link>
+              </li>
+            </ol>
+          </div>
+        </ui-icon-button>
+      </div>
 
-    <div v-if="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-      <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
-        <div slot="dropdown" class="breadcrumbs-dropdown">
-          <ol class="breadcrumbs-dropdown-items">
-            <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
-              <router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
-                {{ crumb.text }}
-              </router-link>
-            </li>
-          </ol>
-        </div>
-      </ui-icon-button>
+      <ol class="breadcrumbs-visible-items">
+        <template v-for="(crumb, index) in crumbs">
+          <li
+            v-if="index !== crumbs.length - 1"
+            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
+            v-show="!crumb.collapsed"
+          >
+            <router-link :to="crumb.link">{{ crumb.text }}</router-link>
+          </li>
+
+          <li
+            v-else
+            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+          >
+            <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
+          </li>
+        </template>
+      </ol>
+    </nav>
+
+
+    <div class="breadcrumbs breadcrumbs-offscreen">
+      <ol class="breadcrumbs-visible-items">
+        <template v-for="(crumb, index) in crumbs">
+          <li
+            v-if="index !== crumbs.length - 1"
+            :ref="`crumb${index}`"
+            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
+          >
+            <router-link :to="crumb.link" tabindex="-1">{{ crumb.text }}</router-link>
+          </li>
+
+          <li
+            v-else
+            :ref="`crumb${index}`"
+            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+          >
+            <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
+          </li>
+        </template>
+      </ol>
     </div>
-
-    <ol class="breadcrumbs-visible-items">
-      <template v-for="(crumb, index) in crumbs">
-        <li
-          v-if="index !== crumbs.length - 1"
-          :ref="`crumb${index}`"
-          class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
-          v-show="!crumb.collapsed"
-         >
-          <router-link :to="crumb.link">{{ crumb.text }}</router-link>
-        </li>
-
-        <li
-          v-else
-          :ref="`crumb${index}`"
-          class="breadcrumbs-visible-item breadcrumb-visible-item-last"
-        >
-          <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
-        </li>
-      </template>
-    </ol>
-
-  </nav>
+  </div>
 
 </template>
 
@@ -69,23 +90,22 @@
         type: Array,
         required: true,
         validator(crumbItems) {
-          const crumbs = Array.from(crumbItems);
           // Must not be empty
-          if (!crumbs.length) {
+          if (!crumbItems.length) {
             return false;
           }
           // All must have text
-          if (!crumbs.every(crumb => Boolean(crumb.text))) {
+          if (!crumbItems.every(crumb => Boolean(crumb.text))) {
             return false;
           }
-          crumbs.pop();
           // All, but the last, must have a valid router link
-          return crumbs.every(crumb => ValidateLinkObject(crumb.link));
+          return crumbItems.slice(0, -1).every(crumb => ValidateLinkObject(crumb.link));
         },
       },
     },
 
     data: () => ({
+      // will contain crumb items with their ref and collapsed state
       crumbs: [],
     }),
 
@@ -117,7 +137,7 @@
             const updatedCrumb = crumb;
             updatedCrumb.ref = crumbRefs[index];
             updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, () => {
-              this.throttleUpdateCrumbs();
+              this.updateCrumbs();
             });
             return updatedCrumb;
           });
@@ -125,48 +145,45 @@
         });
       },
 
-      resetCollapsedState() {
-        this.crumbs = this.crumbs.map(crumb => {
-          const updatedCrumb = crumb;
-          updatedCrumb.collapsed = false;
-          return updatedCrumb;
+      detachSensors() {
+        this.crumbs.forEach(crumb => {
+          crumb.sensor.detach();
         });
       },
 
       updateCrumbs() {
-        // reset collapsed values
-        this.resetCollapsedState();
+        const tempCrumbs = Array.from(this.crumbs);
+        let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
+        let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
+        const trackingIndex = this.crumbs.length - 2;
 
-        // wait until next tick so that collapsed crumbs are uncollapsed
-        this.$nextTick(() => {
-          const tempCrumbs = Array.from(this.crumbs);
-          let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
-          let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
-          while (tempCrumbs.length) {
-            if (remainingWidth <= 0) {
-              tempCrumbs.forEach((crumb, index) => {
-                const updatedCrumb = crumb;
-                updatedCrumb.collapsed = true;
-                this.crumbs.splice(index, 1, updatedCrumb);
-              });
-              break;
-            }
-
-            lastCrumbWidth = Math.ceil(
-              tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width);
-            if (lastCrumbWidth > remainingWidth) {
-              tempCrumbs.forEach((crumb, index) => {
-                const updatedCrumb = crumb;
-                updatedCrumb.collapsed = true;
-                this.crumbs.splice(index, 1, updatedCrumb);
-              });
-              break;
-            }
-
-            remainingWidth -= lastCrumbWidth;
-            tempCrumbs.pop();
+        while (tempCrumbs.length) {
+          if (remainingWidth <= 0) {
+            tempCrumbs.forEach((crumb, index) => {
+              const updatedCrumb = crumb;
+              updatedCrumb.collapsed = true;
+              this.crumbs.splice(index, 1, updatedCrumb);
+            });
+            break;
           }
-        });
+
+          lastCrumbWidth = Math.ceil(
+            tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width);
+
+          if (lastCrumbWidth > remainingWidth) {
+            tempCrumbs.forEach((crumb, index) => {
+              const updatedCrumb = crumb;
+              updatedCrumb.collapsed = true;
+              this.crumbs.splice(index, 1, updatedCrumb);
+            });
+            break;
+          }
+
+          remainingWidth -= lastCrumbWidth;
+          const lastCrumb = tempCrumbs.pop();
+          lastCrumb.collapsed = false;
+          this.crumbs.splice(trackingIndex, 1, lastCrumb);
+        }
       },
 
       throttleUpdateCrumbs: throttle(function updateCrumbs() {
@@ -181,6 +198,10 @@
     mounted() {
       this.attachSensors();
       this.$watch('parentWidth', this.throttleUpdateCrumbs);
+    },
+
+    beforeDestroy() {
+      this.detachSensors();
     },
   };
 
@@ -250,5 +271,9 @@
       margin-right: 8px
       margin-left: 8px
       vertical-align: middle
+
+  .breadcrumbs-offscreen
+    position: absolute
+    left: -1000em
 
 </style>
