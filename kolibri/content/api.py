@@ -14,6 +14,7 @@ from rest_framework.response import Response
 
 from .utils.search import fuzz
 
+
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
@@ -192,12 +193,11 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().select_related(
-            'parent',
-            'license',
-        ).prefetch_related(
+        return models.ContentNode.objects.all().prefetch_related(
             'assessmentmetadata',
             'files',
+        ).select_related(
+            'license',
         )
 
     @detail_route(methods=['get'])
