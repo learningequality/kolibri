@@ -4,7 +4,7 @@
 
     <div class="card-thumbnail" :style="backgroundImg">
       <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
-      <div v-if="progress > 0" class="card-progress-icon-wrapper">
+      <div v-show="progress > 0" class="card-progress-icon-wrapper">
         <progress-icon :progress="progress"/>
       </div>
 
