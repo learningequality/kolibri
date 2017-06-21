@@ -41,6 +41,10 @@ function currentUserId(state) {
   return state.core.session.user_id;
 }
 
+function facilityConfig(state) {
+  return state.core.facilityConfig;
+}
+
 /*
  * Returns the 'default' channel ID:
  * - if there are channels and they match the cookie, return that
@@ -92,4 +96,5 @@ module.exports = {
   totalPoints,
   contentPoints,
   currentUserId,
+  facilityConfig,
 };

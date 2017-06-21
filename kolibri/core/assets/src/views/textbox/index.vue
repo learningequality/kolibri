@@ -3,7 +3,8 @@
   <ui-textbox
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    @input="updateText()"
+    @input="updateText"
+    @keydown="emitKeydown"
     v-model="currentText"
     :disabled="disabled"
     :placeholder="placeholder"
@@ -83,6 +84,14 @@
       },
       reset() {
         this.$refs.textbox.reset();
+      },
+      emitKeydown(e) {
+        this.$emit('keydown', e);
+      }
+    },
+    watch: {
+      value(val) {
+        this.currentText = val;
       },
     },
     watch: {

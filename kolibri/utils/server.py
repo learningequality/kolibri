@@ -130,6 +130,8 @@ def run_server(port):
     from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
+    cherrypy.config.update({"environment": "production"})
+
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
     serve_static_dir(
         settings.CONTENT_DATABASE_DIR, paths.get_content_database_url("/")
