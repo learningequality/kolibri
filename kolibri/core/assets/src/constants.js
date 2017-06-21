@@ -92,6 +92,11 @@ const TopLevelPageNames = {
 // How many points is a completed content item worth?
 const MaxPointsPerContent = 500;
 
+const LoginErrors = {
+  PASSWORD_MISSING: 'PASSWORD_MISSING',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+};
+
 module.exports = {
   UserKinds,
   ContentNodeKinds,
@@ -103,4 +108,5 @@ module.exports = {
   MasteryModelGenerators,
   CollectionKinds,
   MaxPointsPerContent,
+  LoginErrors,
 };

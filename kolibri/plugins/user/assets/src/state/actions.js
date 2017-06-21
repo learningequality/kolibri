@@ -134,13 +134,20 @@ function showSignUp(store) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
     });
-    return;
+    return Promise.resolve();
   }
-  store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Sign Up');
-  resetSignUpState(store);
+  const FacilityCollection = coreApp.resources.FacilityResource
+    .getCollection()
+    .fetch();
+
+  return FacilityCollection.then(facilities => {
+    store.dispatch('CORE_SET_FACILITIES', facilities);
+    store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+    store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+    resetSignUpState(store);
+  }).catch(error => coreActions.handleApiError(store, error));
 }
 
 function signUp(store, signUpCreds) {

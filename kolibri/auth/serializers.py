@@ -45,6 +45,13 @@ class FacilityUserSerializer(BaseKolibriUserSerializer):
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles')
 
 
+class FacilityUsernameSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FacilityUser
+        fields = ('username', )
+
+
 class DeviceOwnerSerializer(BaseKolibriUserSerializer):
 
     class Meta:
@@ -65,7 +72,8 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityDataset
         fields = ('id', 'learner_can_edit_username', 'learner_can_edit_name', 'learner_can_edit_password',
-                  'learner_can_sign_up', 'learner_can_delete_account', 'description', 'location')
+                  'learner_can_sign_up', 'learner_can_delete_account', 'learner_can_login_with_no_password',
+                  'description', 'location')
 
 
 class FacilitySerializer(serializers.ModelSerializer):
