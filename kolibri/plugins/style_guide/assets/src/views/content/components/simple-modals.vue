@@ -17,44 +17,44 @@
       <h3>Accessibility</h3>
       <p>
         Modals should be keyboard accessible for users who use assistive
-        technology.
+        technology
       </p>
       <p>
         Tabbing should limit the user to the options within a modal only and not
-        extend to the UI beneath it.
+        extend to the UI beneath it
       </p>
 
       <h3>URL behavior</h3>
       <p>
-        Simple modals should not have a URL (i.e. if user refreshes page, or uses
-        "back" in browser, it returns them to the page below the modal).
+        Simple modals should not have a URL (i.e. if user refreshes page, or
+        uses "back" in browser, it returns them to the page below the modal)
       </p>
 
       <h3>Dismissing modals</h3>
       <p>
-        Modals can be dismissed in 2 ways: through a "cancel/close" button within
-        the modal or pressing ESC.
+        Modals can be dismissed in 2 ways: through a "cancel/close" button
+        within the modal or pressing ESC
       </p>
       <p>
-        Modals are never dismissible by clicking the backdrop.
+        Modals are never dismissible by clicking the backdrop
       </p>
 
       <h3>Error states</h3>
       <p>
-        See modal slots below.
+        See modal slots below
       </p>
 
       <h3>Internationalization</h3>
       <p>
         If a button group happens to exceed the width of a modal, the buttons
-        should wrap, with the secondary action appearing below the primary action.
-        Buttons should still right-align.
+        should wrap, with the secondary action appearing below the primary
+        action. Buttons should still right-align.
       </p>
 
       <h3>Layout</h3>
       <p>
         Modals have 3 sections that are always present: title, content, and
-        actions.
+        actions
       </p>
       <p>Optional:</p>
       <ul>
@@ -64,8 +64,8 @@
 
       <h4>Title</h4>
       <p>
-        Keep this short, concise, and easy for the user to understand. Should not
-        be structured as a sentence or question.
+        Keep this short, concise, and easy for the user to understand. Should
+        not be structured as a sentence or question
       </p>
 
       <h4>Content</h4>
@@ -83,41 +83,41 @@
 
       <h4>Actions</h4>
       <p>
-        There is always a raised action button present at the bottom right. Should
-        always be affirmative (i.e. will save data or continue user to the next
-        step).
+        There is always a raised action button present at the bottom right.
+        Should always be affirmative (i.e. will save data or continue user to
+        the next step).
       </p>
       <p>
         If there is a need for a secondary action, use a flat secondary button
-        that is placed to the left of the action button. Secondary actions should
-        always be dismissive (i.e. does not save any altered data, or cancels a
-        next step).
+        that is placed to the left of the action button. Secondary actions
+        should always be dismissive (i.e. does not save any altered data, or
+        cancels a next step).
       </p>
       <p>
-        The button group should be right-aligned.
+        The button group should be right-aligned
       </p>
 
       <h4>Do not</h4>
       <ul>
         <li>
-          Use buttons or other actions in the content section. If it's needed, the
-          UX may need to be changed.
+          Use buttons or other actions in the content section. If it's needed,
+          the UX may need to be changed.
         </li>
         <li>
-          Present unclear or ambiguous actions. Actions should be directly related
-          to the title and content in the modal.
+          Present unclear or ambiguous actions. Actions should be directly
+          related to the title and content in the modal.
         </li>
         <li>
           Use an 'X' button. Avoid creating redundant actions.
         </li>
         <li>
-          Use a back button.
+          Use a back button
         </li>
         <li>
-          Insert a table within a simple modal.
+          Insert a table within a simple modal
         </li>
         <li>
-          Introduce a horizontal scrollbar.
+          Introduce a horizontal scrollbar
         </li>
       </ul>
 
@@ -148,7 +148,7 @@
       </p>
       <p>
         If there are cases that a simple modal should be increased in width,
-        follow material’s guide: increment by 56px.
+        follow material’s guide: increment by 56px
       </p>
 
       <h4>Scrolling</h4>
@@ -158,7 +158,7 @@
         implementation details and style.
       </p>
       <p>
-        There should never be horizontal scrolling inside a modal.
+        There should never be horizontal scrolling inside a modal
       </p>
     </div>
   </component-style-guide>
@@ -177,9 +177,6 @@
       require('kolibri.coreVue.components.coreModal'));
   FullVue.component('ui-button', require('keen-ui/src/UiButton'));
   FullVue.component('ui-radio', require('keen-ui/src/UiRadio'));
-
-  // core-modal depends on the global $tr method, so we'd need to add it.
-  FullVue.prototype.$tr = (text) => text;
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
@@ -294,7 +291,7 @@
 
   .modal-style-guide
     .vuep-preview
-      height: 20em
+      height: 100px
 
   #modal-window .ui-radio
     margin-bottom: 0.5em

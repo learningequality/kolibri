@@ -13,8 +13,10 @@
     <h2 id="code-examples">Examples and Code</h2>
     <vuep class="code-examples" :template="codeExamplesTemplate"></vuep>
 
-    <h2 id="api">API</h2>
-    <component-api :api="api" :requirePath="requirePath"></component-api>
+    <div v-if="api">
+      <h2 id="api">API</h2>
+      <component-api :api="api" :requirePath="requirePath"></component-api>
+    </div>
 
   </div>
 
@@ -31,7 +33,6 @@
       },
       api: {
         type: Object,
-        required: true,
       },
       requirePath: {
         type: String,
