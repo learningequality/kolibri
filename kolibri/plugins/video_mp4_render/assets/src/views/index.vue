@@ -9,8 +9,8 @@
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
-        <template v-for="(track, index) in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="index === 0">
+        <template v-for="track in trackSources">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="isDefaultTrack(track.lang)">
         </template>
       </video>
     </div>
@@ -21,10 +21,12 @@
 
 <script>
 
+  const { locale: GlobalLangCode } = require('kolibri.lib.vue');
   const videojs = require('video.js');
-  const langcodes = require('./langcodes.json');
+  const LangLookup = require('./languagelookup');
   const customButtons = require('./videojs-replay-forward-btns');
   const throttle = require('lodash/throttle');
+
 
   module.exports = {
 
@@ -84,7 +86,18 @@
 
     methods: {
       getLangName(langCode) {
-        return langcodes.filter(lang => lang.code === langCode)[0].lang;
+        if (LangLookup[langCode]) {
+          return LangLookup[langCode].native_name;
+        }
+        return langCode;
+      },
+      isDefaultTrack(langCode) {
+        const shortLangCode = langCode.split('-')[0];
+        const shortGlobalLangCode = GlobalLangCode.split('-')[0];
+        if (shortLangCode === shortGlobalLangCode) {
+          return true;
+        }
+        return false;
       },
 
       initPlayer() {
