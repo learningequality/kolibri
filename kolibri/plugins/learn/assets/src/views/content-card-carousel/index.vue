@@ -98,7 +98,9 @@
       genLink: {
         type: Function,
         validator(value) {
-          return validateLinkObject(value(1, 'exercise'));
+          const dummyExercise = value(1, 'exercise');
+          const isValidLinkGenerator = validateLinkObject(dummyExercise);
+          return isValidLinkGenerator;
         },
       },
     },
