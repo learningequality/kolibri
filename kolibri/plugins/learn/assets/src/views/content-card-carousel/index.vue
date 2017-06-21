@@ -291,7 +291,7 @@
         left: -($hit-width/2)
 
     &-set
-      $max-card-shadow-offset = 10px
+      $max-card-shadow-offset = 14px
       position: relative
       height: $card-height + $max-card-shadow-offset
       overflow-x: hidden

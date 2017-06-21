@@ -74,6 +74,7 @@
   @require '~kolibri.styles.definitions'
 
   .content-card
+    display: inline-block
     margin: 10px
 
 </style>
