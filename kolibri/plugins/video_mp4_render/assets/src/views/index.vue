@@ -26,6 +26,7 @@
   const LangLookup = require('./languagelookup');
   const customButtons = require('./videojs-replay-forward-btns');
   const throttle = require('lodash/throttle');
+  const Lockr = require('lockr');
 
 
   module.exports = {
@@ -59,6 +60,10 @@
       progressStartingPoint: 0,
       lastUpdateTime: 0,
       loading: true,
+      videoVolume: 1.0,
+      videoMuted: false,
+      videoRate: 1.0,
+      videoLang: GlobalLangCode,
     }),
 
     computed: {
@@ -93,7 +98,7 @@
       },
       isDefaultTrack(langCode) {
         const shortLangCode = langCode.split('-')[0];
-        const shortGlobalLangCode = GlobalLangCode.split('-')[0];
+        const shortGlobalLangCode = this.videoLang.split('-')[0];
         if (shortLangCode === shortGlobalLangCode) {
           return true;
         }
@@ -122,9 +127,8 @@
               { name: 'durationDisplay' },
               { name: 'progressControl' },
               {
-                name: 'VolumeMenuButton',
+                name: 'volumePanel',
                 inline: false,
-                vertical: true,
               },
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
@@ -143,10 +147,14 @@
         this.videoPlayer.on('pause', this.focusOnPlayControl);
         this.videoPlayer.on('timeupdate', this.updateTime);
         this.videoPlayer.on('seeking', this.handleSeek);
+        this.videoPlayer.on('volumechange', this.throttledUpdateVolume);
+        this.videoPlayer.on('ratechange', this.updateRate);
+        this.videoPlayer.on('texttrackchange', this.updateLang);
         this.videoPlayer.on('play', () => this.setPlayState(true));
         this.videoPlayer.on('pause', () => this.setPlayState(false));
         this.videoPlayer.on('ended', () => this.setPlayState(false));
         this.resizeVideo();
+        this.getDefaults();
         this.loading = false;
         this.$refs.video.tabIndex = -1;
       },
@@ -161,6 +169,35 @@
       throttledResizeVideo: throttle(function resizeVideo() {
         this.resizeVideo();
       }, 300),
+
+      throttledUpdateVolume: throttle(function updateVolume() {
+        this.updateVolume();
+      }, 1000),
+
+      updateVolume() {
+        Lockr.set('videoVolume', this.videoPlayer.volume());
+        Lockr.set('videoMuted', this.videoPlayer.muted());
+      },
+
+      updateRate() {
+        Lockr.set('videoRate', this.videoPlayer.playbackRate());
+      },
+
+      updateLang() {
+        const currentTrack = Array.from(this.videoPlayer.textTracks()).find(track => track.mode === 'showing');
+        if (currentTrack) {
+          Lockr.set('videoLang', currentTrack.language);
+        }
+      },
+
+      getDefaults() {
+        this.videoVolume = Lockr.get('videoVolume') || this.videoVolume;
+        this.videoMuted = Lockr.get('videoMuted') || this.videoMuted;
+        this.videoRate = Lockr.get('videoRate') || this.videoRate;
+        this.videoPlayer.volume(this.videoVolume);
+        this.videoPlayer.muted(this.videoMuted);
+        this.videoPlayer.playbackRate(this.videoRate);
+      },
 
       focusOnPlayControl() {
         const wrapper = this.$refs.wrapper;
@@ -206,6 +243,7 @@
       customButtons.ForwardButton.prototype.controlText_ = this.$tr('forward');
       videojs.registerComponent('ReplayButton', customButtons.ReplayButton);
       videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
+      this.videoLang = Lockr.get('videoLang') || this.videoLang;
     },
 
     mounted() {
