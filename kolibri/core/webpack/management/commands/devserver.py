@@ -42,23 +42,20 @@ class Command(RunserverCommand):
             action='store_true',
             dest='lint',
             default=False,
-            help=
-            'Tells Django runserver to run the linting option on webpack subprocess.',
+            help='Tells Django runserver to run the linting option on webpack subprocess.',
         )
         parser.add_argument(
             '--karma',
             action='store_true',
             dest='karma',
             default=False,
-            help=
-            'Tells Django runserver to spawn a karma test watch subprocess.', )
+            help='Tells Django runserver to spawn a karma test watch subprocess.', )
         super(Command, self).add_arguments(parser)
 
     def handle(self, *args, **options):
 
         if options["webpack"]:
             self.spawn_webpack(lint=options["lint"])
-
         if options["karma"]:
             self.spawn_karma()
 
