@@ -5,7 +5,7 @@
       <loading-spinner/>
     </div>
     <div v-show="!loading" class="fill-space">
-      <video ref="video" class="video-js vjs-default-skin">
+      <video ref="video" class="video-js">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
@@ -27,6 +27,7 @@
   const customButtons = require('./videojs-replay-forward-btns');
   const throttle = require('lodash/throttle');
   const Lockr = require('lockr');
+  const ResponsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
 
   module.exports = {
@@ -41,6 +42,8 @@
     components: {
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
+
+    mixins: [ResponsiveElement],
 
     props: {
       files: {
@@ -153,6 +156,7 @@
         this.videoPlayer.on('play', () => this.setPlayState(true));
         this.videoPlayer.on('pause', () => this.setPlayState(false));
         this.videoPlayer.on('ended', () => this.setPlayState(false));
+        this.$watch('elSize.width', this.updateVideoSizeClass);
         this.resizeVideo();
         this.getDefaults();
         this.loading = false;
@@ -235,6 +239,18 @@
           (this.dummyTime - this.progressStartingPoint) /
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
+      },
+      updateVideoSizeClass(width) {
+        if (width < 360) {
+          this.videoPlayer.removeClass('video-small');
+          this.videoPlayer.addClass('video-tiny');
+        } else if (width < 480) {
+          this.videoPlayer.removeClass('video-tiny');
+          this.videoPlayer.addClass('video-small');
+        } else {
+          this.videoPlayer.removeClass('video-tiny');
+          this.videoPlayer.removeClass('video-small');
+        }
       },
     },
 
