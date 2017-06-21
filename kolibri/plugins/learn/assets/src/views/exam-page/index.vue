@@ -64,7 +64,7 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
+  const { PageNames } = require('../../constants');
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const actions = require('../../state/actions');
   const isEqual = require('lodash/isEqual');
@@ -92,9 +92,11 @@
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'ui-alert': require('keen-ui/src/UiAlert'),
     },
-    data: () => ({
-      submitModalOpen: false,
-    }),
+    data() {
+      return {
+        submitModalOpen: false,
+      };
+    },
     vuex: {
       getters: {
         exam: state => state.pageState.exam,
