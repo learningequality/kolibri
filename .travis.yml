@@ -74,6 +74,7 @@ matrix:
 
 before_install:
   - pip install -U pip
+  - make writeversion
   - pip install codecov
   - pip install tox
   - . $HOME/.nvm/nvm.sh
