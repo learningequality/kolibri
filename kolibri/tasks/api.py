@@ -22,6 +22,7 @@ from kolibri.content.utils.paths import get_content_database_file_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
+from barbequeue.common.classes import State
 from barbequeue.client import SimpleClient
 
 from .permissions import IsDeviceOwnerOnly
@@ -30,6 +31,9 @@ logging = logger.getLogger(__name__)
 
 client = SimpleClient(
     app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH)
+
+# all tasks are marked as remote imports for nwo
+TASKTYPE = "remoteimport"
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -179,15 +183,15 @@ def _localexport(drive_id, update_progress=None):
 def _job_to_response(job):
     if not job:
         return {
-            "type": "remoteimport",
-            "status": "SCHEDULED",
+            "type": TASKTYPE,
+            "status": State.SCHEDULED,
             "percentage": 0,
             "progress": [],
             "id": job.job_id,
         }
     else:
         return {
-            "type": "remoteimport",
+            "type": TASKTYPE,
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
