@@ -39,6 +39,7 @@
 
   $sidenav-width = 13em
   $page-header-height = 3em
+  $left-padding = 25px
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
@@ -59,7 +60,7 @@
 
     height: $page-header-height
     line-height: $page-header-height
-    padding-left: 2em
+    padding-left: $left-padding
 
     position: fixed
     left: 0
@@ -121,11 +122,14 @@
     .vuep-preview
       height: 100px
       padding: 10px
+      border: none
 
     .vuep-editor
       height: 100%
 
-  table, th, td
+  table,
+  th,
+  td
     border: 1px solid darkgray
     border-collapse: collapse
 
@@ -136,14 +140,15 @@
     background: #e0e0e0
     text-align: left
 
-  // Add some hidden space before all the elements with ID, so when we use
-  // anchor link to jump to them, they won't be partially obscured by the fixed
-  // page header.
-  *[id]:before
-    content: ''
-    display: block
-    visibility: hidden
-    height: $page-header-height
-    margin-top: (-1 * $page-header-height)
+  // Add some hidden space before all the heading elements with ID, so when we
+  // use anchor link to jump to them, they won't be partially obscured by the
+  // fixed page header.
+  h1, h2, h3, h4
+    &[id]:before
+      content: ''
+      display: block
+      visibility: hidden
+      height: $page-header-height
+      margin-top: (-1 * $page-header-height)
 
 </style>

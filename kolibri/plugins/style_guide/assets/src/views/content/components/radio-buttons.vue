@@ -52,8 +52,7 @@
         icon should sit within the label area, pushing the label to the right.
       </p>
 
-      <h3>Language</h3>
-      <h4>Labels & option text:</h4>
+      <h3>Labels & option text:</h3>
       <p>
         Keep these short, concise, and easy for the user to understand. Should
         not be structured as a sentence.

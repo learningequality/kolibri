@@ -111,7 +111,7 @@
           Use an 'X' button. Avoid creating redundant actions.
         </li>
         <li>
-          Use a back button, or otherwise create a multi-step process
+          Use a back button
         </li>
         <li>
           Insert a table within a simple modal
@@ -128,7 +128,7 @@
       </p>
       <ul>
         <li>
-          Mobile (breakpoint: defined by material)
+          Mobile (from 0 to 480px):
           <ul>
             <li>Width: 80%</li>
             <li>Max width: 336px</li>

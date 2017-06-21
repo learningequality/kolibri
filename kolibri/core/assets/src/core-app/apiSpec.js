@@ -120,6 +120,9 @@ module.exports = {
         authMessage: {
           module: require('../views/auth-message'),
         },
+        breadcrumbs: {
+          module: require('../views/breadcrumbs'),
+        },
       },
       router: {
         module: require('../router'),

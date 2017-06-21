@@ -248,5 +248,6 @@
 
           &.disabled
             color: rgba(0, 0, 0, 0.4)
+            cursor: default
 
 </style>

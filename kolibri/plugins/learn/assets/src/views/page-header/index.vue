@@ -1,9 +1,6 @@
 <template>
 
   <div class="header-wrapper">
-    <div class="extra-nav">
-      <slot name="extra-nav"/>
-    </div>
     <div class="header">
       <h1 class="title">
         {{ title }}

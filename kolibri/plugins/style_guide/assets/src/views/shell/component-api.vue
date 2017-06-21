@@ -3,7 +3,7 @@
   <div>
 
     <h3>Require Path</h3>
-    <p>{{ requirePath }}</p>
+    <p>require('{{ requirePath }}');</p>
 
     <h3>Description</h3>
     <p>{{ api.description ? api.description : '-' }}</p>
@@ -131,23 +131,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  table,
-  th,
-  td
-    border: 1px solid darkgray
-    border-collapse: collapse
-
-  th,
-  td
-    padding: 0.6em
-
-  th
-    background: #e0e0e0
-    text-align: left
-
-  h4
-    font-weight: bold
-
-</style>
+<style lang="stylus" scoped></style>

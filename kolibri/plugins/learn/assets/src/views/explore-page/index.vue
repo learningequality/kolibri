@@ -22,18 +22,20 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <card-grid v-if="contents.length">
-      <content-grid-item
-        v-for="content in contents"
-        v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
-        :key="content.id"
-        class="card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genLink(content)"/>
-    </card-grid>
+    <content-card-grid :contents="contents" v-if="contents.length">
+
+      <template scope="content">
+        <content-card
+          v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
+          :key="content.id"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress"
+          :link="genLink(content)"/>
+      </template>
+
+    </content-card-grid>
 
   </div>
 
@@ -43,8 +45,8 @@
 <script>
 
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-  const PageNames = require('../../constants').PageNames;
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const { PageNames } = require('../../constants');
   const some = require('lodash/some');
   const forEach = require('lodash/forEach');
 
@@ -64,10 +66,8 @@
     },
     components: {
       'page-header': require('../page-header'),
-      'topic-list-item': require('../topic-list-item'),
-      'content-grid-item': require('../content-grid-item'),
-      'card-grid': require('../card-grid'),
-      'card-list': require('../card-list'),
+      'content-card-grid': require('../content-card-grid'),
+      'content-card': require('../content-card'),
       'ui-select': require('keen-ui/src/UiSelect'),
     },
     data: () => ({
@@ -103,14 +103,14 @@
         return some(this.contents, content => content.kind === kind);
       },
       genLink(node) {
-        if (node.kind !== ContentNodeKinds.TOPIC) {
+        if (node.kind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_CONTENT,
+            name: PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id: node.id },
           };
         }
         return {
-          name: PageNames.EXPLORE_TOPIC,
+          name: PageNames.EXPLORE_CONTENT,
           params: { channel_id: this.channelId, id: node.id },
         };
       },
