@@ -94,11 +94,6 @@
         this.currentText = val;
       },
     },
-    watch: {
-      value(val) {
-        this.currentText = val;
-      },
-    },
     components: {
       'ui-textbox': require('keen-ui/src/UiTextbox'),
     },
