@@ -39,7 +39,7 @@ class UserReportSerializer(serializers.ModelSerializer):
             for kind in topic_details:
                 del kind_counts[kind['kind']]
             for key in kind_counts:
-                topic_details.append({'kind': key, 'total_progress': 0, 'log_count_total': 0, 'log_count_complete': 0})
+                topic_details.append({'kind': key, 'total_progress': 0.0, 'log_count_total': 0, 'log_count_complete': 0})
             return topic_details
         else:
             # progress details for a leaf node (exercise, video, etc.)
@@ -48,7 +48,7 @@ class UserReportSerializer(serializers.ModelSerializer):
                 .filter(content_id=content_node.content_id) \
                 .annotate(total_progress=F('progress')) \
                 .values('kind', 'time_spent', 'total_progress')
-            return leaf_details if leaf_details else [{'kind': content_node.kind, 'time_spent': 0, 'total_progress': 0}]
+            return leaf_details if leaf_details else [{'kind': content_node.kind, 'time_spent': 0, 'total_progress': 0.0}]
 
     def get_last_active(self, target_user):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
@@ -67,7 +67,7 @@ class UserReportSerializer(serializers.ModelSerializer):
 
 
 def sum_progress_dicts(total_progress, progress_dict):
-    return total_progress + progress_dict.get('total_progress', 0)
+    return total_progress + progress_dict.get('total_progress', 0.0)
 
 def get_progress_and_last_active(target_nodes, **kwargs):
     # Prepare dictionaries to output the progress and last active, keyed by content_id
@@ -116,12 +116,12 @@ def get_progress_and_last_active(target_nodes, **kwargs):
         if target_node.kind == content_kinds.TOPIC:
             # Get all the content_ids and kinds of each leaf node as a tuple
             # (about half the size of the dict from 'values' method)
-            leaf_nodes = target_node.get_descendants(include_self=False).order_by().values_list('content_id', 'kind')
-            # Get a unique set of all non-topic content_ids
-            # Do the filtering here, rather than in the query to reduce query time as 'kind' is not an indexed column
-            leaf_ids = set(leaf_node[0] for leaf_node in leaf_nodes if leaf_node[1] != content_kinds.TOPIC)
+            # Remove topics in generator comprehension, rather than using .exclude as kind is not indexed
+            # Use set to remove repeated content
+            leaf_nodes = set(node for node in target_node.get_descendants(include_self=False).order_by().values_list(
+                'content_id', 'kind') if node[1] != content_kinds.TOPIC)
             # Get a unique set of all non-topic content kinds
-            leaf_kinds = sorted(set(leaf_node[1] for leaf_node in leaf_nodes if leaf_node[1] != content_kinds.TOPIC))
+            leaf_kinds = sorted(set(leaf_node[1] for leaf_node in leaf_nodes))
             # Create a list of progress summary dicts for each content kind
             progress = [{
                 # For total progress sum across all the progress dicts for the descendant content leaf nodes
@@ -129,9 +129,11 @@ def get_progress_and_last_active(target_nodes, **kwargs):
                     # Reduce with a function that just adds the total_progress of the passed in dict to the accumulator
                     sum_progress_dicts,
                     # Get all dicts of progress for every leaf_id that has some progress recorded
-                    (progress_dict.get(leaf_id) for leaf_id in leaf_ids if leaf_id in progress_dict),
+                    # and matches the kind we are aggregating over
+                    (progress_dict.get(leaf_node[0]) for leaf_node in leaf_nodes\
+                        if leaf_node[0] in progress_dict and leaf_node[1] == kind),
                     # Pass in an initial value of total_progress as zero to initialize the reduce
-                    0,
+                    0.0,
                 ),
                 'kind': kind,
                 # Count the number of leaf nodes of this particular kind
@@ -141,34 +143,38 @@ def get_progress_and_last_active(target_nodes, **kwargs):
             output_progress_dict[target_node.content_id] = progress
             # Create a generator of last active times for the leaf_ids
             last_active_times = map(
-                # Return the last active time for this leaf_id
-                lambda leaf_id: progress_dict[leaf_id]['last_active'],
+                # Return the last active time for this leaf_node
+                lambda leaf_node: progress_dict[leaf_node[0]]['last_active'],
                 filter(
-                    # Filter leaf_ids to those that are in the progress_dict
-                    lambda leaf_id: leaf_id in progress_dict,
-                    leaf_ids))
+                    # Filter leaf_nodes to those that are in the progress_dict
+                    lambda leaf_node: leaf_node[0] in progress_dict,
+                    leaf_nodes))
             # Max does not handle empty iterables, so try this
             try:
                 # If it is not empty, great!
                 output_last_active_dict[target_node.content_id] = max(last_active_times)
-            except ValueError:
+            except (ValueError, TypeError):
                 # If it is empty, catch the value error and set the last active time to None
+                # If they are all none, catch the TypeError and also set to None
                 output_last_active_dict[target_node.content_id] = None
         else:
             if target_node.content_id in progress_dict:
                 progress = progress_dict.pop(target_node.content_id)
                 output_last_active_dict[target_node.content_id] = progress.pop('last_active')
                 # return as array for consistency in api
-                # with last_active popped, remainder is just progress
-                output_progress_dict[target_node.content_id] = [progress]
+                output_progress_dict[target_node.content_id] = [{
+                    'total_progress': progress['total_progress'],
+                    'log_count_total': progress['log_count_total'],
+                    'log_count_complete': progress['log_count_complete'],
+                }]
             elif target_node.content_id not in output_progress_dict:
                 # Not in the progress dict, but also not in our output, so supply default values
                 output_last_active_dict[target_node.content_id] = None
-                output_progress_dict[target_node.content_id] = {
-                    'total_progress': 0,
+                output_progress_dict[target_node.content_id] = [{
+                    'total_progress': 0.0,
                     'log_count_total': 0,
                     'log_count_complete': 0,
-                }
+                }]
     return output_progress_dict, output_last_active_dict
 
 
