@@ -77,10 +77,10 @@
 
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
-    <expandable-content-grid
-      class="recommendation-section"
-      v-if="pageMode === Constants.PageModes.LEARN"
-      :title="recommendedText"
+    <content-card-carousel
+      v-if="showRecommended"
+      :gen-link="genLink"
+      :header="recommendedText"
       :contents="recommended"/>
 
     <content-points
@@ -106,6 +106,7 @@
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
+  const { PageNames } = require('../../constants');
   const { updateContentNodeProgress } = require('../../state/actions');
 
   module.exports = {
@@ -159,10 +160,16 @@
         }
         return null;
       },
+      showRecommended() {
+        if (this.recommended && this.pageMode === Constants.PageModes.LEARN) {
+          return true;
+        }
+        return false;
+      },
     },
     components: {
       'page-header': require('../page-header'),
-      'expandable-content-grid': require('../expandable-content-grid'),
+      'content-card-carousel': require('../content-card-carousel'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'download-button': require('kolibri.coreVue.components.downloadButton'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -188,6 +195,18 @@
       closeModal() {
         this.wasIncomplete = false;
       },
+      genLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      }
     },
     beforeDestroy() {
       this.stopTracking();
@@ -234,9 +253,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .recommendation-section
-    margin-top: 4em
-
   .next-btn
     background-color: #4A8DDC
     border: none
@@ -274,4 +290,3 @@
     font-size: smaller
 
 </style>
-
