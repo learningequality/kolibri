@@ -12,22 +12,24 @@
     <div :style="widthOfCarousel" class="content-carousel-controls">
       <div class="previous" @click="previousSet">
         <ui-icon-button
-        class="previous-button"
-        v-show="!isFirstSet"
-        :disabled="isFirstSet"
-        :disable-ripple="true"
-        icon="arrow_back"
-        size="large" />
+          class="previous-button"
+          v-show="!isFirstSet"
+          :disabled="isFirstSet"
+          :disable-ripple="true"
+          icon="arrow_back"
+          size="large"
+        />
       </div>
 
       <div class="next" @click="nextSet">
         <ui-icon-button
-        class="next-button"
-        v-show="!isLastSet"
-        :disabled="isLastSet"
-        :disable-ripple="true"
-        icon="arrow_forward"
-        size="large"/>
+          class="next-button"
+          v-show="!isLastSet"
+          :disabled="isLastSet"
+          :disable-ripple="true"
+          icon="arrow_forward"
+          size="large"
+        />
       </div>
     </div>
 
