@@ -40,7 +40,7 @@
         Selected checkbox is the action color.
       </p>
       <p>
-        Partially selected checkbox is medium grey.
+        Indeterminate checkbox is medium grey.
       </p>
       <p>
         Unselected checkbox are dark grey.
