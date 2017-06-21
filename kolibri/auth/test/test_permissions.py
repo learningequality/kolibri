@@ -79,8 +79,8 @@ class FacilityDatasetPermissionsTestCase(TestCase):
         self.assertTrue(self.data1["classroom_coaches"][0].can_read(own_dataset))
         self.assertTrue(self.data1["learners_one_group"][0][0].can_read(own_dataset))
         self.assertTrue(self.data1["unattached_users"][0].can_read(own_dataset))
-        self.assertFalse(self.anon_user.can_read(own_dataset))
-        self.assertNotIn(own_dataset, self.anon_user.filter_readable(FacilityDataset.objects.all()))
+        self.assertTrue(self.anon_user.can_read(own_dataset))
+        self.assertIn(own_dataset, self.anon_user.filter_readable(FacilityDataset.objects.all()))
 
     def test_only_facility_admins_can_update_own_facility_dataset(self):
         """ The only FacilityUser who can update a FacilityDataset is a facility admin for that FacilityDataset """
