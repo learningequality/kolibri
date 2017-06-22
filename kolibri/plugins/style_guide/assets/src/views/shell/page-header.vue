@@ -8,6 +8,7 @@
 
 </template>
 
+
 <script>
 
   const router = require('kolibri.coreVue.router');
@@ -15,13 +16,13 @@
   module.exports = {
     methods: {
       goHome() {
-        router.getInstance().replace({
-           path: '/style_guide/' });
+        router.getInstance().replace({ path: '/style_guide/' });
       }
     }
   };
 
 </script>
+
 
 <style lang="stylus">
 

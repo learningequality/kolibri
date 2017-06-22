@@ -79,6 +79,7 @@
     // 'learnerCanEditPassword',
     // 'learnerCanDeleteAccount',
     'learnerCanSignUp',
+    'learnerCanLoginWithNoPassword',
   ];
 
   module.exports = {
@@ -128,6 +129,7 @@
       learnerCanEditPassword: 'Allow users to change their password when signed in',
       learnerCanEditUsername: 'Allow users to edit their username',
       learnerCanSignUp: 'Allow users to sign-up on this device',
+      learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       pageDescription: 'Configure and change different Facility settings here.',
       pageHeader: 'Facility Configuration',
       resetToDefaultSettings: 'Reset to default settings',

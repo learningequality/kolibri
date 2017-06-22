@@ -8,7 +8,7 @@ const homeRoute = [
     path: `${base}/`,
     component: require('../content/home/home-page')
   }
-]
+];
 
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
@@ -71,7 +71,21 @@ const navigationMenu = [
           path: `${base}/components/filters`,
           component: require('../content/components/filters')
         }
-      }
+      },
+      {
+        linkLabel: 'Breadcrumbs',
+        linkRoute: {
+          path: `${base}/components/breadcrumbs`,
+          component: require('../content/components/breadcrumbs')
+        }
+      },
+      {
+        linkLabel: 'Tabs',
+        linkRoute: {
+          path: `${base}/components/tabs`,
+          component: require('../content/components/tabs')
+        }
+      },
     ])
   }
 ];

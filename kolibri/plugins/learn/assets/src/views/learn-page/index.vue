@@ -1,19 +1,33 @@
 <template>
 
   <div>
-    <page-header :title="$tr('learnName')">
+    <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <allcontent v-if="all.content.length"/>
-    <expandable-content-grid
+    <content-card-carousel
+      v-if="recommendations.popular.length"
+      :gen-link="genLink"
       :contents="recommendations.popular"
-      :title="$tr('mostPopular')"/>
-    <expandable-content-grid
+      :header="$tr('popularSectionHeader')"
+      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
+    <content-card-carousel
+      v-if="recommendations.nextSteps.length"
+      :gen-link="genLink"
       :contents="recommendations.nextSteps"
-      :title="$tr('nextSteps')"/>
-    <expandable-content-grid
+      :header="$tr('suggestedNextStepsSectionHeader')"
+      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
+    <content-card-carousel
+      v-if="recommendations.resume.length"
+      :gen-link="genLink"
       :contents="recommendations.resume"
-      :title="$tr('resume')"/>
+      :header="$tr('resumeSectionHeader')"
+      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
+    <content-card-carousel
+      v-if="all.content.length"
+      :showViewAll="true"
+      :gen-link="genLink"
+      :header="$tr('allContentSectionHeader')"
+      :contents="all.content" />
   </div>
 
 </template>
@@ -21,22 +35,43 @@
 
 <script>
 
+  const { PageNames } = require('../../constants');
+  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+
   module.exports = {
-    $trNameSpace: 'learnIndex',
+    $trNameSpace: 'learnPageIndex',
     $trs: {
-      learnName: 'Recommended',
-      mostPopular: 'Most popular',
-      nextSteps: 'Next steps',
-      resume: 'Resume',
+      pageHeader: 'Recommended',
+      popularSectionHeader: 'Most popular',
+      suggestedNextStepsSectionHeader: 'Next steps',
+      resumeSectionHeader: 'Resume',
+      popularSectionSubHeader: '{numOfItems, number} popular items',
+      suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
+      resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
+      allContentSectionHeader: 'All items',
     },
     components: {
       'page-header': require('../page-header'),
-      'allcontent': require('./allcontent'),
-      'expandable-content-grid': require('../expandable-content-grid'),
+      'content-card-carousel': require('../content-card-carousel'),
+    },
+    methods: {
+      genLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      }
     },
     vuex: {
       getters: {
         all: state => state.pageState.all,
+        channelId: (state) => getCurrentChannelObject(state).id,
         recommendations: state => state.pageState.recommendations,
       },
     },

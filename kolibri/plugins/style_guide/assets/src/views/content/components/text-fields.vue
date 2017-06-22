@@ -22,16 +22,16 @@
       </p>
       <p>
         Labels should be phrased according to a user’s understanding—avoid
-        technical jargon.
+        technical jargon
       </p>
       <p>
         Accessibility tips:
         <ul>
           <li>
-            Label must be present in order to be visible to assistive technology.
+            Label must be present in order to be visible to assistive technology
           </li>
           <li>
-            Be sure that label is visible to assistive technology by using ARIA.
+            Be sure that label is visible to assistive technology by using ARIA
           </li>
         </ul>
       </p>
@@ -56,11 +56,11 @@
 
       <h3>Placeholder text</h3>
       <p>
-        Should be a short hint or instruction that disappears on focus.
+        Should be a short hint or instruction that disappears on focus
       </p>
       <p>
-        Data samples (e.g. - "Joe Schmoe") should be avoided as they are difficult
-        to internationalize.
+        Data samples (e.g. - "Joe Schmoe") should be avoided as they are
+        difficult to internationalize
       </p>
 
       <h3>Maximum length</h3>
@@ -78,8 +78,8 @@
       </p>
       <ul>
         <li>
-          Incorrect input - label + field line turn red, red error text underneath
-          field line
+          Incorrect input - label + field line turn red, red error text
+          underneath field line
         </li>
         <li>
           Max character reached - field doesn’t permit typing additional
@@ -89,17 +89,17 @@
       <p>Server-side feedback (after submission of data)</p>
       <ul>
         <li>
-          Feedback should be concise, easy for the user to understand, and contain
-          actionable information. (link to error handling pattern (when it
-          exists)).
+          Feedback should be concise, easy for the user to understand, and
+          contain actionable information. (link to error handling pattern (when
+          it exists)).
         </li>
         <li>
           Input label + field line with error turns red, and feedback displays
-          underneath the input.
+          underneath the input
         </li>
         <li>
-          Examples: “Username already exists.” → “Username already exists. Please
-          choose another.”
+          Examples: "Username already exists." → "Username already exists.
+          Please choose another."
         </li>
       </ul>
       <p>
@@ -109,16 +109,17 @@
 
       <h3>Width & Layout</h3>
       <p>
-        Generally, if a text form is placed within a modal, it should be measured
-        in % and span to 100% of the width for it.
+        Generally, if a text form is placed within a modal, it should be
+        measured in % and span to 100% of the width for it
       </p>
       <p>
         If a text field is outside of a modal, it should have a "max-width" of
-        400px.
+        400px
       </p>
       <p>
-        If there are multiple text fields, they should be stacked vertically, with
-        even space between them. See Forms(Pattern) for implementation details.
+        If there are multiple text fields, they should be stacked vertically,
+        with even space between them. See Forms(Pattern) for implementation
+        details
       </p>
 
       <h3>Required fields</h3>
@@ -230,7 +231,10 @@
 
   .text-fields-style-guide
     .vuep
-      height: 100em
+      height: 1500px
+
+    .vuep-preview
+      height: 800px
 
     .example
       margin-top: 2em
