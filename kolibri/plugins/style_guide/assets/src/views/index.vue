@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <div class="page-header">
-      <h1>Kolibri Style Guide</h1>
-    </div>
+    <page-header></page-header>
     <sidenav class="sidenav"></sidenav>
     <router-view class="content"></router-view>
   </div>
@@ -25,7 +23,8 @@
 
   module.exports = {
     components: {
-      sidenav: require('./shell/sidenav'),
+      'sidenav': require('./shell/sidenav'),
+      'page-header': require('./shell/page-header'),
     }
   };
 
@@ -34,12 +33,11 @@
 
 <style lang="stylus">
 
+  @import '../styles/core-theme.styl'
   @import '~vuep/dist/vuep.css'
   @import '~material-design-icons/iconfont/material-icons.css'
 
   $sidenav-width = 13em
-  $page-header-height = 3em
-  $left-padding = 25px
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
@@ -54,25 +52,6 @@
   body
     padding-left: $sidenav-width
 
-  .page-header
-    background: #996189
-    color: white
-
-    height: $page-header-height
-    line-height: $page-header-height
-    padding-left: $left-padding
-
-    position: fixed
-    left: 0
-    right: 0
-    top: 0
-    z-index: 999
-
-    h1
-      margin: 0
-      font-size: 1.125em
-      font-weight: 500
-
   .sidenav
     position: fixed
     top: $page-header-height
@@ -86,6 +65,9 @@
     padding: 2em
     padding-top: $page-header-height
     line-height: 1.3em
+
+    h1
+      line-height: 1.7em
 
     h1,
     h2,
