@@ -192,7 +192,14 @@ def update():
 
     TODO: We should look at version numbers of external plugins, too!
     """
+    # Can be removed once we stop calling update() from start()
+    # See: https://github.com/learningequality/kolibri/issues/1615
+    if update.called:
+        return
+    update.called = True
+
     logger.info("Running update routines for new version...")
+
     call_command("collectstatic", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
@@ -205,6 +212,9 @@ def update():
         f.write(kolibri.__version__)
 
 
+update.called = False
+
+
 def start(port=8080, daemon=True):
     """
     Start the server on given port.
@@ -212,6 +222,10 @@ def start(port=8080, daemon=True):
     :param: port: Port number (default: 8080)
     :param: daemon: Fork to background process (default: True)
     """
+
+    # This is temporarily put in place because of
+    # https://github.com/learningequality/kolibri/issues/1615
+    update()
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
