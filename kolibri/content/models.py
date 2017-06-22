@@ -16,6 +16,7 @@ from django.utils.text import get_valid_filename
 from jsonfield import JSONField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
 from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
@@ -64,7 +65,7 @@ class UUIDField(models.CharField):
         return value
 
 
-class ContentQuerySet(models.QuerySet):
+class ContentQuerySet(TreeQuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
@@ -132,14 +133,13 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
     def get_descendant_content_ids(self):
         """
-        Retrieve a queryset of unique content_ids for non-topic content nodes that are
+        Retrieve a queryset of content_ids for non-topic content nodes that are
         descendants of this node.
         """
         return ContentNode.objects \
             .filter(lft__gte=self.lft, lft__lte=self.rght) \
             .exclude(kind=content_kinds.TOPIC) \
-            .values_list("content_id", flat=True) \
-            .distinct().order_by("content_id")
+            .values_list("content_id", flat=True)
 
     def get_descendant_kind_counts(self):
         """ Return a dict mapping content kinds to counts, indicating how many descendant nodes there are of that kind.
