@@ -123,7 +123,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         return source_id_value
 
     def calculate_partition(self):
-        return "{id}:crossuser".format(id=self.ID_PLACEHOLDER)
+        return "{id}:allusers-ro".format(id=self.ID_PLACEHOLDER)
 
     def get_root_certificate(self):
         return Certificate.objects.get(id=self.id)
@@ -478,7 +478,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         unique_together = (("username", "facility"),)
 
     def calculate_partition(self):
-        return "{dataset_id}:userspecific:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
+        return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
     def infer_dataset(self, *args, **kwargs):
         return self.facility.dataset
@@ -697,10 +697,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         super(Collection, self).__init__(*args, **kwargs)
 
     def calculate_partition(self):
-        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)
-
-    def calculate_source_id(self):
-        return None
+        return "{dataset_id}:allusers-ro".format(dataset_id=self.dataset_id)
 
     def clean_fields(self, *args, **kwargs):
         self._ensure_kind()
@@ -862,7 +859,7 @@ class Membership(AbstractFacilityDataModel):
         unique_together = (("user", "collection"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return '{dataset_id}:user-ro:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
         return '{collection_id}'.format(collection_id=self.collection_id)
@@ -911,7 +908,7 @@ class Role(AbstractFacilityDataModel):
         unique_together = (("user", "collection", "kind"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return '{dataset_id}:user-ro:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
 
     def calculate_source_id(self):
         return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
