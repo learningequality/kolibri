@@ -85,12 +85,9 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         if self.user_id:
-            return '{dataset_id}:userspecific:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+            return '{dataset_id}:user-rw:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
         else:
             return '{dataset_id}:anonymous'.format(dataset_id=self.dataset_id)
-
-    def calculate_source_id(self):
-        return None
 
 
 class ContentSessionLog(BaseLogModel):
@@ -256,6 +253,12 @@ class ExamLog(BaseLogModel):
     # when was this exam finished?
     completion_timestamp = models.DateTimeField(blank=True, null=True)
 
+    def calculate_source_id(self):
+        return "{exam_id}:{user_id}".format(exam_id=self.exam_id, user_id=self.user_id)
+
+    def calculate_partition(self):
+        return self.dataset_id
+
 
 class ExamAttemptLog(BaseAttemptLog):
     """
@@ -273,3 +276,6 @@ class ExamAttemptLog(BaseAttemptLog):
 
     def infer_dataset(self, *args, **kwargs):
         return self.examlog.dataset
+
+    def calculate_partition(self):
+        return self.dataset_id
