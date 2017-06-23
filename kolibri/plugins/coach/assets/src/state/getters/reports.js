@@ -47,7 +47,6 @@ function _genRow(state, item) {
     row.id = item.id;
     row.contentId = item.contentId;
     row.title = item.title;
-    row.parent = { id: item.parent.id, title: item.parent.title };
 
     if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
       // for content items, set exercise counts and progress appropriately
