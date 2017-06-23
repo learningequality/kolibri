@@ -138,9 +138,7 @@
           this.crumbs = this.crumbs.map((crumb, index) => {
             const updatedCrumb = crumb;
             updatedCrumb.ref = crumbRefs[index];
-            updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, () => {
-              this.throttleUpdateCrumbs();
-            });
+            updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, this.throttleUpdateCrumbs);
             return updatedCrumb;
           });
           this.updateCrumbs();
@@ -149,7 +147,7 @@
 
       detachSensors() {
         this.crumbs.forEach(crumb => {
-          crumb.sensor.detach();
+          crumb.sensor.detach(this.throttleUpdateCrumbs);
         });
       },
 
