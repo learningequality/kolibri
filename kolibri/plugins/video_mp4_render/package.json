@@ -3,6 +3,7 @@
   "description": "Video/MP4 Render Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "video.js": "5.11.6"
+    "lockr": "0.8.4",
+    "video.js": "6.1.0"
   }
 }
