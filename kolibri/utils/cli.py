@@ -110,9 +110,6 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 logger = logging.getLogger(__name__)
 
-KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
-VERSION_FILE = os.path.join(KOLIBRI_HOME, '.data_version')
-
 
 class PluginDoesNotExist(Exception):
     """
@@ -120,6 +117,14 @@ class PluginDoesNotExist(Exception):
     on a plugin that cannot be loaded.
     """
     pass
+
+
+def version_file():
+    """
+    During test runtime, this path may differ because KOLIBRI_HOME is
+    regenerated
+    """
+    return os.path.join(os.environ['KOLIBRI_HOME'], '.data_version')
 
 
 def initialize(debug=False):
@@ -136,10 +141,10 @@ def initialize(debug=False):
 
     setup_logging(debug=debug)
 
-    if not os.path.isfile(VERSION_FILE):
+    if not os.path.isfile(version_file()):
         _first_run()
     else:
-        version = open(VERSION_FILE, "r").read()
+        version = open(version_file(), "r").read()
         if kolibri.__version__ != version.strip():
             logger.info(
                 "Version was {old}, new version: {new}".format(
@@ -155,7 +160,7 @@ def _first_run():
     Called once at least. Will not run if the .kolibri/.version file is
     found.
     """
-    if os.path.exists(VERSION_FILE):
+    if os.path.exists(version_file()):
         logger.error(
             "_first_run() called, but Kolibri is already initialized."
         )
@@ -201,7 +206,7 @@ def update():
         call_command("migrate", interactive=False, database="default")
         call_command("migrate", interactive=False, database="ormq")
 
-    with open(VERSION_FILE, "w") as f:
+    with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
 
 
@@ -229,7 +234,8 @@ def start(port=8080, daemon=True):
 
         kwargs = {}
         # Truncate the file
-        open(server.DAEMON_LOG, "w").truncate()
+        if os.path.isfile(server.DAEMON_LOG):
+            open(server.DAEMON_LOG, "w").truncate()
         logger.info(
             "Going to daemon mode, logging to {0}".format(server.DAEMON_LOG)
         )

@@ -74,6 +74,7 @@ matrix:
         - TRAVIS_NODE_VERSION="6"
 
 before_install:
+  - git describe --tags
   - pip install -U pip
   - pip install codecov
   - pip install tox
