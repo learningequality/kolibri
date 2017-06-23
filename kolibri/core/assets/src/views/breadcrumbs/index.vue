@@ -2,7 +2,7 @@
 
   <div>
     <nav class="breadcrumbs">
-      <div v-if="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
+      <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
         <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
@@ -37,7 +37,8 @@
     </nav>
 
 
-    <div class="breadcrumbs breadcrumbs-offscreen">
+    <!-- This is a duplicate of breacrumbs-visible-items to help to reference sizes. -->
+    <div class="breadcrumbs breadcrumbs-offscreen" aria-hidden="true">
       <ol class="breadcrumbs-visible-items">
         <template v-for="(crumb, index) in crumbs">
           <li
@@ -105,7 +106,8 @@
     },
 
     data: () => ({
-      // will contain crumb items with their ref and collapsed state
+      // Array of crumb objects.
+      // Each object contains text, router-link, vue ref, a resize sensor, and it's collapsed state.
       crumbs: [],
     }),
 
@@ -137,7 +139,7 @@
             const updatedCrumb = crumb;
             updatedCrumb.ref = crumbRefs[index];
             updatedCrumb.sensor = new ResizeSensor(updatedCrumb.ref, () => {
-              this.updateCrumbs();
+              this.throttleUpdateCrumbs();
             });
             return updatedCrumb;
           });
@@ -155,7 +157,7 @@
         const tempCrumbs = Array.from(this.crumbs);
         let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
         let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
-        const trackingIndex = this.crumbs.length - 2;
+        let trackingIndex = this.crumbs.length - 2;
 
         while (tempCrumbs.length) {
           if (remainingWidth <= 0) {
@@ -183,12 +185,13 @@
           const lastCrumb = tempCrumbs.pop();
           lastCrumb.collapsed = false;
           this.crumbs.splice(trackingIndex, 1, lastCrumb);
+          trackingIndex -= 1;
         }
       },
 
       throttleUpdateCrumbs: throttle(function updateCrumbs() {
         this.updateCrumbs();
-      }, 250),
+      }, 100),
     },
 
     created() {
