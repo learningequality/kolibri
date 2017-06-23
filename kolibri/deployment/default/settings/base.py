@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
-    'django_q',
     'kolibri.core.webpack',
     'kolibri.core.exams',
     'kolibri.core.discovery',
@@ -89,6 +88,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -130,10 +131,9 @@ DATABASES = {
 }
 
 # Enable dynamic routing for content databases
-DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
-                    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
-                    'kolibri.content.content_db_router.ContentDBRouter']
-
+DATABASE_ROUTERS = [
+    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
+    'kolibri.content.content_db_router.ContentDBRouter']
 
 # Content directories and URLs for channel metadata and content files
 
