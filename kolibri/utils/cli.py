@@ -14,9 +14,9 @@ import sys  # noqa
 
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
-sys.path = [
+sys.path = sys.path + [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-] + sys.path
+]
 
 # Set default env
 os.environ.setdefault(
@@ -194,7 +194,6 @@ def update():
     """
     logger.info("Running update routines for new version...")
     call_command("collectstatic", interactive=False)
-    call_command("collectstatic_js_reverse", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
