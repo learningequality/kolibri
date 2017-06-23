@@ -61,18 +61,19 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <card-grid v-else>
-        <content-grid-item
-          v-for="content in contents"
-          v-show="filter === 'all' || filter === content.kind"
-          :key="content.id"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :progress="content.progress"
-          :kind="content.kind"
-          :link="genLink(content)"
-        />
-      </card-grid>
+      <content-card-grid v-else :contents="filteredResults">
+        <template scope="content">
+          <content-card
+            v-show="filter === 'all' || filter === content.kind"
+            :key="content.id"
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :progress="content.progress"
+            :kind="content.kind"
+            :link="genLink(content)"
+          />
+        </template>
+      </content-card-grid>
 
     </template>
 
@@ -84,8 +85,8 @@
 <script>
 
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const PageNames = require('../../constants').PageNames;
   const GetCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+  const PageNames = require('../../constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'learnSearch',
@@ -111,8 +112,8 @@
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
-      'content-grid-item': require('../content-grid-item'),
-      'card-grid': require('../card-grid'),
+      'content-card-grid': require('../content-card-grid'),
+      'content-card': require('../content-card'),
       'tabs': require('kolibri.coreVue.components.tabs'),
       'tab-button': require('kolibri.coreVue.components.tabButton'),
     },

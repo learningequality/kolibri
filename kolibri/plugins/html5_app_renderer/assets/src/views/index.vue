@@ -47,7 +47,7 @@
         this.isFullScreen = ScreenFull.isFullscreen;
       },
     },
-    ready() {
+    mounted() {
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
