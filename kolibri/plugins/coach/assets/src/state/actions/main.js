@@ -1,9 +1,6 @@
-
 import * as Constants from '../../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import coreApp from 'kolibri';
-
-const ClassroomResource = coreApp.resources.ClassroomResource;
+import { ClassroomResource } from 'kolibri.resources';
 
 // ================================
 // CLASS LIST ACTIONS

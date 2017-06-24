@@ -1,12 +1,13 @@
-import coreApp from 'kolibri';
 import { PageNames } from '../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import * as coreGetters from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
-
-const SignUpResource = coreApp.resources.SignUpResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
+import {
+  SignUpResource,
+  FacilityUserResource,
+  DeviceOwnerResource,
+  FacilityResource,
+} from 'kolibri.resources';
 
 function redirectToHome() {
   window.location = '/';
@@ -143,7 +144,7 @@ function showSignUp(store) {
     });
     return Promise.resolve();
   }
-  const FacilityCollection = coreApp.resources.FacilityResource
+  const FacilityCollection = FacilityResource
     .getCollection()
     .fetch();
 

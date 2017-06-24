@@ -45,7 +45,7 @@
 
 <script>
 
-  import coreApp from 'kolibri';
+  import urls from 'kolibri.urls';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
@@ -69,10 +69,10 @@
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
       },
       summarylogurl() {
-        return coreApp.urls['contentsummarylogcsv-list']();
+        return urls['contentsummarylogcsv-list']();
       },
       sessionlogurl() {
-        return coreApp.urls['contentsessionlogcsv-list']();
+        return urls['contentsessionlogcsv-list']();
       }
     }
   };

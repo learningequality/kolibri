@@ -54,8 +54,12 @@ import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
 import validateLinkObject from '../validateLinkObject';
 import * as serverClock from '../serverClock';
+import * as resources from '../api-resources';
+import urls from './urls';
+import client from './client';
 
 export default {
+  client,
   lib: {
     logging,
     vue,
@@ -102,11 +106,13 @@ export default {
       responsiveElement,
     },
   },
+  resources,
   styles: {
     theme,
     definitions,
     keenVars,
   },
+  urls,
   utils: {
     exams,
     validateLinkObject,

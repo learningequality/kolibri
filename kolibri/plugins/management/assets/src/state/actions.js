@@ -1,12 +1,12 @@
-import coreApp from 'kolibri';
 import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
-
-const ClassroomResource = coreApp.resources.ClassroomResource;
-const MembershipResource = coreApp.resources.MembershipResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const TaskResource = coreApp.resources.TaskResource;
-const RoleResource = coreApp.resources.RoleResource;
+import {
+  ClassroomResource,
+  MembershipResource,
+  FacilityUserResource,
+  TaskResource,
+  RoleResource,
+} from 'kolibri.resources';
 
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';

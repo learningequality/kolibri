@@ -1,12 +1,13 @@
-import coreApp from 'kolibri';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import * as Constants from '../../constants';
 import { setClassState } from './main';
 
-const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
-const MembershipResource = coreApp.resources.MembershipResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
+import {
+  LearnerGroupResource,
+  MembershipResource,
+  FacilityUserResource
+} from 'kolibri.resources';
 
 
 function _userState(user) {

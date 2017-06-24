@@ -4,6 +4,8 @@ import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from './cloneDeep';
+import urls from 'kolibri.urls';
+import client from 'kolibri.client';
 
 const logging = logger.getLogger(__filename);
 
@@ -386,11 +388,9 @@ export class Collection {
 export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
-   * @param {Kolibri} kolibri - The current instantiated instance of the core app.
    */
-  constructor(kolibri) {
+  constructor() {
     this.clearCache();
-    this.kolibri = kolibri;
   }
 
   cacheKey(...params) {
@@ -596,7 +596,7 @@ export class Resource {
   }
 
   get urls() {
-    return this.kolibri.urls;
+    return urls;
   }
 
   get modelUrl() {
@@ -631,7 +631,7 @@ export class Resource {
   }
 
   get client() {
-    return this.kolibri.client;
+    return client;
   }
 
   get hasResourceIds() {
@@ -652,59 +652,4 @@ export class Resource {
   static resourceIdentifiers() {
     return [];
   }
-}
-
-/** Class to manage all API resources.
- *  This is instantiated and attached to the core app constructor, and its methods exposed there.
- *  This means that a particular Resource should only be instantiated once during the lifecycle
- * of the app, allowing for easy caching, as all Model instances can be shared in the central
- * resource.
- */
-export class ResourceManager {
-  /**
-   * Instantiate a Resource Manager to manage the creation of Resources.
-   * @param {Kolibri} kolibri - The current instantiated instance of the core app - needed to
-  * reference the urls.
-   */
-  constructor(kolibri) {
-    this._kolibri = kolibri;
-    this._resources = {};
-  }
-
-  /**
-   * Register a resource with the resource manager. Only one resource of a particular name can be
-   * registered.
-   * @param {Resource} ResourceClass - The subclass of Resource to use in registering the
-   * resource. This is used to register a resource with specific subclassed behaviour for that
-   * resource.
-   * @returns {Resource} - Return the instantiated Resource.
-   */
-  registerResource(className, ResourceClass) {
-    if (!className) {
-      throw new TypeError('You must specify a className!');
-    }
-    if (!ResourceClass) {
-      throw new TypeError('You must specify a ResourceClass!');
-    }
-    const name = ResourceClass.resourceName();
-    if (!name) {
-      throw new TypeError('A resource must have a defined resource name!');
-    }
-    if (this._resources[name]) {
-      throw new TypeError('A resource with that name has already been registered!');
-    }
-    this._resources[name] = new ResourceClass(this._kolibri);
-    Object.defineProperty(this, className, { value: this._resources[name] });
-    return this._resources[name];
-  }
-
-  /**
-   * Clear all caches for registered resources.
-   */
-  clearCaches() {
-    Object.keys(this._resources).forEach((key) => {
-      this._resources[key].clearCache();
-    });
-  }
-
 }

@@ -9,7 +9,17 @@ import {
 } from '../constants';
 import { getDefaultChannelId } from 'kolibri.coreVue.vuex.getters';
 import logger from 'kolibri.lib.logging';
+import {
+  SessionResource,
+  FacilityDatasetResource,
+  ContentSessionLogResource,
+  ContentSummaryLogResource,
+  MasteryLogResource,
+  ChannelResource,
+  AttemptLogResource,
+} from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
+import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
 
 const logging = logger.getLogger(__filename);
@@ -167,13 +177,11 @@ function refreshBrowser(url) {
  * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
  */
 function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
-  const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-    const manageURL = coreApp.urls['kolibri:managementplugin:management']();
+    const manageURL = urls['kolibri:managementplugin:management']();
     if (isFirstDeviceSignIn) {
       // Hacky way to redirect to content import page after completing setup wizard
       refreshBrowser(`${window.location.origin}${manageURL}#/content`);
@@ -195,20 +203,15 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
 }
 
 function kolibriLogout(store) {
-  const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise.then((response) => {
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     refreshBrowser();
-    coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
 
 function getCurrentSession(store, force = false) {
-  const coreApp = require('kolibri');
-  const { SessionResource } = coreApp.resources;
   let sessionPromise;
   if (force) {
     sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
@@ -226,11 +229,9 @@ function getCurrentSession(store, force = false) {
 
 
 function getFacilityConfig(store) {
-  const coreApp = require('kolibri');
-
   // assumes session is loaded
   const currentFacilityId = getters.currentFacilityId(store.state);
-  const facilityConfigCollection = coreApp.resources.FacilityDatasetResource
+  const facilityConfigCollection = FacilityDatasetResource
     .getCollection({ facility_id: currentFacilityId })
     .fetch();
   return facilityConfigCollection.then(facilityConfig => {
@@ -249,10 +250,6 @@ function getFacilityConfig(store) {
  * To be called on page load for content renderers
  */
 function initContentSession(store, channelId, contentId, contentKind) {
-  const coreApp = require('kolibri');
-  const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
-  const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
-
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
   store.dispatch('SET_EMPTY_LOGGING_STATE');
@@ -277,7 +274,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
           if (summary[0].currentmasterylog) {
             // If a mastery model has been sent along with the summary log payload,
             // then bootstrap that data into the MasteryLog resource. Cheeky!
-            const masteryModel = coreApp.resources.MasteryLog.createModel(
+            const masteryModel = MasteryLogResource.createModel(
               summary[0].currentmasterylog);
             masteryModel.synced = true;
 
@@ -374,8 +371,7 @@ function _setChannelState(store, currentChannelId, channelList) {
  * If channelId is null, choose it automatically
  */
 function setChannelInfo(store, channelId = null) {
-  const coreApp = require('kolibri');
-  return coreApp.resources.ChannelResource.getCollection().fetch().then(
+  return ChannelResource.getCollection().fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       let thisChannelId;
@@ -396,9 +392,6 @@ function setChannelInfo(store, channelId = null) {
  * Must be called after initContentSession
  */
 function saveLogs(store) {
-  const coreApp = require('kolibri');
-  const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
-  const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -546,8 +539,7 @@ function stopTrackingProgress(store) {
 }
 
 function saveMasteryLog(store) {
-  const coreApp = require('kolibri');
-  const masteryLogModel = coreApp.resources.MasteryLog.getModel(
+  const masteryLogModel = MasteryLogResource.getModel(
     store.state.core.logging.mastery.id);
   masteryLogModel.save(_masteryLogModel(store)).only(
     samePageCheckGenerator(store),
@@ -563,8 +555,7 @@ function setMasteryLogComplete(store, completetime) {
 }
 
 function createMasteryLog(store, masteryLevel, masteryCriterion) {
-  const coreApp = require('kolibri');
-  const masteryLogModel = coreApp.resources.MasteryLog.createModel({
+  const masteryLogModel = MasteryLogResource.createModel({
     id: null,
     user: store.state.core.session.user_id,
     summarylog: store.state.core.logging.summary.id,
@@ -595,8 +586,7 @@ function createDummyMasteryLog(store) {
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
   */
-  const coreApp = require('kolibri');
-  const masteryLogModel = coreApp.resources.MasteryLog.createModel({
+  const masteryLogModel = MasteryLogResource.createModel({
     id: null,
     summarylog: null,
     start_timestamp: null,
@@ -613,8 +603,7 @@ function createDummyMasteryLog(store) {
 }
 
 function saveAttemptLog(store) {
-  const coreApp = require('kolibri');
-  const attemptLogModel = coreApp.resources.AttemptLog.findModel({
+  const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item
   });
   const promise = attemptLogModel.save(_attemptLogModel(store));
@@ -626,8 +615,7 @@ function saveAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
-  const coreApp = require('kolibri');
-  const attemptLogModel = coreApp.resources.AttemptLog.createModel({
+  const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user: store.state.core.session.user_id,
     masterylog: store.state.core.logging.mastery.id || null,

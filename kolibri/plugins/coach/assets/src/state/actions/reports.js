@@ -1,4 +1,3 @@
-import coreApp from 'kolibri';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import * as coreGetters from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -9,22 +8,24 @@ import * as ReportConstants from '../../reportConstants';
 import { setClassState } from './main';
 import { now } from 'kolibri.utils.serverClock';
 
+import {
+  AttemptLogResource,
+  ChannelResource,
+  ContentNodeResource,
+  FacilityUserResource,
+  SummaryLogResource,
+  LearnerGroupResource,
+} from 'kolibri.resources';
+
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResourceConstructor from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
 
-const RecentReportResource = new RecentReportResourceConstructor(coreApp);
-const UserReportResource = new UserReportResourceConstructor(coreApp);
-const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
-const ContentReportResource = new ContentReportResourceConstructor(coreApp);
-
-const AttemptLogResource = coreApp.resources.AttemptLog;
-const ChannelResource = coreApp.resources.ChannelResource;
-const ContentNodeResource = coreApp.resources.ContentNodeResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
-const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
+const RecentReportResource = new RecentReportResourceConstructor();
+const UserReportResource = new UserReportResourceConstructor();
+const ContentSummaryResource = new ContentSummaryResourceConstructor();
+const ContentReportResource = new ContentReportResourceConstructor();
 
 /**
  * Helper function for _showChannelList

@@ -1,7 +1,7 @@
-import coreApp from 'kolibri';
-
-const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
-const FacilityResource = coreApp.resources.FacilityResource;
+import {
+  DeviceOwnerResource,
+  FacilityResource
+} from 'kolibri.resources';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {

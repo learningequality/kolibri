@@ -5,15 +5,9 @@
 
 import vue from 'vue';
 import vuex from 'vuex';
+import VueIntl from 'vue-intl';
 import router from 'vue-router';
 import Mediator from './mediator';
-import { ResourceManager } from '../api-resource';
-import Resources from '../api-resources';
-import rest from 'rest';
-import mime from 'rest/interceptor/mime';
-import csrf from 'rest/interceptor/csrf';
-import errorCode from 'rest/interceptor/errorCode';
-import cookiejs from 'js-cookie';
 import constructorExport from './constructorExport';
 import logger from '../logging';
 import HeartBeat from '../heartbeat';
@@ -49,11 +43,7 @@ export default class CoreApp {
   constructor() {
     Object.assign(this, constructorExport());
 
-    this.resources = new ResourceManager(this);
     const mediator = new Mediator();
-
-    Object.keys(Resources).forEach((resourceClassName) =>
-      this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
 
     vue.prototype.Kolibri = this;
     /**
@@ -78,7 +68,6 @@ export default class CoreApp {
       /**
        * Use the vue-intl plugin.
        **/
-      const VueIntl = require('vue-intl');
       vue.use(VueIntl, { defaultLocale: 'en-us' });
 
       function $trWrapper(formatter, messageId, args) {
@@ -151,20 +140,5 @@ export default class CoreApp {
       this[method] = mediator[method].bind(mediator);
     });
     this.heartBeat = new HeartBeat(this);
-  }
-
-  get client() {
-    return (options) => {
-      if ((options && typeof options === 'object' && !Array.isArray(options)) &&
-        (!options.method || options.method === 'GET')) {
-        if (!options.params) {
-          options.params = {};
-        }
-        const cacheBust = new Date().getTime();
-        options.params[cacheBust] = cacheBust;
-      }
-      return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
-        token: cookiejs.get('csrftoken') }).wrap(errorCode)(options);
-    };
   }
 };
