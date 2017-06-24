@@ -128,9 +128,6 @@
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
-      Constants() {
-        return Constants;
-      },
       canDownload() {
         if (this.content) {
           return this.content.kind !== ContentNodeKinds.EXERCISE;
@@ -151,22 +148,7 @@
       },
       nextContentLink() {
         if (this.content.next_content) {
-          if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
-            return {
-              name: this.pagename,
-              params: {
-                channel_id: this.channelId,
-                id: this.content.next_content.id
-              }
-            };
-          }
-          return {
-            name: Constants.PageNames.EXPLORE_TOPIC,
-            params: {
-              channel_id: this.channelId,
-              id: this.content.next_content.id
-            }
-          };
+          return this.genLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
       },
@@ -208,12 +190,12 @@
       genLink(id, kind) {
         if (kind === 'topic') {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: Constants.PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: PageNames.LEARN_CONTENT,
+          name: Constants.PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       }

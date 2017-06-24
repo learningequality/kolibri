@@ -4,11 +4,11 @@ const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
-exports.dispatchError = function dispatchError(store, err) {
+export function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
 };
 
-exports.dispatchRoleChange = function dispatchRoleChange(store, payload) {
+export function dispatchRoleChange(store, payload) {
   store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', payload);
 };
 
@@ -22,7 +22,7 @@ exports.dispatchRoleChange = function dispatchRoleChange(store, payload) {
  * @param {string} payload.newRole
  * @returns {Promise}
  */
-function addRoleToUserInCollection(payload) {
+export function addRoleToUserInCollection(payload) {
   return RoleResource.createModel({
     user: payload.userId,
     collection: payload.collectionId,
@@ -37,7 +37,7 @@ function addRoleToUserInCollection(payload) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-exports.default = function addCoachRoleAction(store, payload) {
+export default function addCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   const newRole = COACH;
   exports.dispatchRoleChange(store, { newRole, userId });

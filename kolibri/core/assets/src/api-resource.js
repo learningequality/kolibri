@@ -1,11 +1,11 @@
-import { getLogger } from 'kolibri.lib.logging';
+import logger from 'kolibri.lib.logging';
 import ConditionalPromise from './conditionalPromise';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from './cloneDeep';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 /** Class representing a single API resource object */
 export class Model {

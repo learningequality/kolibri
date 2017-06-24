@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import kolibri from 'kolibri';
 import sinon from 'sinon';
-import actions from '../../src/state/facilityConfigPageActions';
+import * as actions from '../../src/state/facilityConfigPageActions';
 
 const { resources, __resetMocks } = kolibri;
 const FacilityStub = resources.FacilityResource;

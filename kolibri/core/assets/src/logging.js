@@ -98,4 +98,4 @@ const logging = new Logging();
 
 export default logging;
 
-export const getLogger = logging.getLogger.bind(logging);
+export const getLogger = (...args) => logging.getLogger(...args);

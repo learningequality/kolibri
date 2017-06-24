@@ -1,5 +1,5 @@
 import KolibriModule from 'kolibri_module';
-import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 
 import Vue from 'kolibri.lib.vue';

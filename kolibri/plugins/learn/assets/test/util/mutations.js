@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import coreStore from 'kolibri.coreVue.vuex.store';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implemenation of mutations used for testing
 const learnMutations = {

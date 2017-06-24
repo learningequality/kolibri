@@ -1,6 +1,6 @@
-import { getLogger } from 'kolibri.lib.logging';
+import logger from 'kolibri.lib.logging';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 export default class HeartBeat {
   constructor(kolibri, delay = 60000) {

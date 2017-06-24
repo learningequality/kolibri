@@ -1,5 +1,5 @@
 /* eslint-disable prefer-arrow-callback */
-import CoreMappers from 'kolibri.coreVue.vuex.mappers';
+import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 
 const {
   FacilityResource,

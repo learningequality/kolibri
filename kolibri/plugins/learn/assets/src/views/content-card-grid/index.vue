@@ -31,39 +31,34 @@
 
 <script>
 
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import contentCard from '../content-card';
+  export default {
     props: {
       contents: {
         type: Array,
-        required: true,
+        required: true
       },
       header: {
         type: String,
-        required: false,
+        required: false
       },
       subheader: {
         type: String,
-        required: false,
+        required: false
       },
       genLink: {
         type: Function,
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));
         },
-        default: () => {},
-        required: false,
-      },
+        default: () => {
+        },
+        required: false
+      }
     },
-    components: {
-      'content-card': require('../content-card'),
-    },
-    vuex: {
-      getters: {
-        channelId: (state) => state.core.channels.currentId,
-      },
-    }
+    components: { contentCard },
+    vuex: { getters: { channelId: state => state.core.channels.currentId } }
   };
 
 </script>

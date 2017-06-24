@@ -19,7 +19,7 @@ kolibri.resources = {
   },
 };
 
-import examActions from '../src/state/actions/exam';
+import * as examActions from '../src/state/actions/exam';
 
 const channelStub = kolibri.resources.ChannelResource.getCollection;
 const classroomStub = kolibri.resources.ClassroomResource.getCollection;

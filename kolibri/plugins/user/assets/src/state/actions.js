@@ -1,6 +1,6 @@
 import coreApp from 'kolibri';
 import { PageNames } from '../constants';
-import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import * as coreGetters from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 

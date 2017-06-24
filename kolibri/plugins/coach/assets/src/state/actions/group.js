@@ -1,5 +1,5 @@
 import coreApp from 'kolibri';
-import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import * as Constants from '../../constants';
 import { setClassState } from './main';

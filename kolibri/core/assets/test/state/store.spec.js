@@ -3,9 +3,9 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import assert from 'assert';
 import _ from 'lodash';
-import s from '../../src/state/store';
-import getters from '../../src/state/getters';
-import coreActions from '../../src/state/actions';
+import * as s from '../../src/state/store';
+import * as getters from '../../src/state/getters';
+import * as coreActions from '../../src/state/actions';
 import kolibri from 'kolibri';
 import sinon from 'sinon';
 

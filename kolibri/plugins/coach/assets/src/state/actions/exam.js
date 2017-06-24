@@ -2,7 +2,7 @@ import CoreApp from 'kolibri';
 import pick from 'lodash/fp/pick';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import CoreActions from 'kolibri.coreVue.vuex.actions';
+import * as CoreActions from 'kolibri.coreVue.vuex.actions';
 import {
   ContentNodeKinds,
   CollectionKinds

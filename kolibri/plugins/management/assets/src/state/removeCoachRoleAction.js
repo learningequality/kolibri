@@ -6,7 +6,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
-function deleteRoleFromUser(classId, userData) {
+export function deleteRoleFromUser(classId, userData) {
   const { roles } = userData;
   const matchIdx = roles.findIndex((r) => String(r.collection) === classId);
   const roleId = matchIdx !== -1 ? roles[matchIdx].id : null;
@@ -26,7 +26,7 @@ function deleteRoleFromUser(classId, userData) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-exports.default = function removeCoachRoleAction(store, payload) {
+export default function removeCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   // Need to fetch User since the Roles array isn't current stored locally.
   // Need to unwrap to normal Promise since conditionalPromise.then(f) seems to ignore

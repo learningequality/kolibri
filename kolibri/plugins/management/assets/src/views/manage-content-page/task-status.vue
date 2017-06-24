@@ -16,8 +16,8 @@
   import * as manageContentActions from '../../state/manageContentActions';
   import * as actions from '../../state/actions';
   import * as constants from '../../constants';
-  import { getLogger } from 'kolibri.lib.logging';
-  const logging = getLogger(__filename);
+  import logger from 'kolibri.lib.logging';
+  const logging = logger.getLogger(__filename);
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
   import iconButton from 'kolibri.coreVue.components.iconButton';

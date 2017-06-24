@@ -62,7 +62,7 @@
 <script>
 
   import * as CoachConstants from '../../constants';
-  import CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as reportConstants from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -134,7 +134,7 @@
           }
         }
         return null;
-      }
+      },
     },
     computed: {
       tableColumns() {
@@ -149,8 +149,8 @@
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,
         standardDataTable: reportGetters.standardDataTable
-      }
-    }
+      },
+    },
   };
 
 </script>

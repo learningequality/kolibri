@@ -9,11 +9,11 @@ const ExamAttemptLogResource = resources.ExamAttemptLogResource;
 
 import { PageNames } from '../constants';
 
-import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import * as coreGetters from 'kolibri.coreVue.vuex.getters';
-import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
 import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';

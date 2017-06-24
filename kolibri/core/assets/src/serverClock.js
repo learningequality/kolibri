@@ -1,6 +1,6 @@
-import { getLogger } from 'kolibri.lib.logging';
+import logger from 'kolibri.lib.logging';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 // The currently known difference between server time and local clock time.
 let diff = 0;

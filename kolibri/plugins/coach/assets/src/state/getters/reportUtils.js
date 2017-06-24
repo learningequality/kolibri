@@ -1,6 +1,6 @@
 
 import * as ReportConstants from '../../reportConstants';
-import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 

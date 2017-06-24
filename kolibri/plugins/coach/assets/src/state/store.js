@@ -1,6 +1,6 @@
 import Vuex from 'kolibri.lib.vuex';
 import Vue from 'kolibri.lib.vue';
-import coreStore from 'kolibri.coreVue.vuex.store';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
   pageName: '',

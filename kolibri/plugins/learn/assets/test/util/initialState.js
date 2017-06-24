@@ -1,5 +1,5 @@
 import constants from '../../src/constants';
-import coreStore from 'kolibri.coreVue.vuex.store';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implementation of initialState used in testing
 const learnInitialState = {

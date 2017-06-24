@@ -100,7 +100,7 @@
 <script>
 
   import * as actions from '../../state/actions';
-  import coreActions from 'kolibri.coreVue.vuex.actions';
+  import * as coreActions from 'kolibri.coreVue.vuex.actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';

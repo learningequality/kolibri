@@ -1,7 +1,7 @@
 
 import * as constants from '../constants';
 import Vuex from 'kolibri.lib.vuex';
-import coreStore from 'kolibri.coreVue.vuex.store';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
   pageName: constants.PageNames.EXPLORE_CHANNEL,

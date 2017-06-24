@@ -67,7 +67,7 @@
 
 <script>
 
-  import CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as CoachConstants from '../../constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as ReportConstants from '../../reportConstants';

@@ -1,5 +1,5 @@
 import Vuex from 'kolibri.lib.vuex';
-import coreStore from 'kolibri.coreVue.vuex.store';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 import * as constants from '../constants';
 import otherMutations from './mutations';
 import manageContentMutations from './manageContentMutations';
@@ -119,11 +119,9 @@ const mutations = {
   },
 };
 
-
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, otherMutations, coreStore.mutations, manageContentMutations);
-
 
 const store = new Vuex.Store({
   state: initialState,

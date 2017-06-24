@@ -15,11 +15,11 @@ import csrf from 'rest/interceptor/csrf';
 import errorCode from 'rest/interceptor/errorCode';
 import cookiejs from 'js-cookie';
 import constructorExport from './constructorExport';
-import { getLogger } from '../logging';
+import logger from '../logging';
 import HeartBeat from '../heartbeat';
 import importIntlLocale from './import-intl-locale';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that

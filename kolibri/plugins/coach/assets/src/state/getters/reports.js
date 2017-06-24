@@ -1,13 +1,13 @@
 import * as ReportConstants from '../../reportConstants';
 import * as CoachConstants from '../../constants';
-import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import * as ReportUtils from './reportUtils';
 import { classMemberCount } from './main';
 import differenceInDays from 'date-fns/difference_in_days';
-import { getLogger } from 'kolibri.lib.logging';
+import logger from 'kolibri.lib.logging';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
@@ -15,78 +15,6 @@ const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 // Object to be exported by this module.
 export const sortColumn = state => (state.pageState || {}).sortColumn;
 export const sortOrder = state => (state.pageState || {}).sortOrder;
-
-function _genRow(state, item) {
-  const row = {};
-
-  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNER) {
-    // LEARNERS
-    row.kind = CoreConstants.USER;
-    row.id = item.id;
-    row.title = item.fullName;
-    row.groupName = item.groupName;
-    row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
-
-    // for root list (of channels) we don't currently calculate progress
-    if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
-      // for learners, the exercise counts are the global values
-      row.exerciseProgress = ReportUtils.calcProgress(
-        item.progress, ReportUtils.onlyExercises, getters.exerciseCount(state), 1
-      );
-      row.contentProgress = ReportUtils.calcProgress(
-        item.progress, ReportUtils.onlyContent, getters.contentCount(state), 1
-      );
-    }
-  } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
-    row.id = item.id;
-    row.title = item.title;
-  } else {
-    // CONTENT NODES
-    row.kind = item.kind;
-    row.id = item.id;
-    row.contentId = item.contentId;
-    row.title = item.title;
-
-    if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
-      // for content items, set exercise counts and progress appropriately
-      if (item.kind === ContentNodeKinds.TOPIC) {
-        row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
-        row.exerciseProgress = ReportUtils.calcProgress(
-          item.progress,
-          ReportUtils.onlyExercises,
-          row.exerciseCount,
-          getters.userCount(state)
-        );
-        row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
-        row.contentProgress = ReportUtils.calcProgress(
-          item.progress,
-          ReportUtils.onlyContent,
-          row.contentCount,
-          getters.userCount(state)
-        );
-      } else if (ReportUtils.onlyExercises(item)) {
-        row.exerciseCount = 1;
-        row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
-        row.contentCount = 0;
-        row.contentProgress = undefined;
-      } else if (ReportUtils.onlyContent(item)) {
-        row.exerciseCount = 0;
-        row.exerciseProgress = undefined;
-        row.contentCount = 1;
-        row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
-      } else {
-        logging.error(`Unhandled item kind: ${item.kind}`);
-      }
-    } else {
-      row.contentCount = 1;
-      row.contentProgress = item.progress[0].totalProgress / classMemberCount(state);
-      row.logCountComplete = item.progress[0].logCountComplete;
-    }
-  }
-  row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
-  return row;
-}
-
 
 // public vuex getters
 export const completionCount = (state) => {
@@ -113,8 +41,8 @@ export const exerciseProgress = (state) => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
     ReportUtils.onlyExercises,
-    getters.exerciseCount(state),
-    getters.userCount(state)
+    exerciseCount(state),
+    userCount(state)
   );
 }
 export const contentCount = (state) => {
@@ -131,10 +59,82 @@ export const contentProgress = (state) => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
     ReportUtils.onlyContent,
-    getters.contentCount(state),
-    getters.userCount(state)
+    contentCount(state),
+    userCount(state)
   );
 }
+
+function _genRow(state, item) {
+  const row = {};
+
+  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNER) {
+    // LEARNERS
+    row.kind = CoreConstants.USER;
+    row.id = item.id;
+    row.title = item.fullName;
+    row.groupName = item.groupName;
+    row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
+
+    // for root list (of channels) we don't currently calculate progress
+    if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
+      // for learners, the exercise counts are the global values
+      row.exerciseProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyExercises, exerciseCount(state), 1
+      );
+      row.contentProgress = ReportUtils.calcProgress(
+        item.progress, ReportUtils.onlyContent, contentCount(state), 1
+      );
+    }
+  } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
+    row.id = item.id;
+    row.title = item.title;
+  } else {
+    // CONTENT NODES
+    row.kind = item.kind;
+    row.id = item.id;
+    row.contentId = item.contentId;
+    row.title = item.title;
+
+    if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
+      // for content items, set exercise counts and progress appropriately
+      if (item.kind === ContentNodeKinds.TOPIC) {
+        row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
+        row.exerciseProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyExercises,
+          row.exerciseCount,
+          userCount(state)
+        );
+        row.contentCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyContent);
+        row.contentProgress = ReportUtils.calcProgress(
+          item.progress,
+          ReportUtils.onlyContent,
+          row.contentCount,
+          userCount(state)
+        );
+      } else if (ReportUtils.onlyExercises(item)) {
+        row.exerciseCount = 1;
+        row.exerciseProgress = item.progress[0].totalProgress / userCount(state);
+        row.contentCount = 0;
+        row.contentProgress = undefined;
+      } else if (ReportUtils.onlyContent(item)) {
+        row.exerciseCount = 0;
+        row.exerciseProgress = undefined;
+        row.contentCount = 1;
+        row.contentProgress = item.progress[0].totalProgress / userCount(state);
+      } else {
+        logging.error(`Unhandled item kind: ${item.kind}`);
+      }
+    } else {
+      row.contentCount = 1;
+      row.contentProgress = item.progress[0].totalProgress / classMemberCount(state);
+      row.logCountComplete = item.progress[0].logCountComplete;
+    }
+  }
+  row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
+  return row;
+}
+
 export const standardDataTable = (state) => {
   const data = state.pageState.tableData.map(item => _genRow(state, item));
   if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {

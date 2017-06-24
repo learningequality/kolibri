@@ -37,8 +37,8 @@
 
 <script>
 
-  import { getLogger } from 'kolibri.lib.logging';
-  const logging = getLogger(__filename);
+  import logger from 'kolibri.lib.logging';
+  const logging = logger.getLogger(__filename);
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {

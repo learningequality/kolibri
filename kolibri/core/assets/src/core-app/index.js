@@ -9,7 +9,7 @@ require('../styles/main.styl');
 require('keen-ui/src/bootstrap');
 
 // configure Keen
-import { default as KeenUiConfig } from 'keen-ui/src/config';
+const KeenUiConfig = require('keen-ui/src/config').default;
 KeenUiConfig.set(require('../keen-config/options.json'));
 
 
@@ -18,7 +18,7 @@ KeenUiConfig.set(require('../keen-config/options.json'));
 require('core-js');
 
 // set up logging
-import logging from 'kolibri.lib.logging';
+const logging = require('kolibri.lib.logging').default;
 
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
@@ -30,8 +30,10 @@ logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 // This is achieved by setting the `src_file` attribute in the core
 // kolibri_plugin.py which tells the webpack build scripts to set the export of this file
 // to a global variable.
-import CoreAppConstructor from './constructor';
+const CoreAppConstructor = require('./constructor').default;
 
 const coreApp = new CoreAppConstructor();
 
-export { coreApp as default };
+
+// Use a module.exports here to be compatible with webpack library output
+module.exports = coreApp;

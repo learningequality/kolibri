@@ -70,7 +70,7 @@
     components: {
       pageHeader,
       contentCard,
-      contentCardGrid
+      contentCardGrid,
       uiSelect
     },
     data: () => ({ selectedFilter: '' }),

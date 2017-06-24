@@ -8,11 +8,11 @@ import {
   LoginErrors,
 } from '../constants';
 import { getDefaultChannelId } from 'kolibri.coreVue.vuex.getters';
-import { getLogger } from 'kolibri.lib.logging';
+import logger from 'kolibri.lib.logging';
 import { now } from 'kolibri.utils.serverClock';
 import intervalTimer from '../timer';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
