@@ -27,6 +27,7 @@
   import * as customButtons from './videojs-replay-forward-btns';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
   const GlobalLangCode = vue.locale;
@@ -39,6 +40,8 @@
     },
 
     mixins: [ResponsiveElement],
+
+    components: { loadingSpinner },
 
     props: {
       files: {
@@ -58,6 +61,7 @@
       videoRate: 1.0,
       videoLang: GlobalLangCode,
     }),
+
     computed: {
       posterSource() {
         const posterFileExtensions = [
