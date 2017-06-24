@@ -1,5 +1,5 @@
 import { currentUserId } from 'kolibri.coreVue.vuex.getters';
-const { MembershipResource } = require('kolibri').resources;
+import { MembershipResource } from 'kolibri.resources';
 
 // prepares state that is used for all pages in 'learn' plugin/app
 // currently, this is only the user's memberships

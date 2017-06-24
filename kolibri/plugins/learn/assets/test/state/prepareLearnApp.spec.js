@@ -1,11 +1,13 @@
 /* eslint-env mocha */
 import assert from 'assert';
-import kolibri from 'kolibri';
 import sinon from 'sinon';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
 import makeStore from '../util/makeStore';
+import { mockResource } from 'testUtils';
 
-const { MembershipResource } = kolibri.resources;
+import { MembershipResource } from 'kolibri.resources';
+
+mockResource(MembershipResource);
 
 describe('prepareLearnApp action', () => {
   let store;

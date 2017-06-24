@@ -1,4 +1,4 @@
-const sinon = require('sinon');
+import sinon from 'sinon';
 
 class MockResource {
   constructor() {
@@ -49,25 +49,21 @@ class MockResource {
   }
 }
 
-class KolibriMock {
-  constructor() {
-    this.resources = {
-      RoleResource: {},
-      FacilityDatasetResource: new MockResource(),
-      FacilityResource: new MockResource(),
-      MembershipResource: new MockResource(),
-    };
+const methods = [
+  'getCollection',
+  'getModel',
+  '__resetMocks',
+  '__getCollectionFetchReturns',
+  '__getModelFetchReturns',
+  '__getFetchable',
+  '__getSavable',
+  '__getModelSaveReturns'
+]
 
-    this.__resetMocks = this.__resetMocks.bind(this);
-
-    this.urls = {};
-  }
-
-  __resetMocks() {
-    this.resources.FacilityResource.__resetMocks();
-    this.resources.FacilityDatasetResource.__resetMocks();
-    this.resources.MembershipResource.__resetMocks();
-  }
+export function mockResource(Resource) {
+  const mock = new MockResource();
+  methods.forEach(method => {
+    Resource[method] = mock[method];
+  });
+  return Resource;
 }
-
-module.exports = global.kolibriGlobal = new KolibriMock(); // eslint-disable-line

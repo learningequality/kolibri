@@ -5,86 +5,20 @@
 
 import assert from 'assert';
 import sinon from 'sinon';
-import rewire from 'rewire';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
 }
 
-const Resources = rewire('../src/api-resource.js');
-
-describe('ResourceManager', function () {
-  beforeEach(function () {
-    this.mockName = 'test';
-    this.mockClassName = 'testClass';
-    this.resourceManager = new Resources.ResourceManager({});
-  });
-  afterEach(function () {
-    delete this.resourceManager;
-  });
-  describe('_kolibri property', function () {
-    it('should be empty object', function () {
-      assert.deepEqual(this.resourceManager._kolibri, {});
-    });
-  });
-  describe('_resources property', function () {
-    it('should be empty', function () {
-      assert.deepEqual(this.resourceManager._resources, {});
-    });
-  });
-  describe('registerResource method', function () {
-    it('should throw a "must specify a className" Error if none is passed', function () {
-      assert.throws(this.resourceManager.registerResource, /className/);
-    });
-    it('should throw a "must specify ResourceClass" Error if none is passed', function () {
-      assert.throws(() => this.resourceManager.registerResource(this.mockName), /ResourceClass/);
-    });
-    it('should throw a "must have [...] resource name" Error if ResourceClass does not one', function () {
-      const mockClass = {
-        resourceName: sinon.spy(),
-      };
-      assert.throws(() => this.resourceManager.registerResource(this.mockName, mockClass),
-        /resource name/);
-    });
-    it('should throw a "already been registered" Error if the resource name is already registered', function () {
-      function mockClass() {}
-      mockClass.resourceName = () => this.mockClassName;
-      // try to register the resource twice
-      const register = () => this.resourceManager.registerResource(this.mockName, mockClass);
-      register();
-      assert.throws(register, /been registered/);
-    });
-    describe('when successfully registering', function () {
-      beforeEach(function () {
-        this.mockClass = sinon.spy(() => ({}));
-        this.resourceNameStub = sinon.stub().returns(this.mockClassName);
-        this.mockClass.resourceName = this.resourceNameStub;
-        this.resourceManager.registerResource(this.mockName, this.mockClass);
-      });
-      it('should populate the _resources property with an object', function () {
-        assert.ok(this.resourceManager._resources[this.mockClassName]);
-      });
-      it('should invoke the constructor of the ResourceClass', function () {
-        assert.ok(this.mockClass.calledWithNew());
-      });
-    });
-  });
-});
-
+import * as Resources from '../src/api-resource';
 
 describe('Resource', function () {
   beforeEach(function () {
-    this.kolibri = {};
-    this.resource = new Resources.Resource(this.kolibri);
+    this.resource = new Resources.Resource();
     this.modelData = { id: 'test' };
   });
   afterEach(function () {
     delete this.resource;
-  });
-  describe('kolibri property', function () {
-    it('should be empty object', function () {
-      assert.deepEqual(this.resource.kolibri, {});
-    });
   });
   describe('collections property', function () {
     it('should be empty object', function () {
@@ -109,22 +43,6 @@ describe('Resource', function () {
   describe('idKey property', function () {
     it('should be "id" by default', function () {
       assert.equal(this.resource.idKey, 'id');
-    });
-  });
-  describe('client property', function () {
-    it('should return the rest client', function () {
-      const Rest = function () { return this; };
-      Rest.prototype.wrap = function () { return this; };
-      const testClient = new Rest();
-      this.resource.kolibri.client = testClient;
-      assert.equal(this.resource.client, testClient);
-    });
-  });
-  describe('urls property', function () {
-    it('should return the urls property of the passed in kolibri object', function () {
-      const urls = { hi: 'ho' };
-      this.kolibri.urls = urls;
-      assert.equal(this.resource.urls, urls);
     });
   });
   describe('name property', function () {
@@ -549,11 +467,10 @@ describe('Collection', function () {
             this.client = sinon.stub();
             this.client.returns(Promise.resolve(this.response));
             this.resource.client = this.client;
-            this.logstub = sinon.spy();
-            this.restore = Resources.__set__('logging.debug', (message) => this.logstub(message));
+            this.logstub = sinon.stub(Resources.logging, 'debug');
           });
           afterEach(function () {
-            this.restore();
+            this.logstub.restore();
           });
           it('should call the client once', function (done) {
             this.collection.synced = false;
@@ -577,12 +494,14 @@ describe('Collection', function () {
           this.client = sinon.stub();
           this.client.returns(Promise.reject(this.response));
           this.resource.client = this.client;
-          this.logstub = sinon.spy();
-          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function () {
+          this.logstub.restore();
         });
         it('should call logging.error once', function (done) {
           this.collection.synced = false;
-          this.collection.fetch().catch(() => {
+          this.collection.fetch().catch((error) => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -596,7 +515,7 @@ describe('Collection', function () {
         });
         it('should leave no promises in promises property', function (done) {
           this.collection.synced = false;
-          this.collection.fetch().catch(() => {
+          this.collection.fetch().catch((error) => {
             assert.deepEqual(this.collection.promises, []);
             done();
           });
@@ -823,12 +742,14 @@ describe('Model', function () {
           this.client = sinon.stub();
           this.client.returns(Promise.reject(this.response));
           this.resource.client = this.client;
-          this.logstub = sinon.spy();
-          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function () {
+          this.logstub.restore();
         });
         it('should call logging.error once', function (done) {
           this.model.synced = false;
-          this.model.fetch().catch(() => {
+          this.model.fetch().catch((error) => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -842,7 +763,7 @@ describe('Model', function () {
         });
         it('should leave no promises in promises property', function (done) {
           this.model.synced = false;
-          this.model.fetch().catch(() => {
+          this.model.fetch().catch((error) => {
             assert.deepEqual(this.model.promises, []);
             done();
           });
@@ -968,12 +889,14 @@ describe('Model', function () {
           this.client = sinon.stub();
           this.client.returns(Promise.reject(this.response));
           this.resource.client = this.client;
-          this.logstub = sinon.spy();
-          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function () {
+          this.logstub.restore();
         });
         it('should call logging.error once', function (done) {
           this.model.synced = false;
-          this.model.save().catch(() => {
+          this.model.save().catch((error) => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -1110,11 +1033,13 @@ describe('Model', function () {
           this.client = sinon.stub();
           this.client.returns(Promise.reject(this.response));
           this.resource.client = this.client;
-          this.logstub = sinon.spy();
-          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function () {
+          this.logstub.restore();
         });
         it('should call logging.error once', function (done) {
-          this.model.delete().catch(() => {
+          this.model.delete().catch((error) => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -1126,7 +1051,7 @@ describe('Model', function () {
           });
         });
         it('should leave no promises in promises property', function (done) {
-          this.model.delete().catch(() => {
+          this.model.delete().catch((error) => {
             assert.deepEqual(this.model.promises, []);
             done();
           });

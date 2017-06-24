@@ -5,13 +5,16 @@
 
 import assert from 'assert';
 import sinon from 'sinon';
-import rewire from 'rewire';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
+  require('intl/locale-data/jsonp/en.js');
 }
 
-const Mediator = rewire('../src/core-app/mediator');
+import Mediator from '../src/core-app/mediator';
+import Vue from 'kolibri.lib.vue';
+import vueintl from 'vue-intl';
+Vue.use(vueintl, { defaultLocale: 'en-us' });
 
 describe('Mediator', function () {
   beforeEach(function () {
@@ -514,20 +517,17 @@ describe('Mediator', function () {
       test: 'test message',
     };
     beforeEach(function () {
-      this.spy = sinon.spy();
-      this.vueRewireReset = Mediator.__set__('Vue', { registerMessages: this.spy });
+      this.spy = sinon.stub(Vue, 'registerMessages');
     });
     afterEach(function () {
-      this.vueRewireReset();
+      this.spy.restore();
     });
     it('should call Vue.registerMessages once', function () {
-      const self = this;
-      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      this.mediator.registerLanguageAssets(moduleName, language, messageMap);
       assert(this.spy.calledOnce);
     });
     it('should call Vue.registerMessages with arguments language and messageMap', function () {
-      const self = this;
-      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      this.mediator.registerLanguageAssets(moduleName, language, messageMap);
       assert(this.spy.calledWithExactly(language, messageMap));
     });
   });

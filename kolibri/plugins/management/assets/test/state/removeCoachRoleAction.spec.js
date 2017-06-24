@@ -1,13 +1,16 @@
 /* eslint-env mocha */
-import kolibri from 'kolibri';
 import sinon from 'sinon';
 import assert from 'assert';
+import {
+  FacilityUserResource,
+  RoleResource
+} from 'kolibri.resources';
 
 // need to mock all this stuff before loading the module
-kolibri.resources.FacilityUserResource = { getModel: () => {} };
-kolibri.resources.RoleResource = { getModel: () => {} };
+Object.assign(FacilityUserResource, { getModel: () => {} });
+Object.assign(RoleResource, { getModel: () => {} });
 
-import { default as removeCoachRoleAction } from '../../src/state/removeCoachRoleAction';
+import removeCoachRoleAction from '../../src/state/removeCoachRoleAction';
 
 const fakeUser = {
   roles: [
@@ -22,16 +25,14 @@ describe('removeCoachRoleAction', () => {
     state: { core: { pageId: '1' } }
   };
 
-  const getUserModelStub = sinon.stub(kolibri.resources.FacilityUserResource, 'getModel');
-  const getRoleModelStub = sinon.stub(kolibri.resources.RoleResource, 'getModel');
+  const getUserModelStub = sinon.stub(FacilityUserResource, 'getModel');
+  const getRoleModelStub = sinon.stub(RoleResource, 'getModel');
 
   afterEach(() => {
     getUserModelStub.reset();
     getRoleModelStub.reset();
     storeMock.dispatch.reset();
   });
-
-  after(() => { kolibri.resources = {}; });
 
   it('successfully removes the correct Role on server and client', (done) => {
     const fetchUserStub = sinon.stub().returns({

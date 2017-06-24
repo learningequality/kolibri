@@ -17,6 +17,7 @@ import {
   MasteryLogResource,
   ChannelResource,
   AttemptLogResource,
+  UserProgressResource,
 } from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
@@ -703,7 +704,7 @@ function updateMasteryAttemptState(store, {
 
 function fetchPoints(store) {
   if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
+    const userProgressModel = UserProgressResource.getModel(
       store.state.core.session.user_id);
     userProgressModel.fetch().then((progress) => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);

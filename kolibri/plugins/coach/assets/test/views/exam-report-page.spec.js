@@ -78,8 +78,8 @@ describe('exam report page', () => {
       }
     });
     const els = getElements(vm);
-    // score isn't properly formatted
-    assert.equal(getTextInScoreColumn(els.tableRows()[0]).trim(), '{num, number, percent}');
+    // score is properly formatted
+    assert.equal(getTextInScoreColumn(els.tableRows()[0]).trim(), '50%');
     // emdash
     assert.equal(getTextInScoreColumn(els.tableRows()[1]).trim(), '–');
   });

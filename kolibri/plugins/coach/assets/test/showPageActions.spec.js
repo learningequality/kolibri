@@ -1,30 +1,27 @@
 /* eslint-env mocha */
 import sinon from 'sinon';
-import kolibri from 'kolibri';
-
-// Add fake Resources to kolibri mock. This needs to be done before loading tested module
-kolibri.resources = {
-  ChannelResource: {
-    getCollection: sinon.stub(),
-  },
-  ClassroomResource: {
-    getCollection: sinon.stub(),
-  },
-  ContentNodeResource: {},
-  ExamResource: {
-    getCollection: sinon.stub(),
-  },
-  LearnerGroupResource: {
-    getCollection: sinon.stub(),
-  },
-};
+import {
+  ChannelResource,
+  ClassroomResource,
+  ContentNodeResource,
+  ExamResource,
+  LearnerGroupResource,
+} from 'kolibri.resources';
 
 import * as examActions from '../src/state/actions/exam';
 
-const channelStub = kolibri.resources.ChannelResource.getCollection;
-const classroomStub = kolibri.resources.ClassroomResource.getCollection;
-const examStub = kolibri.resources.ExamResource.getCollection;
-const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
+const channelStub = sinon.stub();
+const classroomStub = sinon.stub();
+const contentNodeStub = sinon.stub();
+const examStub = sinon.stub();
+const learnerGroupStub = sinon.stub();
+
+Object.assign(ChannelResource, { getCollection: channelStub });
+Object.assign(ClassroomResource, { getCollection: classroomStub });
+Object.assign(ContentNodeResource, { getCollection: contentNodeStub });
+Object.assign(ExamResource, { getCollection: examStub });
+Object.assign(LearnerGroupResource, { getCollection: learnerGroupStub });
+
 
 // mocks either getCollection, or getModel where request is successful
 function makeHappyFetchable(fetchResult = {}) {
@@ -167,10 +164,6 @@ describe('showPage actions for coach exams section', () => {
     dispatchSpy.reset();
     examStub.reset();
     learnerGroupStub.reset();
-  });
-
-  after(() => {
-    kolibri.resources = {};
   });
 
   describe('showExamsPage', () => {

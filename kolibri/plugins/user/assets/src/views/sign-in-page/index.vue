@@ -71,7 +71,7 @@
   import * as actions from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
   import * as getters from 'kolibri.coreVue.vuex.getters';
-  const FacilityUsernameResource = require('kolibri').resources.FacilityUsernameResource;
+  import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';

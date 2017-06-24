@@ -6,8 +6,10 @@ import _ from 'lodash';
 import * as s from '../../src/state/store';
 import * as getters from '../../src/state/getters';
 import * as coreActions from '../../src/state/actions';
-import kolibri from 'kolibri';
+import * as constants from '../../src/constants';
 import sinon from 'sinon';
+import urls from 'kolibri.urls';
+import { SessionResource } from 'kolibri.resources';
 
 Vue.use(Vuex);
 
@@ -46,23 +48,29 @@ describe('Vuex store/actions for core module', () => {
 
     before(() => {
       // this prevents kolibriLogin from refreshing page
-      window.onbeforeunload = () => true;
+      const location = window.document.location;
+
+      window.onbeforeunload = () => {
+        var originalHashValue = location.hash;
+
+        window.setTimeout(function () {
+            location.hash = 'preventNavigation' + ~~ (9999 * Math.random());
+            location.hash = originalHashValue;
+        }, 0);
+      };
     });
 
     after(() => {
       window.onbeforeunload = oldHandler;
-      delete kolibri.resources;
-      kolibri.urls = {};
     });
 
     beforeEach(() => {
       store = createStore();
-      kolibri.resources = {};
     });
 
     it('successful login', (done) => {
-      kolibri.urls['kolibri:managementplugin:management'] = () => '';
-      kolibri.resources.SessionResource = {
+      urls['kolibri:managementplugin:management'] = () => '';
+      Object.assign(SessionResource, {
         createModel: () => ({
           save: () => Promise.resolve({
             // just sending subset of sessionPayload
@@ -71,7 +79,7 @@ describe('Vuex store/actions for core module', () => {
             kind: ['cool-guy-user'],
           }),
         }),
-      };
+      });
 
       function runAssertions() {
         const { session } = store.state.core;
@@ -86,11 +94,11 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('failed login (401)', (done) => {
-      kolibri.resources.SessionResource = {
+      Object.assign(SessionResource, {
         createModel: () => ({
           save: () => Promise.reject({ status: { code: 401 } }),
         }),
-      };
+      });
 
       coreActions.kolibriLogin(store, {})
         .then(() => {
@@ -104,17 +112,13 @@ describe('Vuex store/actions for core module', () => {
       const getModelStub = sinon.stub().returns({
         delete: () => Promise.resolve('goodbye'),
       });
-      kolibri.resources = {
-        SessionResource: {
-          getModel: getModelStub,
-        },
-        clearCaches: clearCachesSpy,
-      };
+      Object.assign(SessionResource, {
+        getModel: getModelStub,
+      });
 
       coreActions.kolibriLogout(store)
         .then(() => {
           sinon.assert.calledWith(getModelStub, 'current');
-          sinon.assert.calledOnce(clearCachesSpy);
         })
         .then(done, done);
     });

@@ -1,4 +1,4 @@
-import constants from '../../src/constants';
+import * as constants from '../../src/constants';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implementation of initialState used in testing
@@ -16,4 +16,6 @@ const learnInitialState = {
   examAttemptLogs: {},
 };
 
-module.exports = Object.assign(learnInitialState, coreStore.initialState);
+const initialState = Object.assign({}, learnInitialState, coreStore.initialState);
+
+export default initialState;

@@ -1,25 +1,23 @@
 /* eslint-env mocha */
-import kolibri from 'kolibri';
+import { RoleResource } from 'kolibri.resources';
 import sinon from 'sinon';
 import assert from 'assert';
 
 // need to mock all this stuff before loading the module
-kolibri.resources.RoleResource = { createModel: () => {} };
+Object.assign(RoleResource, { createModel: () => {} });
 
-import { default as addCoachRoleAction } from '../../src/state/addCoachRoleAction';
+import addCoachRoleAction from '../../src/state/addCoachRoleAction';
 
 describe('addCoachRoleAction', () => {
   const storeMock = {
     dispatch: sinon.spy(),
     state: { core: { pageId: '1' } } };
-  const createUserModelStub = sinon.stub(kolibri.resources.RoleResource, 'createModel');
+  const createUserModelStub = sinon.stub(RoleResource, 'createModel');
 
   afterEach(() => {
     createUserModelStub.reset();
     storeMock.dispatch.reset();
   });
-
-  after(() => { kolibri.resources = {}; });
 
   it('successfully adds Role on server and client', (done) => {
     createUserModelStub.returns({ save: () => Promise.resolve() });

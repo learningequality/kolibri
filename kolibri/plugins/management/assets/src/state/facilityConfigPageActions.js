@@ -1,10 +1,10 @@
 /* eslint-disable prefer-arrow-callback */
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 
-const {
+import {
   FacilityResource,
   FacilityDatasetResource,
-} = require('kolibri').resources;
+} from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import preparePage from './preparePage';

@@ -4,10 +4,9 @@
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
 import assert from 'assert';
-import rewire from 'rewire';
 import sinon from 'sinon';
 
-const HeartBeat = rewire('../src/heartbeat.js');
+import HeartBeat from '../src/heartbeat.js';
 
 describe('HeartBeat', function () {
   describe('constructor method', function () {

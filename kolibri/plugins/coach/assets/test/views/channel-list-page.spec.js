@@ -5,7 +5,7 @@ import assert from 'assert';
 import _ from 'lodash';
 import sinon from 'sinon';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
-import ReportConstants from '../../src/reportConstants';
+import * as ReportConstants from '../../src/reportConstants';
 
 const initialState = () => ({
   classId: '',

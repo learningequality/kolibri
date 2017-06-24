@@ -48,7 +48,7 @@
 <script>
 
   import * as examActions from '../../state/actions/exam';
-  const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
+  import { ContentNodeResource } from 'kolibri.resources';
   import {
     createQuestionList,
     selectQuestionFromExercise

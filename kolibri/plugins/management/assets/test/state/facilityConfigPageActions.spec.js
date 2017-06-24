@@ -1,11 +1,11 @@
 /* eslint-env mocha */
-import kolibri from 'kolibri';
+import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import sinon from 'sinon';
 import * as actions from '../../src/state/facilityConfigPageActions';
+import { mockResource } from 'testUtils';
 
-const { resources, __resetMocks } = kolibri;
-const FacilityStub = resources.FacilityResource;
-const DatasetStub = resources.FacilityDatasetResource;
+const FacilityStub = mockResource(FacilityResource);
+const DatasetStub = mockResource(FacilityDatasetResource);
 
 const fakeFacility = {
   name: 'Nalanda Maths',
@@ -40,7 +40,8 @@ describe('facility config page actions', () => {
   const dispatchStub = storeMock.dispatch;
 
   beforeEach(() => {
-    __resetMocks();
+    FacilityResource.__resetMocks();
+    FacilityDatasetResource.__resetMocks();
     dispatchStub.reset();
     storeMock.state.pageState = {};
   });

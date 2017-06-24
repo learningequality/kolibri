@@ -1,11 +1,11 @@
-import { resources } from 'kolibri';
-
-const ContentNodeResource = resources.ContentNodeResource;
-const ContentNodeProgressResource = resources.ContentNodeProgressResource;
-const SessionResource = resources.SessionResource;
-const UserExamResource = resources.UserExamResource;
-const ExamLogResource = resources.ExamLogResource;
-const ExamAttemptLogResource = resources.ExamAttemptLogResource;
+import {
+  ContentNodeResource,
+  ContentNodeProgressResource,
+  SessionResource,
+  UserExamResource,
+  ExamLogResource,
+  ExamAttemptLogResource,
+} from 'kolibri.resources';
 
 import { PageNames } from '../constants';
 

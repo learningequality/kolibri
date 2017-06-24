@@ -7,7 +7,7 @@ import cloneDeep from './cloneDeep';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 
-const logging = logger.getLogger(__filename);
+export const logging = logger.getLogger(__filename);
 
 /** Class representing a single API resource object */
 export class Model {

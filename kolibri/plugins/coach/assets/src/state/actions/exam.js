@@ -1,4 +1,13 @@
-import CoreApp from 'kolibri';
+import {
+  ChannelResource,
+  LearnerGroupResource,
+  ContentNodeResource,
+  ExamResource,
+  ExamAssignmentResource,
+  ExamLogResource,
+  FacilityUserResource,
+  ExamAttemptLogResource,
+} from 'kolibri.resources';
 import pick from 'lodash/fp/pick';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
@@ -11,15 +20,6 @@ import * as Constants from '../../constants';
 import { setClassState } from './main';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-
-const ChannelResource = CoreApp.resources.ChannelResource;
-const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
-const ContentNodeResource = CoreApp.resources.ContentNodeResource;
-const ExamResource = CoreApp.resources.ExamResource;
-const ExamAssignmentResource = CoreApp.resources.ExamAssignmentResource;
-const ExamLogResource = CoreApp.resources.ExamLogResource;
-const FacilityUserResource = CoreApp.resources.FacilityUserResource;
-const ExamAttemptLogResource = CoreApp.resources.ExamAttemptLogResource;
 
 const pickIdAndName = pick(['id', 'name']);
 

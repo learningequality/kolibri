@@ -13,7 +13,7 @@ import {
   ChannelResource,
   ContentNodeResource,
   FacilityUserResource,
-  SummaryLogResource,
+  ContentSummaryLogResource,
   LearnerGroupResource,
 } from 'kolibri.resources';
 
@@ -305,7 +305,7 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
     exercise => {
       Promise.all([
         AttemptLogResource.getCollection({ user: userId, content: exercise.content_id }).fetch(),
-        SummaryLogResource.getCollection(
+        ContentSummaryLogResource.getCollection(
           { user_id: userId, content_id: exercise.content_id }
         ).fetch(),
         FacilityUserResource.getModel(userId).fetch(),

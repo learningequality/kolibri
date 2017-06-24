@@ -6,7 +6,7 @@ import initialState from './initialState';
 
 Vue.use(Vuex);
 
-module.exports = function makeStore() {
+export default function makeStore() {
   return new Vuex.Store({
     mutations,
     state: cloneDeep(initialState)

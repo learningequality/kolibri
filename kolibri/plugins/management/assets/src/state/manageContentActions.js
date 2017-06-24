@@ -1,5 +1,5 @@
 /* eslint-disable prefer-arrow-callback */
-const { ChannelResource, FileSummaryResource } = require('kolibri').resources;
+import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../constants';
 import * as actions from './actions';
 import { mutationTypes } from './manageContentMutations';
