@@ -79,6 +79,7 @@
     "node-sass": "^4.5.0",
     "postcss-loader": "1.2.2",
     "prettier": "^1.4.2",
+    "rewire": "^2.5.2",
     "sass-loader": "^5.0.1",
     "shelljs": "0.7.4",
     "simulant": "0.2.2",

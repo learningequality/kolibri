@@ -4,9 +4,7 @@ var _ = require('lodash');
 
 var apiSpecExportTools = rewire('../src/apiSpecExportTools');
 
-var testSpec = {
-  module: 'test',
-};
+var testSpec = 'test';
 
 var oneDeepSpec = {
   test: testSpec,
@@ -16,9 +14,7 @@ var twoDeepSpec = {
   test: oneDeepSpec,
 };
 
-var localSpec = {
-  module: './test',
-};
+var localSpec = './test';
 
 var oneDeepLocal = {
   test: localSpec,
@@ -32,7 +28,7 @@ describe('coreExternals', function() {
   // Note: all externals objects will have at least one entry for the Kolibri object itself.
   describe('top level with special keys', function() {
     it('should have one entry', function(done) {
-      apiSpecExportTools.__set__('apiSpec', testSpec);
+      apiSpecExportTools.__set__('apiSpec', {});
       assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 1);
       done();
     });
@@ -70,7 +66,7 @@ describe('coreExternals', function() {
 describe('coreAliases', function() {
   describe('top level with special keys no local import', function() {
     it('should have two entries', function(done) {
-      apiSpecExportTools.__set__('apiSpec', testSpec);
+      apiSpecExportTools.__set__('apiSpec', {});
       assert(Object.keys(apiSpecExportTools.coreAliases()).length === 2);
       done();
     });
