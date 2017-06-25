@@ -12,7 +12,6 @@ import * as reportsActions from './state/actions/reports';
 import store from './state/store';
 import { PageNames } from './constants';
 
-
 class CoachToolsModule extends KolibriModule {
   ready() {
     const coreStoreUpdates = [
@@ -25,9 +24,7 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.CLASS_LIST,
           path: '/',
           handler: (to, from) => {
-            actions.showClassListPage(
-              store
-            );
+            actions.showClassListPage(store);
           },
         },
         {
@@ -48,8 +45,12 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.EXAM_REPORT,
           path: '/:classId/:channelId/exams/:examId',
           handler: (toRoute, fromRoute) => {
-            examActions.showExamReportPage(store, toRoute.params.classId, toRoute.params.channelId,
-              toRoute.params.examId);
+            examActions.showExamReportPage(
+              store,
+              toRoute.params.classId,
+              toRoute.params.channelId,
+              toRoute.params.examId
+            );
           },
         },
         {
@@ -76,18 +77,14 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.RECENT_CHANNELS,
           path: '/:classId/recent',
           handler: (to, from) => {
-            reportsActions.showRecentChannels(
-              store, to.params.classId
-            );
+            reportsActions.showRecentChannels(store, to.params.classId);
           },
         },
         {
           name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
           path: '/:classId/recent/:channelId',
           handler: (to, from) => {
-            reportsActions.showRecentItemsForChannel(
-              store, to.params.classId, to.params.channelId
-            );
+            reportsActions.showRecentItemsForChannel(store, to.params.classId, to.params.channelId);
           },
         },
         {
@@ -95,7 +92,10 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/recent/:channelId/:contentId',
           handler: (to, from) => {
             reportsActions.showRecentLearnersForItem(
-              store, to.params.classId, to.params.channelId, to.params.contentId
+              store,
+              to.params.classId,
+              to.params.channelId,
+              to.params.contentId
             );
           },
         },
@@ -123,18 +123,14 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.TOPIC_CHANNELS,
           path: '/:classId/topics',
           handler: (to, from) => {
-            reportsActions.showTopicChannels(
-              store, to.params.classId
-            );
+            reportsActions.showTopicChannels(store, to.params.classId);
           },
         },
         {
           name: PageNames.TOPIC_CHANNEL_ROOT,
           path: '/:classId/topics/:channelId',
           handler: (to, from) => {
-            reportsActions.showTopicChannelRoot(
-              store, to.params.classId, to.params.channelId
-            );
+            reportsActions.showTopicChannelRoot(store, to.params.classId, to.params.channelId);
           },
         },
         {
@@ -142,7 +138,10 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/topics/:channelId/topic/:topicId',
           handler: (to, from) => {
             reportsActions.showTopicItemList(
-              store, to.params.classId, to.params.channelId, to.params.topicId
+              store,
+              to.params.classId,
+              to.params.channelId,
+              to.params.topicId
             );
           },
         },
@@ -151,7 +150,10 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/topics/:channelId/item/:contentId',
           handler: (to, from) => {
             reportsActions.showTopicLearnersForItem(
-              store, to.params.classId, to.params.channelId, to.params.contentId
+              store,
+              to.params.classId,
+              to.params.channelId,
+              to.params.contentId
             );
           },
         },
@@ -162,7 +164,8 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
-          path: '/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
+          path:
+            '/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showTopicLearnerItemDetails(
               store,
@@ -179,18 +182,14 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.LEARNER_LIST,
           path: '/:classId/learners',
           handler: (to, from) => {
-            reportsActions.showLearnerList(
-              store, to.params.classId
-            );
+            reportsActions.showLearnerList(store, to.params.classId);
           },
         },
         {
           name: PageNames.LEARNER_CHANNELS,
           path: '/:classId/learners/:userId',
           handler: (to, from) => {
-            reportsActions.showLearnerChannels(
-              store, to.params.classId, to.params.userId
-            );
+            reportsActions.showLearnerChannels(store, to.params.classId, to.params.userId);
           },
         },
         {
@@ -198,7 +197,10 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/learners/:userId/:channelId',
           handler: (to, from) => {
             reportsActions.showLearnerChannelRoot(
-              store, to.params.classId, to.params.userId, to.params.channelId
+              store,
+              to.params.classId,
+              to.params.userId,
+              to.params.channelId
             );
           },
         },
@@ -207,7 +209,11 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/learners/:userId/:channelId/topic/:topicId',
           handler: (to, from) => {
             reportsActions.showLearnerItemList(
-              store, to.params.classId, to.params.userId, to.params.channelId, to.params.topicId
+              store,
+              to.params.classId,
+              to.params.userId,
+              to.params.channelId,
+              to.params.topicId
             );
           },
         },
@@ -218,7 +224,8 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.LEARNER_ITEM_DETAILS,
-          path: '/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
+          path:
+            '/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showLearnerItemDetails(
               store,
@@ -235,9 +242,7 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.GROUPS,
           path: '/:classId/groups',
           handler: (to, from) => {
-            groupActions.showGroupsPage(
-              store, to.params.classId
-            );
+            groupActions.showGroupsPage(store, to.params.classId);
           },
         },
         {

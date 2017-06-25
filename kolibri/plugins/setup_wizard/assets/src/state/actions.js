@@ -1,7 +1,4 @@
-import {
-  DeviceOwnerResource,
-  FacilityResource
-} from 'kolibri.resources';
+import { DeviceOwnerResource, FacilityResource } from 'kolibri.resources';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
@@ -14,10 +11,10 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
     responses => {
       coreActions.kolibriLogin(store, deviceownerpayload, true);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
-export {
-  createDeviceOwnerAndFacility,
-};
+export { createDeviceOwnerAndFacility };

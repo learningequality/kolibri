@@ -16,7 +16,7 @@ function getElements(wrapper) {
 }
 
 function hasPrimaryClass(el) {
-  return Array.from(el.classList).find((x) => x.match(/--color-primary/));
+  return Array.from(el.classList).find(x => x.match(/--color-primary/));
 }
 
 describe('role-switcher component', () => {

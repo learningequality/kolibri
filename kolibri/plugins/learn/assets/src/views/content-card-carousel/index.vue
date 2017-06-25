@@ -88,7 +88,7 @@
     props: {
       contents: {
         type: Array,
-        required: true
+        required: true,
       },
       header: { type: String },
       subheader: { type: String },
@@ -98,18 +98,18 @@
           const dummyExercise = value(1, 'exercise');
           const isValidLinkGenerator = validateLinkObject(dummyExercise);
           return isValidLinkGenerator;
-        }
-      }
+        },
+      },
     },
     components: {
       iconButton,
       uiIconButton,
-      contentCard
+      contentCard,
     },
     data() {
       return {
         contentSetStart: 0,
-        leftToRight: false
+        leftToRight: false,
       };
     },
     watch: {
@@ -133,7 +133,7 @@
           this.contentSetStart = this.contents.length - this.contentSetSize;
           this.leftToRight = true;
         }
-      }
+      },
     },
     computed: {
       contentSetSize() {
@@ -161,17 +161,17 @@
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
-          'width': `${ cards + gutters }px`,
-          'min-width': `${ contentCardWidth }px`
+          width: `${cards + gutters}px`,
+          'min-width': `${contentCardWidth}px`,
         };
-      }
+      },
     },
     methods: {
       positionCalc(index) {
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return { left: `${ cardOffset + gutterOffset }px` };
+        return { left: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
         const originalPosition = parseInt(el.style.left, 10);
@@ -179,7 +179,7 @@
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
-        el.style.left = `${ sign * carouselContainerOffset + originalPosition }px`;
+        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
       },
       slide(el) {
         const originalPosition = parseInt(el.style.left, 10);
@@ -187,7 +187,7 @@
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${ sign * carouselContainerOffset + originalPosition }px`;
+        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
       },
       isInThisSet(index) {
         return this.contentSetStart <= index && index <= this.contentSetEnd;
@@ -199,8 +199,8 @@
       previousSet() {
         this.contentSetStart -= this.contentSetSize;
         this.leftToRight = true;
-      }
-    }
+      },
+    },
   };
 
 </script>

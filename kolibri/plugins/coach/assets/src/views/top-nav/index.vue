@@ -48,11 +48,11 @@
       topics: 'Topics',
       exams: 'Exams',
       learners: 'Learners',
-      groups: 'Groups'
+      groups: 'Groups',
     },
     components: {
       tabs,
-      tabLink
+      tabLink,
     },
     computed: {
       Constants() {
@@ -61,40 +61,40 @@
       recentLink() {
         return {
           name: Constants.PageNames.RECENT_CHANNELS,
-          params: { classId: this.classId }
+          params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
           name: Constants.PageNames.TOPIC_CHANNELS,
-          params: { classId: this.classId }
+          params: { classId: this.classId },
         };
       },
       examsLink() {
         return {
           name: Constants.PageNames.EXAMS,
-          params: { classId: this.classId }
+          params: { classId: this.classId },
         };
       },
       learnersLink() {
         return {
           name: Constants.PageNames.LEARNER_LIST,
-          params: { classId: this.classId }
+          params: { classId: this.classId },
         };
       },
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
-          params: { classId: this.classId }
+          params: { classId: this.classId },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        classId: state => state.classId
-      }
-    }
+        classId: state => state.classId,
+      },
+    },
   };
 
 </script>

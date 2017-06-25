@@ -1,4 +1,3 @@
-
 const PageNames = {
   CLASS_LIST: 'CLASS_LIST',
   RECENT_CHANNELS: 'RECENT_CHANNELS',

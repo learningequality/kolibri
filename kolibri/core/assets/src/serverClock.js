@@ -18,7 +18,4 @@ function now() {
   return new Date(new Date().getTime() + diff);
 }
 
-export {
-  now,
-  setServerTime,
-};
+export { now, setServerTime };

@@ -10,7 +10,7 @@ const { COACH, LEARNER } = UserKinds;
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
 export function deleteRoleFromUser(classId, userData) {
   const { roles } = userData;
-  const matchIdx = roles.findIndex((r) => String(r.collection) === classId);
+  const matchIdx = roles.findIndex(r => String(r.collection) === classId);
   const roleId = matchIdx !== -1 ? roles[matchIdx].id : null;
   return new Promise((resolve, reject) => {
     if (roleId === null) {
@@ -37,18 +37,16 @@ export default function removeCoachRoleAction(store, payload) {
   // Currently, Learners in classes switch between Coach <-> Learner
   // So if not a Coach, then just a plain-old Learner
   dispatchRoleChange(store, { newRole: LEARNER, userId });
-  return (
-    ConditionalPromise.all([
-      facilityUserRequest.then((userResult) => deleteRoleFromUser(classId, userResult))
-    ])
-    .only(
-      samePageCheckGenerator(store),
-      function onSuccess() {},
-      function onFailure(err) {
-        dispatchRoleChange(store, { newRole: COACH, userId });
-        if (err) {
-          dispatchError(store, err);
-        }
-      })
+  return ConditionalPromise.all([
+    facilityUserRequest.then(userResult => deleteRoleFromUser(classId, userResult)),
+  ]).only(
+    samePageCheckGenerator(store),
+    function onSuccess() {},
+    function onFailure(err) {
+      dispatchRoleChange(store, { newRole: COACH, userId });
+      if (err) {
+        dispatchError(store, err);
+      }
+    }
   );
-};
+}

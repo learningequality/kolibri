@@ -57,7 +57,7 @@ const mutations = {
 
   UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
     // pageState has shape for 'edit class page'
-    state.pageState.classUsers.forEach((user) => {
+    state.pageState.classUsers.forEach(user => {
       if (user.id === userId) {
         user.kind = newRole;
       }
@@ -96,7 +96,6 @@ const mutations = {
   DELETE_USER(state, id) {
     state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
   },
-
 
   // content import-export-specific mutations
   SET_CONTENT_PAGE_TASKS(state, taskList) {

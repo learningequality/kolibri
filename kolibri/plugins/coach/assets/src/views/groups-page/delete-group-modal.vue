@@ -28,34 +28,34 @@
       learnersWillBecome: 'Learners within this group will become',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
-      deleteGroup: 'Delete Group'
+      deleteGroup: 'Delete Group',
     },
     components: {
       coreModal,
       textbox,
-      iconButton
+      iconButton,
     },
     props: {
       groupName: {
         type: String,
-        required: true
+        required: true,
       },
       groupId: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayModal: groupActions.displayModal,
-        deleteGroup: groupActions.deleteGroup
-      }
-    }
+        deleteGroup: groupActions.deleteGroup,
+      },
+    },
   };
 
 </script>

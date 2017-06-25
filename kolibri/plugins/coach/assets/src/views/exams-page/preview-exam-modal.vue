@@ -49,10 +49,7 @@
 
   import * as examActions from '../../state/actions/exam';
   import { ContentNodeResource } from 'kolibri.resources';
-  import {
-    createQuestionList,
-    selectQuestionFromExercise
-  } from 'kolibri.utils.exams';
+  import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import uiButton from 'keen-ui/src/UiButton';
@@ -64,47 +61,53 @@
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{ num } questions',
-      exercise: 'Exercise { num }'
+      exercise: 'Exercise { num }',
     },
     components: {
       coreModal,
       contentRenderer,
       uiButton,
-      uiProgressLinear
+      uiProgressLinear,
     },
     props: {
       examChannelId: {
         type: String,
-        required: true
+        required: true,
       },
       examQuestionSources: {
         type: Array,
-        required: true
+        required: true,
       },
       examSeed: {
         type: Number,
-        required: true
+        required: true,
       },
       examNumQuestions: {
         type: Number,
-        required: true
+        required: true,
       },
       examCreation: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
     },
     data: () => ({
       currentQuestionIndex: 0,
       exercises: {},
-      loading: true
+      loading: true,
     }),
     computed: {
       questions() {
-        return Object.keys(this.exercises).length ? createQuestionList(this.examQuestionSources).map(question => ({
-          itemId: selectQuestionFromExercise(question.assessmentItemIndex, this.examSeed, this.exercises[question.contentId]),
-          contentId: question.contentId
-        })) : [];
+        return Object.keys(this.exercises).length
+          ? createQuestionList(this.examQuestionSources).map(question => ({
+              itemId: selectQuestionFromExercise(
+                question.assessmentItemIndex,
+                this.examSeed,
+                this.exercises[question.contentId]
+              ),
+              contentId: question.contentId,
+            }))
+          : [];
       },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
@@ -114,14 +117,19 @@
       },
       itemId() {
         return this.currentQuestion.itemId;
-      }
+      },
     },
     methods: {
       isSelected(questionItemId, exerciseId) {
-        return this.currentQuestion.itemId === questionItemId && this.currentQuestion.contentId === exerciseId;
+        return (
+          this.currentQuestion.itemId === questionItemId &&
+          this.currentQuestion.contentId === exerciseId
+        );
       },
       getQuestionIndex(questionItemId, exerciseId) {
-        return this.questions.findIndex(question => question.itemId === questionItemId && question.contentId === exerciseId);
+        return this.questions.findIndex(
+          question => question.itemId === questionItemId && question.contentId === exerciseId
+        );
       },
       goToQuestion(questionItemId, exerciseId) {
         this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
@@ -134,17 +142,22 @@
       },
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
     created() {
-      ContentNodeResource.getCollection({ channel_id: this.examChannelId }, { ids: this.examQuestionSources.map(item => item.exercise_id) }).fetch().then(contentNodes => {
-        contentNodes.forEach(node => {
-          this.$set(this.exercises, node.pk, node);
+      ContentNodeResource.getCollection(
+        { channel_id: this.examChannelId },
+        { ids: this.examQuestionSources.map(item => item.exercise_id) }
+      )
+        .fetch()
+        .then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.pk, node);
+          });
+          this.loading = false;
         });
-        this.loading = false;
-      });
     },
-    vuex: { actions: { displayExamModal: examActions.displayExamModal } }
+    vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };
 
 </script>

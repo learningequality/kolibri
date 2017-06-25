@@ -141,18 +141,18 @@
       coach: 'Coach',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
-      allUsersFilteredOut: 'No matching users'
+      allUsersFilteredOut: 'No matching users',
     },
     components: {
       classRenameModal,
       roleSwitcher,
       userRemoveModal,
       iconButton,
-      userRole
+      userRole,
     },
     data: () => ({
       searchFilter: '',
-      currentUserRemove: null
+      currentUserRemove: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
@@ -160,7 +160,7 @@
       classEnrollLink() {
         return {
           name: constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
-          params: { classId: this.currClass.id }
+          params: { classId: this.currClass.id },
         };
       },
       noUsersExist() {
@@ -188,19 +188,19 @@
       },
       showRemoveUserModal() {
         return this.modalShown === constants.Modals.REMOVE_USER;
-      }
+      },
     },
     methods: {
       addCoachRoleToUser(user) {
         return this.addCoachRole({
           userId: user.id,
-          classId: this.currClass.id
+          classId: this.currClass.id,
         });
       },
       removeCoachRoleFromUser(user) {
         return this.removeCoachRole({
           userId: user.id,
-          classId: this.currClass.id
+          classId: this.currClass.id,
         });
       },
       openEditNameModal() {
@@ -209,21 +209,21 @@
       openRemoveUserModal(user) {
         this.currentUserRemove = user;
         this.displayModal(constants.Modals.REMOVE_USER);
-      }
+      },
     },
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
         users: state => state.pageState.classUsers,
         currClass: state => state.pageState.currentClass,
-        classes: state => state.pageState.classes
+        classes: state => state.pageState.classes,
       },
       actions: {
         displayModal: actions.displayModal,
         addCoachRole: actions.addCoachRole,
-        removeCoachRole: actions.removeCoachRole
-      }
-    }
+        removeCoachRole: actions.removeCoachRole,
+      },
+    },
   };
 
 </script>

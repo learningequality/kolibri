@@ -4,7 +4,6 @@ import Vue from 'kolibri.lib.vue';
 
 import RootVue from './views';
 
-
 class SetupWizardModule extends KolibriModule {
   ready() {
     this.vm = new Vue({

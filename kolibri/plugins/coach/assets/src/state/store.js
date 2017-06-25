@@ -10,7 +10,6 @@ const initialState = {
 };
 
 const mutations = {
-
   // coach-wide
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;

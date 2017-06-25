@@ -76,7 +76,7 @@
     'learnerCanEditUsername',
     'learnerCanEditName',
     'learnerCanSignUp',
-    'learnerCanLoginWithNoPassword'
+    'learnerCanLoginWithNoPassword',
   ];
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
@@ -87,7 +87,7 @@
       confirmResetModal,
       notifications,
       uiCheckbox,
-      uiButton
+      uiButton,
     },
     data: () => ({ showModal: false }),
     computed: { settingsList: () => settingsList },
@@ -95,27 +95,27 @@
       resetToDefaultSettings() {
         this.showModal = false;
         this.resetFacilityConfig();
-      }
+      },
     },
     vuex: {
       getters: {
         currentFacilityName: state => state.pageState.facilityName,
         settings: state => state.pageState.settings,
-        notification: state => state.pageState.notification
+        notification: state => state.pageState.notification,
       },
       actions: {
         toggleSetting(store, settingName) {
           store.dispatch('CONFIG_PAGE_MODIFY_SETTING', {
             name: settingName,
-            value: !this.settings[settingName]
+            value: !this.settings[settingName],
           });
         },
         saveFacilityConfig: actions.saveFacilityConfig,
         resetFacilityConfig: actions.resetFacilityConfig,
         dismissNotification(store) {
           store.dispatch('CONFIG_PAGE_NOTIFY', null);
-        }
-      }
+        },
+      },
     },
     $trNameSpace: 'facilityConfigPage',
     $trs: {
@@ -130,8 +130,8 @@
       pageHeader: 'Facility Configuration',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
-      settingsHeader: 'Facility Settings'
-    }
+      settingsHeader: 'Facility Settings',
+    },
   };
 
 </script>

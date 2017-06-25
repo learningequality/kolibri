@@ -80,7 +80,7 @@
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}'
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     components: {
       contentIcon,
@@ -89,7 +89,7 @@
       headerCell,
       nameCell,
       progressCell,
-      activityCell
+      activityCell,
     },
     methods: {
       genRowLink(row) {
@@ -100,8 +100,8 @@
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
-                topicId: row.id
-              }
+                topicId: row.id,
+              },
             };
           }
           return {
@@ -109,8 +109,8 @@
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
-              contentId: row.id
-            }
+              contentId: row.id,
+            },
           };
         } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
           if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
@@ -119,8 +119,8 @@
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
-                topicId: row.id
-              }
+                topicId: row.id,
+              },
             };
           } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
             return {
@@ -128,8 +128,8 @@
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
-                contentId: row.id
-              }
+                contentId: row.id,
+              },
             };
           }
         }
@@ -139,7 +139,7 @@
     computed: {
       tableColumns() {
         return reportConstants.TableColumns;
-      }
+      },
     },
     vuex: {
       getters: {
@@ -148,7 +148,7 @@
         pageState: state => state.pageState,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable
+        standardDataTable: reportGetters.standardDataTable,
       },
     },
   };

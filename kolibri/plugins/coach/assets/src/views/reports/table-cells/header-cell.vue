@@ -56,8 +56,10 @@
     },
     computed: {
       sorted() {
-        return this.column === this.sortColumn &&
-          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE);
+        return (
+          this.column === this.sortColumn &&
+          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE)
+        );
       },
       sortedDescending() {
         return this.sorted && this.sortOrder === reportConstants.SortOrders.DESCENDING;

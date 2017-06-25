@@ -39,24 +39,20 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import uiButton from 'keen-ui/src/UiButton';
 
-  const {
-    ADMIN,
-    COACH,
-    LEARNER,
-  } = UserKinds;
+  const { ADMIN, COACH, LEARNER } = UserKinds;
 
   export default {
     components: { uiButton },
     props: {
       currentRole: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       ADMIN: () => ADMIN,
       COACH: () => COACH,
-      LEARNER: () => LEARNER
+      LEARNER: () => LEARNER,
     },
     methods: {
       buttonColor(roleName) {
@@ -70,14 +66,14 @@
       },
       isCurrentRole(roleName) {
         return roleName === this.currentRole;
-      }
+      },
     },
     $trNameSpace: 'roleSwitcher',
     $trs: {
       admin: 'Admin',
       coach: 'Coach',
-      learner: 'Learner'
-    }
+      learner: 'Learner',
+    },
   };
 
 </script>

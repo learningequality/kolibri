@@ -22,7 +22,6 @@ Object.assign(ContentNodeResource, { getCollection: contentNodeStub });
 Object.assign(ExamResource, { getCollection: examStub });
 Object.assign(LearnerGroupResource, { getCollection: learnerGroupStub });
 
-
 // mocks either getCollection, or getModel where request is successful
 function makeHappyFetchable(fetchResult = {}) {
   return { fetch: () => Promise.resolve(fetchResult) };
@@ -34,8 +33,20 @@ function makeSadFetchable(fetchResult = {}) {
 
 // fakes for data, since they have similar shape
 const fakeItems = [
-  { id: 'item_1', name: 'item one', root_pk: 'pk1', misc: 'ha ha ha', learner_count: 5 },
-  { id: 'item_2', name: 'item two', root_pk: 'pk2', misc: 'ha ha ha', learner_count: 6 },
+  {
+    id: 'item_1',
+    name: 'item one',
+    root_pk: 'pk1',
+    misc: 'ha ha ha',
+    learner_count: 5,
+  },
+  {
+    id: 'item_2',
+    name: 'item two',
+    root_pk: 'pk2',
+    misc: 'ha ha ha',
+    learner_count: 6,
+  },
 ];
 
 const fakeExams = [
@@ -58,7 +69,7 @@ const fakeExams = [
           kind: 'classroom',
           name: 'class_1',
         },
-      }
+      },
     ],
   },
   {
@@ -80,7 +91,8 @@ const fakeExams = [
           kind: 'learnergroup',
           name: 'group_1',
         },
-      }, {
+      },
+      {
         id: 'assignmentC',
         exam: '2',
         collection: {
@@ -88,9 +100,9 @@ const fakeExams = [
           kind: 'learnergroup',
           name: 'group_2',
         },
-      }
+      },
     ],
-  }
+  },
 ];
 
 const fakeExamState = [
@@ -110,12 +122,12 @@ const fakeExamState = [
         collection: {
           id: 'class_1',
           kind: 'classroom',
-          name: 'class_1'
+          name: 'class_1',
         },
-        examId: '1'
+        examId: '1',
       },
-      groups: []
-    }
+      groups: [],
+    },
   },
   {
     id: '2',
@@ -129,25 +141,28 @@ const fakeExamState = [
     seed: 4321,
     visibility: {
       class: undefined,
-      groups: [{
-        assignmentId: 'assignmentB',
-        collection: {
-          id: 'group_1',
-          kind: 'learnergroup',
-          name: 'group_1'
+      groups: [
+        {
+          assignmentId: 'assignmentB',
+          collection: {
+            id: 'group_1',
+            kind: 'learnergroup',
+            name: 'group_1',
+          },
+          examId: '2',
         },
-        examId: '2'
-      }, {
-        assignmentId: 'assignmentC',
-        collection: {
-          id: 'group_2',
-          kind: 'learnergroup',
-          name: 'group_2'
+        {
+          assignmentId: 'assignmentC',
+          collection: {
+            id: 'group_2',
+            kind: 'learnergroup',
+            name: 'group_2',
+          },
+          examId: '2',
         },
-        examId: '2'
-      }]
-    }
-  }
+      ],
+    },
+  },
 ];
 
 describe('showPage actions for coach exams section', () => {
@@ -173,33 +188,31 @@ describe('showPage actions for coach exams section', () => {
       classroomStub.returns(makeHappyFetchable(fakeItems));
       examStub.returns(makeHappyFetchable(fakeExams));
 
-      return examActions.showExamsPage(storeMock, 'class_1')._promise
-      .then(() => {
+      return examActions.showExamsPage(storeMock, 'class_1')._promise.then(() => {
         sinon.assert.calledWith(channelStub);
         sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
         sinon.assert.calledWith(classroomStub);
         sinon.assert.calledWith(examStub, { collection: 'class_1' });
+        sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', 'class_1', [
+          { id: 'item_1', name: 'item one', memberCount: 5 },
+          { id: 'item_2', name: 'item two', memberCount: 6 },
+        ]);
         sinon.assert.calledWith(
           dispatchSpy,
-          'SET_CLASS_INFO',
-          'class_1',
-          [
-            { id: 'item_1', name: 'item one', memberCount: 5 },
-            { id: 'item_2', name: 'item two', memberCount: 6 },
-          ]
+          'SET_PAGE_STATE',
+          sinon.match({
+            channels: [
+              { id: 'item_1', name: 'item one', rootPk: 'pk1' },
+              { id: 'item_2', name: 'item two', rootPk: 'pk2' },
+            ],
+            currentClassGroups: [
+              { id: 'item_1', name: 'item one' },
+              { id: 'item_2', name: 'item two' },
+            ],
+            exams: fakeExamState,
+            examModalShown: false,
+          })
         );
-        sinon.assert.calledWith(dispatchSpy, 'SET_PAGE_STATE', sinon.match({
-          channels: [
-            { id: 'item_1', name: 'item one', rootPk: 'pk1' },
-            { id: 'item_2', name: 'item two', rootPk: 'pk2' },
-          ],
-          currentClassGroups: [
-            { id: 'item_1', name: 'item one' },
-            { id: 'item_2', name: 'item two' },
-          ],
-          exams: fakeExamState,
-          examModalShown: false,
-        }));
       });
     });
 
@@ -208,8 +221,7 @@ describe('showPage actions for coach exams section', () => {
       learnerGroupStub.returns(makeHappyFetchable(fakeItems));
       classroomStub.returns(makeHappyFetchable(fakeItems));
       examStub.returns(makeHappyFetchable(fakeExams));
-      return examActions.showExamsPage(storeMock, 'class_1')._promise
-      .catch(() => {
+      return examActions.showExamsPage(storeMock, 'class_1')._promise.catch(() => {
         sinon.assert.calledWith(dispatchSpy, 'CORE_SET_ERROR', 'channel error');
       });
     });

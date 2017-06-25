@@ -61,10 +61,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
   export default {
-    mixins: [
-      responsiveWindow,
-      responsiveElement
-    ],
+    mixins: [responsiveWindow, responsiveElement],
     $trNameSpace: 'navbar',
     $trs: {
       navigationLabel: 'Main user navigation',
@@ -77,7 +74,7 @@
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
-      learningEqualityCopyright: '\xA9 2017 Learning Equality'
+      learningEqualityCopyright: '\xA9 2017 Learning Equality',
     },
     props: {
       topLevelPageName: {
@@ -87,20 +84,20 @@
             return true;
           }
           return values(TopLevelPageNames).includes(value);
-        }
+        },
       },
       navShown: {
         type: Boolean,
-        required: true
+        required: true,
       },
       headerHeight: {
         type: Number,
-        required: true
+        required: true,
       },
       width: {
         type: Number,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       navigate(option) {
@@ -112,20 +109,22 @@
       },
       toggleNav() {
         this.$emit('toggleSideNav');
-      }
+      },
     },
     computed: {
       closeStyle() {
         return {
-          fontSize: `${ this.headerHeight / 2 }px`,
-          marginLeft: `${ this.width / 20 }px`,
-          marginRight: `${ this.width / 20 }px`
+          fontSize: `${this.headerHeight / 2}px`,
+          marginLeft: `${this.width / 20}px`,
+          marginRight: `${this.width / 20}px`,
         };
       },
       wrapperStyle() {
         return {
-          minHeight: `${ (this.menuOptions.length - 1) * 50 + 173 + (!this.mobile ? this.width / 2.5 : 0) }px`,
-          width: `${ this.width }px`
+          minHeight: `${(this.menuOptions.length - 1) * 50 +
+            173 +
+            (!this.mobile ? this.width / 2.5 : 0)}px`,
+          width: `${this.width}px`,
         };
       },
       mobile() {
@@ -159,18 +158,20 @@
         return this.topLevelPageName === TopLevelPageNames.ABOUT;
       },
       menuOptions() {
-        const options = [{
+        const options = [
+          {
             label: this.$tr('learn'),
             active: this.learnActive,
             icon: 'school',
-            href: '/learn'
-          }];
+            href: '/learn',
+          },
+        ];
         if (this.isAdmin || this.isSuperuser || this.isCoach) {
           options.push({
             label: this.$tr('coach'),
             active: this.coachActive,
             icon: 'assessment',
-            href: '/coach'
+            href: '/coach',
           });
         }
         if (this.isAdmin || this.isSuperuser) {
@@ -178,7 +179,7 @@
             label: this.$tr('manage'),
             active: this.manageActive,
             icon: 'people',
-            href: '/management'
+            href: '/management',
           });
         }
         options.push({ type: 'divider' });
@@ -187,28 +188,28 @@
             label: this.$tr('profile'),
             active: this.profileActive,
             icon: 'account_circle',
-            href: '/user'
+            href: '/user',
           });
           options.push({
             label: this.$tr('signOut'),
             icon: 'exit_to_app',
-            action: this.signOut
+            action: this.signOut,
           });
         } else {
           options.push({
             label: this.$tr('signIn'),
             icon: 'exit_to_app',
-            href: '/user'
+            href: '/user',
           });
         }
         return options;
-      }
+      },
     },
     components: {
       uiMenu,
       uiIcon,
       uiIconButton,
-      logo
+      logo,
     },
     vuex: {
       actions: { signOut: actions.kolibriLogout },
@@ -217,9 +218,9 @@
         isUserLoggedIn: getters.isUserLoggedIn,
         isSuperuser: getters.isSuperuser,
         isAdmin: getters.isAdmin,
-        isCoach: getters.isCoach
-      }
-    }
+        isCoach: getters.isCoach,
+      },
+    },
   };
 
 </script>

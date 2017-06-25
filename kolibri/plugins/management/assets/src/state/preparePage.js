@@ -4,6 +4,6 @@ function preparePage(dispatch, { name, title, isAsync = true }) {
   dispatch('SET_PAGE_NAME', name);
   dispatch('CORE_SET_TITLE', title);
   dispatch('CORE_SET_ERROR', null);
-};
+}
 
 export { preparePage as default };

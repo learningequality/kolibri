@@ -5,7 +5,6 @@ import { ClassroomResource } from 'kolibri.resources';
 // ================================
 // CLASS LIST ACTIONS
 
-
 function _classState(classData) {
   return {
     id: classData.id,
@@ -16,11 +15,9 @@ function _classState(classData) {
 
 function setClassState(store, classId = null) {
   const classCollection = ClassroomResource.getCollection();
-  return classCollection.fetch().then(
-    classes => {
-      store.dispatch('SET_CLASS_INFO', classId, classes.map(_classState));
-    }
-  );
+  return classCollection.fetch().then(classes => {
+    store.dispatch('SET_CLASS_INFO', classId, classes.map(_classState));
+  });
 }
 
 function showClassListPage(store) {
@@ -33,10 +30,11 @@ function showClassListPage(store) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', 'Coach - Classes'); // Follow Naming Scheme
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 // - - - - - Action for Coach Exercise Render Page - - - - - -
 
@@ -44,9 +42,4 @@ function setSelectedAttemptLogIndex(store, index) {
   store.dispatch('SET_SELETED_ATTEMPTLOG_INDEX', index);
 }
 
-
-export {
-  setClassState,
-  showClassListPage,
-  setSelectedAttemptLogIndex,
-};
+export { setClassState, showClassListPage, setSelectedAttemptLogIndex };

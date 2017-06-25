@@ -1,4 +1,3 @@
-
 const ContentScopes = {
   ROOT: 'root',
   TOPIC: 'topic',
@@ -35,11 +34,4 @@ const SortOrders = {
 
 const RECENCY_THRESHOLD_IN_DAYS = 7;
 
-export {
-  ContentScopes,
-  UserScopes,
-  ViewBy,
-  TableColumns,
-  SortOrders,
-  RECENCY_THRESHOLD_IN_DAYS,
-};
+export { ContentScopes, UserScopes, ViewBy, TableColumns, SortOrders, RECENCY_THRESHOLD_IN_DAYS };

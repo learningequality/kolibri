@@ -81,10 +81,7 @@
 
   import * as getters from '../state/getters';
   import store from '../state/store';
-  import {
-    PageNames,
-    PageModes
-  } from '../constants';
+  import { PageNames, PageModes } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -113,7 +110,7 @@
       topics: 'Topics',
       search: 'Search',
       exams: 'Exams',
-      clear: 'Clear'
+      clear: 'Clear',
     },
     components: {
       explorePage,
@@ -131,7 +128,7 @@
       examPage,
       totalPoints,
       uiIconButton,
-      uiIcon
+      uiIcon,
     },
     data() {
       return { searchQuery: this.searchTerm };
@@ -140,39 +137,39 @@
       switchChannel(channelId) {
         let page;
         switch (this.pageMode) {
-        case PageModes.SEARCH:
-          page = PageNames.SEARCH;
-          if (this.searchTerm) {
-            this.$router.push({
-              name: page,
-              params: { channel_id: channelId },
-              query: { query: this.searchTerm }
-            });
-            return;
-          }
-          break;
-        case PageModes.LEARN:
-          page = PageNames.LEARN_CHANNEL;
-          break;
-        case PageModes.EXAM:
-          page = PageNames.EXAM_LIST;
-          break;
-        default:
-          page = PageNames.EXPLORE_CHANNEL;
+          case PageModes.SEARCH:
+            page = PageNames.SEARCH;
+            if (this.searchTerm) {
+              this.$router.push({
+                name: page,
+                params: { channel_id: channelId },
+                query: { query: this.searchTerm },
+              });
+              return;
+            }
+            break;
+          case PageModes.LEARN:
+            page = PageNames.LEARN_CHANNEL;
+            break;
+          case PageModes.EXAM:
+            page = PageNames.EXAM_LIST;
+            break;
+          default:
+            page = PageNames.EXPLORE_CHANNEL;
         }
         this.$router.push({
           name: page,
-          params: { channel_id: channelId }
+          params: { channel_id: channelId },
         });
       },
       search() {
         if (this.searchQuery !== '') {
           this.$router.push({
             name: PageNames.SEARCH,
-            query: { query: this.searchQuery }
+            query: { query: this.searchQuery },
           });
         }
-      }
+      },
     },
     computed: {
       searchInputStyle() {
@@ -190,10 +187,16 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (this.pageName === PageNames.EXPLORE_CHANNEL || this.pageName === PageNames.EXPLORE_TOPIC) {
+        if (
+          this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC
+        ) {
           return 'explore-page';
         }
-        if (this.pageName === PageNames.EXPLORE_CONTENT || this.pageName === PageNames.LEARN_CONTENT) {
+        if (
+          this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT
+        ) {
           return 'content-page';
         }
         if (this.pageName === PageNames.LEARN_CHANNEL) {
@@ -228,26 +231,26 @@
       recommendedLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          params: { channel_id: this.channelId }
+          params: { channel_id: this.channelId },
         };
       },
       topicsLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          params: { channel_id: this.channelId }
+          params: { channel_id: this.channelId },
         };
       },
       examsLink() {
         return {
           name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId }
+          params: { channel_id: this.channelId },
         };
-      }
+      },
     },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
-      }
+      },
     },
     vuex: {
       getters: {
@@ -256,10 +259,10 @@
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
-        channelId: state => state.core.channels.currentId
-      }
+        channelId: state => state.core.channels.currentId,
+      },
     },
-    store
+    store,
   };
 
 </script>

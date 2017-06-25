@@ -85,18 +85,18 @@
       isAdmin: 'Admin',
       isSuperuser: 'Device Owner',
       points: 'Points',
-      role: 'Role'
+      role: 'Role',
     },
     components: {
       iconButton,
       coreTextbox,
       uiAlert,
-      pointsIcon
+      pointsIcon,
     },
     data() {
       return {
         username: this.session.username,
-        full_name: this.session.full_name
+        full_name: this.session.full_name,
       };
     },
     created() {
@@ -135,16 +135,16 @@
           return this.$tr('isLearner');
         }
         return '';
-      }
+      },
     },
     methods: {
       submitEdits() {
         const edits = {
           username: this.username,
-          full_name: this.full_name
+          full_name: this.full_name,
         };
         this.editProfile(edits, this.session);
-      }
+      },
     },
     vuex: {
       getters: {
@@ -158,15 +158,15 @@
         isAdmin: getters.isAdmin,
         isCoach: getters.isCoach,
         isLearner: getters.isLearner,
-        totalPoints
+        totalPoints,
       },
       actions: {
         editProfile: actions.editProfile,
         resetProfileState: actions.resetProfileState,
-        fetchPoints
-      }
+        fetchPoints,
+      },
     },
-    mixins: [responsiveWindow]
+    mixins: [responsiveWindow],
   };
 
 </script>

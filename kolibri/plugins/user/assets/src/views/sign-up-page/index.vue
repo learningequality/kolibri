@@ -117,7 +117,7 @@
       kolibri: 'Kolibri',
       finish: 'Finish',
       facility: 'Facility',
-      selectFacility: 'Select a facility'
+      selectFacility: 'Select a facility',
     },
     components: {
       iconButton,
@@ -127,7 +127,7 @@
       uiCheckbox,
       logo,
       uiIcon,
-      uiSelect
+      uiSelect,
     },
     data: () => ({
       name: '',
@@ -135,7 +135,7 @@
       password: '',
       confirmed_password: '',
       checkSelect: false,
-      selection: {}
+      selection: {},
     }),
     computed: {
       signInPage() {
@@ -157,7 +157,13 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return this.name && this.username && this.password && this.confirmed_password && !this.noFacilitySelected;
+        return (
+          this.name &&
+          this.username &&
+          this.password &&
+          this.confirmed_password &&
+          !this.noFacilitySelected
+        );
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
@@ -165,7 +171,7 @@
       facilityOptions() {
         return this.facilities.map(facility => ({
           label: facility.name,
-          id: facility.id
+          id: facility.id,
         }));
       },
       noFacilitySelected() {
@@ -182,7 +188,7 @@
           return this.facilityOptions[0];
         }
         return this.selection;
-      }
+      },
     },
     methods: {
       signUp() {
@@ -193,13 +199,13 @@
             facility: this.selectedFacility.id,
             full_name: this.name,
             username: this.username,
-            password: this.password
+            password: this.password,
           });
         }
       },
       updateSelection(selection) {
         this.selection = selection;
-      }
+      },
     },
     vuex: {
       getters: {
@@ -207,13 +213,13 @@
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
-        facilities: state => state.core.facilities
+        facilities: state => state.core.facilities,
       },
       actions: {
         signUpAction: actions.signUp,
-        resetSignUpState: actions.resetSignUpState
-      }
-    }
+        resetSignUpState: actions.resetSignUpState,
+      },
+    },
   };
 
 </script>

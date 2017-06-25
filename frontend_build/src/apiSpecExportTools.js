@@ -1,8 +1,8 @@
 /* eslint-disable */
-var fs = require("fs");
-var path = require("path");
-var esprima = require("esprima");
-var escodegen = require("escodegen");
+var fs = require('fs');
+var path = require('path');
+var esprima = require('esprima');
+var escodegen = require('escodegen');
 
 /**
  * The following code is designed to read our apiSpec Javascript, but without having to resolve the
@@ -11,7 +11,9 @@ var escodegen = require("escodegen");
  */
 
 // Find the API specification file relative to this file.
-var specFilePath = path.resolve(path.join(__dirname, '../../kolibri/core/assets/src/core-app/apiSpec.js'))
+var specFilePath = path.resolve(
+  path.join(__dirname, '../../kolibri/core/assets/src/core-app/apiSpec.js')
+);
 
 function specModule(filePath) {
   var rootPath = path.dirname(filePath);
@@ -32,14 +34,15 @@ function specModule(filePath) {
 
   var pathLookup = {};
 
-  apiSpecTree.body.forEach(function (dec) {
+  apiSpecTree.body.forEach(function(dec) {
     if (dec.type === esprima.Syntax.ImportDeclaration) {
       pathLookup[dec.specifiers[0].local.name] = newPath(dec.source.value);
     }
   });
 
   var properties = apiSpecTree.body.find(
-    dec => dec.type === esprima.Syntax.ExportDefaultDeclaration).declaration.properties;
+    dec => dec.type === esprima.Syntax.ExportDefaultDeclaration
+  ).declaration.properties;
 
   function recurseProperties(props) {
     props.forEach(prop => {
@@ -47,12 +50,11 @@ function specModule(filePath) {
         recurseProperties(prop.value.properties);
       } else if (prop.value.type === esprima.Syntax.Identifier) {
         var path = pathLookup[prop.key.name];
-        prop.value = {
+        (prop.value = {
           type: 'Literal',
           value: path,
           raw: '"' + path + '"',
-        },
-        prop.shorthand = false;
+        }), (prop.shorthand = false);
       }
     });
   }
@@ -72,16 +74,16 @@ function specModule(filePath) {
             init: {
               type: 'ObjectExpression',
               properties,
-            }
-          }
+            },
+          },
         ],
-        kind: 'var'
-      }
+        kind: 'var',
+      },
     ],
-    sourceType: 'script'
+    sourceType: 'script',
   };
 
-  eval(escodegen.generate(objectTree))
+  eval(escodegen.generate(objectTree));
 
   return apiSpec;
 }
@@ -89,7 +91,7 @@ function specModule(filePath) {
 var apiSpec = specModule(specFilePath);
 
 function requireName(pathArray) {
-  return ['kolibri'].concat(pathArray.slice(1)).join('.')
+  return ['kolibri'].concat(pathArray.slice(1)).join('.');
 }
 
 function coreExternals(kolibri_name) {
@@ -97,11 +99,11 @@ function coreExternals(kolibri_name) {
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
    */
   var externalsObj = {
-    kolibri: kolibri_name
+    kolibri: kolibri_name,
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
     if (typeof obj === 'object') {
-      Object.keys(obj).forEach(function (key) {
+      Object.keys(obj).forEach(function(key) {
         recurseObjectKeysAndExternalize(obj[key], pathArray.concat(key));
       });
     } else {
@@ -111,7 +113,7 @@ function coreExternals(kolibri_name) {
       }
       externalsObj[requireName(pathArray)] = pathArray.join('.');
     }
-  };
+  }
   recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
   return externalsObj;
 }
@@ -122,11 +124,14 @@ function coreAliases(localAPISpec) {
    */
   var aliasesObj = {
     kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
-    content_renderer_module: path.resolve(__dirname, '../../kolibri/core/assets/src/content_renderer_module'),
+    content_renderer_module: path.resolve(
+      __dirname,
+      '../../kolibri/core/assets/src/content_renderer_module'
+    ),
   };
-  function recurseObjectKeysAndAlias (obj, pathArray) {
+  function recurseObjectKeysAndAlias(obj, pathArray) {
     if (typeof obj === 'object') {
-      Object.keys(obj).forEach(function (key) {
+      Object.keys(obj).forEach(function(key) {
         recurseObjectKeysAndAlias(obj[key], pathArray.concat(key));
       });
     } else {
@@ -136,12 +141,14 @@ function coreAliases(localAPISpec) {
       // modules that are already in node_modules.
       if (obj.startsWith('.')) {
         // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
-        aliasesObj[requireName(pathArray)] = path.resolve(path.join(path.dirname(specFilePath), obj));
+        aliasesObj[requireName(pathArray)] = path.resolve(
+          path.join(path.dirname(specFilePath), obj)
+        );
       } else if (!obj.startsWith('.')) {
         aliasesObj[requireName(pathArray)] = obj;
       }
     }
-  };
+  }
   recurseObjectKeysAndAlias(apiSpec, ['kolibri']);
   if (localAPISpec) {
     // If there is a local API spec being injected, just overwrite previous aliases.
@@ -153,5 +160,5 @@ function coreAliases(localAPISpec) {
 
 module.exports = {
   coreExternals: coreExternals,
-  coreAliases: coreAliases
-}
+  coreAliases: coreAliases,
+};

@@ -38,24 +38,26 @@
         });
       },
       currentChannelName() {
-        const channelName = Object(this.sortedChannels.find(channel => channel.id === this.globalCurrentChannel)).title;
+        const channelName = Object(
+          this.sortedChannels.find(channel => channel.id === this.globalCurrentChannel)
+        ).title;
         if (channelName) {
           return channelName;
         }
         return '';
-      }
+      },
     },
     methods: {
       emitSelection(channel) {
         this.$emit('switch', channel.id);
-      }
+      },
     },
     vuex: {
       getters: {
         globalCurrentChannel: state => state.core.channels.currentId,
-        channelList: state => state.core.channels.list
-      }
-    }
+        channelList: state => state.core.channels.list,
+      },
+    },
   };
 
 </script>

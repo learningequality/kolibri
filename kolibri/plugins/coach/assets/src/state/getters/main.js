@@ -1,6 +1,5 @@
 import * as Constants from '../../constants';
 
-
 function className(state) {
   const cls = state.classList.find(thisClass => thisClass.id === state.classId);
   if (cls) {
@@ -29,10 +28,4 @@ function isLearnerPage(state) {
   return Constants.LearnerReports.includes(state.pageName);
 }
 
-export {
-  className,
-  classMemberCount,
-  isRecentPage,
-  isTopicPage,
-  isLearnerPage,
-};
+export { className, classMemberCount, isRecentPage, isTopicPage, isLearnerPage };

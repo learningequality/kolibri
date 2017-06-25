@@ -30,10 +30,7 @@
 <script>
 
   import { contentPoints } from 'kolibri.coreVue.vuex.getters';
-  import {
-    MaxPointsPerContent,
-    ContentNodeKinds
-  } from 'kolibri.coreVue.vuex.constants';
+  import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -51,18 +48,18 @@
       document: 'Document',
       html5: 'HTML5 app',
       item: 'Item',
-      close: 'Close'
+      close: 'Close',
     },
     components: {
       pointsIcon,
       contentIcon,
       coreModal,
-      iconButton
+      iconButton,
     },
     vuex: { getters: { contentPoints } },
     props: {
       kind: { type: String },
-      title: { type: String }
+      title: { type: String },
     },
     computed: {
       maxPoints() {
@@ -84,13 +81,13 @@
           return this.$tr('html5');
         }
         return this.$tr('item');
-      }
+      },
     },
     methods: {
       closePopover() {
         this.$emit('close');
-      }
-    }
+      },
+    },
   };
 
 </script>

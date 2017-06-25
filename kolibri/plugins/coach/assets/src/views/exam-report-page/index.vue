@@ -79,14 +79,14 @@
       },
       averageScore() {
         const totalScores = sumBy(this.examsInProgress, 'score');
-        return (totalScores / this.takenBy) / this.exam.question_count;
+        return totalScores / this.takenBy / this.exam.question_count;
       },
       examsInProgress() {
         return this.examTakers.filter(examTaker => examTaker.progress !== undefined);
       },
       takenBy() {
         return this.examsInProgress.length;
-      }
+      },
     },
     methods: {
       examDetailPageLink(id) {
@@ -96,7 +96,7 @@
             classId: this.classId,
             channelId: this.channelId,
             examId: this.exam.id,
-            userId: id
+            userId: id,
           },
         };
       },

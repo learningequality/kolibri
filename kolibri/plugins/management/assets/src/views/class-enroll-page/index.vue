@@ -183,7 +183,8 @@
       allUsersAlready: 'All users are already enrolled in this class',
       search: 'Search',
       selectUser: 'Select user',
-      pagination: '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }'
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     components: {
       iconButton,
@@ -194,14 +195,14 @@
       userCreateModal,
       confirmEnrollmentModal,
       uiSwitch,
-      userRole
+      userRole,
     },
     data: () => ({
       filterInput: '',
       perPage: 10,
       pageNum: 1,
       selectedUsers: [],
-      showSelectedUsers: false
+      showSelectedUsers: false,
     }),
     computed: {
       usersNotInClass() {
@@ -213,20 +214,21 @@
       filteredUsers() {
         const users = this.showSelectedUsers ? this.usersNotInClassSelected : this.usersNotInClass;
         return users.filter(user => {
-          const searchTerms = this.filterInput.split(' ').filter(Boolean).map(term => term.toLowerCase());
+          const searchTerms = this.filterInput
+            .split(' ')
+            .filter(Boolean)
+            .map(term => term.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         });
       },
       sortedFilteredUsers() {
-        return orderBy(this.filteredUsers, [
-          user => user.username.toUpperCase(),
-          user => user.full_name.toUpperCase()
-        ], [
-          'asc',
-          'asc'
-        ]);
+        return orderBy(
+          this.filteredUsers,
+          [user => user.username.toUpperCase(), user => user.full_name.toUpperCase()],
+          ['asc', 'asc']
+        );
       },
       numFilteredUsers() {
         return this.sortedFilteredUsers.length;
@@ -250,12 +252,14 @@
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
       allVisibleFilteredUsersSelected() {
-        return this.visibleFilteredUsers.every(visibleUser => this.selectedUsers.includes(visibleUser.id));
+        return this.visibleFilteredUsers.every(visibleUser =>
+          this.selectedUsers.includes(visibleUser.id)
+        );
       },
       editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          id: this.classId
+          id: this.classId,
         };
       },
       showCreateUserModal() {
@@ -263,7 +267,7 @@
       },
       showConfirmEnrollmentModal() {
         return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
-      }
+      },
     },
     methods: {
       reducePageNum() {
@@ -292,7 +296,9 @@
           });
         } else {
           this.visibleFilteredUsers.forEach(visibleUser => {
-            this.selectedUsers = this.selectedUsers.filter(selectedUser => selectedUser !== visibleUser.id);
+            this.selectedUsers = this.selectedUsers.filter(
+              selectedUser => selectedUser !== visibleUser.id
+            );
           });
         }
         this.reducePageNum();
@@ -312,12 +318,12 @@
       },
       openConfirmEnrollmentModal() {
         this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
-      }
+      },
     },
     watch: {
       userJustCreated(user) {
         this.selectedUsers.push(user.id);
-      }
+      },
     },
     vuex: {
       getters: {
@@ -326,10 +332,10 @@
         facilityUsers: state => state.pageState.facilityUsers,
         classUsers: state => state.pageState.classUsers,
         modalShown: state => state.pageState.modalShown,
-        userJustCreated: state => state.pageState.userJustCreated
+        userJustCreated: state => state.pageState.userJustCreated,
       },
-      actions: { displayModal: actions.displayModal }
-    }
+      actions: { displayModal: actions.displayModal },
+    },
   };
 
 </script>

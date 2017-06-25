@@ -47,29 +47,30 @@
     $trs: {
       title: '{name} - Exam Performance',
       overallScore: 'Overall Score: <strong>{ score, number, percent }</strong>',
-      questionsCorrect: 'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
+      questionsCorrect:
+        'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
       completed: 'Completed',
       inProgress: 'In progress',
-      notStarted: 'Not started'
+      notStarted: 'Not started',
     },
     components: {
       progressIcon,
-      elapsedTime
+      elapsedTime,
     },
     props: {
       userName: {
         type: String,
-        required: true
+        required: true,
       },
       questions: {
         type: Array,
-        default: []
+        default: [],
       },
       completed: {
         type: Boolean,
-        default: false
+        default: false,
       },
-      completionTimestamp: { type: Date }
+      completionTimestamp: { type: Date },
     },
     computed: {
       questionsCorrect() {
@@ -80,8 +81,8 @@
       },
       progress() {
         return this.completed ? 1 : 0.1;
-      }
-    }
+      },
+    },
   };
 
 </script>

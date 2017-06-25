@@ -36,19 +36,19 @@
       text: { type: String },
       primary: {
         type: Boolean,
-        default: false
+        default: false,
       },
       disabled: {
         type: Boolean,
-        default: false
+        default: false,
       },
       showTextBelowIcon: {
         type: Boolean,
-        default: false
+        default: false,
       },
       size: {
         type: String,
-        default: 'normal'
+        default: 'normal',
       },
       type: { type: String },
       alignment: {
@@ -57,12 +57,12 @@
         required: false,
         validator(value) {
           return value === 'left' || value === 'right';
-        }
+        },
       },
       loading: {
         type: Boolean,
-        required: false
-      }
+        required: false,
+      },
     },
     computed: {
       hasIcon() {
@@ -73,12 +73,12 @@
       },
       alignRight() {
         return this.alignment === 'right';
-      }
+      },
     },
     components: {
       uiButton,
-      uiIcon
-    }
+      uiIcon,
+    },
   };
 
 </script>

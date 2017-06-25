@@ -12,7 +12,7 @@
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
     components: { elapsedTime },
-    props: ['date']
+    props: ['date'],
   };
 
 </script>

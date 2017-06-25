@@ -45,51 +45,51 @@
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
-      rendererNotAvailable: 'Kolibri is unable to render this content'
+      rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     props: {
       id: {
         type: String,
-        required: true
+        required: true,
       },
       kind: {
         type: String,
-        required: true
+        required: true,
       },
       files: {
         type: Array,
-        default: () => []
+        default: () => [],
       },
       contentId: {
         type: String,
-        default: ''
+        default: '',
       },
       channelId: {
         type: String,
-        default: ''
+        default: '',
       },
       available: {
         type: Boolean,
-        default: false
+        default: false,
       },
       assessment: {
         type: Boolean,
-        default: false
+        default: false,
       },
       itemId: { default: null },
       answerState: { default: null },
       allowHints: {
         type: Boolean,
-        default: true
+        default: true,
       },
       initSession: {
         type: Function,
-        default: () => Promise.resolve()
-      }
+        default: () => Promise.resolve(),
+      },
     },
     components: {
       loadingSpinner,
-      uiAlert
+      uiAlert,
     },
     computed: {
       extension() {
@@ -109,7 +109,7 @@
       },
       thumbnailFiles() {
         return this.files.filter(file => file.thumbnail && file.available);
-      }
+      },
     },
     created() {
       this.updateRendererComponent();
@@ -117,7 +117,7 @@
     },
     data: () => ({
       currentViewClass: null,
-      noRendererAvailable: false
+      noRendererAvailable: false,
     }),
     methods: {
       updateRendererComponent() {
@@ -125,15 +125,17 @@
         if (this.available && this.kind && this.extension) {
           return Promise.all([
             this.initSession(),
-            this.Kolibri.retrieveContentRenderer(this.kind, this.extension)
-          ]).then(([session, component]) => {
-            this.$emit('sessionInitialized');
-            this.currentViewClass = component;
-            return this.currentViewClass;
-          }).catch(error => {
-            logging.error(error);
-            this.noRendererAvailable = true;
-          });
+            this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
+          ])
+            .then(([session, component]) => {
+              this.$emit('sessionInitialized');
+              this.currentViewClass = component;
+              return this.currentViewClass;
+            })
+            .catch(error => {
+              logging.error(error);
+              this.noRendererAvailable = true;
+            });
         }
         return Promise.resolve(null);
       },
@@ -169,8 +171,8 @@
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
         return null;
-      }
-    }
+      },
+    },
   };
 
 </script>

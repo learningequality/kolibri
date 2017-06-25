@@ -8,8 +8,6 @@ export default class ContentNodeProgressResource extends Resource {
     return 'pk';
   }
   static resourceIdentifiers() {
-    return [
-      'channel_id',
-    ];
+    return ['channel_id'];
   }
 }

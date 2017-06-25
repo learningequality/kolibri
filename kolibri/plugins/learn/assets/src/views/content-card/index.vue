@@ -44,15 +44,15 @@
     props: {
       title: {
         type: String,
-        required: true
+        required: true,
       },
       subtitle: {
         type: String,
-        required: false
+        required: false,
       },
       thumbnail: {
         type: String,
-        required: false
+        required: false,
       },
       kind: {
         type: String,
@@ -66,18 +66,18 @@
         required: true,
         default: 0.0,
         validator(value) {
-          return (value >= 0.0) && (value <= 1.0);
+          return value >= 0.0 && value <= 1.0;
         },
       },
       link: {
         type: Object,
         required: true,
-        validator: validateLinkObject
+        validator: validateLinkObject,
       },
       thumbnail: {
         type: String,
-        required: false
-      }
+        required: false,
+      },
     },
     computed: {
       mastered() {
@@ -88,7 +88,7 @@
       },
       backgroundImg() {
         if (this.thumbnail) {
-          return { backgroundImage: `url('${ this.thumbnail }')` };
+          return { backgroundImage: `url('${this.thumbnail}')` };
         }
         return {};
       },
@@ -105,12 +105,12 @@
           return 'card-content-icon-background-html5';
         }
         return '';
-      }
+      },
     },
     components: {
       contentIcon,
-      progressIcon
-    }
+      progressIcon,
+    },
   };
 
 </script>

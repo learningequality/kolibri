@@ -8,11 +8,11 @@ const { COACH, LEARNER } = UserKinds;
 
 export function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
-};
+}
 
 export function dispatchRoleChange(store, payload) {
   store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', payload);
-};
+}
 
 /**
  * Adds a Role to a User in the context of a Collection
@@ -43,19 +43,16 @@ export default function addCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   const newRole = COACH;
   dispatchRoleChange(store, { newRole, userId });
-  return (
-    ConditionalPromise.all([
-      addRoleToUserInCollection({ collectionId: classId, newRole, userId }),
-    ])
-    .only(
-      samePageCheckGenerator(store),
-      function onSuccess() {},
-      function onFailure(err) {
-        if (err) {
-          dispatchRoleChange(store, { newRole: LEARNER, userId });
-          dispatchError(store, err);
-        }
+  return ConditionalPromise.all([
+    addRoleToUserInCollection({ collectionId: classId, newRole, userId }),
+  ]).only(
+    samePageCheckGenerator(store),
+    function onSuccess() {},
+    function onFailure(err) {
+      if (err) {
+        dispatchRoleChange(store, { newRole: LEARNER, userId });
+        dispatchError(store, err);
       }
-    )
+    }
   );
-};
+}

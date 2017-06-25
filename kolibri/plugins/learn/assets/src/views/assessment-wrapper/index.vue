@@ -89,53 +89,54 @@ oriented data synchronization.
   export default {
     $trNameSpace: 'assessmentWrapper',
     $trs: {
-      goal: 'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
+      goal:
+        'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
       tryAgain: 'Try again!',
       check: 'Check answer',
       correct: 'Next question',
       incorrect: 'Sorry, try again',
-      itemError: 'There was an error showing this item'
+      itemError: 'There was an error showing this item',
     },
     props: {
       id: {
         type: String,
-        required: true
+        required: true,
       },
       kind: {
         type: String,
-        required: true
+        required: true,
       },
       files: {
         type: Array,
-        default: () => []
+        default: () => [],
       },
       contentId: {
         type: String,
-        default: ''
+        default: '',
       },
       channelId: {
         type: String,
-        default: ''
+        default: '',
       },
       available: {
         type: Boolean,
-        default: false
+        default: false,
       },
       extraFields: {
         type: String,
-        default: '{}'
+        default: '{}',
       },
       initSession: {
         type: Function,
-        default: () => Promise.resolve()
-      }
+        default: () => Promise.resolve(),
+      },
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
     components: {
       exerciseAttempts,
       contentRenderer,
       iconButton,
-      uiAlert
+      uiAlert,
     },
     data: () => ({
       ready: false,
@@ -145,10 +146,17 @@ oriented data synchronization.
       complete: false,
       correct: 0,
       itemError: false,
-      onlyHinted: false
+      onlyHinted: false,
     }),
     methods: {
-      updateAttemptLogMasteryLog({correct, complete, firstAttempt = false, hinted, answerState, simpleAnswer}) {
+      updateAttemptLogMasteryLog({
+        correct,
+        complete,
+        firstAttempt = false,
+        hinted,
+        answerState,
+        simpleAnswer,
+      }) {
         this.updateMasteryAttemptStateAction({
           currentTime: now(),
           correct,
@@ -156,7 +164,7 @@ oriented data synchronization.
           firstAttempt,
           hinted,
           answerState,
-          simpleAnswer
+          simpleAnswer,
         });
       },
       saveAttemptLogMasterLog() {
@@ -173,7 +181,7 @@ oriented data synchronization.
           this.answerGiven(answer);
         }
       },
-      answerGiven({correct, answerState, simpleAnswer}) {
+      answerGiven({ correct, answerState, simpleAnswer }) {
         this.onlyHinted = false;
         correct = Number(correct);
         this.correct = correct;
@@ -188,7 +196,7 @@ oriented data synchronization.
         this.updateAttemptLogInteractionHistoryAction({
           type: InteractionTypes.answer,
           answer: answerState,
-          correct
+          correct,
         });
         this.complete = correct === 1;
         if (this.firstAttempt) {
@@ -197,7 +205,7 @@ oriented data synchronization.
             complete: this.complete,
             answerState,
             simpleAnswer,
-            firstAttempt: true
+            firstAttempt: true,
           });
           this.firstAttempt = false;
         } else {
@@ -205,10 +213,10 @@ oriented data synchronization.
         }
         this.saveAttemptLogMasterLog();
       },
-      hintTaken({answerState}) {
+      hintTaken({ answerState }) {
         this.updateAttemptLogInteractionHistoryAction({
           type: InteractionTypes.hint,
-          answer: answerState
+          answer: answerState,
         });
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
@@ -217,7 +225,7 @@ oriented data synchronization.
             firstAttempt: true,
             hinted: true,
             answerState,
-            simpleAnswer: ''
+            simpleAnswer: '',
           });
           this.firstAttempt = false;
           this.onlyHinted = true;
@@ -268,13 +276,15 @@ oriented data synchronization.
       },
       handleItemError() {
         this.itemError = true;
-        this.updateAttemptLogInteractionHistoryAction({ type: InteractionTypes.error });
+        this.updateAttemptLogInteractionHistoryAction({
+          type: InteractionTypes.error,
+        });
         this.complete = true;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
             correct: 1,
             complete: this.complete,
-            firstAttempt: true
+            firstAttempt: true,
           });
           this.firstAttempt = false;
         } else {
@@ -289,7 +299,7 @@ oriented data synchronization.
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
-      }
+      },
     },
     computed: {
       canLogInteractions() {
@@ -299,12 +309,14 @@ oriented data synchronization.
         if (!this.pastattempts) {
           return [];
         }
-        return this.pastattempts.map(attempt => {
-          if (attempt.hinted) {
-            return 'hint';
-          }
-          return attempt.correct ? 'right' : 'wrong';
-        }).reverse();
+        return this.pastattempts
+          .map(attempt => {
+            if (attempt.hinted) {
+              return 'hint';
+            }
+            return attempt.correct ? 'right' : 'wrong';
+          })
+          .reverse();
       },
       mOfNMasteryModel() {
         return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
@@ -321,15 +333,22 @@ oriented data synchronization.
         }
         if (this.pastattempts) {
           if (this.pastattempts.length > this.attemptsWindowN) {
-            return Math.min(this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM, 1);
+            return Math.min(
+              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
+                this.totalCorrectRequiredM,
+              1
+            );
           }
-          return Math.min(this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM, 1);
+          return Math.min(
+            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
+            1
+          );
         }
         return 0;
       },
       success() {
         return this.exerciseProgress === 1;
-      }
+      },
     },
     vuex: {
       actions: {
@@ -341,7 +360,7 @@ oriented data synchronization.
         saveAttemptLogAction: actions.saveAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
-        updateExerciseProgress: actions.updateExerciseProgress
+        updateExerciseProgress: actions.updateExerciseProgress,
       },
       getters: {
         isSuperuser: getters.isSuperuser,
@@ -353,9 +372,9 @@ oriented data synchronization.
         content: state => state.pageState.content,
         assessmentIds: state => state.pageState.content.assessmentIds,
         masteryModel: state => state.pageState.content.masteryModel,
-        randomize: state => state.pageState.content.randomize
-      }
-    }
+        randomize: state => state.pageState.content.randomize,
+      },
+    },
   };
 
 </script>

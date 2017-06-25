@@ -129,30 +129,30 @@
       cancel: 'Cancel',
       deleteConfirmation: 'Are you sure you want to delete {user}?',
       pwMismatch: 'Passwords must match',
-      noNewPw: 'Please enter a new password'
+      noNewPw: 'Please enter a new password',
     },
     components: {
       iconButton,
       coreModal,
-      coreTextbox
+      coreTextbox,
     },
     props: {
       userid: {
         type: String,
-        required: true
+        required: true,
       },
       fullname: {
         type: String,
-        required: true
+        required: true,
       },
       username: {
         type: String,
-        required: true
+        required: true,
       },
       userkind: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     data() {
       return {
@@ -163,7 +163,7 @@
         kind_new: this.userkind,
         usr_delete: false,
         pw_reset: false,
-        error_message: ''
+        error_message: '',
       };
     },
     computed: {
@@ -193,7 +193,7 @@
           return this.$tr('no');
         }
         return this.$tr('cancel');
-      }
+      },
     },
     methods: {
       cancelClick() {
@@ -224,10 +224,13 @@
           id: this.userid,
           username: this.username_new,
           full_name: this.fullName_new,
-          kind: this.kind_new
+          kind: this.kind_new,
         };
         this.updateUser(payload);
-        if (this.session_user_kind !== UserKinds.SUPERUSER && Number(this.userid) === this.session_user_id) {
+        if (
+          this.session_user_kind !== UserKinds.SUPERUSER &&
+          Number(this.userid) === this.session_user_id
+        ) {
           if (this.kind_new === UserKinds.LEARNER) {
             window.location.href = window.location.origin;
           }
@@ -247,7 +250,7 @@
           if (this.password_new === this.password_new_confirm) {
             this.updateUser({
               id: this.userid,
-              password: this.password_new
+              password: this.password_new,
             });
             this.close();
           } else {
@@ -262,20 +265,20 @@
       },
       clearErrorMessage() {
         this.error_message = '';
-      }
+      },
     },
     vuex: {
       actions: {
         logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,
-        displayModal: actions.displayModal
+        displayModal: actions.displayModal,
       },
       getters: {
         session_user_id: state => state.core.session.user_id,
-        session_user_kind: state => state.core.session.kind[0]
-      }
-    }
+        session_user_kind: state => state.core.session.kind[0],
+      },
+    },
   };
 
 </script>

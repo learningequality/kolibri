@@ -125,12 +125,12 @@
       userCreateModal,
       userEditModal,
       iconButton,
-      userRole
+      userRole,
     },
     data: () => ({
       roleFilter: 'all',
       searchFilter: '',
-      currentUserEdit: null
+      currentUserEdit: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
@@ -168,7 +168,7 @@
       },
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
-      }
+      },
     },
     methods: {
       openEditUserModal(user) {
@@ -177,17 +177,17 @@
       },
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
-      }
+      },
     },
     vuex: {
       getters: {
         users: state => state.pageState.facilityUsers,
-        modalShown: state => state.pageState.modalShown
+        modalShown: state => state.pageState.modalShown,
       },
       actions: {
         deleteUser: actions.deleteUser,
-        displayModal: actions.displayModal
-      }
+        displayModal: actions.displayModal,
+      },
     },
     $trNameSpace: 'userPage',
     $trs: {
@@ -205,8 +205,8 @@
       username: 'Username',
       edit: 'Edit',
       noUsersExist: 'No Users Exist.',
-      allUsersFilteredOut: 'No users match the filter.'
-    }
+      allUsersFilteredOut: 'No users match the filter.',
+    },
   };
 
 </script>

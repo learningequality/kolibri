@@ -35,8 +35,4 @@ function convertKeysToSnakeCase(object) {
   return mapKeys(object, (value, key) => snakeCase(key));
 }
 
-export {
-  assessmentMetaDataState,
-  convertKeysToCamelCase,
-  convertKeysToSnakeCase,
-};
+export { assessmentMetaDataState, convertKeysToCamelCase, convertKeysToSnakeCase };

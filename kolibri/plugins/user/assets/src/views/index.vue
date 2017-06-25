@@ -25,7 +25,7 @@
       coreBase,
       signInPage,
       signUpPage,
-      profilePage
+      profilePage,
     },
     computed: {
       appBarTitle() {
@@ -55,10 +55,10 @@
           return false;
         }
         return true;
-      }
+      },
     },
     vuex: { getters: { pageName: state => state.pageName } },
-    store
+    store,
   };
 
 </script>

@@ -25,21 +25,21 @@
     $trNameSpace: 'classSelector',
     $trs: {
       allClasses: 'All classes',
-      selectClass: 'Class'
+      selectClass: 'Class',
     },
     components: {
       uiSelect,
-      uiIcon
+      uiIcon,
     },
     props: {
       classes: {
         type: Array,
-        required: true
+        required: true,
       },
       currentClassId: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       sortedClasses() {
@@ -48,7 +48,7 @@
       classOptions() {
         return this.sortedClasses.map(classroom => ({
           label: classroom.name,
-          id: classroom.id
+          id: classroom.id,
         }));
       },
       currentClass() {
@@ -56,13 +56,13 @@
       },
       classListPage() {
         return { name: PageNames.CLASS_LIST };
-      }
+      },
     },
     methods: {
       changeClass(classSelected) {
         this.$emit('changeClass', classSelected.id);
-      }
-    }
+      },
+    },
   };
 
 </script>

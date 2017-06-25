@@ -8,15 +8,17 @@ function prepareLearnApp(store) {
 
   if (userId === null) return Promise.resolve();
 
-  const membershipPromise = MembershipResource.getCollection({ user_id: userId }).fetch();
+  const membershipPromise = MembershipResource.getCollection({
+    user_id: userId,
+  }).fetch();
 
   return membershipPromise
-  .then((memberships) => {
-    store.dispatch('LEARN_SET_MEMBERSHIPS', memberships);
-  })
-  .catch((err) => {
-    store.dispatch('CORE_SET_ERROR', err);
-  });
+    .then(memberships => {
+      store.dispatch('LEARN_SET_MEMBERSHIPS', memberships);
+    })
+    .catch(err => {
+      store.dispatch('CORE_SET_ERROR', err);
+    });
 }
 
 export { prepareLearnApp as default };

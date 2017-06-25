@@ -35,41 +35,41 @@
       noLongerVisible: 'The exam will be no longer be visible to the following:',
       cancel: 'Cancel',
       deactivate: 'Deactivate',
-      entireClass: 'Entire class'
+      entireClass: 'Entire class',
     },
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
     props: {
       examId: {
         type: String,
-        required: true
+        required: true,
       },
       examTitle: {
         type: String,
-        required: true
+        required: true,
       },
       examVisibility: {
         type: Object,
-        required: true
+        required: true,
       },
       classId: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        deactivateExam: examActions.deactivateExam
-      }
-    }
+        deactivateExam: examActions.deactivateExam,
+      },
+    },
   };
 
 </script>

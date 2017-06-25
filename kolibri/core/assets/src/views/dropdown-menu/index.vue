@@ -52,44 +52,44 @@
     components: {
       uiButton,
       uiIconButton,
-      uiMenu
+      uiMenu,
     },
     mixins: [responsiveWindow],
     props: {
       name: {
         type: String,
-        required: true
+        required: true,
       },
       options: {
         type: Array,
-        required: true
+        required: true,
       },
       icon: {
         type: String,
-        default: ''
+        default: '',
       },
       type: {
         type: String,
-        default: 'secondary'
+        default: 'secondary',
       },
       color: {
         type: String,
-        default: 'primary'
+        default: 'primary',
       },
       inAppBar: {
         type: Boolean,
-        default: false
+        default: false,
       },
       displayDisabledAsSelected: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
     },
     methods: {
       emitSelection(selection) {
         this.$emit('select', selection);
-      }
-    }
+      },
+    },
   };
 
 </script>

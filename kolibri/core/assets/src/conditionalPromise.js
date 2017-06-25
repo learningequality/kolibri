@@ -30,15 +30,18 @@ export default class ConditionalPromise {
    * @param {FUnction} reject - Function to call if the Promise fails.
    */
   only(continueCheck, resolve, reject) {
-    this._promise.then((success) => {
-      if (continueCheck() && resolve) {
-        resolve(success);
+    this._promise.then(
+      success => {
+        if (continueCheck() && resolve) {
+          resolve(success);
+        }
+      },
+      error => {
+        if (continueCheck() && reject) {
+          reject(error);
+        }
       }
-    }, (error) => {
-      if (continueCheck() && reject) {
-        reject(error);
-      }
-    });
+    );
     return this;
   }
 

@@ -56,21 +56,21 @@
     props: {
       value: {
         type: String,
-        required: true
+        required: true,
       },
       drives: {
         type: Array,
-        required: true
+        required: true,
       },
       enabledDrivePred: {
         type: Function,
-        required: true
+        required: true,
       },
       enabledMsg: { type: Function },
       disabledMsg: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       selectedDrive() {
@@ -81,13 +81,13 @@
       },
       disabledDrives() {
         return this.drives.filter(drive => !this.enabledDrivePred(drive));
-      }
+      },
     },
     $trNameSpace: 'wizardDriveList',
     $trs: {
       drivesFound: 'Drives found:',
-      noDrivesDetected: 'No drives were detected'
-    }
+      noDrivesDetected: 'No drives were detected',
+    },
   };
 
 </script>

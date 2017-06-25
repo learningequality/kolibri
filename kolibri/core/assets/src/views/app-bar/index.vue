@@ -54,7 +54,7 @@
     isSuperuser,
     isAdmin,
     isCoach,
-    isLearner
+    isLearner,
   } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
@@ -71,55 +71,55 @@
       signIn: 'Sign In',
       superuser: 'Device owner',
       admin: 'Admin',
-      coach: 'Coach'
+      coach: 'Coach',
     },
     props: {
       title: {
         type: String,
-        required: true
+        required: true,
       },
       navShown: {
         type: Boolean,
-        required: true
+        required: true,
       },
       height: {
         type: Number,
-        required: true
-      }
+        required: true,
+      },
     },
     components: {
       uiToolbar,
       uiIconButton,
       uiMenu,
-      uiButton
+      uiButton,
     },
     computed: {
       accountMenuOptions() {
         return [
           {
             id: 'profile',
-            label: this.$tr('profile')
+            label: this.$tr('profile'),
           },
           {
             id: 'signOut',
-            label: this.$tr('signOut')
-          }
+            label: this.$tr('signOut'),
+          },
         ];
-      }
+      },
     },
     methods: {
       optionSelected(option) {
         switch (option.id) {
-        case 'profile':
-          window.location = `/user`;
-          break;
-        case 'signOut':
-          this.kolibriLogout();
-          break;
-        default:
-          break;
+          case 'profile':
+            window.location = `/user`;
+            break;
+          case 'signOut':
+            this.kolibriLogout();
+            break;
+          default:
+            break;
         }
-      }
+      },
     },
     vuex: {
       actions: { kolibriLogout },
@@ -129,9 +129,9 @@
         isSuperuser,
         isAdmin,
         isCoach,
-        isLearner
-      }
-    }
+        isLearner,
+      },
+    },
   };
 
 </script>

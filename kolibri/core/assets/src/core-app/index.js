@@ -1,4 +1,3 @@
-
 // include global styles
 require('purecss/build/base-min.css');
 require('purecss/build/grids-min.css');
@@ -11,7 +10,6 @@ require('keen-ui/src/bootstrap');
 // configure Keen
 const KeenUiConfig = require('keen-ui/src/config').default;
 KeenUiConfig.set(require('../keen-config/options.json'));
-
 
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
@@ -33,7 +31,6 @@ logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 const CoreAppConstructor = require('./constructor').default;
 
 const coreApp = new CoreAppConstructor();
-
 
 // Use a module.exports here to be compatible with webpack library output
 module.exports = coreApp;

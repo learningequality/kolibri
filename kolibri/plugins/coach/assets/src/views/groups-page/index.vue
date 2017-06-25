@@ -64,7 +64,7 @@
     $trs: {
       groups: 'Groups',
       newGroup: 'New group',
-      ungrouped: 'Ungrouped'
+      ungrouped: 'Ungrouped',
     },
     components: {
       iconButton,
@@ -72,16 +72,16 @@
       groupSection,
       renameGroupModal,
       deleteGroupModal,
-      moveLearnersModal
+      moveLearnersModal,
     },
     data() {
       return {
         selectedGroup: {
           name: '',
-          id: ''
+          id: '',
         },
         usersToMove: [],
-        isUngrouped: false
+        isUngrouped: false,
       };
     },
     computed: {
@@ -115,9 +115,9 @@
       ungroupedUsersObject() {
         return {
           name: this.$tr('ungrouped'),
-          users: this.ungroupedUsers
+          users: this.ungroupedUsers,
         };
-      }
+      },
     },
     methods: {
       openCreateGroupModal() {
@@ -126,35 +126,35 @@
       openRenameGroupModal(groupName, groupId) {
         this.selectedGroup = {
           name: groupName,
-          id: groupId
+          id: groupId,
         };
         this.displayModal(GroupModals.RENAME_GROUP);
       },
       openDeleteGroupModal(groupName, groupId) {
         this.selectedGroup = {
           name: groupName,
-          id: groupId
+          id: groupId,
         };
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       openMoveLearnersModal(groupName, groupId, usersToMove, isUngrouped) {
         this.selectedGroup = {
           name: groupName,
-          id: groupId
+          id: groupId,
         };
         this.usersToMove = usersToMove;
         this.isUngrouped = isUngrouped;
         this.displayModal(GroupModals.MOVE_LEARNERS);
-      }
+      },
     },
     vuex: {
       getters: {
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
-        groupModalShown: state => state.pageState.groupModalShown
+        groupModalShown: state => state.pageState.groupModalShown,
       },
-      actions: { displayModal: groupActions.displayModal }
-    }
+      actions: { displayModal: groupActions.displayModal },
+    },
   };
 
 </script>

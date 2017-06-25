@@ -64,13 +64,13 @@
       incompatible: 'No content available',
       refresh: 'Refresh',
       cancel: 'Cancel',
-      import: 'Import'
+      import: 'Import',
     },
     components: {
       coreModal,
       iconButton,
       loadingSpinner,
-      driveList
+      driveList,
     },
     data: () => ({ selectedDrive: '' }),
     computed: {
@@ -79,7 +79,7 @@
       },
       canSubmit() {
         return !this.drivesLoading && this.selectedDrive !== '' && !this.wizardState.busy;
-      }
+      },
     },
     methods: {
       driveIsEnabled: drive => drive.metadata.channels.length > 0,
@@ -93,15 +93,15 @@
         if (!this.wizardState.busy) {
           this.transitionWizardPage('cancel');
         }
-      }
+      },
     },
     vuex: {
       getters: { wizardState: state => state.pageState.wizardState },
       actions: {
         transitionWizardPage: manageContentActions.transitionWizardPage,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList
-      }
-    }
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
+      },
+    },
   };
 
 </script>

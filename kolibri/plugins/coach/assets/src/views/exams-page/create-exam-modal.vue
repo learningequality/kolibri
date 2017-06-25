@@ -32,22 +32,22 @@
       createExam: 'Create exam',
       useContentFrom: 'Use content from which channel?',
       selectChannel: 'Select channel',
-      cancel: 'cancel'
+      cancel: 'cancel',
     },
     components: {
       coreModal,
       iconButton,
-      uiSelect
+      uiSelect,
     },
     props: {
       classId: {
         type: String,
-        required: true
+        required: true,
       },
       channels: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     data() {
       return { selectedChannel: '' };
@@ -56,9 +56,9 @@
       channelList() {
         return this.channels.map(channel => ({
           id: channel.id,
-          label: channel.name
+          label: channel.name,
         }));
-      }
+      },
     },
     methods: {
       routeToCreateExamPage() {
@@ -66,15 +66,15 @@
           name: PageNames.CREATE_EXAM,
           params: {
             classId: this.classId,
-            channelId: this.selectedChannel.id
-          }
+            channelId: this.selectedChannel.id,
+          },
         });
       },
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
-    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } }
+    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } },
   };
 
 </script>

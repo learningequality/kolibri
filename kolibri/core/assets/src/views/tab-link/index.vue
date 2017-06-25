@@ -25,29 +25,25 @@
       type: {
         type: String,
         validator(type) {
-          return [
-            'title',
-            'icon',
-            'icon-and-title'
-          ].includes(type);
+          return ['title', 'icon', 'icon-and-title'].includes(type);
         },
-        required: true
+        required: true,
       },
       title: {
         type: String,
-        required: false
+        required: false,
       },
       icon: {
         type: String,
-        required: false
+        required: false,
       },
       link: {
         type: Object,
         required: true,
-        validator: ValidateLinkObject
-      }
+        validator: ValidateLinkObject,
+      },
     },
-    components: { uiIcon }
+    components: { uiIcon },
   };
 
 </script>

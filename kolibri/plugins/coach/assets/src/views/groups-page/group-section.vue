@@ -80,12 +80,12 @@
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
-      noLearners: 'No Learners in this group'
+      noLearners: 'No Learners in this group',
     },
     components: {
       iconButton,
       uiButton,
-      uiMenu
+      uiMenu,
     },
     props: {
       group: {
@@ -93,30 +93,29 @@
         required: true,
         validator(group) {
           return group.name && group.users;
-        }
+        },
       },
       isUngrouped: {
         type: Boolean,
-        default: false
+        default: false,
       },
       canMove: {
         type: Boolean,
-        default: true
-      }
+        default: true,
+      },
     },
     data() {
       return { selectedUsers: [] };
     },
     computed: {
       menuOptions() {
-        return [
-          this.$tr('renameGroup'),
-          this.$tr('deleteGroup')
-        ];
+        return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
       },
       allUsersAreSelected() {
-        return this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0;
-      }
+        return (
+          this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
+        );
+      },
     },
     methods: {
       handleSelection(selectedOption) {
@@ -149,12 +148,12 @@
       },
       emitMove() {
         this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
-      }
+      },
     },
     vuex: {
       getters: { groupModalShown: state => state.pageState.groupModalShown },
-      actions: { displayModal: groupActions.displayModal }
-    }
+      actions: { displayModal: groupActions.displayModal },
+    },
   };
 
 </script>

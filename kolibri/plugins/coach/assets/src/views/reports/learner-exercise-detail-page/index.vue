@@ -63,7 +63,7 @@
       contentRenderer,
       attemptSummary,
       attemptLogList,
-      interactionList
+      interactionList,
     },
     computed: {
       backPageLink() {
@@ -73,8 +73,8 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk
-            }
+              contentId: this.exercise.pk,
+            },
           };
         }
         if (this.pageName === constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
@@ -83,8 +83,8 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk
-            }
+              contentId: this.exercise.pk,
+            },
           };
         }
         if (this.pageName === constants.PageNames.LEARNER_ITEM_DETAILS) {
@@ -94,8 +94,8 @@
               classId: this.classId,
               channelId: this.channelId,
               userId: this.user.id,
-              topicId: this.parentTopic.pk
-            }
+              topicId: this.parentTopic.pk,
+            },
           };
         }
         return undefined;
@@ -108,7 +108,7 @@
       },
       parentTopic() {
         return this.exercise.ancestors[this.exercise.ancestors.length - 1];
-      }
+      },
     },
     methods: {
       navigateToNewAttempt(attemptLogIndex) {
@@ -119,8 +119,8 @@
             userId: this.user.id,
             contentId: this.exercise.pk,
             interactionIndex: 0,
-            attemptLogIndex
-          }
+            attemptLogIndex,
+          },
         });
       },
       navigateToNewInteraction(interactionIndex) {
@@ -131,10 +131,10 @@
             userId: this.user.id,
             contentId: this.exercise.pk,
             attemptLogIndex: this.attemptLogIndex,
-            interactionIndex
-          }
+            interactionIndex,
+          },
         });
-      }
+      },
     },
     vuex: {
       getters: {
@@ -149,9 +149,9 @@
         exercise: state => state.pageState.exercise,
         summaryLog: state => state.pageState.summaryLog,
         pageName: state => state.pageName,
-        attemptLogIndex: state => state.pageState.attemptLogIndex
-      }
-    }
+        attemptLogIndex: state => state.pageState.attemptLogIndex,
+      },
+    },
   };
 
 </script>

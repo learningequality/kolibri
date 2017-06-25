@@ -16,7 +16,7 @@
   export default {
     props: {
       caption: { type: String },
-    }
+    },
   };
 
 </script>

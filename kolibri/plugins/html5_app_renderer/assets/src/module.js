@@ -1,4 +1,3 @@
-
 import ContentRendererModule from 'content_renderer_module';
 import HTML5AppComponent from './views/index';
 

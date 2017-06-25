@@ -74,7 +74,7 @@
       opened: '{proportionCompleted} opened',
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} completed',
-      lastActivity: 'Last activity'
+      lastActivity: 'Last activity',
     },
     components: {
       breadcrumbs,
@@ -84,29 +84,29 @@
       nameCell,
       activityCell,
       contentIcon,
-      progressBar
+      progressBar,
     },
     computed: {
       tableColumns() {
         return reportConstants.TableColumns;
-      }
+      },
     },
     methods: {
       progressString(row) {
-        const proportionCompleted = `${ row.logCountComplete }` + `/${ this.userCount }`;
+        const proportionCompleted = `${row.logCountComplete}` + `/${this.userCount}`;
         switch (row.kind) {
-        case ContentNodeKinds.AUDIO:
-          return this.$tr('listened', { proportionCompleted });
-        case ContentNodeKinds.DOCUMENT:
-          return this.$tr('opened', { proportionCompleted });
-        case ContentNodeKinds.VIDEO:
-          return this.$tr('watched', { proportionCompleted });
-        case ContentNodeKinds.EXERCISE:
-          return this.$tr('mastered', { proportionCompleted });
-        case ContentNodeKinds.HTML5:
-          return this.$tr('mastered', { proportionCompleted });
-        default:
-          return this.$tr('mastered', { proportionCompleted });
+          case ContentNodeKinds.AUDIO:
+            return this.$tr('listened', { proportionCompleted });
+          case ContentNodeKinds.DOCUMENT:
+            return this.$tr('opened', { proportionCompleted });
+          case ContentNodeKinds.VIDEO:
+            return this.$tr('watched', { proportionCompleted });
+          case ContentNodeKinds.EXERCISE:
+            return this.$tr('mastered', { proportionCompleted });
+          case ContentNodeKinds.HTML5:
+            return this.$tr('mastered', { proportionCompleted });
+          default:
+            return this.$tr('mastered', { proportionCompleted });
         }
       },
       genLink(row) {
@@ -115,19 +115,19 @@
           params: {
             classId: this.classId,
             channelId: this.pageState.channelId,
-            contentId: row.id
-          }
+            contentId: row.id,
+          },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         classId: state => state.classId,
         pageState: state => state.pageState,
         userCount: mainGetters.classMemberCount,
-        standardDataTable: reportGetters.standardDataTable
-      }
-    }
+        standardDataTable: reportGetters.standardDataTable,
+      },
+    },
   };
 
 </script>

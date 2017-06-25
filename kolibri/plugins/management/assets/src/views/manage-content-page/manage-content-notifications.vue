@@ -37,22 +37,22 @@
     props: {
       notification: {
         type: String,
-        required: false
-      }
+        required: false,
+      },
     },
     components: { uiAlert },
     computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
-      }
+      },
     },
     $trNameSpace: 'manageContentPageNotifications',
     $trs: {
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',
-      successfulImportNotification: 'A channel has been added to this device'
-    }
+      successfulImportNotification: 'A channel has been added to this device',
+    },
   };
 
 </script>

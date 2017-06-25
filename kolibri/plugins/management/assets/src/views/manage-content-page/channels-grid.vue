@@ -72,7 +72,7 @@
   export default {
     data: () => ({
       selectedChannelIdx: null,
-      notification: null
+      notification: null,
     }),
     computed: {
       channelIsSelected() {
@@ -86,13 +86,13 @@
       },
       sortedChannels() {
         return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
-      }
+      },
     },
     components: {
       uiButton,
       uiProgressCircular,
       deleteChannelModal,
-      elapsedTime
+      elapsedTime,
     },
     mounted() {
       this.addChannelFileSummaries(map(this.channelList, 'id'));
@@ -100,18 +100,20 @@
     watch: {
       channelList(val, newVal) {
         this.addChannelFileSummaries(map(newVal, 'id'));
-      }
+      },
     },
     methods: {
       handleDeleteChannel() {
         if (this.selectedChannelIdx !== null) {
           const channelId = this.channelList[this.selectedChannelIdx].id;
           this.selectedChannelIdx = null;
-          this.deleteChannel(channelId).then(() => {
-            this.$emit('deletesuccess');
-          }).catch(() => {
-            this.$emit('deletefailure');
-          });
+          this.deleteChannel(channelId)
+            .then(() => {
+              this.$emit('deletesuccess');
+            })
+            .catch(() => {
+              this.$emit('deletefailure');
+            });
         }
       },
       numberOfFilesInChannel(channelId) {
@@ -120,19 +122,21 @@
       },
       totalSizeOfFilesInChannel(channelId) {
         const channel = this.channelFileSummaries[channelId];
-        return this.channelFileSummaries[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
-      }
+        return this.channelFileSummaries[channelId]
+          ? bytesForHumans(channel.totalFileSizeInBytes)
+          : '';
+      },
     },
     vuex: {
       getters: {
         channelFileSummaries: state => state.pageState.channelFileSummaries,
         channelList: state => state.core.channels.list,
-        pageState: state => state.pageState
+        pageState: state => state.pageState,
       },
       actions: {
         deleteChannel: manageContentActions.deleteChannel,
-        addChannelFileSummaries: manageContentActions.addChannelFileSummaries
-      }
+        addChannelFileSummaries: manageContentActions.addChannelFileSummaries,
+      },
     },
     $trNameSpace: 'channelsGrid',
     $trs: {
@@ -141,8 +145,8 @@
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
       numContentsHeader: '# Contents',
-      sizeHeader: 'Size'
-    }
+      sizeHeader: 'Size',
+    },
   };
 
 </script>

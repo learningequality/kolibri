@@ -10,8 +10,8 @@ const router = new VueRouter({
   routes: [
     { path: '/learn', name: 'LEARN_CHANNEL' },
     { path: '/explore', name: 'EXPLORE_CHANNEL' },
-    { path: '/exams', name: 'EXAM_LIST' }
-  ]
+    { path: '/exams', name: 'EXAM_LIST' },
+  ],
 });
 
 function makeVm(options) {
@@ -37,13 +37,13 @@ function getElements(vm) {
 describe('learn index', () => {
   let store;
 
-  const setSessionUserKind = (kind) => {
+  const setSessionUserKind = kind => {
     store.state.core.session.kind = [kind];
   };
-  const setMemberships = (memberships) => {
+  const setMemberships = memberships => {
     store.state.learnAppState.memberships = memberships;
   };
-  const setPageName = (pageName) => {
+  const setPageName = pageName => {
     store.state.pageName = pageName;
   };
 

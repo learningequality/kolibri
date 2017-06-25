@@ -1,4 +1,3 @@
-
 import VueRouter from 'vue-router';
 
 import Vue from 'vue';
@@ -27,7 +26,7 @@ class Router {
   }
 
   init(routes) {
-    routes.forEach((route) => {
+    routes.forEach(route => {
       if (route.handler) {
         // route.component = {};
         this._actions[route.name] = route.handler;

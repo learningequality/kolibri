@@ -33,30 +33,30 @@
       examName: 'Exam name',
       cancel: 'Cancel',
       rename: 'Rename',
-      duplicateTitle: 'An exam with that title already exists'
+      duplicateTitle: 'An exam with that title already exists',
     },
     components: {
       coreModal,
       iconButton,
-      coreTextbox
+      coreTextbox,
     },
     props: {
       examId: {
         type: String,
-        required: true
+        required: true,
       },
       examTitle: {
         type: String,
-        required: true
+        required: true,
       },
       classId: {
         type: String,
-        required: true
+        required: true,
       },
       exams: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     data() {
       return { newExamTitle: this.examTitle };
@@ -66,12 +66,14 @@
         if (this.newExamTitle === this.examTitle) {
           return false;
         }
-        const index = this.exams.findIndex(exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase());
+        const index = this.exams.findIndex(
+          exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }
         return true;
-      }
+      },
     },
     methods: {
       callRenameExam() {
@@ -81,14 +83,14 @@
       },
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        renameExam: examActions.renameExam
-      }
-    }
+        renameExam: examActions.renameExam,
+      },
+    },
   };
 
 </script>

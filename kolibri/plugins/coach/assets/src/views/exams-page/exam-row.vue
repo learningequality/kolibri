@@ -75,31 +75,31 @@
       delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
-      nobody: 'Nobody'
+      nobody: 'Nobody',
     },
     components: {
       uiButton,
       uiIcon,
       uiIconButton,
-      uiMenu
+      uiMenu,
     },
     props: {
       examId: {
         type: String,
-        required: true
+        required: true,
       },
       examTitle: {
         type: String,
-        required: true
+        required: true,
       },
       examActive: {
         type: Boolean,
-        required: true
+        required: true,
       },
       examVisibility: {
         type: Object,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       visibilityString() {
@@ -115,9 +115,9 @@
           { label: this.$tr('previewExam') },
           { label: this.$tr('viewReport') },
           { label: this.$tr('rename') },
-          { label: this.$tr('delete') }
+          { label: this.$tr('delete') },
         ];
-      }
+      },
     },
     methods: {
       emitChangeExamVisibility() {
@@ -152,8 +152,8 @@
         } else if (action === this.$tr('delete')) {
           this.emitDeleteExam();
         }
-      }
-    }
+      },
+    },
   };
 
 </script>

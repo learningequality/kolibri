@@ -8,11 +8,6 @@ export default class RecentReportResource extends Resource {
     return 'pk';
   }
   static resourceIdentifiers() {
-    return [
-      'channel_id',
-      'content_node_id',
-      'collection_kind',
-      'collection_id',
-    ];
+    return ['channel_id', 'content_node_id', 'collection_kind', 'collection_id'];
   }
 }

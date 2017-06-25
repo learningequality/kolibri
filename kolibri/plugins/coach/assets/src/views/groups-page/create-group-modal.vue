@@ -40,33 +40,35 @@
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
-      duplicateName: 'A group with that name already exists'
+      duplicateName: 'A group with that name already exists',
     },
     data() {
       return {
         groupNameInput: '',
-        invalid: false
+        invalid: false,
       };
     },
     components: {
       coreModal,
       textbox,
-      iconButton
+      iconButton,
     },
     props: {
       groups: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       duplicateName() {
-        const index = this.groups.findIndex(group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
+        const index = this.groups.findIndex(
+          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }
         return true;
-      }
+      },
     },
     methods: {
       callCreateGroup() {
@@ -76,14 +78,14 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayModal: groupActions.displayModal,
-        createGroup: groupActions.createGroup
-      }
-    }
+        createGroup: groupActions.createGroup,
+      },
+    },
   };
 
 </script>

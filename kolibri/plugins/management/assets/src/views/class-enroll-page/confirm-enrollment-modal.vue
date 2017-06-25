@@ -35,56 +35,58 @@
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',
       noGoBack: 'No, go back',
-      yesEnrollUsers: 'Yes, enroll users'
+      yesEnrollUsers: 'Yes, enroll users',
     },
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
     props: {
       className: {
         type: String,
-        required: true
+        required: true,
       },
       classId: {
         type: String,
-        required: true
+        required: true,
       },
       selectedUsers: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          id: this.classId
+          id: this.classId,
         };
-      }
+      },
     },
     methods: {
       getUsername(userId) {
         return this.facilityUsers.find(user => user.id === userId).username;
       },
       enrollUsers() {
-        this.enrollUsersInClass(this.classId, this.selectedUsers).then(() => {
-          this.close();
-          this.$router.push(this.editClassLink);
-        }, error => {
-        });
+        this.enrollUsersInClass(this.classId, this.selectedUsers).then(
+          () => {
+            this.close();
+            this.$router.push(this.editClassLink);
+          },
+          error => {}
+        );
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       getters: { facilityUsers: state => state.pageState.facilityUsers },
       actions: {
         enrollUsersInClass: actions.enrollUsersInClass,
-        displayModal: actions.displayModal
-      }
-    }
+        displayModal: actions.displayModal,
+      },
+    },
   };
 
 </script>

@@ -49,11 +49,11 @@
       content: 'Channels',
       data: 'Data',
       facilities: 'Facility',
-      users: 'Users'
+      users: 'Users',
     },
     components: {
       tabs,
-      tabLink
+      tabLink,
     },
     computed: {
       classesLink() {
@@ -70,9 +70,9 @@
       },
       contentLink() {
         return linkify(PageNames.CONTENT_MGMT_PAGE);
-      }
+      },
     },
-    vuex: { getters: { pageName: state => state.pageName } }
+    vuex: { getters: { pageName: state => state.pageName } },
   };
 
 </script>

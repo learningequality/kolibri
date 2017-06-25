@@ -57,8 +57,8 @@ const methods = [
   '__getModelFetchReturns',
   '__getFetchable',
   '__getSavable',
-  '__getModelSaveReturns'
-]
+  '__getModelSaveReturns',
+];
 
 export function mockResource(Resource) {
   const mock = new MockResource();

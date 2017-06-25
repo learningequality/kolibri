@@ -131,7 +131,7 @@
       title: 'Title',
       visibleTo: 'Visible to',
       action: 'Action',
-      noExams: `You do not have any exams. Start by creating a new exam above.`
+      noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
       uiButton,
@@ -143,7 +143,7 @@
       changeExamVisibilityModal,
       previewExamModal,
       renameExamModal,
-      deleteExamModal
+      deleteExamModal,
     },
     data() {
       return {
@@ -153,9 +153,9 @@
           id: '',
           visibility: {
             class: null,
-            groups: []
-          }
-        }
+            groups: [],
+          },
+        },
       };
     },
     computed: {
@@ -169,16 +169,16 @@
         return [
           {
             label: this.$tr('all'),
-            value: this.$tr('all')
+            value: this.$tr('all'),
           },
           {
             label: this.$tr('active'),
-            value: this.$tr('active')
+            value: this.$tr('active'),
           },
           {
             label: this.$tr('inactive'),
-            value: this.$tr('inactive')
-          }
+            value: this.$tr('inactive'),
+          },
         ];
       },
       activeExams() {
@@ -216,7 +216,7 @@
       },
       showDeleteExamModal() {
         return this.examModalShown === ExamModals.DELETE_EXAM;
-      }
+      },
     },
     methods: {
       setSelectedExam(examId) {
@@ -241,14 +241,14 @@
         this.setSelectedExam(examId);
         this.displayExamModal(ExamModals.PREVIEW_EXAM);
       },
-      routeToExamReport({id, channelId}) {
+      routeToExamReport({ id, channelId }) {
         this.$router.push({
           name: PageNames.EXAM_REPORT,
           params: {
             classId: this.classId,
             examId: id,
-            channelId
-          }
+            channelId,
+          },
         });
       },
       openRenameExamModal(examId) {
@@ -258,7 +258,7 @@
       openDeleteExamModal(examId) {
         this.setSelectedExam(examId);
         this.displayExamModal(ExamModals.DELETE_EXAM);
-      }
+      },
     },
     vuex: {
       actions: { displayExamModal: ExamActions.displayExamModal },
@@ -268,9 +268,9 @@
         currentClassGroups: state => state.pageState.currentClassGroups,
         exams: state => state.pageState.exams,
         channels: state => state.pageState.channels,
-        examModalShown: state => state.pageState.examModalShown
-      }
-    }
+        examModalShown: state => state.pageState.examModalShown,
+      },
+    },
   };
 
 </script>

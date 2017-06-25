@@ -111,13 +111,13 @@
       noAudio: 'No audio matches "{searchTerm}"',
       noTopics: 'No topics match "{searchTerm}"',
       noDocuments: 'No documents match "{searchTerm}"',
-      noHtml5: 'No HTML5 apps match "{searchTerm}"'
+      noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
       contentCard,
       contentCardGrid,
       tabs,
-      tabButton
+      tabButton,
     },
     data() {
       return { filter: 'all' };
@@ -175,7 +175,7 @@
           return this.$tr('noHtml5', { searchTerm: this.searchTerm });
         }
         return this.$tr('noContent', { searchTerm: this.searchTerm });
-      }
+      },
     },
     methods: {
       genLink(content) {
@@ -184,27 +184,27 @@
             name: PageNames.EXPLORE_TOPIC,
             params: {
               channel_id: this.channelId,
-              id: content.id
-            }
+              id: content.id,
+            },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
           params: {
             channel_id: this.channelId,
-            id: content.id
-          }
+            id: content.id,
+          },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
         channelId: state => state.core.channels.currentId,
-        channelName: state => GetCurrentChannelObject(state).title
-      }
-    }
+        channelName: state => GetCurrentChannelObject(state).title,
+      },
+    },
   };
 
 </script>

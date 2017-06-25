@@ -40,8 +40,8 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
   return new Component({ propsData, store });
 };
 
-describe('assessmentWrapper Component', function () {
-  beforeEach(function () {
+describe('assessmentWrapper Component', function() {
+  beforeEach(function() {
     this.kind = 'test';
     this.files = [
       {
@@ -51,9 +51,9 @@ describe('assessmentWrapper Component', function () {
     ];
     this.id = 'testing';
   });
-  describe('computed property', function () {
-    describe('exerciseProgress', function () {
-      it('should be 0 when there are no past attempts', function () {
+  describe('computed property', function() {
+    describe('exerciseProgress', function() {
+      it('should be 0 when there are no past attempts', function() {
         this.vm = createComponent([], 0);
         assert.equal(this.vm.exerciseProgress, 0);
       });
@@ -66,15 +66,17 @@ describe('assessmentWrapper Component', function () {
           for (totalattempts = 0; totalattempts <= n + 1; totalattempts += 1) {
             for (numCorrect = 0; numCorrect <= m; numCorrect += 1) {
               /* eslint-disable no-loop-func */
-              it(`should be ${numCorrect / m} when there are ${totalattempts} past attempts, masteryModel is ${m} of ${n} and there are ${numCorrect} correct in the window`, function () {
+              it(`should be ${numCorrect /
+                m} when there are ${totalattempts} past attempts, masteryModel is ${m} of ${n} and there are ${numCorrect} correct in the window`, function() {
                 const masteryModel = {
                   type: 'm_of_n',
                   m,
                   n,
                 };
-                const pastattempts = Array(m - numCorrect).fill({ correct: 0 }).concat(
-                  Array(numCorrect).fill({ correct: 1 })).concat(
-                  Array(totalattempts - m).fill({ correct: 0 }));
+                const pastattempts = Array(m - numCorrect)
+                  .fill({ correct: 0 })
+                  .concat(Array(numCorrect).fill({ correct: 1 }))
+                  .concat(Array(totalattempts - m).fill({ correct: 0 }));
                 this.vm = createComponent(totalattempts, pastattempts, masteryModel);
                 assert.equal(this.vm.exerciseProgress, numCorrect / m);
               });

@@ -12,13 +12,13 @@ function makeWrapper(propsData = {}) {
       pageState: {
         settings: {
           learner_can_edit_username: false,
-        }
-      }
+        },
+      },
     },
     // TODO bring in real mutations, and test the state instead of just dispatch
     mutations: {
       CONFIG_PAGE_MODIFY_SETTING() {},
-    }
+    },
   });
   const Ctor = Vue.extend(ConfigPage);
   return new Ctor({ propsData, store }).$mount();
@@ -52,8 +52,7 @@ describe('facility config page view', () => {
     const saveActionStub = sinon.stub(wrapper, 'saveFacilityConfig');
     const { saveButton } = getElements(wrapper);
     simulant.fire(saveButton(), 'click');
-    return Vue.nextTick()
-    .then(() => {
+    return Vue.nextTick().then(() => {
       sinon.assert.calledOnce(saveActionStub);
       saveActionStub.restore();
     });
@@ -72,8 +71,7 @@ describe('facility config page view', () => {
     const { resetButton, cancelResetButton } = getElements(wrapper);
     assert.equal(wrapper.showModal, false);
     simulant.fire(resetButton(), 'click');
-    return Vue.nextTick()
-    .then(() => {
+    return Vue.nextTick().then(() => {
       assert.equal(wrapper.showModal, true);
       simulant.fire(cancelResetButton(), 'click');
       assert.equal(wrapper.showModal, false);
@@ -86,15 +84,15 @@ describe('facility config page view', () => {
     const { resetButton, confirmResetButton } = getElements(wrapper);
     simulant.fire(resetButton(), 'click');
     return Vue.nextTick()
-    .then(() => {
-      simulant.fire(confirmResetButton(), 'click');
-      return Vue.nextTick();
-    })
-    .then(() => {
-      assert.equal(wrapper.showModal, false);
-      sinon.assert.called(resetActionStub);
-      resetActionStub.restore();
-    });
+      .then(() => {
+        simulant.fire(confirmResetButton(), 'click');
+        return Vue.nextTick();
+      })
+      .then(() => {
+        assert.equal(wrapper.showModal, false);
+        sinon.assert.called(resetActionStub);
+        resetActionStub.restore();
+      });
   });
 
   // not tested: notifications

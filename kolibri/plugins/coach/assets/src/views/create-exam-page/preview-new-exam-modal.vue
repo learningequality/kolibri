@@ -22,32 +22,32 @@
     $trs: { randomize: 'Randomize questions' },
     components: {
       previewExamModal,
-      iconButton
+      iconButton,
     },
     props: {
       examChannelId: {
         type: String,
-        required: true
+        required: true,
       },
       examQuestionSources: {
         type: Array,
-        required: true
+        required: true,
       },
       examSeed: {
         type: Number,
-        required: true
+        required: true,
       },
       examNumQuestions: {
         type: Number,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
-    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } }
+    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } },
   };
 
 </script>

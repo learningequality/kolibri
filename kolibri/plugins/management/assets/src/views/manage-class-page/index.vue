@@ -69,7 +69,7 @@
     components: {
       classCreateModal,
       classDeleteModal,
-      iconButton
+      iconButton,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
@@ -84,13 +84,13 @@
       },
       noClassesExist() {
         return this.sortedClasses.length === 0;
-      }
+      },
     },
     methods: {
       classEditLink(id) {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          params: { id }
+          params: { id },
         };
       },
       openDeleteClassModal(classModel) {
@@ -99,14 +99,14 @@
       },
       openCreateClassModal() {
         this.displayModal(constants.Modals.CREATE_CLASS);
-      }
+      },
     },
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes
+        classes: state => state.pageState.classes,
       },
-      actions: { displayModal: actions.displayModal }
+      actions: { displayModal: actions.displayModal },
     },
     $trNameSpace: 'classPage',
     $trs: {
@@ -117,8 +117,8 @@
       classes: 'Users',
       members: 'Members',
       actions: 'Actions',
-      noClassesExist: 'No Classes Exist.'
-    }
+      noClassesExist: 'No Classes Exist.',
+    },
   };
 
 </script>

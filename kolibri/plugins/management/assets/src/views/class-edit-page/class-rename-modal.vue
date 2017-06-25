@@ -52,26 +52,26 @@
       classname: 'Class Name',
       cancel: 'Cancel',
       update: 'Update',
-      duplicateName: 'A class with that name already exists'
+      duplicateName: 'A class with that name already exists',
     },
     components: {
       iconButton,
       coreModal,
-      coreTextbox
+      coreTextbox,
     },
     props: {
       classname: {
         type: String,
-        required: true
+        required: true,
       },
       classid: {
         type: String,
-        required: true
+        required: true,
       },
       classes: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     data() {
       return { name: this.classname };
@@ -81,12 +81,14 @@
         if (this.name === this.classname) {
           return false;
         }
-        const index = this.classes.findIndex(classroom => classroom.name.toUpperCase() === this.name.toUpperCase());
+        const index = this.classes.findIndex(
+          classroom => classroom.name.toUpperCase() === this.name.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }
         return true;
-      }
+      },
     },
     methods: {
       updateName() {
@@ -96,14 +98,14 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         updateClass: actions.updateClass,
-        displayModal: actions.displayModal
-      }
-    }
+        displayModal: actions.displayModal,
+      },
+    },
   };
 
 </script>

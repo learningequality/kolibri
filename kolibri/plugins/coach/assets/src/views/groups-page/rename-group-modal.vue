@@ -38,44 +38,46 @@
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
-      duplicateName: 'A group with that name already exists'
+      duplicateName: 'A group with that name already exists',
     },
     data() {
       return {
         groupNameInput: this.groupName,
-        invalid: false
+        invalid: false,
       };
     },
     components: {
       coreModal,
       textbox,
-      iconButton
+      iconButton,
     },
     props: {
       groupName: {
         type: String,
-        required: true
+        required: true,
       },
       groupId: {
         type: String,
-        required: true
+        required: true,
       },
       groups: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       duplicateName() {
         if (this.groupNameInput === this.groupName) {
           return false;
         }
-        const index = this.groups.findIndex(group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
+        const index = this.groups.findIndex(
+          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }
         return true;
-      }
+      },
     },
     methods: {
       callRenameGroup() {
@@ -85,14 +87,14 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         renameGroup: groupActions.renameGroup,
-        displayModal: groupActions.displayModal
-      }
-    }
+        displayModal: groupActions.displayModal,
+      },
+    },
   };
 
 </script>

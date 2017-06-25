@@ -53,9 +53,9 @@ describe('Vuex store/actions for core module', () => {
       window.onbeforeunload = () => {
         var originalHashValue = location.hash;
 
-        window.setTimeout(function () {
-            location.hash = 'preventNavigation' + ~~ (9999 * Math.random());
-            location.hash = originalHashValue;
+        window.setTimeout(function() {
+          location.hash = 'preventNavigation' + ~~(9999 * Math.random());
+          location.hash = originalHashValue;
         }, 0);
       };
     });
@@ -68,16 +68,17 @@ describe('Vuex store/actions for core module', () => {
       store = createStore();
     });
 
-    it('successful login', (done) => {
+    it('successful login', done => {
       urls['kolibri:managementplugin:management'] = () => '';
       Object.assign(SessionResource, {
         createModel: () => ({
-          save: () => Promise.resolve({
-            // just sending subset of sessionPayload
-            id: '123',
-            username: 'e_fermi',
-            kind: ['cool-guy-user'],
-          }),
+          save: () =>
+            Promise.resolve({
+              // just sending subset of sessionPayload
+              id: '123',
+              username: 'e_fermi',
+              kind: ['cool-guy-user'],
+            }),
         }),
       });
 
@@ -88,26 +89,25 @@ describe('Vuex store/actions for core module', () => {
         assert.deepEqual(session.kind, ['cool-guy-user']);
       }
 
-      coreActions.kolibriLogin(store, {})
-        .then(runAssertions)
-        .then(done, done);
+      coreActions.kolibriLogin(store, {}).then(runAssertions).then(done, done);
     });
 
-    it('failed login (401)', (done) => {
+    it('failed login (401)', done => {
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () => Promise.reject({ status: { code: 401 } }),
         }),
       });
 
-      coreActions.kolibriLogin(store, {})
+      coreActions
+        .kolibriLogin(store, {})
         .then(() => {
           assert.equal(store.state.core.loginError, constants.LoginErrors.INVALID_CREDENTIALS);
         })
         .then(done, done);
     });
 
-    it('successful logout', (done) => {
+    it('successful logout', done => {
       const clearCachesSpy = sinon.spy();
       const getModelStub = sinon.stub().returns({
         delete: () => Promise.resolve('goodbye'),
@@ -116,7 +116,8 @@ describe('Vuex store/actions for core module', () => {
         getModel: getModelStub,
       });
 
-      coreActions.kolibriLogout(store)
+      coreActions
+        .kolibriLogout(store)
         .then(() => {
           sinon.assert.calledWith(getModelStub, 'current');
         })

@@ -30,7 +30,7 @@
     [PageNames.DATA_EXPORT_PAGE]: 'data-page',
     [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
     [PageNames.SCRATCHPAD]: 'scratchpad-page',
-    [PageNames.USER_MGMT_PAGE]: 'user-page'
+    [PageNames.USER_MGMT_PAGE]: 'user-page',
   };
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import classEditPage from './class-edit-page';
@@ -57,22 +57,22 @@
       manageContentPage,
       scratchpadPage,
       topNav,
-      userPage
+      userPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
-      }
+      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
         isAdmin: getters.isAdmin,
-        isSuperuser: getters.isSuperuser
-      }
+        isSuperuser: getters.isSuperuser,
+      },
     },
-    store
+    store,
   };
 
 </script>

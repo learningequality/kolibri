@@ -23,17 +23,17 @@
     props: {
       kind: {
         type: String,
-        required: true
+        required: true,
       },
       title: {
         type: String,
-        required: true
+        required: true,
       },
       link: {
         type: Object,
-        validator: validateLinkObject
-      }
-    }
+        validator: validateLinkObject,
+      },
+    },
   };
 
 </script>

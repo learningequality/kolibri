@@ -32,15 +32,18 @@
         },
         progress: state => {
           if (state.pageState.content) {
-            if (state.core.logging.mastery.totalattempts > 0 && state.core.logging.summary.progress === 0) {
+            if (
+              state.core.logging.mastery.totalattempts > 0 &&
+              state.core.logging.summary.progress === 0
+            ) {
               return 0.1;
             }
             return state.core.logging.summary.progress;
           }
           return null;
-        }
-      }
-    }
+        },
+      },
+    },
   };
 
 </script>

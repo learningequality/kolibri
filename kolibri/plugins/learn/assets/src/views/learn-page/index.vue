@@ -67,12 +67,12 @@
           name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         all: state => state.pageState.all,
-        channelId: (state) => getCurrentChannelObject(state).id,
+        channelId: state => getCurrentChannelObject(state).id,
         recommendations: state => state.pageState.recommendations,
       },
     },

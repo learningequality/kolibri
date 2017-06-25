@@ -8,17 +8,26 @@ import csrf from 'rest/interceptor/csrf';
 import errorCode from 'rest/interceptor/errorCode';
 import cookiejs from 'js-cookie';
 
-const client = (options) => {
-  if ((options && typeof options === 'object' && !Array.isArray(options)) &&
-    (!options.method || options.method === 'GET')) {
+const client = options => {
+  if (
+    options &&
+    typeof options === 'object' &&
+    !Array.isArray(options) &&
+    (!options.method || options.method === 'GET')
+  ) {
     if (!options.params) {
       options.params = {};
     }
     const cacheBust = new Date().getTime();
     options.params[cacheBust] = cacheBust;
   }
-  return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
-    token: cookiejs.get('csrftoken') }).wrap(errorCode)(options);
+  return rest
+    .wrap(mime, { mime: 'application/json' })
+    .wrap(csrf, {
+      name: 'X-CSRFToken',
+      token: cookiejs.get('csrftoken'),
+    })
+    .wrap(errorCode)(options);
 };
 
 export default client;

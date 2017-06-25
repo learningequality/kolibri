@@ -17,8 +17,11 @@ const learnMutations = {
       if (!state.examAttemptLogs[contentId]) {
         Vue.set(state.examAttemptLogs, contentId, {});
       }
-      Vue.set(state.examAttemptLogs, contentId,
-        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId]));
+      Vue.set(
+        state.examAttemptLogs,
+        contentId,
+        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId])
+      );
     });
   },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
@@ -26,7 +29,7 @@ const learnMutations = {
   },
   LEARN_SET_MEMBERSHIPS(state, memberships) {
     state.learnAppState.memberships = memberships;
-  }
+  },
 };
 
 const mutations = Object.assign({}, coreStore.mutations, learnMutations);

@@ -54,30 +54,30 @@
       statusInProgress: 'In progress',
       requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
-      notStarted: 'Not started'
+      notStarted: 'Not started',
     },
     components: {
       contentIcon,
       progressIcon,
-      elapsedTime
+      elapsedTime,
     },
     props: {
       userName: {
         type: String,
-        required: true
+        required: true,
       },
       exerciseTitle: {
         type: String,
-        required: true
+        required: true,
       },
       kind: {
         type: String,
-        required: true
+        required: true,
       },
       summaryLog: {
         type: Object,
-        default: () => ({})
-      }
+        default: () => ({}),
+      },
     },
     computed: {
       isCompleted() {
@@ -115,7 +115,7 @@
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
           return this.$tr('requirementsMOfN', {
             m: requirements.m,
-            n: requirements.n
+            n: requirements.n,
           });
         } catch (e) {
           if (e instanceof TypeError) {
@@ -123,8 +123,8 @@
           }
           throw e;
         }
-      }
-    }
+      },
+    },
   };
 
 </script>

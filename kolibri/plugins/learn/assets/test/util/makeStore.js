@@ -9,6 +9,6 @@ Vue.use(Vuex);
 export default function makeStore() {
   return new Vuex.Store({
     mutations,
-    state: cloneDeep(initialState)
+    state: cloneDeep(initialState),
   });
-};
+}

@@ -11,9 +11,7 @@ import { PageNames } from './constants';
 
 class LearnModule extends KolibriModule {
   ready() {
-    coreActions.getCurrentSession(store)
-    .then(() => actions.prepareLearnApp(store))
-    .then(() => {
+    coreActions.getCurrentSession(store).then(() => actions.prepareLearnApp(store)).then(() => {
       const routes = [
         {
           path: '/',
@@ -108,8 +106,12 @@ class LearnModule extends KolibriModule {
           name: PageNames.EXAM,
           path: '/:channel_id/exams/:id/:questionNumber',
           handler: (toRoute, fromRoute) => {
-            actions.showExam(store, toRoute.params.channel_id, toRoute.params.id,
-              toRoute.params.questionNumber);
+            actions.showExam(
+              store,
+              toRoute.params.channel_id,
+              toRoute.params.id,
+              toRoute.params.questionNumber
+            );
           },
         },
         {

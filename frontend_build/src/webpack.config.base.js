@@ -35,26 +35,26 @@ var merge = require('webpack-merge');
 var PrettierVuePlugin = require('./prettier-vue-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
-var lint = (process.env.LINT || production);
+var lint = process.env.LINT || production;
 
 // helps convert to older string syntax for vue-loader
 var combineLoaders = require('webpack-combine-loaders');
 
 var postCSSLoader = {
   loader: 'postcss-loader',
-  options: { config: path.resolve(__dirname, '../../postcss.config.js') }
+  options: { config: path.resolve(__dirname, '../../postcss.config.js') },
 };
 
 var cssLoader = {
   loader: 'css-loader',
-  options: { minimize: production, sourceMap: !production }
+  options: { minimize: production, sourceMap: !production },
 };
 
 // for stylus blocks in vue files.
 // note: vue-style-loader includes postcss processing
-var vueStylusLoaders = [ 'vue-style-loader',  cssLoader, 'stylus-loader' ];
+var vueStylusLoaders = ['vue-style-loader', cssLoader, 'stylus-loader'];
 if (lint) {
-  vueStylusLoaders.push('stylint-loader')
+  vueStylusLoaders.push('stylint-loader');
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
@@ -64,8 +64,8 @@ var vueSassLoaders = [
   {
     loader: 'sass-loader',
     // prepends these variable override values to every parsed vue SASS block
-    options: { data: '@import "~kolibri.styles.keenVars";' }
-  }
+    options: { data: '@import "~kolibri.styles.keenVars";' },
+  },
 ];
 
 // primary webpack config
@@ -83,63 +83,61 @@ var config = {
             scss: combineLoaders(vueSassLoaders),
           },
           // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-          preLoaders: { html: 'svg-icon-inline-loader' }
-        }
+          preLoaders: { html: 'svg-icon-inline-loader' },
+        },
       },
       {
         test: /\.js$/,
         loader: 'buble-loader',
-        exclude: /node_modules\/(?!(keen-ui)\/).*/
+        exclude: /node_modules\/(?!(keen-ui)\/).*/,
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', cssLoader, postCSSLoader ]
+        use: ['style-loader', cssLoader, postCSSLoader],
       },
       {
         test: /\.styl$/,
-        use: [ 'style-loader', cssLoader, postCSSLoader, 'stylus-loader' ]
+        use: ['style-loader', cssLoader, postCSSLoader, 'stylus-loader'],
       },
       {
         test: /\.s[a|c]ss$/,
-        use: [ 'style-loader', cssLoader, postCSSLoader, 'sass-loader' ]
+        use: ['style-loader', cssLoader, postCSSLoader, 'sass-loader'],
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
         use: {
           loader: 'url-loader',
-          options: { limit: 10000, name: '[name].[ext]?[hash]' }
-        }
+          options: { limit: 10000, name: '[name].[ext]?[hash]' },
+        },
       },
       // Use file loader to load font files.
       {
         test: /\.(eot|woff|ttf|woff2)$/,
         use: {
           loader: 'file-loader',
-          options: { name: '[name].[ext]?[hash]' }
-        }
+          options: { name: '[name].[ext]?[hash]' },
+        },
       },
       // Hack to make the onloadCSS node module properly export-able.
       // Not currently used - we may be able to delete this if we
       // deprecate our custom KolibriModule async css loading functionality.
       {
         test: /fg-loadcss\/src\/onloadCSS/,
-        use: 'exports-loader?onloadCSS'
-      }
-    ]
+        use: 'exports-loader?onloadCSS',
+      },
+    ],
   },
   plugins: [],
   resolve: {
-    extensions: [ ".js", ".vue", ".styl" ],
+    extensions: ['.js', '.vue', '.styl'],
   },
   node: {
-    __filename: true
-  }
+    __filename: true,
+  },
 };
-
 
 // Only lint in dev mode if LINT env is set. Always lint in production.
 if (lint) {
-
   // adds custom rules
   require('./htmlhint_custom');
   var prettierOptions = require('../../.prettier');
@@ -152,23 +150,23 @@ if (lint) {
           enforce: 'pre',
           use: {
             loader: 'htmlhint-loader',
-            options: { failOnError: true, emitAs: "error" }
+            options: { failOnError: true, emitAs: 'error' },
           },
-          exclude: /node_modules/
+          exclude: /node_modules/,
         },
         {
           test: /\.styl$/,
           enforce: 'pre',
-          loader: 'stylint-loader'
-        }
-      ]
+          loader: 'stylint-loader',
+        },
+      ],
     },
     plugins: [
       new PrettierVuePlugin({
         extensions: ['.js', '.vue'],
         logLevel: 'warn',
         prettierOptions,
-      })
+      }),
     ],
   };
   config = merge.smart(config, lintConfig);

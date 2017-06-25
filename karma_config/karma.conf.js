@@ -8,8 +8,8 @@ webpack_config.plugins.push(
   new webpack.DefinePlugin({
     __coreAPISpec: '{}',
     'process.env': {
-      NODE_ENV: '"production"'
-    }
+      NODE_ENV: '"production"',
+    },
   })
 );
 webpack_config.devtool = '#inline-source-map';
@@ -17,9 +17,11 @@ webpack_config.devtool = '#inline-source-map';
 // html5media plugin requires this
 webpack_config.module.rules.push({
   test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
-  use: [{
-    loader: 'imports-loader?this=>window',
-  }],
+  use: [
+    {
+      loader: 'imports-loader?this=>window',
+    },
+  ],
 });
 
 const aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
@@ -28,9 +30,8 @@ aliases['vue-test'] = path.resolve(__dirname, './vueLocal');
 
 webpack_config.resolve.alias = aliases;
 
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
-
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '../',
 
@@ -47,9 +48,7 @@ module.exports = function (config) {
     ],
 
     // list of files to exclude
-    exclude: [
-      'kolibri/**/assets/test/util/*.*',
-    ],
+    exclude: ['kolibri/**/assets/test/util/*.*'],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
@@ -83,7 +82,7 @@ module.exports = function (config) {
 
     webpackMiddleware: {
       // suppress all webpack building information to make test logs more readable.
-      noInfo: true
+      noInfo: true,
     },
 
     // Continuous Integration mode
@@ -92,6 +91,6 @@ module.exports = function (config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
   });
 };

@@ -59,10 +59,7 @@
 
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import * as actions from '../../state/actions';
-  import {
-    ContentWizardPages,
-    notificationTypes
-  } from '../../constants';
+  import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
   import iconButton from 'kolibri.coreVue.components.iconButton';
@@ -79,7 +76,7 @@
       import: 'Import',
       export: 'Export',
       notAdminHeader: 'You need to sign in as the Device Owner to manage content',
-      notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard'
+      notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
     },
     components: {
       authMessage,
@@ -90,11 +87,11 @@
       wizardImportSource,
       wizardImportNetwork,
       wizardImportLocal,
-      wizardExport
+      wizardExport,
     },
     data: () => ({
       intervalId: undefined,
-      notification: null
+      notification: null,
     }),
     mounted() {
       if (this.isSuperuser) {
@@ -113,36 +110,36 @@
           return this.startImportWizard();
         }
         return this.startExportWizard();
-      }
+      },
     },
     computed: {
       notificationTypes: () => notificationTypes,
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
-        case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
-          return 'wizard-import-source';
-        case ContentWizardPages.IMPORT_NETWORK:
-          return 'wizard-import-network';
-        case ContentWizardPages.IMPORT_LOCAL:
-          return 'wizard-import-local';
-        case ContentWizardPages.EXPORT:
-          return 'wizard-export';
-        default:
-          return undefined;
+          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
+            return 'wizard-import-source';
+          case ContentWizardPages.IMPORT_NETWORK:
+            return 'wizard-import-network';
+          case ContentWizardPages.IMPORT_LOCAL:
+            return 'wizard-import-local';
+          case ContentWizardPages.EXPORT:
+            return 'wizard-export';
+          default:
+            return undefined;
         }
-      }
+      },
     },
     vuex: {
       getters: {
         isSuperuser,
-        pageState: state => state.pageState
+        pageState: state => state.pageState,
       },
       actions: {
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
-        pollTasksAndChannels: actions.pollTasksAndChannels
-      }
-    }
+        pollTasksAndChannels: actions.pollTasksAndChannels,
+      },
+    },
   };
 
 </script>

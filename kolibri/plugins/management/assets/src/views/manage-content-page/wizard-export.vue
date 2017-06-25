@@ -62,13 +62,13 @@
       notWritable: 'Not writable',
       cancel: 'Cancel',
       export: 'Export',
-      refresh: 'Refresh'
+      refresh: 'Refresh',
     },
     components: {
       coreModal,
       iconButton,
       loadingSpinner,
-      driveList
+      driveList,
     },
     data: () => ({ selectedDrive: '' }),
     computed: {
@@ -77,11 +77,11 @@
       },
       canSubmit() {
         return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
-      }
+      },
     },
     methods: {
       formatEnabledMsg(drive) {
-        return `${ this.$tr('available') } ${ bytesForHumans(drive.freespace) }`;
+        return `${this.$tr('available')} ${bytesForHumans(drive.freespace)}`;
       },
       driveIsEnabled(drive) {
         return drive.writable;
@@ -98,15 +98,15 @@
       },
       selectDriveByID(driveID) {
         this.selectedDrive = driveID;
-      }
+      },
     },
     vuex: {
       getters: { wizardState: state => state.pageState.wizardState },
       actions: {
         transitionWizardPage: manageContentActions.transitionWizardPage,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList
-      }
-    }
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
+      },
+    },
   };
 
 </script>

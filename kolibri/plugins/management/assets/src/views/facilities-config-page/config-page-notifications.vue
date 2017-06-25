@@ -38,21 +38,21 @@
     props: {
       notification: {
         type: String,
-        required: false
-      }
+        required: false,
+      },
     },
     computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
-      }
+      },
     },
     $trNameSpace: 'configPageNotifications',
     $trs: {
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated!',
-      pageloadFailure: 'There was a problem loading your settings'
-    }
+      pageloadFailure: 'There was a problem loading your settings',
+    },
   };
 
 </script>

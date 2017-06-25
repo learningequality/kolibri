@@ -12,11 +12,7 @@ const initialState = () => ({
   pageName: '',
   core: {
     channels: {
-      list: [
-        { id: 'recent_channel' },
-        { id: 'not_recent_channel' },
-        { id: 'null_channel' },
-      ],
+      list: [{ id: 'recent_channel' }, { id: 'not_recent_channel' }, { id: 'null_channel' }],
     },
   },
   pageState: {

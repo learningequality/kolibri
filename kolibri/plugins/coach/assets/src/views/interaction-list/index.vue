@@ -33,16 +33,16 @@
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
       questionHeader: 'Question {questionNumber, number} attempts',
-      noInteractions: 'No attempts made on this question'
+      noInteractions: 'No attempts made on this question',
     },
     components: { interactionItem },
     props: {
       interactions: {
         type: Array,
-        required: true
+        required: true,
       },
       selectedInteractionIndex: {},
-      attemptNumber: { required: true }
+      attemptNumber: { required: true },
     },
     methods: {
       setCurrentInteractionIndex(index) {
@@ -50,8 +50,8 @@
       },
       isSelected(index) {
         return Number(this.selectedInteractionIndex) === index;
-      }
-    }
+      },
+    },
   };
 
 </script>

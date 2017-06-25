@@ -9,7 +9,6 @@ import * as actions from './state/actions';
 import store from './state/store';
 import { PageNames } from './constants';
 
-
 class ManagementModule extends KolibriModule {
   ready() {
     coreActions.getCurrentSession(store).then(() => {

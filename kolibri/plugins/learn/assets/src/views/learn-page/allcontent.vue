@@ -47,7 +47,7 @@
           name: PageNames.LEARN_CHANNEL,
           channel_id: this.currentChannel,
           query: { cursor: this.all.next },
-          replace: true
+          replace: true,
         };
       },
       hasPrev() {
@@ -58,9 +58,9 @@
           name: PageNames.LEARN_CHANNEL,
           channel_id: this.currentChannel,
           query: { cursor: this.all.previous },
-          replace: true
+          replace: true,
         };
-      }
+      },
     },
     methods: {
       genContentLink(id) {
@@ -68,22 +68,22 @@
           name: PageNames.LEARN_CONTENT,
           params: {
             channel_id: this.channelId,
-            id
-          }
+            id,
+          },
         };
-      }
+      },
     },
     components: {
       contentCard,
-      contentCardGrid
+      contentCardGrid,
     },
     vuex: {
       getters: {
         all: state => state.pageState.all,
         viewportWidth: state => state.core.viewport.width,
-        channelId: state => state.core.channels.currentId
-      }
-    }
+        channelId: state => state.core.channels.currentId,
+      },
+    },
   };
 
 </script>

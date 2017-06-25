@@ -88,7 +88,7 @@
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}'
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     components: {
       contentIcon,
@@ -98,7 +98,7 @@
       headerCell,
       nameCell,
       progressCell,
-      activityCell
+      activityCell,
     },
     computed: {
       isExercisePage() {
@@ -109,32 +109,34 @@
       },
       TableColumns() {
         return ReportConstants.TableColumns;
-      }
+      },
     },
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
-          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
+          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM
+            ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
+            : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
           return {
             name: targetName,
             params: {
               classId: this.classId,
               userId: row.id,
               channelId: this.pageState.channelId,
-              contentId: this.pageState.contentScopeSummary.id
-            }
+              contentId: this.pageState.contentScopeSummary.id,
+            },
           };
         } else if (this.isRootLearnerPage) {
           return {
             name: CoachConstants.PageNames.LEARNER_CHANNELS,
             params: {
               classId: this.classId,
-              userId: row.id
-            }
+              userId: row.id,
+            },
           };
         }
         return undefined;
-      }
+      },
     },
     vuex: {
       getters: {
@@ -143,9 +145,9 @@
         pageName: state => state.pageName,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable
-      }
-    }
+        standardDataTable: reportGetters.standardDataTable,
+      },
+    },
   };
 
 </script>

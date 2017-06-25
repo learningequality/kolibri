@@ -48,35 +48,35 @@
       learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
-      move: 'Move'
+      move: 'Move',
     },
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
     props: {
       groupId: {
         type: String,
-        required: false
+        required: false,
       },
       groups: {
         type: Array,
         required: true,
         validator(groups) {
           return groups.every(group => group.id && group.name);
-        }
+        },
       },
       usersToMove: {
         type: Array,
         required: true,
         validator(userIds) {
           return userIds.every(userId => userId);
-        }
+        },
       },
       isUngrouped: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
     },
     data() {
       return { groupSelected: '' };
@@ -84,7 +84,7 @@
     computed: {
       groupsExcludingCurrent() {
         return this.groups.filter(group => group.id !== this.groupId);
-      }
+      },
     },
     methods: {
       moveUsers() {
@@ -100,16 +100,16 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayModal: groupActions.displayModal,
         addUsersToGroup: groupActions.addUsersToGroup,
         removeUsersFromGroup: groupActions.removeUsersFromGroup,
-        moveUsersBetweenGroups: groupActions.moveUsersBetweenGroups
-      }
-    }
+        moveUsersBetweenGroups: groupActions.moveUsersBetweenGroups,
+      },
+    },
   };
 
 </script>

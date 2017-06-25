@@ -21,16 +21,16 @@
     $trNameSpace: 'progressIndicator',
     $trs: {
       completed: 'completed by {0, number, integer} learners',
-      pct: '{0, number, percent}'
+      pct: '{0, number, percent}',
     },
     components: { progressBar },
     props: {
       num: { type: Number },
       isExercise: {
         type: Boolean,
-        default: false
+        default: false,
       },
-      numusers: { type: Number }
+      numusers: { type: Number },
     },
     computed: {
       extraText() {
@@ -38,8 +38,8 @@
           return null;
         }
         return this.$tr('completed', this.numusers);
-      }
-    }
+      },
+    },
   };
 
 </script>

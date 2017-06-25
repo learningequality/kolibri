@@ -40,7 +40,7 @@
       title: 'Please choose a source...',
       internet: 'Internet',
       localDrives: 'Local Drives',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
     },
     methods: {
       goForward(source) {
@@ -48,13 +48,15 @@
       },
       cancel() {
         return this.transitionWizardPage('cancel');
-      }
+      },
     },
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
-    vuex: { actions: { transitionWizardPage: manageContentActions.transitionWizardPage } }
+    vuex: {
+      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
+    },
   };
 
 </script>

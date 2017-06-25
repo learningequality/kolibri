@@ -152,7 +152,8 @@
       enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
-      numQuestionsExceed: 'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
@@ -160,7 +161,7 @@
       added: 'Added',
       removed: 'Removed',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
-      duplicateTitle: 'An exam with that title already exists'
+      duplicateTitle: 'An exam with that title already exists',
     },
     data() {
       return {
@@ -174,7 +175,7 @@
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
-        selectAll: false
+        selectAll: false,
       };
     },
     components: {
@@ -186,11 +187,13 @@
       textbox,
       topicRow,
       exerciseRow,
-      previewNewExamModal
+      previewNewExamModal,
     },
     computed: {
       duplicateTitle() {
-        const index = this.exams.findIndex(exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase());
+        const index = this.exams.findIndex(
+          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }
@@ -206,10 +209,15 @@
         return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
       },
       maxQuestionsFromSelection() {
-        return this.selectedExercises.reduce((sum, exercise) => sum + (exercise.numAssessments || 0), 0);
+        return this.selectedExercises.reduce(
+          (sum, exercise) => sum + (exercise.numAssessments || 0),
+          0
+        );
       },
       numQuestNotWithinRange() {
-        return this.validateNumQuestMax ? this.inputNumQuestions < 1 || this.inputNumQuestions > 50 : false;
+        return this.validateNumQuestMax
+          ? this.inputNumQuestions < 1 || this.inputNumQuestions > 50
+          : false;
       },
       noExercisesSelected() {
         return this.selectedExercises.length === 0;
@@ -236,7 +244,7 @@
         }
         return this.$tr('numQuestionsExceed', {
           inputNumQuestions: this.inputNumQuestions,
-          maxQuestionsFromSelection: this.maxQuestionsFromSelection
+          maxQuestionsFromSelection: this.maxQuestionsFromSelection,
         });
       },
       allExercisesWithinCurrentTopic() {
@@ -253,13 +261,20 @@
         if (this.allExercisesWithinCurrentTopic.length === 0) {
           return false;
         }
-        return this.allExercisesWithinCurrentTopic.every(exercise => this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id));
+        return this.allExercisesWithinCurrentTopic.every(exercise =>
+          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
+        );
       },
       noExercisesWithinCurrentTopicSelected() {
-        return this.allExercisesWithinCurrentTopic.every(exercise => !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id));
+        return this.allExercisesWithinCurrentTopic.every(
+          exercise =>
+            !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
+        );
       },
       someExercisesWithinCurrentTopicSelected() {
-        return !this.allExercisesWithinCurrentTopicSelected && !this.noExercisesWithinCurrentTopicSelected;
+        return (
+          !this.allExercisesWithinCurrentTopicSelected && !this.noExercisesWithinCurrentTopicSelected
+        );
       },
       showPreviewNewExamModal() {
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
@@ -273,19 +288,19 @@
         if (remainingQuestions === 0) {
           return shuffledExercises.map(exercise => ({
             exercise_id: exercise.id,
-            number_of_questions: Math.trunc(questionsPerExercise)
+            number_of_questions: Math.trunc(questionsPerExercise),
           }));
         } else if (questionsPerExercise >= 1) {
           return shuffledExercises.map((exercise, index) => {
             if (index < remainingQuestions) {
               return {
                 exercise_id: exercise.id,
-                number_of_questions: Math.trunc(questionsPerExercise) + 1
+                number_of_questions: Math.trunc(questionsPerExercise) + 1,
               };
             }
             return {
               exercise_id: exercise.id,
-              number_of_questions: Math.trunc(questionsPerExercise)
+              number_of_questions: Math.trunc(questionsPerExercise),
             };
           });
         }
@@ -293,9 +308,9 @@
         exercisesSubset.splice(numQuestions);
         return exercisesSubset.map(exercise => ({
           exercise_id: exercise.id,
-          number_of_questions: 1
+          number_of_questions: 1,
         }));
-      }
+      },
     },
     methods: {
       changeSelection() {
@@ -309,26 +324,36 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(this.currentChannel.id, topicId).then(() => {
-          this.loading = false;
-        }, error => {
-        });
+        this.fetchContent(this.currentChannel.id, topicId).then(
+          () => {
+            this.loading = false;
+          },
+          error => {}
+        );
       },
       handleAddExercise(exercise) {
         this.addExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('added') } ${ exercise.title }` });
+        this.$refs.snackbarContainer.createSnackbar({
+          message: `${this.$tr('added')} ${exercise.title}`,
+        });
       },
       handleRemoveExercise(exercise) {
         this.removeExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('removed') } ${ exercise.title }` });
+        this.$refs.snackbarContainer.createSnackbar({
+          message: `${this.$tr('removed')} ${exercise.title}`,
+        });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('added') } ${ topicTitle }` });
+        this.$refs.snackbarContainer.createSnackbar({
+          message: `${this.$tr('added')} ${topicTitle}`,
+        });
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('removed') } ${ topicTitle }` });
+        this.$refs.snackbarContainer.createSnackbar({
+          message: `${this.$tr('removed')} ${topicTitle}`,
+        });
       },
       preview() {
         if (this.checkAllValid() === true) {
@@ -340,7 +365,7 @@
           const classCollection = {
             id: this.classId,
             name: this.className,
-            kind: CollectionKinds.CLASSROOM
+            kind: CollectionKinds.CLASSROOM,
           };
           const examObj = {
             classId: this.classId,
@@ -348,7 +373,7 @@
             title: this.inputTitle,
             numQuestions: this.inputNumQuestions,
             questionSources: this.questionSources,
-            seed: this.seed
+            seed: this.seed,
           };
           this.createExam(classCollection, examObj);
         }
@@ -357,7 +382,12 @@
         this.validateTitle = true;
         this.validateNumQuestMax = true;
         this.validateNumQuestExceeds = true;
-        if (!this.titleInvalid && !this.noExercisesSelected && !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
+        if (
+          !this.titleInvalid &&
+          !this.noExercisesSelected &&
+          !this.numQuestNotWithinRange &&
+          !this.numQuestExceedsSelection
+        ) {
           this.validationError = '';
           return true;
         } else if (this.titleInvalid) {
@@ -382,7 +412,7 @@
       },
       generateRandomSeed() {
         return random(1000);
-      }
+      },
     },
     vuex: {
       getters: {
@@ -394,16 +424,16 @@
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
-        exams: state => state.pageState.exams
+        exams: state => state.pageState.exams,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
         createExam: ExamActions.createExam,
         addExercise: ExamActions.addExercise,
         removeExercise: ExamActions.removeExercise,
-        displayExamModal: ExamActions.displayExamModal
-      }
-    }
+        displayExamModal: ExamActions.displayExamModal,
+      },
+    },
   };
 
 </script>

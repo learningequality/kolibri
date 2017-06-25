@@ -121,7 +121,7 @@
       },
       collapsedCrumbMaxWidth() {
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
-      }
+      },
     },
     methods: {
       attachSensors() {
@@ -158,7 +158,8 @@
           }
 
           lastCrumbWidth = Math.ceil(
-            tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width);
+            tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width
+          );
 
           if (lastCrumbWidth > remainingWidth) {
             tempCrumbs.forEach((crumb, index) => {

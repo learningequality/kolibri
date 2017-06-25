@@ -35,25 +35,22 @@
       required: { type: Boolean },
       invalid: { type: Boolean },
       value: {
-        type: [
-          String,
-          Number
-        ]
+        type: [String, Number],
       },
       error: { type: String },
       placeholder: { type: String },
       label: { type: String },
       ariaLabel: {
         type: String,
-        required: !!this.label
+        required: !!this.label,
       },
       autocomplete: { type: String },
       type: { type: String },
       maxlength: { type: Number },
       enforceMaxlength: {
         type: Boolean,
-        default: true
-      }
+        default: true,
+      },
     },
     data() {
       return { currentText: this.value };
@@ -67,14 +64,14 @@
       },
       emitKeydown(e) {
         this.$emit('keydown', e);
-      }
+      },
     },
     watch: {
       value(val) {
         this.currentText = val;
-      }
+      },
     },
-    components: { uiTextbox }
+    components: { uiTextbox },
   };
 
 </script>

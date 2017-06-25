@@ -1,6 +1,4 @@
-
 import * as constants from '../constants';
-
 
 function pageMode(state) {
   const explorePages = [
@@ -14,10 +12,7 @@ function pageMode(state) {
     constants.PageNames.LEARN_CHANNEL,
     constants.PageNames.LEARN_CONTENT,
   ];
-  const examPages = [
-    constants.PageNames.EXAM_LIST,
-    constants.PageNames.EXAM,
-  ];
+  const examPages = [constants.PageNames.EXAM_LIST, constants.PageNames.EXAM];
   if (explorePages.some(page => page === state.pageName)) {
     return constants.PageModes.EXPLORE;
   } else if (learnPages.some(page => page === state.pageName)) {
@@ -30,7 +25,4 @@ function pageMode(state) {
   return undefined;
 }
 
-
-export {
-  pageMode,
-};
+export { pageMode };

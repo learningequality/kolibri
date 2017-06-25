@@ -21,22 +21,22 @@
     props: {
       files: {
         type: Array,
-        default: []
-      }
+        default: [],
+      },
     },
     computed: {
       fileOptions() {
         return this.files.map(file => ({
-          label: `${ file.preset } (${ filesize(file.file_size) })`,
-          url: file.download_url
+          label: `${file.preset} (${filesize(file.file_size)})`,
+          url: file.download_url,
         }));
-      }
+      },
     },
     methods: {
       download(file) {
         window.location.href = file.url;
-      }
-    }
+      },
+    },
   };
 
 </script>

@@ -12,8 +12,6 @@ export default class FileSummaryResource extends Resource {
   }
 
   static resourceIdentifiers() {
-    return [
-      'channel_id',
-    ];
+    return ['channel_id'];
   }
 }

@@ -28,7 +28,7 @@
       omitLearner: {
         type: Boolean,
         default: false,
-      }
+      },
     },
     computed: {
       text() {

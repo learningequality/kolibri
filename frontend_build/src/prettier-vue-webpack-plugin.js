@@ -2,13 +2,7 @@ const prettierVue = require('./prettier-vue');
 const path = require('path');
 
 class PrettierVuePlugin {
-  constructor(
-    {
-      encoding = 'utf-8',
-      extensions = ['vue', 'js'],
-      prettierOptions
-    }
-  ) {
+  constructor({ encoding = 'utf-8', extensions = ['vue', 'js'], prettierOptions }) {
     // Encoding to use when reading / writing files
     this.encoding = encoding;
     this.extensions = extensions;
@@ -34,8 +28,12 @@ class PrettierVuePlugin {
                 encoding: this.encoding,
                 prettierOptions: this.prettierOptions,
               })
-              .then(() => { console.log('succeed'); })
-              .catch(err => { console.error(err); });
+                .then(() => {
+                  console.log('succeed');
+                })
+                .catch(err => {
+                  console.error(err);
+                });
             }
           });
         });

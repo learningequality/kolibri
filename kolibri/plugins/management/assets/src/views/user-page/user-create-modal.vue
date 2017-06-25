@@ -88,14 +88,14 @@
       usernameNotAlphaNum: 'Username can only contain letters and digits',
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
-      loadingConfirmation: 'Loading...'
+      loadingConfirmation: 'Loading...',
     },
     components: {
       iconButton,
       coreModal,
       coreTextbox,
       uiAlert,
-      uiSelect
+      uiSelect,
     },
     data() {
       return {
@@ -105,14 +105,14 @@
         passwordConfirm: '',
         kind: {},
         errorMessage: '',
-        loading: false
+        loading: false,
       };
     },
     mounted() {
       Object.assign(this.$data, this.$options.data());
       this.kind = {
         label: this.$tr('learner'),
-        value: UserKinds.LEARNER
+        value: UserKinds.LEARNER,
       };
     },
     computed: {
@@ -140,18 +140,18 @@
         return [
           {
             label: this.$tr('learner'),
-            value: UserKinds.LEARNER
+            value: UserKinds.LEARNER,
           },
           {
             label: this.$tr('coach'),
-            value: UserKinds.COACH
+            value: UserKinds.COACH,
           },
           {
             label: this.$tr('admin'),
-            value: UserKinds.ADMIN
-          }
+            value: UserKinds.ADMIN,
+          },
         ];
-      }
+      },
     },
     methods: {
       createNewUser() {
@@ -162,33 +162,36 @@
             username: this.username,
             full_name: this.fullName,
             kind: this.kind.value,
-            password: this.password
+            password: this.password,
           };
-          this.createUser(newUser).then(() => {
-            this.close();
-          }, error => {
-            this.loading = false;
-            if (error.status.code === 400) {
-              this.errorMessage = Object.values(error.entity)[0][0];
-            } else if (error.status.code === 403) {
-              this.errorMessage = error.entity;
-            } else {
-              this.errorMessage = this.$tr('unknownError');
+          this.createUser(newUser).then(
+            () => {
+              this.close();
+            },
+            error => {
+              this.loading = false;
+              if (error.status.code === 400) {
+                this.errorMessage = Object.values(error.entity)[0][0];
+              } else if (error.status.code === 403) {
+                this.errorMessage = error.entity;
+              } else {
+                this.errorMessage = this.$tr('unknownError');
+              }
             }
-          });
+          );
         }
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       getters: { users: state => state.pageState.facilityUsers },
       actions: {
         createUser: actions.createUser,
-        displayModal: actions.displayModal
-      }
-    }
+        displayModal: actions.displayModal,
+      },
+    },
   };
 
 </script>

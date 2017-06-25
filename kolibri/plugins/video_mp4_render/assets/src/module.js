@@ -1,4 +1,3 @@
-
 import ContentRendererModule from 'content_renderer_module';
 import VideoComponent from './views/index';
 

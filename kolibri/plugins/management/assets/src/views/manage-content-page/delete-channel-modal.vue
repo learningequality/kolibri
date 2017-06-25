@@ -41,13 +41,13 @@
   export default {
     components: {
       modal,
-      uiButton
+      uiButton,
     },
     props: {
       channelTitle: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       handleClickCancel() {
@@ -55,17 +55,18 @@
       },
       handleClickConfirm() {
         this.$emit('confirm');
-      }
+      },
     },
     $trNameSpace: 'deleteChannelModal',
     $trs: {
       deleteActionDescription: 'This channel will be deleted',
       confirmationQuestion: 'Are you sure you want to do this?',
-      restorationInstructions: 'To restore this channel, you will need to re-import it from the internet or a storage device',
+      restorationInstructions:
+        'To restore this channel, you will need to re-import it from the internet or a storage device',
       title: 'Delete channel',
       cancelButtonLabel: 'Cancel',
-      confirmButtonLabel: 'Confirm'
-    }
+      confirmButtonLabel: 'Confirm',
+    },
   };
 
 </script>

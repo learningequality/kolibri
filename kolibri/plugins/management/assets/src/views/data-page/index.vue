@@ -53,15 +53,18 @@
     $trNameSpace: 'manageData',
     $trs: {
       pageHeading: 'Export usage data',
-      pageSubHeading: 'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
+      pageSubHeading:
+        'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
       detailsHeading: 'Detail logs',
       detailsSubHeading: 'Individual visits to each piece of content',
       summaryHeading: 'Summary logs',
       summarySubHeading: 'Total time/progress for each piece of content',
-      detailsInfo: 'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
-      summaryInfo: 'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
+      detailsInfo:
+        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
+      summaryInfo:
+        'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
       download: 'Download',
-      note: 'Note'
+      note: 'Note',
     },
     components: { iconButton },
     computed: {
@@ -73,8 +76,8 @@
       },
       sessionlogurl() {
         return urls['contentsessionlogcsv-list']();
-      }
-    }
+      },
+    },
   };
 
 </script>

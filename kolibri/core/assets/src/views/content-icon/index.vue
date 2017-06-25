@@ -62,27 +62,27 @@
           const validValues = values(Constants.ContentNodeKinds);
           validValues.push(Constants.USER);
           return validValues.includes(value);
-        }
+        },
       },
       colorstyle: {
         type: String,
-        default: 'action'
-      }
+        default: 'action',
+      },
     },
     computed: {
       Constants() {
         return Constants;
       },
       colorClass() {
-        return `color-${ this.colorStyle }`;
-      }
+        return `color-${this.colorStyle}`;
+      },
     },
     components: { uiIcon },
     methods: {
       is(kind) {
         return this.kind === kind;
-      }
-    }
+      },
+    },
   };
 
 </script>

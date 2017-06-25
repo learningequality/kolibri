@@ -91,11 +91,11 @@
       notStarted: 'Not started',
       notWatched: 'Not watched',
       notListened: 'Not listened',
-      notViewed: 'Not viewed'
+      notViewed: 'Not viewed',
     },
     components: {
       progressBar,
-      progressIcon
+      progressIcon,
     },
     computed: {
       lastActiveDate() {
@@ -112,46 +112,46 @@
       },
       isCompleted() {
         return this.contentProgress === 1;
-      }
+      },
     },
     props: {
       kind: {
         type: String,
-        required: true
+        required: true,
       },
       exerciseCount: {
         type: Number,
-        required: true
+        required: true,
       },
       exerciseProgress: {
         type: Number,
-        required: false
+        required: false,
       },
       contentCount: {
         type: Number,
-        required: true
+        required: true,
       },
       contentProgress: {
         type: Number,
-        required: false
+        required: false,
       },
       singleUser: {
         type: Boolean,
-        required: true
+        required: true,
       },
       userCount: {
         type: Number,
-        required: true
+        required: true,
       },
       completionCount: {
         type: Number,
-        required: false
+        required: false,
       },
       isRecentView: {
         type: Boolean,
-        required: true
-      }
-    }
+        required: true,
+      },
+    },
   };
 
 </script>

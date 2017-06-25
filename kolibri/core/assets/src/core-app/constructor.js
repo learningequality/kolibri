@@ -58,8 +58,10 @@ export default class CoreApp {
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
-      window.location.origin = `${window.location.protocol}//${window.location.hostname}${(
-            window.location.port ? `:${window.location.port}` : '')}`;
+      window.location.origin = `${window.location.protocol}//${window.location.hostname}${window
+        .location.port
+        ? `:${window.location.port}`
+        : ''}`;
     }
 
     const self = this;
@@ -114,31 +116,36 @@ export default class CoreApp {
      * the modules need to wait until that happens.
      **/
     if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
-      Promise.all([(new Promise((resolve) => {
-        require.ensure([], (require) => {
-          resolve(() => require('intl'));
-        });
-      })), importIntlLocale(global.languageCode)]).then( // eslint-disable-line
-        (requires) => {
+      Promise.all([
+        new Promise(resolve => {
+          require.ensure([], require => {
+            resolve(() => require('intl'));
+          });
+        }),
+        importIntlLocale(global.languageCode),
+      ]).then(
+        // eslint-disable-line
+        requires => {
           // Executes function that requires 'intl'
           requires[0]();
           // Executes function that requires intl locale data - needs intl to have run
           requires[1]();
           setUpVueIntl();
         },
-        (error) => {
+        error => {
           logging.error(error);
           logging.error('An error occurred trying to setup Internationalization', error);
-        });
+        }
+      );
     } else {
       setUpVueIntl();
     }
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     this.kolibri_modules = mediator._kolibriModuleRegistry;
-    publicMethods.forEach((method) => {
+    publicMethods.forEach(method => {
       this[method] = mediator[method].bind(mediator);
     });
     this.heartBeat = new HeartBeat(this);
   }
-};
+}

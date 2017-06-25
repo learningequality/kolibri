@@ -124,7 +124,7 @@
       author: 'Author',
       license: 'License',
       licenseDescription: 'License description',
-      copyrightHolder: 'Copyright holder'
+      copyrightHolder: 'Copyright holder',
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
@@ -168,7 +168,7 @@
       assessmentWrapper,
       contentPoints,
       uiPopover,
-      uiIcon
+      uiIcon,
     },
     methods: {
       nextContentClicked() {
@@ -198,7 +198,7 @@
           name: Constants.PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
-      }
+      },
     },
     beforeDestroy() {
       this.stopTracking();
@@ -215,15 +215,15 @@
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
-        isSuperuser: coreGetters.isSuperuser
+        isSuperuser: coreGetters.isSuperuser,
       },
       actions: {
         initSessionAction: actions.initContentSession,
         updateProgressAction: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
-        stopTracking: actions.stopTrackingProgress
-      }
-    }
+        stopTracking: actions.stopTrackingProgress,
+      },
+    },
   };
 
 </script>

@@ -7,4 +7,4 @@ export default class ContentRenderer extends KolibriModule {
   get contentTypes() {
     return null;
   }
-};
+}

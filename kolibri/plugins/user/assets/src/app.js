@@ -9,11 +9,12 @@ import * as actions from './state/actions';
 import store from './state/store';
 import { PageNames } from './constants';
 
-
 class UserModule extends KolibriModule {
   ready() {
-    coreActions.getCurrentSession(store).then(
-      () => coreActions.getFacilityConfig(store)).then(() => {
+    coreActions
+      .getCurrentSession(store)
+      .then(() => coreActions.getFacilityConfig(store))
+      .then(() => {
         const routes = [
           {
             name: PageNames.ROOT,

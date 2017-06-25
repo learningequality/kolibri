@@ -45,27 +45,30 @@
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
       cancel: 'Cancel',
-      description: 'Users will only be removed from the class and are still accessible from the "Users" tab.',
-      deleteConfirmation: 'Are you sure you want to delete { classname }?'
+      description:
+        'Users will only be removed from the class and are still accessible from the "Users" tab.',
+      deleteConfirmation: 'Are you sure you want to delete { classname }?',
     },
     components: {
       iconButton,
-      coreModal
+      coreModal,
     },
     props: {
       classname: {
         type: String,
-        required: true
+        required: true,
       },
       classid: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       formattedDeleteConfirmation() {
-        return this.$tr('deleteConfirmation', { classname: `<strong> ${ this.classname } </strong>` });
-      }
+        return this.$tr('deleteConfirmation', {
+          classname: `<strong> ${this.classname} </strong>`,
+        });
+      },
     },
     methods: {
       classDelete() {
@@ -73,14 +76,14 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         deleteClass: actions.deleteClass,
-        displayModal: actions.displayModal
-      }
-    }
+        displayModal: actions.displayModal,
+      },
+    },
   };
 
 </script>

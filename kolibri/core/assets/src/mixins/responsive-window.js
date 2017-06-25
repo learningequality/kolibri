@@ -1,4 +1,3 @@
-
 /*
   Apply this mixin to your vue components to get reactive information about window sizes.
 
@@ -70,37 +69,55 @@
       12 columns, 24px gutter
 */
 
-
 /* module internal state */
 
 const windowListeners = [];
-
 
 /* methods */
 
 function getBreakpoint() {
   const SCROLL_BAR = 16;
   const width = window.innerWidth;
-  if (width < 480) { return 0; }
-  if (width < 600) { return 1; }
-  if (width < 840) { return 2; }
-  if (width < 960 - SCROLL_BAR) { return 3; }
-  if (width < 1280 - SCROLL_BAR) { return 4; }
-  if (width < 1440 - SCROLL_BAR) { return 5; }
-  if (width < 1600 - SCROLL_BAR) { return 6; }
+  if (width < 480) {
+    return 0;
+  }
+  if (width < 600) {
+    return 1;
+  }
+  if (width < 840) {
+    return 2;
+  }
+  if (width < 960 - SCROLL_BAR) {
+    return 3;
+  }
+  if (width < 1280 - SCROLL_BAR) {
+    return 4;
+  }
+  if (width < 1440 - SCROLL_BAR) {
+    return 5;
+  }
+  if (width < 1600 - SCROLL_BAR) {
+    return 6;
+  }
   return 7;
 }
 
 function getNumCols(breakpoint) {
-  if (breakpoint <= 1) { return 4; }
-  if (breakpoint === 2) { return 8; }
+  if (breakpoint <= 1) {
+    return 4;
+  }
+  if (breakpoint === 2) {
+    return 8;
+  }
   return 12;
 }
 
 function getGutterWidth(breakpoint) {
   const width = window.innerWidth;
   const height = window.innerHeight;
-  if (breakpoint <= 1) { return 16; }
+  if (breakpoint <= 1) {
+    return 16;
+  }
   // 16px when the smallest width of the device is <600
   if (breakpoint <= 3 && Math.min(width, height) < 600) {
     return 16;
@@ -109,8 +126,12 @@ function getGutterWidth(breakpoint) {
 }
 
 function getRange(breakpoint) {
-  if (breakpoint < 2) { return 'sm'; }
-  if (breakpoint < 5) { return 'md'; }
+  if (breakpoint < 2) {
+    return 'sm';
+  }
+  if (breakpoint < 5) {
+    return 'md';
+  }
   return 'lg';
 }
 
@@ -128,7 +149,7 @@ function windowMetrics() {
 
 import { throttle } from 'frame-throttle';
 
-const windowResizeHandler = throttle((e) => {
+const windowResizeHandler = throttle(e => {
   const metrics = windowMetrics();
   windowListeners.forEach(cb => cb(metrics));
 });
@@ -142,7 +163,6 @@ function removeWindowListener(cb) {
   windowListeners.pop(cb);
 }
 
-
 /* setup */
 
 if (window.addEventListener) {
@@ -152,7 +172,6 @@ if (window.addEventListener) {
 }
 
 windowResizeHandler(); // call it once initially
-
 
 /* export mixin */
 

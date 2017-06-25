@@ -36,10 +36,7 @@
 
 <script>
 
-  import {
-    isUserLoggedIn,
-    getCurrentChannelObject
-  } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn, getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
@@ -54,17 +51,17 @@
       continue: 'Continue',
       start: 'Start',
       noExams: 'You have no exams assigned',
-      assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned'
+      assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
     },
     components: {
       authMessage,
       pageHeader,
-      iconButton
+      iconButton,
     },
     computed: {
       activeExams() {
         return this.exams.filter(exam => !exam.closed || exam.active).length || 0;
-      }
+      },
     },
     methods: {
       generateExamLink(exam) {
@@ -72,18 +69,18 @@
           name: PageNames.EXAM_ROOT,
           params: {
             channel_id: exam.channelId,
-            id: exam.id
-          }
+            id: exam.id,
+          },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         isUserLoggedIn,
         exams: state => state.pageState.exams,
-        channelId: state => getCurrentChannelObject(state).id
-      }
-    }
+        channelId: state => getCurrentChannelObject(state).id,
+      },
+    },
   };
 
 </script>

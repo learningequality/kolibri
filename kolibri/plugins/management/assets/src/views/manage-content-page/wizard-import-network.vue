@@ -43,12 +43,12 @@
       title: 'Please choose a source...',
       enterContentChannel: 'Please enter a content channel ID:',
       cancel: 'Cancel',
-      import: 'Import'
+      import: 'Import',
     },
     components: {
       coreModal,
       iconButton,
-      coreTextbox
+      coreTextbox,
     },
     data: () => ({ contentId: '' }),
     computed: {
@@ -57,7 +57,7 @@
           return false;
         }
         return Boolean(this.contentId);
-      }
+      },
     },
     methods: {
       goBack() {
@@ -70,12 +70,12 @@
       },
       cancel() {
         this.transitionWizardPage('cancel');
-      }
+      },
     },
     vuex: {
       getters: { wizardState: state => state.pageState.wizardState },
-      actions: { transitionWizardPage: manageContentActions.transitionWizardPage }
-    }
+      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
+    },
   };
 
 </script>

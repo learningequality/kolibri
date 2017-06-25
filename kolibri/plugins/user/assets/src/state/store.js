@@ -6,7 +6,6 @@ import * as constants from '../constants';
  ** pageState schemas
  **/
 
-
 const initialState = {
   pageName: constants.PageNames.SCRATCHPAD,
   pageState: {},
@@ -41,11 +40,9 @@ const mutations = {
   },
 };
 
-
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, coreStore.mutations);
-
 
 const store = new Vuex.Store({
   state: initialState,

@@ -80,7 +80,7 @@
       contentRenderer,
       pageStatus,
       attemptLogList,
-      interactionList
+      interactionList,
     },
     computed: {
       backPageLink() {
@@ -89,10 +89,10 @@
           params: {
             classId: this.classId,
             channelId: this.channelId,
-            examId: this.exam.id
-          }
+            examId: this.exam.id,
+          },
         };
-      }
+      },
     },
     methods: {
       navigateToAttempt(questionNumber) {
@@ -110,10 +110,10 @@
             userId: this.userId,
             interaction,
             question,
-            examId: this.exam.id
-          }
+            examId: this.exam.id,
+          },
         });
-      }
+      },
     },
     vuex: {
       getters: {
@@ -131,9 +131,9 @@
         exercise: state => state.pageState.exercise,
         itemId: state => state.pageState.itemId,
         completionTimestamp: state => state.pageState.examLog.completion_timestamp,
-        closed: state => state.pageState.examLog.closed
-      }
-    }
+        closed: state => state.pageState.examLog.closed,
+      },
+    },
   };
 
 </script>

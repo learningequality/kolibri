@@ -20,8 +20,7 @@ describe('audio mp3 render component', () => {
       vm.$destroy();
       // then dispatch timeupdate event immediately after
       simulant.fire(audioEl, 'timeupdate');
-      return Vue.nextTick()
-      .then(() => {
+      return Vue.nextTick().then(() => {
         sinon.assert.called(updateTimeSpy);
       });
     });

@@ -50,25 +50,25 @@
             return true;
           }
           return values(TopLevelPageNames).includes(value);
-        }
+        },
       },
       appBarTitle: {
         type: String,
-        required: false
-      }
+        required: false,
+      },
     },
     components: {
       appBar,
       navBar,
       errorBox,
-      loadingSpinner
+      loadingSpinner,
     },
     vuex: {
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
-        title: state => state.core.title
-      }
+        title: state => state.core.title,
+      },
     },
     watch: {
       title(newVal, oldVal) {
@@ -80,13 +80,13 @@
         } else if (oldVal === 2 && newVal === 1) {
           this.navShown = false;
         }
-      }
+      },
     },
     data: () => ({ navShown: false }),
     methods: {
       updateDocumentTitle(newTitle) {
-        document.title = this.title ? `${ this.title } - Kolibri` : 'Kolibri';
-      }
+        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+      },
     },
     computed: {
       mobile() {
@@ -99,20 +99,20 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        return this.mobile ? {} : { paddingLeft: `${ this.navWidth + PADDING }px` };
+        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
-        const style = { top: `${ this.headerHeight }px` };
-        style.left = this.mobile ? 0 : `${ this.navWidth }px`;
+        const style = { top: `${this.headerHeight}px` };
+        style.left = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
-      }
+      },
     },
     mounted() {
       this.updateDocumentTitle(this.title);
       if (this.mobile) {
         this.navShown = false;
       }
-    }
+    },
   };
 
 </script>

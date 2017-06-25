@@ -65,34 +65,36 @@
       audio: 'Audio',
       documents: 'Documents',
       html5: 'HTML5 Apps',
-      display: 'Display'
+      display: 'Display',
     },
     components: {
       pageHeader,
       contentCard,
       contentCardGrid,
-      uiSelect
+      uiSelect,
     },
     data: () => ({ selectedFilter: '' }),
     computed: {
       filterOptions() {
-        const options = [{
+        const options = [
+          {
             label: this.$tr('all'),
-            value: 'all'
-          }];
+            value: 'all',
+          },
+        ];
         const kindLabelsMap = {
           [ContentNodeKinds.TOPIC]: this.$tr('topics'),
           [ContentNodeKinds.EXERCISE]: this.$tr('exercises'),
           [ContentNodeKinds.VIDEO]: this.$tr('videos'),
           [ContentNodeKinds.AUDIO]: this.$tr('audio'),
           [ContentNodeKinds.DOCUMENT]: this.$tr('documents'),
-          [ContentNodeKinds.HTML5]: this.$tr('html5')
+          [ContentNodeKinds.HTML5]: this.$tr('html5'),
         };
         forEach(kindLabelsMap, (value, key) => {
           if (this.contentsContain(key)) {
             options.push({
               label: value,
-              value: key
+              value: key,
             });
           }
         });
@@ -103,7 +105,7 @@
       },
       subtopics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
-      }
+      },
     },
     methods: {
       contentsContain(kind) {
@@ -120,7 +122,7 @@
           name: PageNames.EXPLORE_CONTENT,
           params: { channel_id: this.channelId, id: node.id },
         };
-      }
+      },
     },
     mounted() {
       this.selectedFilter = this.filterOptions[0];
@@ -130,9 +132,9 @@
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
         isRoot: state => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
-        channelId: state => getCurrentChannelObject(state).id
-      }
-    }
+        channelId: state => getCurrentChannelObject(state).id,
+      },
+    },
   };
 
 </script>

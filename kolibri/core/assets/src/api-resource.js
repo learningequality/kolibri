@@ -59,32 +59,37 @@ export class Model {
    */
   fetch(getParams = {}, force = false) {
     const promise = new ConditionalPromise((resolve, reject) => {
-      Promise.all(this.promises).then(() => {
-        if (!force && this.synced) {
-          resolve(this.attributes);
-        } else {
-          this.synced = false;
-          // Do a fetch on the URL.
-          this.resource.client({ path: this.url, params: getParams }).then((response) => {
-            // Set the retrieved Object onto the Model instance.
-            this.set(response.entity);
-            // Flag that the Model has been fetched.
-            this.synced = true;
-            // Resolve the promise with the attributes of the Model.
+      Promise.all(this.promises).then(
+        () => {
+          if (!force && this.synced) {
             resolve(this.attributes);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          }, (response) => {
-            logging.error('An error occurred', response);
-            reject(response);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          });
+          } else {
+            this.synced = false;
+            // Do a fetch on the URL.
+            this.resource.client({ path: this.url, params: getParams }).then(
+              response => {
+                // Set the retrieved Object onto the Model instance.
+                this.set(response.entity);
+                // Flag that the Model has been fetched.
+                this.synced = true;
+                // Resolve the promise with the attributes of the Model.
+                resolve(this.attributes);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
         }
-      },
-      (reason) => {
-        reject(reason);
-      });
+      );
     });
     this.promises.push(promise);
     return promise;
@@ -98,61 +103,66 @@ export class Model {
    */
   save(attrs) {
     const promise = new ConditionalPromise((resolve, reject) => {
-      Promise.all(this.promises).then(() => {
-        let payload = {};
-        if (this.synced) {
-          // Model is synced with the server, so we can do dirty checking.
-          Object.keys(attrs).forEach((key) => {
-            if (!isEqual(attrs[key], this.attributes[key])) {
-              payload[key] = attrs[key];
-            }
-          });
-        } else {
-          this.set(attrs);
-          payload = this.attributes;
-        }
-        if (!Object.keys(payload).length) {
-          // Nothing to save, so just resolve the promise now.
-          resolve(this.attributes);
-        } else {
-          this.synced = false;
-          let url;
-          let clientObj;
-          if (this.id) {
-            // If this Model has an id, then can do a PATCH against the Model
-            url = this.url;
-            clientObj = { path: url, method: 'PATCH', entity: payload };
+      Promise.all(this.promises).then(
+        () => {
+          let payload = {};
+          if (this.synced) {
+            // Model is synced with the server, so we can do dirty checking.
+            Object.keys(attrs).forEach(key => {
+              if (!isEqual(attrs[key], this.attributes[key])) {
+                payload[key] = attrs[key];
+              }
+            });
           } else {
-            // Otherwise, must POST to the Collection endpoint to create the Model
-            url = this.resource.collectionUrl();
-            clientObj = { path: url, entity: payload };
+            this.set(attrs);
+            payload = this.attributes;
           }
-          // Do a save on the URL.
-          this.resource.client(clientObj).then((response) => {
-            const oldId = this.id;
-            // Set the retrieved Object onto the Model instance.
-            this.set(response.entity);
-            // if the model did not used to have an id and now does, add it to the cache.
-            if (!oldId && this.id) {
-              this.resource.addModel(this);
+          if (!Object.keys(payload).length) {
+            // Nothing to save, so just resolve the promise now.
+            resolve(this.attributes);
+          } else {
+            this.synced = false;
+            let url;
+            let clientObj;
+            if (this.id) {
+              // If this Model has an id, then can do a PATCH against the Model
+              url = this.url;
+              clientObj = { path: url, method: 'PATCH', entity: payload };
+            } else {
+              // Otherwise, must POST to the Collection endpoint to create the Model
+              url = this.resource.collectionUrl();
+              clientObj = { path: url, entity: payload };
             }
-            // Flag that the Model has been fetched.
-            this.synced = true;
-            // Resolve the promise with the Model.
-            resolve(response.entity);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          }, (response) => {
-            logging.error('An error occurred', response);
-            reject(response);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          });
+            // Do a save on the URL.
+            this.resource.client(clientObj).then(
+              response => {
+                const oldId = this.id;
+                // Set the retrieved Object onto the Model instance.
+                this.set(response.entity);
+                // if the model did not used to have an id and now does, add it to the cache.
+                if (!oldId && this.id) {
+                  this.resource.addModel(this);
+                }
+                // Flag that the Model has been fetched.
+                this.synced = true;
+                // Resolve the promise with the Model.
+                resolve(response.entity);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
         }
-      },
-      (reason) => {
-        reject(reason);
-      });
+      );
     });
     this.promises.push(promise);
     return promise;
@@ -166,39 +176,44 @@ export class Model {
    */
   delete() {
     const promise = new ConditionalPromise((resolve, reject) => {
-      Promise.all(this.promises).then(() => {
-        if (!this.id) {
-          // Nothing to delete, so just resolve the promise now.
-          reject('Can not delete model that we do not have an id for');
-        } else {
-          // Otherwise, DELETE the Model
-          const clientObj = { path: this.url, method: 'DELETE' };
-          this.resource.client(clientObj).then((response) => {
-            // delete this instance
-            this.resource.removeModel(this);
-            // Resolve the promise with the id.
-            // Vuex will use this id to delete the model in its state.
-            resolve(this.id);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          }, (response) => {
-            logging.error('An error occurred', response);
-            reject(response);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          });
+      Promise.all(this.promises).then(
+        () => {
+          if (!this.id) {
+            // Nothing to delete, so just resolve the promise now.
+            reject('Can not delete model that we do not have an id for');
+          } else {
+            // Otherwise, DELETE the Model
+            const clientObj = { path: this.url, method: 'DELETE' };
+            this.resource.client(clientObj).then(
+              response => {
+                // delete this instance
+                this.resource.removeModel(this);
+                // Resolve the promise with the id.
+                // Vuex will use this id to delete the model in its state.
+                resolve(this.id);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
         }
-      },
-      (reason) => {
-        reject(reason);
-      });
+      );
     });
     this.promises.push(promise);
     return promise;
   }
 
   get orderedUrlParams() {
-    return this.resource.resourceIds.map((key) => this.resourceIds[key]);
+    return this.resource.resourceIds.map(key => this.resourceIds[key]);
   }
 
   get url() {
@@ -212,7 +227,8 @@ export class Model {
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
     if (attributes && this.resource.idKey in attributes) {
-      if (attributes[this.resource.idKey]) { // don't stringigy null or undefined.
+      if (attributes[this.resource.idKey]) {
+        // don't stringigy null or undefined.
         attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
       }
     }
@@ -259,60 +275,65 @@ export class Collection {
   fetch(extraParams = {}, force = false) {
     const getParams = Object.assign({}, this.getParams, extraParams);
     const promise = new ConditionalPromise((resolve, reject) => {
-      Promise.all(this.promises).then(() => {
-        if (!force && this.synced) {
-          resolve(this.data);
-        } else {
-          this.synced = false;
-          this.resource.client({ path: this.url, params: getParams }).then((response) => {
-            // Set response object - an Array - on the Collection to record the data.
-            // First check that the response *is* an Array
-            if (Array.isArray(response.entity)) {
-              this.clearCache();
-              this.set(response.entity);
-              // Mark that the fetch has completed.
-              this.synced = true;
-            } else if (typeof (response.entity || {}).results !== 'undefined') {
-            // If it's not, there are two possibilities - something is awry, or we have received
-            // paginated data! Check to see if it is paginated.
-              this.clearCache();
-              // Paginated objects have 'results' as their results object so interpret this as
-              // such.
-              this.set(response.entity.results);
-              this.pageCount = Math.ceil(response.entity.count / this.pageSize);
-              this.hasNext = Boolean(response.entity.next);
-              this.hasPrev = Boolean(response.entity.previous);
-              this.next = response.entity.next;
-              this.previous = response.entity.previous;
-              // Mark that the fetch has completed.
-              this.synced = true;
-            } else {
-              // It's all gone a bit Pete Tong.
-              logging.debug('Data appears to be malformed', response.entity);
-              reject(response);
-            }
-            // Return the data from the models, not the models themselves.
+      Promise.all(this.promises).then(
+        () => {
+          if (!force && this.synced) {
             resolve(this.data);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          }, (response) => {
-            logging.error('An error occurred', response);
-            reject(response);
-            // Clean up the reference to this promise
-            this.promises.splice(this.promises.indexOf(promise), 1);
-          });
+          } else {
+            this.synced = false;
+            this.resource.client({ path: this.url, params: getParams }).then(
+              response => {
+                // Set response object - an Array - on the Collection to record the data.
+                // First check that the response *is* an Array
+                if (Array.isArray(response.entity)) {
+                  this.clearCache();
+                  this.set(response.entity);
+                  // Mark that the fetch has completed.
+                  this.synced = true;
+                } else if (typeof (response.entity || {}).results !== 'undefined') {
+                  // If it's not, there are two possibilities - something is awry, or we have received
+                  // paginated data! Check to see if it is paginated.
+                  this.clearCache();
+                  // Paginated objects have 'results' as their results object so interpret this as
+                  // such.
+                  this.set(response.entity.results);
+                  this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+                  this.hasNext = Boolean(response.entity.next);
+                  this.hasPrev = Boolean(response.entity.previous);
+                  this.next = response.entity.next;
+                  this.previous = response.entity.previous;
+                  // Mark that the fetch has completed.
+                  this.synced = true;
+                } else {
+                  // It's all gone a bit Pete Tong.
+                  logging.debug('Data appears to be malformed', response.entity);
+                  reject(response);
+                }
+                // Return the data from the models, not the models themselves.
+                resolve(this.data);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
         }
-      },
-      (reason) => {
-        reject(reason);
-      });
+      );
     });
     this.promises.push(promise);
     return promise;
   }
 
   get orderedUrlParams() {
-    return this.resource.resourceIds.map((key) => this.resourceIds[key]);
+    return this.resource.resourceIds.map(key => this.resourceIds[key]);
   }
 
   get url() {
@@ -347,7 +368,7 @@ export class Collection {
       modelsToSet = models;
     }
 
-    modelsToSet.forEach((model) => {
+    modelsToSet.forEach(model => {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
       const setModel = this.resource.addModel(model, this.resourceIds);
@@ -359,7 +380,7 @@ export class Collection {
   }
 
   get data() {
-    return this.models.map((model) => model.attributes);
+    return this.models.map(model => model.attributes);
   }
 
   get synced() {
@@ -376,7 +397,9 @@ export class Collection {
   set synced(value) {
     this._synced = value;
     if (value) {
-      this.models.forEach((model) => { model.synced = true; });
+      this.models.forEach(model => {
+        model.synced = true;
+      });
     }
   }
 }
@@ -399,9 +422,8 @@ export class Resource {
     // Then stringify to create a cache key.
     return JSON.stringify(
       Object.assign(
-        {}, ...Object.keys(allParams).sort().map(
-          (paramKey) => ({ [paramKey]: allParams[paramKey] })
-        )
+        {},
+        ...Object.keys(allParams).sort().map(paramKey => ({ [paramKey]: allParams[paramKey] }))
       )
     );
   }
@@ -417,7 +439,8 @@ export class Resource {
       if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
         throw TypeError(
           `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-          'resource, which does not use resourceIds, only pass getParams for this resource');
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
       } else if (Object.keys(resourceIds).length) {
         getParams = resourceIds; // eslint-disable-line no-param-reassign
       }
@@ -461,7 +484,8 @@ export class Resource {
       if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
         throw TypeError(
           `resourceIds and getParams passed to getPagedCollection method of ${this.name} ` +
-          'resource, which does not use resourceIds, only pass getParams for this resource');
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
       } else if (Object.keys(resourceIds).length) {
         getParams = resourceIds; // eslint-disable-line no-param-reassign
       }
@@ -533,7 +557,7 @@ export class Resource {
         this.models[cacheKey].set(model.attributes);
       }
       return this.models[cacheKey];
-    // Otherwise use a hash of the models attributes to create a temporary cache key
+      // Otherwise use a hash of the models attributes to create a temporary cache key
     }
     const cacheKey = this.cacheKey(model.attributes, filteredResourceIds);
     this.models[cacheKey] = model;
@@ -559,7 +583,8 @@ export class Resource {
       if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
         throw TypeError(
           `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-          'resource, which does not use resourceIds, only pass getParams for this resource');
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
       } else if (Object.keys(resourceIds).length) {
         getParams = resourceIds; // eslint-disable-line no-param-reassign
       }
@@ -582,7 +607,7 @@ export class Resource {
   filterAndCheckResourceIds(params) {
     const filteredParams = {};
     const missingParams = [];
-    this.resourceIds.forEach((key) => {
+    this.resourceIds.forEach(key => {
       if (!params[key]) {
         missingParams.push(key);
       } else {

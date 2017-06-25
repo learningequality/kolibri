@@ -81,13 +81,15 @@
     $trs: {
       submitExam: 'Submit exam',
       backToExamList: 'Back to exam list',
-      questionsAnswered: '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+      questionsAnswered:
+        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
       cancel: 'Cancel',
       areYouSure: 'Are you sure you want to submit your exam?',
-      unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-      noItemId: 'This question has an error, please move on to the next question'
+      unanswered:
+        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      noItemId: 'This question has an error, please move on to the next question',
     },
     components: {
       immersiveFullScreen,
@@ -95,7 +97,7 @@
       iconButton,
       answerHistory,
       coreModal,
-      uiAlert
+      uiAlert,
     },
     data() {
       return {
@@ -111,15 +113,17 @@
         questionNumber: state => state.pageState.questionNumber,
         attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state => state.pageState.currentAttempt,
-        questionsAnswered: state => state.pageState.questionsAnswered
+        questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
         setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
-        closeExam: actions.closeExam
-      }
+        closeExam: actions.closeExam,
+      },
     },
     created() {
-      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, { leading: false });
+      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
+        leading: false,
+      });
     },
     methods: {
       checkAnswer() {
@@ -135,7 +139,7 @@
         const answer = this.checkAnswer() || {
           answerState: null,
           simpleAnswer: '',
-          correct: 0
+          correct: 0,
         };
         if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
@@ -150,7 +154,7 @@
             type: InteractionTypes.answer,
             answer: answer.answerState,
             correct: answer.correct,
-            timestamp: now()
+            timestamp: now(),
           });
           return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
         }
@@ -163,8 +167,8 @@
             params: {
               channel_id: this.channelId,
               id: this.exam.id,
-              questionNumber
-            }
+              questionNumber,
+            },
           });
         });
       },
@@ -180,19 +184,19 @@
         this.closeExam().then(() => {
           this.$router.push(this.backPageLink);
         });
-      }
+      },
     },
     computed: {
       backPageLink() {
         return {
           name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId }
+          params: { channel_id: this.channelId },
         };
       },
       questionsUnanswered() {
         return this.exam.questionCount - this.questionsAnswered;
-      }
-    }
+      },
+    },
   };
 
 </script>

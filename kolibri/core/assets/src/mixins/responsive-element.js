@@ -1,4 +1,3 @@
-
 /*
   Apply this mixin to your vue components to get reactive information
   about the component's size.
@@ -21,7 +20,6 @@
       height: 0,   // component's $el height (px)
     },
 */
-
 
 import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 

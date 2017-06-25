@@ -1,4 +1,3 @@
-
 // a name for every URL pattern
 const PageNames = {
   EXPLORE_ROOT: 'EXPLORE_ROOT',
@@ -25,7 +24,4 @@ const PageModes = {
   EXAM: 'EXAM',
 };
 
-export {
-  PageNames,
-  PageModes,
-};
+export { PageNames, PageModes };

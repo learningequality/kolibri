@@ -25,8 +25,8 @@
     props: {
       defaultFile: {
         type: Object,
-        required: true
-      }
+        required: true,
+      },
     },
     data: () => ({ isFullScreen: false }),
     computed: {
@@ -35,13 +35,13 @@
       },
       fullscreenAllowed() {
         return ScreenFull.enabled;
-      }
+      },
     },
     methods: {
       toggleFullScreen() {
         ScreenFull.toggle(this.$refs.container);
         this.isFullScreen = ScreenFull.isFullscreen;
-      }
+      },
     },
     mounted() {
       this.$emit('startTracking');
@@ -59,8 +59,8 @@
     $trNameSpace: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen'
-    }
+      enterFullscreen: 'Enter fullscreen',
+    },
   };
 
 </script>

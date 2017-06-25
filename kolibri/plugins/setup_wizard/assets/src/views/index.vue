@@ -100,8 +100,10 @@
       passwordInputLabel: 'Password',
       confirmPasswordInputLabel: 'Confirm password',
       facilityInputLabel: 'Facility name',
-      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
-      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location',
+      deviceOwnerDescription:
+        'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
+      facilityDescription:
+        'You also need to create a Facility. This represents your school, training center, or other installation location',
       formSubmissionButton: 'Create and get started',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
       usernameCharacterErrorMessage: 'Username can only contain letters and digits',
@@ -109,7 +111,7 @@
       passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
       cannotSubmitPageError: 'Please resolve all of the errors shown',
-      genericPageError: 'Something went wrong'
+      genericPageError: 'Something went wrong',
     },
     data() {
       return {
@@ -120,13 +122,13 @@
         passwordError: null,
         facility: '',
         facilityError: null,
-        globalError: null
+        globalError: null,
       };
     },
     components: {
       coreTextbox,
       iconButton,
-      uiAlert
+      uiAlert,
     },
     computed: {
       firstUsernameFieldVisit() {
@@ -154,11 +156,13 @@
         return this.facilityError === null;
       },
       allFieldsPopulated() {
-        return this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated;
+        return (
+          this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated
+        );
       },
       canSubmit() {
         return this.passwordFieldsMatch && this.usernameValidityCheck && this.allFieldsPopulated;
-      }
+      },
     },
     methods: {
       submitSetupForm() {
@@ -166,7 +170,7 @@
         if (this.canSubmit) {
           const deviceOwnerPayload = {
             password: this.password,
-            username: this.username
+            username: this.username,
           };
           const facilityPayload = { name: this.facility };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
@@ -204,10 +208,14 @@
         if (!this.facilityFieldPopulated) {
           this.facilityError = this.$tr('facilityFieldEmptyErrorMessage');
         }
-      }
+      },
     },
-    vuex: { actions: { createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility } },
-    store
+    vuex: {
+      actions: {
+        createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
+      },
+    },
+    store,
   };
 
 </script>

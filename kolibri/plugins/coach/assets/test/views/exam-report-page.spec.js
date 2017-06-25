@@ -35,8 +35,8 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
     assert.equal(els.headerStats().length, 1);
@@ -54,8 +54,8 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
     assert.equal(els.headerStats().length, 2);
@@ -74,8 +74,8 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
     // score is properly formatted

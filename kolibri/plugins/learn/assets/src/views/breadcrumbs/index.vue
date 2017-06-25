@@ -25,10 +25,12 @@
         return { name: PageNames.LEARN_CHANNEL };
       },
       learnBreadcrumbs() {
-        const crumbs = [{
+        const crumbs = [
+          {
             text: this.$tr('recommended'),
-            link: this.learnRootLink
-          }];
+            link: this.learnRootLink,
+          },
+        ];
         if (this.pageName === PageNames.LEARN_CONTENT) {
           crumbs.push({ text: this.contentTitle });
         }
@@ -44,27 +46,33 @@
         return { name: PageNames.EXPLORE_CHANNEL };
       },
       exploreBreadcrumbs() {
-        const crumbs = [{
+        const crumbs = [
+          {
             text: this.channelTitle,
-            link: this.exploreRootLink
-          }];
+            link: this.exploreRootLink,
+          },
+        ];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          this.contentCrumbs.forEach(crumb => crumbs.push({
-            text: crumb.title,
-            link: this.topicLink(crumb.id)
-          }));
+          this.contentCrumbs.forEach(crumb =>
+            crumbs.push({
+              text: crumb.title,
+              link: this.topicLink(crumb.id),
+            })
+          );
           crumbs.push({ text: this.contentTitle });
         } else {
-          this.topicCrumbs.forEach(crumb => crumbs.push({
-            text: crumb.title,
-            link: this.topicLink(crumb.id)
-          }));
+          this.topicCrumbs.forEach(crumb =>
+            crumbs.push({
+              text: crumb.title,
+              link: this.topicLink(crumb.id),
+            })
+          );
           if (!this.inExploreRoot) {
             crumbs.push({ text: this.topicTitle });
           }
         }
         return crumbs;
-      }
+      },
     },
     methods: {
       topicLink(topicId) {
@@ -72,10 +80,10 @@
           name: PageNames.EXPLORE_TOPIC,
           params: {
             channel_id: this.channelId,
-            id: topicId
-          }
+            id: topicId,
+          },
         };
-      }
+      },
     },
     vuex: {
       getters: {
@@ -86,9 +94,9 @@
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
         contentTitle: state => state.pageState.content.title,
-        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || []
-      }
-    }
+        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
+      },
+    },
   };
 
 </script>

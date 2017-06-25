@@ -42,7 +42,7 @@
   export default {
     components: {
       coreModal,
-      uiButton
+      uiButton,
     },
     methods: {
       handleConfirm() {
@@ -50,7 +50,7 @@
       },
       handleCancel() {
         this.$emit('click-cancel');
-      }
+      },
     },
     $trNameSpace: 'confirmResetModal',
     $trs: {
@@ -58,8 +58,8 @@
       changesWillBeLost: 'Your changes will be lost',
       confirmationQuestion: 'Reset your facility settings back to default?',
       reset: 'Reset',
-      title: 'Reset settings to default'
-    }
+      title: 'Reset settings to default',
+    },
   };
 
 </script>

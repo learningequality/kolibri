@@ -21,33 +21,35 @@
     $trNameSpace: 'exerciseRow',
     components: {
       contentIcon,
-      iconButton
+      iconButton,
     },
     props: {
       exerciseId: {
         type: String,
-        requires: true
+        requires: true,
       },
       exerciseTitle: {
         type: String,
-        required: true
+        required: true,
       },
       exerciseNumAssesments: {
         type: Number,
-        required: true
+        required: true,
       },
       selectedExercises: {
         type: Array,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       exercise() {
         return ContentNodeKinds.EXERCISE;
       },
       isSelected() {
-        return this.selectedExercises.some(selectedExercise => selectedExercise.id === this.exerciseId);
-      }
+        return this.selectedExercises.some(
+          selectedExercise => selectedExercise.id === this.exerciseId
+        );
+      },
     },
     methods: {
       changeSelection() {
@@ -55,17 +57,17 @@
           this.$emit('removeExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments
+            numAssessments: this.exerciseNumAssesments,
           });
         } else {
           this.$emit('addExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments
+            numAssessments: this.exerciseNumAssesments,
           });
         }
-      }
-    }
+      },
+    },
   };
 
 </script>

@@ -8,7 +8,7 @@ export class ReplayButton extends videojsButton {
   }
   handleClick() {
     const player = this.player();
-    player.currentTime(Math.max(0, (player.currentTime() - 10)));
+    player.currentTime(Math.max(0, player.currentTime() - 10));
   }
 }
 
@@ -18,6 +18,6 @@ export class ForwardButton extends videojsButton {
   }
   handleClick() {
     const player = this.player();
-    player.currentTime(Math.min(player.duration(), (player.currentTime() + 10)));
+    player.currentTime(Math.min(player.duration(), player.currentTime() + 10));
   }
 }

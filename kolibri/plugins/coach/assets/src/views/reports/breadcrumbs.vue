@@ -35,10 +35,10 @@
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.classId }
-            }
+              params: { classId: this.classId },
+            },
           },
-          { text: this.channelTitle }
+          { text: this.channelTitle },
         ];
       },
       recentItemCrumbs() {
@@ -47,8 +47,8 @@
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.classId }
-            }
+              params: { classId: this.classId },
+            },
           },
           {
             text: this.channelTitle,
@@ -56,11 +56,11 @@
               name: CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
                 classId: this.classId,
-                channelId: this.pageState.channelId
-              }
-            }
+                channelId: this.pageState.channelId,
+              },
+            },
           },
-          { text: this.pageState.contentScopeSummary.title }
+          { text: this.pageState.contentScopeSummary.title },
         ];
       },
       topicCrumbs() {
@@ -69,8 +69,8 @@
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.TOPIC_CHANNELS,
-              params: { classId: this.classId }
-            }
+              params: { classId: this.classId },
+            },
           },
           ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
             const breadcrumb = { text: item.title };
@@ -80,23 +80,23 @@
                 params: {
                   classId: this.classId,
                   channelId: this.pageState.channelId,
-                  topicId: item.id
-                }
+                  topicId: item.id,
+                },
               };
             } else {
               breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
                   classId: this.classId,
-                  channelId: this.pageState.channelId
-                }
+                  channelId: this.pageState.channelId,
+                },
               };
             }
             return breadcrumb;
           }),
-          { text: this.pageState.contentScopeSummary.title }
+          { text: this.pageState.contentScopeSummary.title },
         ];
-      }
+      },
     },
     vuex: {
       getters: {
@@ -104,9 +104,9 @@
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        isTopicPage: coachGetters.isTopicPage
-      }
-    }
+        isTopicPage: coachGetters.isTopicPage,
+      },
+    },
   };
 
 </script>

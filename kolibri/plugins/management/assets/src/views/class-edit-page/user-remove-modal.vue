@@ -37,7 +37,7 @@
 
   import * as actions from '../../state/actions';
   function bold(stringToBold) {
-    return `<strong v-html> ${ stringToBold } </strong>`;
+    return `<strong v-html> ${stringToBold} </strong>`;
   }
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -49,40 +49,42 @@
       cancel: 'Cancel',
       deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
       accessReassurance: 'You can still access this account from { sectionTabName }',
-      usersTab: 'Users'
+      usersTab: 'Users',
     },
     components: {
       iconButton,
-      coreModal
+      coreModal,
     },
     props: {
       classname: {
         type: String,
-        required: true
+        required: true,
       },
       username: {
         type: String,
-        required: true
+        required: true,
       },
       classid: {
         type: String,
-        required: true
+        required: true,
       },
       userid: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     computed: {
       formattedDeleteConfirmation() {
         return this.$tr('deleteConfirmation', {
           username: bold(this.username),
-          classname: bold(this.classname)
+          classname: bold(this.classname),
         });
       },
       formattedAccessReassuranceConfirmation() {
-        return this.$tr('accessReassurance', { sectionTabName: bold(this.$tr('usersTab')) });
-      }
+        return this.$tr('accessReassurance', {
+          sectionTabName: bold(this.$tr('usersTab')),
+        });
+      },
     },
     methods: {
       userRemove() {
@@ -90,14 +92,14 @@
       },
       close() {
         this.displayModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         removeClassUser: actions.removeClassUser,
-        displayModal: actions.displayModal
-      }
-    }
+        displayModal: actions.displayModal,
+      },
+    },
   };
 
 </script>

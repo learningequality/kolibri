@@ -36,7 +36,7 @@
     $trNameSpace: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
-      forward: 'Go forward 10 seconds'
+      forward: 'Go forward 10 seconds',
     },
 
     mixins: [ResponsiveElement],
@@ -46,10 +46,10 @@
     props: {
       files: {
         type: Array,
-        required: true
+        required: true,
       },
       supplementaryFiles: { type: Array },
-      thumbnailFiles: { type: Array }
+      thumbnailFiles: { type: Array },
     },
     data: () => ({
       dummyTime: 0,
@@ -64,28 +64,25 @@
 
     computed: {
       posterSource() {
-        const posterFileExtensions = [
-          'png',
-          'jpg'
-        ];
-        const posterArray = this.thumbnailFiles.filter(file => posterFileExtensions.some(ext => ext === file.extension));
+        const posterFileExtensions = ['png', 'jpg'];
+        const posterArray = this.thumbnailFiles.filter(file =>
+          posterFileExtensions.some(ext => ext === file.extension)
+        );
         if (posterArray.length === 0) {
           return '';
         }
         return posterArray[0].storage_url;
       },
       videoSources() {
-        const videoFileExtensions = [
-          'mp4',
-          'webm',
-          'ogg'
-        ];
+        const videoFileExtensions = ['mp4', 'webm', 'ogg'];
         return this.files.filter(file => videoFileExtensions.some(ext => ext === file.extension));
       },
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        return this.supplementaryFiles.filter(file => trackFileExtensions.some(ext => ext === file.extension));
-      }
+        return this.supplementaryFiles.filter(file =>
+          trackFileExtensions.some(ext => ext === file.extension)
+        );
+      },
     },
     methods: {
       getLangName(langCode) {
@@ -128,9 +125,9 @@
               },
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
-              { name: 'fullscreenToggle' }
-            ]
-          }
+              { name: 'fullscreenToggle' },
+            ],
+          },
         };
         this.$nextTick(() => {
           this.videoPlayer = videojs(this.$refs.video, videojsConfig);
@@ -159,7 +156,7 @@
         const wrapperWidth = this.$refs.wrapper.clientWidth;
         const aspectRatio = 16 / 9;
         const adjustedHeight = wrapperWidth * (1 / aspectRatio);
-        this.$refs.wrapper.setAttribute('style', `height:${ adjustedHeight }px`);
+        this.$refs.wrapper.setAttribute('style', `height:${adjustedHeight}px`);
       },
       throttledResizeVideo: throttle(function resizeVideo() {
         this.resizeVideo();
@@ -179,7 +176,9 @@
       },
 
       updateLang() {
-        const currentTrack = Array.from(this.videoPlayer.textTracks()).find(track => track.mode === 'showing');
+        const currentTrack = Array.from(this.videoPlayer.textTracks()).find(
+          track => track.mode === 'showing'
+        );
         if (currentTrack) {
           Lockr.set('videoLang', currentTrack.language);
         }
@@ -219,7 +218,13 @@
         }
       },
       recordProgress() {
-        this.$emit('updateProgress', Math.max(0, (this.dummyTime - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration())));
+        this.$emit(
+          'updateProgress',
+          Math.max(
+            0,
+            (this.dummyTime - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration())
+          )
+        );
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
       updateVideoSizeClass() {
@@ -254,7 +259,7 @@
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizeVideo);
       this.videoPlayer.dispose();
-    }
+    },
   };
 
 </script>

@@ -45,11 +45,7 @@
     }),
     computed: {
       sortedClasses() {
-        return orderBy(
-          this.classes,
-          [classroom => classroom.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       noClassesExist() {
         return this.sortedClasses ? this.sortedClasses.length === 0 : false;

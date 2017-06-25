@@ -29,7 +29,7 @@
     $trNameSpace: 'progressIcon',
     $trs: {
       inProgress: 'In progress',
-      completed: 'Completed'
+      completed: 'Completed',
     },
     props: {
       progress: {
@@ -37,8 +37,8 @@
         required: false,
         validator(value) {
           return value >= 0 && value <= 1;
-        }
-      }
+        },
+      },
     },
     computed: {
       isInProgress() {
@@ -46,12 +46,12 @@
       },
       isCompleted() {
         return this.progress >= 1;
-      }
+      },
     },
     components: {
       uiIcon,
-      uiTooltip
-    }
+      uiTooltip,
+    },
   };
 
 </script>

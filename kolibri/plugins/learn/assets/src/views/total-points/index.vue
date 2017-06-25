@@ -17,7 +17,7 @@
     totalPoints,
     currentUserId,
     isUserLoggedIn,
-    isSuperuser
+    isSuperuser,
   } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
@@ -27,21 +27,21 @@
     $trs: { pointsTooltip: 'You have earned { points, number } points!' },
     components: {
       pointsIcon,
-      uiTooltip
+      uiTooltip,
     },
     vuex: {
       getters: {
         totalPoints,
         currentUserId,
         isUserLoggedIn,
-        isSuperuser
+        isSuperuser,
       },
-      actions: { fetchPoints }
+      actions: { fetchPoints },
     },
     created() {
       this.fetchPoints();
     },
-    watch: { currentUserId: 'fetchPoints' }
+    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>

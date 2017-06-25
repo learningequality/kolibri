@@ -11,58 +11,61 @@ const logging = logger.getLogger(__filename);
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
-
 // Object to be exported by this module.
 export const sortColumn = state => (state.pageState || {}).sortColumn;
 export const sortOrder = state => (state.pageState || {}).sortOrder;
 
 // public vuex getters
-export const completionCount = (state) => {
+export const completionCount = state => {
   const summary = state.pageState.contentScopeSummary;
   if (summary.kind !== ContentNodeKinds.TOPIC) {
     return summary.progress[0].logCountComplete;
   }
   return undefined;
 };
-export const userCount = (state) => {
+export const userCount = state => {
   return state.pageState.contentScopeSummary.numUsers;
-}
-export const exerciseCount = (state) => {
+};
+export const exerciseCount = state => {
   const summary = state.pageState.contentScopeSummary;
-  if (summary.kind === ContentNodeKinds.TOPIC ||
-    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
+  if (
+    summary.kind === ContentNodeKinds.TOPIC ||
+    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL
+  ) {
     return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
   } else if (summary.kind === ContentNodeKinds.EXERCISE) {
     return 1;
   }
   return 0;
-}
-export const exerciseProgress = (state) => {
+};
+export const exerciseProgress = state => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
     ReportUtils.onlyExercises,
     exerciseCount(state),
     userCount(state)
   );
-}
-export const contentCount = (state) => {
+};
+export const contentCount = state => {
   const summary = state.pageState.contentScopeSummary;
-  if (summary.kind === ContentNodeKinds.TOPIC ||
-    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
+  if (
+    summary.kind === ContentNodeKinds.TOPIC ||
+    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL
+  ) {
     return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
   } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
     return 1;
   }
   return 0;
-}
-export const contentProgress = (state) => {
+};
+export const contentProgress = state => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
     ReportUtils.onlyContent,
     contentCount(state),
     userCount(state)
   );
-}
+};
 
 function _genRow(state, item) {
   const row = {};
@@ -79,10 +82,16 @@ function _genRow(state, item) {
     if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
       // for learners, the exercise counts are the global values
       row.exerciseProgress = ReportUtils.calcProgress(
-        item.progress, ReportUtils.onlyExercises, exerciseCount(state), 1
+        item.progress,
+        ReportUtils.onlyExercises,
+        exerciseCount(state),
+        1
       );
       row.contentProgress = ReportUtils.calcProgress(
-        item.progress, ReportUtils.onlyContent, contentCount(state), 1
+        item.progress,
+        ReportUtils.onlyContent,
+        contentCount(state),
+        1
       );
     }
   } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
@@ -135,16 +144,17 @@ function _genRow(state, item) {
   return row;
 }
 
-export const standardDataTable = (state) => {
+export const standardDataTable = state => {
   const data = state.pageState.tableData.map(item => _genRow(state, item));
   if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
     data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
   }
   if (state.pageState.showRecentOnly) {
-    return data.filter(row =>
-      Boolean(row.lastActive) &&
-      differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
+    return data.filter(
+      row =>
+        Boolean(row.lastActive) &&
+        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
     );
   }
   return data;
-}
+};

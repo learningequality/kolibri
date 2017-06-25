@@ -1,4 +1,3 @@
-
 import * as constants from '../constants';
 import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
@@ -11,7 +10,7 @@ const initialState = {
     searchTerm: '',
   },
   learnAppState: {
-    memberships: []
+    memberships: [],
   },
   examLog: {},
   examAttemptLogs: {},
@@ -48,7 +47,7 @@ const mutations = {
       const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
       topic.progress = progress.progress_fraction;
     });
-  }
+  },
 };
 
 // assigns core state and mutations

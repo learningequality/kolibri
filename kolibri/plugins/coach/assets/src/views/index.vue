@@ -50,7 +50,8 @@
     $trs: {
       coachTitle: 'Coach',
       superUserPrompt: 'Signed in as device owner',
-      superUserCommand: 'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.'
+      superUserCommand:
+        'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
       authMessage,
@@ -67,7 +68,7 @@
       channelListPage,
       itemListPage,
       learnerListPage,
-      classSelector
+      classSelector,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -92,25 +93,25 @@
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
-          [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page'
+          [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
         };
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
         return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
-      }
+      },
     },
     methods: {
       changeClass(classSelectedId) {
         if (this.pageName === Constants.PageNames.EXAM_REPORT) {
           this.$router.push({
             name: Constants.PageNames.EXAMS,
-            params: { classId: classSelectedId }
+            params: { classId: classSelectedId },
           });
         } else {
           this.$router.push({ params: { classId: classSelectedId } });
         }
-      }
+      },
     },
     vuex: {
       getters: {
@@ -119,10 +120,10 @@
         isAdmin: coreGetters.isAdmin,
         isCoach: coreGetters.isCoach,
         classList: state => state.classList,
-        classId: state => state.classId
-      }
+        classId: state => state.classId,
+      },
     },
-    store
+    store,
   };
 
 </script>

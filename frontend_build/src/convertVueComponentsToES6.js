@@ -3,7 +3,9 @@ const esprima = require('esprima');
 const escodegen = require('escodegen');
 
 function camelKebab(text) {
-  return text.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+  return text.replace(/-([a-z])/g, function(g) {
+    return g[1].toUpperCase();
+  });
 }
 
 function createImportDeclaration(name, source) {
@@ -14,7 +16,7 @@ function createImportDeclaration(name, source) {
       {
         type: 'ImportDefaultSpecifier',
         local: { type: 'Identifier', name },
-        imported: { type: 'Identifier', name }
+        imported: { type: 'Identifier', name },
       },
     ],
     source,
@@ -35,7 +37,7 @@ function createComponentProperty(name) {
 }
 
 function readVueFile(file) {
- return fs.readFileSync(file, {encoding: 'utf-8'});
+  return fs.readFileSync(file, { encoding: 'utf-8' });
 }
 
 function readJSFromVue(text) {
@@ -52,14 +54,14 @@ function replaceJSinVue(text, code) {
 
 const escodegenOptions = {
   format: {
-      indent: {
-          style: '  ',
-          base: 1,
-          adjustMultilineComment: true,
-      },
+    indent: {
+      style: '  ',
+      base: 1,
+      adjustMultilineComment: true,
+    },
   },
   comment: true,
-}
+};
 
 function transformCode(text) {
   const tree = esprima.parse(text, { sourceType: 'module' });
@@ -81,7 +83,9 @@ function transformCode(text) {
     });
     // Only modify imports and return new code if imports added
     if (importsToAdd.length) {
-      const exportIndex = tree.body.findIndex(obj => obj.type === esprima.Syntax.ExportDefaultDeclaration);
+      const exportIndex = tree.body.findIndex(
+        obj => obj.type === esprima.Syntax.ExportDefaultDeclaration
+      );
       tree.body.splice(exportIndex, 0, ...importsToAdd);
       let code = escodegen.generate(tree, escodegenOptions);
       // Enforce new line separation in script block
@@ -96,7 +100,7 @@ function transformCode(text) {
 
 function transformVueFile(file) {
   const text = readVueFile(file);
-  if (text.indexOf('<script>') > - 1) {
+  if (text.indexOf('<script>') > -1) {
     const code = transformCode(readJSFromVue(text));
     const newText = replaceJSinVue(text, code);
     return newText;
@@ -125,7 +129,7 @@ if (require.main === module) {
     } else {
       rewriteVueFile(file);
     }
-  }
+  };
   if (!file) {
     program.help();
   } else {

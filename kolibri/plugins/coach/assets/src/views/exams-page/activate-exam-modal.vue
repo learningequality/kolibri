@@ -35,41 +35,41 @@
       willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
       activate: 'Activate',
-      entireClass: 'Entire class'
+      entireClass: 'Entire class',
     },
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
     props: {
       examId: {
         type: String,
-        required: true
+        required: true,
       },
       examTitle: {
         type: String,
-        required: true
+        required: true,
       },
       examVisibility: {
         type: Object,
-        required: true
+        required: true,
       },
       classId: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
     methods: {
       close() {
         this.displayExamModal(false);
-      }
+      },
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        activateExam: examActions.activateExam
-      }
-    }
+        activateExam: examActions.activateExam,
+      },
+    },
   };
 
 </script>

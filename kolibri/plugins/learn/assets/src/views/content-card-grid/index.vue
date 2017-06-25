@@ -37,28 +37,27 @@
     props: {
       contents: {
         type: Array,
-        required: true
+        required: true,
       },
       header: {
         type: String,
-        required: false
+        required: false,
       },
       subheader: {
         type: String,
-        required: false
+        required: false,
       },
       genLink: {
         type: Function,
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));
         },
-        default: () => {
-        },
-        required: false
-      }
+        default: () => {},
+        required: false,
+      },
     },
     components: { contentCard },
-    vuex: { getters: { channelId: state => state.core.channels.currentId } }
+    vuex: { getters: { channelId: state => state.core.channels.currentId } },
   };
 
 </script>

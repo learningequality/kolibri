@@ -44,10 +44,9 @@
       timer: null,
     }),
     mounted() {
-      this.timer = setInterval(
-        () => { this.now = now(); },
-        10000
-      );
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
     },
     beforeDestroy() {
       clearInterval(this.timer);

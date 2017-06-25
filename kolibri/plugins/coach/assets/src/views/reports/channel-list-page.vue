@@ -53,14 +53,14 @@
       recentTitle: 'Recent Activity',
       channels: 'Channels',
       channelList: 'Channel list',
-      lastActivity: 'Last active'
+      lastActivity: 'Last active',
     },
     components: {
       reportTable,
       reportSubheading,
       headerCell,
       nameCell,
-      activityCell
+      activityCell,
     },
     computed: {
       CHANNEL() {
@@ -68,23 +68,23 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
-      }
+      },
     },
     methods: {
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,
           [PageNames.TOPIC_CHANNELS]: PageNames.TOPIC_CHANNEL_ROOT,
-          [PageNames.LEARNER_CHANNELS]: PageNames.LEARNER_CHANNEL_ROOT
+          [PageNames.LEARNER_CHANNELS]: PageNames.LEARNER_CHANNEL_ROOT,
         };
         return {
           name: linkTargets[this.pageName],
           params: {
             classId: this.classId,
-            channelId
-          }
+            channelId,
+          },
         };
-      }
+      },
     },
     vuex: {
       getters: {
@@ -92,9 +92,9 @@
         standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,
-        showRecentOnly: state => state.pageState.showRecentOnly
-      }
-    }
+        showRecentOnly: state => state.pageState.showRecentOnly,
+      },
+    },
   };
 
 </script>

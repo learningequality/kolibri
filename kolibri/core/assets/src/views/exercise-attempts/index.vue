@@ -28,26 +28,22 @@
     props: {
       waitingForAttempt: {
         type: Boolean,
-        required: true
+        required: true,
       },
       success: {
         type: Boolean,
-        required: true
+        required: true,
       },
       numSpaces: {
         type: Number,
-        required: true
+        required: true,
       },
       log: {
         type: Array,
         validator(arr) {
-          return arr.every(val => [
-            'right',
-            'wrong',
-            'hint'
-          ].includes(val));
-        }
-      }
+          return arr.every(val => ['right', 'wrong', 'hint'].includes(val));
+        },
+      },
     },
     components: { answerIcon },
     computed: {
@@ -58,11 +54,14 @@
         return this.numSpaces + 1;
       },
       itemsToRender() {
-        return this.log.map((answer, originalIndex) => ({
-          answer,
-          originalIndex
-        })).slice(-1 * this.numItemsToRender).reverse();
-      }
+        return this.log
+          .map((answer, originalIndex) => ({
+            answer,
+            originalIndex,
+          }))
+          .slice(-1 * this.numItemsToRender)
+          .reverse();
+      },
     },
     methods: {
       styleForIndex(visualIndex, originalIndex) {
@@ -72,13 +71,13 @@
           xPos += ANSWER_WIDTH;
         }
         const style = {};
-        style.transform = `translate(${ xPos }px) translateZ(0)`;
+        style.transform = `translate(${xPos}px) translateZ(0)`;
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
         }
         return style;
-      }
-    }
+      },
+    },
   };
 
 </script>
