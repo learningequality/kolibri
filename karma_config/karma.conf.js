@@ -43,7 +43,6 @@ module.exports = function(config) {
     files: [
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
-      './node_modules/phantomjs-polyfill-find/find-polyfill.js',
       'kolibri/**/assets/test/**/*.js',
     ],
 

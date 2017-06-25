@@ -62,7 +62,7 @@ matrix:
         - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
-        - TOX_ENV=node4.x
+        - TOX_ENV=node6.x
         - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:

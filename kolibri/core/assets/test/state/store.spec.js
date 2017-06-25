@@ -10,6 +10,7 @@ import * as constants from '../../src/constants';
 import sinon from 'sinon';
 import urls from 'kolibri.urls';
 import { SessionResource } from 'kolibri.resources';
+import * as browser from '../../src/utils/browser';
 
 Vue.use(Vuex);
 
@@ -44,28 +45,15 @@ describe('Vuex store/actions for core module', () => {
 
   describe('kolibriLogin', () => {
     let store;
-    const oldHandler = window.onbeforeunload;
-
-    before(() => {
-      // this prevents kolibriLogin from refreshing page
-      const location = window.document.location;
-
-      window.onbeforeunload = () => {
-        var originalHashValue = location.hash;
-
-        window.setTimeout(function() {
-          location.hash = 'preventNavigation' + ~~(9999 * Math.random());
-          location.hash = originalHashValue;
-        }, 0);
-      };
-    });
-
-    after(() => {
-      window.onbeforeunload = oldHandler;
-    });
+    let assignStub;
 
     beforeEach(() => {
       store = createStore();
+      assignStub = sinon.stub(browser, 'redirectBrowser');
+    });
+
+    afterEach(() => {
+      assignStub.restore();
     });
 
     it('successful login', done => {
@@ -87,6 +75,7 @@ describe('Vuex store/actions for core module', () => {
         assert.equal(session.id, '123');
         assert.equal(session.username, 'e_fermi');
         assert.deepEqual(session.kind, ['cool-guy-user']);
+        sinon.assert.called(assignStub);
       }
 
       coreActions.kolibriLogin(store, {}).then(runAssertions).then(done, done);
@@ -120,6 +109,7 @@ describe('Vuex store/actions for core module', () => {
         .kolibriLogout(store)
         .then(() => {
           sinon.assert.calledWith(getModelStub, 'current');
+          sinon.assert.called(assignStub);
         })
         .then(done, done);
     });

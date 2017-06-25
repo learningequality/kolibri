@@ -17,6 +17,7 @@ import {
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
+import { redirectBrowser } from '../utils/browser';
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -155,10 +156,6 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-function refreshBrowser(url) {
-  window.location.href = url || window.location.origin;
-}
-
 /**
  * Signs in user.
  *
@@ -175,12 +172,12 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       const manageURL = urls['kolibri:managementplugin:management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
-        refreshBrowser(`${window.location.origin}${manageURL}#/content`);
+        redirectBrowser(`${window.location.origin}${manageURL}#/content`);
       } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-        refreshBrowser(window.location.origin + manageURL);
+        redirectBrowser(window.location.origin + manageURL);
       } else {
-        refreshBrowser();
+        redirectBrowser();
       }
     })
     .catch(error => {
@@ -200,7 +197,7 @@ function kolibriLogout(store) {
   return logoutPromise
     .then(response => {
       /* Very hacky solution to redirect a user back to Learn tab on logout*/
-      refreshBrowser();
+      redirectBrowser();
     })
     .catch(error => {
       handleApiError(store, error);
