@@ -36,7 +36,7 @@
 <script>
 
   import { PageNames } from '../../constants';
-  import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
   export default {
