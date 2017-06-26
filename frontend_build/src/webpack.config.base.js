@@ -32,7 +32,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
-var PrettierVuePlugin = require('./prettier-vue-webpack-plugin');
+var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
@@ -162,7 +162,7 @@ if (lint) {
       ],
     },
     plugins: [
-      new PrettierVuePlugin({
+      new PrettierFrontendPlugin({
         extensions: ['.js', '.vue'],
         logLevel: 'warn',
         prettierOptions,

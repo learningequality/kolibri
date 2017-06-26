@@ -3,11 +3,14 @@ const compiler = require('vue-template-compiler');
 const fs = require('fs');
 const path = require('path');
 
-function prettierVue({ file, write, encoding = 'utf-8', prettierOptions }) {
+const errorOrChange = 1;
+const noChange = 0;
+
+function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) {
   return new Promise((resolve, reject) => {
     fs.readFile(file, { encoding }, (err, buffer) => {
       if (err) {
-        reject(err.message);
+        reject({ message: err.message, code: errorOrChange });
         return;
       }
       const source = buffer.toString();
@@ -37,25 +40,29 @@ function prettierVue({ file, write, encoding = 'utf-8', prettierOptions }) {
           // with the linted code.
           formatted = source.replace(source.slice(start, end), formattedJs);
         }
-      } catch (e) {}
-      if (!formatted) {
+      } catch (e) {
         // Something went wrong, return the source to be safe.
-        resolve(source);
+        reject({ message: e.message, code: errorOrChange });
         return;
       }
+      if (!formatted || formatted === source) {
+        // Nothing to lint, return the source to be safe.
+        resolve({ formatted: source, code: noChange });
+        return;
+      }
+      const code = errorOrChange;
       if (write) {
-        if (formatted !== source) {
-          fs.writeFile(file, formatted, { encoding }, error => {
-            if (error) {
-              reject(error.message);
-              return;
-            }
-            console.log(`Rewriting a prettier version of ${file}`);
-            resolve('success!');
-          });
-        }
+        fs.writeFile(file, formatted, { encoding }, error => {
+          if (error) {
+            reject({ message: error.message, code: errorOrChange });
+            return;
+          }
+          console.log(`Rewriting a prettier version of ${file}`);
+          resolve({ formatted, code });
+        });
       } else {
-        resolve(formatted);
+        console.log(`${file} did not conform to prettier standards`);
+        resolve({ formatted, code });
       }
     });
   });
@@ -72,6 +79,7 @@ if (require.main === module) {
     .option('-w, --write', 'Write to file', false)
     .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
     .option('--prettierPath <filePath>', 'Path to prettier bin')
+    .option('-v, --verbose', 'Print output to stdout', false)
     .parse(process.argv);
   const file = program.args[0];
   const baseOptions = Object.assign({}, program);
@@ -80,9 +88,10 @@ if (require.main === module) {
     delete baseOptions.prettierPath;
   }
   const logSuccess = formatted => {
-    if (!baseOptions.write) {
-      console.log(formatted);
+    if (!baseOptions.write && baseOptions.verbose) {
+      console.log(formatted.formatted);
     }
+    return formatted.code;
   };
   if (!file) {
     program.help();
@@ -92,19 +101,34 @@ if (require.main === module) {
         if (err) {
           console.log('Error: ', err);
         } else {
-          matches.forEach(globbedFile => {
-            prettierVue(Object.assign({}, baseOptions, { file: globbedFile }))
-              .then(logSuccess)
-              .catch(error => console.log('Error: ', error));
+          Promise.all(
+            matches.map(globbedFile => {
+              return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))
+                .then(logSuccess)
+                .catch(error => {
+                  console.log('Error: ', error.message);
+                  return error.code;
+                });
+            })
+          ).then(sources => {
+            process.exit(
+              sources.reduce((code, result) => {
+                return Math.max(code, result);
+              }, noChange)
+            );
           });
         }
       });
     } else {
-      prettierVue(Object.assign({}, baseOptions, { file }))
+      prettierFrontend(Object.assign({}, baseOptions, { file }))
         .then(logSuccess)
-        .catch(error => console.log('Error: ', error));
+        .then(code => process.exit(code))
+        .catch(error => {
+          console.log('Error: ', error.message);
+          process.exit(errorOrChange);
+        });
     }
   }
 }
 
-module.exports = prettierVue;
+module.exports = prettierFrontend;

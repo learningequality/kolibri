@@ -58,7 +58,7 @@
         }
         return this.numSpaces + 1;
       },
-       // returns a list of items the items to be rendered in the DOM
+      // returns a list of items the items to be rendered in the DOM
       itemsToRender() {
         // save the original index of the item in the log and slice of the end
         return this.log
