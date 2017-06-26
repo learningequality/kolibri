@@ -21,7 +21,7 @@ class FacilityUserBackend(object):
         :param facility: a Facility
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        users = FacilityUser.objects.filter(username=username)
+        users = FacilityUser.objects.filter(username__iexact=username)
         if facility:
             users = users.filter(facility=facility)
         for user in users:
