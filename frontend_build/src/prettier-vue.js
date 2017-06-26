@@ -19,23 +19,25 @@ function prettierVue({ file, write, encoding = 'utf-8', prettierOptions }) {
         },
         prettierOptions
       );
-      // Raw JS file, so assume is raw javascript to format.
-      if (file.endsWith('.js')) {
-        formatted = prettier.format(source, options);
-      } else if (vueComponent && vueComponent.script) {
-        const start = vueComponent.script.start;
-        const end = vueComponent.script.end;
-        let formattedJs = prettier.format(source.slice(start, end), options);
-        // Ensure that the beginning and end of the JS has two newlines to fit our
-        // Component linting conventions
-        // Ensure it is indented by two spaces
-        formattedJs = formattedJs.replace(/^(\n)*/, '\n\n');
-        formattedJs = formattedJs.replace(/(\n)*$/, '\n\n');
-        formattedJs = formattedJs.replace(/(.*\S.*)/g, '  $1');
-        // Return reformatted Vue component, by replacing existing JS in component
-        // with the linted code.
-        formatted = source.replace(source.slice(start, end), formattedJs);
-      }
+      try {
+        // Raw JS file, so assume is raw javascript to format.
+        if (file.endsWith('.js')) {
+          formatted = prettier.format(source, options);
+        } else if (vueComponent && vueComponent.script) {
+          const start = vueComponent.script.start;
+          const end = vueComponent.script.end;
+          let formattedJs = prettier.format(source.slice(start, end), options);
+          // Ensure that the beginning and end of the JS has two newlines to fit our
+          // Component linting conventions
+          // Ensure it is indented by two spaces
+          formattedJs = formattedJs.replace(/^(\n)*/, '\n\n');
+          formattedJs = formattedJs.replace(/(\n)*$/, '\n\n');
+          formattedJs = formattedJs.replace(/(.*\S.*)/g, '  $1');
+          // Return reformatted Vue component, by replacing existing JS in component
+          // with the linted code.
+          formatted = source.replace(source.slice(start, end), formattedJs);
+        }
+      } catch (e) {}
       if (!formatted) {
         // Something went wrong, return the source to be safe.
         resolve(source);

@@ -28,9 +28,6 @@ class PrettierVuePlugin {
                 encoding: this.encoding,
                 prettierOptions: this.prettierOptions,
               })
-                .then(() => {
-                  console.log('succeed');
-                })
                 .catch(err => {
                   console.error(err);
                 });
