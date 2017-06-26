@@ -25,7 +25,7 @@ os.environ.setdefault(
 os.environ.setdefault(
     "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
 )
-os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
+os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
 
 import django  # noqa
 from django.core.management import call_command  # noqa
@@ -95,6 +95,8 @@ Environment:
    - Where Kolibri will store its data and configuration files. If you are using
      an external drive
 
+  KOLIBRI_LISTEN_PORT
+   - Default: 8080
 
 """
 
@@ -214,7 +216,7 @@ def update():
 update.called = False
 
 
-def start(port=8080, daemon=True):
+def start(port=None, daemon=True):
     """
     Start the server on given port.
 
@@ -225,6 +227,9 @@ def start(port=8080, daemon=True):
     # This is temporarily put in place because of
     # https://github.com/learningequality/kolibri/issues/1615
     update()
+
+    if port is None:
+        port = os.environ['KOLIBRI_LISTEN_PORT']
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
@@ -547,7 +552,7 @@ def main(args=None):
         return
 
     if arguments['start']:
-        port = int(arguments['--port'] or 8080)
+        port = int(arguments['--port']) or None
         start(port, daemon=not arguments['--foreground'])
         return
 
