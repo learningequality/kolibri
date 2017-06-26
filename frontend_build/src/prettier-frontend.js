@@ -74,14 +74,14 @@ if (require.main === module) {
 
   program
     .version('0.0.1')
-    .usage('[options] <file>')
-    .arguments('<file>')
+    .usage('[options] <files...>')
+    .arguments('<files...>')
     .option('-w, --write', 'Write to file', false)
     .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
     .option('--prettierPath <filePath>', 'Path to prettier bin')
     .option('-v, --verbose', 'Print output to stdout', false)
     .parse(process.argv);
-  const file = program.args[0];
+  const files = program.args;
   const baseOptions = Object.assign({}, program);
   if (baseOptions.prettierPath) {
     baseOptions.prettierOptions = require(path.resolve(process.cwd(), baseOptions.prettierPath));
@@ -93,41 +93,34 @@ if (require.main === module) {
     }
     return formatted.code;
   };
-  if (!file) {
+  if (!files.length) {
     program.help();
   } else {
-    if (glob.hasMagic(file)) {
-      glob(file, (err, matches) => {
-        if (err) {
-          console.log('Error: ', err);
-        } else {
-          Promise.all(
-            matches.map(globbedFile => {
-              return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))
-                .then(logSuccess)
-                .catch(error => {
-                  console.log('Error: ', error.message);
-                  return error.code;
-                });
-            })
-          ).then(sources => {
-            process.exit(
-              sources.reduce((code, result) => {
-                return Math.max(code, result);
-              }, noChange)
-            );
-          });
-        }
-      });
-    } else {
-      prettierFrontend(Object.assign({}, baseOptions, { file }))
-        .then(logSuccess)
-        .then(code => process.exit(code))
-        .catch(error => {
-          console.log('Error: ', error.message);
-          process.exit(errorOrChange);
+    Promise.all(
+      files.map(file => {
+        const matches = glob.sync(file);
+        return Promise.all(
+          matches.map(globbedFile => {
+            return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))
+              .then(logSuccess)
+              .catch(error => {
+                console.log('Error: ', error.message);
+                return error.code;
+              });
+          })
+        ).then(sources => {
+          return sources.reduce((code, result) => {
+            return Math.max(code, result);
+          }, noChange);
         });
-    }
+      })
+    ).then(sources => {
+      process.exit(
+        sources.reduce((code, result) => {
+          return Math.max(code, result);
+        }, noChange)
+      );
+    });
   }
 }
 

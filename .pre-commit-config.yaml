@@ -13,3 +13,11 @@
     -   id: python-import-sorter
         args:
         - --silent-overwrite
+-   repo: local
+    hooks:
+      -   id: frontend-lint
+          name: Prettier Linting of JS and Vue files
+          description: This hook rewrites JS and the JS portion of Vue files to conform to prettier standards.
+          entry: yarn run lint-js:base -- -w
+          language: system
+          files: \.(js|vue)$

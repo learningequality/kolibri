@@ -3,22 +3,23 @@
   "version": "0.0.1",
   "description": "Development utilities for Kolibri",
   "scripts": {
-    "test": "npm run test-mocha && npm run test-karma",
+    "test": "yarn run test-mocha && yarn run test-karma",
     "test-karma": "node ./node_modules/karma/bin/karma start ./karma_config/karma.conf.js --single-run",
     "test-mocha": "node ./node_modules/mocha/bin/mocha ./frontend_build/test/*.js",
-    "coverage": "npm run test-mocha-cov && npm run test-karma",
+    "coverage": "yarn run test-mocha-cov && yarn run test-karma",
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha frontend_build/test/*.js --report lcovonly -- -R spec",
     "test-karma-cov": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.ci.js",
     "build": "webpack --config ./frontend_build/src/webpack.config.prod.js",
-    "test-build": "npm run lint-js && webpack --config ./frontend_build/src/webpack.config.prod.js --bail",
+    "test-build": "yarn run lint-js && webpack --config ./frontend_build/src/webpack.config.prod.js --bail",
     "watch": "node ./frontend_build/src/webpackdevserver.js",
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",
     "install": "node ./frontend_build/src/install_dependencies.js",
     "clean": "node ./frontend_build/src/clean.js",
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
-    "lint-js": "node ./frontend_build/src/prettier-frontend.js './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}' --prettierPath ./.prettier.js",
-    "lint-js:fix": "node ./frontend_build/src/prettier-frontend.js './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}' -w --prettierPath ./.prettier.js"
+    "lint-js:base": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
+    "lint-js": "yarn run lint-js:base -- './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}'",
+    "lint-js:fix": "yarn run lint-js -- -w"
   },
   "repository": {
     "type": "git",
