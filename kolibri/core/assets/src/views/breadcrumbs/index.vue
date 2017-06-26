@@ -75,8 +75,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   const DROPDOWN_BTN_WIDTH = 55;
-  const DROPDOWN_SIDE_PADDING = 32;
-  const MAX_CRUMB_WIDTH = 300;
+  const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
+  const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   export default {
     $trNameSpace: 'breadcrumbs',

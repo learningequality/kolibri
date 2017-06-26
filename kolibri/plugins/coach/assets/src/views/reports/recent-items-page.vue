@@ -93,6 +93,7 @@
     },
     methods: {
       progressString(row) {
+        // string representation of a fraction, can't use completedProgress
         const proportionCompleted = `${row.logCountComplete}` + `/${this.userCount}`;
         switch (row.kind) {
           case ContentNodeKinds.AUDIO:

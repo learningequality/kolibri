@@ -80,6 +80,7 @@
         return this.questions.reduce((a, q) => a + q.correct, 0) / this.questions.length || 0;
       },
       progress() {
+        // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
       },
     },

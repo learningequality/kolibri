@@ -42,6 +42,7 @@
       label: { type: String },
       ariaLabel: {
         type: String,
+        // enforcing accessibility
         required: !!this.label,
       },
       autocomplete: { type: String },
@@ -57,6 +58,7 @@
     },
     methods: {
       updateText(text) {
+        // v-model is just a :value + @input
         this.$emit('input', this.currentText);
       },
       reset() {

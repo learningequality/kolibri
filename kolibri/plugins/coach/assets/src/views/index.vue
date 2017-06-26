@@ -59,6 +59,7 @@
       classListPage,
       examsPage,
       createExamPage,
+      // reports
       examReportPage,
       examReportDetailPage,
       groupsPage,
@@ -78,6 +79,7 @@
           [Constants.PageNames.EXAMS]: 'exams-page',
           [Constants.PageNames.GROUPS]: 'groups-page',
           [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
+          // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
           [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',

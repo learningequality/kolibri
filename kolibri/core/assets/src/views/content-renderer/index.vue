@@ -113,6 +113,7 @@
     },
     created() {
       this.updateRendererComponent();
+      // This means this component has to be torn down on channel switches.
       this.$watch('files', this.updateRendererComponent);
     },
     data: () => ({
@@ -120,8 +121,16 @@
       noRendererAvailable: false,
     }),
     methods: {
+      /*
+       * Check the Kolibri core app for a content renderer module that is able to
+       * handle the rendering of the current content node. This is the entrance point for changes
+       * in the props,so any change in the props will trigger this function first.
+       */
       updateRendererComponent() {
+        // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
+        // Only bother to do this is if the node is available, and the kind and extension are defined.
+        // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([
             this.initSession(),

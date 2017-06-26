@@ -113,6 +113,7 @@
       requirementsString() {
         try {
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
+          // TODO might be more types?
           return this.$tr('requirementsMOfN', {
             m: requirements.m,
             n: requirements.n,

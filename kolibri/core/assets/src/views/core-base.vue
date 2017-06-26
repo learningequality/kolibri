@@ -43,11 +43,14 @@
   export default {
     mixins: [responsiveWindow],
     props: {
+      // This prop breaks the separation between core and plugins.
+      // It's being used as a work-around until plugins have a way
+      // of registering components to be added to the nav bar.
       topLevelPageName: {
         type: String,
         validator(value) {
           if (!value) {
-            return true;
+            return true; // Okay if it's undefined
           }
           return values(TopLevelPageNames).includes(value);
         },
@@ -76,8 +79,10 @@
       },
       'windowSize.breakpoint': function updateNav(newVal, oldVal) {
         if (oldVal === 4 && newVal === 5) {
+          // Pop out the nav if transitioning from 4 to 5
           this.navShown = true;
         } else if (oldVal === 2 && newVal === 1) {
+          // Pop in the nav if transitioning from 2 to 1
           this.navShown = false;
         }
       },

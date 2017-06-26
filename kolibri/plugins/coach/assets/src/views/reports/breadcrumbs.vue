@@ -65,6 +65,7 @@
       },
       topicCrumbs() {
         return [
+          // link to the root channels page
           {
             text: this.$tr('channels'),
             link: {
@@ -72,6 +73,7 @@
               params: { classId: this.classId },
             },
           },
+          // links to each ancestor
           ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
             const breadcrumb = { text: item.title };
             if (index) {
@@ -84,6 +86,7 @@
                 },
               };
             } else {
+              // link to channel root
               breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
@@ -94,6 +97,7 @@
             }
             return breadcrumb;
           }),
+          // current item
           { text: this.pageState.contentScopeSummary.title },
         ];
       },

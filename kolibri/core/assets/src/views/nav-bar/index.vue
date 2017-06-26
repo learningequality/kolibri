@@ -120,6 +120,9 @@
         };
       },
       wrapperStyle() {
+        // Calculate min-height property by taking the number of options (minus the divider)
+        // multipying by 50 for each option, adding 173 for the divider and the footer,
+        // and finally adding this.width/2.5 for the non-mobile logo if needed.
         return {
           minHeight: `${(this.menuOptions.length - 1) * 50 +
             173 +
