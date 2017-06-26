@@ -7,10 +7,10 @@ import copy
 import logging
 import pytest
 import os
+import unittest
 
 from kolibri.utils import cli
 
-from .base import KolibriTestBase
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def test_plugin_with_no_plugin_class(conf):
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 
 
-class TestKolibriCLI(KolibriTestBase):
+class TestKolibriCLI(unittest.TestCase):
 
     def test_cli(self):
         logger.debug("This is a unit test in the main Kolibri app space")
