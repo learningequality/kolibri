@@ -84,13 +84,15 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const GetCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-  const PageNames = require('../../constants').PageNames;
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import contentCard from '../content-card';
+  import contentCardGrid from '../content-card-grid';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabButton from 'kolibri.coreVue.components.tabButton';
+  export default {
     $trNameSpace: 'learnSearch',
-
     $trs: {
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',
@@ -109,18 +111,16 @@
       noAudio: 'No audio matches "{searchTerm}"',
       noTopics: 'No topics match "{searchTerm}"',
       noDocuments: 'No documents match "{searchTerm}"',
-      noHtml5: 'No HTML5 apps match "{searchTerm}"',
+      noHtml5: 'No HTML5 apps match "{searchTerm}"'
     },
     components: {
-      'content-card-grid': require('../content-card-grid'),
-      'content-card': require('../content-card'),
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-button': require('kolibri.coreVue.components.tabButton'),
+      contentCard,
+      contentCardGrid,
+      tabs,
+      tabButton
     },
     data() {
-      return {
-        filter: 'all',
-      };
+      return { filter: 'all' };
     },
     computed: {
       contentNodeKinds() {
@@ -175,30 +175,36 @@
           return this.$tr('noHtml5', { searchTerm: this.searchTerm });
         }
         return this.$tr('noContent', { searchTerm: this.searchTerm });
-      },
+      }
     },
     methods: {
       genLink(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id: content.id },
+            params: {
+              channel_id: this.channelId,
+              id: content.id
+            }
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id: content.id },
+          params: {
+            channel_id: this.channelId,
+            id: content.id
+          }
         };
-      },
+      }
     },
     vuex: {
       getters: {
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
-        channelId: (state) => state.core.channels.currentId,
-        channelName: state => GetCurrentChannelObject(state).title,
-      },
-    },
+        channelId: state => state.core.channels.currentId,
+        channelName: state => GetCurrentChannelObject(state).title
+      }
+    }
   };
 
 </script>

@@ -1,7 +1,7 @@
 
-const Constants = require('../../constants');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreApp = require('kolibri');
+import * as Constants from '../../constants';
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import coreApp from 'kolibri';
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
 
@@ -48,7 +48,7 @@ function setSelectedAttemptLogIndex(store, index) {
 }
 
 
-module.exports = {
+export {
   setClassState,
   showClassListPage,
   setSelectedAttemptLogIndex,

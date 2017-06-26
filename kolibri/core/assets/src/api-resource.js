@@ -1,13 +1,14 @@
-const logging = require('kolibri.lib.logging').getLogger(__filename);
-const ConditionalPromise = require('./conditionalPromise');
-const find = require('lodash/find');
-const matches = require('lodash/matches');
-const isEqual = require('lodash/isEqual');
-const cloneDeep = require('./cloneDeep');
+import { getLogger } from 'kolibri.lib.logging';
+import ConditionalPromise from './conditionalPromise';
+import find from 'lodash/find';
+import matches from 'lodash/matches';
+import isEqual from 'lodash/isEqual';
+import cloneDeep from './cloneDeep';
 
+const logging = getLogger(__filename);
 
 /** Class representing a single API resource object */
-class Model {
+export class Model {
   /**
    * Create a model instance.
    * @param {object} data - data to insert into the model at creation time - should include at
@@ -220,7 +221,7 @@ class Model {
 /** Class representing a 'view' of a single API resource.
  *  Contains different Model objects, depending on the parameters passed to its fetch method.
  */
-class Collection {
+export class Collection {
   /**
    * Create a Collection instance.
    * @param {Object} getParams - Default parameters to use when fetching data from the server.
@@ -382,7 +383,7 @@ class Collection {
  *  Contains references to all Models that have been fetched from the server.
  *  Can also be subclassed in order to create custom behaviour for particular API resources.
  */
-class Resource {
+export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    * @param {Kolibri} kolibri - The current instantiated instance of the core app.
@@ -659,7 +660,7 @@ class Resource {
  * of the app, allowing for easy caching, as all Model instances can be shared in the central
  * resource.
  */
-class ResourceManager {
+export class ResourceManager {
   /**
    * Instantiate a Resource Manager to manage the creation of Resources.
    * @param {Kolibri} kolibri - The current instantiated instance of the core app - needed to
@@ -707,10 +708,3 @@ class ResourceManager {
   }
 
 }
-
-module.exports = {
-  ResourceManager,
-  Resource,
-  Collection,
-  Model,
-};

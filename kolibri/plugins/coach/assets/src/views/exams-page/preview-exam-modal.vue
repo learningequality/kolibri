@@ -47,64 +47,64 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
+  import * as examActions from '../../state/actions/exam';
   const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-  const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-
-  module.exports = {
+  import {
+    createQuestionList,
+    selectQuestionFromExercise
+  } from 'kolibri.utils.exams';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  export default {
     $trNameSpace: 'previewExamModal',
     $trs: {
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{ num } questions',
-      exercise: 'Exercise { num }',
+      exercise: 'Exercise { num }'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
+      coreModal,
+      contentRenderer,
+      uiButton,
+      uiProgressLinear
     },
     props: {
       examChannelId: {
         type: String,
-        required: true,
+        required: true
       },
       examQuestionSources: {
         type: Array,
-        required: true,
+        required: true
       },
       examSeed: {
         type: Number,
-        required: true,
+        required: true
       },
       examNumQuestions: {
         type: Number,
-        required: true,
+        required: true
       },
       examCreation: {
         type: Boolean,
-        default: false,
+        default: false
       }
     },
     data: () => ({
       currentQuestionIndex: 0,
       exercises: {},
-      loading: true,
+      loading: true
     }),
     computed: {
       questions() {
-        return Object.keys(this.exercises).length ? createQuestionList(
-          this.examQuestionSources).map(
-            question => ({
-              itemId: selectQuestionFromExercise(
-              question.assessmentItemIndex,
-              this.examSeed,
-              this.exercises[question.contentId]),
-              contentId: question.contentId
-            })
-        ) : [];
+        return Object.keys(this.exercises).length ? createQuestionList(this.examQuestionSources).map(question => ({
+          itemId: selectQuestionFromExercise(question.assessmentItemIndex, this.examSeed, this.exercises[question.contentId]),
+          contentId: question.contentId
+        })) : [];
       },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
@@ -114,16 +114,14 @@
       },
       itemId() {
         return this.currentQuestion.itemId;
-      },
+      }
     },
     methods: {
       isSelected(questionItemId, exerciseId) {
-        return (this.currentQuestion.itemId === questionItemId)
-          && (this.currentQuestion.contentId === exerciseId);
+        return this.currentQuestion.itemId === questionItemId && this.currentQuestion.contentId === exerciseId;
       },
       getQuestionIndex(questionItemId, exerciseId) {
-        return this.questions.findIndex(
-          question => (question.itemId === questionItemId) && (question.contentId === exerciseId));
+        return this.questions.findIndex(question => question.itemId === questionItemId && question.contentId === exerciseId);
       },
       goToQuestion(questionItemId, exerciseId) {
         this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
@@ -136,22 +134,17 @@
       },
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
     created() {
-      ContentNodeResource.getCollection(
-        { channel_id: this.examChannelId },
-        { ids: this.examQuestionSources.map(item => item.exercise_id) }
-        ).fetch().then(contentNodes => {
-          contentNodes.forEach(node => { this.$set(this.exercises, node.pk, node); });
-          this.loading = false;
+      ContentNodeResource.getCollection({ channel_id: this.examChannelId }, { ids: this.examQuestionSources.map(item => item.exercise_id) }).fetch().then(contentNodes => {
+        contentNodes.forEach(node => {
+          this.$set(this.exercises, node.pk, node);
         });
+        this.loading = false;
+      });
     },
-    vuex: {
-      actions: {
-        displayExamModal: examActions.displayExamModal,
-      },
-    },
+    vuex: { actions: { displayExamModal: examActions.displayExamModal } }
   };
 
 </script>

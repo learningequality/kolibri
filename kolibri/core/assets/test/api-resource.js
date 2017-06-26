@@ -3,9 +3,9 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const assert = require('assert');
-const sinon = require('sinon');
-const rewire = require('rewire');
+import assert from 'assert';
+import sinon from 'sinon';
+import rewire from 'rewire';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');

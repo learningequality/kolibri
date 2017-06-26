@@ -13,15 +13,15 @@
 
 <script>
 
-  const manageContentActions = require('../../state/manageContentActions');
-  const actions = require('../../state/actions');
-  const logging = require('kolibri.lib.logging');
-  const constants = require('../../constants');
-
+  import * as manageContentActions from '../../state/manageContentActions';
+  import * as actions from '../../state/actions';
+  import * as constants from '../../constants';
+  import { getLogger } from 'kolibri.lib.logging';
+  const logging = getLogger(__filename);
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
-
-  module.exports = {
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'contentPage',
     $trs: {
       buttonClose: 'Close',
@@ -29,14 +29,12 @@
       failed: 'Please try again',
       failedMsg: 'The transfer did not succeed. Restart it to resume transferring the remaining content',
       completed: `Finished!`,
-      loading: 'Please wait…',
+      loading: 'Please wait\u2026',
       remoteImport: 'Importing from curation server',
       localImport: 'Importing from local drive',
-      localExport: 'Exporting to local drive',
+      localExport: 'Exporting to local drive'
     },
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
+    components: { iconButton },
     computed: {
       buttonMessage() {
         if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
@@ -52,15 +50,15 @@
       },
       title() {
         switch (this.type) {
-          case TaskTypes.REMOTE_IMPORT:
-            return this.$tr('remoteImport');
-          case TaskTypes.LOCAL_IMPORT:
-            return this.$tr('localImport');
-          case TaskTypes.LOCAL_EXPORT:
-            return this.$tr('localExport');
-          default:
-            logging.error(`unknown task type: ${this.type}`);
-            return undefined;
+        case TaskTypes.REMOTE_IMPORT:
+          return this.$tr('remoteImport');
+        case TaskTypes.LOCAL_IMPORT:
+          return this.$tr('localImport');
+        case TaskTypes.LOCAL_EXPORT:
+          return this.$tr('localExport');
+        default:
+          logging.error(`unknown task type: ${ this.type }`);
+          return undefined;
         }
       },
       subTitle() {
@@ -70,7 +68,7 @@
           return this.$tr('completed');
         }
         return this.$tr('loading');
-      },
+      }
     },
     methods: {
       clearTaskHandler() {
@@ -79,32 +77,32 @@
           this.refreshChannelList();
         }
         this.clearTask(this.id);
-      },
+      }
     },
     props: {
       type: {
         type: String,
-        required: true,
+        required: true
       },
       status: {
         type: String,
-        required: true,
+        required: true
       },
       percentage: {
         type: Number,
-        required: true,
+        required: true
       },
       id: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     vuex: {
       actions: {
         clearTask: actions.clearTask,
-        refreshChannelList: manageContentActions.refreshChannelList,
-      },
-    },
+        refreshChannelList: manageContentActions.refreshChannelList
+      }
+    }
   };
 
 </script>

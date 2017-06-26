@@ -7,7 +7,7 @@
 
     <script>
 
-      const responsiveElement = require('./responsive-element-mixin.js')
+      import responsiveElement from './responsive-element-mixin.js';
 
       export default {
         mixins: [responsiveElement],
@@ -23,9 +23,9 @@
 */
 
 
-const ResizeSensor = require('css-element-queries/src/ResizeSensor');
+import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 
-module.exports = {
+export default {
   data() {
     return {
       // becomes available for use
@@ -46,4 +46,3 @@ module.exports = {
     this.$options._resizeSensor.detach(this.$el, this._updateEl);
   },
 };
-

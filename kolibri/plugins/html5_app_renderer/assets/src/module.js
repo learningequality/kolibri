@@ -1,6 +1,6 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const HTML5AppComponent = require('./views/index');
+import ContentRendererModule from 'content_renderer_module';
+import HTML5AppComponent from './views/index';
 
 class HTML5AppModule extends ContentRendererModule {
   get rendererComponent() {
@@ -8,4 +8,6 @@ class HTML5AppModule extends ContentRendererModule {
   }
 }
 
-module.exports = new HTML5AppModule();
+const hTML5AppModule = new HTML5AppModule();
+
+export { hTML5AppModule as default };

@@ -35,7 +35,7 @@ const SortOrders = {
 
 const RECENCY_THRESHOLD_IN_DAYS = 7;
 
-module.exports = {
+export {
   ContentScopes,
   UserScopes,
   ViewBy,

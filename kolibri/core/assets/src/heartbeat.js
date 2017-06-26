@@ -1,6 +1,8 @@
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import { getLogger } from 'kolibri.lib.logging';
 
-class HeartBeat {
+const logging = getLogger(__filename);
+
+export default class HeartBeat {
   constructor(kolibri, delay = 60000) {
     if (!kolibri) {
       throw new ReferenceError('A kolibri instance must be passed into the constructor');
@@ -63,5 +65,3 @@ class HeartBeat {
     ];
   }
 }
-
-module.exports = HeartBeat;

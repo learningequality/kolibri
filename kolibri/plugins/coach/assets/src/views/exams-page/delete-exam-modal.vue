@@ -13,45 +13,46 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'deleteExamModal',
     $trs: {
       deleteExam: 'Delete exam',
       areYouSure: 'Are you sure you want to delete <strong>{ examTitle }</strong>? You will lose all data for this exam.',
       cancel: 'Cancel',
-      delete: 'Delete',
+      delete: 'Delete'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton
     },
     props: {
       examId: {
         type: String,
-        required: true,
+        required: true
       },
       examTitle: {
         type: String,
-        required: true,
+        required: true
       },
       classId: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     methods: {
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        deleteExam: examActions.deleteExam,
-      },
-    },
+        deleteExam: examActions.deleteExam
+      }
+    }
   };
 
 </script>

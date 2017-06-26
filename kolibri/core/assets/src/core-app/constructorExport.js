@@ -2,8 +2,7 @@
  * This exports the API for the core Kolibri app.
  */
 
-const apiSpec = require('./apiSpec').apiSpec;
-const keys = require('./apiSpec').keys;
+const { apiSpec, keys } = require('./apiSpec');
 
 const constructorExport = () => {
   /*
@@ -37,4 +36,4 @@ const constructorExport = () => {
   return exportObj;
 };
 
-module.exports = constructorExport;
+export { constructorExport as default };

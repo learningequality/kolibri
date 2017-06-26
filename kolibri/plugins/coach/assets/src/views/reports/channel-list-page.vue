@@ -37,26 +37,30 @@
 
 <script>
 
-  const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
-  const { PageNames } = require('../../constants');
-  const reportConstants = require('../../reportConstants');
-  const reportGetters = require('../../state/getters/reports');
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import * as reportConstants from '../../reportConstants';
+  import * as reportGetters from '../../state/getters/reports';
+  import reportTable from './report-table';
+  import reportSubheading from './report-subheading';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import activityCell from './table-cells/activity-cell';
+  export default {
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
       recentTitle: 'Recent Activity',
       channels: 'Channels',
       channelList: 'Channel list',
-      lastActivity: 'Last active',
+      lastActivity: 'Last active'
     },
     components: {
-      'report-table': require('./report-table'),
-      'report-subheading': require('./report-subheading'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell
     },
     computed: {
       CHANNEL() {
@@ -64,23 +68,23 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
-      },
+      }
     },
     methods: {
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,
           [PageNames.TOPIC_CHANNELS]: PageNames.TOPIC_CHANNEL_ROOT,
-          [PageNames.LEARNER_CHANNELS]: PageNames.LEARNER_CHANNEL_ROOT,
+          [PageNames.LEARNER_CHANNELS]: PageNames.LEARNER_CHANNEL_ROOT
         };
         return {
           name: linkTargets[this.pageName],
           params: {
             classId: this.classId,
-            channelId,
-          },
+            channelId
+          }
         };
-      },
+      }
     },
     vuex: {
       getters: {
@@ -88,9 +92,9 @@
         standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,
-        showRecentOnly: state => state.pageState.showRecentOnly,
-      },
-    },
+        showRecentOnly: state => state.pageState.showRecentOnly
+      }
+    }
   };
 
 </script>

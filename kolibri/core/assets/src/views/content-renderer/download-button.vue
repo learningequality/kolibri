@@ -12,36 +12,31 @@
 
 <script>
 
-  const filesize = require('filesize');
-
-  module.exports = {
-    components: {
-      'dropdown-menu': require('kolibri.coreVue.components.dropdownMenu'),
-    },
+  import filesize from 'filesize';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  export default {
+    components: { dropdownMenu },
     $trNameSpace: 'downloadButton',
-    $trs: {
-      downloadContent: 'Download content',
-    },
+    $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
-        default: [],
-      },
+        default: []
+      }
     },
-
     computed: {
       fileOptions() {
         return this.files.map(file => ({
-          label: `${file.preset} (${filesize(file.file_size)})`,
-          url: file.download_url,
+          label: `${ file.preset } (${ filesize(file.file_size) })`,
+          url: file.download_url
         }));
-      },
+      }
     },
     methods: {
       download(file) {
         window.location.href = file.url;
-      },
-    },
+      }
+    }
   };
 
 </script>

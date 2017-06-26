@@ -123,15 +123,23 @@
 
 <script>
 
-  const ExamActions = require('../../state/actions/exam');
-  const className = require('../../state/getters/main').className;
-  const ExamModals = require('../../examConstants').Modals;
-  const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
-  const shuffle = require('lodash/shuffle');
-  const random = require('lodash/random');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
+  import * as ExamActions from '../../state/actions/exam';
+  import { className } from '../../state/getters/main';
+  import { Modals as ExamModals } from '../../examConstants';
+  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import shuffle from 'lodash/shuffle';
+  import random from 'lodash/random';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiSnackbar from 'keen-ui/src/UiSnackbar';
+  import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
+  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import topicRow from './topic-row';
+  import exerciseRow from './exercise-row';
+  import previewNewExamModal from './preview-new-exam-modal';
+  export default {
     mixins: [responsiveWindow],
     $trNameSpace: 'createExamPage',
     $trs: {
@@ -152,7 +160,7 @@
       added: 'Added',
       removed: 'Removed',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
-      duplicateTitle: 'An exam with that title already exists',
+      duplicateTitle: 'An exam with that title already exists'
     },
     data() {
       return {
@@ -166,24 +174,23 @@
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
-        selectAll: false,
+        selectAll: false
       };
     },
     components: {
-      'ui-select': require('keen-ui/src/UiSelect'),
-      'ui-snackbar': require('keen-ui/src/UiSnackbar'),
-      'ui-snackbar-container': require('keen-ui/src/UiSnackbarContainer'),
-      'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'textbox': require('kolibri.coreVue.components.textbox'),
-      'topic-row': require('./topic-row'),
-      'exercise-row': require('./exercise-row'),
-      'preview-new-exam-modal': require('./preview-new-exam-modal'),
+      uiSelect,
+      uiSnackbar,
+      uiSnackbarContainer,
+      uiProgressLinear,
+      iconButton,
+      textbox,
+      topicRow,
+      exerciseRow,
+      previewNewExamModal
     },
     computed: {
       duplicateTitle() {
-        const index = this.exams.findIndex(
-          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase());
+        const index = this.exams.findIndex(exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase());
         if (index === -1) {
           return false;
         }
@@ -199,13 +206,10 @@
         return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
       },
       maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
-        return this.selectedExercises.reduce(
-          (sum, exercise) => sum + (exercise.numAssessments || 0), 0);
+        return this.selectedExercises.reduce((sum, exercise) => sum + (exercise.numAssessments || 0), 0);
       },
       numQuestNotWithinRange() {
-        return this.validateNumQuestMax ?
-          (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
+        return this.validateNumQuestMax ? this.inputNumQuestions < 1 || this.inputNumQuestions > 50 : false;
       },
       noExercisesSelected() {
         return this.selectedExercises.length === 0;
@@ -249,18 +253,13 @@
         if (this.allExercisesWithinCurrentTopic.length === 0) {
           return false;
         }
-        return this.allExercisesWithinCurrentTopic.every(
-          exercise => this.selectedExercises.some(
-            selectedExercise => selectedExercise.id === exercise.id));
+        return this.allExercisesWithinCurrentTopic.every(exercise => this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id));
       },
       noExercisesWithinCurrentTopicSelected() {
-        return this.allExercisesWithinCurrentTopic.every(
-            exercise => !this.selectedExercises.some(
-              selectedExercise => selectedExercise.id === exercise.id));
+        return this.allExercisesWithinCurrentTopic.every(exercise => !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id));
       },
       someExercisesWithinCurrentTopicSelected() {
-        return !this.allExercisesWithinCurrentTopicSelected &&
-        !this.noExercisesWithinCurrentTopicSelected;
+        return !this.allExercisesWithinCurrentTopicSelected && !this.noExercisesWithinCurrentTopicSelected;
       },
       showPreviewNewExamModal() {
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
@@ -271,11 +270,11 @@
         const numQuestions = this.inputNumQuestions;
         const questionsPerExercise = numQuestions / numExercises;
         const remainingQuestions = numQuestions % numExercises;
-
         if (remainingQuestions === 0) {
-          return shuffledExercises.map(exercise =>
-            ({ exercise_id: exercise.id, number_of_questions: Math.trunc(questionsPerExercise) })
-          );
+          return shuffledExercises.map(exercise => ({
+            exercise_id: exercise.id,
+            number_of_questions: Math.trunc(questionsPerExercise)
+          }));
         } else if (questionsPerExercise >= 1) {
           return shuffledExercises.map((exercise, index) => {
             if (index < remainingQuestions) {
@@ -292,10 +291,11 @@
         }
         const exercisesSubset = shuffledExercises;
         exercisesSubset.splice(numQuestions);
-        return exercisesSubset.map(
-          exercise => ({ exercise_id: exercise.id, number_of_questions: 1 })
-        );
-      },
+        return exercisesSubset.map(exercise => ({
+          exercise_id: exercise.id,
+          number_of_questions: 1
+        }));
+      }
     },
     methods: {
       changeSelection() {
@@ -309,28 +309,26 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(this.currentChannel.id, topicId).then(
-          () => {
-            this.loading = false;
-          },
-          error => {}
-        );
+        this.fetchContent(this.currentChannel.id, topicId).then(() => {
+          this.loading = false;
+        }, error => {
+        });
       },
       handleAddExercise(exercise) {
         this.addExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exercise.title}` });
+        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('added') } ${ exercise.title }` });
       },
       handleRemoveExercise(exercise) {
         this.removeExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${exercise.title}` });
+        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('removed') } ${ exercise.title }` });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${topicTitle}` });
+        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('added') } ${ topicTitle }` });
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${topicTitle}` });
+        this.$refs.snackbarContainer.createSnackbar({ message: `${ this.$tr('removed') } ${ topicTitle }` });
       },
       preview() {
         if (this.checkAllValid() === true) {
@@ -350,7 +348,7 @@
             title: this.inputTitle,
             numQuestions: this.inputNumQuestions,
             questionSources: this.questionSources,
-            seed: this.seed,
+            seed: this.seed
           };
           this.createExam(classCollection, examObj);
         }
@@ -359,8 +357,7 @@
         this.validateTitle = true;
         this.validateNumQuestMax = true;
         this.validateNumQuestExceeds = true;
-        if (!this.titleInvalid && !this.noExercisesSelected &&
-          !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
+        if (!this.titleInvalid && !this.noExercisesSelected && !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
           this.validationError = '';
           return true;
         } else if (this.titleInvalid) {
@@ -385,7 +382,7 @@
       },
       generateRandomSeed() {
         return random(1000);
-      },
+      }
     },
     vuex: {
       getters: {
@@ -397,16 +394,16 @@
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
-        exams: state => state.pageState.exams,
+        exams: state => state.pageState.exams
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
         createExam: ExamActions.createExam,
         addExercise: ExamActions.addExercise,
         removeExercise: ExamActions.removeExercise,
-        displayExamModal: ExamActions.displayExamModal,
-      },
-    },
+        displayExamModal: ExamActions.displayExamModal
+      }
+    }
   };
 
 </script>

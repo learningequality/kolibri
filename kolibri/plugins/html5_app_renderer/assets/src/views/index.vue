@@ -18,34 +18,30 @@
 
 <script>
 
-  const ScreenFull = require('screenfull');
-
-  module.exports = {
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
+  import ScreenFull from 'screenfull';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
+    components: { iconButton },
     props: {
       defaultFile: {
         type: Object,
-        required: true,
-      },
+        required: true
+      }
     },
-    data: () => ({
-      isFullScreen: false,
-    }),
+    data: () => ({ isFullScreen: false }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
       },
       fullscreenAllowed() {
         return ScreenFull.enabled;
-      },
+      }
     },
     methods: {
       toggleFullScreen() {
         ScreenFull.toggle(this.$refs.container);
         this.isFullScreen = ScreenFull.isFullscreen;
-      },
+      }
     },
     mounted() {
       this.$emit('startTracking');
@@ -63,8 +59,8 @@
     $trNameSpace: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
-    },
+      enterFullscreen: 'Enter fullscreen'
+    }
   };
 
 </script>

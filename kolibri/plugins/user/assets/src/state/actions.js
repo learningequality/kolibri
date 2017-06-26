@@ -1,10 +1,10 @@
-const coreApp = require('kolibri');
-const PageNames = require('../constants').PageNames;
-const SignUpResource = require('kolibri').resources.SignUpResource;
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreGetters = require('kolibri.coreVue.vuex.getters');
-const router = require('kolibri.coreVue.router');
+import coreApp from 'kolibri';
+import { PageNames } from '../constants';
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import router from 'kolibri.coreVue.router';
 
+const SignUpResource = coreApp.resources.SignUpResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
 
@@ -182,8 +182,7 @@ function signUp(store, signUpCreds) {
   });
 }
 
-
-module.exports = {
+export {
   showRoot,
   showSignIn,
   showSignUp,

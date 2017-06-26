@@ -1,6 +1,6 @@
-const coreApp = require('kolibri');
-const logging = require('kolibri.lib.logging');
-const getters = require('kolibri.coreVue.vuex.getters');
+import coreApp from 'kolibri';
+import { getLogger } from 'kolibri.lib.logging';
+import * as getters from 'kolibri.coreVue.vuex.getters';
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
 const MembershipResource = coreApp.resources.MembershipResource;
@@ -8,24 +8,26 @@ const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
 
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const constants = require('../constants');
-const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-
-const PageNames = constants.PageNames;
-const ContentWizardPages = constants.ContentWizardPages;
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import {
+  PageNames,
+  ContentWizardPages
+} from '../constants';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
-const addCoachRoleAction = require('./addCoachRoleAction').default;
-const removeCoachRoleAction = require('./removeCoachRoleAction').default;
-const {
+import addCoachRoleAction from './addCoachRoleAction';
+import removeCoachRoleAction from './removeCoachRoleAction';
+import {
   showFacilityConfigPage,
   resetFacilityConfig,
   saveFacilityConfig,
-} = require('./facilityConfigPageActions');
+} from './facilityConfigPageActions';
 
-const preparePage = require('./preparePage');
+import preparePage from './preparePage';
+
+const logging = getLogger(__filename);
 
 /**
  * Vuex State Mappers
@@ -686,8 +688,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
-
-module.exports = {
+export {
   displayModal,
 
   createClass,
@@ -707,8 +708,8 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
-  addCoachRole: addCoachRoleAction,
-  removeCoachRole: removeCoachRoleAction,
+  addCoachRoleAction as addCoachRole,
+  removeCoachRoleAction as removeCoachRole,
 
   showContentPage,
   pollTasksAndChannels,

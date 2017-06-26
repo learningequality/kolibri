@@ -64,14 +64,19 @@
 
 <script>
 
-  const { PageNames } = require('../../constants');
-  const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
-  const actions = require('../../state/actions');
-  const isEqual = require('lodash/isEqual');
-  const { now } = require('kolibri.utils.serverClock');
-  const throttle = require('lodash/throttle');
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
+  import * as actions from '../../state/actions';
+  import isEqual from 'lodash/isEqual';
+  import { now } from 'kolibri.utils.serverClock';
+  import throttle from 'lodash/throttle';
+  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import answerHistory from './answer-history';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'examPage',
     $trs: {
       submitExam: 'Submit exam',
@@ -82,15 +87,15 @@
       cancel: 'Cancel',
       areYouSure: 'Are you sure you want to submit your exam?',
       unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-      noItemId: 'This question has an error, please move on to the next question',
+      noItemId: 'This question has an error, please move on to the next question'
     },
     components: {
-      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'answer-history': require('./answer-history'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      immersiveFullScreen,
+      contentRenderer,
+      iconButton,
+      answerHistory,
+      coreModal,
+      uiAlert
     },
     data() {
       return {
@@ -106,12 +111,12 @@
         questionNumber: state => state.pageState.questionNumber,
         attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state => state.pageState.currentAttempt,
-        questionsAnswered: state => state.pageState.questionsAnswered,
+        questionsAnswered: state => state.pageState.questionsAnswered
       },
       actions: {
         setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
-        closeExam: actions.closeExam,
-      },
+        closeExam: actions.closeExam
+      }
     },
     created() {
       this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, { leading: false });
@@ -130,7 +135,7 @@
         const answer = this.checkAnswer() || {
           answerState: null,
           simpleAnswer: '',
-          correct: 0,
+          correct: 0
         };
         if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
@@ -145,7 +150,7 @@
             type: InteractionTypes.answer,
             answer: answer.answerState,
             correct: answer.correct,
-            timestamp: now(),
+            timestamp: now()
           });
           return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
         }
@@ -155,7 +160,11 @@
         this.saveAnswer().then(() => {
           this.$router.push({
             name: PageNames.EXAM,
-            params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+            params: {
+              channel_id: this.channelId,
+              id: this.exam.id,
+              questionNumber
+            }
           });
         });
       },
@@ -171,19 +180,19 @@
         this.closeExam().then(() => {
           this.$router.push(this.backPageLink);
         });
-      },
+      }
     },
     computed: {
       backPageLink() {
         return {
           name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
+          params: { channel_id: this.channelId }
         };
       },
       questionsUnanswered() {
         return this.exam.questionCount - this.questionsAnswered;
-      },
-    },
+      }
+    }
   };
 
 </script>

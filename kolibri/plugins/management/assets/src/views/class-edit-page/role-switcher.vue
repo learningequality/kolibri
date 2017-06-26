@@ -36,22 +36,27 @@
 
 <script>
 
-  const { ADMIN, COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import uiButton from 'keen-ui/src/UiButton';
 
-  module.exports = {
-    components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-    },
+  const {
+    ADMIN,
+    COACH,
+    LEARNER,
+  } = UserKinds;
+
+  export default {
+    components: { uiButton },
     props: {
       currentRole: {
-        type: String, /* coach, learner, admin */
-        required: true,
-      },
+        type: String,
+        required: true
+      }
     },
     computed: {
       ADMIN: () => ADMIN,
       COACH: () => COACH,
-      LEARNER: () => LEARNER,
+      LEARNER: () => LEARNER
     },
     methods: {
       buttonColor(roleName) {
@@ -71,8 +76,8 @@
     $trs: {
       admin: 'Admin',
       coach: 'Coach',
-      learner: 'Learner',
-    },
+      learner: 'Learner'
+    }
   };
 
 </script>

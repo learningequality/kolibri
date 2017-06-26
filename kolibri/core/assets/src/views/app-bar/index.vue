@@ -48,15 +48,20 @@
 
 <script>
 
-  const kolibriLogout = require('kolibri.coreVue.vuex.actions').kolibriLogout;
-  const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
-  const isAdmin = require('kolibri.coreVue.vuex.getters').isAdmin;
-  const isCoach = require('kolibri.coreVue.vuex.getters').isCoach;
-  const isLearner = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
+  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
+  import {
+    isUserLoggedIn,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    isLearner
+  } from 'kolibri.coreVue.vuex.getters';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     mixins: [responsiveWindow],
     $trNameSpace: 'appBar',
     $trs: {
@@ -66,69 +71,67 @@
       signIn: 'Sign In',
       superuser: 'Device owner',
       admin: 'Admin',
-      coach: 'Coach',
+      coach: 'Coach'
     },
     props: {
       title: {
         type: String,
-        required: true,
+        required: true
       },
       navShown: {
         type: Boolean,
-        required: true,
+        required: true
       },
       height: {
         type: Number,
-        required: true,
-      },
+        required: true
+      }
     },
     components: {
-      'ui-toolbar': require('keen-ui/src/UiToolbar'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      uiToolbar,
+      uiIconButton,
+      uiMenu,
+      uiButton
     },
     computed: {
       accountMenuOptions() {
         return [
           {
             id: 'profile',
-            label: this.$tr('profile'),
+            label: this.$tr('profile')
           },
           {
             id: 'signOut',
-            label: this.$tr('signOut'),
-          },
+            label: this.$tr('signOut')
+          }
         ];
-      },
+      }
     },
     methods: {
       optionSelected(option) {
         switch (option.id) {
-          case 'profile':
-            window.location = `/user`;
-            break;
-          case 'signOut':
-            this.kolibriLogout();
-            break;
-          default:
-            break;
+        case 'profile':
+          window.location = `/user`;
+          break;
+        case 'signOut':
+          this.kolibriLogout();
+          break;
+        default:
+          break;
         }
-      },
+      }
     },
     vuex: {
-      actions: {
-        kolibriLogout,
-      },
+      actions: { kolibriLogout },
       getters: {
         username: state => state.core.session.username,
         isUserLoggedIn,
         isSuperuser,
         isAdmin,
         isCoach,
-        isLearner,
-      },
-    },
+        isLearner
+      }
+    }
   };
 
 </script>

@@ -4,9 +4,9 @@
  * @module kolibriModule
  */
 
-const coreApp = require('kolibri');
+import coreApp from 'kolibri';
 
-module.exports = class KolibriModule {
+export default class KolibriModule {
   /**
    * An array of options to select from the options object passed into the constructor.
    * @type {string[]}

@@ -1,8 +1,8 @@
-const Vue = require('vue');
-const Vuex = require('vuex');
-const cloneDeep = require('lodash/cloneDeep');
-const mutations = require('./mutations');
-const initialState = require('./initialState');
+import Vue from 'vue';
+import Vuex from 'vuex';
+import cloneDeep from 'lodash/cloneDeep';
+import mutations from './mutations';
+import initialState from './initialState';
 
 Vue.use(Vuex);
 

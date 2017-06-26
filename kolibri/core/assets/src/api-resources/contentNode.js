@@ -1,7 +1,9 @@
-const Resource = require('../api-resource').Resource;
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import { Resource } from '../api-resource';
+import { getLogger } from 'kolibri.lib.logging';
 
-class ContentNodeResource extends Resource {
+const logging = getLogger(__filename);
+
+export default class ContentNodeResource extends Resource {
   static resourceName() {
     return 'contentnode';
   }
@@ -110,5 +112,3 @@ class ContentNodeResource extends Resource {
     return collection;
   }
 }
-
-module.exports = ContentNodeResource;

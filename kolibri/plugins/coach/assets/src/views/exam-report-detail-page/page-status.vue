@@ -40,7 +40,9 @@
 
 <script>
 
-  module.exports = {
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  export default {
     $trNameSpace: 'coachExamReportDetailPageStatus',
     $trs: {
       title: '{name} - Exam Performance',
@@ -48,41 +50,38 @@
       questionsCorrect: 'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
       completed: 'Completed',
       inProgress: 'In progress',
-      notStarted: 'Not started',
+      notStarted: 'Not started'
     },
     components: {
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      progressIcon,
+      elapsedTime
     },
     props: {
       userName: {
         type: String,
-        required: true,
+        required: true
       },
       questions: {
         type: Array,
-        default: [],
+        default: []
       },
       completed: {
         type: Boolean,
-        default: false,
+        default: false
       },
-      completionTimestamp: {
-        type: Date,
-      }
+      completionTimestamp: { type: Date }
     },
     computed: {
       questionsCorrect() {
-        return this.questions.reduce((a, q) => a + (q.correct === 1.0 ? 1 : 0), 0);
+        return this.questions.reduce((a, q) => a + (q.correct === 1 ? 1 : 0), 0);
       },
       score() {
-        return (this.questions.reduce((a, q) => a + q.correct, 0) / this.questions.length) || 0;
+        return this.questions.reduce((a, q) => a + q.correct, 0) / this.questions.length || 0;
       },
       progress() {
-        // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
-      },
-    },
+      }
+    }
   };
 
 </script>

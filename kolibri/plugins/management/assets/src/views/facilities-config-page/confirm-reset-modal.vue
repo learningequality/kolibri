@@ -37,10 +37,12 @@
 
 <script>
 
-  module.exports = {
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      coreModal,
+      uiButton
     },
     methods: {
       handleConfirm() {
@@ -56,8 +58,8 @@
       changesWillBeLost: 'Your changes will be lost',
       confirmationQuestion: 'Reset your facility settings back to default?',
       reset: 'Reset',
-      title: 'Reset settings to default',
-    },
+      title: 'Reset settings to default'
+    }
   };
 
 </script>

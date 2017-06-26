@@ -1,6 +1,6 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const AudioComponent = require('./views/index');
+import ContentRendererModule from 'content_renderer_module';
+import AudioComponent from './views/index';
 
 class AudioMP3Module extends ContentRendererModule {
   get rendererComponent() {
@@ -8,4 +8,6 @@ class AudioMP3Module extends ContentRendererModule {
   }
 }
 
-module.exports = new AudioMP3Module();
+const audioMP3Module = new AudioMP3Module();
+
+export { audioMP3Module as default };

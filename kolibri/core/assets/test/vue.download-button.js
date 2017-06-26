@@ -3,11 +3,11 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const Vue = require('vue-test');
-const downloadButton = require('../src/views/content-renderer/download-button.vue');
+import Vue from 'vue-test';
+import downloadButton from '../src/views/content-renderer/download-button.vue';
 
 const DownloadButtonComponent = Vue.extend(downloadButton);
-const assert = require('assert');
+import assert from 'assert';
 
 describe('download-button Component', function () {
   const samplesFiles = [{

@@ -16,23 +16,15 @@
 
 <script>
 
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import orderBy from 'lodash/orderBy';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  export default {
     $trNameSpace: 'channelSwitcher',
-    $trs: {
-      switchChannels: 'Switch channels',
-    },
-    components: {
-      'dropdown-menu': require('kolibri.coreVue.components.dropdownMenu'),
-    },
+    $trs: { switchChannels: 'Switch channels' },
+    components: { dropdownMenu },
     computed: {
       sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
       },
       channelOptions() {
         return this.sortedChannels.map(channel => {
@@ -46,25 +38,24 @@
         });
       },
       currentChannelName() {
-        const channelName = Object(this.sortedChannels.find(
-            channel => channel.id === this.globalCurrentChannel)).title;
+        const channelName = Object(this.sortedChannels.find(channel => channel.id === this.globalCurrentChannel)).title;
         if (channelName) {
           return channelName;
         }
         return '';
-      },
+      }
     },
     methods: {
       emitSelection(channel) {
         this.$emit('switch', channel.id);
-      },
+      }
     },
     vuex: {
       getters: {
         globalCurrentChannel: state => state.core.channels.currentId,
-        channelList: state => state.core.channels.list,
-      },
-    },
+        channelList: state => state.core.channels.list
+      }
+    }
   };
 
 </script>

@@ -31,21 +31,17 @@
 
 <script>
 
-  const { notificationTypes } = require('../../constants');
-
-  module.exports = {
+  import { notificationTypes } from '../../constants';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     props: {
       notification: {
         type: String,
-        required: false,
-      },
+        required: false
+      }
     },
-    components: {
-      'ui-alert': require('keen-ui/src/UiAlert'),
-    },
-    computed: {
-      notificationTypes: () => notificationTypes,
-    },
+    components: { uiAlert },
+    computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
@@ -55,8 +51,8 @@
     $trs: {
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',
-      successfulImportNotification: 'A channel has been added to this device',
-    },
+      successfulImportNotification: 'A channel has been added to this device'
+    }
   };
 
 </script>

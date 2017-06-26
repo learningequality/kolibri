@@ -25,7 +25,7 @@ const PageModes = {
   EXAM: 'EXAM',
 };
 
-module.exports = {
+export {
   PageNames,
   PageModes,
 };

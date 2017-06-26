@@ -23,35 +23,33 @@
 
 <script>
 
-  module.exports = {
+  import answerIcon from './answer-icon';
+  export default {
     props: {
-      // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
         type: Boolean,
-        required: true,
+        required: true
       },
-      // Visually indicate that the user has succeeded
       success: {
         type: Boolean,
-        required: true,
+        required: true
       },
-      // Total number of answer spaces to show
       numSpaces: {
         type: Number,
-        required: true,
+        required: true
       },
-      // Array of answers - strings that are 'right', 'wrong', or 'hint'
-      // ordered from first to last
       log: {
         type: Array,
         validator(arr) {
-          return arr.every(val => ['right', 'wrong', 'hint'].includes(val));
-        },
-      },
+          return arr.every(val => [
+            'right',
+            'wrong',
+            'hint'
+          ].includes(val));
+        }
+      }
     },
-    components: {
-      'answer-icon': require('./answer-icon'),
-    },
+    components: { answerIcon },
     computed: {
       numItemsToRender() {
         if (this.waitingForAttempt) {
@@ -59,33 +57,28 @@
         }
         return this.numSpaces + 1;
       },
-      // returns a list of items the items to be rendered in the DOM
       itemsToRender() {
-        // save the original index of the item in the log and slice of the end
-        return this.log
-          .map((answer, originalIndex) => ({ answer, originalIndex }))
-          .slice(-1 * this.numItemsToRender)
-          .reverse();
-      },
+        return this.log.map((answer, originalIndex) => ({
+          answer,
+          originalIndex
+        })).slice(-1 * this.numItemsToRender).reverse();
+      }
     },
     methods: {
       styleForIndex(visualIndex, originalIndex) {
-        const ANSWER_WIDTH = 4 + 30 + 4;  // margin + width + margin
+        const ANSWER_WIDTH = 4 + 30 + 4;
         let xPos = ANSWER_WIDTH * (this.log.length - 1 - originalIndex);
         if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;
         }
         const style = {};
-        // translateZ(0) is there to try and force GPU-acceleration.
-        // (see e.g. http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css)
-        style.transform = `translate(${xPos}px) translateZ(0)`;
-        // hidden "slide-off" item
+        style.transform = `translate(${ xPos }px) translateZ(0)`;
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
         }
         return style;
-      },
-    },
+      }
+    }
   };
 
 </script>

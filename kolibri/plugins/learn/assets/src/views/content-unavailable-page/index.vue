@@ -11,9 +11,9 @@
 
 <script>
 
-  const getters = require('kolibri.coreVue.vuex.getters');
+  import * as getters from 'kolibri.coreVue.vuex.getters';
 
-  module.exports = {
+  export default {
     $trNameSpace: 'learnContentUnavailable',
     $trs: {
       header: 'No content channels available',

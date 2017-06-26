@@ -10,7 +10,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     props: {
       active: {
         type: Boolean,

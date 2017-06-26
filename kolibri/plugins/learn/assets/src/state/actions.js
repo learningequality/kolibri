@@ -1,23 +1,26 @@
-const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-const ContentNodeProgressResource = require('kolibri').resources.ContentNodeProgressResource;
-const SessionResource = require('kolibri').resources.SessionResource;
-const constants = require('../constants');
-const UserExamResource = require('kolibri').resources.UserExamResource;
-const ExamLogResource = require('kolibri').resources.ExamLogResource;
-const ExamAttemptLogResource = require('kolibri').resources.ExamAttemptLogResource;
+import { resources } from 'kolibri';
 
-const PageNames = constants.PageNames;
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-const coreGetters = require('kolibri.coreVue.vuex.getters');
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
-const router = require('kolibri.coreVue.router');
-const seededShuffle = require('kolibri.lib.seededshuffle');
-const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
-const { now } = require('kolibri.utils.serverClock');
-const uniqBy = require('lodash/uniqBy');
+const ContentNodeResource = resources.ContentNodeResource;
+const ContentNodeProgressResource = resources.ContentNodeProgressResource;
+const SessionResource = resources.SessionResource;
+const UserExamResource = resources.UserExamResource;
+const ExamLogResource = resources.ExamLogResource;
+const ExamAttemptLogResource = resources.ExamAttemptLogResource;
+
+import { PageNames } from '../constants';
+
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import router from 'kolibri.coreVue.router';
+import seededShuffle from 'kolibri.lib.seededshuffle';
+import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import { now } from 'kolibri.utils.serverClock';
+import uniqBy from 'lodash/uniqBy';
+import prepareLearnApp from './prepareLearnApp';
 
 /**
  * Vuex State Mappers
@@ -148,11 +151,11 @@ function redirectToExploreChannel(store) {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
         router.getInstance().replace({
-          name: constants.PageNames.EXPLORE_CHANNEL,
+          name: PageNames.EXPLORE_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -169,11 +172,11 @@ function redirectToLearnChannel(store) {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
         router.getInstance().replace({
-          name: constants.PageNames.LEARN_CHANNEL,
+          name: PageNames.LEARN_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -200,7 +203,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     ([topic, children, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
@@ -240,7 +243,7 @@ function showExploreChannel(store, channelId) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       showExploreTopic(store, channelId, currentChannel.root_id, true);
@@ -263,7 +266,7 @@ function showExploreContent(store, channelId, id) {
     ([content, channels, nextContent, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = { content: _contentState(content, nextContent, ancestors) };
@@ -293,7 +296,7 @@ function showLearnChannel(store, channelId, cursor) {
     samePageCheckGenerator(store),
     ([session]) => {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const isFacilityUser = coreGetters.isFacilityUser(store.state);
@@ -359,7 +362,7 @@ function showLearnContent(store, channelId, id) {
     ([content, channels, nextContent]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
@@ -449,7 +452,7 @@ function redirectToChannelSearch(store) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       router.getInstance().replace({
-        name: constants.PageNames.SEARCH,
+        name: PageNames.SEARCH,
         params: { channel_id: currentChannel.id },
       });
     },
@@ -492,7 +495,7 @@ function showExamList(store, channelId) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       UserExamResource.getCollection().fetch().only(
@@ -556,7 +559,7 @@ function showExam(store, channelId, id, questionNumber) {
       ([exam, channel, examLogs, examAttemptLogs]) => {
         const currentChannel = coreGetters.getCurrentChannelObject(store.state);
         if (!currentChannel) {
-          router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+          router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
         }
 
@@ -743,7 +746,7 @@ function closeExam(store) {
     error => { coreActions.handleApiError(store, error); });
 }
 
-module.exports = {
+export {
   redirectToExploreChannel,
   redirectToLearnChannel,
   showExploreChannel,
@@ -761,6 +764,6 @@ module.exports = {
   showExamList,
   setAndSaveCurrentExamAttemptLog,
   closeExam,
-  prepareLearnApp: require('./prepareLearnApp'),
+  prepareLearnApp,
   updateContentNodeProgress,
 };

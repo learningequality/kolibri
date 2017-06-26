@@ -1,7 +1,9 @@
-const Resource = require('../api-resource').Resource;
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import { Resource } from '../api-resource';
+import { getLogger } from 'kolibri.lib.logging';
 
-class FacilityUserResource extends Resource {
+const logging = getLogger(__filename);
+
+export default class FacilityUserResource extends Resource {
   static resourceName() {
     return 'facilityuser';
   }
@@ -25,5 +27,3 @@ class FacilityUserResource extends Resource {
   }
 
 }
-
-module.exports = FacilityUserResource;

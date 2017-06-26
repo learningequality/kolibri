@@ -3,8 +3,8 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const assert = require('assert');
-const rewire = require('rewire');
+import assert from 'assert';
+import rewire from 'rewire';
 
 const constructorExport = rewire('../src/core-app/constructorExport');
 

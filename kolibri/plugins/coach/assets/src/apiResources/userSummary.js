@@ -1,6 +1,6 @@
-const Resource = require('kolibri.lib.apiResource').Resource;
+import { Resource } from 'kolibri.lib.apiResource';
 
-class UserSummaryResource extends Resource {
+export default class UserSummaryResource extends Resource {
   static resourceName() {
     return 'kolibri:coach:contentreport';
   }
@@ -14,5 +14,3 @@ class UserSummaryResource extends Resource {
     ];
   }
 }
-
-module.exports = UserSummaryResource;

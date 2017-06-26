@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-const sinon = require('sinon');
-const kolibri = require('kolibri');
+import sinon from 'sinon';
+import kolibri from 'kolibri';
 
 // Add fake Resources to kolibri mock. This needs to be done before loading tested module
 kolibri.resources = {
@@ -19,7 +19,7 @@ kolibri.resources = {
   },
 };
 
-const examActions = require('../src/state/actions/exam');
+import examActions from '../src/state/actions/exam';
 
 const channelStub = kolibri.resources.ChannelResource.getCollection;
 const classroomStub = kolibri.resources.ClassroomResource.getCollection;

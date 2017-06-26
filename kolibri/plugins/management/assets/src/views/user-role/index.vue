@@ -7,10 +7,10 @@
 
 <script>
 
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const values = require('lodash/values');
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
 
-  module.exports = {
+  export default {
     $trNameSpace: 'roleText',
     $trs: {
       admin: 'Admin',

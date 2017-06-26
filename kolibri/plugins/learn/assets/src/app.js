@@ -1,13 +1,13 @@
-const KolibriModule = require('kolibri_module');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const router = require('kolibri.coreVue.router');
+import KolibriModule from 'kolibri_module';
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import router from 'kolibri.coreVue.router';
 
-const Vue = require('kolibri.lib.vue');
+import Vue from 'kolibri.lib.vue';
 
-const RootVue = require('./views');
-const actions = require('./state/actions');
-const store = require('./state/store');
-const PageNames = require('./constants').PageNames;
+import RootVue from './views';
+import * as actions from './state/actions';
+import store from './state/store';
+import { PageNames } from './constants';
 
 class LearnModule extends KolibriModule {
   ready() {
@@ -132,4 +132,6 @@ class LearnModule extends KolibriModule {
   }
 }
 
-module.exports = new LearnModule();
+const learnModule = new LearnModule();
+
+export { learnModule as default };

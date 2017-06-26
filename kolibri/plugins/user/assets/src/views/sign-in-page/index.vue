@@ -68,13 +68,16 @@
 
 <script>
 
-  const actions = require('kolibri.coreVue.vuex.actions');
-  const PageNames = require('../../constants').PageNames;
-  const getters = require('kolibri.coreVue.vuex.getters');
+  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { PageNames } from '../../constants';
+  import * as getters from 'kolibri.coreVue.vuex.getters';
   const FacilityUsernameResource = require('kolibri').resources.FacilityUsernameResource;
-  const { LoginErrors } = require('kolibri.coreVue.vuex.constants');
-
-  module.exports = {
+  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import logo from 'kolibri.coreVue.components.logo';
+  import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  export default {
     $trNameSpace: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
@@ -87,13 +90,13 @@
       createAccount: 'Create account',
       accessAsGuest: 'Access as guest',
       signInError: 'Incorrect username or password',
-      poweredBy: 'Kolibri {version}',
+      poweredBy: 'Kolibri {version}'
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
-      'logo': require('kolibri.coreVue.components.logo'),
-      'ui-autocomplete-suggestion': require('keen-ui/src/UiAutocompleteSuggestion'),
+      iconButton,
+      coreTextbox,
+      logo,
+      uiAutocompleteSuggestion
     },
     data: () => ({
       username: '',
@@ -101,17 +104,15 @@
       usernameSuggestions: [],
       suggestionTerm: '',
       showDropdown: true,
-      highlightedIndex: -1,
+      highlightedIndex: -1
     }),
-    watch: {
-      username: 'setSuggestionTerm',
-    },
+    watch: { username: 'setSuggestionTerm' },
     computed: {
       signUp() {
         return { name: PageNames.SIGN_UP };
       },
       versionMsg() {
-        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
+        return this.$tr('poweredBy', { version: __version });
       },
       canSignUp() {
         return this.facilityConfig.learnerCanSignUp;
@@ -120,11 +121,9 @@
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
       suggestions() {
-        // Filter suggestions on the client side so we don't hammer the server
         return this.usernameSuggestions.filter(sug => sug.startsWith(this.username));
       },
       uniqueMatch() {
-        // If we have a matching username entered, don't show any suggestions.
         return this.suggestions.length === 1 && this.suggestions[0] === this.username;
       }
     },
@@ -132,21 +131,20 @@
       handleKeyboardNav(e) {
         if (this.showDropdown && this.suggestions.length) {
           switch (e.code) {
-            case 'ArrowDown':
-              this.highlightedIndex = Math.min(
-                this.highlightedIndex + 1, this.suggestions.length - 1);
-              break;
-            case 'Enter':
-              this.fillUsername(this.suggestions[this.highlightedIndex]);
-              e.preventDefault();
-              break;
-            case 'Escape':
-              this.showDropdown = false;
-              break;
-            case 'ArrowUp':
-              this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
-              break;
-            default:
+          case 'ArrowDown':
+            this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.suggestions.length - 1);
+            break;
+          case 'Enter':
+            this.fillUsername(this.suggestions[this.highlightedIndex]);
+            e.preventDefault();
+            break;
+          case 'Escape':
+            this.showDropdown = false;
+            break;
+          case 'ArrowUp':
+            this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+            break;
+          default:
           }
         }
       },
@@ -154,51 +152,43 @@
         this.kolibriLogin({
           username: this.username,
           password: this.password,
-          facility: this.facility,
+          facility: this.facility
         });
       },
       setSuggestionTerm(newVal, oldVal) {
         if (newVal.length < 3) {
-          // Don't search for suggestions if less than 3 characters entered
           this.suggestionTerm = '';
           this.usernameSuggestions = [];
-        } else if ((!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length) ||
-          !this.suggestionTerm.length) {
-          // We have already set a suggestion search term
-          // The currently set suggestion term does not match the current username
-          // Or we do not currently have a suggestion term set
-          // Set it to the new term and fetch new suggestions
+        } else if (!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length || !this.suggestionTerm.length) {
           this.suggestionTerm = newVal;
           this.setSuggestions();
         }
       },
       setSuggestions() {
-        // Fetch username suggestions from the server and set on suggestions
         FacilityUsernameResource.getCollection({
           facility: this.facility,
-          search: this.suggestionTerm,
+          search: this.suggestionTerm
         }).fetch().then(users => {
           this.usernameSuggestions = users.map(user => user.username);
           this.showDropdown = true;
-        })
-        .catch(err => { this.usernameSuggestions = []; });
+        }).catch(err => {
+          this.usernameSuggestions = [];
+        });
       },
       fillUsername(username) {
         this.username = username;
         this.showDropdown = false;
-      },
+      }
     },
     vuex: {
       getters: {
         facilityConfig: getters.facilityConfig,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        facility: getters.currentFacilityId,
+        facility: getters.currentFacilityId
       },
-      actions: {
-        kolibriLogin: actions.kolibriLogin,
-      },
-    },
+      actions: { kolibriLogin: actions.kolibriLogin }
+    }
   };
 
 </script>

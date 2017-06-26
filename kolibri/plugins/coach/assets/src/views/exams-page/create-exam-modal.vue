@@ -20,59 +20,61 @@
 
 <script>
 
-  const ExamActions = require('../../state/actions/exam');
-  const PageNames = require('../../constants').PageNames;
-
-  module.exports = {
+  import * as ExamActions from '../../state/actions/exam';
+  import { PageNames } from '../../constants';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  export default {
     $trNameSpace: 'createExamModal',
     $trs: {
       createNewExam: 'Create a new exam',
       createExam: 'Create exam',
       useContentFrom: 'Use content from which channel?',
       selectChannel: 'Select channel',
-      cancel: 'cancel',
+      cancel: 'cancel'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-select': require('keen-ui/src/UiSelect'),
+      coreModal,
+      iconButton,
+      uiSelect
     },
     props: {
       classId: {
         type: String,
-        required: true,
+        required: true
       },
       channels: {
         type: Array,
-        required: true,
-      },
+        required: true
+      }
     },
     data() {
-      return {
-        selectedChannel: '',
-      };
+      return { selectedChannel: '' };
     },
     computed: {
       channelList() {
-        return this.channels.map(channel => ({ id: channel.id, label: channel.name }));
-      },
+        return this.channels.map(channel => ({
+          id: channel.id,
+          label: channel.name
+        }));
+      }
     },
     methods: {
       routeToCreateExamPage() {
         this.$router.push({
           name: PageNames.CREATE_EXAM,
-          params: { classId: this.classId, channelId: this.selectedChannel.id }
+          params: {
+            classId: this.classId,
+            channelId: this.selectedChannel.id
+          }
         });
       },
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
-    vuex: {
-      actions: {
-        displayExamModal: ExamActions.displayExamModal,
-      },
-    },
+    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } }
   };
 
 </script>

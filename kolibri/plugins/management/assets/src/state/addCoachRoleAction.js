@@ -1,8 +1,8 @@
 /* eslint-disable prefer-arrow-callback */
 const { RoleResource } = require('kolibri').resources;
 const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
 exports.dispatchError = function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));

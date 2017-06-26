@@ -1,6 +1,6 @@
 
 
-const UserKinds = require('../constants').UserKinds;
+import { UserKinds } from '../constants';
 
 const baseLoggingState = {
   summary: { progress: 0 },
@@ -183,7 +183,7 @@ const mutations = {
   },
 };
 
-module.exports = {
+export {
   initialState,
   mutations,
 };

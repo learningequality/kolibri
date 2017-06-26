@@ -18,34 +18,27 @@
 
 <script>
 
-  const PDFobject = require('pdfobject');
-  const ScreenFull = require('screenfull');
-
-  module.exports = {
-
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
-
+  import PDFobject from 'pdfobject';
+  import ScreenFull from 'screenfull';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
+    components: { iconButton },
     props: ['defaultFile'],
-
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
-      isFullScreen: false,
+      isFullScreen: false
     }),
-
     computed: {
       fullscreenAllowed() {
         return ScreenFull.enabled;
-      },
+      }
     },
-
     methods: {
       toggleFullScreen() {
         ScreenFull.toggle(this.$refs.container);
         this.isFullScreen = ScreenFull.isFullscreen;
-      },
+      }
     },
     mounted() {
       PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
@@ -64,8 +57,8 @@
     $trNameSpace: 'pdfRenderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
-    },
+      enterFullscreen: 'Enter fullscreen'
+    }
   };
 
 </script>

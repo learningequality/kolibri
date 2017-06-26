@@ -71,41 +71,37 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
+  import * as actions from '../../state/actions';
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
-    // 'learnerCanEditPassword',
-    // 'learnerCanDeleteAccount',
     'learnerCanSignUp',
-    'learnerCanLoginWithNoPassword',
+    'learnerCanLoginWithNoPassword'
   ];
-
-  module.exports = {
+  import confirmResetModal from './confirm-reset-modal';
+  import notifications from './config-page-notifications';
+  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     components: {
-      'confirm-reset-modal': require('./confirm-reset-modal'),
-      'notifications': require('./config-page-notifications'),
-      'ui-checkbox': require('keen-ui/src/UiCheckbox'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      confirmResetModal,
+      notifications,
+      uiCheckbox,
+      uiButton
     },
-    data: () => ({
-      showModal: false,
-    }),
-    computed: {
-      settingsList: () => settingsList,
-    },
+    data: () => ({ showModal: false }),
+    computed: { settingsList: () => settingsList },
     methods: {
       resetToDefaultSettings() {
         this.showModal = false;
         this.resetFacilityConfig();
-      },
+      }
     },
     vuex: {
       getters: {
         currentFacilityName: state => state.pageState.facilityName,
         settings: state => state.pageState.settings,
-        notification: state => state.pageState.notification,
+        notification: state => state.pageState.notification
       },
       actions: {
         toggleSetting(store, settingName) {
@@ -118,8 +114,8 @@
         resetFacilityConfig: actions.resetFacilityConfig,
         dismissNotification(store) {
           store.dispatch('CONFIG_PAGE_NOTIFY', null);
-        },
-      },
+        }
+      }
     },
     $trNameSpace: 'facilityConfigPage',
     $trs: {
@@ -134,7 +130,7 @@
       pageHeader: 'Facility Configuration',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
-      settingsHeader: 'Facility Settings',
+      settingsHeader: 'Facility Settings'
     }
   };
 

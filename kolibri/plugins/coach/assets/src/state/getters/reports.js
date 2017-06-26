@@ -1,21 +1,20 @@
-const ReportConstants = require('../../reportConstants');
-const CoachConstants = require('../../constants');
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
-const logging = require('kolibri.lib.logging');
-const { now } = require('kolibri.utils.serverClock');
-const ReportUtils = require('./reportUtils');
-const { classMemberCount } = require('./main');
-const differenceInDays = require('date-fns/difference_in_days');
+import * as ReportConstants from '../../reportConstants';
+import * as CoachConstants from '../../constants';
+import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import { now } from 'kolibri.utils.serverClock';
+import * as ReportUtils from './reportUtils';
+import { classMemberCount } from './main';
+import differenceInDays from 'date-fns/difference_in_days';
+import { getLogger } from 'kolibri.lib.logging';
+
+const logging = getLogger(__filename);
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 
 // Object to be exported by this module.
-const getters = {
-  sortColumn: state => (state.pageState || {}).sortColumn,
-  sortOrder: state => (state.pageState || {}).sortOrder,
-};
-
+export const sortColumn = state => (state.pageState || {}).sortColumn;
+export const sortOrder = state => (state.pageState || {}).sortOrder;
 
 function _genRow(state, item) {
   const row = {};
@@ -90,67 +89,62 @@ function _genRow(state, item) {
 
 
 // public vuex getters
-Object.assign(getters, {
-  completionCount(state) {
-    const summary = state.pageState.contentScopeSummary;
-    if (summary.kind !== ContentNodeKinds.TOPIC) {
-      return summary.progress[0].logCountComplete;
-    }
-    return undefined;
-  },
-  userCount(state) {
-    return state.pageState.contentScopeSummary.numUsers;
-  },
-  exerciseCount(state) {
-    const summary = state.pageState.contentScopeSummary;
-    if (summary.kind === ContentNodeKinds.TOPIC ||
-      summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
-      return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
-    } else if (summary.kind === ContentNodeKinds.EXERCISE) {
-      return 1;
-    }
-    return 0;
-  },
-  exerciseProgress(state) {
-    return ReportUtils.calcProgress(
-      state.pageState.contentScopeSummary.progress,
-      ReportUtils.onlyExercises,
-      getters.exerciseCount(state),
-      getters.userCount(state)
+export const completionCount = (state) => {
+  const summary = state.pageState.contentScopeSummary;
+  if (summary.kind !== ContentNodeKinds.TOPIC) {
+    return summary.progress[0].logCountComplete;
+  }
+  return undefined;
+};
+export const userCount = (state) => {
+  return state.pageState.contentScopeSummary.numUsers;
+}
+export const exerciseCount = (state) => {
+  const summary = state.pageState.contentScopeSummary;
+  if (summary.kind === ContentNodeKinds.TOPIC ||
+    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
+    return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
+  } else if (summary.kind === ContentNodeKinds.EXERCISE) {
+    return 1;
+  }
+  return 0;
+}
+export const exerciseProgress = (state) => {
+  return ReportUtils.calcProgress(
+    state.pageState.contentScopeSummary.progress,
+    ReportUtils.onlyExercises,
+    getters.exerciseCount(state),
+    getters.userCount(state)
+  );
+}
+export const contentCount = (state) => {
+  const summary = state.pageState.contentScopeSummary;
+  if (summary.kind === ContentNodeKinds.TOPIC ||
+    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
+    return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
+  } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
+    return 1;
+  }
+  return 0;
+}
+export const contentProgress = (state) => {
+  return ReportUtils.calcProgress(
+    state.pageState.contentScopeSummary.progress,
+    ReportUtils.onlyContent,
+    getters.contentCount(state),
+    getters.userCount(state)
+  );
+}
+export const standardDataTable = (state) => {
+  const data = state.pageState.tableData.map(item => _genRow(state, item));
+  if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
+    data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
+  }
+  if (state.pageState.showRecentOnly) {
+    return data.filter(row =>
+      Boolean(row.lastActive) &&
+      differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
     );
-  },
-  contentCount(state) {
-    const summary = state.pageState.contentScopeSummary;
-    if (summary.kind === ContentNodeKinds.TOPIC ||
-      summary.kind === CoreConstants.ContentNodeKinds.CHANNEL) {
-      return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
-    } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
-      return 1;
-    }
-    return 0;
-  },
-  contentProgress(state) {
-    return ReportUtils.calcProgress(
-      state.pageState.contentScopeSummary.progress,
-      ReportUtils.onlyContent,
-      getters.contentCount(state),
-      getters.userCount(state)
-    );
-  },
-  standardDataTable(state) {
-    const data = state.pageState.tableData.map(item => _genRow(state, item));
-    if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
-      data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
-    }
-    if (state.pageState.showRecentOnly) {
-      return data.filter(row =>
-        Boolean(row.lastActive) &&
-        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
-      );
-    }
-    return data;
-  },
-});
-
-
-module.exports = getters;
+  }
+  return data;
+}

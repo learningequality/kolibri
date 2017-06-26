@@ -1,8 +1,8 @@
-const videojs = require('video.js');
+import videojs from 'video.js';
 
 const videojsButton = videojs.getComponent('Button');
 
-class ReplayButton extends videojsButton {
+export class ReplayButton extends videojsButton {
   buildCSSClass() {
     return `vjs-icon-replay_10 ${super.buildCSSClass()}`;
   }
@@ -12,7 +12,7 @@ class ReplayButton extends videojsButton {
   }
 }
 
-class ForwardButton extends videojsButton {
+export class ForwardButton extends videojsButton {
   buildCSSClass() {
     return `vjs-icon-forward_10 ${super.buildCSSClass()}`;
   }
@@ -21,8 +21,3 @@ class ForwardButton extends videojsButton {
     player.currentTime(Math.min(player.duration(), (player.currentTime() + 10)));
   }
 }
-
-module.exports = {
-  ReplayButton,
-  ForwardButton,
-};

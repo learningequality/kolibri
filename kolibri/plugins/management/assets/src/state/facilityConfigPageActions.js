@@ -1,14 +1,14 @@
 /* eslint-disable prefer-arrow-callback */
-const CoreMappers = require('kolibri.coreVue.vuex.mappers');
+import CoreMappers from 'kolibri.coreVue.vuex.mappers';
 
 const {
   FacilityResource,
   FacilityDatasetResource,
 } = require('kolibri').resources;
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
-const preparePage = require('./preparePage');
-const { PageNames, defaultFacilityConfig, notificationTypes } = require('../constants');
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import preparePage from './preparePage';
+import { PageNames, defaultFacilityConfig, notificationTypes } from '../constants';
 
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
 // The `_promise` property is accessed because the thenable returned by
@@ -82,7 +82,7 @@ function resetFacilityConfig(store) {
   return saveFacilityConfig(store);
 }
 
-module.exports = {
+export {
   resetFacilityConfig,
   saveFacilityConfig,
   showFacilityConfigPage,

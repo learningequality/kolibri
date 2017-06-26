@@ -1,10 +1,10 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const Vuex = require('vuex');
-const sinon = require('sinon');
-const assert = require('assert');
-const simulant = require('simulant');
-const ConfigPage = require('../../src/views/facilities-config-page');
+import Vue from 'vue-test';
+import Vuex from 'vuex';
+import sinon from 'sinon';
+import assert from 'assert';
+import simulant from 'simulant';
+import ConfigPage from '../../src/views/facilities-config-page';
 
 function makeWrapper(propsData = {}) {
   const store = new Vuex.Store({

@@ -89,10 +89,17 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const PageNames = require('../../constants').PageNames;
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import { PageNames } from '../../constants';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import logo from 'kolibri.coreVue.components.logo';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  export default {
     name: 'Sign-Up-Page',
     $trNameSpace: 'signUpPage',
     $trs: {
@@ -110,17 +117,17 @@
       kolibri: 'Kolibri',
       finish: 'Finish',
       facility: 'Facility',
-      selectFacility: 'Select a facility',
+      selectFacility: 'Select a facility'
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
-      'ui-toolbar': require('keen-ui/src/UiToolbar'),
-      'ui-checkbox': require('keen-ui/src/UiCheckbox'),
-      'logo': require('kolibri.coreVue.components.logo'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'ui-select': require('keen-ui/src/UiSelect'),
+      iconButton,
+      uiAlert,
+      coreTextbox,
+      uiToolbar,
+      uiCheckbox,
+      logo,
+      uiIcon,
+      uiSelect
     },
     data: () => ({
       name: '',
@@ -128,14 +135,13 @@
       password: '',
       confirmed_password: '',
       checkSelect: false,
-      selection: {},
+      selection: {}
     }),
     computed: {
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
       passwordsMatch() {
-        // make sure both fields are populated
         if (this.password && this.confirmed_password) {
           return this.password === this.confirmed_password;
         }
@@ -151,14 +157,16 @@
         return this.errorCode === 400;
       },
       allFieldsPopulated() {
-        return this.name && this.username && this.password
-        && this.confirmed_password && !this.noFacilitySelected;
+        return this.name && this.username && this.password && this.confirmed_password && !this.noFacilitySelected;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
       },
       facilityOptions() {
-        return this.facilities.map(facility => ({ label: facility.name, id: facility.id }));
+        return this.facilities.map(facility => ({
+          label: facility.name,
+          id: facility.id
+        }));
       },
       noFacilitySelected() {
         return !this.selectedFacility.id;
@@ -179,16 +187,13 @@
     methods: {
       signUp() {
         this.checkSelect = true;
-        const canSubmit =
-          this.allFieldsPopulated &&
-          this.passwordsMatch &&
-          !this.busy;
+        const canSubmit = this.allFieldsPopulated && this.passwordsMatch && !this.busy;
         if (canSubmit) {
           this.signUpAction({
             facility: this.selectedFacility.id,
             full_name: this.name,
             username: this.username,
-            password: this.password,
+            password: this.password
           });
         }
       },
@@ -202,13 +207,13 @@
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,
         backendErrorMessage: state => state.pageState.errorMessage,
-        facilities: state => state.core.facilities,
+        facilities: state => state.core.facilities
       },
       actions: {
         signUpAction: actions.signUp,
-        resetSignUpState: actions.resetSignUpState,
-      },
-    },
+        resetSignUpState: actions.resetSignUpState
+      }
+    }
   };
 
 </script>

@@ -59,27 +59,22 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const actions = require('../../state/actions');
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions';
+  import orderBy from 'lodash/orderBy';
+  import classCreateModal from './class-create-modal';
+  import classDeleteModal from './class-delete-modal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     components: {
-      'class-create-modal': require('./class-create-modal'),
-      'class-delete-modal': require('./class-delete-modal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      classCreateModal,
+      classDeleteModal,
+      iconButton
     },
-    // Has to be a funcion due to vue's treatment of data
-    data: () => ({
-      currentClassDelete: null,
-    }),
+    data: () => ({ currentClassDelete: null }),
     computed: {
       sortedClasses() {
-        return orderBy(
-          this.classes,
-          [classroom => classroom.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       showDeleteClassModal() {
         return this.modalShown === constants.Modals.DELETE_CLASS;
@@ -89,13 +84,13 @@
       },
       noClassesExist() {
         return this.sortedClasses.length === 0;
-      },
+      }
     },
     methods: {
       classEditLink(id) {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          params: { id },
+          params: { id }
         };
       },
       openDeleteClassModal(classModel) {
@@ -104,30 +99,26 @@
       },
       openCreateClassModal() {
         this.displayModal(constants.Modals.CREATE_CLASS);
-      },
+      }
     },
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes,
+        classes: state => state.pageState.classes
       },
-      actions: {
-        displayModal: actions.displayModal,
-      },
+      actions: { displayModal: actions.displayModal }
     },
     $trNameSpace: 'classPage',
     $trs: {
       allClasses: 'All Classes',
-      // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',
-      // table info
       className: 'Class Name',
       classes: 'Users',
       members: 'Members',
       actions: 'Actions',
-      noClassesExist: 'No Classes Exist.',
-    },
+      noClassesExist: 'No Classes Exist.'
+    }
   };
 
 </script>

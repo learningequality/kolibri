@@ -21,4 +21,4 @@ const cloneDeep = (object) => {
   return object;
 };
 
-module.exports = cloneDeep;
+export { cloneDeep as default };

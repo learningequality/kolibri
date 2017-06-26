@@ -1,5 +1,5 @@
-const { UserKinds, MaxPointsPerContent } = require('../constants');
-const cookiejs = require('js-cookie');
+import { UserKinds, MaxPointsPerContent } from '../constants';
+import cookiejs from 'js-cookie';
 
 
 function isUserLoggedIn(state) {
@@ -81,8 +81,7 @@ function contentPoints(state) {
   return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
 }
 
-
-module.exports = {
+export {
   isUserLoggedIn,
   isSuperuser,
   isFacilityUser,

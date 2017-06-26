@@ -38,20 +38,21 @@
 
 <script>
 
-  const Constants = require('../../constants');
-
-  module.exports = {
+  import * as Constants from '../../constants';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabLink from 'kolibri.coreVue.components.tabLink';
+  export default {
     $trNameSpace: 'topNav',
     $trs: {
       recent: 'Recent',
       topics: 'Topics',
       exams: 'Exams',
       learners: 'Learners',
-      groups: 'Groups',
+      groups: 'Groups'
     },
     components: {
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
+      tabs,
+      tabLink
     },
     computed: {
       Constants() {
@@ -60,40 +61,40 @@
       recentLink() {
         return {
           name: Constants.PageNames.RECENT_CHANNELS,
-          params: { classId: this.classId },
+          params: { classId: this.classId }
         };
       },
       topicsLink() {
         return {
           name: Constants.PageNames.TOPIC_CHANNELS,
-          params: { classId: this.classId },
+          params: { classId: this.classId }
         };
       },
       examsLink() {
         return {
           name: Constants.PageNames.EXAMS,
-          params: { classId: this.classId },
+          params: { classId: this.classId }
         };
       },
       learnersLink() {
         return {
           name: Constants.PageNames.LEARNER_LIST,
-          params: { classId: this.classId },
+          params: { classId: this.classId }
         };
       },
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
-          params: { classId: this.classId },
+          params: { classId: this.classId }
         };
-      },
+      }
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        classId: state => state.classId,
-      },
-    },
+        classId: state => state.classId
+      }
+    }
   };
 
 </script>

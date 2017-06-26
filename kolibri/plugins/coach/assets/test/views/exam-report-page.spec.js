@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const ExamReportPage = require('../../src/views/exam-report-page');
+import Vue from 'vue-test';
+import assert from 'assert';
+import ExamReportPage from '../../src/views/exam-report-page';
 
 function makeVm(options = {}) {
   const Ctor = Vue.extend(ExamReportPage);

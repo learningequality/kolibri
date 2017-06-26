@@ -3,22 +3,23 @@
  * @module Facade
  */
 
-const vue = require('vue');
-const vuex = require('vuex');
-const router = require('vue-router');
-const Mediator = require('./mediator');
-const ResourceManager = require('../api-resource').ResourceManager;
-const Resources = require('../api-resources');
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const csrf = require('rest/interceptor/csrf');
-const errorCode = require('rest/interceptor/errorCode');
-const cookiejs = require('js-cookie');
-const constructorExport = require('./constructorExport');
-const logging = require('../logging');
-const HeartBeat = require('../heartbeat');
-const importIntlLocale = require('./import-intl-locale');
+import vue from 'vue';
+import vuex from 'vuex';
+import router from 'vue-router';
+import Mediator from './mediator';
+import { ResourceManager } from '../api-resource';
+import Resources from '../api-resources';
+import rest from 'rest';
+import mime from 'rest/interceptor/mime';
+import csrf from 'rest/interceptor/csrf';
+import errorCode from 'rest/interceptor/errorCode';
+import cookiejs from 'js-cookie';
+import constructorExport from './constructorExport';
+import { getLogger } from '../logging';
+import HeartBeat from '../heartbeat';
+import importIntlLocale from './import-intl-locale';
 
+const logging = getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -44,7 +45,7 @@ const publicMethods = [
  * @constructor
  */
 
-module.exports = class CoreApp {
+export default class CoreApp {
   constructor() {
     Object.assign(this, constructorExport());
 

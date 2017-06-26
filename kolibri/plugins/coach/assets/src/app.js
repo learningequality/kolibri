@@ -1,16 +1,16 @@
-const KolibriModule = require('kolibri_module');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const router = require('kolibri.coreVue.router');
+import KolibriModule from 'kolibri_module';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import router from 'kolibri.coreVue.router';
 
-const Vue = require('kolibri.lib.vue');
+import Vue from 'kolibri.lib.vue';
 
-const RootVue = require('./views');
-const actions = require('./state/actions/main');
-const groupActions = require('./state/actions/group');
-const examActions = require('./state/actions/exam');
-const reportsActions = require('./state/actions/reports');
-const store = require('./state/store');
-const PageNames = require('./constants').PageNames;
+import RootVue from './views';
+import * as actions from './state/actions/main';
+import * as groupActions from './state/actions/group';
+import * as examActions from './state/actions/exam';
+import * as reportsActions from './state/actions/reports';
+import store from './state/store';
+import { PageNames } from './constants';
 
 
 class CoachToolsModule extends KolibriModule {
@@ -255,4 +255,6 @@ class CoachToolsModule extends KolibriModule {
   }
 }
 
-module.exports = new CoachToolsModule();
+const coachToolsModule = new CoachToolsModule();
+
+export { coachToolsModule as default };

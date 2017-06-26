@@ -44,37 +44,40 @@
 
 <script>
 
-  module.exports = {
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  export default {
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
       statusMastered: 'Completed',
       statusInProgress: 'In progress',
       requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
-      notStarted: 'Not started',
+      notStarted: 'Not started'
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      contentIcon,
+      progressIcon,
+      elapsedTime
     },
     props: {
       userName: {
         type: String,
-        required: true,
+        required: true
       },
       exerciseTitle: {
         type: String,
-        required: true,
+        required: true
       },
       kind: {
         type: String,
-        required: true,
+        required: true
       },
       summaryLog: {
         type: Object,
-        default: () => ({}),
-      },
+        default: () => ({})
+      }
     },
     computed: {
       isCompleted() {
@@ -110,11 +113,9 @@
       requirementsString() {
         try {
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
-          // TODO might be more types?
-          // if (requirements.type === 'm_of_n') {
           return this.$tr('requirementsMOfN', {
             m: requirements.m,
-            n: requirements.n,
+            n: requirements.n
           });
         } catch (e) {
           if (e instanceof TypeError) {
@@ -122,8 +123,8 @@
           }
           throw e;
         }
-      },
-    },
+      }
+    }
   };
 
 </script>

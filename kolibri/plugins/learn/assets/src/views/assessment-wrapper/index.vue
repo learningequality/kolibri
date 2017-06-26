@@ -75,15 +75,18 @@ oriented data synchronization.
 
 <script>
 
-  const getters = require('kolibri.coreVue.vuex.getters');
-  const actions = require('kolibri.coreVue.vuex.actions');
-  const { InteractionTypes } = require('kolibri.coreVue.vuex.constants');
-  const { MasteryModelGenerators } = require('kolibri.coreVue.vuex.constants');
-  const seededShuffle = require('kolibri.lib.seededshuffle');
-  const { now } = require('kolibri.utils.serverClock');
-  const { updateContentNodeProgress } = require('../../state/actions');
-
-  module.exports = {
+  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
+  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import seededShuffle from 'kolibri.lib.seededshuffle';
+  import { now } from 'kolibri.utils.serverClock';
+  import { updateContentNodeProgress } from '../../state/actions';
+  import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'assessmentWrapper',
     $trs: {
       goal: 'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
@@ -91,50 +94,48 @@ oriented data synchronization.
       check: 'Check answer',
       correct: 'Next question',
       incorrect: 'Sorry, try again',
-      itemError: 'There was an error showing this item',
+      itemError: 'There was an error showing this item'
     },
     props: {
       id: {
         type: String,
-        required: true,
+        required: true
       },
       kind: {
         type: String,
-        required: true,
+        required: true
       },
       files: {
         type: Array,
-        default: () => [],
+        default: () => []
       },
       contentId: {
         type: String,
-        default: '',
+        default: ''
       },
       channelId: {
         type: String,
-        default: '',
+        default: ''
       },
       available: {
         type: Boolean,
-        default: false,
+        default: false
       },
       extraFields: {
         type: String,
-        default: '{}',
+        default: '{}'
       },
       initSession: {
         type: Function,
-        default: () => Promise.resolve(),
-      },
+        default: () => Promise.resolve()
+      }
     },
-    watch: {
-      exerciseProgress: 'updateExerciseProgressMethod',
-    },
+    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
     components: {
-      'exercise-attempts': require('kolibri.coreVue.components.exerciseAttempts'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      exerciseAttempts,
+      contentRenderer,
+      iconButton,
+      uiAlert
     },
     data: () => ({
       ready: false,
@@ -144,18 +145,10 @@ oriented data synchronization.
       complete: false,
       correct: 0,
       itemError: false,
-      // Track whether a user has so far only taken hints
-      onlyHinted: false,
+      onlyHinted: false
     }),
     methods: {
-      updateAttemptLogMasteryLog({
-        correct,
-        complete,
-        firstAttempt = false,
-        hinted,
-        answerState,
-        simpleAnswer,
-      }) {
+      updateAttemptLogMasteryLog({correct, complete, firstAttempt = false, hinted, answerState, simpleAnswer}) {
         this.updateMasteryAttemptStateAction({
           currentTime: now(),
           correct,
@@ -163,7 +156,7 @@ oriented data synchronization.
           firstAttempt,
           hinted,
           answerState,
-          simpleAnswer,
+          simpleAnswer
         });
       },
       saveAttemptLogMasterLog() {
@@ -180,9 +173,9 @@ oriented data synchronization.
           this.answerGiven(answer);
         }
       },
-      answerGiven({ correct, answerState, simpleAnswer }) {
+      answerGiven({correct, answerState, simpleAnswer}) {
         this.onlyHinted = false;
-        correct = Number(correct); // eslint-disable-line no-param-reassign
+        correct = Number(correct);
         this.correct = correct;
         if (correct < 1) {
           if (!this.shake) {
@@ -195,7 +188,7 @@ oriented data synchronization.
         this.updateAttemptLogInteractionHistoryAction({
           type: InteractionTypes.answer,
           answer: answerState,
-          correct,
+          correct
         });
         this.complete = correct === 1;
         if (this.firstAttempt) {
@@ -204,30 +197,27 @@ oriented data synchronization.
             complete: this.complete,
             answerState,
             simpleAnswer,
-            firstAttempt: true,
+            firstAttempt: true
           });
           this.firstAttempt = false;
         } else {
-          this.updateAttemptLogMasteryLog({
-            complete: this.complete,
-          });
+          this.updateAttemptLogMasteryLog({ complete: this.complete });
         }
         this.saveAttemptLogMasterLog();
       },
-      hintTaken({ answerState }) {
+      hintTaken({answerState}) {
         this.updateAttemptLogInteractionHistoryAction({
           type: InteractionTypes.hint,
-          answer: answerState,
+          answer: answerState
         });
         if (this.firstAttempt) {
-          // mark the attemptlog as hinted only if the first attempt is taking the hint.
           this.updateAttemptLogMasteryLog({
             correct: 0,
             complete: false,
             firstAttempt: true,
             hinted: true,
             answerState,
-            simpleAnswer: '',
+            simpleAnswer: ''
           });
           this.firstAttempt = false;
           this.onlyHinted = true;
@@ -247,8 +237,6 @@ oriented data synchronization.
         }
       },
       nextQuestion() {
-        // Consistently get the next item in the sequence depending on how many previous
-        // attempts have been made.
         this.complete = false;
         this.shake = false;
         this.firstAttempt = true;
@@ -270,12 +258,9 @@ oriented data synchronization.
         updateContentNodeProgress(this.channelId, this.contentId, this.exerciseProgress);
       },
       sessionInitialized() {
-        // Once the session is initialized we can initialize the mastery log,
-        // as the required data will be available.
         if (this.canLogInteractions) {
           this.initMasteryLog();
         } else {
-          // if userKind is anonymous user or deviceOwner.
           this.createDummyMasteryLogAction();
         }
         this.nextQuestion();
@@ -283,21 +268,17 @@ oriented data synchronization.
       },
       handleItemError() {
         this.itemError = true;
-        this.updateAttemptLogInteractionHistoryAction({
-          type: InteractionTypes.error,
-        });
+        this.updateAttemptLogInteractionHistoryAction({ type: InteractionTypes.error });
         this.complete = true;
         if (this.firstAttempt) {
           this.updateAttemptLogMasteryLog({
             correct: 1,
             complete: this.complete,
-            firstAttempt: true,
+            firstAttempt: true
           });
           this.firstAttempt = false;
         } else {
-          this.updateAttemptLogMasteryLog({
-            complete: this.complete,
-          });
+          this.updateAttemptLogMasteryLog({ complete: this.complete });
         }
       },
       updateProgress(...args) {
@@ -308,7 +289,7 @@ oriented data synchronization.
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
-      },
+      }
     },
     computed: {
       canLogInteractions() {
@@ -318,8 +299,6 @@ oriented data synchronization.
         if (!this.pastattempts) {
           return [];
         }
-        // map the list of attempt objects to simple strings
-        // ordered from first to last
         return this.pastattempts.map(attempt => {
           if (attempt.hinted) {
             return 'hint';
@@ -328,8 +307,7 @@ oriented data synchronization.
         }).reverse();
       },
       mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](
-          this.assessmentIds, this.masteryModel);
+        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
       },
       totalCorrectRequiredM() {
         return this.mOfNMasteryModel.m;
@@ -339,28 +317,19 @@ oriented data synchronization.
       },
       exerciseProgress() {
         if (this.mastered) {
-          return 1.0;
+          return 1;
         }
         if (this.pastattempts) {
           if (this.pastattempts.length > this.attemptsWindowN) {
-            return Math.min(
-              this.pastattempts.slice(
-                0,
-                this.attemptsWindowN
-              ).reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-              1.0
-              );
+            return Math.min(this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM, 1);
           }
-          return Math.min(
-            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-            1.0
-            );
+          return Math.min(this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM, 1);
         }
-        return 0.0;
+        return 0;
       },
       success() {
-        return this.exerciseProgress === 1.0;
-      },
+        return this.exerciseProgress === 1;
+      }
     },
     vuex: {
       actions: {
@@ -372,21 +341,21 @@ oriented data synchronization.
         saveAttemptLogAction: actions.saveAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
-        updateExerciseProgress: actions.updateExerciseProgress,
+        updateExerciseProgress: actions.updateExerciseProgress
       },
       getters: {
         isSuperuser: getters.isSuperuser,
         isUserLoggedIn: getters.isUserLoggedIn,
-        mastered: (state) => state.core.logging.mastery.complete,
-        totalattempts: (state) => state.core.logging.mastery.totalattempts,
-        pastattempts: (state) => state.core.logging.mastery.pastattempts,
-        userid: (state) => state.core.session.user_id,
-        content: (state) => state.pageState.content,
-        assessmentIds: (state) => state.pageState.content.assessmentIds,
-        masteryModel: (state) => state.pageState.content.masteryModel,
-        randomize: (state) => state.pageState.content.randomize,
-      },
-    },
+        mastered: state => state.core.logging.mastery.complete,
+        totalattempts: state => state.core.logging.mastery.totalattempts,
+        pastattempts: state => state.core.logging.mastery.pastattempts,
+        userid: state => state.core.session.user_id,
+        content: state => state.pageState.content,
+        assessmentIds: state => state.pageState.content.assessmentIds,
+        masteryModel: state => state.pageState.content.masteryModel,
+        randomize: state => state.pageState.content.randomize
+      }
+    }
   };
 
 </script>

@@ -3,11 +3,11 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const Vue = require('vue-test');
-const Vuex = require('vuex');
-const assessmentWrapper = require('../../src/views/assessment-wrapper');
+import Vue from 'vue-test';
+import Vuex from 'vuex';
+import assessmentWrapper from '../../src/views/assessment-wrapper';
 
-const assert = require('assert');
+import assert from 'assert';
 
 const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const propsData = {

@@ -49,31 +49,39 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-  const GroupModals = require('../../constants').GroupModals;
-  const differenceWith = require('lodash/differenceWith');
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import { GroupModals } from '../../constants';
+  import differenceWith from 'lodash/differenceWith';
+  import orderBy from 'lodash/orderBy';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import createGroupModal from './create-group-modal';
+  import groupSection from './group-section';
+  import renameGroupModal from './rename-group-modal';
+  import deleteGroupModal from './delete-group-modal';
+  import moveLearnersModal from './move-learners-modal';
+  export default {
     $trNameSpace: 'coachGroupsPage',
     $trs: {
       groups: 'Groups',
       newGroup: 'New group',
-      ungrouped: 'Ungrouped',
+      ungrouped: 'Ungrouped'
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'create-group-modal': require('./create-group-modal'),
-      'group-section': require('./group-section'),
-      'rename-group-modal': require('./rename-group-modal'),
-      'delete-group-modal': require('./delete-group-modal'),
-      'move-learners-modal': require('./move-learners-modal'),
+      iconButton,
+      createGroupModal,
+      groupSection,
+      renameGroupModal,
+      deleteGroupModal,
+      moveLearnersModal
     },
     data() {
       return {
-        selectedGroup: { name: '', id: '' },
+        selectedGroup: {
+          name: '',
+          id: ''
+        },
         usersToMove: [],
-        isUngrouped: false,
+        isUngrouped: false
       };
     },
     computed: {
@@ -90,11 +98,7 @@
         return this.groupModalShown === GroupModals.MOVE_LEARNERS;
       },
       sortedGroups() {
-        return orderBy(
-          this.groups,
-          [group => group.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
       },
       groupedUsers() {
         const groupedUsers = [];
@@ -109,38 +113,48 @@
         return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);
       },
       ungroupedUsersObject() {
-        return { name: this.$tr('ungrouped'), users: this.ungroupedUsers };
-      },
+        return {
+          name: this.$tr('ungrouped'),
+          users: this.ungroupedUsers
+        };
+      }
     },
     methods: {
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
       openRenameGroupModal(groupName, groupId) {
-        this.selectedGroup = { name: groupName, id: groupId };
+        this.selectedGroup = {
+          name: groupName,
+          id: groupId
+        };
         this.displayModal(GroupModals.RENAME_GROUP);
       },
       openDeleteGroupModal(groupName, groupId) {
-        this.selectedGroup = { name: groupName, id: groupId };
+        this.selectedGroup = {
+          name: groupName,
+          id: groupId
+        };
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       openMoveLearnersModal(groupName, groupId, usersToMove, isUngrouped) {
-        this.selectedGroup = { name: groupName, id: groupId };
+        this.selectedGroup = {
+          name: groupName,
+          id: groupId
+        };
         this.usersToMove = usersToMove;
         this.isUngrouped = isUngrouped;
         this.displayModal(GroupModals.MOVE_LEARNERS);
-      },
+      }
     },
     vuex: {
       getters: {
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
-        groupModalShown: state => state.pageState.groupModalShown,
+        groupModalShown: state => state.pageState.groupModalShown
       },
-      actions: {
-        displayModal: groupActions.displayModal,
-      },
-    },
+      actions: { displayModal: groupActions.displayModal }
+    }
   };
 
 </script>

@@ -27,10 +27,12 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-  const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  export default {
     $trNameSpace: 'changeExamVisibilityModal',
     $trs: {
       examVisibility: 'Exam visibility',
@@ -40,49 +42,52 @@
       selectGroups: 'Select groups',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
-      update: 'Update',
+      update: 'Update'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-select': require('keen-ui/src/UiSelect'),
+      coreModal,
+      iconButton,
+      uiSelect
     },
     props: {
       examId: {
         type: String,
-        required: true,
+        required: true
       },
       examTitle: {
         type: String,
-        required: true,
+        required: true
       },
       examVisibility: {
         type: Object,
-        required: true,
+        required: true
       },
       classId: {
         type: String,
-        required: true,
+        required: true
       },
       className: {
         type: String,
-        required: true,
+        required: true
       },
       classGroups: {
         type: Array,
-        required: true,
-      },
+        required: true
+      }
     },
     data() {
       return {
         classIsSelected: this.classInitiallySelected(),
-        groupsSelected: this.initiallySelectedGroups(),
+        groupsSelected: this.initiallySelectedGroups()
       };
     },
     computed: {
       groupOptions() {
-        return this.classGroups.map(group => ({ label: group.name, id: group.id }));
-      },
+        return this.classGroups.map(group => ({
+          label: group.name,
+          id: group.id
+        }));
+      }
     },
     methods: {
       classInitiallySelected() {
@@ -92,8 +97,10 @@
         return false;
       },
       initiallySelectedGroups() {
-        return this.examVisibility.groups.map(
-            group => ({ label: group.collection.name, id: group.collection.id }));
+        return this.examVisibility.groups.map(group => ({
+          label: group.collection.name,
+          id: group.collection.id
+        }));
       },
       handleSelectChange() {
         this.classIsSelected = !this.groupsSelected.length;
@@ -108,20 +115,15 @@
             return;
           }
           const classCollection = [{
-            id: this.classId,
-            name: this.className,
-            kind: CollectionKinds.CLASSROOM
-          }];
-          const groupAssignments = this.examVisibility.groups.map(
-            assignment => assignment.assignmentId);
+              id: this.classId,
+              name: this.className,
+              kind: CollectionKinds.CLASSROOM
+            }];
+          const groupAssignments = this.examVisibility.groups.map(assignment => assignment.assignmentId);
           this.updateExamAssignments(this.examId, classCollection, groupAssignments);
         } else if (this.groupsSelected.length) {
-          const unassignGroups = this.initiallySelectedGroups().filter(
-              initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id));
-          const assignGroups = this.groupsSelected.filter(
-              newGroup => !this.initiallySelectedGroups().find(
-                  initialGroup => initialGroup.id === newGroup.id));
-
+          const unassignGroups = this.initiallySelectedGroups().filter(initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id));
+          const assignGroups = this.groupsSelected.filter(newGroup => !this.initiallySelectedGroups().find(initialGroup => initialGroup.id === newGroup.id));
           if (!unassignGroups.length && !assignGroups.length) {
             this.close();
             return;
@@ -129,10 +131,9 @@
           const assignGroupCollections = assignGroups.map(group => ({
             id: group.id,
             name: group.label,
-            kind: CollectionKinds.LEARNERGROUP,
+            kind: CollectionKinds.LEARNERGROUP
           }));
-          let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(
-            group => group.collection.id === unassignGroup.id).assignmentId);
+          let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(group => group.collection.id === unassignGroup.id).assignmentId);
           if (this.examVisibility.class) {
             unassignments = unassignments.concat(this.examVisibility.class.assignmentId);
           }
@@ -141,14 +142,14 @@
       },
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        updateExamAssignments: examActions.updateExamAssignments,
-      },
-    },
+        updateExamAssignments: examActions.updateExamAssignments
+      }
+    }
   };
 
 </script>

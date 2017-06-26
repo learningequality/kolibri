@@ -3,12 +3,12 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const Vue = require('vue-test');
-const contentRenderer = require('../src/views/content-renderer');
+import Vue from 'vue-test';
+import contentRenderer from '../src/views/content-renderer';
 
 const ContentRendererComponent = Vue.extend(contentRenderer);
-const assert = require('assert');
-const sinon = require('sinon');
+import assert from 'assert';
+import sinon from 'sinon';
 
 describe('contentRenderer Component', function () {
   beforeEach(function () {

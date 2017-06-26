@@ -1,4 +1,4 @@
-const Constants = require('../../constants');
+import * as Constants from '../../constants';
 
 
 function className(state) {
@@ -29,8 +29,7 @@ function isLearnerPage(state) {
   return Constants.LearnerReports.includes(state.pageName);
 }
 
-
-module.exports = {
+export {
   className,
   classMemberCount,
   isRecentPage,

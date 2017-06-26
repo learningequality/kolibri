@@ -24,9 +24,10 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'deactivateExamModal',
     $trs: {
       deactivateExam: 'Dectivate exam',
@@ -37,38 +38,38 @@
       entireClass: 'Entire class'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton
     },
     props: {
       examId: {
         type: String,
-        required: true,
+        required: true
       },
       examTitle: {
         type: String,
-        required: true,
+        required: true
       },
       examVisibility: {
         type: Object,
-        required: true,
+        required: true
       },
       classId: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     methods: {
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        deactivateExam: examActions.deactivateExam,
-      },
-    },
+        deactivateExam: examActions.deactivateExam
+      }
+    }
   };
 
 </script>

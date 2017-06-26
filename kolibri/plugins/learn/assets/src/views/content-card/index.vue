@@ -34,29 +34,25 @@
 
 <script>
 
-  const CoreConstants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash/values');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
-    mixins: [responsiveWindow],
-    components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-    },
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  export default {
     props: {
       title: {
         type: String,
-        required: true,
+        required: true
       },
       subtitle: {
         type: String,
-        required: false,
+        required: false
       },
       thumbnail: {
         type: String,
-        required: false,
+        required: false
       },
       kind: {
         type: String,
@@ -76,19 +72,23 @@
       link: {
         type: Object,
         required: true,
-        validator: validateLinkObject,
+        validator: validateLinkObject
       },
+      thumbnail: {
+        type: String,
+        required: false
+      }
     },
     computed: {
       mastered() {
-        return this.progress === 1.0;
+        return this.progress === 1;
       },
       inProgress() {
-        return this.progress > 0 && this.progress < 1.0;
+        return this.progress > 0 && this.progress < 1;
       },
       backgroundImg() {
         if (this.thumbnail) {
-          return { backgroundImage: `url('${this.thumbnail}')` };
+          return { backgroundImage: `url('${ this.thumbnail }')` };
         }
         return {};
       },
@@ -105,8 +105,12 @@
           return 'card-content-icon-background-html5';
         }
         return '';
-      },
+      }
     },
+    components: {
+      contentIcon,
+      progressIcon
+    }
   };
 
 </script>

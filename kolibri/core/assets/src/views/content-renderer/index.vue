@@ -37,61 +37,59 @@
 
 <script>
 
-  const logging = require('kolibri.lib.logging').getLogger(__filename);
-
-  module.exports = {
+  import { getLogger } from 'kolibri.lib.logging';
+  const logging = getLogger(__filename);
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
-      rendererNotAvailable: 'Kolibri is unable to render this content',
+      rendererNotAvailable: 'Kolibri is unable to render this content'
     },
     props: {
       id: {
         type: String,
-        required: true,
+        required: true
       },
       kind: {
         type: String,
-        required: true,
+        required: true
       },
       files: {
         type: Array,
-        default: () => [],
+        default: () => []
       },
       contentId: {
         type: String,
-        default: '',
+        default: ''
       },
       channelId: {
         type: String,
-        default: '',
+        default: ''
       },
       available: {
         type: Boolean,
-        default: false,
+        default: false
       },
       assessment: {
         type: Boolean,
-        default: false,
+        default: false
       },
-      itemId: {
-        default: null,
-      },
-      answerState: {
-        default: null,
-      },
+      itemId: { default: null },
+      answerState: { default: null },
       allowHints: {
         type: Boolean,
-        default: true,
+        default: true
       },
       initSession: {
         type: Function,
-        default: () => Promise.resolve(),
-      },
+        default: () => Promise.resolve()
+      }
     },
     components: {
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      loadingSpinner,
+      uiAlert
     },
     computed: {
       extension() {
@@ -101,41 +99,29 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(
-          (file) => !file.thumbnail && !file.supplementary && file.available
-        );
+        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles &&
-          this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
       supplementaryFiles() {
         return this.files.filter(file => file.supplementary && file.available);
       },
       thumbnailFiles() {
         return this.files.filter(file => file.thumbnail && file.available);
-      },
+      }
     },
     created() {
       this.updateRendererComponent();
-      // This means this component has to be torn down on channel switches.
       this.$watch('files', this.updateRendererComponent);
     },
     data: () => ({
       currentViewClass: null,
-      noRendererAvailable: false,
+      noRendererAvailable: false
     }),
     methods: {
-      /**
-       * Check the Kolibri core app for a content renderer module that is able to
-       * handle the rendering of the current content node. This is the entrance point for changes
-       * in the props,so any change in the props will trigger this function first.
-       */
       updateRendererComponent() {
-        // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
-        // Only bother to do this is if the node is available, and the kind and extension are defined.
-        // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([
             this.initSession(),
@@ -144,7 +130,7 @@
             this.$emit('sessionInitialized');
             this.currentViewClass = component;
             return this.currentViewClass;
-          }).catch((error) => {
+          }).catch(error => {
             logging.error(error);
             this.noRendererAvailable = true;
           });
@@ -183,8 +169,8 @@
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
         return null;
-      },
-    },
+      }
+    }
   };
 
 </script>

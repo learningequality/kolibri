@@ -1,8 +1,8 @@
-const Vuex = require('kolibri.lib.vuex');
-const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('../constants');
-const otherMutations = require('./mutations');
-const manageContentMutations = require('./manageContentMutations');
+import Vuex from 'kolibri.lib.vuex';
+import coreStore from 'kolibri.coreVue.vuex.store';
+import * as constants from '../constants';
+import otherMutations from './mutations';
+import manageContentMutations from './manageContentMutations';
 
 /**
  pageState schemas
@@ -125,7 +125,9 @@ Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, otherMutations, coreStore.mutations, manageContentMutations);
 
 
-module.exports = new Vuex.Store({
+const store = new Vuex.Store({
   state: initialState,
   mutations,
 });
+
+export { store as default };

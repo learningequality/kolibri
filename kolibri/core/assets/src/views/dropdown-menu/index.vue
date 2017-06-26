@@ -44,31 +44,33 @@
 
 <script>
 
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      uiButton,
+      uiIconButton,
+      uiMenu
     },
     mixins: [responsiveWindow],
     props: {
       name: {
         type: String,
-        required: true,
+        required: true
       },
       options: {
         type: Array,
-        required: true,
+        required: true
       },
       icon: {
         type: String,
-        default: '',
+        default: ''
       },
       type: {
         type: String,
-        default: 'secondary',
+        default: 'secondary'
       },
       color: {
         type: String,
@@ -76,18 +78,18 @@
       },
       inAppBar: {
         type: Boolean,
-        default: false,
+        default: false
       },
       displayDisabledAsSelected: {
         type: Boolean,
-        default: false,
-      },
+        default: false
+      }
     },
     methods: {
       emitSelection(selection) {
         this.$emit('select', selection);
-      },
-    },
+      }
+    }
   };
 
 </script>

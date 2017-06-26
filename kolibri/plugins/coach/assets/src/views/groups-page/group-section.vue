@@ -65,9 +65,11 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     $trNameSpace: 'coachGroupsTable',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
@@ -78,12 +80,12 @@
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
-      noLearners: 'No Learners in this group',
+      noLearners: 'No Learners in this group'
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      iconButton,
+      uiButton,
+      uiMenu
     },
     props: {
       group: {
@@ -95,26 +97,26 @@
       },
       isUngrouped: {
         type: Boolean,
-        default: false,
+        default: false
       },
       canMove: {
         type: Boolean,
-        default: true,
-      },
+        default: true
+      }
     },
     data() {
-      return {
-        selectedUsers: [],
-      };
+      return { selectedUsers: [] };
     },
     computed: {
       menuOptions() {
-        return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
+        return [
+          this.$tr('renameGroup'),
+          this.$tr('deleteGroup')
+        ];
       },
       allUsersAreSelected() {
-        return (this.group.users.length === this.selectedUsers.length)
-          && (this.selectedUsers.length !== 0);
-      },
+        return this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0;
+      }
     },
     methods: {
       handleSelection(selectedOption) {
@@ -147,16 +149,12 @@
       },
       emitMove() {
         this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
-      },
+      }
     },
     vuex: {
-      getters: {
-        groupModalShown: state => state.pageState.groupModalShown,
-      },
-      actions: {
-        displayModal: groupActions.displayModal,
-      },
-    },
+      getters: { groupModalShown: state => state.pageState.groupModalShown },
+      actions: { displayModal: groupActions.displayModal }
+    }
   };
 
 </script>

@@ -1,5 +1,5 @@
 
-const constants = require('../constants');
+import * as constants from '../constants';
 
 
 function pageMode(state) {
@@ -31,6 +31,6 @@ function pageMode(state) {
 }
 
 
-module.exports = {
+export {
   pageMode,
 };

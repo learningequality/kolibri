@@ -1,18 +1,18 @@
-const coreApp = require('kolibri');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreGetters = require('kolibri.coreVue.vuex.getters');
-const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
+import coreApp from 'kolibri';
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
-const Constants = require('../../constants');
-const ReportConstants = require('../../reportConstants');
-const { setClassState } = require('./main');
-const { now } = require('kolibri.utils.serverClock');
+import CoreConstants from 'kolibri.coreVue.vuex.constants';
+import * as Constants from '../../constants';
+import * as ReportConstants from '../../reportConstants';
+import { setClassState } from './main';
+import { now } from 'kolibri.utils.serverClock';
 
-const RecentReportResourceConstructor = require('../../apiResources/recentReport');
-const UserReportResourceConstructor = require('../../apiResources/userReport');
-const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
-const ContentReportResourceConstructor = require('../../apiResources/contentReport');
+import RecentReportResourceConstructor from '../../apiResources/recentReport';
+import UserReportResourceConstructor from '../../apiResources/userReport';
+import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
+import ContentReportResourceConstructor from '../../apiResources/contentReport';
 
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const UserReportResource = new UserReportResourceConstructor(coreApp);
@@ -606,7 +606,7 @@ function showLearnerItemDetails(store, classId, userId, channelId, contentId,
 }
 
 
-module.exports = {
+export {
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnersForItem,

@@ -46,7 +46,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'coreModal',
     $trs: {
       // error alerts

@@ -1,4 +1,4 @@
-const { Resource } = require('../api-resource');
+import { Resource } from '../api-resource';
 
 /**
  * Provides the number of files and their total size for a given Channel
@@ -6,7 +6,7 @@ const { Resource } = require('../api-resource');
  * @example <caption>Get the file summary for a Channel</caption>
  * FileSummaryResource.getCollection({ channel_id: channelId })
  */
-class FileSummaryResource extends Resource {
+export default class FileSummaryResource extends Resource {
   static resourceName() {
     return 'filesummary';
   }
@@ -17,5 +17,3 @@ class FileSummaryResource extends Resource {
     ];
   }
 }
-
-module.exports = FileSummaryResource;

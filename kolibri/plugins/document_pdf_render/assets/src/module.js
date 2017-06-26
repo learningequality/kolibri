@@ -1,6 +1,6 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const PDFComponent = require('./views/index');
+import ContentRendererModule from 'content_renderer_module';
+import PDFComponent from './views/index';
 
 class DocumentPDFModule extends ContentRendererModule {
   get rendererComponent() {
@@ -8,4 +8,6 @@ class DocumentPDFModule extends ContentRendererModule {
   }
 }
 
-module.exports = new DocumentPDFModule();
+const documentPDFModule = new DocumentPDFModule();
+
+export { documentPDFModule as default };

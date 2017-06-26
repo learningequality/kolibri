@@ -59,7 +59,11 @@
 
 <script>
 
-  module.exports = {
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     $trNameSpace: 'examRow',
     $trs: {
       change: 'Change',
@@ -71,31 +75,31 @@
       delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
-      nobody: 'Nobody',
+      nobody: 'Nobody'
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      uiButton,
+      uiIcon,
+      uiIconButton,
+      uiMenu
     },
     props: {
       examId: {
         type: String,
-        required: true,
+        required: true
       },
       examTitle: {
         type: String,
-        required: true,
+        required: true
       },
       examActive: {
         type: Boolean,
-        required: true,
+        required: true
       },
       examVisibility: {
         type: Object,
-        required: true,
-      },
+        required: true
+      }
     },
     computed: {
       visibilityString() {
@@ -111,9 +115,9 @@
           { label: this.$tr('previewExam') },
           { label: this.$tr('viewReport') },
           { label: this.$tr('rename') },
-          { label: this.$tr('delete') },
+          { label: this.$tr('delete') }
         ];
-      },
+      }
     },
     methods: {
       emitChangeExamVisibility() {
@@ -148,8 +152,8 @@
         } else if (action === this.$tr('delete')) {
           this.emitDeleteExam();
         }
-      },
-    },
+      }
+    }
   };
 
 </script>

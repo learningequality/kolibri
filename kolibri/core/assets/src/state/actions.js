@@ -1,17 +1,18 @@
+import cookiejs from 'js-cookie';
+import * as getters from 'kolibri.coreVue.vuex.getters';
+import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
+import {
+  MasteryLoggingMap,
+  AttemptLoggingMap,
+  InteractionTypes,
+  LoginErrors,
+} from '../constants';
+import { getDefaultChannelId } from 'kolibri.coreVue.vuex.getters';
+import { getLogger } from 'kolibri.lib.logging';
+import { now } from 'kolibri.utils.serverClock';
+import intervalTimer from '../timer';
 
-const cookiejs = require('js-cookie');
-const getters = require('kolibri.coreVue.vuex.getters');
-const CoreMappers = require('kolibri.coreVue.vuex.mappers');
-const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
-const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
-const InteractionTypes = require('../constants').InteractionTypes;
-const LoginErrors = require('../constants').LoginErrors;
-const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
-const logging = require('kolibri.lib.logging').getLogger(__filename);
-const { now } = require('kolibri.utils.serverClock');
-
-const intervalTimer = require('../timer');
-
+const logging = getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
@@ -722,7 +723,7 @@ function fetchPoints(store) {
   }
 }
 
-module.exports = {
+export {
   handleError,
   handleApiError,
   kolibriLogin,

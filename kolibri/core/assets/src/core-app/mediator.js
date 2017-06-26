@@ -5,15 +5,17 @@
  */
 
 
-const Vue = require('vue');
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import Vue from 'vue';
+import { getLogger } from 'kolibri.lib.logging';
+
+const logging = getLogger(__filename);
 
 /**
  * @constructor
  * @classdesc The Mediator class - registers and loads kolibri_modules and acts as
  * a global event dispatcher.
  */
-module.exports = class Mediator {
+export default class Mediator {
   constructor() {
     /**
      * Keep track of all registered kolibri_modules - object is of form:

@@ -17,53 +17,52 @@
 
 <script>
 
-  const orderBy = require('lodash/orderBy');
-  const PageNames = require('../../constants').PageNames;
-
-
-  module.exports = {
+  import orderBy from 'lodash/orderBy';
+  import { PageNames } from '../../constants';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     $trNameSpace: 'classSelector',
     $trs: {
       allClasses: 'All classes',
-      selectClass: 'Class',
+      selectClass: 'Class'
     },
     components: {
-      'ui-select': require('keen-ui/src/UiSelect'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
+      uiSelect,
+      uiIcon
     },
     props: {
       classes: {
         type: Array,
-        required: true,
+        required: true
       },
       currentClassId: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     computed: {
       sortedClasses() {
-        return orderBy(
-          this.classes,
-          [classroom => classroom.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       classOptions() {
-        return this.sortedClasses.map(classroom => ({ label: classroom.name, id: classroom.id }));
+        return this.sortedClasses.map(classroom => ({
+          label: classroom.name,
+          id: classroom.id
+        }));
       },
       currentClass() {
         return this.classOptions.find(classroom => classroom.id === this.currentClassId);
       },
       classListPage() {
         return { name: PageNames.CLASS_LIST };
-      },
+      }
     },
     methods: {
       changeClass(classSelected) {
         this.$emit('changeClass', classSelected.id);
-      },
-    },
+      }
+    }
   };
 
 </script>

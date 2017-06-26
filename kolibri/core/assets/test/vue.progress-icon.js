@@ -3,11 +3,11 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-const Vue = require('vue-test');
-const progressIcon = require('../src/views/progress-icon');
+import Vue from 'vue-test';
+import progressIcon from '../src/views/progress-icon';
 
 const ProgressIconComponent = Vue.extend(progressIcon);
-const assert = require('assert');
+import assert from 'assert';
 
 describe('progressIcon Component', function () {
   describe('computed property', function () {

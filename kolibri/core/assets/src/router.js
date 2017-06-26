@@ -1,7 +1,7 @@
 
-const VueRouter = require('vue-router');
+import VueRouter from 'vue-router';
 
-const Vue = require('vue');
+import Vue from 'vue';
 
 Vue.use(VueRouter);
 
@@ -44,4 +44,6 @@ class Router {
   }
 }
 
-module.exports = new Router();
+const router = new Router();
+
+export { router as default };

@@ -8,30 +8,27 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
-  const PageModes = require('../../constants').PageModes;
-  const getters = require('../../state/getters');
-  const { getCurrentChannelObject } = require('kolibri.coreVue.vuex.getters');
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import { PageModes } from '../../constants';
+  import * as getters from '../../state/getters';
+  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  export default {
     $trNameSpace: 'learnBreadcrumbs',
-    $trs: {
-      recommended: 'Recommended',
-    },
-    components: {
-      breadcrumbs: require('kolibri.coreVue.components.breadcrumbs'),
-    },
+    $trs: { recommended: 'Recommended' },
+    components: { breadcrumbs },
     computed: {
       inLearn() {
         return this.pageMode === PageModes.LEARN;
       },
       learnRootLink() {
-        return {
-          name: PageNames.LEARN_CHANNEL,
-        };
+        return { name: PageNames.LEARN_CHANNEL };
       },
       learnBreadcrumbs() {
-        const crumbs = [{ text: this.$tr('recommended'), link: this.learnRootLink }];
+        const crumbs = [{
+            text: this.$tr('recommended'),
+            link: this.learnRootLink
+          }];
         if (this.pageName === PageNames.LEARN_CONTENT) {
           crumbs.push({ text: this.contentTitle });
         }
@@ -44,27 +41,30 @@
         return this.pageName === PageNames.EXPLORE_CHANNEL;
       },
       exploreRootLink() {
-        return {
-          name: PageNames.EXPLORE_CHANNEL,
-        };
+        return { name: PageNames.EXPLORE_CHANNEL };
       },
       exploreBreadcrumbs() {
-        const crumbs = [{ text: this.channelTitle, link: this.exploreRootLink }];
+        const crumbs = [{
+            text: this.channelTitle,
+            link: this.exploreRootLink
+          }];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          this.contentCrumbs.forEach(
-            crumb => crumbs.push({ text: crumb.title, link: this.topicLink(crumb.id) })
-          );
+          this.contentCrumbs.forEach(crumb => crumbs.push({
+            text: crumb.title,
+            link: this.topicLink(crumb.id)
+          }));
           crumbs.push({ text: this.contentTitle });
         } else {
-          this.topicCrumbs.forEach(
-            crumb => crumbs.push({ text: crumb.title, link: this.topicLink(crumb.id) })
-          );
+          this.topicCrumbs.forEach(crumb => crumbs.push({
+            text: crumb.title,
+            link: this.topicLink(crumb.id)
+          }));
           if (!this.inExploreRoot) {
             crumbs.push({ text: this.topicTitle });
           }
         }
         return crumbs;
-      },
+      }
     },
     methods: {
       topicLink(topicId) {
@@ -72,10 +72,10 @@
           name: PageNames.EXPLORE_TOPIC,
           params: {
             channel_id: this.channelId,
-            id: topicId,
-          },
+            id: topicId
+          }
         };
-      },
+      }
     },
     vuex: {
       getters: {
@@ -86,9 +86,9 @@
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
         contentTitle: state => state.pageState.content.title,
-        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
-      },
-    },
+        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || []
+      }
+    }
   };
 
 </script>

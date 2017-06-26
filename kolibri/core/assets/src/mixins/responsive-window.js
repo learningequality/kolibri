@@ -6,7 +6,7 @@
 
     <script>
 
-      const responsiveWindow = require('./responsive-window-mixin.js')
+      import responsiveWindow from './responsive-window-mixin.js';
 
       export default {
         mixins: [responsiveWindow],
@@ -126,7 +126,7 @@ function windowMetrics() {
   };
 }
 
-const throttle = require('frame-throttle').throttle;
+import { throttle } from 'frame-throttle';
 
 const windowResizeHandler = throttle((e) => {
   const metrics = windowMetrics();
@@ -156,7 +156,7 @@ windowResizeHandler(); // call it once initially
 
 /* export mixin */
 
-module.exports = {
+export default {
   data() {
     return {
       // becomes available for use

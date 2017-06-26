@@ -12,151 +12,104 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-module.exports = {
-  keys: [
-    'module', // Require statement for the module.
-  ],
+import logging from '../logging';
+import vue from 'vue';
+import vuex from 'vuex';
+import conditionalPromise from '../conditionalPromise';
+import * as apiResource from '../api-resource';
+import seededshuffle from 'seededshuffle';
+import * as constants from '../constants';
+import * as getters from '../state/getters';
+import * as actions from '../state/actions';
+import * as store from '../state/store';
+import * as mappers from '../state/mappers';
+import contentRenderer from '../views/content-renderer';
+import exerciseAttempts from '../views/exercise-attempts';
+import downloadButton from '../views/content-renderer/download-button';
+import loadingSpinner from '../views/loading-spinner';
+import progressBar from '../views/progress-bar';
+import contentIcon from '../views/content-icon';
+import progressIcon from '../views/progress-icon';
+import coreBase from '../views/core-base';
+import coreModal from '../views/core-modal';
+import navBar from '../views/nav-bar';
+import iconButton from '../views/icon-button';
+import textbox from '../views/textbox';
+import dropdownMenu from '../views/dropdown-menu';
+import tabs from '../views/tabs';
+import tabLink from '../views/tab-link';
+import tabButton from '../views/tab-button';
+import logo from '../views/logo';
+import immersiveFullScreen from '../views/immersive-full-screen';
+import elapsedTime from '../views/elapsed-time';
+import pointsIcon from '../views/points-icon';
+import authMessage from '../views/auth-message';
+import breadcrumbs from '../views/breadcrumbs';
+import router from '../router';
+import responsiveWindow from '../mixins/responsive-window';
+import responsiveElement from '../mixins/responsive-element';
+import theme from '../styles/core-theme.styl';
+import definitions from '../styles/definitions.styl';
+import keenVars from '../keen-config/variables.scss';
+import * as exams from '../exams/utils';
+import validateLinkObject from '../validateLinkObject';
+import * as serverClock from '../serverClock';
 
-  apiSpec: {
-    lib: {
-      logging: {
-        module: require('../logging'),
-      },
-      vue: {
-        module: require('vue'),
-      },
-      vuex: {
-        module: require('vuex'),
-      },
-      conditionalPromise: {
-        module: require('../conditionalPromise'),
-      },
-      apiResource: {
-        module: require('../api-resource'),
-      },
-      seededshuffle: {
-        module: require('seededshuffle'),
-      },
+export default {
+  lib: {
+    logging,
+    vue,
+    vuex,
+    conditionalPromise,
+    apiResource,
+    seededshuffle,
+  },
+  coreVue: {
+    vuex: {
+      constants,
+      getters,
+      actions,
+      store,
+      mappers,
     },
-    coreVue: {
-      vuex: {
-        constants: {
-          module: require('../constants'),
-        },
-        getters: {
-          module: require('../state/getters'),
-        },
-        actions: {
-          module: require('../state/actions'),
-        },
-        store: {
-          module: require('../state/store'),
-        },
-        mappers: {
-          module: require('../state/mappers'),
-        },
-      },
-      components: {
-        contentRenderer: {
-          module: require('../views/content-renderer'),
-        },
-        exerciseAttempts: {
-          module: require('../views/exercise-attempts'),
-        },
-        downloadButton: {
-          module: require('../views/content-renderer/download-button'),
-        },
-        loadingSpinner: {
-          module: require('../views/loading-spinner'),
-        },
-        progressBar: {
-          module: require('../views/progress-bar'),
-        },
-        contentIcon: {
-          module: require('../views/content-icon'),
-        },
-        progressIcon: {
-          module: require('../views/progress-icon'),
-        },
-        coreBase: {
-          module: require('../views/core-base'),
-        },
-        coreModal: {
-          module: require('../views/core-modal'),
-        },
-        navBar: {
-          module: require('../views/nav-bar'),
-        },
-        iconButton: {
-          module: require('../views/icon-button'),
-        },
-        textbox: {
-          module: require('../views/textbox'),
-        },
-        dropdownMenu: {
-          module: require('../views/dropdown-menu'),
-        },
-        tabs: {
-          module: require('../views/tabs'),
-        },
-        tabLink: {
-          module: require('../views/tab-link'),
-        },
-        tabButton: {
-          module: require('../views/tab-button'),
-        },
-        logo: {
-          module: require('../views/logo'),
-        },
-        immersiveFullScreen: {
-          module: require('../views/immersive-full-screen'),
-        },
-        elapsedTime: {
-          module: require('../views/elapsed-time'),
-        },
-        pointsIcon: {
-          module: require('../views/points-icon'),
-        },
-        authMessage: {
-          module: require('../views/auth-message'),
-        },
-        breadcrumbs: {
-          module: require('../views/breadcrumbs'),
-        },
-      },
-      router: {
-        module: require('../router'),
-      },
-      mixins: {
-        responsiveWindow: {
-          module: require('../mixins/responsive-window'),
-        },
-        responsiveElement: {
-          module: require('../mixins/responsive-element'),
-        },
-      },
+    components: {
+      contentRenderer,
+      exerciseAttempts,
+      downloadButton,
+      loadingSpinner,
+      progressBar,
+      contentIcon,
+      progressIcon,
+      coreBase,
+      coreModal,
+      navBar,
+      iconButton,
+      textbox,
+      dropdownMenu,
+      tabs,
+      tabLink,
+      tabButton,
+      logo,
+      immersiveFullScreen,
+      elapsedTime,
+      pointsIcon,
+      authMessage,
+      breadcrumbs,
     },
-    styles: {
-      theme: {
-        module: require('../styles/core-theme.styl'),
-      },
-      definitions: {
-        module: require('../styles/definitions.styl'),
-      },
-      keenVars: {
-        module: require('../keen-config/variables.scss'),
-      },
+    router,
+    mixins: {
+      responsiveWindow,
+      responsiveElement,
     },
-    utils: {
-      exams: {
-        module: require('../exams/utils'),
-      },
-      validateLinkObject: {
-        module: require('../validateLinkObject'),
-      },
-      serverClock: {
-        module: require('../serverClock'),
-      },
-    },
+  },
+  styles: {
+    theme,
+    definitions,
+    keenVars,
+  },
+  utils: {
+    exams,
+    validateLinkObject,
+    serverClock,
   },
 };

@@ -36,16 +36,18 @@
 
 <script>
 
-  module.exports = {
+  import modal from 'kolibri.coreVue.components.coreModal';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     components: {
-      'modal': require('kolibri.coreVue.components.coreModal'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      modal,
+      uiButton
     },
     props: {
       channelTitle: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     methods: {
       handleClickCancel() {
@@ -53,7 +55,7 @@
       },
       handleClickConfirm() {
         this.$emit('confirm');
-      },
+      }
     },
     $trNameSpace: 'deleteChannelModal',
     $trs: {
@@ -62,8 +64,8 @@
       restorationInstructions: 'To restore this channel, you will need to re-import it from the internet or a storage device',
       title: 'Delete channel',
       cancelButtonLabel: 'Cancel',
-      confirmButtonLabel: 'Confirm',
-    },
+      confirmButtonLabel: 'Confirm'
+    }
   };
 
 </script>

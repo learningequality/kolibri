@@ -7,6 +7,6 @@ const PageNames = {
   PROFILE: 'PROFILE',
 };
 
-module.exports = {
+export {
   PageNames,
 };

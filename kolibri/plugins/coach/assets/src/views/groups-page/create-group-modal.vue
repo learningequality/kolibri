@@ -29,43 +29,44 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'createGroupModal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
-      duplicateName: 'A group with that name already exists',
+      duplicateName: 'A group with that name already exists'
     },
     data() {
       return {
         groupNameInput: '',
-        invalid: false,
+        invalid: false
       };
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'textbox': require('kolibri.coreVue.components.textbox'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      textbox,
+      iconButton
     },
     props: {
       groups: {
         type: Array,
-        required: true,
-      },
+        required: true
+      }
     },
     computed: {
       duplicateName() {
-        const index = this.groups.findIndex(
-          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
+        const index = this.groups.findIndex(group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
         if (index === -1) {
           return false;
         }
         return true;
-      },
+      }
     },
     methods: {
       callCreateGroup() {
@@ -75,14 +76,14 @@
       },
       close() {
         this.displayModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         displayModal: groupActions.displayModal,
-        createGroup: groupActions.createGroup,
-      },
-    },
+        createGroup: groupActions.createGroup
+      }
+    }
   };
 
 </script>

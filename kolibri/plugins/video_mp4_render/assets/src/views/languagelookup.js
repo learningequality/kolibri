@@ -2,7 +2,7 @@
 // Pulled from le-utils
 // https://github.com/learningequality/le-utils/blob/master/le_utils/resources/languagelookup.json
 
-module.exports = {
+export default {
   "ab":{
     "name":"Abkhaz",
     "native_name":"аҧсуа"

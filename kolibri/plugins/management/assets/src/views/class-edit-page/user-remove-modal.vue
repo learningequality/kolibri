@@ -35,63 +35,54 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
+  import * as actions from '../../state/actions';
   function bold(stringToBold) {
-    return `<strong v-html> ${stringToBold} </strong>`;
+    return `<strong v-html> ${ stringToBold } </strong>`;
   }
-
-  module.exports = {
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  export default {
     $trNameSpace: 'userRemoveModal',
     $trs: {
       modalTitle: 'Remove User from Class',
       remove: 'Remove from Class',
       cancel: 'Cancel',
-      // confirmation messages
       deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
       accessReassurance: 'You can still access this account from { sectionTabName }',
-      usersTab: 'Users',
+      usersTab: 'Users'
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      iconButton,
+      coreModal
     },
     props: {
       classname: {
         type: String,
-        required: true,
+        required: true
       },
       username: {
         type: String,
-        required: true,
+        required: true
       },
       classid: {
         type: String,
-        required: true,
+        required: true
       },
       userid: {
         type: String,
-        required: true,
-      },
+        required: true
+      }
     },
     computed: {
       formattedDeleteConfirmation() {
-        return this.$tr(
-          'deleteConfirmation',
-          {
-            username: bold(this.username),
-            classname: bold(this.classname),
-          }
-        );
+        return this.$tr('deleteConfirmation', {
+          username: bold(this.username),
+          classname: bold(this.classname)
+        });
       },
       formattedAccessReassuranceConfirmation() {
-        return this.$tr(
-          'accessReassurance',
-          {
-            sectionTabName: bold(this.$tr('usersTab')),
-          }
-        );
-      },
+        return this.$tr('accessReassurance', { sectionTabName: bold(this.$tr('usersTab')) });
+      }
     },
     methods: {
       userRemove() {
@@ -99,14 +90,14 @@
       },
       close() {
         this.displayModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         removeClassUser: actions.removeClassUser,
-        displayModal: actions.displayModal,
-      },
-    },
+        displayModal: actions.displayModal
+      }
+    }
   };
 
 </script>

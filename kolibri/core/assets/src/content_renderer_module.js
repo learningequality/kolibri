@@ -1,6 +1,6 @@
-const KolibriModule = require('kolibri_module');
+import KolibriModule from 'kolibri_module';
 
-module.exports = class ContentRenderer extends KolibriModule {
+export default class ContentRenderer extends KolibriModule {
   get rendererComponent() {
     return null;
   }

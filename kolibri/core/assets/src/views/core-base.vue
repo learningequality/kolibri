@@ -32,44 +32,43 @@
 
 <script>
 
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const values = require('lodash/values');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   const PADDING = 16;
-
-  module.exports = {
+  import appBar from './app-bar';
+  import navBar from 'kolibri.coreVue.components.navBar';
+  import errorBox from './error-box';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  export default {
     mixins: [responsiveWindow],
     props: {
-      // This prop breaks the separation between core and plugins.
-      // It's being used as a work-around until plugins have a way
-      // of registering components to be added to the nav bar.
       topLevelPageName: {
         type: String,
         validator(value) {
           if (!value) {
-            return true; // Okay if it's undefined
+            return true;
           }
           return values(TopLevelPageNames).includes(value);
-        },
+        }
       },
       appBarTitle: {
         type: String,
-        required: false,
-      },
+        required: false
+      }
     },
     components: {
-      'app-bar': require('./app-bar'),
-      'nav-bar': require('kolibri.coreVue.components.navBar'),
-      'error-box': require('./error-box'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      appBar,
+      navBar,
+      errorBox,
+      loadingSpinner
     },
     vuex: {
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
-        title: state => state.core.title,
-      },
+        title: state => state.core.title
+      }
     },
     watch: {
       title(newVal, oldVal) {
@@ -77,20 +76,16 @@
       },
       'windowSize.breakpoint': function updateNav(newVal, oldVal) {
         if (oldVal === 4 && newVal === 5) {
-          // Pop out the nav if transitioning from 4 to 5
           this.navShown = true;
         } else if (oldVal === 2 && newVal === 1) {
-          // Pop in the nav if transitioning from 2 to 1
           this.navShown = false;
         }
-      },
+      }
     },
-    data: () => ({
-      navShown: false,
-    }),
+    data: () => ({ navShown: false }),
     methods: {
       updateDocumentTitle(newTitle) {
-        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+        document.title = this.title ? `${ this.title } - Kolibri` : 'Kolibri';
       }
     },
     computed: {
@@ -104,20 +99,20 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
+        return this.mobile ? {} : { paddingLeft: `${ this.navWidth + PADDING }px` };
       },
       contentStyle() {
-        const style = { top: `${this.headerHeight}px` };
-        style.left = this.mobile ? 0 : `${this.navWidth}px`;
+        const style = { top: `${ this.headerHeight }px` };
+        style.left = this.mobile ? 0 : `${ this.navWidth }px`;
         return style;
-      },
+      }
     },
     mounted() {
       this.updateDocumentTitle(this.title);
       if (this.mobile) {
         this.navShown = false;
       }
-    },
+    }
   };
 
 </script>

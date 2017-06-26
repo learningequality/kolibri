@@ -67,12 +67,19 @@
 
 <script>
 
-  const CoreConstants = require('kolibri.coreVue.vuex.constants');
-  const CoachConstants = require('../../constants');
-  const reportGetters = require('../../state/getters/reports');
-  const ReportConstants = require('../../reportConstants');
-
-  module.exports = {
+  import CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import * as CoachConstants from '../../constants';
+  import * as reportGetters from '../../state/getters/reports';
+  import * as ReportConstants from '../../reportConstants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import breadcrumbs from './breadcrumbs';
+  import reportTable from './report-table';
+  import reportSubheading from './report-subheading';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import progressCell from './table-cells/progress-cell';
+  import activityCell from './table-cells/activity-cell';
+  export default {
     $trNameSpace: 'learnerReportPage',
     $trs: {
       name: 'Name',
@@ -81,17 +88,17 @@
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}'
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'breadcrumbs': require('./breadcrumbs'),
-      'report-table': require('./report-table'),
-      'report-subheading': require('./report-subheading'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'progress-cell': require('./table-cells/progress-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
+      contentIcon,
+      breadcrumbs,
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      progressCell,
+      activityCell
     },
     computed: {
       isExercisePage() {
@@ -102,21 +109,19 @@
       },
       TableColumns() {
         return ReportConstants.TableColumns;
-      },
+      }
     },
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
-          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM ?
-            CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT :
-            CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
+          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
           return {
             name: targetName,
             params: {
               classId: this.classId,
               userId: row.id,
               channelId: this.pageState.channelId,
-              contentId: this.pageState.contentScopeSummary.id,
+              contentId: this.pageState.contentScopeSummary.id
             }
           };
         } else if (this.isRootLearnerPage) {
@@ -124,12 +129,12 @@
             name: CoachConstants.PageNames.LEARNER_CHANNELS,
             params: {
               classId: this.classId,
-              userId: row.id,
+              userId: row.id
             }
           };
         }
         return undefined;
-      },
+      }
     },
     vuex: {
       getters: {
@@ -138,9 +143,9 @@
         pageName: state => state.pageName,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable,
-      },
-    },
+        standardDataTable: reportGetters.standardDataTable
+      }
+    }
   };
 
 </script>

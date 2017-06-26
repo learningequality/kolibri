@@ -1,7 +1,7 @@
 /**
  * Conditional Promise
  */
-class ConditionalPromise {
+export default class ConditionalPromise {
   /**
    * Create a conditional promise - like a promise, but with an additional method 'only'
    * that allows for chaining resolve/reject handlers that will only be called if a
@@ -52,5 +52,3 @@ class ConditionalPromise {
     return conditionalPromise;
   }
 }
-
-module.exports = ConditionalPromise;

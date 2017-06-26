@@ -1,4 +1,4 @@
-const { currentUserId } = require('kolibri.coreVue.vuex.getters');
+import { currentUserId } from 'kolibri.coreVue.vuex.getters';
 const { MembershipResource } = require('kolibri').resources;
 
 // prepares state that is used for all pages in 'learn' plugin/app
@@ -19,4 +19,4 @@ function prepareLearnApp(store) {
   });
 }
 
-module.exports = prepareLearnApp;
+export { prepareLearnApp as default };

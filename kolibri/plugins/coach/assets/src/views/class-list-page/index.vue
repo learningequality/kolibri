@@ -36,10 +36,10 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const orderBy = require('lodash/orderBy');
+  import * as constants from '../../constants';
+  import orderBy from 'lodash/orderBy';
 
-  module.exports = {
+  export default {
     data: () => ({
       currentClassDelete: null,
     }),

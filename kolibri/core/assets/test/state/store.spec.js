@@ -1,14 +1,13 @@
 /* eslint-env mocha */
-const Vue = require('vue');
-const Vuex = require('vuex');
-const assert = require('assert');
-const _ = require('lodash');
-const s = require('../../src/state/store');
-const getters = require('../../src/state/getters');
-const constants = require('../../src/constants');
-const coreActions = require('../../src/state/actions');
-const kolibri = require('kolibri');
-const sinon = require('sinon');
+import Vue from 'vue';
+import Vuex from 'vuex';
+import assert from 'assert';
+import _ from 'lodash';
+import s from '../../src/state/store';
+import getters from '../../src/state/getters';
+import coreActions from '../../src/state/actions';
+import kolibri from 'kolibri';
+import sinon from 'sinon';
 
 Vue.use(Vuex);
 

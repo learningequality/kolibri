@@ -72,17 +72,17 @@
 
 <script>
 
-  const CoreConstants = require('kolibri.coreVue.vuex.constants');
-
-  module.exports = {
+  import CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import progressBar from 'kolibri.coreVue.components.progressBar';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  export default {
     $trNameSpace: 'reportSummary',
     $trs: {
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',
       na: '-',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
       mastered: 'Completed',
       watched: 'Watched',
       listened: 'Listened',
@@ -91,67 +91,67 @@
       notStarted: 'Not started',
       notWatched: 'Not watched',
       notListened: 'Not listened',
-      notViewed: 'Not viewed',
+      notViewed: 'Not viewed'
     },
     components: {
-      'progress-bar': require('kolibri.coreVue.components.progressBar'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+      progressBar,
+      progressIcon
     },
     computed: {
       lastActiveDate() {
         if (this.lastActive) {
           return this.$tr('lastActiveText', [new Date(this.lastActive)]);
         }
-        return '–';
+        return '\u2013';
       },
       Kinds() {
         return CoreConstants.ContentNodeKinds;
       },
       isInProgress() {
-        return (this.contentProgress > 0) && (this.contentProgress < 1);
+        return this.contentProgress > 0 && this.contentProgress < 1;
       },
       isCompleted() {
         return this.contentProgress === 1;
-      },
+      }
     },
     props: {
       kind: {
         type: String,
-        required: true,
+        required: true
       },
       exerciseCount: {
         type: Number,
-        required: true,
+        required: true
       },
       exerciseProgress: {
         type: Number,
-        required: false,
+        required: false
       },
       contentCount: {
         type: Number,
-        required: true,
+        required: true
       },
       contentProgress: {
         type: Number,
-        required: false,
+        required: false
       },
       singleUser: {
         type: Boolean,
-        required: true,
+        required: true
       },
       userCount: {
         type: Number,
-        required: true,
+        required: true
       },
       completionCount: {
         type: Number,
-        required: false,
+        required: false
       },
       isRecentView: {
         type: Boolean,
-        required: true,
-      },
-    },
+        required: true
+      }
+    }
   };
 
 </script>

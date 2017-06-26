@@ -1,6 +1,6 @@
 
-const ReportConstants = require('../../reportConstants');
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
+import * as ReportConstants from '../../reportConstants';
+import CoreConstants from 'kolibri.coreVue.vuex.constants';
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
@@ -61,7 +61,7 @@ function genCompareFunc(sortColumn, sortOrder) {
 }
 
 
-module.exports = {
+export {
   calcProgress,
   genCompareFunc,
   onlyContent,

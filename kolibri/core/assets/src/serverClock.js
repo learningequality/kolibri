@@ -1,4 +1,6 @@
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import { getLogger } from 'kolibri.lib.logging';
+
+const logging = getLogger(__filename);
 
 // The currently known difference between server time and local clock time.
 let diff = 0;
@@ -16,7 +18,7 @@ function now() {
   return new Date(new Date().getTime() + diff);
 }
 
-module.exports = {
+export {
   now,
   setServerTime,
 };

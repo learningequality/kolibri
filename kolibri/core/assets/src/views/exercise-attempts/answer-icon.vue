@@ -11,7 +11,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     props: {
       answer: {
         type: String,

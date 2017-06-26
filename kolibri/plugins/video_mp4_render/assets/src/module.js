@@ -1,6 +1,6 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const VideoComponent = require('./views/index');
+import ContentRendererModule from 'content_renderer_module';
+import VideoComponent from './views/index';
 
 class VideoMP4Module extends ContentRendererModule {
   get rendererComponent() {
@@ -8,4 +8,6 @@ class VideoMP4Module extends ContentRendererModule {
   }
 }
 
-module.exports = new VideoMP4Module();
+const videoMP4Module = new VideoMP4Module();
+
+export { videoMP4Module as default };

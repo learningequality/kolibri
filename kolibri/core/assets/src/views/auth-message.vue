@@ -22,7 +22,7 @@
     'registeredUser'
   ];
 
-  module.exports = {
+  export default {
     props: {
       authorizedRole: {
         type: String,

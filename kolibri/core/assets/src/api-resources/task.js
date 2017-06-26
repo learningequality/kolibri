@@ -1,6 +1,6 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class TaskResource extends Resource {
+export default class TaskResource extends Resource {
   static resourceName() {
     return 'task';
   }
@@ -47,5 +47,3 @@ class TaskResource extends Resource {
     return this.urls[`${this.name}_cleartask`];
   }
 }
-
-module.exports = TaskResource;

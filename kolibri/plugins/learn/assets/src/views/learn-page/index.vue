@@ -35,10 +35,11 @@
 
 <script>
 
-  const { PageNames } = require('../../constants');
-  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import pageHeader from '../page-header';
+  import contentCardCarousel from '../content-card-carousel';
+  export default {
     $trNameSpace: 'learnPageIndex',
     $trs: {
       pageHeader: 'Recommended',
@@ -51,8 +52,8 @@
       allContentSectionHeader: 'All items',
     },
     components: {
-      'page-header': require('../page-header'),
-      'content-card-carousel': require('../content-card-carousel'),
+      pageHeader,
+      contentCardCarousel,
     },
     methods: {
       genLink(id, kind) {

@@ -70,7 +70,7 @@ const GroupModals = {
   MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
 
-module.exports = {
+export {
   PageNames,
   PageTitles,
   RecentReports,

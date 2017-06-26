@@ -44,9 +44,9 @@
 
 <script>
 
-  require('html5media/dist/api/1.1.8/html5media');
+  import 'html5media/dist/api/1.1.8/html5media';
 
-  module.exports = {
+  export default {
 
     props: [
       'defaultFile',

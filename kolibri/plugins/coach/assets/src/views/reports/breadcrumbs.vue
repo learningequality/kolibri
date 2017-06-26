@@ -7,18 +7,14 @@
 
 <script>
 
-  const find = require('lodash/find');
-  const CoachConstants = require('../../constants');
-  const coachGetters = require('../../state/getters/main');
-
-  module.exports = {
+  import find from 'lodash/find';
+  import * as CoachConstants from '../../constants';
+  import * as coachGetters from '../../state/getters/main';
+  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  export default {
     $trNameSpace: 'reportBreadcrumbs',
-    $trs: {
-      channels: 'Channels',
-    },
-    components: {
-      breadcrumbs: require('kolibri.coreVue.components.breadcrumbs'),
-    },
+    $trs: { channels: 'Channels' },
+    components: { breadcrumbs },
     computed: {
       channelTitle() {
         return find(this.channels, channel => channel.id === this.pageState.channelId).title;
@@ -39,12 +35,10 @@
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.classId },
-            },
+              params: { classId: this.classId }
+            }
           },
-          {
-            text: this.channelTitle
-          }
+          { text: this.channelTitle }
         ];
       },
       recentItemCrumbs() {
@@ -53,8 +47,8 @@
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
-              params: { classId: this.classId },
-            },
+              params: { classId: this.classId }
+            }
           },
           {
             text: this.channelTitle,
@@ -62,56 +56,47 @@
               name: CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
                 classId: this.classId,
-                channelId: this.pageState.channelId,
-              },
-            },
+                channelId: this.pageState.channelId
+              }
+            }
           },
-          {
-            text: this.pageState.contentScopeSummary.title
-          }
+          { text: this.pageState.contentScopeSummary.title }
         ];
       },
       topicCrumbs() {
         return [
-          // link to the root channels page
           {
             text: this.$tr('channels'),
             link: {
               name: CoachConstants.PageNames.TOPIC_CHANNELS,
-              params: { classId: this.classId },
-            },
+              params: { classId: this.classId }
+            }
           },
-          // links to each ancestor
           ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
             const breadcrumb = { text: item.title };
             if (index) {
-              // links to parent topics
               breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
                 params: {
                   classId: this.classId,
                   channelId: this.pageState.channelId,
-                  topicId: item.id,
-                },
+                  topicId: item.id
+                }
               };
             } else {
-              // link to channel root
               breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
                   classId: this.classId,
-                  channelId: this.pageState.channelId,
-                },
+                  channelId: this.pageState.channelId
+                }
               };
             }
             return breadcrumb;
           }),
-          // current item
-          {
-            text: this.pageState.contentScopeSummary.title
-          }
+          { text: this.pageState.contentScopeSummary.title }
         ];
-      },
+      }
     },
     vuex: {
       getters: {
@@ -119,9 +104,9 @@
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        isTopicPage: coachGetters.isTopicPage,
-      },
-    },
+        isTopicPage: coachGetters.isTopicPage
+      }
+    }
   };
 
 </script>

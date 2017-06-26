@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const roleSwitcherComponent = require('../../src/views/class-edit-page/role-switcher.vue');
+import Vue from 'vue-test';
+import assert from 'assert';
+import roleSwitcherComponent from '../../src/views/class-edit-page/role-switcher.vue';
 
 function makeWrapper(propsData) {
   const Ctor = Vue.extend(roleSwitcherComponent);

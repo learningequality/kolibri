@@ -21,26 +21,21 @@
 
 <script>
 
-  const { locale: GlobalLangCode } = require('kolibri.lib.vue');
-  const videojs = require('video.js');
-  const LangLookup = require('./languagelookup');
-  const customButtons = require('./videojs-replay-forward-btns');
-  const throttle = require('lodash/throttle');
-  const Lockr = require('lockr');
-  const ResponsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
+  import vue from 'kolibri.lib.vue';
+  import videojs from 'video.js';
+  import LangLookup from './languagelookup';
+  import * as customButtons from './videojs-replay-forward-btns';
+  import throttle from 'lodash/throttle';
+  import Lockr from 'lockr';
+  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
+  const GlobalLangCode = vue.locale;
 
-  module.exports = {
-
+  export default {
     $trNameSpace: 'videoRender',
-
     $trs: {
       replay: 'Go back 10 seconds',
-      forward: 'Go forward 10 seconds',
-    },
-
-    components: {
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      forward: 'Go forward 10 seconds'
     },
 
     mixins: [ResponsiveElement],
@@ -48,16 +43,11 @@
     props: {
       files: {
         type: Array,
-        required: true,
+        required: true
       },
-      supplementaryFiles: {
-        type: Array,
-      },
-      thumbnailFiles: {
-        type: Array,
-      },
+      supplementaryFiles: { type: Array },
+      thumbnailFiles: { type: Array }
     },
-
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,
@@ -68,30 +58,31 @@
       videoRate: 1.0,
       videoLang: GlobalLangCode,
     }),
-
     computed: {
       posterSource() {
-        const posterFileExtensions = ['png', 'jpg'];
-        const posterArray = this.thumbnailFiles.filter(
-          file => posterFileExtensions.some(ext => ext === file.extension));
+        const posterFileExtensions = [
+          'png',
+          'jpg'
+        ];
+        const posterArray = this.thumbnailFiles.filter(file => posterFileExtensions.some(ext => ext === file.extension));
         if (posterArray.length === 0) {
           return '';
         }
         return posterArray[0].storage_url;
       },
-
       videoSources() {
-        const videoFileExtensions = ['mp4', 'webm', 'ogg'];
+        const videoFileExtensions = [
+          'mp4',
+          'webm',
+          'ogg'
+        ];
         return this.files.filter(file => videoFileExtensions.some(ext => ext === file.extension));
       },
-
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        return this.supplementaryFiles.filter(
-          file => trackFileExtensions.some(ext => ext === file.extension));
-      },
+        return this.supplementaryFiles.filter(file => trackFileExtensions.some(ext => ext === file.extension));
+      }
     },
-
     methods: {
       getLangName(langCode) {
         if (LangLookup[langCode]) {
@@ -107,7 +98,6 @@
         }
         return false;
       },
-
       initPlayer() {
         const videojsConfig = {
           fluid: true,
@@ -134,16 +124,15 @@
               },
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
-              { name: 'fullscreenToggle' },
-            ],
-          },
+              { name: 'fullscreenToggle' }
+            ]
+          }
         };
         this.$nextTick(() => {
           this.videoPlayer = videojs(this.$refs.video, videojsConfig);
           this.videoPlayer.on('loadedmetadata', this.handleReadyPlayer);
         });
       },
-
       handleReadyPlayer() {
         this.videoPlayer.on('play', this.focusOnPlayControl);
         this.videoPlayer.on('pause', this.focusOnPlayControl);
@@ -162,14 +151,12 @@
         this.loading = false;
         this.$refs.video.tabIndex = -1;
       },
-
       resizeVideo() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
         const aspectRatio = 16 / 9;
         const adjustedHeight = wrapperWidth * (1 / aspectRatio);
-        this.$refs.wrapper.setAttribute('style', `height:${adjustedHeight}px`);
+        this.$refs.wrapper.setAttribute('style', `height:${ adjustedHeight }px`);
       },
-
       throttledResizeVideo: throttle(function resizeVideo() {
         this.resizeVideo();
       }, 300),
@@ -207,16 +194,11 @@
         const wrapper = this.$refs.wrapper;
         wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
-
-      /* Catches when a user jumps around/skips while playing the video */
       handleSeek() {
-        /* Record any progress up to this point */
         this.recordProgress();
-        /* Set last check to be where player is at now */
         this.dummyTime = this.videoPlayer.currentTime();
         this.lastUpdateTime = this.dummyTime;
       },
-
       updateTime() {
         this.dummyTime = this.videoPlayer.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
@@ -224,7 +206,6 @@
           this.lastUpdateTime = this.dummyTime;
         }
       },
-
       setPlayState(state) {
         this.recordProgress();
         if (state === true) {
@@ -233,11 +214,8 @@
           this.$emit('stopTracking');
         }
       },
-
       recordProgress() {
-        this.$emit('updateProgress', Math.max(0,
-          (this.dummyTime - this.progressStartingPoint) /
-          Math.floor(this.videoPlayer.duration())));
+        this.$emit('updateProgress', Math.max(0, (this.dummyTime - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
       updateVideoSizeClass() {
@@ -256,7 +234,6 @@
         }
       },
     },
-
     created() {
       customButtons.ReplayButton.prototype.controlText_ = this.$tr('replay');
       customButtons.ForwardButton.prototype.controlText_ = this.$tr('forward');
@@ -264,18 +241,16 @@
       videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
       this.videoLang = Lockr.get('videoLang') || this.videoLang;
     },
-
     mounted() {
       this.initPlayer();
       window.addEventListener('resize', this.throttledResizeVideo);
     },
-
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizeVideo);
       this.videoPlayer.dispose();
-    },
+    }
   };
 
 </script>

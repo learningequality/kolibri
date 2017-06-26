@@ -49,19 +49,21 @@
 
 <script>
 
-  const constants = require('../../../constants');
-
-  module.exports = {
+  import * as constants from '../../../constants';
+  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import attemptSummary from './attempt-summary';
+  import attemptLogList from '../../attempt-log-list';
+  import interactionList from '../../interaction-list';
+  export default {
     $trNameSpace: 'coachExerciseRenderPage',
-    $trs: {
-      backPrompt: 'Back to { backTitle }',
-    },
+    $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
-      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'attempt-summary': require('./attempt-summary'),
-      'attempt-log-list': require('../../attempt-log-list'),
-      'interaction-list': require('../../interaction-list'),
+      immersiveFullScreen,
+      contentRenderer,
+      attemptSummary,
+      attemptLogList,
+      interactionList
     },
     computed: {
       backPageLink() {
@@ -71,7 +73,7 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk,
+              contentId: this.exercise.pk
             }
           };
         }
@@ -81,7 +83,7 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk,
+              contentId: this.exercise.pk
             }
           };
         }
@@ -92,7 +94,7 @@
               classId: this.classId,
               channelId: this.channelId,
               userId: this.user.id,
-              topicId: this.parentTopic.pk,
+              topicId: this.parentTopic.pk
             }
           };
         }
@@ -106,7 +108,7 @@
       },
       parentTopic() {
         return this.exercise.ancestors[this.exercise.ancestors.length - 1];
-      },
+      }
     },
     methods: {
       navigateToNewAttempt(attemptLogIndex) {
@@ -117,8 +119,8 @@
             userId: this.user.id,
             contentId: this.exercise.pk,
             interactionIndex: 0,
-            attemptLogIndex,
-          },
+            attemptLogIndex
+          }
         });
       },
       navigateToNewInteraction(interactionIndex) {
@@ -129,14 +131,13 @@
             userId: this.user.id,
             contentId: this.exercise.pk,
             attemptLogIndex: this.attemptLogIndex,
-            interactionIndex,
-          },
+            interactionIndex
+          }
         });
-      },
+      }
     },
     vuex: {
       getters: {
-        // pageState: state => state.pageState,
         interactionIndex: state => state.pageState.interactionIndex,
         currentAttemptLog: state => state.pageState.currentAttemptLog,
         attemptLogs: state => state.pageState.attemptLogs,
@@ -148,9 +149,9 @@
         exercise: state => state.pageState.exercise,
         summaryLog: state => state.pageState.summaryLog,
         pageName: state => state.pageName,
-        attemptLogIndex: state => state.pageState.attemptLogIndex,
-      },
-    },
+        attemptLogIndex: state => state.pageState.attemptLogIndex
+      }
+    }
   };
 
 </script>

@@ -68,11 +68,11 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const actions = require('../../state/actions/exam');
-  const sumBy = require('lodash/sumBy');
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions/exam';
+  import sumBy from 'lodash/sumBy';
 
-  module.exports = {
+  export default {
     computed: {
       noExamData() {
         return this.examTakers.length === 0;

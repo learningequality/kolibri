@@ -1,5 +1,5 @@
-const constants = require('../../src/constants');
-const coreStore = require('kolibri.coreVue.vuex.store');
+import constants from '../../src/constants';
+import coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implementation of initialState used in testing
 const learnInitialState = {

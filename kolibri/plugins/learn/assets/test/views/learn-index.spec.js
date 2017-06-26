@@ -1,10 +1,10 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const VueRouter = require('vue-router');
-const assert = require('assert');
-const LearnIndex = require('../../src/views/index.vue');
-const makeStore = require('../util/makeStore');
-const coreBase = require('../util/core-base.vue');
+import Vue from 'vue-test';
+import VueRouter from 'vue-router';
+import assert from 'assert';
+import LearnIndex from '../../src/views/index.vue';
+import makeStore from '../util/makeStore';
+import coreBase from '../util/core-base.vue';
 
 const router = new VueRouter({
   routes: [

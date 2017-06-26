@@ -5,11 +5,10 @@
 */
 
 
-const every = require('lodash/every');
-const keys = require('lodash/keys');
+import every from 'lodash/every';
+import keys from 'lodash/keys';
 
-module.exports = function validateLinkObject(object) {
+export default function validateLinkObject(object) {
   const validKeys = ['name', 'path', 'params', 'query'];
   return every(keys(object), key => validKeys.includes(key));
 };
-

@@ -1,9 +1,9 @@
 /* eslint-disable prefer-arrow-callback */
 const { RoleResource, FacilityUserResource } = require('kolibri').resources;
 const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
-const { dispatchError, dispatchRoleChange } = require('./addCoachRoleAction');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
+import { dispatchError, dispatchRoleChange } from './addCoachRoleAction';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
 function deleteRoleFromUser(classId, userData) {

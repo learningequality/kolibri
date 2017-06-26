@@ -97,7 +97,7 @@ const LoginErrors = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
 };
 
-module.exports = {
+export {
   UserKinds,
   ContentNodeKinds,
   MasteryLoggingMap,

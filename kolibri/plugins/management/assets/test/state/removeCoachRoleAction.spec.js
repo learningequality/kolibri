@@ -1,13 +1,13 @@
 /* eslint-env mocha */
-const kolibri = require('kolibri');
-const sinon = require('sinon');
-const assert = require('assert');
+import kolibri from 'kolibri';
+import sinon from 'sinon';
+import assert from 'assert';
 
 // need to mock all this stuff before loading the module
 kolibri.resources.FacilityUserResource = { getModel: () => {} };
 kolibri.resources.RoleResource = { getModel: () => {} };
 
-const removeCoachRoleAction = require('../../src/state/removeCoachRoleAction').default;
+import { default as removeCoachRoleAction } from '../../src/state/removeCoachRoleAction';
 
 const fakeUser = {
   roles: [

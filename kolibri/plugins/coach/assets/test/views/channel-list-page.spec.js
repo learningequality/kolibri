@@ -1,11 +1,11 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const Vuex = require('vuex');
-const assert = require('assert');
-const _ = require('lodash');
-const sinon = require('sinon');
-const ChannelListPage = require('../../src/views/reports/channel-list-page');
-const ReportConstants = require('../../src/reportConstants');
+import Vue from 'vue-test';
+import Vuex from 'vuex';
+import assert from 'assert';
+import _ from 'lodash';
+import sinon from 'sinon';
+import ChannelListPage from '../../src/views/reports/channel-list-page';
+import ReportConstants from '../../src/reportConstants';
 
 const initialState = () => ({
   classId: '',

@@ -1,8 +1,8 @@
-const coreApp = require('kolibri');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const Constants = require('../../constants');
-const { setClassState } = require('./main');
+import coreApp from 'kolibri';
+import coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import * as Constants from '../../constants';
+import { setClassState } from './main';
 
 const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
 const MembershipResource = coreApp.resources.MembershipResource;
@@ -250,7 +250,7 @@ function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
 }
 
 
-module.exports = {
+export {
   displayModal,
   showGroupsPage,
   createGroup,

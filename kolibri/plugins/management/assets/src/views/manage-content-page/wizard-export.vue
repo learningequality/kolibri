@@ -47,11 +47,14 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const manageContentActions = require('../../state/manageContentActions');
-  const bytesForHumans = require('./bytesForHumans');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as manageContentActions from '../../state/manageContentActions';
+  import bytesForHumans from './bytesForHumans';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import driveList from './wizards/drive-list';
+  export default {
     $trNameSpace: 'wizardExport',
     $trs: {
       title: 'Export to a Local Drive',
@@ -59,32 +62,26 @@
       notWritable: 'Not writable',
       cancel: 'Cancel',
       export: 'Export',
-      refresh: 'Refresh',
+      refresh: 'Refresh'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'drive-list': require('./wizards/drive-list'),
+      coreModal,
+      iconButton,
+      loadingSpinner,
+      driveList
     },
-    data: () => ({
-      selectedDrive: '',
-    }),
+    data: () => ({ selectedDrive: '' }),
     computed: {
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
       canSubmit() {
-        return (
-          !this.drivesLoading &&
-          !this.wizardState.busy &&
-          this.selectedDrive !== ''
-        );
-      },
+        return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
+      }
     },
     methods: {
       formatEnabledMsg(drive) {
-        return `${this.$tr('available')} ${bytesForHumans(drive.freespace)}`;
+        return `${ this.$tr('available') } ${ bytesForHumans(drive.freespace) }`;
       },
       driveIsEnabled(drive) {
         return drive.writable;
@@ -101,17 +98,15 @@
       },
       selectDriveByID(driveID) {
         this.selectedDrive = driveID;
-      },
+      }
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
       actions: {
         transitionWizardPage: manageContentActions.transitionWizardPage,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-      },
-    },
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList
+      }
+    }
   };
 
 </script>

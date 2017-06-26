@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const kolibri = require('kolibri');
-const sinon = require('sinon');
-const actions = require('../../src/state/facilityConfigPageActions');
+import kolibri from 'kolibri';
+import sinon from 'sinon';
+import actions from '../../src/state/facilityConfigPageActions';
 
 const { resources, __resetMocks } = kolibri;
 const FacilityStub = resources.FacilityResource;

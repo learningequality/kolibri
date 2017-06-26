@@ -22,57 +22,56 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'renameExamModal',
     $trs: {
       renameExam: 'Rename exam',
       examName: 'Exam name',
       cancel: 'Cancel',
       rename: 'Rename',
-      duplicateTitle: 'An exam with that title already exists',
+      duplicateTitle: 'An exam with that title already exists'
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      coreModal,
+      iconButton,
+      coreTextbox
     },
     props: {
       examId: {
         type: String,
-        required: true,
+        required: true
       },
       examTitle: {
         type: String,
-        required: true,
+        required: true
       },
       classId: {
         type: String,
-        required: true,
+        required: true
       },
       exams: {
         type: Array,
-        required: true,
-      },
+        required: true
+      }
     },
     data() {
-      return {
-        newExamTitle: this.examTitle,
-      };
+      return { newExamTitle: this.examTitle };
     },
     computed: {
       duplicateTitle() {
         if (this.newExamTitle === this.examTitle) {
           return false;
         }
-        const index = this.exams.findIndex(
-          exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase());
+        const index = this.exams.findIndex(exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase());
         if (index === -1) {
           return false;
         }
         return true;
-      },
+      }
     },
     methods: {
       callRenameExam() {
@@ -82,14 +81,14 @@
       },
       close() {
         this.displayExamModal(false);
-      },
+      }
     },
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        renameExam: examActions.renameExam,
-      },
-    },
+        renameExam: examActions.renameExam
+      }
+    }
   };
 
 </script>

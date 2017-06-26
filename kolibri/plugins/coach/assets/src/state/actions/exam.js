@@ -1,14 +1,16 @@
-const CoreApp = require('kolibri');
-const pick = require('lodash/fp/pick');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const router = require('kolibri.coreVue.router');
-const CoreActions = require('kolibri.coreVue.vuex.actions');
-const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
-const Constants = require('../../constants');
-const { setClassState } = require('./main');
-const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
+import CoreApp from 'kolibri';
+import pick from 'lodash/fp/pick';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import router from 'kolibri.coreVue.router';
+import CoreActions from 'kolibri.coreVue.vuex.actions';
+import {
+  ContentNodeKinds,
+  CollectionKinds
+} from 'kolibri.coreVue.vuex.constants';
+import * as Constants from '../../constants';
+import { setClassState } from './main';
+import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
@@ -579,7 +581,7 @@ function showExamReportDetailPage(
   );
 }
 
-module.exports = {
+export {
   displayExamModal,
   showExamsPage,
   showCreateExamPage,

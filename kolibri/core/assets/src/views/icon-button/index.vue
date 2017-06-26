@@ -29,47 +29,43 @@
 
 <script>
 
-  module.exports = {
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
-      text: {
-        type: String,
-      },
+      text: { type: String },
       primary: {
         type: Boolean,
-        default: false,
+        default: false
       },
       disabled: {
         type: Boolean,
-        default: false,
+        default: false
       },
       showTextBelowIcon: {
         type: Boolean,
-        default: false,
+        default: false
       },
       size: {
         type: String,
-        default: 'normal',
+        default: 'normal'
       },
-      type: {
-        type: String,
-      },
+      type: { type: String },
       alignment: {
         type: String,
         default: 'left',
         required: false,
         validator(value) {
           return value === 'left' || value === 'right';
-        },
+        }
       },
       loading: {
         type: Boolean,
-        required: false,
-      },
+        required: false
+      }
     },
     computed: {
       hasIcon() {
-        // check if the parent passed anything into the slot
-        // $slots returns an empty object if nothing is passed in.
         return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
       alignLeft() {
@@ -77,12 +73,12 @@
       },
       alignRight() {
         return this.alignment === 'right';
-      },
+      }
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+      uiButton,
+      uiIcon
+    }
   };
 
 </script>

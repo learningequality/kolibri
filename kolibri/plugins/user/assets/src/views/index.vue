@@ -10,21 +10,22 @@
 
 <script>
 
-  const store = require('../state/store');
-  const PageNames = require('../constants').PageNames;
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-
-  module.exports = {
+  import store from '../state/store';
+  import { PageNames } from '../constants';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import signInPage from './sign-in-page';
+  import signUpPage from './sign-up-page';
+  import profilePage from './profile-page';
+  export default {
     $trNameSpace: 'userRoot',
-    $trs: {
-      userProfileTitle: 'Profile',
-    },
+    $trs: { userProfileTitle: 'Profile' },
     name: 'User-Plugin',
     components: {
-      'core-base': require('kolibri.coreVue.components.coreBase'),
-      'sign-in-page': require('./sign-in-page'),
-      'sign-up-page': require('./sign-up-page'),
-      'profile-page': require('./profile-page'),
+      coreBase,
+      signInPage,
+      signUpPage,
+      profilePage
     },
     computed: {
       appBarTitle() {
@@ -54,14 +55,10 @@
           return false;
         }
         return true;
-      },
+      }
     },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-      },
-    },
-    store, // make this and all child components aware of the store
+    vuex: { getters: { pageName: state => state.pageName } },
+    store
   };
 
 </script>

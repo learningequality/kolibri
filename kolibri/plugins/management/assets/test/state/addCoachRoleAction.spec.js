@@ -1,12 +1,12 @@
 /* eslint-env mocha */
-const kolibri = require('kolibri');
-const sinon = require('sinon');
-const assert = require('assert');
+import kolibri from 'kolibri';
+import sinon from 'sinon';
+import assert from 'assert';
 
 // need to mock all this stuff before loading the module
 kolibri.resources.RoleResource = { createModel: () => {} };
 
-const addCoachRoleAction = require('../../src/state/addCoachRoleAction').default;
+import { default as addCoachRoleAction } from '../../src/state/addCoachRoleAction';
 
 describe('addCoachRoleAction', () => {
   const storeMock = {

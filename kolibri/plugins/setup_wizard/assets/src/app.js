@@ -1,8 +1,8 @@
-const KolibriModule = require('kolibri_module');
+import KolibriModule from 'kolibri_module';
 
-const Vue = require('kolibri.lib.vue');
+import Vue from 'kolibri.lib.vue';
 
-const RootVue = require('./views');
+import RootVue from './views';
 
 
 class SetupWizardModule extends KolibriModule {
@@ -14,4 +14,6 @@ class SetupWizardModule extends KolibriModule {
   }
 }
 
-module.exports = new SetupWizardModule();
+const setupWizardModule = new SetupWizardModule();
+
+export { setupWizardModule as default };

@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-const assert = require('assert');
-const kolibri = require('kolibri');
-const sinon = require('sinon');
-const prepareLearnApp = require('../../src/state/prepareLearnApp');
-const makeStore = require('../util/makeStore');
+import assert from 'assert';
+import kolibri from 'kolibri';
+import sinon from 'sinon';
+import prepareLearnApp from '../../src/state/prepareLearnApp';
+import makeStore from '../util/makeStore';
 
 const { MembershipResource } = kolibri.resources;
 

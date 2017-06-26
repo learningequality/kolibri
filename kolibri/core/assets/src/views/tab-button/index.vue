@@ -23,37 +23,40 @@
 
 <script>
 
-  module.exports = {
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
       type: {
         type: String,
         validator(type) {
-          return ['title', 'icon', 'icon-and-title'].includes(type);
+          return [
+            'title',
+            'icon',
+            'icon-and-title'
+          ].includes(type);
         },
-        required: true,
+        required: true
       },
       title: {
         type: String,
-        required: false,
+        required: false
       },
       icon: {
         type: String,
-        required: false,
+        required: false
       },
       selected: {
         type: Boolean,
-        default: false,
-      },
+        default: false
+      }
     },
-    components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+    components: { uiIcon },
     methods: {
       handleClick() {
         this.$emit('click');
         this.$refs.tab.blur();
       }
-    },
+    }
   };
 
 </script>

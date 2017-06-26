@@ -1,5 +1,5 @@
-const Vue = require('vue');
-const coreStore = require('kolibri.coreVue.vuex.store');
+import Vue from 'vue';
+import coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implemenation of mutations used for testing
 const learnMutations = {

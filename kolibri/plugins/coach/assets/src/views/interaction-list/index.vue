@@ -25,31 +25,24 @@
 
 <script>
 
-  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-
-  module.exports = {
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import interactionItem from './interaction-item';
+  export default {
     mixins: [responsiveElement],
     $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
       questionHeader: 'Question {questionNumber, number} attempts',
-      noInteractions: 'No attempts made on this question',
+      noInteractions: 'No attempts made on this question'
     },
-    components: {
-      'interaction-item': require('./interaction-item'),
-    },
+    components: { interactionItem },
     props: {
       interactions: {
         type: Array,
-        required: true,
+        required: true
       },
-      selectedInteractionIndex: {
-        // default: 0,
-        // validate: TODO
-      },
-      attemptNumber: {
-        required: true,
-      },
+      selectedInteractionIndex: {},
+      attemptNumber: { required: true }
     },
     methods: {
       setCurrentInteractionIndex(index) {
@@ -57,8 +50,8 @@
       },
       isSelected(index) {
         return Number(this.selectedInteractionIndex) === index;
-      },
-    },
+      }
+    }
   };
 
 </script>

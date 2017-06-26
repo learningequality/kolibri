@@ -1,8 +1,8 @@
-const coreApp = require('kolibri');
+import coreApp from 'kolibri';
 
 const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
 const FacilityResource = coreApp.resources.FacilityResource;
-const coreActions = require('kolibri.coreVue.vuex.actions');
+import coreActions from 'kolibri.coreVue.vuex.actions';
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
   const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
@@ -18,7 +18,6 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
   );
 }
 
-
-module.exports = {
+export {
   createDeviceOwnerAndFacility,
 };
