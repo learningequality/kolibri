@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import pytest
+import os
 
 from kolibri.utils import cli
 
@@ -109,3 +110,26 @@ class TestKolibriCLI(KolibriTestBase):
                 assert docopt[k] == v
 
             assert django == django_expected
+
+    def test_kolibri_listen_port_env(self):
+        """
+        Starts and stops the server, mocking the actual server.start()
+        Checks that the correct fallback port is used from the environment.
+        """
+        test_port = 1234
+        # ENV VARS are always a string
+        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+
+        def start_mock(port, *args, **kwargs):
+            assert port == test_port
+
+        from kolibri.utils import server
+
+        orig_start = server.start
+
+        try:
+            server.start = start_mock
+            cli.start(daemon=False)
+            cli.stop(sys_exit=False)
+        finally:
+            server.start = orig_start

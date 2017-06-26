@@ -229,18 +229,16 @@ def start(port=None, daemon=True):
     update()
 
     if port is None:
-        port = os.environ['KOLIBRI_LISTEN_PORT']
+        try:
+            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
+        except ValueError:
+            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
+            raise
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
-
-    # TODO: moved from server.start() but not sure where it should ideally be
-    # located. Question is if it should be run every time the server is started
-    # or if it depends on some kind of state change.
-    from kolibri.content.utils.annotation import update_channel_metadata_cache
-    update_channel_metadata_cache()
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -258,7 +256,7 @@ def start(port=None, daemon=True):
     server.start(port=port)
 
 
-def stop():
+def stop(sys_exit=True):
     """
     Stops the server unless it isn't running
     """
@@ -293,7 +291,8 @@ def stop():
 
     if stopped:
         logger.info("Server stopped")
-        sys.exit(0)
+        if sys_exit:
+            sys.exit(0)
 
 
 def status():
@@ -552,7 +551,8 @@ def main(args=None):
         return
 
     if arguments['start']:
-        port = int(arguments['--port']) or None
+        port = arguments['--port']
+        port = int(port) if port else None
         start(port, daemon=not arguments['--foreground'])
         return
 
