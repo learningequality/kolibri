@@ -17,7 +17,11 @@
       @click="toggleDropdownSearchBox"
     />
 
-    <div v-show="showDropdownSearchBox && searchBoxOpen" class="backdrop" ></div>
+    <div
+      v-show="showDropdownSearchBox && searchBoxOpen"
+      class="backdrop"
+      @click="toggleDropdownSearchBox">
+    </div>
   </div>
 
 </template>
