@@ -2,13 +2,15 @@
 
   <div>
 
+    <h3>Search</h3>
+
     <search-box :width="'calc(100vw - 165px)'"/>
 
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
-      <h1>{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
-      <p>{{ $tr('withinChannel', { channelName }) }}</p>
+      <h1 class="search-results">{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
+      <p class="search-channel">{{ $tr('withinChannel', { channelName }) }}</p>
 
       <tabs>
         <tab-button
@@ -215,4 +217,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .search-results
+    margin-top: 32px
+
+  .search-channel
+    font-size: smaller
+
+</style>
