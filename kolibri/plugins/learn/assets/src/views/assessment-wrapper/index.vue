@@ -44,6 +44,7 @@ oriented data synchronization.
         @click="checkAnswer"
         class="question-btn check-answer-button"
         :class="{shaking: shake}"
+        :disabled="checkingAnswer"
       />
       <transition name="delay">
         <icon-button
@@ -146,6 +147,7 @@ oriented data synchronization.
       itemError: false,
       // Track whether a user has so far only taken hints
       onlyHinted: false,
+      checkingAnswer: false,
     }),
     methods: {
       updateAttemptLogMasteryLog({
@@ -175,9 +177,13 @@ oriented data synchronization.
         });
       },
       checkAnswer() {
-        const answer = this.$refs.contentRenderer.checkAnswer();
-        if (answer) {
-          this.answerGiven(answer);
+        if (!this.checkingAnswer) {
+          this.checkingAnswer = true;
+          const answer = this.$refs.contentRenderer.checkAnswer();
+          if (answer) {
+            this.answerGiven(answer);
+          }
+          this.checkingAnswer = false;
         }
       },
       answerGiven({ correct, answerState, simpleAnswer }) {
@@ -199,6 +205,7 @@ oriented data synchronization.
         });
         this.complete = correct === 1;
         if (this.firstAttempt) {
+          this.firstAttempt = false;
           this.updateAttemptLogMasteryLog({
             correct,
             complete: this.complete,
@@ -206,7 +213,6 @@ oriented data synchronization.
             simpleAnswer,
             firstAttempt: true,
           });
-          this.firstAttempt = false;
         } else {
           this.updateAttemptLogMasteryLog({
             complete: this.complete,
