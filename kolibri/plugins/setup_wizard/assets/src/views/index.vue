@@ -12,6 +12,10 @@
           {{ globalError }}
         </ui-alert>
 
+        <ui-alert type="info" remove-icon="true" :dismissible="false" v-if="submitted">
+          {{ $tr('setupProgressFeedback') }}
+        </ui-alert>
+
         <section class="setup-owner">
 
           <header>
@@ -73,7 +77,7 @@
         </section>
 
         <section class="setup-submission">
-          <icon-button :text="$tr('formSubmissionButton')" type="submit"/>
+          <icon-button :loading="submitted" :text="$tr('formSubmissionButton')" type="submit"/>
         </section>
       </form>
 
@@ -85,7 +89,7 @@
 
 <script>
 
-  import * as actions from '../state/actions';
+  import { createDeviceOwnerAndFacility } from '../state/actions';
   import store from '../state/store';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import iconButton from 'kolibri.coreVue.components.iconButton';
@@ -112,7 +116,9 @@
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
       cannotSubmitPageError: 'Please resolve all of the errors shown',
       genericPageError: 'Something went wrong',
+      setupProgressFeedback: 'Setting up your device...',
     },
+    name: 'setupWizard',
     data() {
       return {
         username: '',
@@ -161,7 +167,12 @@
         );
       },
       canSubmit() {
-        return this.passwordFieldsMatch && this.usernameValidityCheck && this.allFieldsPopulated;
+        return (
+          !this.submitted &&
+          this.passwordFieldsMatch &&
+          this.usernameValidityCheck &&
+          this.allFieldsPopulated
+        );
       },
     },
     methods: {
@@ -212,7 +223,10 @@
     },
     vuex: {
       actions: {
-        createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
+        createDeviceOwnerAndFacility,
+      },
+      getters: {
+        submitted: state => state.pageState.submitted,
       },
     },
     store,
