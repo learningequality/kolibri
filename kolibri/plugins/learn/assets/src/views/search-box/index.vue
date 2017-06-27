@@ -53,8 +53,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { PageNames } from '../../constants';
-  import uiIconButton 'keen-ui/src/UiIconButton';
-
+  import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
     $trNameSpace: 'learnSearchBox',
