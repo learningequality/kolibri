@@ -1,57 +1,42 @@
 <template>
 
-  <div class="search-box-wrapper">
-    <div v-show="showSearchBox" :class="{ 'search-box-dropdown': showDropdownSearchBox }">
-      <form
-        @submit.prevent="search"
-        class="search-box">
-        <input
-          type="search"
-          :placeholder="$tr('search')"
-          v-model="searchQuery"
-          class="search-input"
-          ref="searchInput"
-        >
-
-        <ui-icon-button
-          :ariaLabel="$tr('clear')"
-          icon="clear"
-          color="black"
-          class="search-clear-button"
-          :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-          @click="searchQuery = ''"
-          size="small"
-        />
-
-        <div class="search-submit-button-wrapper">
-          <ui-icon-button
-            :ariaLabel="$tr('search')"
-            :icon="showDropdownSearchBox ? 'arrow_forward' : 'search'"
-            type="secondary"
-            color="white"
-            @click="search"
-            class="search-submit-button"
-          />
-        </div>
-      </form>
-    </div>
+  <form class="search-box" @submit.prevent="search">
+    <input
+      type="search"
+      class="search-input"
+      ref="searchInput"
+      v-model="searchQuery"
+      :placeholder="$tr('search')"
+      :style="{ width: width }"
+    >
 
     <ui-icon-button
-      v-show="showSearchToggleBtn"
-      icon="search"
-      type="primary"
-      color="primary"
-      @click="toggleDropdownSearchBox"
+      icon="clear"
+      color="black"
+      size="small"
+      class="search-clear-button"
+      :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
+      :ariaLabel="$tr('clear')"
+      @click="searchQuery = ''"
     />
-  </div>
+
+    <div class="search-submit-button-wrapper">
+      <ui-icon-button
+        type="secondary"
+        color="white"
+        class="search-submit-button"
+        :icon="icon"
+        :ariaLabel="$tr('search')"
+        @click="search"
+      />
+    </div>
+  </form>
 
 </template>
 
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { PageNames } from '../../constants';
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -61,40 +46,23 @@
       search: 'Search',
       clear: 'Clear',
     },
-    mixins: [responsiveWindow, responsiveElement],
     components: {
       uiIconButton,
+    },
+    props: {
+      icon: {
+        type: String,
+        default: 'search',
+      },
+      width: {
+        type: String,
+        required: false,
+      },
     },
     data() {
       return {
         searchQuery: this.searchTerm,
-        searchBoxOpen: false,
       };
-    },
-    computed: {
-      isWithinSearchPage() {
-        return this.pageName === PageNames.SEARCH || this.pageName === PageNames.SEARCH_ROOT;
-      },
-      showSearchBox() {
-        if (this.showDropdownSearchBox) {
-          return !this.isWithinSearchPage && this.searchBoxOpen;
-        }
-        return !this.isWithinSearchPage;
-      },
-      showDropdownSearchBox() {
-        return this.windowSize.breakpoint === 0;
-      },
-      showSearchToggleBtn() {
-        return this.windowSize.breakpoint === 0 && !this.isWithinSearchPage;
-      },
-      searchInputStyle() {
-        if (this.windowSize.breakpoint === 0) {
-          return { width: '40px' };
-        } else if (this.windowSize.breakpoint === 1) {
-          return { width: '150px' };
-        }
-        return {};
-      },
     },
     methods: {
       search() {
@@ -102,14 +70,6 @@
           this.$router.push({
             name: PageNames.SEARCH,
             query: { query: this.searchQuery },
-          });
-        }
-      },
-      toggleDropdownSearchBox() {
-        this.searchBoxOpen = !this.searchBoxOpen;
-        if (this.searchBoxOpen) {
-          this.$nextTick(() => {
-            this.$refs.searchInput.focus();
           });
         }
       },
@@ -121,7 +81,6 @@
     },
     vuex: {
       getters: {
-        pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
       },
     },
@@ -134,9 +93,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .search-box-wrapper
-    display: inline-block
-
   .search-box
     display: inline-block
     background-color: white
@@ -146,10 +102,12 @@
     color: $core-text-default
     border: none
     width: 150px
+    min-width: 150px
+    max-width: 400px
     height: 36px
     padding: 0
-    padding-left: 0.5em
-    padding-right: 0.5em
+    padding-left: 8px
+    padding-right: 8px
     margin: 0
     vertical-align: middle
 
@@ -158,8 +116,8 @@
 
   .search-clear-button
     color: $core-text-default
-    width: 18px
-    height: 22px
+    width: 24px
+    height: 24px
     visibility: hidden
     vertical-align: middle
 
@@ -174,16 +132,6 @@
     display: inline-block
     background-color: $core-action-dark
     vertical-align: middle
-
-  .search-box-dropdown
-    position: fixed
-    top: 56px
-    left: 0
-    z-index: 4 // match app-bar
-    background-color: $core-action-normal
-    padding: 16px
-
-    .search-input
-      width: calc(100vw - 104px)
+    margin-left: 8px
 
 </style>

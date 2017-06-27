@@ -2,7 +2,7 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
-      <search-box/>
+      <action-bar-search-box v-if="!isWithinSearchPage"/>
       <channel-switcher @switch="switchChannel"/>
     </div>
 
@@ -67,7 +67,7 @@
   import examList from './exam-list';
   import examPage from './exam-page';
   import totalPoints from './total-points';
-  import searchBox from './search-box';
+  import actionBarSearchBox from './action-bar-search-box';
   export default {
     $trNameSpace: 'learn',
     $trs: {
@@ -92,7 +92,7 @@
       examList,
       examPage,
       totalPoints,
-      searchBox,
+      actionBarSearchBox,
     },
     methods: {
       switchChannel(channelId) {
@@ -163,6 +163,9 @@
           return 'exam-page';
         }
         return null;
+      },
+      isWithinSearchPage() {
+        return this.pageName === PageNames.SEARCH || this.pageName === PageNames.SEARCH_ROOT;
       },
       tabLinksAreVisible() {
         return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;

@@ -1,6 +1,9 @@
 <template>
 
   <div>
+
+    <search-box :width="'calc(100vw - 165px)'"/>
+
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
@@ -89,6 +92,7 @@
   import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
   import contentCardGrid from '../content-card-grid';
+  import searchBox from '../search-box';
   import tabs from 'kolibri.coreVue.components.tabs';
   import tabButton from 'kolibri.coreVue.components.tabButton';
   export default {
@@ -118,6 +122,7 @@
       contentCardGrid,
       tabs,
       tabButton,
+      searchBox,
     },
     data() {
       return { filter: 'all' };
