@@ -10,6 +10,12 @@ Kolibri
   :target: http://codecov.io/github/learningequality/kolibri?branch=master
 .. image:: https://readthedocs.org/projects/kolibri/badge/?version=latest
   :target: http://kolibri.readthedocs.org/en/latest/
+.. image:: https://img.shields.io/badge/support-on%20discourse-blue.svg
+  :target: https://community.learningequality.org/
+.. image:: https://img.shields.io/badge/irc-%23kolibri%20on%20freenode-blue.svg
+  :target: https://community.learningequality.org/
+.. image:: https://img.shields.io/badge/demo-online-green.svg
+  :target: http://kolibridemo.learningequality.org/
 
 
 What is Kolibri?
@@ -34,15 +40,29 @@ See https://learningequality.org/kolibri/ for more info.
 How can I use it?
 -----------------
 
-Kolibri is under active development and is not yet ready to be used. In the meantime, take a look at `KA-Lite <https://learningequality.org/kolibri/>`_, Kolibri's predecessor which is already deployed around the world.
+Kolibri is under active development and is not yet ready to be used in real
+deployments.
+
+**We expect a public beta to be available during second half of 2017.**
+
+In the meantime, take a look at
+`KA-Lite <https://learningequality.org/kolibri/>`_, Kolibri's predecessor which
+is already deployed around the world.
 
 
 How can I contribute?
 ---------------------
 
 .. warning::
-  We welcome new contributors but since **Kolibri** is still in development, the API is not yet completely ready to integrate external plugins. Please start by:
+
+  *We welcome new contributors but since* ***Kolibri*** *is still in*
+  *development, the APIs are subject to change, and upgrade paths are not*
+  *guaranteed for all releases. We do not recommend deploying Kolibri before*
+  *the first public betas are available.*
+
+  *Please start by:*
 
 * Reading our `Developer Documentation <http://kolibri.readthedocs.io/en/develop/dev/getting_started.html>`_ available online, and in the ``docs/`` directory.
 * Contacting us on the Mailing list: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
 * or via IRC: #kolibri on Freenode.
+
