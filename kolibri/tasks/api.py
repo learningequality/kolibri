@@ -132,7 +132,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
 
-        client.clear()
+        client.clear(force=True)
         return Response({})
 
     @list_route(methods=['get'])
