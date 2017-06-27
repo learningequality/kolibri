@@ -107,7 +107,6 @@
           controls: true,
           textTrackDisplay: true,
           bigPlayButton: false,
-          inactivityTimeout: 1000,
           preload: 'metadata',
           playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
           controlBar: {
@@ -300,6 +299,10 @@
 
   /*** CUSTOM VIDEOJS SKIN ***/
   .custom-skin
+    $button-height-normal = 40px
+    $button-font-size-normal = 24px
+
+
     font-size: $video-player-font-size
     font-family: $core-font
     color: white
@@ -329,13 +332,14 @@
 
           &:before
             color: $video-player-accent-color
-            font-size: 16px
+            font-size: 18px
+            top: -5px
 
 
     /* Control Bar */
     .vjs-control-bar
       display: flex
-      height: 40px
+      height: $button-height-normal
       background-color: $video-player-color
 
     /* Fixes volume panel appearing on hover. */
@@ -352,14 +356,14 @@
     .vjs-button
       .vjs-icon-placeholder
         &:before
-          line-height:40px
-          font-size: 24px
+          line-height:$button-height-normal
+          font-size: $button-font-size-normal
 
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10, .vjs-icon-forward_10
       &:before
-        line-height: 40px
-        font-size: 24px
+        line-height: $button-height-normal
+        font-size: $button-font-size-normal
 
     .vjs-volume-panel
       margin-left: auto
@@ -398,19 +402,25 @@
       padding-right: 0
 
       .vjs-current-time-display
-        line-height: 40px
-        font-size: 12px
+        line-height: $button-height-normal
+        font-size: $video-player-font-size
 
     .vjs-duration
       display: block
       padding-left: 0
       .vjs-duration-display
-        line-height: 40px
-        font-size: 12px
+        line-height: $button-height-normal
+        font-size: $video-player-font-size
 
     .vjs-time-divider
       padding: 0
       text-align: center
+
+
+    /* Rate Button */
+    .vjs-playback-rate-value
+      line-height: $button-height-normal
+      font-size: 20px
 
 
     /* Captions Settings */
@@ -437,20 +447,22 @@
 
   /*** SMALL: < 480px ***/
   .player-small
+    $button-height-small = 44px
+    $button-font-size-normal = 24px
+
+
     /* Control bar buttons increase size. */
     .vjs-control-bar
-      height: 44px
+      height: $button-height-small
 
     .vjs-button
       .vjs-icon-placeholder
         &:before
-          line-height:44px
-          font-size: 32px
+          line-height: $button-height-small
 
     .vjs-icon-replay_10, .vjs-icon-forward_10
       &:before
-        line-height: 44px
-        font-size: 32px
+        line-height: $button-height-small
 
     /* Play, replay, and forward buttons move up. */
     .vjs-play-control, .vjs-icon-replay_10, .vjs-icon-forward_10
@@ -459,6 +471,7 @@
       top: -75px
       background-color: $video-player-color
       border-radius: 50%
+      height: 48px
 
     /* Play button in center. */
     .vjs-play-control
@@ -472,6 +485,21 @@
     .vjs-icon-forward_10
       left: 66%
 
+    /* Adjust rate button text */
+    .vjs-playback-rate-value
+      line-height: $button-height-small
+
+    /* Adjust time text */
+    .vjs-current-time
+      .vjs-current-time-display
+        line-height: $button-height-small
+
+    .vjs-duration
+      .vjs-duration-display
+        line-height: $button-height-small
+
+    .vjs-time-divider
+      line-height: $button-height-small
 
 
   /*** TINY: < 360px ***/
