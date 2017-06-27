@@ -21,7 +21,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'examAnswerHistory',
     $trs: {
       question: 'Question { num }',

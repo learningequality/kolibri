@@ -27,6 +27,10 @@ class FacilityUserBackend(object):
         for user in users:
             if user.check_password(password):
                 return user
+            # Allow login without password for learners for facilities that allow this.
+            # Must specify the facility, to prevent accidental logins
+            elif facility and user.dataset.learner_can_login_with_no_password and not user.roles.count():
+                return user
         return None
 
     def get_user(self, user_id):

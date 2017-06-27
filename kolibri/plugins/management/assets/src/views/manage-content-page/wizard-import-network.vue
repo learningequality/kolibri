@@ -7,7 +7,7 @@
     :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="startImportWizard"
+    @back="goBack"
   >
     <div class="main">
       <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
@@ -33,9 +33,11 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as manageContentActions from '../../state/manageContentActions';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'wizardImportNetwork',
     $trs: {
       title: 'Please choose a source...',
@@ -44,13 +46,11 @@
       import: 'Import',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      coreModal,
+      iconButton,
+      coreTextbox,
     },
-    data: () => ({
-      contentId: '',
-    }),
+    data: () => ({ contentId: '' }),
     computed: {
       canSubmit() {
         if (this.wizardState.busy) {
@@ -60,24 +60,21 @@
       },
     },
     methods: {
+      goBack() {
+        this.transitionWizardPage('backward');
+      },
       submit() {
         if (this.canSubmit) {
-          this.triggerRemoteContentImportTask(this.contentId);
+          this.transitionWizardPage('forward', { contentId: this.contentId });
         }
       },
       cancel() {
-        this.cancelImportExportWizard();
+        this.transitionWizardPage('cancel');
       },
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
-      actions: {
-        startImportWizard: actions.startImportWizard,
-        triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
+      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
     },
   };
 

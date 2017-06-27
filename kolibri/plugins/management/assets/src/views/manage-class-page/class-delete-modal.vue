@@ -36,24 +36,24 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  export default {
     $trNameSpace: 'classDeleteModal',
     $trs: {
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
       cancel: 'Cancel',
-      description: 'Users will only be removed from the class and are still accessible from the "Users" tab.',
-      // confirmation messages
+      description:
+        'Users will only be removed from the class and are still accessible from the "Users" tab.',
       deleteConfirmation: 'Are you sure you want to delete { classname }?',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      iconButton,
+      coreModal,
     },
     props: {
-      // delete below
       classname: {
         type: String,
         required: true,
@@ -65,11 +65,9 @@
     },
     computed: {
       formattedDeleteConfirmation() {
-        return this.$tr('deleteConfirmation',
-          {
-            classname: `<strong> ${this.classname} </strong>`
-          }
-        );
+        return this.$tr('deleteConfirmation', {
+          classname: `<strong> ${this.classname} </strong>`,
+        });
       },
     },
     methods: {

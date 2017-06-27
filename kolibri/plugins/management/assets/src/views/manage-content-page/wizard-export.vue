@@ -47,9 +47,14 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as manageContentActions from '../../state/manageContentActions';
+  import bytesForHumans from './bytesForHumans';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import driveList from './wizards/drive-list';
+  export default {
     $trNameSpace: 'wizardExport',
     $trs: {
       title: 'Export to a Local Drive',
@@ -60,87 +65,46 @@
       refresh: 'Refresh',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'drive-list': require('./wizards/drive-list'),
+      coreModal,
+      iconButton,
+      loadingSpinner,
+      driveList,
     },
-    data: () => ({
-      selectedDrive: '',
-    }),
+    data: () => ({ selectedDrive: '' }),
     computed: {
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
       canSubmit() {
-        return (
-          !this.drivesLoading &&
-          !this.wizardState.busy &&
-          this.selectedDrive !== ''
-        );
+        return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
     },
     methods: {
       formatEnabledMsg(drive) {
-        return `${this.$tr('available')} ${this.bytesForHumans(drive.freespace)}`;
+        return `${this.$tr('available')} ${bytesForHumans(drive.freespace)}`;
       },
       driveIsEnabled(drive) {
         return drive.writable;
       },
       submit() {
         if (this.canSubmit) {
-          this.triggerLocalContentExportTask(this.selectedDrive);
+          this.transitionWizardPage('forward', { driveId: this.selectedDrive });
         }
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.cancelImportExportWizard();
+          this.transitionWizardPage('cancel');
         }
-      },
-      bytesForHumans(bytes) {
-        // breaking down byte counts in terms of larger sizes
-        const kilobyte = 1024;
-        const megabyte = kilobyte ** 2;
-        const gigabyte = kilobyte ** 3;
-
-        function kilobyteCalc(byteCount) {
-          const kilos = Math.floor(byteCount / kilobyte);
-          return `${kilos} KB`;
-        }
-        function megabyteCalc(byteCount) {
-          const megs = Math.floor(byteCount / megabyte);
-          return `${megs} MB`;
-        }
-        function gigabyteCalc(byteCount) {
-          const gigs = Math.floor(byteCount / gigabyte);
-          return `${gigs} GB`;
-        }
-        function chooseSize(byteCount) {
-          if (byteCount > gigabyte) {
-            return gigabyteCalc(byteCount);
-          } else if (byteCount > megabyte) {
-            return megabyteCalc(byteCount);
-          } else if (byteCount > kilobyte) {
-            return kilobyteCalc(byteCount);
-          }
-          return `${bytes} B`;
-        }
-
-        return chooseSize(bytes);
       },
       selectDriveByID(driveID) {
         this.selectedDrive = driveID;
       },
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
       actions: {
-        startImportWizard: actions.startImportWizard,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
       },
     },
   };

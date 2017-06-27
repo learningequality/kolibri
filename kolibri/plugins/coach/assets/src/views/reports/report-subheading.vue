@@ -10,10 +10,10 @@
 
 <script>
 
-  const ReportConstants = require('../../reportConstants');
-  const reportGetters = require('../../state/getters/reports');
+  import * as ReportConstants from '../../reportConstants';
+  import * as reportGetters from '../../state/getters/reports';
 
-  module.exports = {
+  export default {
     $trNameSpace: 'coachReportSubheading',
     $trs: {
       subHeading: 'Only showing activity in past {threshold} days',

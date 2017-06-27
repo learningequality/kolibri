@@ -79,8 +79,8 @@ class FacilityDatasetPermissionsTestCase(TestCase):
         self.assertTrue(self.data1["classroom_coaches"][0].can_read(own_dataset))
         self.assertTrue(self.data1["learners_one_group"][0][0].can_read(own_dataset))
         self.assertTrue(self.data1["unattached_users"][0].can_read(own_dataset))
-        self.assertFalse(self.anon_user.can_read(own_dataset))
-        self.assertNotIn(own_dataset, self.anon_user.filter_readable(FacilityDataset.objects.all()))
+        self.assertTrue(self.anon_user.can_read(own_dataset))
+        self.assertIn(own_dataset, self.anon_user.filter_readable(FacilityDataset.objects.all()))
 
     def test_only_facility_admins_can_update_own_facility_dataset(self):
         """ The only FacilityUser who can update a FacilityDataset is a facility admin for that FacilityDataset """
@@ -797,3 +797,18 @@ class MembershipPermissionsTestCase(TestCase):
         self.assertFalse(self.member.can_delete(membership))
         self.assertTrue(self.device_owner.can_delete(membership))
         self.assertFalse(self.anon_user.can_delete(membership))
+
+class FacilityDatasetCertificateNamespacingTestCase(TestCase):
+
+    def test_unsaved_facility_permission_check_and_validation_only_create_one_dataset(self):
+        device_owner = DeviceOwner.objects.create(username="bossman")
+        anon_user = KolibriAnonymousUser()
+        facility = Facility(name="Hello!")
+        self.assertTrue(anon_user.can_create_instance(facility))
+        self.assertEqual(FacilityDataset.objects.count(), 0)
+        self.assertTrue(device_owner.can_create_instance(facility))
+        self.assertEqual(FacilityDataset.objects.count(), 0)
+        facility.full_clean()
+        self.assertEqual(FacilityDataset.objects.count(), 0)
+        facility.save()
+        self.assertEqual(FacilityDataset.objects.count(), 1)

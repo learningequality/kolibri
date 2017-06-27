@@ -1,15 +1,11 @@
-
-const ReportConstants = require('../../reportConstants');
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
+import * as ReportConstants from '../../reportConstants';
+import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
 
 const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
-
 /* given an array of objects sum the keys on those that pass the filter */
 function _sumOfKeys(array, key, filter = () => true) {
-  return array
-    .filter(filter)
-    .reduce((prev, item) => prev + item[key], 0);
+  return array.filter(filter).reduce((prev, item) => prev + item[key], 0);
 }
 
 function countNodes(progressArray, filter) {
@@ -50,21 +46,22 @@ function genCompareFunc(sortColumn, sortOrder) {
   // generate and return the actual comparator function
   return (a, b) => {
     // make sure undefined values get sorted below defined values
-    if (a[key] !== undefined && b[key] === undefined) { return flipped(1); }
-    if (a[key] === undefined && b[key] !== undefined) { return flipped(-1); }
+    if (a[key] !== undefined && b[key] === undefined) {
+      return flipped(1);
+    }
+    if (a[key] === undefined && b[key] !== undefined) {
+      return flipped(-1);
+    }
     // standard comparisons
-    if (a[key] > b[key]) { return flipped(1); }
-    if (a[key] < b[key]) { return flipped(-1); }
+    if (a[key] > b[key]) {
+      return flipped(1);
+    }
+    if (a[key] < b[key]) {
+      return flipped(-1);
+    }
     // they must be equal
     return 0;
   };
 }
 
-
-module.exports = {
-  calcProgress,
-  genCompareFunc,
-  onlyContent,
-  onlyExercises,
-  countNodes,
-};
+export { calcProgress, genCompareFunc, onlyContent, onlyExercises, countNodes };

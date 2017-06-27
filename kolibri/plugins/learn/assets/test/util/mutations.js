@@ -1,5 +1,5 @@
-const Vue = require('vue');
-const coreStore = require('kolibri.coreVue.vuex.store');
+import Vue from 'vue';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implemenation of mutations used for testing
 const learnMutations = {
@@ -17,8 +17,11 @@ const learnMutations = {
       if (!state.examAttemptLogs[contentId]) {
         Vue.set(state.examAttemptLogs, contentId, {});
       }
-      Vue.set(state.examAttemptLogs, contentId,
-        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId]));
+      Vue.set(
+        state.examAttemptLogs,
+        contentId,
+        Object.assign(state.examAttemptLogs[contentId], examAttemptLogs[contentId])
+      );
     });
   },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
@@ -26,7 +29,9 @@ const learnMutations = {
   },
   LEARN_SET_MEMBERSHIPS(state, memberships) {
     state.learnAppState.memberships = memberships;
-  }
+  },
 };
 
-module.exports = Object.assign(coreStore.mutations, learnMutations);
+const mutations = Object.assign({}, coreStore.mutations, learnMutations);
+
+export default mutations;

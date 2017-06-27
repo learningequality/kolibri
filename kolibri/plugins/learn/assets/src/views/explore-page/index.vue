@@ -22,18 +22,20 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
-    <card-grid v-if="contents.length">
-      <content-grid-item
-        v-for="content in contents"
-        v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
-        :key="content.id"
-        class="card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genLink(content)"/>
-    </card-grid>
+    <content-card-grid :contents="contents" v-if="contents.length">
+
+      <template scope="content">
+        <content-card
+          v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
+          :key="content.id"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress"
+          :link="genLink(content)"/>
+      </template>
+
+    </content-card-grid>
 
   </div>
 
@@ -42,13 +44,16 @@
 
 <script>
 
-  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-  const PageNames = require('../../constants').PageNames;
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const some = require('lodash/some');
-  const forEach = require('lodash/forEach');
-
-  module.exports = {
+  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import { PageNames } from '../../constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import some from 'lodash/some';
+  import forEach from 'lodash/forEach';
+  import pageHeader from '../page-header';
+  import contentCard from '../content-card';
+  import contentCardGrid from '../content-card-grid';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  export default {
     $trNameSpace: 'learnExplore',
     $trs: {
       explore: 'Topics',
@@ -63,19 +68,20 @@
       display: 'Display',
     },
     components: {
-      'page-header': require('../page-header'),
-      'topic-list-item': require('../topic-list-item'),
-      'content-grid-item': require('../content-grid-item'),
-      'card-grid': require('../card-grid'),
-      'card-list': require('../card-list'),
-      'ui-select': require('keen-ui/src/UiSelect'),
+      pageHeader,
+      contentCard,
+      contentCardGrid,
+      uiSelect,
     },
-    data: () => ({
-      selectedFilter: '',
-    }),
+    data: () => ({ selectedFilter: '' }),
     computed: {
       filterOptions() {
-        const options = [{ label: this.$tr('all'), value: 'all' }];
+        const options = [
+          {
+            label: this.$tr('all'),
+            value: 'all',
+          },
+        ];
         const kindLabelsMap = {
           [ContentNodeKinds.TOPIC]: this.$tr('topics'),
           [ContentNodeKinds.EXERCISE]: this.$tr('exercises'),
@@ -86,7 +92,10 @@
         };
         forEach(kindLabelsMap, (value, key) => {
           if (this.contentsContain(key)) {
-            options.push({ label: value, value: key });
+            options.push({
+              label: value,
+              value: key,
+            });
           }
         });
         return options;
@@ -103,14 +112,14 @@
         return some(this.contents, content => content.kind === kind);
       },
       genLink(node) {
-        if (node.kind !== ContentNodeKinds.TOPIC) {
+        if (node.kind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_CONTENT,
+            name: PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id: node.id },
           };
         }
         return {
-          name: PageNames.EXPLORE_TOPIC,
+          name: PageNames.EXPLORE_CONTENT,
           params: { channel_id: this.channelId, id: node.id },
         };
       },
@@ -122,8 +131,8 @@
       getters: {
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
-        isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
-        channelId: (state) => getCurrentChannelObject(state).id,
+        isRoot: state => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
+        channelId: state => getCurrentChannelObject(state).id,
       },
     },
   };

@@ -18,9 +18,9 @@
 
 <script>
 
-  const ValidateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
+  import ValidateLinkObject from 'kolibri.utils.validateLinkObject';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
       type: {
         type: String,
@@ -43,9 +43,7 @@
         validator: ValidateLinkObject,
       },
     },
-    components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+    components: { uiIcon },
   };
 
 </script>

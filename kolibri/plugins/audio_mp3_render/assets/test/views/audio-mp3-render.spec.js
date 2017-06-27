@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const sinon = require('sinon');
-const simulant = require('simulant');
-const audioRenderer = require('../../src/views/index.vue');
+import Vue from 'vue-test';
+import sinon from 'sinon';
+import simulant from 'simulant';
+import audioRenderer from '../../src/views/index.vue';
 
 function makeVm(propsData) {
   const Ctor = Vue.extend(audioRenderer);
@@ -20,8 +20,7 @@ describe('audio mp3 render component', () => {
       vm.$destroy();
       // then dispatch timeupdate event immediately after
       simulant.fire(audioEl, 'timeupdate');
-      return Vue.nextTick()
-      .then(() => {
+      return Vue.nextTick().then(() => {
         sinon.assert.called(updateTimeSpy);
       });
     });

@@ -62,13 +62,16 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const getters = require('kolibri.coreVue.vuex.getters');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-  const { totalPoints } = require('kolibri.coreVue.vuex.getters');
-  const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { totalPoints } from 'kolibri.coreVue.vuex.getters';
+  import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  export default {
     name: 'profile-page',
     $trNameSpace: 'profilePage',
     $trs: {
@@ -85,10 +88,10 @@
       role: 'Role',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
-      'points-icon': require('kolibri.coreVue.components.pointsIcon'),
+      iconButton,
+      coreTextbox,
+      uiAlert,
+      pointsIcon,
     },
     data() {
       return {
@@ -145,7 +148,7 @@
     },
     vuex: {
       getters: {
-        facilityConfig: state => state.core.facilityConfig,
+        facilityConfig: getters.facilityConfig,
         session: state => state.core.session,
         error: state => state.pageState.error,
         success: state => state.pageState.success,

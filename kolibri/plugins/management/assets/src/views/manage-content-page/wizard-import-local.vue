@@ -7,7 +7,7 @@
     :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="startImportWizard"
+    @back="goBack"
   >
     <div class="main">
       <template v-if="!drivesLoading">
@@ -51,9 +51,13 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as manageContentActions from '../../state/manageContentActions';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import driveList from './wizards/drive-list';
+  export default {
     $trNameSpace: 'wizardLocalImport',
     $trs: {
       title: 'Import from a Local Drive',
@@ -63,46 +67,39 @@
       import: 'Import',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'drive-list': require('./wizards/drive-list'),
+      coreModal,
+      iconButton,
+      loadingSpinner,
+      driveList,
     },
-    data: () => ({
-      selectedDrive: '',
-    }),
+    data: () => ({ selectedDrive: '' }),
     computed: {
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
       canSubmit() {
-        return (
-          !this.drivesLoading &&
-          this.selectedDrive !== '' &&
-          !this.wizardState.busy
-        );
+        return !this.drivesLoading && this.selectedDrive !== '' && !this.wizardState.busy;
       },
     },
     methods: {
-      driveIsEnabled: (drive) => drive.metadata.channels.length > 0,
+      driveIsEnabled: drive => drive.metadata.channels.length > 0,
+      goBack() {
+        this.transitionWizardPage('backward');
+      },
       submit() {
-        this.triggerLocalContentImportTask(this.selectedDrive);
+        this.transitionWizardPage('forward', { driveId: this.selectedDrive });
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.cancelImportExportWizard();
+          this.transitionWizardPage('cancel');
         }
       },
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
       actions: {
-        startImportWizard: actions.startImportWizard,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentImportTask: actions.triggerLocalContentImportTask,
       },
     },
   };

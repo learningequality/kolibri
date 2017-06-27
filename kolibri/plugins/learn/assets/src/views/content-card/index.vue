@@ -4,7 +4,7 @@
 
     <div class="card-thumbnail" :style="backgroundImg">
       <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
-      <div class="card-progress-icon-wrapper">
+      <div v-show="progress > 0" class="card-progress-icon-wrapper">
         <progress-icon :progress="progress"/>
       </div>
 
@@ -24,8 +24,9 @@
 
     <div class="card-text">
       <h3 class="card-title">{{ title }}</h3>
-      <h4 class="card-subtitle"></h4>
+      <h4 v-if="subtitle" class="card-subtitle">{{ subtitle }}</h4>
     </div>
+
   </router-link>
 
 </template>
@@ -33,9 +34,13 @@
 
 <script>
 
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  export default {
     props: {
       title: {
         type: String,
@@ -45,13 +50,24 @@
         type: String,
         required: false,
       },
-      kind: {
+      thumbnail: {
         type: String,
         required: false,
       },
+      kind: {
+        type: String,
+        required: true,
+        validator(value) {
+          return values(CoreConstants.ContentNodeKinds).includes(value);
+        },
+      },
       progress: {
         type: Number,
-        required: false,
+        required: true,
+        default: 0.0,
+        validator(value) {
+          return value >= 0.0 && value <= 1.0;
+        },
       },
       link: {
         type: Object,
@@ -65,10 +81,10 @@
     },
     computed: {
       mastered() {
-        return this.progress === 1.0;
+        return this.progress === 1;
       },
       inProgress() {
-        return this.progress > 0 && this.progress < 1.0;
+        return this.progress > 0 && this.progress < 1;
       },
       backgroundImg() {
         if (this.thumbnail) {
@@ -92,8 +108,8 @@
       },
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+      contentIcon,
+      progressIcon,
     },
   };
 
@@ -112,6 +128,7 @@
   $card-text-padding = ($card-width / (320 / 24))
   $card-elevation-resting = 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
   $card-elevation-raised = 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
+  $elevation-transition = box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
 
   a
     text-decoration: none
@@ -123,6 +140,7 @@
     border-radius: 2px
     background-color: $core-bg-light
     box-shadow: $card-elevation-resting
+    transition: $elevation-transition
     &:hover, &:focus
       box-shadow: $card-elevation-raised
 

@@ -23,7 +23,7 @@ function CONFIG_PAGE_COPY_SETTINGS(state) {
   state.pageState.settingsCopy = Object.assign({}, state.pageState.settings);
 }
 
-module.exports = {
+export default {
   CONFIG_PAGE_NOTIFY,
   CONFIG_PAGE_UNDO_SETTINGS_CHANGE,
   CONFIG_PAGE_MODIFY_SETTING,

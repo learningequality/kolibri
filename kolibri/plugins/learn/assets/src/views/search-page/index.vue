@@ -61,18 +61,19 @@
 
       <p v-if="filteredResults.length === 0">{{ noResultsMsg }}</p>
 
-      <card-grid v-else>
-        <content-grid-item
-          v-for="content in contents"
-          v-show="filter === 'all' || filter === content.kind"
-          :key="content.id"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :progress="content.progress"
-          :kind="content.kind"
-          :link="genLink(content)"
-        />
-      </card-grid>
+      <content-card-grid v-else :contents="filteredResults">
+        <template scope="content">
+          <content-card
+            v-show="filter === 'all' || filter === content.kind"
+            :key="content.id"
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :progress="content.progress"
+            :kind="content.kind"
+            :link="genLink(content)"
+          />
+        </template>
+      </content-card-grid>
 
     </template>
 
@@ -83,13 +84,15 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const PageNames = require('../../constants').PageNames;
-  const GetCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import contentCard from '../content-card';
+  import contentCardGrid from '../content-card-grid';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabButton from 'kolibri.coreVue.components.tabButton';
+  export default {
     $trNameSpace: 'learnSearch',
-
     $trs: {
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',
@@ -111,15 +114,13 @@
       noHtml5: 'No HTML5 apps match "{searchTerm}"',
     },
     components: {
-      'content-grid-item': require('../content-grid-item'),
-      'card-grid': require('../card-grid'),
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-button': require('kolibri.coreVue.components.tabButton'),
+      contentCard,
+      contentCardGrid,
+      tabs,
+      tabButton,
     },
     data() {
-      return {
-        filter: 'all',
-      };
+      return { filter: 'all' };
     },
     computed: {
       contentNodeKinds() {
@@ -181,12 +182,18 @@
         if (content.kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id: content.id },
+            params: {
+              channel_id: this.channelId,
+              id: content.id,
+            },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id: content.id },
+          params: {
+            channel_id: this.channelId,
+            id: content.id,
+          },
         };
       },
     },
@@ -194,7 +201,7 @@
       getters: {
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
-        channelId: (state) => state.core.channels.currentId,
+        channelId: state => state.core.channels.currentId,
         channelName: state => GetCurrentChannelObject(state).title,
       },
     },

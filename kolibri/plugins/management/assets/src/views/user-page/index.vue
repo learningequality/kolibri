@@ -112,19 +112,21 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const actions = require('../../state/actions');
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import orderBy from 'lodash/orderBy';
+  import userCreateModal from './user-create-modal';
+  import userEditModal from './user-edit-modal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import userRole from '../user-role';
+  export default {
     components: {
-      'user-create-modal': require('./user-create-modal'),
-      'user-edit-modal': require('./user-edit-modal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'user-role': require('../user-role'),
+      userCreateModal,
+      userEditModal,
+      iconButton,
+      userRole,
     },
-    // Has to be a funcion due to vue's treatment of data
     data: () => ({
       roleFilter: 'all',
       searchFilter: '',
@@ -138,7 +140,7 @@
         return this.users.length === 0;
       },
       allUsersFilteredOut() {
-        return !this.noUsersExist && (this.visibleUsers.length === 0);
+        return !this.noUsersExist && this.visibleUsers.length === 0;
       },
       usersMatchFilter() {
         return !this.noUsersExist && !this.allUsersFilteredOut;
@@ -146,19 +148,12 @@
       visibleUsers() {
         const searchFilter = this.searchFilter;
         const roleFilter = this.roleFilter;
-
         function matchesText(user) {
-          const searchTerms = searchFilter
-            .split(' ')
-            .filter(Boolean)
-            .map(val => val.toLowerCase());
-
+          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
-
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         }
-
         function matchesRole(user) {
           if (roleFilter === 'all') {
             return true;
@@ -166,11 +161,7 @@
           return user.kind === roleFilter;
         }
         const filteredUsers = this.users.filter(user => matchesText(user) && matchesRole(user));
-        return orderBy(
-          filteredUsers,
-          [user => user.username.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
       },
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;
@@ -200,24 +191,19 @@
     },
     $trNameSpace: 'userPage',
     $trs: {
-      // input & accessibility labels
       filterUserType: 'Filter User Type',
       editAccountInfo: 'Edit Account Information',
       searchText: 'Search for a user...',
-      // filter select entries
       allUsers: 'All Users',
       admins: 'Admins',
       coaches: 'Coaches',
       learners: 'Learners',
-      // edit button text
       addNew: 'Add New',
-      // table info
       fullName: 'Full Name',
       users: 'Users',
       kind: 'Role',
       username: 'Username',
       edit: 'Edit',
-      // search-related error messages
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
     },

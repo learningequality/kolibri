@@ -1,12 +1,13 @@
-const coreApp = require('kolibri');
-const PageNames = require('../constants').PageNames;
-const SignUpResource = require('kolibri').resources.SignUpResource;
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreGetters = require('kolibri.coreVue.vuex.getters');
-const router = require('kolibri.coreVue.router');
-
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
+import { PageNames } from '../constants';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import router from 'kolibri.coreVue.router';
+import {
+  SignUpResource,
+  FacilityUserResource,
+  DeviceOwnerResource,
+  FacilityResource,
+} from 'kolibri.resources';
 
 function redirectToHome() {
   window.location = '/';
@@ -56,32 +57,34 @@ function editProfile(store, edits, session) {
   // update user object with new values
   store.dispatch('SET_PROFILE_BUSY', true);
 
-  savedUserModel.save(changedValues).then(userWithAttrs => {
-    // dispatch changes to store
-    coreActions.getCurrentSession(store, true);
-    store.dispatch('SET_PROFILE_SUCCESS', true);
-    store.dispatch('SET_PROFILE_BUSY', false);
-    store.dispatch('SET_PROFILE_EROR', false, '');
+  savedUserModel.save(changedValues).then(
+    userWithAttrs => {
+      // dispatch changes to store
+      coreActions.getCurrentSession(store, true);
+      store.dispatch('SET_PROFILE_SUCCESS', true);
+      store.dispatch('SET_PROFILE_BUSY', false);
+      store.dispatch('SET_PROFILE_EROR', false, '');
 
-  // error handling
-  }, error => {
-    function _errorMessageHandler(apiError) {
-      if (apiError.status.code === 400) {
-        // access the first apiError message
-        return Object.values(apiError.entity)[0][0];
-      } else if (apiError.status.code === 403) {
-        return apiError.entity[0];
+      // error handling
+    },
+    error => {
+      function _errorMessageHandler(apiError) {
+        if (apiError.status.code === 400) {
+          // access the first apiError message
+          return Object.values(apiError.entity)[0][0];
+        } else if (apiError.status.code === 403) {
+          return apiError.entity[0];
+        }
+        return '';
       }
-      return '';
+
+      // copying logic from user-create-modal
+      store.dispatch('SET_PROFILE_SUCCESS', false);
+      store.dispatch('SET_PROFILE_EROR', true, _errorMessageHandler(error));
+      store.dispatch('SET_PROFILE_BUSY', false);
     }
-
-    // copying logic from user-create-modal
-    store.dispatch('SET_PROFILE_SUCCESS', false);
-    store.dispatch('SET_PROFILE_EROR', true, _errorMessageHandler(error));
-    store.dispatch('SET_PROFILE_BUSY', false);
-  });
+  );
 }
-
 
 function resetProfileState(store) {
   const pageState = {
@@ -124,7 +127,6 @@ function showSignIn(store) {
   store.dispatch('CORE_SET_TITLE', 'User Sign In');
 }
 
-
 function resetSignUpState(store) {
   const pageState = {
     busy: false,
@@ -141,13 +143,18 @@ function showSignUp(store) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
     });
-    return;
+    return Promise.resolve();
   }
-  store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Sign Up');
-  resetSignUpState(store);
+  const FacilityCollection = FacilityResource.getCollection().fetch();
+
+  return FacilityCollection.then(facilities => {
+    store.dispatch('CORE_SET_FACILITIES', facilities);
+    store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+    store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+    resetSignUpState(store);
+  }).catch(error => coreActions.handleApiError(store, error));
 }
 
 function signUp(store, signUpCreds) {
@@ -157,26 +164,27 @@ function signUp(store, signUpCreds) {
   store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
 
-  signUpPromise.then(() => {
-    store.dispatch('SET_SIGN_UP_ERROR', null, '');
-    store.dispatch('SET_SIGN_UP_BUSY', false);
-    // TODO: Better solution?
-    redirectToHome();
-  }).catch(error => {
-    function _errorMessageHandler(apiError) {
-      if (apiError.status.code === 400 || apiError.status.code === 200) {
-        return apiError.entity[0];
+  signUpPromise
+    .then(() => {
+      store.dispatch('SET_SIGN_UP_ERROR', null, '');
+      store.dispatch('SET_SIGN_UP_BUSY', false);
+      // TODO: Better solution?
+      redirectToHome();
+    })
+    .catch(error => {
+      function _errorMessageHandler(apiError) {
+        if (apiError.status.code === 400 || apiError.status.code === 200) {
+          return apiError.entity[0];
+        }
+        return '';
       }
-      return '';
-    }
 
-    store.dispatch('SET_SIGN_UP_ERROR', error.status.code, _errorMessageHandler(error));
-    store.dispatch('SET_SIGN_UP_BUSY', false);
-  });
+      store.dispatch('SET_SIGN_UP_ERROR', error.status.code, _errorMessageHandler(error));
+      store.dispatch('SET_SIGN_UP_BUSY', false);
+    });
 }
 
-
-module.exports = {
+export {
   showRoot,
   showSignIn,
   showSignUp,

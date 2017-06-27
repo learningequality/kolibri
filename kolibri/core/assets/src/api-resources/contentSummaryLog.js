@@ -1,6 +1,6 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class ContentSummaryLogResource extends Resource {
+export default class ContentSummaryLogResource extends Resource {
   static resourceName() {
     return 'contentsummarylog';
   }
@@ -8,5 +8,3 @@ class ContentSummaryLogResource extends Resource {
     return 'pk';
   }
 }
-
-module.exports = ContentSummaryLogResource;

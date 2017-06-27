@@ -14,13 +14,14 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'exerciseRow',
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      contentIcon,
+      iconButton,
     },
     props: {
       exerciseId: {
@@ -46,15 +47,24 @@
       },
       isSelected() {
         return this.selectedExercises.some(
-          selectedExercise => selectedExercise.id === this.exerciseId);
+          selectedExercise => selectedExercise.id === this.exerciseId
+        );
       },
     },
     methods: {
       changeSelection() {
         if (this.isSelected) {
-          this.$emit('removeExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
+          this.$emit('removeExercise', {
+            id: this.exerciseId,
+            title: this.exerciseTitle,
+            numAssessments: this.exerciseNumAssesments,
+          });
         } else {
-          this.$emit('addExercise', { id: this.exerciseId, title: this.exerciseTitle, numAssessments: this.exerciseNumAssesments });
+          this.$emit('addExercise', {
+            id: this.exerciseId,
+            title: this.exerciseTitle,
+            numAssessments: this.exerciseNumAssesments,
+          });
         }
       },
     },

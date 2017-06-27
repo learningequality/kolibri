@@ -1,11 +1,10 @@
-const Vuex = require('kolibri.lib.vuex');
-const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('../constants');
+import Vuex from 'kolibri.lib.vuex';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
+import * as constants from '../constants';
 
 /**
  ** pageState schemas
  **/
-
 
 const initialState = {
   pageName: constants.PageNames.SCRATCHPAD,
@@ -41,13 +40,13 @@ const mutations = {
   },
 };
 
-
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, coreStore.mutations);
 
-
-module.exports = new Vuex.Store({
+const store = new Vuex.Store({
   state: initialState,
   mutations,
 });
+
+export { store as default };

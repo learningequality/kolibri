@@ -60,7 +60,7 @@ const notificationTypes = {
   CHANNEL_IMPORT_SUCCESS: 'CHANNEL_IMPORT_SUCCESS',
 };
 
-module.exports = {
+export {
   PageNames,
   Modals,
   ContentWizardPages,

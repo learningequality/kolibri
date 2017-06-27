@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="$tr('allContent')" ref="grid">
+  <content-card-grid :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -12,37 +12,30 @@
 
     </div>
 
-    <content-grid-item
-      v-for="content in contentToShow"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :link="genContentLink(content.id)"/>
-
-  </card-grid>
+  </content-card-grid>
 
 </template>
 
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
-  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import contentCard from '../content-card';
+  import contentCardGrid from '../content-card-grid';
+  export default {
     $trNameSpace: 'allContent',
     $trs: {
       prev: 'Previous',
       next: 'Next',
       pagesLabel: 'Browse all content',
-      allContent: 'All content',
+      allContentPageHeader: 'All content',
     },
     mixins: [responsiveElement],
     computed: {
       contentToShow() {
-        const CARD_WIDTH = 200;  // duplicate of $card-width
-        const CARD_GUTTER = 20;  // duplicate of $card-gutter
+        const CARD_WIDTH = 200;
+        const CARD_GUTTER = 20;
         const nCols = Math.max(2, Math.floor(this.elSize.width / (CARD_WIDTH + CARD_GUTTER)));
         return this.all.content.slice(0, nCols);
       },
@@ -73,19 +66,22 @@
       genContentLink(id) {
         return {
           name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
+          params: {
+            channel_id: this.channelId,
+            id,
+          },
         };
       },
     },
     components: {
-      'content-grid-item': require('../content-grid-item'),
-      'card-grid': require('../card-grid'),
+      contentCard,
+      contentCardGrid,
     },
     vuex: {
       getters: {
         all: state => state.pageState.all,
         viewportWidth: state => state.core.viewport.width,
-        channelId: (state) => state.core.channels.currentId,
+        channelId: state => state.core.channels.currentId,
       },
     },
   };
