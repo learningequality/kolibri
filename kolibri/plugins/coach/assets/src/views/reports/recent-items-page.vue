@@ -49,13 +49,20 @@
 
 <script>
 
-  const CoachConstants = require('../../constants');
-  const reportConstants = require('../../reportConstants');
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-  const mainGetters = require('../../state/getters/main');
-  const reportGetters = require('../../state/getters/reports');
-
-  module.exports = {
+  import * as CoachConstants from '../../constants';
+  import * as reportConstants from '../../reportConstants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import * as mainGetters from '../../state/getters/main';
+  import * as reportGetters from '../../state/getters/reports';
+  import breadcrumbs from './breadcrumbs';
+  import reportTable from './report-table';
+  import reportSubheading from './report-subheading';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import activityCell from './table-cells/activity-cell';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressBar from 'kolibri.coreVue.components.progressBar';
+  export default {
     name: 'coachRecentReports',
     $trNameSpace: 'coachRecentReports',
     $trs: {
@@ -70,14 +77,14 @@
       lastActivity: 'Last activity',
     },
     components: {
-      'breadcrumbs': require('./breadcrumbs'),
-      'report-table': require('./report-table'),
-      'report-subheading': require('./report-subheading'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-bar': require('kolibri.coreVue.components.progressBar'),
+      breadcrumbs,
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell,
+      contentIcon,
+      progressBar,
     },
     computed: {
       tableColumns() {
@@ -87,8 +94,7 @@
     methods: {
       progressString(row) {
         // string representation of a fraction, can't use completedProgress
-        const proportionCompleted = `${row.logCountComplete}` +
-          `/${this.userCount}`;
+        const proportionCompleted = `${row.logCountComplete}` + `/${this.userCount}`;
         switch (row.kind) {
           case ContentNodeKinds.AUDIO:
             return this.$tr('listened', { proportionCompleted });
@@ -111,7 +117,7 @@
             classId: this.classId,
             channelId: this.pageState.channelId,
             contentId: row.id,
-          }
+          },
         };
       },
     },

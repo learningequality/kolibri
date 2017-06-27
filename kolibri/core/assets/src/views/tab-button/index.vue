@@ -23,7 +23,8 @@
 
 <script>
 
-  module.exports = {
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
       type: {
         type: String,
@@ -45,14 +46,12 @@
         default: false,
       },
     },
-    components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+    components: { uiIcon },
     methods: {
       handleClick() {
         this.$emit('click');
         this.$refs.tab.blur();
-      }
+      },
     },
   };
 

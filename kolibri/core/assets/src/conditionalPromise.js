@@ -1,7 +1,7 @@
 /**
  * Conditional Promise
  */
-class ConditionalPromise {
+export default class ConditionalPromise {
   /**
    * Create a conditional promise - like a promise, but with an additional method 'only'
    * that allows for chaining resolve/reject handlers that will only be called if a
@@ -30,15 +30,18 @@ class ConditionalPromise {
    * @param {FUnction} reject - Function to call if the Promise fails.
    */
   only(continueCheck, resolve, reject) {
-    this._promise.then((success) => {
-      if (continueCheck() && resolve) {
-        resolve(success);
+    this._promise.then(
+      success => {
+        if (continueCheck() && resolve) {
+          resolve(success);
+        }
+      },
+      error => {
+        if (continueCheck() && reject) {
+          reject(error);
+        }
       }
-    }, (error) => {
-      if (continueCheck() && reject) {
-        reject(error);
-      }
-    });
+    );
     return this;
   }
 
@@ -52,5 +55,3 @@ class ConditionalPromise {
     return conditionalPromise;
   }
 }
-
-module.exports = ConditionalPromise;

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-const assert = require('assert');
-const mutations = require('../../src/state/mutations');
+import assert from 'assert';
+import mutations from '../../src/state/mutations';
 
 describe('facility config page mutations', () => {
   it('CONFIG_PAGE_NOTIFY', () => {
@@ -18,7 +18,8 @@ describe('facility config page mutations', () => {
     };
     mutations.CONFIG_PAGE_UNDO_SETTINGS_CHANGE(mockState);
     assert.deepEqual(mockState.pageState.settings, {
-      setting_1: true, setting_2: true,
+      setting_1: true,
+      setting_2: true,
     });
   });
 
@@ -29,7 +30,8 @@ describe('facility config page mutations', () => {
       },
     };
     mutations.CONFIG_PAGE_MODIFY_SETTING(mockState, {
-      name: 'setting_1', value: false,
+      name: 'setting_1',
+      value: false,
     });
     assert.equal(mockState.pageState.settings.setting_1, false);
   });
@@ -41,7 +43,8 @@ describe('facility config page mutations', () => {
       },
     };
     mutations.CONFIG_PAGE_MODIFY_SETTING(mockState, {
-      name: 'setting_1000', value: false,
+      name: 'setting_1000',
+      value: false,
     });
     assert.equal(mockState.pageState.settings.setting_1000 === undefined, true);
   });
@@ -66,7 +69,8 @@ describe('facility config page mutations', () => {
     };
     mutations.CONFIG_PAGE_UNDO_SETTINGS_CHANGE(mockState);
     assert.deepEqual(mockState.pageState.settingsCopy, {
-      setting_1: true, setting_2: true,
+      setting_1: true,
+      setting_2: true,
     });
   });
 });

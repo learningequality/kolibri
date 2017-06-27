@@ -4,4 +4,4 @@
     <slot />
   </div>
 
-</template>
+</template>;

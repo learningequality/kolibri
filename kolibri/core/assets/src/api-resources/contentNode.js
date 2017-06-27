@@ -1,7 +1,9 @@
-const Resource = require('../api-resource').Resource;
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import { Resource } from '../api-resource';
+import logger from 'kolibri.lib.logging';
 
-class ContentNodeResource extends Resource {
+const logging = logger.getLogger(__filename);
+
+export default class ContentNodeResource extends Resource {
   static resourceName() {
     return 'contentnode';
   }
@@ -9,9 +11,7 @@ class ContentNodeResource extends Resource {
     return 'pk';
   }
   static resourceIdentifiers() {
-    return [
-      'channel_id',
-    ];
+    return ['channel_id'];
   }
   getDescendantsCollection(id, resourceIds = {}, getParams = {}) {
     if (!id) {
@@ -21,7 +21,8 @@ class ContentNodeResource extends Resource {
       if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
         throw TypeError(
           `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-          'resource, which does not use resourceIds, only pass getParams for this resource');
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
       } else if (Object.keys(resourceIds).length) {
         getParams = resourceIds; // eslint-disable-line no-param-reassign
       }
@@ -49,7 +50,9 @@ class ContentNodeResource extends Resource {
     const key = this.cacheKey({ id }, filteredResourceIds);
     if (!this.ancestor_cache[key]) {
       const url = this.urls[`${this.name}-ancestors`](
-        ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
+        ...this.resourceIds.map(resourceKey => resourceIds[resourceKey]),
+        id
+      );
       promise = this.client({ path: url }).then(response => {
         if (Array.isArray(response.entity)) {
           this.ancestor_cache[key] = response.entity;
@@ -73,7 +76,9 @@ class ContentNodeResource extends Resource {
     const key = this.cacheKey({ id }, filteredResourceIds);
     if (!this.next_cache[key]) {
       const url = this.urls[`${this.name}_next_content`](
-        ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
+        ...this.resourceIds.map(resourceKey => resourceIds[resourceKey]),
+        id
+      );
       promise = this.client({ path: url }).then(response => {
         if (Object(response.entity) === response.entity) {
           this.next_cache[key] = response.entity;
@@ -110,5 +115,3 @@ class ContentNodeResource extends Resource {
     return collection;
   }
 }
-
-module.exports = ContentNodeResource;

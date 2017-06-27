@@ -37,12 +37,16 @@
 
 <script>
 
-  const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
-  const { PageNames } = require('../../constants');
-  const reportConstants = require('../../reportConstants');
-  const reportGetters = require('../../state/getters/reports');
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import * as reportConstants from '../../reportConstants';
+  import * as reportGetters from '../../state/getters/reports';
+  import reportTable from './report-table';
+  import reportSubheading from './report-subheading';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import activityCell from './table-cells/activity-cell';
+  export default {
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
@@ -52,11 +56,11 @@
       lastActivity: 'Last active',
     },
     components: {
-      'report-table': require('./report-table'),
-      'report-subheading': require('./report-subheading'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell,
     },
     computed: {
       CHANNEL() {

@@ -20,7 +20,6 @@ import kolibri
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
-
 from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
@@ -313,9 +312,7 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'urls'
-
-JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
+JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 

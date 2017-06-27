@@ -146,13 +146,21 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const actions = require('../../state/actions');
-  const differenceWith = require('lodash/differenceWith');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions';
+  import differenceWith from 'lodash/differenceWith';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import orderBy from 'lodash/orderBy';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import userCreateModal from '../user-page/user-create-modal';
+  import confirmEnrollmentModal from './confirm-enrollment-modal';
+  import uiSwitch from 'keen-ui/src/UiSwitch';
+  import userRole from '../user-role';
+  export default {
     mixins: [responsiveWindow],
     $trNameSpace: 'managementClassEnroll',
     $trs: {
@@ -175,18 +183,19 @@
       allUsersAlready: 'All users are already enrolled in this class',
       search: 'Search',
       selectUser: 'Select user',
-      pagination: '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-checkbox': require('keen-ui/src/UiCheckbox'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'textbox': require('kolibri.coreVue.components.textbox'),
-      'user-create-modal': require('../user-page/user-create-modal'),
-      'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
-      'ui-switch': require('keen-ui/src/UiSwitch'),
-      'user-role': require('../user-role'),
+      iconButton,
+      uiCheckbox,
+      uiIconButton,
+      uiIcon,
+      textbox,
+      userCreateModal,
+      confirmEnrollmentModal,
+      uiSwitch,
+      userRole,
     },
     data: () => ({
       filterInput: '',
@@ -205,8 +214,10 @@
       filteredUsers() {
         const users = this.showSelectedUsers ? this.usersNotInClassSelected : this.usersNotInClass;
         return users.filter(user => {
-          const searchTerms =
-            this.filterInput.split(' ').filter(Boolean).map(term => term.toLowerCase());
+          const searchTerms = this.filterInput
+            .split(' ')
+            .filter(Boolean)
+            .map(term => term.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
@@ -241,8 +252,9 @@
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
       allVisibleFilteredUsersSelected() {
-        return this.visibleFilteredUsers.every(
-          visibleUser => this.selectedUsers.includes(visibleUser.id));
+        return this.visibleFilteredUsers.every(visibleUser =>
+          this.selectedUsers.includes(visibleUser.id)
+        );
       },
       editClassLink() {
         return {
@@ -285,7 +297,8 @@
         } else {
           this.visibleFilteredUsers.forEach(visibleUser => {
             this.selectedUsers = this.selectedUsers.filter(
-              selectedUser => selectedUser !== visibleUser.id);
+              selectedUser => selectedUser !== visibleUser.id
+            );
           });
         }
         this.reducePageNum();
@@ -296,7 +309,7 @@
       pageWithinRange(page) {
         const maxOnEachSide = 1;
         if (this.pageNum === 1 || this.pageNum === this.numPages) {
-          return Math.abs(this.pageNum - page) <= (maxOnEachSide + 1);
+          return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
@@ -321,9 +334,7 @@
         modalShown: state => state.pageState.modalShown,
         userJustCreated: state => state.pageState.userJustCreated,
       },
-      actions: {
-        displayModal: actions.displayModal,
-      },
+      actions: { displayModal: actions.displayModal },
     },
   };
 

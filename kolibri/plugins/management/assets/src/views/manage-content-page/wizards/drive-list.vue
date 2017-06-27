@@ -50,19 +50,27 @@
 
 <script>
 
-  module.exports = {
-    components: {
-      UiRadio: require('keen-ui/src/UiRadio'),
-    },
+  import UiRadio from 'keen-ui/src/UiRadio';
+  export default {
+    components: { UiRadio },
     props: {
-      value: { type: String, required: true },
-      drives: { type: Array, required: true },
-      // function that partitions drive list in to enabled/disabled
-      enabledDrivePred: { type: Function, required: true },
-      // function that creates a message for enabled drives, takes the drive object as argument
+      value: {
+        type: String,
+        required: true,
+      },
+      drives: {
+        type: Array,
+        required: true,
+      },
+      enabledDrivePred: {
+        type: Function,
+        required: true,
+      },
       enabledMsg: { type: Function },
-      // hard-coded string for disabled drives
-      disabledMsg: { type: String, required: true },
+      disabledMsg: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       selectedDrive() {

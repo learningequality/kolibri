@@ -16,26 +16,21 @@
 
 <script>
 
-  module.exports = {
+  import progressBar from 'kolibri.coreVue.components.progressBar';
+  export default {
     $trNameSpace: 'progressIndicator',
     $trs: {
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',
     },
-    components: {
-      'progress-bar': require('kolibri.coreVue.components.progressBar'),
-    },
+    components: { progressBar },
     props: {
-      num: {
-        type: Number,
-      },
+      num: { type: Number },
       isExercise: {
         type: Boolean,
         default: false,
       },
-      numusers: {
-        type: Number,
-      },
+      numusers: { type: Number },
     },
     computed: {
       extraText() {

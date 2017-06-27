@@ -85,10 +85,12 @@
 
 <script>
 
-  const actions = require('../state/actions');
-  const store = require('../state/store');
-
-  module.exports = {
+  import * as actions from '../state/actions';
+  import store from '../state/store';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'setupWizard',
     $trs: {
       formHeader: 'Create device owner and facility',
@@ -98,8 +100,10 @@
       passwordInputLabel: 'Password',
       confirmPasswordInputLabel: 'Confirm password',
       facilityInputLabel: 'Facility name',
-      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
-      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location',
+      deviceOwnerDescription:
+        'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
+      facilityDescription:
+        'You also need to create a Facility. This represents your school, training center, or other installation location',
       formSubmissionButton: 'Create and get started',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
       usernameCharacterErrorMessage: 'Username can only contain letters and digits',
@@ -122,9 +126,9 @@
       };
     },
     components: {
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      coreTextbox,
+      iconButton,
+      uiAlert,
     },
     computed: {
       firstUsernameFieldVisit() {
@@ -152,14 +156,12 @@
         return this.facilityError === null;
       },
       allFieldsPopulated() {
-        return this.passwordFieldsPopulated &&
-          this.usernameFieldPopulated &&
-          this.facilityFieldPopulated;
+        return (
+          this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated
+        );
       },
       canSubmit() {
-        return this.passwordFieldsMatch &&
-          this.usernameValidityCheck &&
-          this.allFieldsPopulated;
+        return this.passwordFieldsMatch && this.usernameValidityCheck && this.allFieldsPopulated;
       },
     },
     methods: {
@@ -170,14 +172,11 @@
             password: this.password,
             username: this.username,
           };
-          const facilityPayload = {
-            name: this.facility,
-          };
+          const facilityPayload = { name: this.facility };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
           this.globalError = this.$tr('cannotSubmitPageError');
         }
-        // TODO add errors from backend
       },
       clearGlobalError() {
         this.globalError = '';
@@ -216,7 +215,7 @@
         createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
       },
     },
-    store, // make this and all child components aware of the store
+    store,
   };
 
 </script>

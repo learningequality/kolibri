@@ -30,4 +30,4 @@ function bytesForHumans(bytes) {
   return chooseSize(bytes);
 }
 
-module.exports = bytesForHumans;
+export { bytesForHumans as default };

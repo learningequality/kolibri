@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const progressBar = require('../src/views/progress-bar');
+import Vue from 'vue-test';
+import assert from 'assert';
+import progressBar from '../src/views/progress-bar';
 
 const ProgressBarComponent = Vue.extend(progressBar);
 

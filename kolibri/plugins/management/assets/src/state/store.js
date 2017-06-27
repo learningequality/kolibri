@@ -1,8 +1,8 @@
-const Vuex = require('kolibri.lib.vuex');
-const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('../constants');
-const otherMutations = require('./mutations');
-const manageContentMutations = require('./manageContentMutations');
+import Vuex from 'kolibri.lib.vuex';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
+import * as constants from '../constants';
+import otherMutations from './mutations';
+import manageContentMutations from './manageContentMutations';
 
 /**
  pageState schemas
@@ -57,7 +57,7 @@ const mutations = {
 
   UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
     // pageState has shape for 'edit class page'
-    state.pageState.classUsers.forEach((user) => {
+    state.pageState.classUsers.forEach(user => {
       if (user.id === userId) {
         user.kind = newRole;
       }
@@ -97,7 +97,6 @@ const mutations = {
     state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
   },
 
-
   // content import-export-specific mutations
   SET_CONTENT_PAGE_TASKS(state, taskList) {
     state.pageState.taskList = taskList;
@@ -119,13 +118,13 @@ const mutations = {
   },
 };
 
-
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, otherMutations, coreStore.mutations, manageContentMutations);
 
-
-module.exports = new Vuex.Store({
+const store = new Vuex.Store({
   state: initialState,
   mutations,
 });
+
+export { store as default };

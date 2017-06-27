@@ -71,30 +71,26 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
+  import * as actions from '../../state/actions';
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
-    // 'learnerCanEditPassword',
-    // 'learnerCanDeleteAccount',
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
   ];
-
-  module.exports = {
+  import confirmResetModal from './confirm-reset-modal';
+  import notifications from './config-page-notifications';
+  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     components: {
-      'confirm-reset-modal': require('./confirm-reset-modal'),
-      'notifications': require('./config-page-notifications'),
-      'ui-checkbox': require('keen-ui/src/UiCheckbox'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      confirmResetModal,
+      notifications,
+      uiCheckbox,
+      uiButton,
     },
-    data: () => ({
-      showModal: false,
-    }),
-    computed: {
-      settingsList: () => settingsList,
-    },
+    data: () => ({ showModal: false }),
+    computed: { settingsList: () => settingsList },
     methods: {
       resetToDefaultSettings() {
         this.showModal = false;
@@ -111,7 +107,7 @@
         toggleSetting(store, settingName) {
           store.dispatch('CONFIG_PAGE_MODIFY_SETTING', {
             name: settingName,
-            value: !this.settings[settingName]
+            value: !this.settings[settingName],
           });
         },
         saveFacilityConfig: actions.saveFacilityConfig,
@@ -135,7 +131,7 @@
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
       settingsHeader: 'Facility Settings',
-    }
+    },
   };
 
 </script>
