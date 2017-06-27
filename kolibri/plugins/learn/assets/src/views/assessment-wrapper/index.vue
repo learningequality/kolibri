@@ -267,7 +267,7 @@ oriented data synchronization.
       },
       updateExerciseProgressMethod() {
         this.updateExerciseProgress(this.exerciseProgress);
-        updateContentNodeProgress(this.channelId, this.contentId, this.exerciseProgress);
+        updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
       },
       sessionInitialized() {
         // Once the session is initialized we can initialize the mastery log,
