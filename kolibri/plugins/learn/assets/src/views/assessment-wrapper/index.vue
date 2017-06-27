@@ -147,6 +147,7 @@ oriented data synchronization.
       itemError: false,
       // Track whether a user has so far only taken hints
       onlyHinted: false,
+      // Attempted fix for #1725
       checkingAnswer: false,
     }),
     methods: {
