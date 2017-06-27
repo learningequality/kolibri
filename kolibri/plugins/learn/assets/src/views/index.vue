@@ -2,40 +2,8 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
-
-      <form
-        @submit.prevent="search"
-        class="search-box">
-        <input
-          type="search"
-          :placeholder="$tr('search')"
-          v-model="searchQuery"
-          class="search-input"
-          :style="searchInputStyle"
-        >
-        <ui-icon-button
-          :ariaLabel="$tr('clear')"
-          icon="clear"
-          color="black"
-          class="search-clear-button"
-          :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-          @click="searchQuery = ''"
-          size="small"
-        />
-        <div class="search-submit-button-wrapper">
-          <ui-icon-button
-            :ariaLabel="$tr('search')"
-            icon="search"
-            type="secondary"
-            color="white"
-            @click="search"
-            class="search-submit-button"
-          />
-        </div>
-      </form>
-
+      <search-box/>
       <channel-switcher @switch="switchChannel"/>
-
     </div>
 
     <div v-if="tabLinksAreVisible" class="tab-links">
@@ -84,7 +52,7 @@
   import { PageNames, PageModes } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-  import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import explorePage from './explore-page';
   import contentPage from './content-page';
   import learnPage from './learn-page';
@@ -99,19 +67,16 @@
   import examList from './exam-list';
   import examPage from './exam-page';
   import totalPoints from './total-points';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import searchBox from './search-box';
   export default {
-    mixins: [ResponsiveWindow],
     $trNameSpace: 'learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
       topics: 'Topics',
-      search: 'Search',
       exams: 'Exams',
-      clear: 'Clear',
     },
+    mixins: [responsiveWindow],
     components: {
       explorePage,
       contentPage,
@@ -127,11 +92,7 @@
       examList,
       examPage,
       totalPoints,
-      uiIconButton,
-      uiIcon,
-    },
-    data() {
-      return { searchQuery: this.searchTerm };
+      searchBox,
     },
     methods: {
       switchChannel(channelId) {
@@ -162,24 +123,8 @@
           params: { channel_id: channelId },
         });
       },
-      search() {
-        if (this.searchQuery !== '') {
-          this.$router.push({
-            name: PageNames.SEARCH,
-            query: { query: this.searchQuery },
-          });
-        }
-      },
     },
     computed: {
-      searchInputStyle() {
-        if (this.windowSize.breakpoint === 0) {
-          return { width: '40px' };
-        } else if (this.windowSize.breakpoint === 1) {
-          return { width: '150px' };
-        }
-        return {};
-      },
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
       },
@@ -219,9 +164,6 @@
         }
         return null;
       },
-      searchPage() {
-        return { name: PageNames.SEARCH_ROOT };
-      },
       tabLinksAreVisible() {
         return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;
       },
@@ -247,11 +189,7 @@
         };
       },
     },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
-      },
-    },
+
     vuex: {
       getters: {
         memberships: state => state.learnAppState.memberships,
@@ -279,45 +217,6 @@
   .points-link
     display: inline-block
     text-decoration: none
-
-  .search-box
-    display: inline-block
-    margin-left: 0.5em
-    background-color: white
-
-  .search-input
-    background-color: white
-    color: $core-text-default
-    border: none
-    width: 150px
-    height: 36px
-    padding: 0
-    padding-left: 0.5em
-    padding-right: 0.5em
-    margin: 0
-    vertical-align: middle
-
-  ::placeholder
-      color: $core-text-annotation
-
-  .search-clear-button
-    color: $core-text-default
-    width: 18px
-    height: 22px
-    visibility: hidden
-    vertical-align: middle
-
-  .search-clear-button-visble
-    visibility: visible
-
-  .search-submit-button
-    width: 36px
-    height: 36px
-
-  .search-submit-button-wrapper
-    display: inline-block
-    background-color: $core-action-dark
-    vertical-align: middle
 
   .points-wrapper
     margin-top: -70px
