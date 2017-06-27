@@ -1,7 +1,5 @@
 import os, sys
 
-from jnius import autoclass
-
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), "kolibri", "dist"))
 
@@ -9,7 +7,6 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base
 os.environ["KOLIBRI_HOME"] = "/data/data/org.le.kolibri/.kolibri"
 os.environ["TZ"] = "America/Los_Angeles"
 
-# Secure = autoclass('android.provider.Settings.Secure')
 import django
 django.setup()
 
