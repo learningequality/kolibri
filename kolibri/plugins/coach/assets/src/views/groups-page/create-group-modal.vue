@@ -29,9 +29,11 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'createGroupModal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
@@ -47,9 +49,9 @@
       };
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'textbox': require('kolibri.coreVue.components.textbox'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      textbox,
+      iconButton,
     },
     props: {
       groups: {
@@ -60,7 +62,8 @@
     computed: {
       duplicateName() {
         const index = this.groups.findIndex(
-          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase());
+          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }

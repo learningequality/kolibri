@@ -1,22 +1,31 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class TaskResource extends Resource {
+export default class TaskResource extends Resource {
   static resourceName() {
     return 'task';
   }
 
   localExportContent(driveId) {
-    const clientObj = { path: this.localExportUrl(), entity: { drive_id: driveId } };
+    const clientObj = {
+      path: this.localExportUrl(),
+      entity: { drive_id: driveId },
+    };
     return this.client(clientObj);
   }
 
   localImportContent(driveId) {
-    const clientObj = { path: this.localImportUrl(), entity: { drive_id: driveId } };
+    const clientObj = {
+      path: this.localImportUrl(),
+      entity: { drive_id: driveId },
+    };
     return this.client(clientObj);
   }
 
   remoteImportContent(channelId) {
-    const clientObj = { path: this.remoteImportUrl(), entity: { channel_id: channelId } };
+    const clientObj = {
+      path: this.remoteImportUrl(),
+      entity: { channel_id: channelId },
+    };
     return this.client(clientObj);
   }
 
@@ -25,9 +34,12 @@ class TaskResource extends Resource {
     return this.client(clientObj);
   }
 
-// TODO: switch to Model.delete()
+  // TODO: switch to Model.delete()
   clearTask(taskId) {
-    const clientObj = { path: this.clearTaskUrl(), entity: { task_id: taskId } };
+    const clientObj = {
+      path: this.clearTaskUrl(),
+      entity: { task_id: taskId },
+    };
     return this.client(clientObj);
   }
 
@@ -47,5 +59,3 @@ class TaskResource extends Resource {
     return this.urls[`${this.name}_cleartask`];
   }
 }
-
-module.exports = TaskResource;

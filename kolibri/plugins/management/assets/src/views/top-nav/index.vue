@@ -38,11 +38,11 @@
 
 <script>
 
-  const { PageNames } = require('../../constants');
-
-  const linkify = (name) => ({ name });
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  const linkify = name => ({ name });
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabLink from 'kolibri.coreVue.components.tabLink';
+  export default {
     $trNameSpace: 'topNav',
     $trs: {
       classes: 'Classes',
@@ -52,8 +52,8 @@
       users: 'Users',
     },
     components: {
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
+      tabs,
+      tabLink,
     },
     computed: {
       classesLink() {
@@ -72,11 +72,7 @@
         return linkify(PageNames.CONTENT_MGMT_PAGE);
       },
     },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-      },
-    },
+    vuex: { getters: { pageName: state => state.pageName } },
   };
 
 </script>

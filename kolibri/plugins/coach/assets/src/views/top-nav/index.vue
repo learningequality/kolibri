@@ -38,9 +38,10 @@
 
 <script>
 
-  const Constants = require('../../constants');
-
-  module.exports = {
+  import * as Constants from '../../constants';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabLink from 'kolibri.coreVue.components.tabLink';
+  export default {
     $trNameSpace: 'topNav',
     $trs: {
       recent: 'Recent',
@@ -50,8 +51,8 @@
       groups: 'Groups',
     },
     components: {
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
+      tabs,
+      tabLink,
     },
     computed: {
       Constants() {

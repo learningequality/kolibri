@@ -1,4 +1,3 @@
-
 const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
@@ -64,7 +63,10 @@ const InteractionTypes = {
 };
 
 const MasteryModelGenerators = {
-  do_all: (assessmentIds, masteryModel) => ({ m: assessmentIds.length, n: assessmentIds.length }),
+  do_all: (assessmentIds, masteryModel) => ({
+    m: assessmentIds.length,
+    n: assessmentIds.length,
+  }),
   num_correct_in_a_row_10: (assessmentIds, masteryModel) => ({ m: 10, n: 10 }),
   num_correct_in_a_row_3: (assessmentIds, masteryModel) => ({ m: 3, n: 3 }),
   num_correct_in_a_row_5: (assessmentIds, masteryModel) => ({ m: 5, n: 5 }),
@@ -97,7 +99,7 @@ const LoginErrors = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
 };
 
-module.exports = {
+export {
   UserKinds,
   ContentNodeKinds,
   MasteryLoggingMap,

@@ -18,21 +18,17 @@
 
 <script>
 
-  const ScreenFull = require('screenfull');
-
-  module.exports = {
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
+  import ScreenFull from 'screenfull';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
+    components: { iconButton },
     props: {
       defaultFile: {
         type: Object,
         required: true,
       },
     },
-    data: () => ({
-      isFullScreen: false,
-    }),
+    data: () => ({ isFullScreen: false }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;

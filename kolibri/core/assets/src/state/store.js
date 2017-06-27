@@ -1,6 +1,4 @@
-
-
-const UserKinds = require('../constants').UserKinds;
+import { UserKinds } from '../constants';
 
 const baseLoggingState = {
   summary: { progress: 0 },
@@ -132,15 +130,10 @@ const mutations = {
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },
-  UPDATE_LOGGING_ATTEMPT(state, {
-    currentTime,
-    correct,
-    firstAttempt,
-    complete,
-    hinted,
-    answerState,
-    simpleAnswer,
-  }) {
+  UPDATE_LOGGING_ATTEMPT(
+    state,
+    { currentTime, correct, firstAttempt, complete, hinted, answerState, simpleAnswer }
+  ) {
     if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
       state.core.logging.attempt.complete = true;
@@ -183,7 +176,4 @@ const mutations = {
   },
 };
 
-module.exports = {
-  initialState,
-  mutations,
-};
+export { initialState, mutations };

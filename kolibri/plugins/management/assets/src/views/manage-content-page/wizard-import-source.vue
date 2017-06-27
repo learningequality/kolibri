@@ -31,9 +31,10 @@
 
 <script>
 
-  const manageContentActions = require('../../state/manageContentActions');
-
-  module.exports = {
+  import * as manageContentActions from '../../state/manageContentActions';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'wizardImportSource',
     $trs: {
       title: 'Please choose a source...',
@@ -47,16 +48,14 @@
       },
       cancel() {
         return this.transitionWizardPage('cancel');
-      }
+      },
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton,
     },
     vuex: {
-      actions: {
-        transitionWizardPage: manageContentActions.transitionWizardPage,
-      },
+      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
     },
   };
 

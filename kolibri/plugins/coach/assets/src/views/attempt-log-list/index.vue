@@ -49,7 +49,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'coachExerciseAnswerHistory',
     $trs: {
       header: 'Answer history',

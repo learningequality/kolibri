@@ -34,17 +34,13 @@
 
 <script>
 
-  const CoreConstants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash/values');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
-    mixins: [responsiveWindow],
-    components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-    },
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  export default {
     props: {
       title: {
         type: String,
@@ -70,7 +66,7 @@
         required: true,
         default: 0.0,
         validator(value) {
-          return (value >= 0.0) && (value <= 1.0);
+          return value >= 0.0 && value <= 1.0;
         },
       },
       link: {
@@ -78,13 +74,17 @@
         required: true,
         validator: validateLinkObject,
       },
+      thumbnail: {
+        type: String,
+        required: false,
+      },
     },
     computed: {
       mastered() {
-        return this.progress === 1.0;
+        return this.progress === 1;
       },
       inProgress() {
-        return this.progress > 0 && this.progress < 1.0;
+        return this.progress > 0 && this.progress < 1;
       },
       backgroundImg() {
         if (this.thumbnail) {
@@ -106,6 +106,10 @@
         }
         return '';
       },
+    },
+    components: {
+      contentIcon,
+      progressIcon,
     },
   };
 

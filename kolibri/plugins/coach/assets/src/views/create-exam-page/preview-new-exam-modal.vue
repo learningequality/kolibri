@@ -14,16 +14,15 @@
 
 <script>
 
-  const ExamActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as ExamActions from '../../state/actions/exam';
+  import previewExamModal from '../exams-page/preview-exam-modal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'previewNewExamModal',
-    $trs: {
-      randomize: 'Randomize questions',
-    },
+    $trs: { randomize: 'Randomize questions' },
     components: {
-      'preview-exam-modal': require('../exams-page/preview-exam-modal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      previewExamModal,
+      iconButton,
     },
     props: {
       examChannelId: {
@@ -48,11 +47,7 @@
         this.displayExamModal(false);
       },
     },
-    vuex: {
-      actions: {
-        displayExamModal: ExamActions.displayExamModal,
-      },
-    },
+    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } },
   };
 
 </script>

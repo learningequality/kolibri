@@ -36,10 +36,12 @@
 
 <script>
 
-  const { isUserLoggedIn, getCurrentChannelObject } = require('kolibri.coreVue.vuex.getters');
-  const PageNames = require('../../constants').PageNames;
-
-  module.exports = {
+  import { isUserLoggedIn, getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import { PageNames } from '../../constants';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import pageHeader from '../page-header';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'examIndex',
     $trs: {
       examName: 'Exams',
@@ -52,9 +54,9 @@
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
     },
     components: {
-      'auth-message': require('kolibri.coreVue.components.authMessage'),
-      'page-header': require('../page-header'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      authMessage,
+      pageHeader,
+      iconButton,
     },
     computed: {
       activeExams() {
@@ -65,7 +67,10 @@
       generateExamLink(exam) {
         return {
           name: PageNames.EXAM_ROOT,
-          params: { channel_id: exam.channelId, id: exam.id },
+          params: {
+            channel_id: exam.channelId,
+            id: exam.id,
+          },
         };
       },
     },
@@ -73,7 +78,7 @@
       getters: {
         isUserLoggedIn,
         exams: state => state.pageState.exams,
-        channelId: (state) => getCurrentChannelObject(state).id,
+        channelId: state => getCurrentChannelObject(state).id,
       },
     },
   };

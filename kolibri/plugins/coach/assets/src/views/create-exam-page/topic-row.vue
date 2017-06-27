@@ -27,17 +27,18 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'topicRow',
     $trs: {
-      exercisesSelected: '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
-
+      exercisesSelected:
+        '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      contentIcon,
+      iconButton,
     },
     props: {
       topicId: {
@@ -68,26 +69,27 @@
         return this.allExercisesWithinTopic.length;
       },
       numExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.filter(
-          exercise => this.selectedExercises.some(
-            selectedExercise => selectedExercise.id === exercise.id)).length;
+        return this.allExercisesWithinTopic.filter(exercise =>
+          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
+        ).length;
       },
       allExercisesWithinTopicSelected() {
         if (!this.topicHasExercises) {
           return false;
         }
-        return this.allExercisesWithinTopic.every(
-          exercise => this.selectedExercises.some(
-            selectedExercise => selectedExercise.id === exercise.id));
+        return this.allExercisesWithinTopic.every(exercise =>
+          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
+        );
       },
       noExercisesWithinTopicSelected() {
         return this.allExercisesWithinTopic.every(
-            exercise => !this.selectedExercises.some(
-              selectedExercise => selectedExercise.id === exercise.id));
+          exercise =>
+            !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
+        );
       },
       someExercisesWithinTopicSelected() {
         return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
-      }
+      },
     },
     methods: {
       changeSelection() {

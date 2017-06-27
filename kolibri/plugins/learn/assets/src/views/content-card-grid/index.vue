@@ -31,9 +31,9 @@
 
 <script>
 
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import contentCard from '../content-card';
+  export default {
     props: {
       contents: {
         type: Array,
@@ -56,14 +56,8 @@
         required: false,
       },
     },
-    components: {
-      'content-card': require('../content-card'),
-    },
-    vuex: {
-      getters: {
-        channelId: (state) => state.core.channels.currentId,
-      },
-    }
+    components: { contentCard },
+    vuex: { getters: { channelId: state => state.core.channels.currentId } },
   };
 
 </script>

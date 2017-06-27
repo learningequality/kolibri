@@ -13,8 +13,11 @@
     -   id: python-import-sorter
         args:
         - --silent-overwrite
--   repo: git://github.com/pre-commit/mirrors-eslint
-    sha: v3.14.0
+-   repo: local
     hooks:
-    -   id: eslint
-        additional_dependencies: [ 'eslint', 'eslint-plugin-html', 'eslint-config-airbnb', 'eslint-plugin-import', 'eslint-plugin-jsx-a11y']
+      -   id: frontend-lint
+          name: Prettier Linting of JS and Vue files
+          description: This hook rewrites JS and the JS portion of Vue files to conform to prettier standards.
+          entry: yarn run lint-js:base -- -w
+          language: system
+          files: \.(js|vue)$
