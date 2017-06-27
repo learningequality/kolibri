@@ -173,6 +173,8 @@ class Model {
           this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
+            // Set a flag so that any collection containing this can ignore this model
+            this.deleted = true;
             // Resolve the promise with the id.
             // Vuex will use this id to delete the model in its state.
             resolve(this.id);
@@ -354,7 +356,7 @@ class Collection {
   }
 
   get data() {
-    return this.models.map((model) => model.attributes);
+    return this.models.filter(model => !model.deleted).map((model) => model.attributes);
   }
 
   get synced() {
@@ -703,7 +705,6 @@ class ResourceManager {
       this._resources[key].clearCache();
     });
   }
-
 }
 
 module.exports = {
