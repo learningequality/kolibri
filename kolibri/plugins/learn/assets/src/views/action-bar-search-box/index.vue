@@ -58,7 +58,6 @@
     },
     methods: {
       toggleDropdownSearchBox() {
-        console.log(this.elSize);
         this.searchBoxOpen = !this.searchBoxOpen;
         if (this.searchBoxOpen) {
           this.$nextTick(() => {
