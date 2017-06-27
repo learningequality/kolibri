@@ -13,7 +13,6 @@ except AppRegistryNotReady:
 
 import requests
 from django.core.management import call_command
-from django.conf import settings
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadataCache
