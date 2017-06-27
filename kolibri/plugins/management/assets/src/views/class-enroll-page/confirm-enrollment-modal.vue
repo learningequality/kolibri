@@ -25,10 +25,11 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const constants = require('../../constants');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as constants from '../../constants';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'confirmEnrollmentModal',
     $trs: {
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
@@ -37,8 +38,8 @@
       yesEnrollUsers: 'Yes, enroll users',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton,
     },
     props: {
       className: {
@@ -72,16 +73,15 @@
             this.close();
             this.$router.push(this.editClassLink);
           },
-          (error) => {});
+          error => {}
+        );
       },
       close() {
         this.displayModal(false);
       },
     },
     vuex: {
-      getters: {
-        facilityUsers: state => state.pageState.facilityUsers,
-      },
+      getters: { facilityUsers: state => state.pageState.facilityUsers },
       actions: {
         enrollUsersInClass: actions.enrollUsersInClass,
         displayModal: actions.displayModal,

@@ -1,5 +1,4 @@
 import os
-
 from collections import OrderedDict
 from functools import reduce
 from random import sample
@@ -7,7 +6,6 @@ from random import sample
 from django.core.cache import cache
 from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
-from six.moves.urllib.parse import parse_qs, urlparse
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -15,10 +13,11 @@ from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
+from six.moves.urllib.parse import parse_qs, urlparse
 
 from .permissions import OnlyDeviceOwnerCanDelete
-from .utils.search import fuzz
 from .utils.paths import get_content_database_file_path
+from .utils.search import fuzz
 
 
 def _join_with_logical_operator(lst, operator):
@@ -254,7 +253,9 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         return models.ContentNode.objects.all().prefetch_related(
             'assessmentmetadata',
             'files',
-        ).select_related('license')
+        ).select_related(
+            'license',
+        )
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):

@@ -52,7 +52,7 @@ class Exam(AbstractFacilityDataModel):
         return self.creator.dataset
 
     def calculate_partition(self):
-        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)
+        return self.dataset_id
 
     def __str__(self):
         return self.title
@@ -82,5 +82,8 @@ class ExamAssignment(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         return self.assigned_by.dataset
 
+    def calculate_source_id(self):
+        return "{exam_id}:{collection_id}".format(exam_id=self.exam_id, collection_id=self.collection_id)
+
     def calculate_partition(self):
-        return "{dataset_id}:crossuser".format(dataset_id=self.dataset_id)
+        return self.dataset_id

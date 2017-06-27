@@ -72,29 +72,26 @@
 
 <script>
 
-  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import contentCard from '../content-card';
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
 
-  module.exports = {
+  export default {
     mixins: [responsiveElement],
     $trNameSpace: 'contentCardCarousel',
-    $trs: {
-      viewAllButtonLabel: 'View all'
-    },
+    $trs: { viewAllButtonLabel: 'View all' },
     props: {
       contents: {
         type: Array,
         required: true,
       },
-      header: {
-        type: String,
-      },
-      subheader: {
-        type: String,
-      },
+      header: { type: String },
+      subheader: { type: String },
       genLink: {
         type: Function,
         validator(value) {
@@ -105,9 +102,9 @@
       },
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'content-card': require('../content-card'),
+      iconButton,
+      uiIconButton,
+      contentCard,
     },
     data() {
       return {
@@ -122,7 +119,6 @@
         const newIndexTooLarge = this.contentSetEnd >= this.contents.length;
         const newIndexTooSmall = newStartIndex < 0;
         const enoughContentForASet = this.contents.length >= this.contentSetSize;
-
         if (nextSet && newIndexTooLarge && enoughContentForASet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
         } else if (previousSet && newIndexTooSmall) {
@@ -132,36 +128,24 @@
       contentSetSize(newSetSize, oldSetSize) {
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
-
         this.leftToRight = removingCards;
-
         if (this.isLastSet && addingCards) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
-
-          // adding cards on the left rather than the right.
           this.leftToRight = true;
         }
       },
     },
     computed: {
       contentSetSize() {
-        // need space for at least 2 cards and a gutter
-        if (this.elSize.width > (2 * contentCardWidth)) {
+        if (this.elSize.width > 2 * contentCardWidth) {
           const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
           const numOfGutters = numOfCards - 1;
-
-          const totalWidth = (numOfCards * contentCardWidth) + (numOfGutters * gutterWidth);
-
+          const totalWidth = numOfCards * contentCardWidth + numOfGutters * gutterWidth;
           if (this.elSize.width >= totalWidth) {
-            // enough room for all cards with gutters
             return numOfCards;
           }
-
-          // going to have to drop down one card to make room for other cards' gutters
           return numOfCards - 1;
         }
-
-        // 1 is the minimum amount of cards and there is no gutter in this case
         return 1;
       },
       contentSetEnd() {
@@ -177,7 +161,7 @@
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
-          'width': `${cards + gutters}px`,
+          width: `${cards + gutters}px`,
           'min-width': `${contentCardWidth}px`,
         };
       },
@@ -187,18 +171,15 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return {
-          left: `${cardOffset + gutterOffset}px`
-        };
+        return { left: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
-        // posibility room for optimization by deleting elements as soon as they're out of sight
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
-        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
+        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
       },
       slide(el) {
         const originalPosition = parseInt(el.style.left, 10);
@@ -206,7 +187,7 @@
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
+        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
       },
       isInThisSet(index) {
         return this.contentSetStart <= index && index <= this.contentSetEnd;

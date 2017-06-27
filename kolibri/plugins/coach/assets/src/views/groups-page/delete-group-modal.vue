@@ -16,9 +16,11 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'deleteGroupModal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
@@ -29,9 +31,9 @@
       deleteGroup: 'Delete Group',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'textbox': require('kolibri.coreVue.components.textbox'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      textbox,
+      iconButton,
     },
     props: {
       groupName: {

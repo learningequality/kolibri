@@ -28,7 +28,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     props: {
       interaction: {
         type: Object,

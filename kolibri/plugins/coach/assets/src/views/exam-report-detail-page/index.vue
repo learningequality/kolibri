@@ -66,19 +66,21 @@
 
 <script>
 
-  const constants = require('../../constants');
-
-  module.exports = {
+  import * as constants from '../../constants';
+  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import pageStatus from './page-status';
+  import attemptLogList from '../attempt-log-list';
+  import interactionList from '../interaction-list';
+  export default {
     $trNameSpace: 'coachExamDetailPage',
-    $trs: {
-      backTo: 'Back to exam report for { title }',
-    },
+    $trs: { backTo: 'Back to exam report for { title }' },
     components: {
-      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'page-status': require('./page-status'),
-      'attempt-log-list': require('../attempt-log-list'),
-      'interaction-list': require('../interaction-list'),
+      immersiveFullScreen,
+      contentRenderer,
+      pageStatus,
+      attemptLogList,
+      interactionList,
     },
     computed: {
       backPageLink() {
@@ -111,7 +113,7 @@
             examId: this.exam.id,
           },
         });
-      }
+      },
     },
     vuex: {
       getters: {

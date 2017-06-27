@@ -23,7 +23,9 @@
 
 <script>
 
-  module.exports = {
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiTooltip from 'keen-ui/src/UiTooltip';
+  export default {
     $trNameSpace: 'progressIcon',
     $trs: {
       inProgress: 'In progress',
@@ -34,21 +36,21 @@
         type: Number,
         required: false,
         validator(value) {
-          return (value >= 0) && (value <= 1);
+          return value >= 0 && value <= 1;
         },
       },
     },
     computed: {
       isInProgress() {
-        return (this.progress > 0) && (this.progress < 1);
+        return this.progress > 0 && this.progress < 1;
       },
       isCompleted() {
         return this.progress >= 1;
       },
     },
     components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'ui-tooltip': require('keen-ui/src/UiTooltip'),
+      uiIcon,
+      uiTooltip,
     },
   };
 

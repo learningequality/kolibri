@@ -37,10 +37,12 @@
 
 <script>
 
-  module.exports = {
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      coreModal,
+      uiButton,
     },
     methods: {
       handleConfirm() {
@@ -48,7 +50,7 @@
       },
       handleCancel() {
         this.$emit('click-cancel');
-      }
+      },
     },
     $trNameSpace: 'confirmResetModal',
     $trs: {

@@ -33,9 +33,11 @@
 
 <script>
 
-  const manageContentActions = require('../../state/manageContentActions');
-
-  module.exports = {
+  import * as manageContentActions from '../../state/manageContentActions';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'wizardImportNetwork',
     $trs: {
       title: 'Please choose a source...',
@@ -44,13 +46,11 @@
       import: 'Import',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      coreModal,
+      iconButton,
+      coreTextbox,
     },
-    data: () => ({
-      contentId: '',
-    }),
+    data: () => ({ contentId: '' }),
     computed: {
       canSubmit() {
         if (this.wizardState.busy) {
@@ -73,12 +73,8 @@
       },
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
-      actions: {
-        transitionWizardPage: manageContentActions.transitionWizardPage,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
+      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
     },
   };
 

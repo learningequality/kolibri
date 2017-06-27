@@ -29,10 +29,13 @@
 
 <script>
 
-  const { contentPoints } = require('kolibri.coreVue.vuex.getters');
-  const { MaxPointsPerContent, ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
-
-  module.exports = {
+  import { contentPoints } from 'kolibri.coreVue.vuex.getters';
+  import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'contentPoints',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
@@ -48,23 +51,15 @@
       close: 'Close',
     },
     components: {
-      'points-icon': require('kolibri.coreVue.components.pointsIcon'),
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      pointsIcon,
+      contentIcon,
+      coreModal,
+      iconButton,
     },
-    vuex: {
-      getters: {
-        contentPoints,
-      },
-    },
+    vuex: { getters: { contentPoints } },
     props: {
-      kind: {
-        type: String,
-      },
-      title: {
-        type: String,
-      },
+      kind: { type: String },
+      title: { type: String },
     },
     computed: {
       maxPoints() {

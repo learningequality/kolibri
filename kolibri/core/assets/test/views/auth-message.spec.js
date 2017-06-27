@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const AuthMessage = require('../../src/views/auth-message.vue');
+import Vue from 'vue-test';
+import assert from 'assert';
+import AuthMessage from '../../src/views/auth-message.vue';
 
 function makeVm(options) {
   const Ctor = Vue.extend(AuthMessage);

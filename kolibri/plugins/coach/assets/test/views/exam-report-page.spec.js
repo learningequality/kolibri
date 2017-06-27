@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const ExamReportPage = require('../../src/views/exam-report-page');
+import Vue from 'vue-test';
+import assert from 'assert';
+import ExamReportPage from '../../src/views/exam-report-page';
 
 function makeVm(options = {}) {
   const Ctor = Vue.extend(ExamReportPage);
@@ -35,8 +35,8 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
     assert.equal(els.headerStats().length, 1);
@@ -54,8 +54,8 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
     assert.equal(els.headerStats().length, 2);
@@ -74,12 +74,12 @@ describe('exam report page', () => {
           classId: () => 'class_1',
           exam: () => ({ question_count: 6 }),
           channelId: () => 'channel_1',
-        }
-      }
+        },
+      },
     });
     const els = getElements(vm);
-    // score isn't properly formatted
-    assert.equal(getTextInScoreColumn(els.tableRows()[0]).trim(), '{num, number, percent}');
+    // score is properly formatted
+    assert.equal(getTextInScoreColumn(els.tableRows()[0]).trim(), '50%');
     // emdash
     assert.equal(getTextInScoreColumn(els.tableRows()[1]).trim(), '–');
   });

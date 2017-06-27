@@ -48,15 +48,20 @@
 
 <script>
 
-  const kolibriLogout = require('kolibri.coreVue.vuex.actions').kolibriLogout;
-  const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
-  const isAdmin = require('kolibri.coreVue.vuex.getters').isAdmin;
-  const isCoach = require('kolibri.coreVue.vuex.getters').isCoach;
-  const isLearner = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
+  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
+  import {
+    isUserLoggedIn,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    isLearner,
+  } from 'kolibri.coreVue.vuex.getters';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
     mixins: [responsiveWindow],
     $trNameSpace: 'appBar',
     $trs: {
@@ -83,10 +88,10 @@
       },
     },
     components: {
-      'ui-toolbar': require('keen-ui/src/UiToolbar'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      uiToolbar,
+      uiIconButton,
+      uiMenu,
+      uiButton,
     },
     computed: {
       accountMenuOptions() {
@@ -117,9 +122,7 @@
       },
     },
     vuex: {
-      actions: {
-        kolibriLogout,
-      },
+      actions: { kolibriLogout },
       getters: {
         username: state => state.core.session.username,
         isUserLoggedIn,
