@@ -36,7 +36,7 @@ class PrettierFrontendPlugin {
             this.extensions.indexOf(path.extname(file)) !== -1 &&
             file.indexOf('node_modules') === -1
           ) {
-            return prettierlinting({
+            return prettierFrontend({
               file,
               encoding: this.encoding,
               write: true,
