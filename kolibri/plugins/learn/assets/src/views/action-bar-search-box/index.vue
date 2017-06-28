@@ -6,6 +6,7 @@
         ref="searchBox"
         :icon="showDropdownSearchBox ? 'arrow_forward' : 'search'"
         :width="showDropdownSearchBox ? 'calc(100vw - 120px)' : '150px'"
+        @closeSearchBox="searchBoxOpen = false"
       />
     </div>
 

@@ -8,6 +8,7 @@
       v-model="searchQuery"
       :placeholder="$tr('search')"
       :style="{ width: width }"
+      @keydown.esc.prevent="handleEscKey"
     >
 
     <ui-icon-button
@@ -73,6 +74,13 @@
           });
         }
       },
+      handleEscKey() {
+        if (this.searchQuery === '') {
+          this.$emit('closeSearchBox');
+        } else {
+          this.searchQuery = '';
+        }
+      },
     },
     watch: {
       searchTerm(val) {
@@ -111,7 +119,7 @@
     margin: 0
     vertical-align: middle
 
-  ::placeholder
+    &::placeholder
       color: $core-text-annotation
 
   .search-clear-button
