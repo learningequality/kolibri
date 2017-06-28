@@ -2,6 +2,7 @@ import datetime
 import re
 
 import pytz
+from django.db.backends.utils import typecast_timestamp
 from django.db.models.fields import Field
 from django.utils import timezone
 
@@ -16,8 +17,10 @@ def parse_timezonestamp(value):
     else:
         tz = timezone.get_current_timezone()
     utc_value = tz_regex.sub('', value)
-    value = datetime.datetime.strptime(utc_value, date_time_format)
-    value = timezone.make_aware(value, pytz.utc)
+    value = typecast_timestamp(utc_value)
+    if value.tzinfo is None:
+        # Naive datetime, make aware
+        value = timezone.make_aware(value, pytz.utc)
     return value.astimezone(tz)
 
 def create_timezonestamp(value):

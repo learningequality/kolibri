@@ -6,7 +6,7 @@ import pytz
 from django.db import models
 from django.test import override_settings, TestCase
 from django.utils import timezone
-from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import DateTimeTzField, parse_timezonestamp
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
 
 def aware_datetime():
@@ -65,6 +65,17 @@ class AwareDateTimeTzFieldTestCase(TestCase):
         obj = DateTimeTzModel.objects.create()
         self.assertEqual(obj.default_timestamp.tzinfo, timestamp.tzinfo)
         timezone.deactivate()
+
+    def test_zero_second_fractions_read(self):
+        # Regression test for https://github.com/learningequality/kolibri/issues/1758
+        timezone.activate(pytz.utc)
+        try:
+            timestamp = parse_timezonestamp('2000-12-11 10:09:08')
+            self.assertEqual(timestamp, aware_datetime())
+        except ValueError:
+            self.fail('parse_timezonestamp did not parse time data missing fractions of seconds.')
+        finally:
+            timezone.deactivate()
 
 
 @override_settings(USE_TZ=False)
