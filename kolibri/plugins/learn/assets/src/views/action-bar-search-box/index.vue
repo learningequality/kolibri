@@ -1,12 +1,13 @@
 <template>
 
-  <div class="search-box-wrapper">
+  <div class="search-box-wrapper" ref="searchBoxWrapper">
     <div v-show="showSearchBox" :class="{ 'search-box-dropdown': showDropdownSearchBox }">
       <search-box
         ref="searchBox"
         :icon="showDropdownSearchBox ? 'arrow_forward' : 'search'"
         :width="showDropdownSearchBox ? 'calc(100vw - 120px)' : '150px'"
         @closeSearchBox="searchBoxOpen = false"
+        @clickedTarget="handleClickedTarget"
       />
     </div>
 
@@ -71,6 +72,13 @@
             this.$refs.searchBox.$refs.searchInput.focus();
           });
         }
+      },
+      handleClickedTarget(target) {
+        this.$nextTick(() => {
+          if (!this.$refs.searchBoxWrapper.contains(target) && this.searchBoxOpen) {
+            this.searchBoxOpen = false;
+          }
+        });
       },
       search() {
         if (this.searchQuery !== '') {

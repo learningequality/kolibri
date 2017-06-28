@@ -81,6 +81,15 @@
           this.searchQuery = '';
         }
       },
+      emitClick(event) {
+        this.$emit('clickedTarget', event.target);
+      },
+    },
+    created() {
+      window.addEventListener('click', this.emitClick);
+    },
+    beforeDestroy() {
+      window.removeEventListener('click', this.emitClick);
     },
     watch: {
       searchTerm(val) {
