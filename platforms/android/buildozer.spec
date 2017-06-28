@@ -22,11 +22,8 @@ version = 0.2
 # (list) Application requirements
 requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
 
-# (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
-
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = ./resources/logo.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = all
@@ -37,13 +34,6 @@ orientation = all
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 0
-
-# (string) Presplash background color (for new android toolchain)
-# Supported formats are: #RRGGBB #AARRGGBB or one of the following names:
-# red, blue, green, black, white, gray, cyan, magenta, yellow, lightgray,
-# darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
-# olive, purple, silver, teal.
-#android.presplash_color = #FFFFFF
 
 # (list) Permissions
 android.permissions = INTERNET,VIBRATE,WRITE_EXTERNAL_STORAGE
