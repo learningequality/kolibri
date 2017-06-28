@@ -1,34 +1,36 @@
 <template>
 
   <form class="search-box" @submit.prevent="search">
-    <input
-      type="search"
-      class="search-input"
-      ref="searchInput"
-      v-model="searchQuery"
-      :placeholder="$tr('search')"
-      @keydown.esc.prevent="handleEscKey"
-    >
-    <div class="search-clear-submit">
-      <ui-icon-button
-        icon="clear"
-        color="black"
-        size="small"
-        class="search-clear-button"
-        :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-        :ariaLabel="$tr('clear')"
-        @click="searchQuery = ''"
-      />
-
-      <div class="search-submit-button-wrapper">
+    <div class="search-box-row">
+      <input
+        type="search"
+        class="search-input"
+        ref="searchInput"
+        v-model="searchQuery"
+        :placeholder="$tr('search')"
+        @keydown.esc.prevent="handleEscKey"
+      >
+      <div class="search-clear-submit">
         <ui-icon-button
-          type="secondary"
-          color="white"
-          class="search-submit-button"
-          :icon="icon"
-          :ariaLabel="$tr('search')"
-          @click="search"
+          icon="clear"
+          color="black"
+          size="small"
+          class="search-clear-button"
+          :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
+          :ariaLabel="$tr('clear')"
+          @click="searchQuery = ''"
         />
+
+        <div class="search-submit-button-wrapper">
+          <ui-icon-button
+            type="secondary"
+            color="white"
+            class="search-submit-button"
+            :icon="icon"
+            :ariaLabel="$tr('search')"
+            @click="search"
+          />
+        </div>
       </div>
     </div>
   </form>
@@ -114,6 +116,9 @@
 
   .search-box-within-action-bar
     width: 235px
+
+  .search-box-row
+    display: table-row
 
   .search-input
     display: table-cell
