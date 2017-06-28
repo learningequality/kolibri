@@ -16,13 +16,16 @@
       icon="search"
       type="primary"
       color="primary"
+      :disableRipple="true"
       @click="toggleDropdownSearchBox"
+      @focusin.native="handleFocusIn"
+      @focusout.native="handleFocusOut"
     />
 
     <div
       v-show="showDropdownSearchBox && searchBoxOpen"
       class="backdrop"
-      @click="toggleDropdownSearchBox">
+      @click="searchBoxOpen = false">
     </div>
   </div>
 
@@ -51,6 +54,7 @@
       return {
         searchQuery: this.searchTerm,
         searchBoxOpen: false,
+        closeOnFocusOut: false,
       };
     },
     computed: {
@@ -71,6 +75,8 @@
           this.$nextTick(() => {
             this.$refs.searchBox.$refs.searchInput.focus();
           });
+        } else {
+          this.closeOnFocusOut = false;
         }
       },
       handleClickedTarget(target) {
@@ -79,6 +85,14 @@
             this.searchBoxOpen = false;
           }
         });
+      },
+      handleFocusIn() {
+        this.closeOnFocusOut = this.searchBoxOpen;
+      },
+      handleFocusOut() {
+        if (this.searchBoxOpen && this.closeOnFocusOut) {
+          this.searchBoxOpen = false;
+        }
       },
       search() {
         if (this.searchQuery !== '') {
