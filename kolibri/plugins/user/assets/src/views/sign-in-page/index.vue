@@ -121,10 +121,17 @@
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
       suggestions() {
-        return this.usernameSuggestions.filter(sug => sug.startsWith(this.username));
+        // Filter suggestions on the client side so we don't hammer the server
+        return this.usernameSuggestions.filter(sug =>
+          sug.toLowerCase().startsWith(this.username.toLowerCase())
+        );
       },
       uniqueMatch() {
-        return this.suggestions.length === 1 && this.suggestions[0] === this.username;
+        // If we have a matching username entered, don't show any suggestions.
+        return (
+          this.suggestions.length === 1 &&
+          this.suggestions[0].toLowerCase() === this.username.toLowerCase()
+        );
       },
     },
     methods: {

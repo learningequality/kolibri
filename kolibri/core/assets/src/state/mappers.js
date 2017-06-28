@@ -1,6 +1,14 @@
 import mapKeys from 'lodash/mapKeys';
+import mapValues from 'lodash/mapValues';
 import camelCase from 'lodash/camelCase';
 import snakeCase from 'lodash/snakeCase';
+
+function ensureTypeSnakeCase(value) {
+  if (typeof value === 'string') {
+    return snakeCase(value);
+  }
+  return value;
+}
 
 function assessmentMetaDataState(data) {
   const blankState = {
@@ -15,7 +23,7 @@ function assessmentMetaDataState(data) {
     return blankState;
   }
   const assessmentIds = assessmentMetaData.assessment_item_ids;
-  const masteryModel = assessmentMetaData.mastery_model;
+  const masteryModel = mapValues(assessmentMetaData.mastery_model, ensureTypeSnakeCase);
   if (!assessmentIds.length || !Object.keys(masteryModel).length) {
     return blankState;
   }
