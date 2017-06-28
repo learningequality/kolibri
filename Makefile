@@ -79,7 +79,7 @@ dist: writeversion staticdeps assets compilemessages
 	python setup.py bdist_wheel --static
 	ls -l dist
 
-pex:
+pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`unzip -p $$whlfile kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 makedocsmessages:
