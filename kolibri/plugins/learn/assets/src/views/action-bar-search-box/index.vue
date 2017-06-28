@@ -5,9 +5,9 @@
       <search-box
         ref="searchBox"
         :icon="showDropdownSearchBox ? 'arrow_forward' : 'search'"
-        :width="showDropdownSearchBox ? 'calc(100vw - 120px)' : '150px'"
         @closeSearchBox="searchBoxOpen = false"
         @clickedTarget="handleClickedTarget"
+        :class="showDropdownSearchBox ? '' : 'search-box-within-action-bar'"
       />
     </div>
 
@@ -114,6 +114,7 @@
 
   .search-box-wrapper
     display: inline-block
+    vertical-align: middle
 
   .search-box-dropdown
     position: fixed
