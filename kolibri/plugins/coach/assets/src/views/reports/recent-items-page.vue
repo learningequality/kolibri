@@ -11,7 +11,7 @@
         <tr>
           <header-cell
             :text="$tr('name')"
-            align="left"
+            :align="align"
             :sortable="true"
             :column="tableColumns.NAME"/>
           <header-cell
@@ -20,7 +20,7 @@
             :column="tableColumns.CONTENT"/>
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="align"
             :sortable="true"
             :column="tableColumns.DATE"/>
         </tr>
@@ -62,7 +62,9 @@
   import activityCell from './table-cells/activity-cell';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import alignMixin from './align-mixin';
   export default {
+    mixins: [alignMixin],
     name: 'coachRecentReports',
     $trNameSpace: 'coachRecentReports',
     $trs: {

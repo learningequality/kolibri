@@ -11,12 +11,12 @@
         <tr>
           <header-cell
             :text="$tr('channels')"
-            align="left"
+            :align="align"
             :sortable="true"
             :column="tableColumns.NAME"/>
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="align"
             :sortable="true"
             :column="tableColumns.DATE"/>
         </tr>
@@ -46,7 +46,9 @@
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
+  import alignMixin from './align-mixin';
   export default {
+    mixins: [alignMixin],
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
