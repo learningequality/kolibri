@@ -30,7 +30,7 @@
   export default {
     $trNameSpace: 'deactivateExamModal',
     $trs: {
-      deactivateExam: 'Dectivate exam',
+      deactivateExam: 'Deactivate exam',
       areYouSure: 'Are you sure you want to deactivate <strong>{ examTitle }</strong>?',
       noLongerVisible: 'The exam will be no longer be visible to the following:',
       cancel: 'Cancel',
