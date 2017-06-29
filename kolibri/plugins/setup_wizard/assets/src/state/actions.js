@@ -1,5 +1,5 @@
 import { DeviceOwnerResource, FacilityResource } from 'kolibri.resources';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { kolibriLogin, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
   const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
@@ -7,12 +7,16 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
   const FacilityModel = FacilityResource.createModel(facilitypayload);
   const facilityPromise = FacilityModel.save();
   const promises = [deviceOwnerPromise, facilityPromise];
+
+  store.dispatch('SET_SUBMITTED_STATE', true);
+
   Promise.all(promises).then(
     responses => {
-      coreActions.kolibriLogin(store, deviceownerpayload, true);
+      kolibriLogin(store, deviceownerpayload, true);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      store.dispatch('SET_SUBMITTED_STATE', false);
+      handleApiError(store, error);
     }
   );
 }
