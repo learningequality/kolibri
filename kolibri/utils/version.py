@@ -334,8 +334,9 @@ def get_prerelease_version(version):
 
     # Calculate suffix...
 
-    # If a description from git is available...
-    if tag_describe:
+    # If a description from git is available and we haven't already
+    # found a suffix
+    if not suffix and not tag_describe:
         git_version, git_suffix = get_version_from_git(tag_describe)
 
         # Fail in case the VERSION tuple and version derived from Git are
