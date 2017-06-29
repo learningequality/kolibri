@@ -119,7 +119,6 @@ class PluginDoesNotExist(Exception):
     This exception is local to the CLI environment in case actions are performed
     on a plugin that cannot be loaded.
     """
-    pass
 
 
 def initialize(debug=False):
@@ -382,15 +381,15 @@ def _is_plugin(obj):
     )
 
 
-def plugin(plugin_name, **args):
+def get_kolibri_plugin(plugin_name):
     """
-    Receives a plugin identifier and tries to load its main class. Calls class
-    functions.
+    Try to load kolibri_plugin from given plugin module identifier
+
+    :returns: A list of classes inheriting from KolibriPluginBase
     """
-    from kolibri.utils import conf
+
     plugin_classes = []
 
-    # Try to load kolibri_plugin from given plugin module identifier
     try:
         plugin_module = importlib.import_module(
             plugin_name + ".kolibri_plugin"
@@ -399,7 +398,7 @@ def plugin(plugin_name, **args):
             if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
-        if e.message.startswith("No module named"):
+        if str(e).startswith("No module named"):
             raise PluginDoesNotExist(
                 "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".
                 format(plugin_name)
@@ -407,13 +406,52 @@ def plugin(plugin_name, **args):
         else:
             raise
 
+    if not plugin_classes:
+        # There's no clear use case for a plugin without a KolibriPluginBase
+        # inheritor, for now just throw a warning
+        logger.warning(
+            "Plugin '{}' has no KolibriPluginBase defined".format(plugin_name)
+        )
+
+    return plugin_classes
+
+
+def plugin(plugin_name, **args):
+    """
+    Receives a plugin identifier and tries to load its main class. Calls class
+    functions.
+    """
+    from kolibri.utils import conf
+
     if args.get('enable', False):
+        plugin_classes = get_kolibri_plugin(plugin_name)
         for klass in plugin_classes:
             klass.enable()
 
     if args.get('disable', False):
-        for klass in plugin_classes:
-            klass.disable()
+        try:
+            plugin_classes = get_kolibri_plugin(plugin_name)
+            for klass in plugin_classes:
+                klass.disable()
+        except PluginDoesNotExist as e:
+            logger.error(str(e))
+            logger.warning(
+                "Removing '{}' from configuration in a naive way.".format(
+                    plugin_name
+                )
+            )
+            module_found = False
+            for module_path in conf.config['INSTALLED_APPS']:
+                if module_path.startswith(plugin_name):
+                    module_found = True
+                    conf.config['INSTALLED_APPS'].remove(module_path)
+                    logger.info(
+                        "Removed '{}' from INSTALLED_APPS".format(module_path)
+                    )
+            if not module_found:
+                logger.warning(
+                    "Could not find any matches for {}".format(plugin_name)
+                )
 
     conf.save()
 
