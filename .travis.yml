@@ -10,8 +10,6 @@ addons:
 services:
   - postgresql
 
-sudo: false
-
 cache:
   yarn: true
   directories:
