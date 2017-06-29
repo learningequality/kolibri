@@ -1,4 +1,3 @@
-
 const ContentScopes = {
   ROOT: 'root',
   TOPIC: 'topic',
@@ -24,6 +23,7 @@ const TableColumns = {
   EXERCISE: 'exercise_progress',
   CONTENT: 'content_progress',
   DATE: 'date',
+  GROUP: 'group',
 };
 
 const SortOrders = {
@@ -32,10 +32,6 @@ const SortOrders = {
   NONE: 'none',
 };
 
-module.exports = {
-  ContentScopes,
-  UserScopes,
-  ViewBy,
-  TableColumns,
-  SortOrders,
-};
+const RECENCY_THRESHOLD_IN_DAYS = 7;
+
+export { ContentScopes, UserScopes, ViewBy, TableColumns, SortOrders, RECENCY_THRESHOLD_IN_DAYS };

@@ -1,22 +1,18 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const Vuex = require('vuex');
-const assert = require('assert');
-const _ = require('lodash');
-const sinon = require('sinon');
-const ChannelListPage = require('../../src/views/reports/channel-list-page');
-const ReportConstants = require('../../src/reportConstants');
+import Vue from 'vue-test';
+import Vuex from 'vuex';
+import assert from 'assert';
+import _ from 'lodash';
+import sinon from 'sinon';
+import ChannelListPage from '../../src/views/reports/channel-list-page';
+import * as ReportConstants from '../../src/reportConstants';
 
 const initialState = () => ({
   classId: '',
   pageName: '',
   core: {
     channels: {
-      list: [
-        { id: 'recent_channel' },
-        { id: 'not_recent_channel' },
-        { id: 'null_channel' },
-      ],
+      list: [{ id: 'recent_channel' }, { id: 'not_recent_channel' }, { id: 'null_channel' }],
     },
   },
   pageState: {
@@ -50,6 +46,7 @@ function makeVm(options = {}, state) {
   });
   const components = {
     'name-cell': '<div></div>',
+    'report-subheading': '<div></div>',
   };
   const Ctor = Vue.extend(ChannelListPage);
   return new Ctor(Object.assign(options, { store, components })).$mount();

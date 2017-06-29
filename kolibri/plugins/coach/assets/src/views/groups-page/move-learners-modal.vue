@@ -26,6 +26,7 @@
         @click="close" />
       <icon-button :text="$tr('move')"
         :primary="true"
+        :disabled="!groupSelected"
         @click="moveUsers" />
     </div>
   </core-modal>
@@ -35,9 +36,10 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'moveLearnersModal',
     $trs: {
       moveLearners: 'Move Learners',
@@ -49,8 +51,8 @@
       move: 'Move',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton,
     },
     props: {
       groupId: {
@@ -77,9 +79,7 @@
       },
     },
     data() {
-      return {
-        groupSelected: '',
-      };
+      return { groupSelected: '' };
     },
     computed: {
       groupsExcludingCurrent() {
@@ -98,7 +98,6 @@
           this.addUsersToGroup(this.groupSelected, this.usersToMove);
         }
       },
-
       close() {
         this.displayModal(false);
       },

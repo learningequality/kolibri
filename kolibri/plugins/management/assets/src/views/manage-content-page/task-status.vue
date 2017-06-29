@@ -13,29 +13,29 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const logging = require('kolibri.lib.logging');
-  const constants = require('../../constants');
-
+  import * as manageContentActions from '../../state/manageContentActions';
+  import * as actions from '../../state/actions';
+  import * as constants from '../../constants';
+  import logger from 'kolibri.lib.logging';
+  const logging = logger.getLogger(__filename);
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
-
-  module.exports = {
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'contentPage',
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
       failed: 'Please try again',
-      failedMsg: 'The transfer did not succeed. Restart it to resume transferring the remaining content',
+      failedMsg:
+        'The transfer did not succeed. Restart it to resume transferring the remaining content',
       completed: `Finished!`,
-      loading: 'Please wait…',
+      loading: 'Please wait\u2026',
       remoteImport: 'Importing from curation server',
       localImport: 'Importing from local drive',
       localExport: 'Exporting to local drive',
     },
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
+    components: { iconButton },
     computed: {
       buttonMessage() {
         if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
@@ -73,6 +73,10 @@
     },
     methods: {
       clearTaskHandler() {
+        if (this.statusSuccess) {
+          this.$emit('importsuccess');
+          this.refreshChannelList();
+        }
         this.clearTask(this.id);
       },
     },
@@ -97,6 +101,7 @@
     vuex: {
       actions: {
         clearTask: actions.clearTask,
+        refreshChannelList: manageContentActions.refreshChannelList,
       },
     },
   };

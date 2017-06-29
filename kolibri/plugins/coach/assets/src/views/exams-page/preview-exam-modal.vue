@@ -47,11 +47,14 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-  const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-  const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  export default {
     $trNameSpace: 'previewExamModal',
     $trs: {
       preview: 'Preview exam',
@@ -61,10 +64,10 @@
       exercise: 'Exercise { num }',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
+      coreModal,
+      contentRenderer,
+      uiButton,
+      uiProgressLinear,
     },
     props: {
       examChannelId: {
@@ -86,7 +89,7 @@
       examCreation: {
         type: Boolean,
         default: false,
-      }
+      },
     },
     data: () => ({
       currentQuestionIndex: 0,
@@ -95,16 +98,16 @@
     }),
     computed: {
       questions() {
-        return Object.keys(this.exercises).length ? createQuestionList(
-          this.examQuestionSources).map(
-            question => ({
+        return Object.keys(this.exercises).length
+          ? createQuestionList(this.examQuestionSources).map(question => ({
               itemId: selectQuestionFromExercise(
-              question.assessmentItemIndex,
-              this.examSeed,
-              this.exercises[question.contentId]),
-              contentId: question.contentId
-            })
-        ) : [];
+                question.assessmentItemIndex,
+                this.examSeed,
+                this.exercises[question.contentId]
+              ),
+              contentId: question.contentId,
+            }))
+          : [];
       },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
@@ -118,12 +121,15 @@
     },
     methods: {
       isSelected(questionItemId, exerciseId) {
-        return (this.currentQuestion.itemId === questionItemId)
-          && (this.currentQuestion.contentId === exerciseId);
+        return (
+          this.currentQuestion.itemId === questionItemId &&
+          this.currentQuestion.contentId === exerciseId
+        );
       },
       getQuestionIndex(questionItemId, exerciseId) {
         return this.questions.findIndex(
-          question => (question.itemId === questionItemId) && (question.contentId === exerciseId));
+          question => question.itemId === questionItemId && question.contentId === exerciseId
+        );
       },
       goToQuestion(questionItemId, exerciseId) {
         this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
@@ -142,16 +148,16 @@
       ContentNodeResource.getCollection(
         { channel_id: this.examChannelId },
         { ids: this.examQuestionSources.map(item => item.exercise_id) }
-        ).fetch().then(contentNodes => {
-          contentNodes.forEach(node => { this.$set(this.exercises, node.pk, node); });
+      )
+        .fetch()
+        .then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.pk, node);
+          });
           this.loading = false;
         });
     },
-    vuex: {
-      actions: {
-        displayExamModal: examActions.displayExamModal,
-      },
-    },
+    vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };
 
 </script>

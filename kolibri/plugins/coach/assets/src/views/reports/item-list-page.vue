@@ -61,12 +61,18 @@
 
 <script>
 
-  const CoachConstants = require('../../constants');
-  const CoreConstants = require('kolibri.coreVue.vuex.constants');
-  const reportGetters = require('../../state/getters/reports');
-  const reportConstants = require('../../reportConstants');
-
-  module.exports = {
+  import * as CoachConstants from '../../constants';
+  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import * as reportGetters from '../../state/getters/reports';
+  import * as reportConstants from '../../reportConstants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import breadcrumbs from './breadcrumbs';
+  import reportTable from './report-table';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import progressCell from './table-cells/progress-cell';
+  import activityCell from './table-cells/activity-cell';
+  export default {
     $trNameSpace: 'itemReportPage',
     $trs: {
       name: 'Name',
@@ -77,34 +83,57 @@
       contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'breadcrumbs': require('./breadcrumbs'),
-      'report-table': require('./report-table'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'progress-cell': require('./table-cells/progress-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
+      contentIcon,
+      breadcrumbs,
+      reportTable,
+      headerCell,
+      nameCell,
+      progressCell,
+      activityCell,
     },
     methods: {
       genRowLink(row) {
-        if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        if (CoachConstants.TopicReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          }
           return {
-            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
-              topicId: row.id,
-            }
+              contentId: row.id,
+            },
           };
-        }
-        return {
-          name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
-          params: {
-            classId: this.classId,
-            channelId: this.pageState.channelId,
-            contentId: row.id,
+        } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
+          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_LIST,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                topicId: row.id,
+              },
+            };
+          } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
+            return {
+              name: CoachConstants.PageNames.LEARNER_ITEM_DETAILS_ROOT,
+              params: {
+                classId: this.classId,
+                channelId: this.pageState.channelId,
+                contentId: row.id,
+              },
+            };
           }
-        };
+        }
+        return null;
       },
     },
     computed: {
@@ -115,6 +144,7 @@
     vuex: {
       getters: {
         classId: state => state.classId,
+        pageName: state => state.pageName,
         pageState: state => state.pageState,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,

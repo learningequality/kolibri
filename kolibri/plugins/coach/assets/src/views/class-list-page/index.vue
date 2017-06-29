@@ -36,20 +36,16 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const orderBy = require('lodash/orderBy');
+  import * as constants from '../../constants';
+  import orderBy from 'lodash/orderBy';
 
-  module.exports = {
+  export default {
     data: () => ({
       currentClassDelete: null,
     }),
     computed: {
       sortedClasses() {
-        return orderBy(
-          this.classes,
-          [classroom => classroom.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       noClassesExist() {
         return this.sortedClasses ? this.sortedClasses.length === 0 : false;
@@ -58,7 +54,7 @@
     methods: {
       recentPageLink(id) {
         return {
-          name: constants.PageNames.RECENT_CHANNELS,
+          name: constants.PageNames.TOPIC_CHANNELS,
           params: { classId: id },
         };
       },

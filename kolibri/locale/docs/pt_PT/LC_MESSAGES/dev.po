@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: pt-PT\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/dev.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/dev.po\n"
 "Language: pt_PT\n"
 
 #: ../../dev/asset_loading.rst:2
@@ -87,7 +87,7 @@ msgstr ""
 
 #: ../../dev/content.rst:2
 msgid "Content"
-msgstr ""
+msgstr "Conteúdo"
 
 #: ../../dev/content.rst:4
 msgid "This is a core module found in ``kolibri/Content``."
@@ -165,7 +165,7 @@ msgstr ""
 #: kolibri.content.models.ChannelMetadataAbstractBase:5
 #: kolibri.content.models.ChannelMetadataCache:5 of
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: kolibri.auth.models.FacilityDataset:7
 #: kolibri.content.models.ChannelMetadata:7
@@ -180,7 +180,7 @@ msgstr ""
 #: kolibri.content.models.ChannelMetadataCache:9
 #: kolibri.content.models.ContentNode:20 of
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: kolibri.content.models.ChannelMetadata:11
 #: kolibri.content.models.ChannelMetadataAbstractBase:11
@@ -225,7 +225,7 @@ msgstr ""
 
 #: kolibri.content.models.ContentNode:8 of
 msgid "License"
-msgstr ""
+msgstr "Licença"
 
 #: kolibri.content.models.ContentNode:10 of
 msgid "Title"
@@ -252,7 +252,7 @@ msgstr ""
 #: kolibri.logger.models.ContentSessionLog:21
 #: kolibri.logger.models.ContentSummaryLog:23 of
 msgid "Kind"
-msgstr ""
+msgstr "Género"
 
 #: kolibri.content.models.ContentNode:24 kolibri.content.models.File:10 of
 msgid "Available"
@@ -2856,7 +2856,7 @@ msgstr ""
 #: kolibri.auth.models.KolibriAbstractBaseUser:7
 #: kolibri.auth.models.KolibriAnonymousUser:3 of
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 #: kolibri.auth.models.DeviceOwner:15 kolibri.auth.models.FacilityUser:8
 #: kolibri.auth.models.KolibriAbstractBaseUser:9
@@ -2868,7 +2868,7 @@ msgstr ""
 #: kolibri.auth.models.KolibriAbstractBaseUser:11
 #: kolibri.auth.models.KolibriAnonymousUser:7 of
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr ""
+msgstr "Obrigatório. 30 caracteres ou menos. Apenas letras e dígitos"
 
 #: kolibri.auth.models.DeviceOwner:19 kolibri.auth.models.FacilityUser:14
 #: kolibri.auth.models.KolibriAbstractBaseUser:13
@@ -2925,7 +2925,7 @@ msgstr ""
 #: ../../dev/uap/concepts_and_definitions.rst:5
 #: kolibri.auth.models.FacilityUser:18 of
 msgid "Facility"
-msgstr ""
+msgstr "Instalações"
 
 #: kolibri.auth.models.KolibriAbstractBaseUser:1 of
 msgid "Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs. Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields we don't care about, like email."
@@ -3141,7 +3141,7 @@ msgstr ""
 
 #: ../../dev/uap/concepts_and_definitions.rst:15
 msgid "Users"
-msgstr ""
+msgstr "Utilizadores"
 
 #: ../../dev/uap/concepts_and_definitions.rst:17
 msgid "There are two kinds of users: ``FacilityUser`` and ``DeviceOwner``. A ``FacilityUser`` is associated with a particular ``Facility``, and the user's account and data may be synchronized across multiple devices. A ``DeviceOwner`` account is not associated with a particular ``Facility``, but is specific to one device, and is never synchronized across multiple devices. A ``DeviceOwner`` is like a superuser, and has permissions to modify any data on her own device, whereas a ``FacilityUser`` only has permissions for some subset of data from their own Facility Dataset (as determined in part by the roles they possess; see below)."

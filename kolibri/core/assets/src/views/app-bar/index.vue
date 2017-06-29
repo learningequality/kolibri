@@ -10,29 +10,33 @@
     :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
-      <span v-if="isSuperuser" class="superuser">{{ $tr('superuser') }}</span>
-      <ui-icon-button
+      <ui-button
         v-if="isUserLoggedIn"
         icon="person"
-        type="secondary"
-        color="white"
+        type="primary"
+        color="primary"
         :ariaLabel="$tr('account')"
-        :title="userTooltip"
-        has-dropdown
-        ref="accountButton">
+        :has-dropdown="true"
+        ref="accountButton"
+        class="username-text">
+        <template v-if="windowSize.breakpoint > 2">
+          {{ username }}
+          <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
+          <template v-if="isAdmin">({{ $tr('admin') }})</template>
+          <template v-if="isCoach">({{ $tr('coach') }})</template>
+        </template>
         <ui-menu
-          contain-focus
-          contains-icons
           slot="dropdown"
           :options="accountMenuOptions"
           @close="$refs.accountButton.closeDropdown()"
-          @select="optionSelected"/>
-      </ui-icon-button>
+          @select="optionSelected"
+        />
+      </ui-button>
       <a v-else href="/user">
         <ui-button
-          type="secondary"
-          :ariaLabel="$tr('signIn')"
-          class="appbarbutton">
+          type="primary"
+          color="primary"
+          :ariaLabel="$tr('signIn')">
           {{ $tr('signIn') }}
         </ui-button>
       </a>
@@ -44,25 +48,30 @@
 
 <script>
 
-  const kolibriLogout = require('kolibri.coreVue.vuex.actions').kolibriLogout;
-  const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
-  const isAdmin = require('kolibri.coreVue.vuex.getters').isAdmin;
-  const isCoach = require('kolibri.coreVue.vuex.getters').isCoach;
-  const isLearner = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
-
-  module.exports = {
+  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
+  import {
+    isUserLoggedIn,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    isLearner,
+  } from 'kolibri.coreVue.vuex.getters';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  import uiButton from 'keen-ui/src/UiButton';
+  export default {
+    mixins: [responsiveWindow],
     $trNameSpace: 'appBar',
     $trs: {
       account: 'Account',
       profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
-      superuser: 'Signed in as a Device Owner',
-      learnerDetails: '{username} (Learner)',
-      coachDetails: '{username} (Coach)',
-      adminDetails: '{username} (Admin)',
-      superuserDetails: '{username} (Device Owner)',
+      superuser: 'Device owner',
+      admin: 'Admin',
+      coach: 'Coach',
     },
     props: {
       title: {
@@ -79,27 +88,12 @@
       },
     },
     components: {
-      'ui-toolbar': require('keen-ui/src/UiToolbar'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
-      'ui-button': require('keen-ui/src/UiButton'),
+      uiToolbar,
+      uiIconButton,
+      uiMenu,
+      uiButton,
     },
     computed: {
-      userTooltip() {
-        if (this.isSuperuser) {
-          return this.$tr('superuserDetails', { username: this.username });
-        }
-        if (this.isAdmin) {
-          return this.$tr('adminDetails', { username: this.username });
-        }
-        if (this.isCoach) {
-          return this.$tr('coachDetails', { username: this.username });
-        }
-        if (this.isLearner) {
-          return this.$tr('learnerDetails', { username: this.username });
-        }
-        return '';
-      },
       accountMenuOptions() {
         return [
           {
@@ -128,9 +122,7 @@
       },
     },
     vuex: {
-      actions: {
-        kolibriLogout,
-      },
+      actions: { kolibriLogout },
       getters: {
         username: state => state.core.session.username,
         isUserLoggedIn,
@@ -147,19 +139,10 @@
 
 <style lang="stylus" scoped>
 
-  .superuser
-    font-size: smaller
+  .app-bar
+    overflow: hidden
 
-</style>
-
-
-<style lang="stylus">
-
-  .app-bar .appbarbutton
-    color: white
-    &:hover
-      background-color: rgba(0, 0, 0, 0.1)
-    &.has-dropdown-open
-      background-color: rgba(0, 0, 0, 0.1)
+  .username-text
+    text-transform: none
 
 </style>

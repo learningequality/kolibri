@@ -7,17 +7,18 @@ from __future__ import absolute_import, print_function, unicode_literals
 import json
 import re
 
-from six import iteritems
-
 from django import template
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
 from django.utils.timezone import now
+from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
+from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIClient
+from six import iteritems
 
 register = template.Library()
 
@@ -51,6 +52,17 @@ def kolibri_main_navigation():
     return mark_safe(html)
 
 
+@register.simple_tag(takes_context=True)
+def kolibri_set_urls(context):
+    js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
+    js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
+    js = (js_reverse_inline(context) +
+          "Object.assign({0}.urls, {1}.{2})".format(settings.KOLIBRI_CORE_JS_NAME,
+                                                    js_global_object_name,
+                                                    js_var_name))
+    return mark_safe(js)
+
+
 @register.simple_tag()
 def kolibri_set_server_time():
     html = ("<script type='text/javascript'>"
@@ -62,6 +74,9 @@ def kolibri_set_server_time():
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
@@ -78,6 +93,9 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:

@@ -9,10 +9,9 @@
 
 <script>
 
-  module.exports = {
-    components: {
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
-    },
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  export default {
+    components: { elapsedTime },
     props: ['date'],
   };
 

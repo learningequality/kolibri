@@ -3,11 +3,10 @@
   <div>
     <div v-if="showRecentOnly" ref="recentHeader">
       <h1>{{ $tr('recentTitle') }}</h1>
-      <sub v-if="anyActivity">{{ $tr('recentSubHeading') }}</sub>
-      <sub v-else>{{ $tr('noRecentSubHeading') }}</sub>
+      <report-subheading />
     </div>
 
-    <report-table v-if="anyActivity" :caption="$tr('channelList')">
+    <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
           <header-cell
@@ -24,7 +23,7 @@
       </thead>
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
-          <tr v-if="channelIsVisible(channel.lastActive)" :key="channel.id">
+          <tr :key="channel.id">
             <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
             <activity-cell :date="channel.lastActive"/>
           </tr>
@@ -38,34 +37,30 @@
 
 <script>
 
-  const { ContentNodeKinds } = require('kolibri.coreVue.vuex.constants');
-  const { PageNames } = require('../../constants');
-  const differenceInDays = require('date-fns/difference_in_days');
-  const { now } = require('kolibri.utils.serverClock');
-  const reportConstants = require('../../reportConstants');
-  const reportGetters = require('../../state/getters/reports');
-
-  module.exports = {
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import * as reportConstants from '../../reportConstants';
+  import * as reportGetters from '../../state/getters/reports';
+  import reportTable from './report-table';
+  import reportSubheading from './report-subheading';
+  import headerCell from './table-cells/header-cell';
+  import nameCell from './table-cells/name-cell';
+  import activityCell from './table-cells/activity-cell';
+  export default {
     name: 'channelList',
     $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
       recentTitle: 'Recent Activity',
-      recentSubHeading: 'Showing recent activity in past 7 days',
-      noRecentSubHeading: 'No recent activity in past 7 days',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
     },
-    data() {
-      return {
-        currentDateTime: now(),
-      };
-    },
     components: {
-      'report-table': require('./report-table'),
-      'header-cell': require('./table-cells/header-cell'),
-      'name-cell': require('./table-cells/name-cell'),
-      'activity-cell': require('./table-cells/activity-cell'),
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell,
     },
     computed: {
       CHANNEL() {
@@ -74,19 +69,8 @@
       tableColumns() {
         return reportConstants.TableColumns;
       },
-      anyActivity() {
-        return this.standardDataTable.some(channel => this.channelIsVisible(channel.lastActive));
-      },
     },
     methods: {
-      channelIsVisible(lastActiveTime) {
-        const THREHOLD_IN_DAYS = 7;
-        if (!this.showRecentOnly) return true;
-        return (
-          Boolean(lastActiveTime) &&
-          differenceInDays(this.currentDateTime, lastActiveTime) <= THREHOLD_IN_DAYS
-        );
-      },
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,

@@ -5,11 +5,27 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.5
+---
 
-DEVELOP
--------
+ - Update all user logging related timestamps to a custom datetime field that includes timezone info
+ - Added daemon mode (system service) to run ``kolibri start`` in background (default!) #1548
+ - Implemented ``kolibri stop`` and ``kolibri status`` #1548
+ - Newly imported channels are given a 'last_updated' timestamp
+ - Add progress annotation for topics, lazily loaded to increase page load performance
+ - Add API endpoint for getting number and total size of files in a channel
+ - Migrate all JS linting to prettier rather than eslint
+
+
+0.4
+---
 
  - Class and group management
+ - Learner reports #1464
+ - Performance optimizations #1499
+ - Anonymous exercises fixed #1466
+ - Integrated Morango, to prep for data syncing (will require fresh database)
+ - Adds Simplified Login support as a configurable facility flag
 
 
 0.3.0

@@ -9,12 +9,12 @@
     :loading="loading"
     class="koli-icon-button">
     <span v-if="hasIcon && text && alignLeft">
-      <ui-icon class="icon-margin"><slot/></ui-icon>
+      <ui-icon class="icon-left"><slot/></ui-icon>
       {{ text }}
     </span>
     <span v-else-if="hasIcon && text && alignRight">
       {{ text }}
-      <ui-icon class="icon-margin"><slot/></ui-icon>
+      <ui-icon class="icon-right"><slot/></ui-icon>
     </span>
     <span v-else-if="hasIcon">
       <ui-icon><slot/></ui-icon>
@@ -29,11 +29,11 @@
 
 <script>
 
-  module.exports = {
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
-      text: {
-        type: String,
-      },
+      text: { type: String },
       primary: {
         type: Boolean,
         default: false,
@@ -50,9 +50,7 @@
         type: String,
         default: 'normal',
       },
-      type: {
-        type: String,
-      },
+      type: { type: String },
       alignment: {
         type: String,
         default: 'left',
@@ -80,8 +78,8 @@
       },
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
+      uiButton,
+      uiIcon,
     },
   };
 
@@ -90,10 +88,16 @@
 
 <style lang="stylus" scoped>
 
-  .icon-margin
+  .icon-left, .icon-right
+    margin-top: -0.125rem
+
+  .icon-left
     margin-left: -0.25rem
     margin-right: 0.375rem
-    margin-top: -0.125rem
+
+  .icon-right
+    margin-right: -0.25rem
+    margin-left: 0.375rem
 
 </style>
 

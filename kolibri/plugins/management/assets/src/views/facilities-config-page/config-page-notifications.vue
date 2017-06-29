@@ -31,25 +31,21 @@
 
 <script>
 
-  const { notificationTypes } = require('../../constants');
-
-  module.exports = {
-    components: {
-      'ui-alert': require('keen-ui/src/UiAlert'),
-    },
+  import { notificationTypes } from '../../constants';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
+    components: { uiAlert },
     props: {
       notification: {
         type: String,
         required: false,
       },
     },
-    computed: {
-      notificationTypes: () => notificationTypes,
-    },
+    computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
-      }
+      },
     },
     $trNameSpace: 'configPageNotifications',
     $trs: {

@@ -20,12 +20,16 @@ from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUse
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
-from kolibri.content.models import Exam, UUIDField
+from kolibri.content.models import UUIDField
+from kolibri.core.exams.models import Exam
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
+from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
-class BaseLogQuerySet(models.QuerySet):
+class BaseLogQuerySet(SyncableModelQuerySet):
 
     def filter_by_topic(self, topic, content_id_lookup="content_id"):
         """
@@ -71,7 +75,7 @@ class BaseLogModel(AbstractFacilityDataModel):
     class Meta:
         abstract = True
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         if self.user:
             return self.user.dataset
         else:
@@ -81,59 +85,64 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     objects = BaseLogQuerySet.as_manager()
 
+    def calculate_partition(self):
+        if self.user_id:
+            return '{dataset_id}:user-rw:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        else:
+            return '{dataset_id}:anonymous'.format(dataset_id=self.dataset_id)
+
 
 class ContentSessionLog(BaseLogModel):
     """
     This model provides a record of interactions with a content item within a single visit to that content page.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsessionlog"
+
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
-    extra_fields = JSONField(default={})
+    extra_fields = JSONField(default={}, blank=True)
 
 
 class ContentSummaryLog(BaseLogModel):
     """
     This model provides a summary of all interactions a user has had with a content item.
     """
+    # Morango syncing settings
+    morango_model_name = "contentsummarylog"
+
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField()
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
     kind = models.CharField(max_length=200)
-    extra_fields = JSONField(default={})
+    extra_fields = JSONField(default={}, blank=True)
 
-
-class ContentRatingLog(BaseLogModel):
-    """
-    This model provides a record of user feedback on a content item.
-    """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
-    content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
-    quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    ease = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    learning = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    feedback = models.TextField(blank=True)
+    def calculate_source_id(self):
+        return self.content_id
 
 
 class UserSessionLog(BaseLogModel):
     """
     This model provides a record of a user session in Kolibri.
     """
+    # Morango syncing settings
+    morango_model_name = "usersessionlog"
+
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
-    start_timestamp = models.DateTimeField(auto_now_add=True)
-    last_interaction_timestamp = models.DateTimeField(auto_now=True, null=True)
+    start_timestamp = DateTimeTzField(default=local_now)
+    last_interaction_timestamp = DateTimeTzField(null=True, blank=True)
     pages = models.TextField(blank=True)
 
     @classmethod
@@ -149,33 +158,38 @@ class UserSessionLog(BaseLogModel):
 
             if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
                 user_session_log = cls(user=user)
-                user_session_log.save()
-            else:
-                user_session_log.save()
+            user_session_log.last_interaction_timestamp = local_now()
+            user_session_log.save()
 
 
 class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    permissions = log_permissions("summarylog__user")
+    # Morango syncing settings
+    morango_model_name = "masterylog"
 
+    user = models.ForeignKey(FacilityUser)
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
     mastery_criterion = JSONField(default={})
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
     mastery_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
-    def infer_dataset(self):
-        return self.summarylog.dataset
+    def infer_dataset(self, *args, **kwargs):
+        return self.user.dataset
+
+    def calculate_source_id(self):
+        return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
+
 
 class BaseAttemptLog(BaseLogModel):
     """
@@ -185,9 +199,9 @@ class BaseAttemptLog(BaseLogModel):
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField()
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    start_timestamp = DateTimeTzField()
+    end_timestamp = DateTimeTzField()
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.
@@ -199,8 +213,8 @@ class BaseAttemptLog(BaseLogModel):
     simple_answer = models.CharField(max_length=200, blank=True)
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
-    interaction_history = JSONField(default=[])
-    user = models.ForeignKey(FacilityUser)
+    interaction_history = JSONField(default=[], blank=True)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -211,11 +225,14 @@ class AttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an assessment
     """
+
+    morango_model_name = 'attemptlog'
+
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.sessionlog.dataset
 
 
@@ -224,6 +241,9 @@ class ExamLog(BaseLogModel):
     This model provides a summary of a user's interaction with a particular exam, and serves as
     an aggregation point for individual attempts on that exam.
     """
+
+    morango_model_name = 'examlog'
+
     # Identifies the exam that this is for.
     exam = models.ForeignKey(Exam, related_name="examlogs", blank=False, null=False)
     # Identifies which user this log summarizes interactions for.
@@ -232,7 +252,13 @@ class ExamLog(BaseLogModel):
     # Used to end user engagement with an exam when it has been deactivated.
     closed = models.BooleanField(default=False)
     # when was this exam finished?
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    completion_timestamp = DateTimeTzField(blank=True, null=True)
+
+    def calculate_source_id(self):
+        return "{exam_id}:{user_id}".format(exam_id=self.exam_id, user_id=self.user_id)
+
+    def calculate_partition(self):
+        return self.dataset_id
 
 
 class ExamAttemptLog(BaseAttemptLog):
@@ -240,11 +266,17 @@ class ExamAttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an exam
     """
+
+    morango_model_name = 'examattemptlog'
+
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here
     content_id = UUIDField()
     channel_id = UUIDField()
 
-    def infer_dataset(self):
+    def infer_dataset(self, *args, **kwargs):
         return self.examlog.dataset
+
+    def calculate_partition(self):
+        return self.dataset_id

@@ -1,13 +1,16 @@
 /* eslint-env mocha */
-const Vue = require('vue');
-const Vuex = require('vuex');
-const assert = require('assert');
-const _ = require('lodash');
-const s = require('../../src/state/store');
-const getters = require('../../src/state/getters');
-const coreActions = require('../../src/state/actions');
-const kolibri = require('kolibri');
-const sinon = require('sinon');
+import Vue from 'vue';
+import Vuex from 'vuex';
+import assert from 'assert';
+import _ from 'lodash';
+import * as s from '../../src/state/store';
+import * as getters from '../../src/state/getters';
+import * as coreActions from '../../src/state/actions';
+import * as constants from '../../src/constants';
+import sinon from 'sinon';
+import urls from 'kolibri.urls';
+import { SessionResource } from 'kolibri.resources';
+import * as browser from '../../src/utils/browser';
 
 Vue.use(Vuex);
 
@@ -42,82 +45,71 @@ describe('Vuex store/actions for core module', () => {
 
   describe('kolibriLogin', () => {
     let store;
-    const oldHandler = window.onbeforeunload;
-
-    before(() => {
-      // this prevents kolibriLogin from refreshing page
-      window.onbeforeunload = () => true;
-    });
-
-    after(() => {
-      window.onbeforeunload = oldHandler;
-      delete kolibri.resources;
-    });
+    let assignStub;
 
     beforeEach(() => {
       store = createStore();
-      kolibri.resources = {};
+      assignStub = sinon.stub(browser, 'redirectBrowser');
     });
 
-    it('successful login', (done) => {
-      kolibri.resources.SessionResource = {
+    afterEach(() => {
+      assignStub.restore();
+    });
+
+    it('successful login', done => {
+      urls['kolibri:managementplugin:management'] = () => '';
+      Object.assign(SessionResource, {
         createModel: () => ({
-          save: () => Promise.resolve({
-            // just sending subset of sessionPayload
-            id: '123',
-            username: 'e_fermi',
-            kind: ['cool-guy-user'],
-          }),
+          save: () =>
+            Promise.resolve({
+              // just sending subset of sessionPayload
+              id: '123',
+              username: 'e_fermi',
+              kind: ['cool-guy-user'],
+            }),
         }),
-      };
+      });
 
       function runAssertions() {
         const { session } = store.state.core;
         assert.equal(session.id, '123');
         assert.equal(session.username, 'e_fermi');
         assert.deepEqual(session.kind, ['cool-guy-user']);
+        sinon.assert.called(assignStub);
       }
 
-      coreActions.kolibriLogin(store, {})
-        .then(runAssertions)
-        .then(done, done);
+      coreActions.kolibriLogin(store, {}).then(runAssertions).then(done, done);
     });
 
-    it('failed login (401)', (done) => {
-      kolibri.resources.SessionResource = {
+    it('failed login (401)', done => {
+      Object.assign(SessionResource, {
         createModel: () => ({
           save: () => Promise.reject({ status: { code: 401 } }),
         }),
-      };
+      });
 
-      coreActions.kolibriLogin(store, {})
+      coreActions
+        .kolibriLogin(store, {})
         .then(() => {
-          assert.equal(store.state.core.loginError, 401);
+          assert.equal(store.state.core.loginError, constants.LoginErrors.INVALID_CREDENTIALS);
         })
         .then(done, done);
     });
 
-    it('successful logout', (done) => {
+    it('successful logout', done => {
       const clearCachesSpy = sinon.spy();
       const getModelStub = sinon.stub().returns({
         delete: () => Promise.resolve('goodbye'),
       });
-      kolibri.resources = {
-        SessionResource: {
-          getModel: getModelStub,
-        },
-        clearCaches: clearCachesSpy,
-      };
-      // fake a session
-      store.state.core.session.id = '123';
-      store.state.core.session.username = 'l_organa';
+      Object.assign(SessionResource, {
+        getModel: getModelStub,
+      });
 
-      coreActions.kolibriLogout(store)
+      coreActions
+        .kolibriLogout(store)
         .then(() => {
-          assert.equal(store.state.core.session.id, undefined);
-          assert.equal(store.state.core.session.username, '');
           sinon.assert.calledWith(getModelStub, 'current');
-          sinon.assert.calledOnce(clearCachesSpy);
+          sinon.assert.called(assignStub);
         })
         .then(done, done);
     });

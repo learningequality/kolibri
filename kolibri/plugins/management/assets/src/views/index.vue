@@ -9,10 +9,7 @@
       <component class="manage-content page" :is="currentPage"/>
     </div>
 
-    <div v-else class="login-message">
-      <h1>{{ $tr('logInPrompt') }}</h1>
-      <p>{{ $tr('logInCommand') }}</p>
-    </div>
+    <auth-message v-else authorizedRole="admin" />
 
   </core-base>
 
@@ -21,11 +18,10 @@
 
 <script>
 
-  const store = require('../state/store');
-  const PageNames = require('../constants').PageNames;
-  const getters = require('kolibri.coreVue.vuex.getters');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-
+  import store from '../state/store';
+  import { PageNames } from '../constants';
+  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   const pageNameComponentMap = {
     [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
     [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'class-enroll-page',
@@ -36,25 +32,32 @@
     [PageNames.SCRATCHPAD]: 'scratchpad-page',
     [PageNames.USER_MGMT_PAGE]: 'user-page',
   };
-
-  module.exports = {
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import classEditPage from './class-edit-page';
+  import classEnrollPage from './class-enroll-page';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import dataPage from './data-page';
+  import facilitiesConfigPage from './facilities-config-page';
+  import manageClassPage from './manage-class-page';
+  import manageContentPage from './manage-content-page';
+  import scratchpadPage from './scratchpad-page';
+  import topNav from './top-nav';
+  import userPage from './user-page';
+  export default {
     $trNameSpace: 'managementRoot',
-    $trs: {
-      managementTitle: 'Management',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as an Admin to view this page.',
-    },
+    $trs: { managementTitle: 'Management' },
     components: {
-      'class-edit-page': require('./class-edit-page'),
-      'class-enroll-page': require('./class-enroll-page'),
-      'core-base': require('kolibri.coreVue.components.coreBase'),
-      'data-page': require('./data-page'),
-      'facilities-config-page': require('./facilities-config-page'),
-      'manage-class-page': require('./manage-class-page'),
-      'manage-content-page': require('./manage-content-page'),
-      'scratchpad-page': require('./scratchpad-page'),
-      'top-nav': require('./top-nav'),
-      'user-page': require('./user-page'),
+      authMessage,
+      classEditPage,
+      classEnrollPage,
+      coreBase,
+      dataPage,
+      facilitiesConfigPage,
+      manageClassPage,
+      manageContentPage,
+      scratchpadPage,
+      topNav,
+      userPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
@@ -69,7 +72,7 @@
         isSuperuser: getters.isSuperuser,
       },
     },
-    store, // make this and all child components aware of the store
+    store,
   };
 
 </script>
@@ -92,9 +95,5 @@
     background-color: $core-bg-light
     margin-top: 1em
     border-radius: $radius
-
-  .login-message
-    text-align: center
-    margin-top: 200px
 
 </style>

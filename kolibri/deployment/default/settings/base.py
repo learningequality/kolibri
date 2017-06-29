@@ -20,6 +20,7 @@ import kolibri
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
+from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -58,12 +59,13 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
-    'django_q',
     'kolibri.core.webpack',
+    'kolibri.core.exams',
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
     'jsonfield',
+    'morango',
 ] + conf.config['INSTALLED_APPS']
 
 # Add in the external plugins' locale paths. Our frontend messages depends
@@ -85,6 +87,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -115,6 +119,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 100,
+        }
     },
     'ormq': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -123,10 +130,9 @@ DATABASES = {
 }
 
 # Enable dynamic routing for content databases
-DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
-                    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
-                    'kolibri.content.content_db_router.ContentDBRouter']
-
+DATABASE_ROUTERS = [
+    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
+    'kolibri.content.content_db_router.ContentDBRouter']
 
 # Content directories and URLs for channel metadata and content files
 
@@ -152,11 +158,12 @@ LANGUAGES = [
     ('es-es', 'Español'),
     ('fr-fr', 'Français, langue française'),
     ('pt-pt', 'Português'),
+    ('hi-in', 'हिंदी')
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = get_localzone().zone
 
 USE_I18N = True
 
@@ -305,8 +312,8 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'urls'
-
-JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
+JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
+
+ENABLE_DATA_BOOTSTRAPPING = True

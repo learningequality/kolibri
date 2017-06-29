@@ -11,14 +11,12 @@
       <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
       </div>
-      <div v-else-if="isSuperuser">
-        <h1>{{ $tr('superUserPrompt') }}</h1>
-        <p>{{ $tr('superUserCommand') }}</p>
-      </div>
-      <div v-else class="login-message">
-        <h1>{{ $tr('logInPrompt') }}</h1>
-        <p>{{ $tr('logInCommand') }}</p>
-      </div>
+      <auth-message
+        v-else-if="isSuperuser"
+        :header="$tr('superUserPrompt')"
+        :details="$tr('superUserCommand')"
+      />
+      <auth-message v-else authorizedRole="adminOrCoach" />
     </div>
 
   </core-base>
@@ -28,36 +26,50 @@
 
 <script>
 
-  const store = require('../state/store');
-  const Constants = require('../constants');
-  const coreGetters = require('kolibri.coreVue.vuex.getters');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-
-  module.exports = {
+  import store from '../state/store';
+  import * as Constants from '../constants';
+  import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import topNav from './top-nav';
+  import classListPage from './class-list-page';
+  import examsPage from './exams-page';
+  import createExamPage from './create-exam-page';
+  import examReportPage from './exam-report-page';
+  import examReportDetailPage from './exam-report-detail-page';
+  import groupsPage from './groups-page';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
+  import recentItemsPage from './reports/recent-items-page';
+  import channelListPage from './reports/channel-list-page';
+  import itemListPage from './reports/item-list-page';
+  import learnerListPage from './reports/learner-list-page';
+  import classSelector from './class-selector';
+  export default {
     $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      logInPrompt: 'Did you forget to sign in?',
-      logInCommand: 'You must be signed in as an Admin to view this page.',
       superUserPrompt: 'Signed in as device owner',
-      superUserCommand: 'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
+      superUserCommand:
+        'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
-      'top-nav': require('./top-nav'),
-      'class-list-page': require('./class-list-page'),
-      'exams-page': require('./exams-page'),
-      'create-exam-page': require('./create-exam-page'),
-      'exam-report-page': require('./exam-report-page'),
-      'exam-report-detail-page': require('./exam-report-detail-page'),
-      'groups-page': require('./groups-page'),
-      'core-base': require('kolibri.coreVue.components.coreBase'),
+      authMessage,
+      topNav,
+      classListPage,
+      examsPage,
+      createExamPage,
       // reports
-      'learner-exercise-detail-page': require('./reports/learner-exercise-detail-page'),
-      'recent-items-page': require('./reports/recent-items-page'),
-      'channel-list-page': require('./reports/channel-list-page'),
-      'item-list-page': require('./reports/item-list-page'),
-      'learner-list-page': require('./reports/learner-list-page'),
-      'class-selector': require('./class-selector'),
+      examReportPage,
+      examReportDetailPage,
+      groupsPage,
+      coreBase,
+      learnerExerciseDetailPage,
+      recentItemsPage,
+      channelListPage,
+      itemListPage,
+      learnerListPage,
+      classSelector,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -77,11 +89,11 @@
           [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
           [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
           [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [Constants.PageNames.LEARNER_LIST]: 'item-list-page',
+          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
           [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
-          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
           [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
         };
@@ -99,9 +111,7 @@
             params: { classId: classSelectedId },
           });
         } else {
-          this.$router.push({
-            params: { classId: classSelectedId },
-          });
+          this.$router.push({ params: { classId: classSelectedId } });
         }
       },
     },
@@ -128,9 +138,5 @@
   .content
     background-color: $core-bg-light
     padding: 1em
-
-  .login-message
-    text-align: center
-    margin-top: 200px
 
 </style>

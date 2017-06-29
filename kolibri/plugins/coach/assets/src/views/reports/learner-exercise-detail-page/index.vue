@@ -1,9 +1,6 @@
 <template>
 
-  <immersive-full-screen
-    :backPageLink="backPageLink"
-    :backPageText="$tr('backPrompt', { exerciseTitle: exercise.title })"
-  >
+  <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
     <template>
       <div class="summary-container">
         <attempt-summary
@@ -52,19 +49,21 @@
 
 <script>
 
-  const constants = require('../../../constants');
-
-  module.exports = {
+  import * as constants from '../../../constants';
+  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import attemptSummary from './attempt-summary';
+  import attemptLogList from '../../attempt-log-list';
+  import interactionList from '../../interaction-list';
+  export default {
     $trNameSpace: 'coachExerciseRenderPage',
-    $trs: {
-      backPrompt: 'Back to { exerciseTitle }',
-    },
+    $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
-      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'attempt-summary': require('./attempt-summary'),
-      'attempt-log-list': require('../../attempt-log-list'),
-      'interaction-list': require('../../interaction-list'),
+      immersiveFullScreen,
+      contentRenderer,
+      attemptSummary,
+      attemptLogList,
+      interactionList,
     },
     computed: {
       backPageLink() {
@@ -74,8 +73,8 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.contentId,
-            }
+              contentId: this.exercise.pk,
+            },
           };
         }
         if (this.pageName === constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
@@ -84,31 +83,41 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.contentId,
-            }
+              contentId: this.exercise.pk,
+            },
           };
         }
-        return {
-          name: constants.PageNames.LEARNER_ITEM_LIST,
-          params: {
-            classId: this.classId,
-            channelId: this.channelId,
-            contentId: this.contentId,
-          }
-        };
+        if (this.pageName === constants.PageNames.LEARNER_ITEM_DETAILS) {
+          return {
+            name: constants.PageNames.LEARNER_ITEM_LIST,
+            params: {
+              classId: this.classId,
+              channelId: this.channelId,
+              userId: this.user.id,
+              topicId: this.parentTopic.pk,
+            },
+          };
+        }
+        return undefined;
+      },
+      backPageText() {
+        if (constants.LearnerReports.includes(this.pageName)) {
+          return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
+        }
+        return this.$tr('backPrompt', { backTitle: this.exercise.title });
+      },
+      parentTopic() {
+        return this.exercise.ancestors[this.exercise.ancestors.length - 1];
       },
     },
     methods: {
-      backtoText(text) {
-        return this.$tr('backto', { text });
-      },
       navigateToNewAttempt(attemptLogIndex) {
         this.$router.push({
           name: this.pageName,
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.content_id,
+            contentId: this.exercise.pk,
             interactionIndex: 0,
             attemptLogIndex,
           },
@@ -120,7 +129,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.content_id,
+            contentId: this.exercise.pk,
             attemptLogIndex: this.attemptLogIndex,
             interactionIndex,
           },
@@ -129,14 +138,12 @@
     },
     vuex: {
       getters: {
-        // pageState: state => state.pageState,
         interactionIndex: state => state.pageState.interactionIndex,
         currentAttemptLog: state => state.pageState.currentAttemptLog,
         attemptLogs: state => state.pageState.attemptLogs,
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         classId: state => state.classId,
-        contentId: state => state.pageState.exercise.pk,
         channelId: state => state.pageState.channelId,
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,

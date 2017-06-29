@@ -10,9 +10,9 @@
 
 <script>
 
-  const parse = require('date-fns/parse');
-  const differenceInSeconds = require('date-fns/difference_in_seconds');
-  const { now } = require('kolibri.utils.serverClock');
+  import parse from 'date-fns/parse';
+  import differenceInSeconds from 'date-fns/difference_in_seconds';
+  import { now } from 'kolibri.utils.serverClock';
 
   const MINUTES_IN_DAY = 1440;
   const MINUTES_IN_MONTH = 43200;
@@ -27,7 +27,7 @@
     YEARS: 'years',
   };
 
-  module.exports = {
+  export default {
     name: 'elapsedTime',
     $trNameSpace: 'elapsedTime',
     $trs: {
@@ -44,10 +44,9 @@
       timer: null,
     }),
     mounted() {
-      this.timer = setInterval(
-        () => { this.now = now(); },
-        10000
-      );
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
     },
     beforeDestroy() {
       clearInterval(this.timer);

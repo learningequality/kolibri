@@ -1,30 +1,24 @@
 <template>
 
-  <div class="breadcrumb-wrapper">
-    <span v-for="ancestor in breadcrumbs" class="crumb">
-      <span v-if="ancestor.vlink">
-        <router-link :to="ancestor.vlink">{{ ancestor.title }}</router-link>
-      </span>
-      <span v-else>{{ ancestor.title }}</span>
-    </span>
-  </div>
+  <breadcrumbs  v-if="breadcrumbs.length" :items="breadcrumbs"/>
 
 </template>
 
 
 <script>
 
-  const find = require('lodash/find');
-
-  const CoachConstants = require('../../constants');
-  const coachGetters = require('../../state/getters/main');
-
-  module.exports = {
+  import find from 'lodash/find';
+  import * as CoachConstants from '../../constants';
+  import * as coachGetters from '../../state/getters/main';
+  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  export default {
     $trNameSpace: 'reportBreadcrumbs',
-    $trs: {
-      channels: 'Channels',
-    },
+    $trs: { channels: 'Channels' },
+    components: { breadcrumbs },
     computed: {
+      channelTitle() {
+        return find(this.channels, channel => channel.id === this.pageState.channelId).title;
+      },
       breadcrumbs() {
         if (this.pageName === CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL) {
           return this.recentChannelItemsCrumbs;
@@ -38,30 +32,27 @@
       recentChannelItemsCrumbs() {
         return [
           {
-            title: this.$tr('channels'),
-            vlink: {
+            text: this.$tr('channels'),
+            link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
               params: { classId: this.classId },
             },
           },
-          { title: this.channelTitle }
+          { text: this.channelTitle },
         ];
-      },
-      channelTitle() {
-        return find(this.channels, channel => channel.id === this.pageState.channelId).title;
       },
       recentItemCrumbs() {
         return [
           {
-            title: this.$tr('channels'),
-            vlink: {
+            text: this.$tr('channels'),
+            link: {
               name: CoachConstants.PageNames.RECENT_CHANNELS,
               params: { classId: this.classId },
             },
           },
           {
-            title: this.channelTitle,
-            vlink: {
+            text: this.channelTitle,
+            link: {
               name: CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
                 classId: this.classId,
@@ -69,25 +60,24 @@
               },
             },
           },
-          { title: this.pageState.contentScopeSummary.title }
+          { text: this.pageState.contentScopeSummary.title },
         ];
       },
       topicCrumbs() {
         return [
           // link to the root channels page
           {
-            title: this.$tr('channels'),
-            vlink: {
+            text: this.$tr('channels'),
+            link: {
               name: CoachConstants.PageNames.TOPIC_CHANNELS,
               params: { classId: this.classId },
             },
           },
           // links to each ancestor
           ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
-            const breadcrumb = { title: item.title };
+            const breadcrumb = { text: item.title };
             if (index) {
-              // links to parent topics
-              breadcrumb.vlink = {
+              breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
                 params: {
                   classId: this.classId,
@@ -97,7 +87,7 @@
               };
             } else {
               // link to channel root
-              breadcrumb.vlink = {
+              breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
                   classId: this.classId,
@@ -108,7 +98,7 @@
             return breadcrumb;
           }),
           // current item
-          { title: this.pageState.contentScopeSummary.title }
+          { text: this.pageState.contentScopeSummary.title },
         ];
       },
     },
@@ -126,21 +116,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .breadcrumb-wrapper
-    font-size: smaller
-    display: inline-block
-    color: $core-text-annotation
-
-  .crumb + .crumb::before // before any crumb coming after another crumb
-    content: '>'
-    margin: 8px
-    color: $core-text-annotation
-
-  .crumb a
-    color: $core-text-annotation
-
-</style>
+<style lang="stylus" scoped></style>

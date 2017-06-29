@@ -18,7 +18,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'progressBar',
     $trs: {
       label: 'Progress:',
@@ -64,7 +64,7 @@
     width: 100%
     max-width: 125px
     height: 1.2em
-    background-color: #E0E0E0
+    background-color: $core-grey
     border-radius: 15px
     float: left
     margin-right: 5px

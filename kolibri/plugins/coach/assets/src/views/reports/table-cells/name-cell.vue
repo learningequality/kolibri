@@ -16,12 +16,10 @@
 
 <script>
 
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
-
-  module.exports = {
-    components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-    },
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  export default {
+    components: { contentIcon },
     props: {
       kind: {
         type: String,

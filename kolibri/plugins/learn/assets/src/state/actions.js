@@ -1,21 +1,26 @@
-const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-const SessionResource = require('kolibri').resources.SessionResource;
-const constants = require('../constants');
-const UserExamResource = require('kolibri').resources.UserExamResource;
-const ExamLogResource = require('kolibri').resources.ExamLogResource;
-const ExamAttemptLogResource = require('kolibri').resources.ExamAttemptLogResource;
+import {
+  ContentNodeResource,
+  ContentNodeProgressResource,
+  SessionResource,
+  UserExamResource,
+  ExamLogResource,
+  ExamAttemptLogResource,
+} from 'kolibri.resources';
 
-const PageNames = constants.PageNames;
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-const coreGetters = require('kolibri.coreVue.vuex.getters');
-const CoreConstants = require('kolibri.coreVue.vuex.constants');
-const router = require('kolibri.coreVue.router');
-const seededShuffle = require('kolibri.lib.seededshuffle');
-const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
-const { assessmentMetaDataState } = require('kolibri.coreVue.vuex.mappers');
-const { now } = require('kolibri.utils.serverClock');
+import { PageNames } from '../constants';
+
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+import router from 'kolibri.coreVue.router';
+import seededShuffle from 'kolibri.lib.seededshuffle';
+import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import { now } from 'kolibri.utils.serverClock';
+import uniqBy from 'lodash/uniqBy';
+import prepareLearnApp from './prepareLearnApp';
 
 /**
  * Vuex State Mappers
@@ -32,56 +37,61 @@ function _crumbState(ancestors) {
   }));
 }
 
+function validateProgress(data) {
+  if (!data.progress_fraction) {
+    return 0.0;
+  } else if (data.progress_fraction > 1.0) {
+    return 1.0;
+  }
+  return data.progress_fraction;
+}
 
-function _topicState(data) {
+function _topicState(data, ancestors = []) {
+  const progress = validateProgress(data);
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
-    breadcrumbs: _crumbState(data.ancestors),
-    next_content: data.next_content,
+    breadcrumbs: _crumbState(ancestors),
+    parent: data.parent,
+    kind: data.kind,
+    progress,
   };
   return state;
 }
 
-function _contentState(data) {
-  let progress;
-  if (!data.progress_fraction) {
-    progress = 0.0;
-  } else if (data.progress_fraction > 1.0) {
-    progress = 1.0;
-  } else {
-    progress = data.progress_fraction;
-  }
+function _contentState(data, nextContent, ancestors = []) {
+  const progress = validateProgress(data);
+  const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
     title: data.title,
     kind: data.kind,
     description: data.description,
-    thumbnail: data.thumbnail,
+    thumbnail: thumbnail.storage_url,
     available: data.available,
     files: data.files,
     progress,
+    breadcrumbs: _crumbState(ancestors),
     content_id: data.content_id,
-    breadcrumbs: _crumbState(data.ancestors),
-    next_content: data.next_content,
+    next_content: nextContent,
     author: data.author,
     license: data.license,
+    license_description: data.license_description,
     license_owner: data.license_owner,
+    parent: data.parent,
   };
   Object.assign(state, assessmentMetaDataState(data));
   return state;
 }
 
-
 function _collectionState(data) {
-  const topics = data
-    .filter((item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _topicState(item));
-  const contents = data
-    .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _contentState(item));
-  return { topics, contents };
+  return data.map(item => {
+    if (item.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+      return _topicState(item);
+    }
+    return _contentState(item);
+  });
 }
 
 function _examState(data) {
@@ -107,6 +117,23 @@ function _examLoggingState(data) {
   return state;
 }
 
+/**
+ * Cache utility functions
+ *
+ * These methods are used to manipulate client side cache to reduce requests
+ */
+
+function updateContentNodeProgress(channelId, contentId, progressFraction) {
+  /*
+   * Update the progress_fraction directly on the model object, so as to prevent having
+   * to cache bust the model (and hence the entire collection), because some progress was
+   * made on this ContentNode.
+   */
+  const model = ContentNodeResource.getModel(contentId, {
+    channel_id: channelId,
+  });
+  model.set({ progress_fraction: progressFraction });
+}
 
 /**
  * Actions
@@ -123,17 +150,18 @@ function redirectToExploreChannel(store) {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
         router.getInstance().replace({
-          name: constants.PageNames.EXPLORE_CHANNEL,
+          name: PageNames.EXPLORE_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: PageNames.CONTENT_UNAVAILABLE });
       }
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -144,17 +172,18 @@ function redirectToLearnChannel(store) {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
         router.getInstance().replace({
-          name: constants.PageNames.LEARN_CHANNEL,
+          name: PageNames.LEARN_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: PageNames.CONTENT_UNAVAILABLE });
       }
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 function showExploreTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -166,23 +195,36 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
 
   const channelPayload = { channel_id: channelId };
   const topicPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
-  const childrenPromise = ContentNodeResource.getCollection(
-    channelPayload, { parent: id }).fetch();
+  const childrenPromise = ContentNodeResource.getCollection(channelPayload, {
+    parent: id,
+  }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, channelPayload);
+  ConditionalPromise.all([topicPromise, childrenPromise, ancestorsPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([topic, children]) => {
+    ([topic, children, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
-      pageState.topic = _topicState(topic);
+      pageState.topic = _topicState(topic, ancestors);
       const collection = _collectionState(children);
-      pageState.subtopics = collection.topics;
-      pageState.contents = collection.contents;
+      pageState.contents = collection;
       store.dispatch('SET_PAGE_STATE', pageState);
+      // Topics are expensive to compute progress for, so we lazily load progress for them.
+      const subtopicIds = collection
+        .filter(item => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
+        .map(subtopic => subtopic.id);
+      if (subtopicIds.length) {
+        const topicProgressPromise = ContentNodeProgressResource.getCollection(channelPayload, {
+          ids: subtopicIds,
+        }).fetch();
+        topicProgressPromise.then(progressArray => {
+          store.dispatch('SET_TOPIC_PROGRESS', progressArray);
+        });
+      }
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
@@ -191,63 +233,78 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
         store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
       }
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
 
-  coreActions.setChannelInfo(store, channelId).then(
-    () => {
-      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-      showExploreTopic(store, channelId, currentChannel.root_id, true);
+  coreActions.setChannelInfo(store, channelId).then(() => {
+    const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+    if (!currentChannel) {
+      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+      return;
     }
-  );
+    showExploreTopic(store, channelId, currentChannel.root_id, true);
+  });
 }
-
 
 function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
-  const contentPromise = ContentNodeResource.getModel(id, { channel_id: channelId }).fetch();
+  const contentPromise = ContentNodeResource.getModel(id, {
+    channel_id: channelId,
+  }).fetch();
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id, {
+    channel_id: channelId,
+  });
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, {
+    channel_id: channelId,
+  });
+  ConditionalPromise.all([
+    contentPromise,
+    channelsPromise,
+    nextContentPromise,
+    ancestorsPromise,
+  ]).only(
     samePageCheckGenerator(store),
-    ([content]) => {
+    ([content, channels, nextContent, ancestors]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const pageState = { content: _contentState(content) };
+      const pageState = {
+        content: _contentState(content, nextContent, ancestors),
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
-
-function showLearnChannel(store, channelId, page = 1) {
+function showLearnChannel(store, channelId, cursor) {
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
-  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+  if (
+    state.pageName !== PageNames.LEARN_CHANNEL ||
+    coreGetters.getCurrentChannelId(state) !== channelId
+  ) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
-
-  const ALL_PAGE_SIZE = 6;
 
   const sessionPromise = SessionResource.getModel('current').fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
@@ -255,42 +312,49 @@ function showLearnChannel(store, channelId, page = 1) {
     samePageCheckGenerator(store),
     ([session]) => {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      const isFacilityUser = coreGetters.isFacilityUser(store.state);
       const nextStepsPayload = { next_steps: session.user_id };
-      const popularPayload = { popular: session.user_id };
+      const popularPayload = { popular: 'true' };
       const resumePayload = { resume: session.user_id };
-      const allPayload = { kind: 'content' };
       const channelPayload = { channel_id: channelId };
-      const nextStepsPromise = ContentNodeResource.getCollection(
-        channelPayload, nextStepsPayload).fetch();
+      const nextStepsPromise = isFacilityUser
+        ? ContentNodeResource.getCollection(channelPayload, nextStepsPayload).fetch()
+        : Promise.resolve([]);
+      const resumePromise = isFacilityUser
+        ? ContentNodeResource.getCollection(channelPayload, resumePayload).fetch()
+        : Promise.resolve([]);
       const popularPromise = ContentNodeResource.getCollection(
-        channelPayload, popularPayload).fetch();
-      const resumePromise = ContentNodeResource.getCollection(
-        channelPayload, resumePayload).fetch();
-      const allContentResource = ContentNodeResource.getPagedCollection(
         channelPayload,
-        allPayload,
-        ALL_PAGE_SIZE,
-        page
-      );
-      const allPromise = allContentResource.fetch();
-      ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise, allPromise]
-      ).only(
+        popularPayload
+      ).fetch();
+      const allContentCollection = ContentNodeResource.getAllContentCollection(channelPayload, {
+        cursor,
+      });
+      const allContentPromise = allContentCollection.fetch();
+      ConditionalPromise.all([
+        nextStepsPromise,
+        popularPromise,
+        resumePromise,
+        allContentPromise,
+      ]).only(
         samePageCheckGenerator(store),
         ([nextSteps, popular, resume, allContent]) => {
           const pageState = {
             recommendations: {
-              nextSteps: nextSteps.map(_contentState),
-              popular: popular.map(_contentState),
-              resume: resume.map(_contentState),
+              // Hard to guarantee this uniqueness on the database side, so
+              // do a uniqBy content_id here, to prevent confusing repeated
+              // content items.
+              nextSteps: uniqBy(nextSteps, 'content_id').map(_contentState),
+              popular: uniqBy(popular, 'content_id').map(_contentState),
+              resume: uniqBy(resume, 'content_id').map(_contentState),
             },
             all: {
               content: allContent.map(_contentState),
-              pageCount: allContentResource.pageCount,
-              page,
+              next: allContentCollection.next,
+              previous: allContentCollection.previous,
             },
           };
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -299,39 +363,40 @@ function showLearnChannel(store, channelId, page = 1) {
 
           const currentChannel = coreGetters.getCurrentChannelObject(store.state);
           store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
-
-          // preload next page
-          if (allContentResource.hasNext) {
-            ContentNodeResource.getPagedCollection(
-              channelPayload, allPayload, ALL_PAGE_SIZE, page + 1).fetch();
-          }
         },
-        error => { coreActions.handleApiError(store, error); }
+        error => {
+          coreActions.handleApiError(store, error);
+        }
       );
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   const channelPayload = { channel_id: channelId };
   const contentPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
-  const recommendedPromise = ContentNodeResource.getCollection(
-    channelPayload, { recommendations_for: id }).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection(channelPayload, {
+    recommendations_for: id,
+  }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id, {
+    channel_id: channelId,
+  });
+  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
     samePageCheckGenerator(store),
-    ([content]) => {
+    ([content, channels, nextContent]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
-        content: _contentState(content),
+        content: _contentState(content, nextContent),
         recommended: store.state.pageState.recommended,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -339,11 +404,13 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
   recommendedPromise.only(
     samePageCheckGenerator(store),
-    (recommended) => {
+    recommended => {
       const pageState = {
         content: store.state.pageState.content,
         recommended: recommended.map(_contentState),
@@ -351,10 +418,11 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 function triggerSearch(store, channelId, searchTerm) {
   if (!searchTerm) {
@@ -368,18 +436,21 @@ function triggerSearch(store, channelId, searchTerm) {
   }
 
   const contentCollection = ContentNodeResource.getPagedCollection(
-    { channel_id: channelId }, { search: searchTerm });
+    { channel_id: channelId },
+    { search: searchTerm }
+  );
   const searchResultsPromise = contentCollection.fetch();
 
-  searchResultsPromise.then((results) => {
-    const searchState = { searchTerm };
-    const collection = _collectionState(results);
-    searchState.topics = collection.topics;
-    searchState.contents = collection.contents;
-    store.dispatch('SET_PAGE_STATE', searchState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  })
-  .catch(error => { coreActions.handleApiError(store, error); });
+  searchResultsPromise
+    .then(results => {
+      const searchState = { searchTerm };
+      searchState.contents = _collectionState(results);
+      store.dispatch('SET_PAGE_STATE', searchState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(error => {
+      coreActions.handleApiError(store, error);
+    });
 }
 
 function clearSearch(store) {
@@ -390,7 +461,6 @@ function clearSearch(store) {
   });
 }
 
-
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
@@ -398,7 +468,6 @@ function showScratchpad(store) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'Scratchpad');
 }
-
 
 function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
@@ -419,7 +488,7 @@ function redirectToChannelSearch(store) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       router.getInstance().replace({
-        name: constants.PageNames.SEARCH,
+        name: PageNames.SEARCH,
         params: { channel_id: currentChannel.id },
       });
     },
@@ -436,15 +505,13 @@ function showSearch(store, channelId, searchTerm) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'Search');
   clearSearch(store);
-  coreActions.setChannelInfo(store, channelId).then(
-    () => {
-      if (searchTerm) {
-        triggerSearch(store, channelId, searchTerm);
-      } else {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      }
+  coreActions.setChannelInfo(store, channelId).then(() => {
+    if (searchTerm) {
+      triggerSearch(store, channelId, searchTerm);
+    } else {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
-  );
+  });
 }
 
 function showExamList(store, channelId) {
@@ -458,41 +525,38 @@ function showExamList(store, channelId) {
     return Promise.resolve();
   }
 
-  return coreActions.setChannelInfo(store, channelId).then(
-    () => {
-      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-      UserExamResource.getCollection({ channel_id: channelId }).fetch().only(
-        samePageCheckGenerator(store),
-        (exams) => {
-          const pageState = {};
-          pageState.exams = exams.map(_examState);
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
-        },
-        error => { coreActions.handleApiError(store, error); }
-      );
+  return coreActions.setChannelInfo(store, channelId).then(() => {
+    const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+    if (!currentChannel) {
+      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+      return;
     }
-  );
+    UserExamResource.getCollection().fetch().only(
+      samePageCheckGenerator(store),
+      exams => {
+        const pageState = {};
+        pageState.exams = exams.map(_examState);
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_ERROR', null);
+        store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
+      },
+      error => {
+        coreActions.handleApiError(store, error);
+      }
+    );
+  });
 }
-
 
 function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
-  Object.keys(attemptLogs).forEach((key) => {
-    Object.keys(attemptLogs[key]).forEach(
-    (innerKey) => {
+  Object.keys(attemptLogs).forEach(key => {
+    Object.keys(attemptLogs[key]).forEach(innerKey => {
       questionsAnswered += attemptLogs[key][innerKey].answer ? 1 : 0;
     });
   });
   return questionsAnswered;
 }
-
 
 function showExam(store, channelId, id, questionNumber) {
   if (store.state.pageName !== PageNames.EXAM) {
@@ -506,7 +570,7 @@ function showExam(store, channelId, id, questionNumber) {
   } else {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
-    const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
+    const examPromise = UserExamResource.getModel(id).fetch();
     const channelsPromise = coreActions.setChannelInfo(store, channelId);
     const examLogPromise = ExamLogResource.getCollection({
       user: store.state.core.session.user_id,
@@ -526,7 +590,7 @@ function showExam(store, channelId, id, questionNumber) {
       ([exam, channel, examLogs, examAttemptLogs]) => {
         const currentChannel = coreGetters.getCurrentChannelObject(store.state);
         if (!currentChannel) {
-          router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+          router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
         }
 
@@ -541,7 +605,7 @@ function showExam(store, channelId, id, questionNumber) {
               exam: id,
               closed: false,
             });
-            examLogModel.save().then((newExamLog) => {
+            examLogModel.save().then(newExamLog => {
               store.dispatch('SET_EXAM_LOG', newExamLog);
               ExamLogResource.unCacheCollection({
                 user: store.state.core.session.user_id,
@@ -552,7 +616,7 @@ function showExam(store, channelId, id, questionNumber) {
           // Sort through all the exam attempt logs retrieved and organize them into objects
           // keyed first by content_id and then item id under that.
           if (examAttemptLogs.length > 0) {
-            examAttemptLogs.forEach((log) => {
+            examAttemptLogs.forEach(log => {
               if (!attemptLogs[log.content_id]) {
                 attemptLogs[log.content_id] = {};
               }
@@ -570,29 +634,39 @@ function showExam(store, channelId, id, questionNumber) {
         // property.
         // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
         const shuffledQuestions = seededShuffle.shuffle(
-          createQuestionList(questionSources), seed, true);
+          createQuestionList(questionSources),
+          seed,
+          true
+        );
 
         if (!shuffledQuestions[questionNumber]) {
           // Illegal question number!
-          coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+          coreActions.handleError(
+            store,
+            `Question number ${questionNumber} is not valid for this exam`
+          );
         } else {
           const contentPromise = ContentNodeResource.getCollection(
             { channel_id: channelId },
-            { ids: questionSources.map(item => item.exercise_id) }).fetch();
+            { ids: questionSources.map(item => item.exercise_id) }
+          ).fetch();
 
           contentPromise.only(
             samePageCheckGenerator(store),
-            (contentNodes) => {
+            contentNodes => {
               const contentNodeMap = {};
 
-              contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
+              contentNodes.forEach(node => {
+                contentNodeMap[node.pk] = node;
+              });
 
               const questions = shuffledQuestions.map(question => ({
                 itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                seed,
-                contentNodeMap[question.contentId]),
-                contentId: question.contentId
+                  question.assessmentItemIndex,
+                  seed,
+                  contentNodeMap[question.contentId]
+                ),
+                contentId: question.contentId,
               }));
 
               if (questions.every(question => !question.itemId)) {
@@ -603,8 +677,10 @@ function showExam(store, channelId, id, questionNumber) {
 
                 const currentQuestion = questions[questionNumber];
 
-                const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
-                  calcQuestionsAnswered(attemptLogs));
+                const questionsAnswered = Math.max(
+                  store.state.pageState.questionsAnswered || 0,
+                  calcQuestionsAnswered(attemptLogs)
+                );
 
                 const pageState = {
                   exam: _examState(exam),
@@ -641,14 +717,21 @@ function showExam(store, channelId, id, questionNumber) {
                 store.dispatch('SET_PAGE_STATE', pageState);
                 store.dispatch('CORE_SET_PAGE_LOADING', false);
                 store.dispatch('CORE_SET_ERROR', null);
-                store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
+                store.dispatch(
+                  'CORE_SET_TITLE',
+                  `${pageState.exam.title} - ${currentChannel.title}`
+                );
               }
             },
-            error => { coreActions.handleApiError(store, error); }
+            error => {
+              coreActions.handleApiError(store, error);
+            }
           );
         }
       },
-      error => { coreActions.handleApiError(store, error); }
+      error => {
+        coreActions.handleApiError(store, error);
+      }
     );
   }
 }
@@ -659,6 +742,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   UserExamResource.clearCache();
 
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+    // prettier-ignore
     [contentId]: ({
       [itemId]: currentAttemptLog,
     }),
@@ -679,39 +763,41 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
   if (!examAttemptLogModel) {
-    examAttemptLogModel = ExamAttemptLogResource.createModel(
-      attributes);
+    examAttemptLogModel = ExamAttemptLogResource.createModel(attributes);
   }
   const promise = examAttemptLogModel.save(attributes);
-  return promise.then((newExamAttemptLog) =>
-    new Promise((resolve, reject) => {
-      const log = Object.assign({}, newExamAttemptLog);
-      store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-        [contentId]: ({
+  return promise.then(
+    newExamAttemptLog =>
+      new Promise((resolve, reject) => {
+        const log = Object.assign({}, newExamAttemptLog);
+        store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+          // prettier-ignore
+          [contentId]: ({
           [itemId]: log,
         }),
-      });
-      const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-      store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
-      const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-        user: store.state.core.session.user_id,
-        exam: store.state.pageState.exam.id,
-      });
-      // Add this attempt log to the Collection for future caching.
-      examAttemptLogCollection.set(examAttemptLogModel);
-      resolve();
-    })
+        });
+        const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+        store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+        const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+          user: store.state.core.session.user_id,
+          exam: store.state.pageState.exam.id,
+        });
+        // Add this attempt log to the Collection for future caching.
+        examAttemptLogCollection.set(examAttemptLogModel);
+        resolve();
+      })
   );
 }
 
 function closeExam(store) {
   const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
-  return ExamLogResource.getModel(examLog.id).save(examLog).catch(
-    error => { coreActions.handleApiError(store, error); });
+  return ExamLogResource.getModel(examLog.id).save(examLog).catch(error => {
+    coreActions.handleApiError(store, error);
+  });
 }
 
-module.exports = {
+export {
   redirectToExploreChannel,
   redirectToLearnChannel,
   showExploreChannel,
@@ -729,5 +815,6 @@ module.exports = {
   showExamList,
   setAndSaveCurrentExamAttemptLog,
   closeExam,
-  prepareLearnApp: require('./prepareLearnApp'),
+  prepareLearnApp,
+  updateContentNodeProgress,
 };

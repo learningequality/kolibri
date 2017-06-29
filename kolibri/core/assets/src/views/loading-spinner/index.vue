@@ -9,7 +9,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     props: {
       delay: {
         type: Number,

@@ -1,9 +1,6 @@
 <template>
 
   <div class="header-wrapper">
-    <div class="extra-nav">
-      <slot name="extra-nav"/>
-    </div>
     <div class="header">
       <h1 class="title">
         {{ title }}
@@ -20,31 +17,25 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
-
-  module.exports = {
-    components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-    },
-    props: {
-      title: {
-        type: String,
-      },
-    },
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  export default {
+    components: { progressIcon },
+    props: { title: { type: String } },
     vuex: {
       getters: {
-        contentKind: (state) => {
+        contentKind: state => {
           if (state.pageState.content) {
             return state.pageState.content.kind;
           }
           return ContentNodeKinds.TOPIC;
         },
-        progress: (state) => {
+        progress: state => {
           if (state.pageState.content) {
-            if (state.core.logging.mastery.totalattempts > 0 &&
-              state.core.logging.summary.progress === 0) {
-              // If there have been attempts, but no progress, return some progress.
+            if (
+              state.core.logging.mastery.totalattempts > 0 &&
+              state.core.logging.summary.progress === 0
+            ) {
               return 0.1;
             }
             return state.core.logging.summary.progress;

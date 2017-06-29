@@ -8,7 +8,7 @@
       <div class="content-wrapper">
         <loading-spinner id="spinner" v-if="!currentViewClass"/>
         <component v-else :is="currentViewClass"
-        @startTracking="wrappedStartTracking"
+        @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
         @answerGiven="answerGiven"
@@ -20,6 +20,8 @@
         :itemId="itemId"
         :answerState="answerState"
         :allowHints="allowHints"
+        :supplementaryFiles="supplementaryFiles"
+        :thumbnailFiles="thumbnailFiles"
         ref="contentView"
         />
       </div>
@@ -35,10 +37,11 @@
 
 <script>
 
-  const logging = require('kolibri.lib.logging').getLogger(__filename);
-  const actions = require('kolibri.coreVue.vuex.actions');
-
-  module.exports = {
+  import logger from 'kolibri.lib.logging';
+  const logging = logger.getLogger(__filename);
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
@@ -73,20 +76,20 @@
         type: Boolean,
         default: false,
       },
-      itemId: {
-        default: null,
-      },
-      answerState: {
-        default: null,
-      },
+      itemId: { default: null },
+      answerState: { default: null },
       allowHints: {
         type: Boolean,
         default: true,
       },
+      initSession: {
+        type: Function,
+        default: () => Promise.resolve(),
+      },
     },
     components: {
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      loadingSpinner,
+      uiAlert,
     },
     computed: {
       extension() {
@@ -96,13 +99,16 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(
-          (file) => !file.thumbnail && !file.supplementary && file.available
-        );
+        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles &&
-          this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      supplementaryFiles() {
+        return this.files.filter(file => file.supplementary && file.available);
+      },
+      thumbnailFiles() {
+        return this.files.filter(file => file.thumbnail && file.available);
       },
     },
     created() {
@@ -115,11 +121,9 @@
       noRendererAvailable: false,
     }),
     methods: {
-      /**
-       * Check the Kolibri core app for a content renderer module that is able to
-       * handle the rendering of the current content node. This is the entrance point for changes
-       * in the props,so any change in the props will trigger this function first.
-       */
+      // Check the Kolibri core app for a content renderer module that is able to
+      // handle the rendering of the current content node. This is the entrance point for changes
+      // in the props,so any change in the props will trigger this function first.
       updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
@@ -127,16 +131,18 @@
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([
-            this.initSession(this.channelId, this.contentId, this.kind),
-            this.Kolibri.retrieveContentRenderer(this.kind, this.extension)
-          ]).then(([session, component]) => {
-            this.$emit('sessionInitialized');
-            this.currentViewClass = component;
-            return this.currentViewClass;
-          }).catch((error) => {
-            logging.error(error);
-            this.noRendererAvailable = true;
-          });
+            this.initSession(),
+            this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
+          ])
+            .then(([session, component]) => {
+              this.$emit('sessionInitialized');
+              this.currentViewClass = component;
+              return this.currentViewClass;
+            })
+            .catch(error => {
+              logging.error(error);
+              this.noRendererAvailable = true;
+            });
         }
         return Promise.resolve(null);
       },
@@ -152,13 +158,14 @@
       interaction(...args) {
         this.$emit('interaction', ...args);
       },
-      wrappedStartTracking() {
-        // Assume that as soon as we have started tracking data for this content item,
-        // our ContentNode cache is no longer valid.
-        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id, {
-          channel_id: this.channelId
-        });
-        this.startTracking();
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      startTracking(...args) {
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
       },
       checkAnswer() {
         if (this.assessment && this.$refs.contentView && this.$refs.contentView.checkAnswer) {
@@ -171,14 +178,6 @@
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
         return null;
-      },
-    },
-    vuex: {
-      actions: {
-        initSession: actions.initContentSession,
-        updateProgress: actions.updateProgress,
-        startTracking: actions.startTrackingProgress,
-        stopTracking: actions.stopTrackingProgress,
       },
     },
   };

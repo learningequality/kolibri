@@ -14,14 +14,12 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.fields import DateTimeTzField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
 from .content_db_router import get_active_content_database, get_content_database_connection
-from .permissions import UserCanReadExamAssignmentData
 from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -68,7 +66,7 @@ class UUIDField(models.CharField):
         return value
 
 
-class ContentQuerySet(models.QuerySet):
+class ContentQuerySet(TreeQuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
@@ -116,7 +114,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField()
+    content_id = UUIDField(db_index=True)
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -129,21 +127,20 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     objects = ContentQuerySet.as_manager()
 
     class Meta:
-        ordering = ('sort_order',)
+        ordering = ('lft',)
 
     def __str__(self):
         return self.title
 
     def get_descendant_content_ids(self):
         """
-        Retrieve a queryset of unique content_ids for non-topic content nodes that are
+        Retrieve a queryset of content_ids for non-topic content nodes that are
         descendants of this node.
         """
         return ContentNode.objects \
             .filter(lft__gte=self.lft, lft__lte=self.rght) \
             .exclude(kind=content_kinds.TOPIC) \
-            .values_list("content_id", flat=True) \
-            .distinct().order_by("content_id")
+            .values_list("content_id", flat=True)
 
     def get_descendant_kind_counts(self):
         """ Return a dict mapping content kinds to counts, indicating how many descendant nodes there are of that kind.
@@ -242,6 +239,7 @@ class License(ContentDatabaseModel):
     Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
+    license_description = models.CharField(max_length=400, null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -271,6 +269,7 @@ class AssessmentMetaData(ContentDatabaseModel):
     # Is this assessment compatible with being previewed and answer filled for display in coach reports
     # and use in summative and formative tests?
     is_manipulable = models.BooleanField(default=False)
+
 
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
@@ -305,73 +304,7 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
     This class stores the channel metadata cached/denormed into the primary database.
     """
 
+    last_updated = DateTimeTzField(null=True)
+
     class Admin:
         pass
-
-
-class Exam(AbstractFacilityDataModel):
-    """
-    This class stores metadata about teacher created exams to test current student knowledge.
-    """
-    permissions = RoleBasedPermissions(
-        target_field="collection",
-        can_be_created_by=(),
-        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_deleted_by=(),
-    )
-
-    id = UUIDField(primary_key=True, default=uuid.uuid4)
-    title = models.CharField(max_length=200)
-    # The channel this Exam is associated with.
-    channel_id = models.CharField(max_length=32)
-    # Number of total questions this exam has
-    question_count = models.IntegerField()
-    """
-    JSON blob describing content ids for the assessments this exam draws from, and how many
-    questions each assessment contributes to the exam. e.g.:
-
-    [
-        {"exercise_id": <content_id1>, "number_of_questions": 6},
-        {"exercise_id": <content_id2>, "number_of_questions": 5}
-    ]
-    """
-    question_sources = JSONField(default=[])
-    # The random seed we use to decide which questions are in the exam
-    seed = models.IntegerField(default=1)
-    # Is this exam currently active and visible to students to whom it is assigned?
-    active = models.BooleanField(default=False)
-    # Exams are scoped to a particular class (usually) as they are associated with a Coach
-    # who creates them in the context of their class, this stores that relationship but does
-    # not assign exam itself to the class - for that see the ExamAssignment model.
-    collection = models.ForeignKey(Collection, related_name='exams', blank=False, null=False)
-    creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
-    archive = models.BooleanField(default=False)
-
-    def infer_dataset(self):
-        return self.creator.dataset
-
-    def __str__(self):
-        return self.title
-
-
-class ExamAssignment(AbstractFacilityDataModel):
-    """
-    This class acts as an intermediary to handle assignment of an exam to particular collections
-    classes, groups, etc.
-    """
-    permissions = (
-        RoleBasedPermissions(
-            target_field="collection",
-            can_be_created_by=(),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_deleted_by=(),
-        ) | UserCanReadExamAssignmentData()
-    )
-    exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)
-    collection = models.ForeignKey(Collection, related_name='assigned_exams', blank=False, null=False)
-    assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
-
-    def infer_dataset(self):
-        return self.assigned_by.dataset

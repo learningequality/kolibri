@@ -12,23 +12,18 @@
 
 <script>
 
-  const filesize = require('filesize');
-
-  module.exports = {
-    components: {
-      'dropdown-menu': require('kolibri.coreVue.components.dropdownMenu'),
-    },
+  import filesize from 'filesize';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  export default {
+    components: { dropdownMenu },
     $trNameSpace: 'downloadButton',
-    $trs: {
-      downloadContent: 'Download content',
-    },
+    $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
         default: [],
       },
     },
-
     computed: {
       fileOptions() {
         return this.files.map(file => ({

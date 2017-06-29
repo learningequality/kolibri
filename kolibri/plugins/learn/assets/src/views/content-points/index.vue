@@ -1,94 +1,92 @@
 <template>
 
-  <div>
-    <transition name="popup">
-      <div v-if="popoverShown" class="popover-container">
-        <div class="popover">
-          <div class="content">
-            <div class="topline">
-              <points-icon class="popover-icon" :active="true"/>
-              <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
-            </div>
-            <span class="encourage">{{ $tr('niceWork') }}</span>
-          </div>
-          <ui-close-button
-              size="small"
-              @click="closePopover"
-              class="close"
-          ></ui-close-button>
-        </div>
+  <core-modal :title="$tr('niceWork')" @cancel="closePopover">
+
+    <div class="points-wrapper">
+      <div class="points">
+        <points-icon class="points-icon" :active="true"/>
+        <span class="plus-points">{{ $tr('plusPoints', { maxPoints }) }}</span>
       </div>
-    </transition>
-    <div class="points" :style="style">
-      <points-icon class="in-points icon" :active="active"/>
-      <span class="count in-points">{{ $formatNumber(maxPoints) }}</span>
     </div>
-  </div>
+
+    <div class="next-item-section">
+      <h2 class="next-item-heading">{{ $tr('nextContent') }}</h2>
+      <div>
+        <content-icon class="content-icon" :kind="kind"/>
+        <span>{{ title }}</span>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <icon-button :text="$tr('close')" @click="closePopover" class="close-button"/>
+      <slot name="nextItemBtn"/>
+    </div>
+
+  </core-modal>
 
 </template>
 
 
 <script>
 
-  const { contentPoints } = require('kolibri.coreVue.vuex.getters');
-  const { MaxPointsPerContent } = require('kolibri.coreVue.vuex.constants');
-
-  module.exports = {
+  import { contentPoints } from 'kolibri.coreVue.vuex.getters';
+  import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'contentPoints',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
-      niceWork: 'Nice work. Keep it up!',
+      niceWork: 'Great work! Keep it up!',
+      nextContent: 'Next Item',
+      topic: 'Topic',
+      exercise: 'Exercise',
+      video: 'Video',
+      audio: 'Audio',
+      document: 'Document',
+      html5: 'HTML5 app',
+      item: 'Item',
+      close: 'Close',
     },
     components: {
-      'points-icon': require('kolibri.coreVue.components.pointsIcon'),
-      'ui-close-button': require('keen-ui/src/UiCloseButton'),
+      pointsIcon,
+      contentIcon,
+      coreModal,
+      iconButton,
     },
-    vuex: {
-      getters: {
-        contentPoints,
-      },
-    },
+    vuex: { getters: { contentPoints } },
     props: {
-      showPopover: {
-        type: Boolean,
-        default: false,
-      },
+      kind: { type: String },
+      title: { type: String },
     },
-    watch: {
-      popoverShown: 'popOverSetTime',
-    },
-    data: () => ({
-      internalPopoverShown: true,
-    }),
     computed: {
       maxPoints() {
         return MaxPointsPerContent;
       },
-      active() {
-        return this.contentPoints === this.maxPoints;
-      },
-      style() {
-        if (this.active) {
-          return {};
+      nextKind() {
+        const kind = this.kind;
+        if (kind === ContentNodeKinds.TOPIC) {
+          return this.$tr('topic');
+        } else if (kind === ContentNodeKinds.EXERCISE) {
+          return this.$tr('exercise');
+        } else if (kind === ContentNodeKinds.VIDEO) {
+          return this.$tr('video');
+        } else if (kind === ContentNodeKinds.AUDIO) {
+          return this.$tr('audio');
+        } else if (kind === ContentNodeKinds.DOCUMENT) {
+          return this.$tr('document');
+        } else if (kind === ContentNodeKinds.HTML5) {
+          return this.$tr('html5');
         }
-        return {
-          color: 'grey',
-          boxShadow: 'inset 1px 1px 3px 1px #b3b3b3',
-        };
-      },
-      popoverShown() {
-        return this.showPopover && this.internalPopoverShown;
+        return this.$tr('item');
       },
     },
     methods: {
       closePopover() {
-        this.internalPopoverShown = false;
+        this.$emit('close');
       },
-      popOverSetTime(newVal, oldVal) {
-        if (newVal === true && oldVal !== true) {
-          setTimeout(this.closePopover, 5000);
-        }
-      }
     },
   };
 
@@ -99,74 +97,39 @@
 
   @require '~kolibri.styles.definitions'
 
+  .points-wrapper
+    margin: 2em
+    text-align: center
+
   .points
     display: inline-block
-    font-weight: bold
-    background-color: #EEEEEE
-    color: $core-accent-color
-    padding: 10px
 
-    .in-points
-      display: table-cell
-      vertical-align: middle
-
-  .icon
+  .points-icon
+    float: left
     width: 30px
     height: 30px
-
-  .count
-    padding-left: 5px
-    font-size: 25px
-
-  .popover-container
-    position: absolute
-    height: 0
-    right: 5%
-    top: 15%
-
-  .popover
-    background-color: $core-bg-canvas
-    border-left: $core-correct-color solid 3px
-    padding: 10px 15px 5px
-    box-shadow: grey 2px 2px 5px 1px
-
-  .popover-icon
-    float: left
-    width: 20px
-    height: 20px
 
   .plus-points
     padding-left: 5px
     font-size: 1.5em
     font-weight: bold
-    color: $core-correct-color
+    color: $core-status-correct
 
-  .topline
-    padding-bottom: 5px
-    clearfix()
+  .content-icon
+    font-size: 1.5em
 
-  .encourage
-    color: $core-text-annotation
-    font-size: 0.9em
-    font-weight: bold
+  .next-item-section
+    text-align: center
+    padding: 0 2em 2em
 
-  .content
-    display: inline-table
-    margin-right: 10px
+  .buttons
+    text-align: center
+    padding: 0 0 0.5em
 
-  .close
-    float: right
-    display: inline-table
+  .next-item-heading
+    margin: 0
 
-  .popup-enter-active, .popup-leave-active
-    transition: all 0.3s ease
-
-  .popup-enter
-    top: 25%
-    opacity: 0
-
-  .popup-leave-active
-    top: 5%
-    opacity: 0
+  .close-button
+    margin-right: 0.5em
 
 </style>

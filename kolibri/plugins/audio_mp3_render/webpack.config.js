@@ -3,7 +3,7 @@
  * It will be bundled into the webpack configuration at build time.
  */
 
-module.exports = {
+export {
   module: {
     rules: [
       // Allows <video> and <audio> HTML5 tags work on all major browsers.

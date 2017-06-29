@@ -46,7 +46,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'coreModal',
     $trs: {
       // error alerts
@@ -132,9 +132,13 @@
       },
       focusElementTest(event) {
         // switching apps - not relevant
-        if (event.target === window) { return; }
+        if (event.target === window) {
+          return;
+        }
         // not sure when this would be true
-        if (!this.$refs.modal) { return; }
+        if (!this.$refs.modal) {
+          return;
+        }
         // focus has escaped the modal - put it back!
         if (!this.$refs.modal.contains(event.target)) {
           this.focusModal();
@@ -145,7 +149,7 @@
       },
       bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.enableBgClickCancel && (event.target === this.$refs.modalOverlay)) {
+        if (this.enableBgClickCancel && event.target === this.$refs.modalOverlay) {
           this.emitCancelEvent();
         }
       },
@@ -168,7 +172,7 @@
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 25
+    z-index: 24
 
   .modal
     position: absolute

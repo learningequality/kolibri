@@ -24,9 +24,10 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'activateExamModal',
     $trs: {
       activateExam: 'Activate exam',
@@ -34,11 +35,11 @@
       willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
       activate: 'Activate',
-      entireClass: 'Entire class'
+      entireClass: 'Entire class',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton,
     },
     props: {
       examId: {
