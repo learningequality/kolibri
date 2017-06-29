@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import time
+from functools import partial
 
 from pkg_resources import resource_filename
 
@@ -20,7 +21,7 @@ from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language, to_locale
+from django.utils.translation import get_language, get_language_info, to_locale
 from kolibri.plugins import hooks
 
 from . import settings
@@ -43,6 +44,14 @@ class WebpackError(EnvironmentError):
 
 
 logger = logging.getLogger(__name__)
+
+def filter_by_bidi(bidi, chunk):
+    if chunk['name'].split('.')[-1] != 'css':
+        return True
+    if bidi:
+        return chunk['name'].split('.')[-2] == 'rtl'
+    else:
+        return chunk['name'].split('.')[-2] != 'rtl'
 
 
 class WebpackBundleHook(hooks.KolibriHook):
@@ -234,11 +243,15 @@ class WebpackBundleHook(hooks.KolibriHook):
                         json.load(f), separators=(',', ':'))
         return _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code)
 
+    def sorted_chunks(self):
+        bidi = get_language_info(get_language())['bidi']
+        return sorted(filter(partial(filter_by_bidi, bidi), self.bundle), key=lambda x: x['name'].split('.')[-1])
+
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
         # Sorted to load css before js
-        for chunk in sorted(self.bundle, key=lambda x: x['name'].split('.')[-1]):
+        for chunk in self.sorted_chunks():
             if chunk['name'].endswith('.js'):
                 yield js_tag.format(url=chunk['url'])
             elif chunk['name'].endswith('.css'):
