@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = Kolibri
+title = kolibri
 
 # (str) Package name
 package.name = kolibri
@@ -12,12 +12,9 @@ package.domain = org.le
 # (str) Source code where the main.py live
 source.dir = ./code
 
-# (str) Application versioning (method 1)
-version = 0.2
-
-# (str) Application versioning (method 2)
-# version.regex = __version__ = ['"](.*)['"]
-# version.filename = %(source.dir)s/main.py
+# (str) Application version
+version.regex = v(\d+\.\d+\.\d+)
+version.filename = %(source.dir)s/kolibri/VERSION
 
 # (list) Application requirements
 requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
