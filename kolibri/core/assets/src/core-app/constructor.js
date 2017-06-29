@@ -51,6 +51,7 @@ export default class CoreApp {
      */
     vue.use(vuex);
     vue.use(router);
+    vue.set(vue, 'bidi', global.languageBidi || 'ltr');
 
     this.i18n = {
       reversed: false,
@@ -102,7 +103,6 @@ export default class CoreApp {
 
       if (global.languageCode) {
         vue.setLocale(global.languageCode);
-        vue.bidi = global.languageBidi;
         if (global.coreLanguageMessages) {
           vue.registerMessages(global.languageCode, global.coreLanguageMessages);
         }
