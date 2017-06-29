@@ -440,17 +440,17 @@ def plugin(plugin_name, **args):
                     plugin_name
                 )
             )
-            module_found = False
-            for module_path in conf.config['INSTALLED_APPS']:
-                if module_path.startswith(plugin_name):
-                    module_found = True
-                    conf.config['INSTALLED_APPS'].remove(module_path)
-                    logger.info(
-                        "Removed '{}' from INSTALLED_APPS".format(module_path)
-                    )
-            if not module_found:
+            if plugin_name in conf.config['INSTALLED_APPS']:
+                conf.config['INSTALLED_APPS'].remove(plugin_name)
+                logger.info(
+                    "Removed '{}' from INSTALLED_APPS".format(plugin_name)
+                )
+            else:
                 logger.warning(
-                    "Could not find any matches for {}".format(plugin_name)
+                    (
+                        "Could not find any matches for {} in INSTALLED_APPS"
+                        .format(plugin_name)
+                    )
                 )
 
     conf.save()
