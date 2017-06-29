@@ -295,7 +295,7 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
-        urls = [chunk['url'] for chunk in sorted(self.bundle, key=lambda x: x['name'].split('.')[-1])]
+        urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
                 kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
