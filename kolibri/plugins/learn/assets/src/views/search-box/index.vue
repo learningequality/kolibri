@@ -1,16 +1,18 @@
 <template>
 
-  <form class="search-box" @submit.prevent="search">
+  <form
+    class="search-box"
+    @submit.prevent="search"
+    @keydown.esc.prevent="handleEscKey">
     <div class="search-box-row">
       <input
+        v-model="searchQuery"
         type="search"
         class="search-input"
         ref="searchInput"
-        v-model="searchQuery"
         :placeholder="$tr('search')"
-        @keydown.esc.prevent="handleEscKey"
       >
-      <div class="search-clear-submit">
+      <div class="search-buttons-wrapper">
         <ui-icon-button
           icon="clear"
           color="black"
@@ -44,7 +46,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    $trNameSpace: 'learnSearchBox',
+    $trNameSpace: 'searchBox',
     $trs: {
       search: 'Search',
       clear: 'Clear',
@@ -64,6 +66,13 @@
       };
     },
     methods: {
+      handleEscKey() {
+        if (this.searchQuery === '') {
+          this.$emit('closeDropdownSearchBox');
+        } else {
+          this.searchQuery = '';
+        }
+      },
       search() {
         if (this.searchQuery !== '') {
           this.$router.push({
@@ -72,22 +81,6 @@
           });
         }
       },
-      handleEscKey() {
-        if (this.searchQuery === '') {
-          this.$emit('closeSearchBox');
-        } else {
-          this.searchQuery = '';
-        }
-      },
-      emitClick(event) {
-        this.$emit('clickedTarget', event.target);
-      },
-    },
-    created() {
-      window.addEventListener('click', this.emitClick);
-    },
-    beforeDestroy() {
-      window.removeEventListener('click', this.emitClick);
     },
     watch: {
       searchTerm(val) {
@@ -111,7 +104,7 @@
   .search-box
     display: table
     width: 100%
-    max-width: 400px
+    max-width: 450px
     background-color: white
 
   .search-box-within-action-bar
@@ -135,7 +128,7 @@
     &::placeholder
       color: $core-text-annotation
 
-  .search-clear-submit
+  .search-buttons-wrapper
     display: table-cell
     width: 76px
 

@@ -1,32 +1,28 @@
 <template>
 
-  <div class="search-box-wrapper" ref="searchBoxWrapper">
-    <div v-show="showSearchBox" :class="{ 'search-box-dropdown': showDropdownSearchBox }">
-      <search-box
-        ref="searchBox"
-        :icon="showDropdownSearchBox ? 'arrow_forward' : 'search'"
-        @closeSearchBox="searchBoxOpen = false"
-        @clickedTarget="handleClickedTarget"
-        :class="showDropdownSearchBox ? '' : 'search-box-within-action-bar'"
+  <div class="search-box-wrapper">
+    <div>
+      <ui-icon-button
+        v-show="searchBoxIsDropdown"
+        ref="toggleBtn"
+        icon="search"
+        type="primary"
+        color="primary"
+        :disableRipple="true"
+        @click="toggleDropdownSearchBox"
       />
+
+      <div v-show="searchBoxIsVisible" :class="{ 'search-box-dropdown': searchBoxIsDropdown }">
+        <search-box
+          ref="searchBox"
+          :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
+          :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"
+          @closeDropdownSearchBox="closeDropdownSearchBox"
+        />
+      </div>
     </div>
 
-    <ui-icon-button
-      v-show="showDropdownSearchBox"
-      icon="search"
-      type="primary"
-      color="primary"
-      :disableRipple="true"
-      @click="toggleDropdownSearchBox"
-      @focusin.native="handleFocusIn"
-      @focusout.native="handleFocusOut"
-    />
-
-    <div
-      v-show="showDropdownSearchBox && searchBoxOpen"
-      class="backdrop"
-      @click="searchBoxOpen = false">
-    </div>
+    <div v-show="searchBoxIsDropdown && searchBoxIsOpen" class="search-box-dropdown-backdrop"></div>
   </div>
 
 </template>
@@ -35,16 +31,12 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { PageNames } from '../../constants';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import { PageNames } from '../../constants';
   import searchBox from '../search-box';
 
   export default {
-    $trNameSpace: 'learnSearchBox',
-    $trs: {
-      search: 'Search',
-      clear: 'Clear',
-    },
+    $trNameSpace: 'actionBarSearchBar',
     mixins: [responsiveWindow],
     components: {
       uiIconButton,
@@ -53,53 +45,60 @@
     data() {
       return {
         searchQuery: this.searchTerm,
-        searchBoxOpen: false,
-        closeOnFocusOut: false,
+        searchBoxIsOpen: false,
       };
     },
     computed: {
-      showDropdownSearchBox() {
+      searchBoxIsDropdown() {
         return this.windowSize.breakpoint <= 0;
       },
-      showSearchBox() {
-        if (this.showDropdownSearchBox) {
-          return this.searchBoxOpen;
+      searchBoxIsVisible() {
+        if (this.searchBoxIsDropdown) {
+          return this.searchBoxIsOpen;
         }
         return true;
       },
     },
     methods: {
-      toggleDropdownSearchBox() {
-        this.searchBoxOpen = !this.searchBoxOpen;
-        if (this.searchBoxOpen) {
-          this.$nextTick(() => {
-            this.$refs.searchBox.$refs.searchInput.focus();
-          });
-        } else {
-          this.closeOnFocusOut = false;
-        }
-      },
-      handleClickedTarget(target) {
+      focusOnSearchBox() {
         this.$nextTick(() => {
-          if (!this.$refs.searchBoxWrapper.contains(target) && this.searchBoxOpen) {
-            this.searchBoxOpen = false;
-          }
+          this.$refs.searchBox.$refs.searchInput.focus();
         });
       },
-      handleFocusIn() {
-        this.closeOnFocusOut = this.searchBoxOpen;
+      focusOnToggleBtn() {
+        this.$refs.toggleBtn.$refs.button.focus();
       },
-      handleFocusOut() {
-        if (this.searchBoxOpen && this.closeOnFocusOut) {
-          this.searchBoxOpen = false;
+      openDropdownSearchBox() {
+        this.searchBoxIsOpen = true;
+        this.focusOnSearchBox();
+      },
+      closeDropdownSearchBox() {
+        this.searchBoxIsOpen = false;
+        this.focusOnToggleBtn();
+      },
+      toggleDropdownSearchBox() {
+        if (this.searchBoxIsOpen) {
+          this.closeDropdownSearchBox();
+        } else {
+          this.openDropdownSearchBox();
         }
       },
-      search() {
-        if (this.searchQuery !== '') {
-          this.$router.push({
-            name: PageNames.SEARCH,
-            query: { query: this.searchQuery },
-          });
+      handleFocusIn(event) {
+        if (this.searchBoxIsOpen && !this.$refs.searchBox.$el.contains(event.target)) {
+          this.closeDropdownSearchBox();
+        }
+      },
+    },
+    created() {
+      window.addEventListener('focusin', this.handleFocusIn);
+    },
+    beforeDestroy() {
+      window.removeEventListener('focusin', this.handleFocusIn);
+    },
+    watch: {
+      searchBoxIsOpen(newVal, oldVal) {
+        if (oldVal === true && newVal === false) {
+          this.focusOnToggleBtn();
         }
       },
     },
@@ -128,7 +127,7 @@
     padding-top: 10px
     padding-bottom: 10px
 
-  .backdrop
+  .search-box-dropdown-backdrop
     position: fixed
     top: 111px
     right: 0
