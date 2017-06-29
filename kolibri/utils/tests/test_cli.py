@@ -5,12 +5,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import copy
 import logging
-import pytest
 import os
 import unittest
 
+import pytest
 from kolibri.utils import cli
-
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +110,7 @@ class TestKolibriCLI(unittest.TestCase):
 
             assert django == django_expected
 
+    @pytest.mark.django_db
     def test_kolibri_listen_port_env(self):
         """
         Starts and stops the server, mocking the actual server.start()
