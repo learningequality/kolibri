@@ -8,17 +8,13 @@
       <form @submit.prevent="submitSetupForm" novalidate class="container">
         <h1>{{ $tr('formHeader') }}</h1>
 
-        <ui-alert @dismiss="clearGlobalError()" type="error" v-if="globalError">
-          {{ globalError }}
-        </ui-alert>
 
-        <section class="setup-owner">
+        <fieldset :disabled="submitted" class="setup-owner">
 
-          <header>
-            <h2 class="title">{{ $tr('deviceOwnerSectionHeader') }}</h2>
-            <p class="description">{{ $tr('deviceOwnerDescription') }}</p>
-          </header>
-
+          <legend class="title">
+            {{ $tr('deviceOwnerSectionHeader') }}
+          </legend>
+          <p class="description">{{ $tr('deviceOwnerDescription') }}</p>
 
           <core-textbox
             @focus="firstUsernameFieldVisit || visitUsername()"
@@ -51,13 +47,13 @@
             v-model="passwordConfirm"
           />
 
-        </section>
-        <section class="setup-facility">
+        </fieldset>
+        <fieldset :disabled="submitted" class="setup-facility">
 
-          <header>
-            <h2 class="title">{{ $tr('facilitySectionHeader') }}</h2>
-            <p class="description">{{ $tr('facilityDescription') }}</p>
-          </header>
+          <legend class="title">
+            {{ $tr('facilitySectionHeader') }}
+          </legend>
+          <p class="description">{{ $tr('facilityDescription') }}</p>
 
           <core-textbox
             @focus="firstFacilityFieldVisit || visitFacility()"
@@ -70,11 +66,29 @@
             :enforceMaxlength="true"
             v-model="facility"
           />
-        </section>
+        </fieldset>
 
-        <section class="setup-submission">
-          <icon-button :text="$tr('formSubmissionButton')" type="submit"/>
-        </section>
+
+        <div class="setup-submission">
+          <ui-alert
+            class="setup-submission-alert"
+            type="error"
+            @dismiss="clearGlobalError()"
+            v-if="globalError">
+            {{ globalError }}
+          </ui-alert>
+
+          <ui-alert
+            class="setup-submission-alert"
+            type="info"
+            :dismissible="false"
+            :remove-icon="true"
+            v-if="submitted">
+            {{ $tr('setupProgressFeedback') }}
+          </ui-alert>
+
+          <icon-button :disabled="submitted" :text="$tr('formSubmissionButton')" type="submit"/>
+        </div>
       </form>
 
     </div>
@@ -85,7 +99,7 @@
 
 <script>
 
-  import * as actions from '../state/actions';
+  import { createDeviceOwnerAndFacility } from '../state/actions';
   import store from '../state/store';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import iconButton from 'kolibri.coreVue.components.iconButton';
@@ -112,7 +126,9 @@
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
       cannotSubmitPageError: 'Please resolve all of the errors shown',
       genericPageError: 'Something went wrong',
+      setupProgressFeedback: 'Setting up your device...',
     },
+    name: 'setupWizard',
     data() {
       return {
         username: '',
@@ -161,12 +177,18 @@
         );
       },
       canSubmit() {
-        return this.passwordFieldsMatch && this.usernameValidityCheck && this.allFieldsPopulated;
+        return (
+          !this.submitted &&
+          this.passwordFieldsMatch &&
+          this.usernameValidityCheck &&
+          this.allFieldsPopulated
+        );
       },
     },
     methods: {
       submitSetupForm() {
         this.globalError = '';
+
         if (this.canSubmit) {
           const deviceOwnerPayload = {
             password: this.password,
@@ -175,6 +197,21 @@
           const facilityPayload = { name: this.facility };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
+          if (this.firstUsernameFieldVisit) {
+            this.visitUsername();
+            this.validateUsername();
+          }
+
+          if (this.firstPasswordFieldsVisit) {
+            this.visitPassword();
+            this.validatePassword();
+          }
+
+          if (this.firstFacilityFieldVisit) {
+            this.visitFacility();
+            this.validateFacility();
+          }
+
           this.globalError = this.$tr('cannotSubmitPageError');
         }
       },
@@ -212,7 +249,10 @@
     },
     vuex: {
       actions: {
-        createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
+        createDeviceOwnerAndFacility,
+      },
+      getters: {
+        submitted: state => state.pageState.submitted,
       },
     },
     store,
@@ -231,7 +271,14 @@
     width: 100%
     height: 100%
 
+    &-owner, &-facility
+      // fighting pureCSS
+      border: none
+      margin: 0
+      padding: 0
+
     &-submission
+      margin-top: 16px
       text-align: center
 
   .wrapper
@@ -250,7 +297,7 @@
     padding: 20px 30px
   h1
     font-size: 18px
-  h2.title
+  .title
     font-size: 14px
     font-weight: bold
   .description

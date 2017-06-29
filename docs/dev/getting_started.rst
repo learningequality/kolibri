@@ -139,15 +139,7 @@ Running Kolibri server
 Development server
 ~~~~~~~~~~~~~~~~~~
 
-To start up the development server and build the client-side dependencies, use the following commands:
-
-Linux and Mac:
-
-.. code-block:: bash
-
-  (kolibri)$ kolibri --debug manage devserver --webpack --qcluster
-
-Windows:
+To start up the development server and build the client-side dependencies, use the following command:
 
 .. code-block:: bash
 
@@ -165,7 +157,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   .. code-block:: bash
 
     (kolibri)$ yarn run build
-    (kolibri)$ kolibri --debug manage devserver -- 0.0.0.0:8000 --qcluster
+    (kolibri)$ kolibri --debug manage devserver -- 0.0.0.0:8000
 
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
@@ -180,11 +172,8 @@ More advanced examples of the ``devserver`` command:
   # runs the dev server and re-run client-side tests when files changes
   kolibri --debug manage devserver --karma
 
-  # runs the dev server and also spawns the qcluster task queue in the background
-  kolibri --debug manage devserver --qcluster
-
   # runs all of the above
-  kolibri --debug manage devserver --webpack --karma --qcluster
+  kolibri --debug manage devserver --webpack --karma
 
 
 Running the Production Server
@@ -292,7 +281,7 @@ To improve build times, and facilitate rapid development, Javascript linting is 
 
 .. code-block:: bash
 
-  kolibri --debug manage devserver --webpack --qcluster --lint
+  kolibri --debug manage devserver --webpack --lint
 
 
 Code Testing

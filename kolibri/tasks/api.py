@@ -13,7 +13,6 @@ except AppRegistryNotReady:
 
 import requests
 from django.core.management import call_command
-from django.conf import settings
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadataCache
@@ -29,15 +28,14 @@ from .permissions import IsDeviceOwnerOnly
 
 logging = logger.getLogger(__name__)
 
-client = SimpleClient(
-    app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH)
+client = SimpleClient(app="kolibri")
 
 # all tasks are marked as remote imports for nwo
 TASKTYPE = "remoteimport"
 
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (IsDeviceOwnerOnly, )
+    permission_classes = (IsDeviceOwnerOnly,)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in client.all_jobs()]
@@ -132,7 +130,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
 
-        client.clear()
+        client.clear(force=True)
         return Response({})
 
     @list_route(methods=['get'])
