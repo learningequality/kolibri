@@ -65,11 +65,9 @@
           this.$refs.searchBox.$refs.searchInput.focus();
         });
       },
-      focusOnToggleBtn() {
-        this.$refs.toggleBtn.$refs.button.focus();
-      },
       openDropdownSearchBox() {
         this.searchBoxIsOpen = true;
+        this.focusOnSearchBox();
       },
       closeDropdownSearchBox() {
         this.searchBoxIsOpen = false;
@@ -87,27 +85,18 @@
         }
       },
       handleFocusIn(event) {
-        if (this.searchBoxIsOpen && !this.$refs.searchBox.$el.contains(event.target)) {
+        if (this.searchBoxIsOpen && !this.$refs.toggleBtnAndSearchBox.contains(event.target)) {
           this.closeDropdownSearchBox();
         }
       },
     },
     created() {
       window.addEventListener('click', this.handleClick);
-      // window.addEventListener('focusin', this.handleFocusIn);
+      window.addEventListener('focusin', this.handleFocusIn);
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleClick);
-      // window.removeEventListener('focusin', this.handleFocusIn);
-    },
-    watch: {
-      searchBoxIsOpen(newVal, oldVal) {
-        if (oldVal === true && newVal === false) {
-          this.focusOnToggleBtn();
-        } else if (oldVal === false && newVal === true) {
-          this.focusOnSearchBox();
-        }
-      },
+      window.removeEventListener('focusin', this.handleFocusIn);
     },
   };
 
