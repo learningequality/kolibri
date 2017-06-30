@@ -38,7 +38,7 @@ PROJECT_PATH = os.path.join(os.getcwd())
 DIST_DIR = os.path.join(PROJECT_PATH, "dist")
 
 # Installer artifact location
-INSTALLER_DIR = os.path.join(PROJECT_PATH, "installer")
+INSTALLER_DIR = os.path.join(PROJECT_PATH, "installers")
 
 
 def create_github_comment(artifacts):
