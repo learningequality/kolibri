@@ -1,7 +1,7 @@
 <template>
 
   <div class="search-box-wrapper">
-    <div>
+    <div ref="toggleBtnAndSearchBox">
       <ui-icon-button
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
@@ -70,17 +70,20 @@
       },
       openDropdownSearchBox() {
         this.searchBoxIsOpen = true;
-        this.focusOnSearchBox();
       },
       closeDropdownSearchBox() {
         this.searchBoxIsOpen = false;
-        this.focusOnToggleBtn();
       },
-      toggleDropdownSearchBox() {
+      toggleDropdownSearchBox(event) {
         if (this.searchBoxIsOpen) {
           this.closeDropdownSearchBox();
         } else {
           this.openDropdownSearchBox();
+        }
+      },
+      handleClick(event) {
+        if (this.searchBoxIsOpen && !this.$refs.toggleBtnAndSearchBox.contains(event.target)) {
+          this.closeDropdownSearchBox();
         }
       },
       handleFocusIn(event) {
@@ -90,15 +93,19 @@
       },
     },
     created() {
-      window.addEventListener('focusin', this.handleFocusIn);
+      window.addEventListener('click', this.handleClick);
+      // window.addEventListener('focusin', this.handleFocusIn);
     },
     beforeDestroy() {
-      window.removeEventListener('focusin', this.handleFocusIn);
+      window.removeEventListener('click', this.handleClick);
+      // window.removeEventListener('focusin', this.handleFocusIn);
     },
     watch: {
       searchBoxIsOpen(newVal, oldVal) {
         if (oldVal === true && newVal === false) {
           this.focusOnToggleBtn();
+        } else if (oldVal === false && newVal === true) {
+          this.focusOnSearchBox();
         }
       },
     },
