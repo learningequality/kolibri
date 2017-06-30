@@ -14,12 +14,12 @@
     * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
 """
 import json
-import requests
+import logging
 import os
 import sys
-import logging
-
 from os import listdir
+
+import requests
 from gcloud import storage
 
 logging.getLogger().setLevel(logging.INFO)
@@ -52,6 +52,7 @@ def create_github_comment(artifacts):
     whl_file, whl_url = None, None
     zip_file, zip_url = None, None
     tar_gz_file, tar_gz_url = None, None
+    apk_file, apk_url = None, None
     for file_data in artifacts:
         if file_data.get("name").endswith(".exe"):
             exe_file = file_data.get("name")
@@ -68,21 +69,25 @@ def create_github_comment(artifacts):
         if file_data.get("name").endswith(".tar.gz"):
             tar_gz_file = file_data.get("name")
             tar_gz_url = file_data.get("media_url")
+        if file_data.get("name").endswith(".apk"):
+            apk_file = file_data.get("name")
+            apk_url = file_data.get("media_url")
     comment_message = {'body':
-                           "## Build Artifacts\r\n"
-                           "**Kolibri Installers**\r\n"
-                           "Windows Installer: [%s](%s)\r\n\r\n"
-                           # "Mac Installer: Mac.dmg\r\n"
-                           # "Debian Installer: Debian.deb\r\n\r\n"
-        
-                           "**Python packages**\r\n"
-                           "Pex: [%s](%s)\r\n"
-                           "Whl file: [%s](%s)\r\n"
-                           "Zip file: [%s](%s)\r\n"
-                           "Tar file: [%s](%s)\r\n"
-                           % (exe_file, exe_url, pex_file, pex_url, whl_file, whl_url, zip_file, zip_url,
-                              tar_gz_file, tar_gz_url)}
-    headers = {'Authorization': 'token %s'% ACCESS_TOKEN}
+                       "## Build Artifacts\r\n"
+                       "**Kolibri Installers**\r\n"
+                       "Windows Installer: [%s](%s)\r\n\r\n"
+                       "Android Installer: [%s](%s)\r\n\r\n"
+                       # "Mac Installer: Mac.dmg\r\n"
+                       # "Debian Installer: Debian.deb\r\n\r\n"
+
+                       "**Python packages**\r\n"
+                       "Pex: [%s](%s)\r\n"
+                       "Whl file: [%s](%s)\r\n"
+                       "Zip file: [%s](%s)\r\n"
+                       "Tar file: [%s](%s)\r\n"
+                       % (exe_file, exe_url, apk_file, apk_url, pex_file, pex_url,
+                          whl_file, whl_url, zip_file, zip_url, tar_gz_file, tar_gz_url)}
+    headers = {'Authorization': 'token %s' % ACCESS_TOKEN}
     r = session.post(url, json.dumps(comment_message), headers=headers)
     if r.status_code == 201:
         logging.info('Successfully created Github comment(%s).' % url)
@@ -95,7 +100,9 @@ def collect_local_artifacts():
     """
     Create a dict of the artifact name and the location.
     """
+
     artifacts_dict = []
+
     def create_artifact_data(artifact_dir):
         for artifact in listdir(artifact_dir):
             data = {"name": artifact,
@@ -116,7 +123,6 @@ def upload_artifacts():
     bucket = client.bucket("le-downloads")
     artifacts = collect_local_artifacts()
     is_release = os.getenv("IS_KOLIBRI_RELEASE")
-    build_id = os.getenv("BUILDKITE_BUILD_NUMBER")
     for file_data in artifacts:
         logging.info("Uploading file (%s)" % (file_data.get("name")))
         if is_release:
@@ -126,7 +132,7 @@ def upload_artifacts():
         blob.upload_from_filename(filename=file_data.get("file_location"))
         blob.make_public()
         file_data.update({'media_url': blob.media_link})
-    
+
     if os.getenv("BUILDKITE_PULL_REQUEST") != "false":
         create_github_comment(artifacts)
 
@@ -137,4 +143,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
