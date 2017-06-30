@@ -38,19 +38,26 @@ extract$trs.prototype.apply = function(compiler) {
 
             // Is it an expression?
             if (
-              node.type === 'ExpressionStatement' &&
-              // Is it an assignment expression?
-              node.expression.type === 'AssignmentExpression' &&
-              // Is the first part of the assignment 'module'?
-              ((node.expression.left || {}).object || {}).name == 'module' &&
-              // Is it assining to the 'exports' property of 'module'?
-              ((node.expression.left || {}).property || {}).name == 'exports' &&
-              // Does the right hand side of the assignment expression have any properties?
-              // (We don't want to both parsing it if it is an empty object)
-              node.expression.right.properties
+              (node.type === 'ExpressionStatement' &&
+                // Is it an assignment expression?
+                node.expression.type === 'AssignmentExpression' &&
+                // Is the first part of the assignment 'module'?
+                ((node.expression.left || {}).object || {}).name == 'module' &&
+                // Is it assining to the 'exports' property of 'module'?
+                ((node.expression.left || {}).property || {}).name == 'exports' &&
+                // Does the right hand side of the assignment expression have any properties?
+                // (We don't want to both parsing it if it is an empty object)
+                node.expression.right.properties) ||
+              // Is it an export default declaration?
+              (node.type === 'ExportDefaultDeclaration' &&
+                // Is it an object expression?
+                node.declaration.type === 'ObjectExpression')
             ) {
+              const properties = node.declaration
+                ? node.declaration.properties
+                : node.expression.right.properties;
               // Look through each of the properties in the object that is being exported.
-              node.expression.right.properties.forEach(function(property) {
+              properties.forEach(function(property) {
                 // If the property is called $trs we have hit paydirt! Some messages for us to grab!
                 if (property.key.name === '$trs') {
                   // Grab every message in our $trs property and save it into our messages object.
