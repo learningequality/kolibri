@@ -32,13 +32,13 @@ fi
 PYTHON_CMD="$PYTHON_PATH .buildkite/upload_artifacts.py"
 echo "Now excuting  upload artifacts script..."
 mkdir -p dist
-mkdir -p installers
+mkdir -p installer
 buildkite-agent artifact download 'dist/*.pex' dist/
 buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.zip' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
-buildkite-agent artifact download 'installers/*.exe' installers/
-buildkite-agent artifact download 'installers/*.apk' installers/
+buildkite-agent artifact download 'installer/*.exe' installer/
+buildkite-agent artifact download 'installer/*.apk' installer/
 $PYTHON_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't execute '$PYTHON_CMD'."

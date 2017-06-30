@@ -30,11 +30,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-INSTALLER_PATH="$KOLIBRI_DOCKER_PATH/installers"
+INSTALLER_PATH="$KOLIBRI_DOCKER_PATH/installer"
 mkdir -p $INSTALLER_PATH
 
-# Run kolibri windows installers docker image.
-DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installers/ $KOLIBRI_VERSION-build"
+# Run kolibri windows installer docker image.
+DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installer/ $KOLIBRI_VERSION-build"
 $DOCKER_RUN_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error running $DOCKER_RUN_CMD."
@@ -43,4 +43,4 @@ fi
 
 # Upload built kolibri windows installer at buildkite artifact.
 cd $KOLIBRI_DOCKER_PATH
-buildkite-agent artifact upload './installers/*.exe'
+buildkite-agent artifact upload './installer/*.exe'

@@ -15,9 +15,9 @@ cd kolibri-kivy
 ./build.sh
 cd ..
 
-# extract the APK into the installers directory, and rename it to match the whl
-mkdir -p installers
-cp kolibri-kivy/bin/*.apk installers/`basename -s .whl dist/*.whl`.apk
+# extract the APK into the installer directory, and rename it to match the whl
+mkdir -p installer
+cp kolibri-kivy/bin/*.apk installer/`basename -s .whl dist/*.whl`.apk
 
 # upload the APK to Buildkite
-buildkite-agent artifact upload 'installers/*.apk'
+buildkite-agent artifact upload 'installer/*.apk'
