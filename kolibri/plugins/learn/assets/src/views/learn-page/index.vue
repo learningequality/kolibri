@@ -26,7 +26,7 @@
       v-if="all.content.length"
       :showViewAll="true"
       :gen-link="genLink"
-      :header="$tr('allContentSectionHeader')"
+      :header="$tr('overviewSectionHeader')"
       :contents="all.content" />
   </div>
 
@@ -49,7 +49,7 @@
       popularSectionSubHeader: '{numOfItems, number} popular items',
       suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
       resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
-      allContentSectionHeader: 'All items',
+      overviewSectionHeader: 'Overview',
     },
     components: {
       pageHeader,
