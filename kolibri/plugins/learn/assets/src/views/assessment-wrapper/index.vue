@@ -427,7 +427,7 @@ oriented data synchronization.
       bottom: 0
       border-bottom: thin solid $core-text-annotation
       border-top: thin solid $core-text-annotation
-      z-index: 10
+      z-index: 2
       left: 0
 
   #try-again

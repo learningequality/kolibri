@@ -1,11 +1,16 @@
 <template>
 
   <div>
+
+    <h3>Search</h3>
+
+    <search-box/>
+
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
-      <h1>{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
-      <p>{{ $tr('withinChannel', { channelName }) }}</p>
+      <h1 class="search-results">{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
+      <p class="search-channel">{{ $tr('withinChannel', { channelName }) }}</p>
 
       <tabs>
         <tab-button
@@ -89,6 +94,7 @@
   import { getCurrentChannelObject as GetCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
   import contentCardGrid from '../content-card-grid';
+  import searchBox from '../search-box';
   import tabs from 'kolibri.coreVue.components.tabs';
   import tabButton from 'kolibri.coreVue.components.tabButton';
   export default {
@@ -118,6 +124,7 @@
       contentCardGrid,
       tabs,
       tabButton,
+      searchBox,
     },
     data() {
       return { filter: 'all' };
@@ -210,4 +217,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .search-results
+    margin-top: 32px
+
+  .search-channel
+    font-size: smaller
+
+</style>
