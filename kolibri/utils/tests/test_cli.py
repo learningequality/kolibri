@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 def test_bogus_plugin_disable():
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
+    installed_apps_before = conf.config["INSTALLED_APPS"][:]
     cli.plugin("i_do_not_exist", disable=True)
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 
 
 def test_real_plugin_disable():
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
+    installed_apps_before = conf.config["INSTALLED_APPS"][:]
     test_plugin = "kolibri.plugins.audio_mp3_render"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
