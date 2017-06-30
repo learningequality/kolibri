@@ -9,4 +9,5 @@ class KolibriTasksConfig(AppConfig):
     verbose_name = 'Kolibri Tasks'
 
     def ready(self):
-        pass
+        from kolibri.tasks.api import client
+        client.clear(force=True)
