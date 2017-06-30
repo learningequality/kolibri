@@ -1,5 +1,6 @@
 .buildozer/
 code/kolibri
+code/*.dist-info
 bin/
 *.apk
 *.whl
