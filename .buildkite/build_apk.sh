@@ -17,7 +17,6 @@ cd ..
 
 # extract the APK into the installer directory, and rename it to match the whl
 mkdir -p installer
-rm installer/*.apk
 cp kolibri-kivy/bin/*.apk installer/`basename -s .whl dist/*.whl`.apk
 
 # upload the APK to Buildkite
