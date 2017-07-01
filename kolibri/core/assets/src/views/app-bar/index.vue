@@ -5,7 +5,6 @@
     type="colored"
     textColor="white"
     class="app-bar"
-    :removeNavIcon="navShown"
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
     <div slot="actions">

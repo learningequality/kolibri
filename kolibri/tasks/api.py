@@ -15,6 +15,7 @@ import requests
 from django.core.management import call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
+from django.conf import settings
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_url
@@ -28,7 +29,7 @@ from .permissions import IsDeviceOwnerOnly
 
 logging = logger.getLogger(__name__)
 
-client = SimpleClient(app="kolibri")
+client = SimpleClient(app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH)
 
 # all tasks are marked as remote imports for nwo
 TASKTYPE = "remoteimport"
