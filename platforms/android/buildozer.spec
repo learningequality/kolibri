@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = kolibri
+title = Kolibri
 
 # (str) Package name
 package.name = kolibri
