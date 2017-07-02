@@ -130,7 +130,7 @@ def create_github_status(report_url):
         "description": "Kolibri Buildkite assets",
         "context": "buildkite/kolibri/assets"
     }
-    r = session.post(url, data=payload, headers=headers)
+    r = session.post(url, json=payload, headers=headers)
     if r.status_code == 201:
         logging.info('Successfully created Github status(%s).' % url)
     else:
