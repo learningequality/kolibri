@@ -98,6 +98,9 @@ file_order = [
 session = requests.Session()
 
 def create_status_report_html(artifacts):
+    """
+    Create html page to list build artifacts for linking from github status.
+    """
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
     for ext in file_order:
@@ -112,6 +115,10 @@ def create_status_report_html(artifacts):
     return html
 
 def create_github_status(report_url):
+    """
+    Create a github status with a link to the report URL,
+    only do this once buildkite has been successful, so only report success here.
+    """
     url = 'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'.format(
         owner=REPO_OWNER,
         repo=REPO_NAME,
