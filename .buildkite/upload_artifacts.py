@@ -141,7 +141,9 @@ def collect_local_artifacts():
     def create_artifact_data(artifact_dir):
         for artifact in listdir(artifact_dir):
             filename, file_extension = os.path.splitext(artifact)
-            if file_extension in artifacts_dict:
+            # Remove leading '.'
+            file_extension = file_extension[1:]
+            if file_extension in file_manifest:
                 data = {"name": artifact,
                         "file_location": "%s/%s" % (artifact_dir, artifact)}
                 data.update(file_manifest[file_extension])
