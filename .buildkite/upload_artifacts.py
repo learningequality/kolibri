@@ -186,6 +186,8 @@ def upload_artifacts():
 
     blob.upload_from_string(html, content_type='text/html')
 
+    blob.make_public()
+
     create_github_status(blob.media_link)
 
     if TAG:
