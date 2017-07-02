@@ -12,6 +12,7 @@
     * BUILDKITE_BUILD_NUMBER = Build identifier for each directory created.
     * BUILDKITE_PULL_REQUEST = Pull request issue or the value is false.
     * BUILDKITE_TAG = Tag identifier if this build was built from a tag.
+    * BUILDKITE_COMMIT = Git commit hash that the build was made from.
     * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
 """
 import json
@@ -31,6 +32,7 @@ REPO_NAME = "kolibri"
 ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
 BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
+COMMIT = os.getenv("BUILDKITE_COMMIT")
 
 
 RELEASE_DIR = 'release'
@@ -93,55 +95,37 @@ file_order = [
     'gz',
 ]
 
-def create_github_comment(artifacts):
-    """
-    Create an comment on github.com using the given dict.
-    """
-    url = 'https://api.github.com/repos/%s/%s/issues/%s/comments' % (REPO_OWNER, REPO_NAME, ISSUE_ID)
-    session = requests.Session()
-    exe_file, exe_url = None, None
-    pex_file, pex_url = None, None
-    whl_file, whl_url = None, None
-    zip_file, zip_url = None, None
-    tar_gz_file, tar_gz_url = None, None
-    apk_file, apk_url = None, None
-    for file_data in artifacts.values():
-        if file_data.get("name").endswith(".exe"):
-            exe_file = file_data.get("name")
-            exe_url = file_data.get("media_url")
-        if file_data.get("name").endswith(".pex"):
-            pex_file = file_data.get("name")
-            pex_url = file_data.get("media_url")
-        if file_data.get("name").endswith(".whl"):
-            whl_file = file_data.get("name")
-            whl_url = file_data.get("media_url")
-        if file_data.get("name").endswith(".zip"):
-            zip_file = file_data.get("name")
-            zip_url = file_data.get("media_url")
-        if file_data.get("name").endswith(".tar.gz"):
-            tar_gz_file = file_data.get("name")
-            tar_gz_url = file_data.get("media_url")
-        if file_data.get("name").endswith(".apk"):
-            apk_file = file_data.get("name")
-            apk_url = file_data.get("media_url")
-    comment_message = {'body':
-                       "## Build Artifacts\r\n"
-                       "**Kolibri Installers**\r\n"
-                       "Windows Installer: [%s](%s)\r\n\r\n"
-                       "Android Installer: [%s](%s)\r\n\r\n"
-                       # "Mac Installer: Mac.dmg\r\n"
-                       # "Debian Installer: Debian.deb\r\n\r\n"
+session = requests.Session()
 
-                       "**Python packages**\r\n"
-                       "Pex: [%s](%s)\r\n"
-                       "Whl file: [%s](%s)\r\n"
-                       "Zip file: [%s](%s)\r\n"
-                       "Tar file: [%s](%s)\r\n"
-                       % (exe_file, exe_url, apk_file, apk_url, pex_file, pex_url,
-                          whl_file, whl_url, zip_file, zip_url, tar_gz_file, tar_gz_url)}
-    r = session.post(url, json.dumps(comment_message), headers=headers)
+def create_status_report_html(artifacts):
+    html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
+    current_heading = None
+    for ext in file_order:
+        artifact = artifacts[ext]
+        if artifact['category'] != current_heading:
+            current_heading = artifact['category']
+            html += "<h2>{heading}</h2>\n".format(heading=current_heading)
+        html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
+            **artifact
+        )
+    html += "</body>\n</html>"
+    return html
+
+def create_github_status(report_url):
+    url = 'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'.format(
+        owner=REPO_OWNER,
+        repo=REPO_NAME,
+        commit=COMMIT
+    )
+    payload = {
+        "state": "success",
+        "target_url": report_url,
+        "description": "Kolibri Buildkite assets",
+        "context": "buildkite/kolibri/assets"
+    }
+    r = session.post(url, data=payload, headers=headers)
     if r.status_code == 201:
-        logging.info('Successfully created Github comment(%s).' % url)
+        logging.info('Successfully created Github status(%s).' % url)
     else:
         logging.info('Error encounter(%s). Now exiting!' % r.status_code)
         sys.exit(1)
@@ -187,8 +171,13 @@ def upload_artifacts():
         blob.make_public()
         file_data.update({'media_url': blob.media_link})
 
-    if os.getenv("BUILDKITE_PULL_REQUEST") != "false":
-        create_github_comment(artifacts)
+    html = create_status_report_html(artifacts)
+
+    blob = bucket.blob('kolibri/%s/%s/report.html' % (RELEASE_DIR, BUILD_ID))
+
+    blob.upload_from_string(html, content_type='text/html')
+
+    create_github_status(blob.media_link)
 
     if TAG:
         # Building from a tag, this is probably a release!
@@ -205,7 +194,6 @@ def upload_artifacts():
                 repo=REPO_NAME,
                 id=release_id,
             )
-            session = requests.Session()
             for file_extension in file_order:
                 artifact = artifacts[file_extension]
                 params = {
