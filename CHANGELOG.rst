@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.6
+---
+
+ - Add support for RTL languages
+
+
 0.5
 ---
 
