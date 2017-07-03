@@ -31,6 +31,7 @@
 
     <group-section
       v-for="group in sortedGroups"
+      :key="group.id"
       :canMove="Boolean(sortedGroups.length)"
       :group="group"
       @rename="openRenameGroupModal"

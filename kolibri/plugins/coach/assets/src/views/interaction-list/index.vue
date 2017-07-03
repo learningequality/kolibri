@@ -12,6 +12,7 @@
 
       <interaction-item
         v-for="(interaction, index) in interactions"
+        :key="index"
         @click.native="setCurrentInteractionIndex(index)"
         :selected="isSelected(index)"
         :interaction="interaction"

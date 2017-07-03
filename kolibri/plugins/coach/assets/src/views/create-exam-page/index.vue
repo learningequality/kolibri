@@ -71,6 +71,7 @@
             <tbody>
               <exercise-row
                 v-for="exercise in exercises"
+                :key="exercise.id"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
                 :exerciseNumAssesments="exercise.numAssessments"
@@ -79,6 +80,7 @@
                 @removeExercise="handleRemoveExercise"/>
               <topic-row
                 v-for="topic in subtopics"
+                :key="topic.id"
                 :topicId="topic.id"
                 :topicTitle="topic.title"
                 :allExercisesWithinTopic="topic.allExercisesWithinTopic"

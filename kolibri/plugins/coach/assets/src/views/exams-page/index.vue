@@ -30,6 +30,7 @@
       <tbody>
         <exam-row
           v-for="exam in filteredExams"
+          :key="exam.id"
           :examId="exam.id"
           :examTitle="exam.title"
           :examActive="exam.active"
