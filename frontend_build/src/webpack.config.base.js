@@ -38,9 +38,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
 
-// helps convert to older string syntax for vue-loader
-var combineLoaders = require('webpack-combine-loaders');
-
 var postCSSLoader = {
   loader: 'postcss-loader',
   options: { config: path.resolve(__dirname, '../../postcss.config.js') },
@@ -52,8 +49,7 @@ var cssLoader = {
 };
 
 // for stylus blocks in vue files.
-// note: vue-style-loader includes postcss processing
-var vueStylusLoaders = [cssLoader, 'stylus-loader'];
+var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader'];
 if (lint) {
   vueStylusLoaders.push('stylint-loader');
 }
@@ -61,6 +57,7 @@ if (lint) {
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
   cssLoader,
+  postCSSLoader,
   {
     loader: 'sass-loader',
     // prepends these variable override values to every parsed vue SASS block
@@ -80,12 +77,12 @@ var config = {
           loaders: {
             js: 'buble-loader',
             stylus: ExtractTextPlugin.extract({
-              fallback: 'style-loader',
-              use: combineLoaders(vueStylusLoaders),
+              allChunks: true,
+              use: vueStylusLoaders,
             }),
             scss: ExtractTextPlugin.extract({
-              fallback: 'style-loader',
-              use: combineLoaders(vueSassLoaders),
+              allChunks: true,
+              use: vueSassLoaders,
             }),
           },
           // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
@@ -100,21 +97,21 @@ var config = {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
+          allChunks: true,
           use: [cssLoader, postCSSLoader],
         }),
       },
       {
         test: /\.styl$/,
         use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
+          allChunks: true,
           use: [cssLoader, postCSSLoader, 'stylus-loader'],
         }),
       },
       {
         test: /\.s[a|c]ss$/,
         use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
+          allChunks: true,
           use: [cssLoader, postCSSLoader, 'sass-loader'],
         }),
       },
