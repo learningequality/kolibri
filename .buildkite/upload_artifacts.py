@@ -188,7 +188,7 @@ def upload_artifacts():
 
     blob.make_public()
 
-    create_github_status(blob.media_link)
+    create_github_status(blob.public_url)
 
     if TAG:
         # Building from a tag, this is probably a release!
