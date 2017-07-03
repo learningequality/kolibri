@@ -46,42 +46,46 @@ INSTALLER_DIR = os.path.join(PROJECT_PATH, "installer")
 
 headers = {'Authorization': 'token %s' % ACCESS_TOKEN}
 
+INSTALLER_CAT = 'Installers'
+
+PYTHON_PKG_CAT = 'Python packages'
+
 # Manifest of files, keyed by extension
 file_manifest = {
     'exe': {
         'extension': 'exe',
         'description': 'Windows Installer',
-        'category': 'installer',
+        'category': INSTALLER_CAT,
         'content_type': 'application/x-ms-dos-executable',
     },
     'pex': {
         'extension': 'pex',
         'description': 'Pex file',
-        'category': 'Python package',
+        'category': PYTHON_PKG_CAT,
         'content_type': 'application/octet-stream',
     },
     'whl': {
         'extension': 'whl',
         'description': 'Whl file',
-        'category': 'Python package',
+        'category': PYTHON_PKG_CAT,
         'content_type': 'application/zip',
     },
     'zip': {
         'extension': 'zip',
         'description': 'Zip file',
-        'category': 'Python package',
+        'category': PYTHON_PKG_CAT,
         'content_type': 'application/zip',
     },
     'gz': {
         'extension': 'gz',
         'description': 'Tar file',
-        'category': 'Python package',
+        'category': PYTHON_PKG_CAT,
         'content_type': 'application/gzip',
     },
     'apk': {
         'extension': 'apk',
         'description': 'Android Installer',
-        'category': 'installer',
+        'category': INSTALLER_CAT,
         'content_type': 'application/vnd.android.package-archive',
     },
 }
