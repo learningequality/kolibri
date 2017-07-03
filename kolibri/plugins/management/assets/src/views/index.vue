@@ -45,7 +45,7 @@
   import userPage from './user-page';
   export default {
     $trNameSpace: 'managementRoot',
-    $trs: { managementTitle: 'Management' },
+    $trs: { managementTitle: 'Manage' },
     components: {
       authMessage,
       classEditPage,
