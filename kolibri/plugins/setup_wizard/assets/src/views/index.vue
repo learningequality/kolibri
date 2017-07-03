@@ -42,7 +42,7 @@
             @blur="validatePassword()"
             :invalid="!!passwordError"
             :required="true"
-            :label="$tr('confirmPasswordInputLabel')"
+            :label="$tr('reEnterPasswordInputLabel')"
             type="password"
             v-model="passwordConfirm"
           />
@@ -112,7 +112,7 @@
       facilitySectionHeader: 'Facility',
       usernameInputLabel: 'Username',
       passwordInputLabel: 'Password',
-      confirmPasswordInputLabel: 'Confirm password',
+      reEnterPasswordInputLabel: 'Re-enter password',
       facilityInputLabel: 'Facility name',
       deviceOwnerDescription:
         'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
@@ -120,7 +120,7 @@
         'You also need to create a Facility. This represents your school, training center, or other installation location',
       formSubmissionButton: 'Create and get started',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
-      usernameCharacterErrorMessage: 'Username can only contain letters and digits',
+      usernameCharacterErrorMessage: 'Username can only contain letters, numbers, and underscores',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
       passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',

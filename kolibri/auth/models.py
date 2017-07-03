@@ -215,7 +215,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         validators=[
             validators.RegexValidator(
                 r'^\w+$',
-                _('Enter a valid username. This value may contain only letters and numbers.')
+                _('Enter a valid username. This value can contain only letters, numbers, and underscores.')
             ),
         ],
     )

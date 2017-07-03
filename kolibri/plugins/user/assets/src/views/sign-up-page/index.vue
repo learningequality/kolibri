@@ -17,16 +17,16 @@
     </ui-toolbar>
 
     <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="errorCode">
+      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
         {{errorMessage}}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
       <core-textbox
-        :placeholder="$tr('enterName')"
         :label="$tr('name')"
         :aria-label="$tr('name')"
+        :maxlength="120"
         v-model="name"
         autocomplete="name"
         :autofocus="true"
@@ -35,10 +35,12 @@
         type="text" />
 
       <core-textbox
-        :placeholder="$tr('enterUsername')"
         :label="$tr('username')"
         :aria-label="$tr('username')"
-        :invalid="usernameError"
+        :maxlength="30"
+        :invalid="!usernameIsValid"
+        :error="usernameIsInvalidText"
+        @input="resetSignUpState"
         v-model="username"
         autocomplete="username"
         required
@@ -48,7 +50,6 @@
       <core-textbox
         id="password"
         type="password"
-        :placeholder="$tr('enterPassword')"
         :aria-label="$tr('password')"
         :label="$tr('password')"
         v-model="password"
@@ -58,9 +59,8 @@
       <core-textbox
         id="confirmed-password"
         type="password"
-        :placeholder="$tr('confirmPassword')"
-        :aria-label="$tr('confirmPassword')"
-        :label="$tr('confirmPassword')"
+        :aria-label="$tr('reEnterPassword')"
+        :label="$tr('reEnterPassword')"
         :invalid="!passwordsMatch"
         :error="passwordError "
         v-model="confirmed_password"
@@ -105,14 +105,13 @@
     $trs: {
       createAccount: 'Create an account',
       name: 'Full name',
-      enterName: 'Enter full name',
       username: 'Username',
-      enterUsername: 'Enter username',
       password: 'Password',
-      enterPassword: 'Enter password',
-      confirmPassword: 'Confirm password',
+      reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
       genericError: 'Something went wrong during sign up!',
+      usernameAlphaNum: 'Username can only contain letters, numbers, and underscores',
+      usernameAlreadyExists: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       finish: 'Finish',
@@ -153,8 +152,27 @@
         }
         return this.$tr('passwordMatchError');
       },
-      usernameError() {
-        return this.errorCode === 400;
+      usernameIsAlphaNumUnderscore() {
+        if (this.username === '') {
+          return true;
+        }
+        return /^\w+$/g.test(this.username);
+      },
+      usernameDoesNotExistYet() {
+        if (this.errorCode === 400) {
+          return false;
+        }
+        return true;
+      },
+      usernameIsValid() {
+        return this.usernameIsAlphaNumUnderscore && this.usernameDoesNotExistYet;
+      },
+      usernameIsInvalidText() {
+        if (!this.usernameIsAlphaNumUnderscore) {
+          return this.$tr('usernameAlphaNum');
+        } else if (!this.usernameDoesNotExistYet) {
+          return this.$tr('usernameAlreadyExists');
+        }
       },
       allFieldsPopulated() {
         return (
@@ -164,6 +182,12 @@
           this.confirmed_password &&
           !this.noFacilitySelected
         );
+      },
+      unknownError() {
+        if (this.errorCode) {
+          return this.errorCode !== 400;
+        }
+        return false;
       },
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
