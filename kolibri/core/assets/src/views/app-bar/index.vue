@@ -62,7 +62,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   export default {
     mixins: [responsiveWindow],
-    $trNameSpace: 'appBar',
+    name: 'appBar',
     $trs: {
       account: 'Account',
       profile: 'Profile',

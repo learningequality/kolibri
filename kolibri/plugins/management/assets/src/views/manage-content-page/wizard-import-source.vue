@@ -35,7 +35,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'wizardImportSource',
+    name: 'wizardImportSource',
     $trs: {
       title: 'Please choose a source...',
       internet: 'Internet',

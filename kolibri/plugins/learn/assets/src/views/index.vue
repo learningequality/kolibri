@@ -69,7 +69,7 @@
   import totalPoints from './total-points';
   import actionBarSearchBox from './action-bar-search-box';
   export default {
-    $trNameSpace: 'learn',
+    name: 'learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',

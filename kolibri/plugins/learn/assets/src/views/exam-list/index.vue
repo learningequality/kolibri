@@ -42,7 +42,7 @@
   import pageHeader from '../page-header';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'examIndex',
+    name: 'examIndex',
     $trs: {
       examName: 'Exams',
       howManyCorrect: '{ score, number }/{ outOf, number } correct',

@@ -40,7 +40,7 @@
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
   export default {
-    $trNameSpace: 'learnPageIndex',
+    name: 'learnPageIndex',
     $trs: {
       pageHeader: 'Recommended',
       popularSectionHeader: 'Most popular',

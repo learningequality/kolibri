@@ -50,7 +50,7 @@
   export default {
     mixins: [alignMixin],
     name: 'channelList',
-    $trNameSpace: 'coachRecentPageChannelList',
+    name: 'coachRecentPageChannelList',
     $trs: {
       recentTitle: 'Recent Activity',
       channels: 'Channels',

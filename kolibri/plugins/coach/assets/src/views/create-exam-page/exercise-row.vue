@@ -18,7 +18,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'exerciseRow',
+    name: 'exerciseRow',
     components: {
       contentIcon,
       iconButton,

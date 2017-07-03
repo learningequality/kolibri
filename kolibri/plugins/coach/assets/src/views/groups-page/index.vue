@@ -61,7 +61,7 @@
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
   export default {
-    $trNameSpace: 'coachGroupsPage',
+    name: 'coachGroupsPage',
     $trs: {
       groups: 'Groups',
       newGroup: 'New group',

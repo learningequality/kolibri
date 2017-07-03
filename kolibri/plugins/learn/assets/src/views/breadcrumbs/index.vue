@@ -14,7 +14,7 @@
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
   export default {
-    $trNameSpace: 'learnBreadcrumbs',
+    name: 'learnBreadcrumbs',
     $trs: { recommended: 'Recommended' },
     components: { breadcrumbs },
     computed: {

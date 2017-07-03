@@ -14,7 +14,7 @@
   import * as reportGetters from '../../state/getters/reports';
 
   export default {
-    $trNameSpace: 'coachReportSubheading',
+    name: 'coachReportSubheading',
     $trs: {
       subHeading: 'Only showing activity in past {threshold} days',
       noRecentProgress: 'No activity in past {threshold} days',

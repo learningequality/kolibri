@@ -128,7 +128,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import userRole from '../user-role';
   export default {
-    $trNameSpace: 'classEnrollPage',
+    name: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users',
       tableTitle: 'Manage learners in this class',

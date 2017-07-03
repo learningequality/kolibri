@@ -26,7 +26,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
-    $trNameSpace: 'createExamModal',
+    name: 'createExamModal',
     $trs: {
       createNewExam: 'Create a new exam',
       createExam: 'Create exam',

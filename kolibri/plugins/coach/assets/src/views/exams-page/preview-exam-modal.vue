@@ -55,7 +55,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   export default {
-    $trNameSpace: 'previewExamModal',
+    name: 'previewExamModal',
     $trs: {
       preview: 'Preview exam',
       close: 'Close',

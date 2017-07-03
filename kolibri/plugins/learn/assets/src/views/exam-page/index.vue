@@ -77,7 +77,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
-    $trNameSpace: 'examPage',
+    name: 'examPage',
     $trs: {
       submitExam: 'Submit exam',
       backToExamList: 'Back to exam list',

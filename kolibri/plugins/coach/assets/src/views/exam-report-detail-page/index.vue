@@ -73,7 +73,7 @@
   import attemptLogList from '../attempt-log-list';
   import interactionList from '../interaction-list';
   export default {
-    $trNameSpace: 'coachExamDetailPage',
+    name: 'coachExamDetailPage',
     $trs: { backTo: 'Back to exam report for { title }' },
     components: {
       immersiveFullScreen,

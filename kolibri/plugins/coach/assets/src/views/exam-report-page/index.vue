@@ -112,7 +112,7 @@
         displayExamModal: actions.displayExamModal,
       },
     },
-    $trNameSpace: 'examReportPage',
+    name: 'examReportPage',
     $trs: {
       examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
       averageScore: 'Average Score: {num, number, percent}',

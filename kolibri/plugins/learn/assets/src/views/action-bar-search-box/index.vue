@@ -36,7 +36,7 @@
   import searchBox from '../search-box';
 
   export default {
-    $trNameSpace: 'actionBarSearchBar',
+    name: 'actionBarSearchBar',
     mixins: [responsiveWindow],
     components: {
       uiIconButton,

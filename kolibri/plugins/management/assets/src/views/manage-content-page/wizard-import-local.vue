@@ -58,7 +58,7 @@
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import driveList from './wizards/drive-list';
   export default {
-    $trNameSpace: 'wizardLocalImport',
+    name: 'wizardLocalImport',
     $trs: {
       title: 'Import from a Local Drive',
       incompatible: 'No content available',

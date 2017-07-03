@@ -34,7 +34,7 @@
   import textbox from 'kolibri.coreVue.components.textbox';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'createGroupModal',
+    name: 'createGroupModal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
       learnerGroupName: 'Learner Group Name',

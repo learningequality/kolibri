@@ -43,7 +43,7 @@
   import contentCardGrid from '../content-card-grid';
   import searchBox from '../search-box';
   export default {
-    $trNameSpace: 'learnSearch',
+    name: 'learnSearch',
     $trs: {
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',

@@ -83,7 +83,7 @@
 
   export default {
     mixins: [responsiveElement],
-    $trNameSpace: 'contentCardCarousel',
+    name: 'contentCardCarousel',
     $trs: { viewAllButtonLabel: 'View all' },
     props: {
       contents: {

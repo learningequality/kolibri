@@ -54,7 +54,7 @@
       }
       this.$emit('stopTracking');
     },
-    $trNameSpace: 'pdfRenderer',
+    name: 'pdfRenderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',

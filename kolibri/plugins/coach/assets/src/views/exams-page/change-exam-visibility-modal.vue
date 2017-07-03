@@ -33,7 +33,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
-    $trNameSpace: 'changeExamVisibilityModal',
+    name: 'changeExamVisibilityModal',
     $trs: {
       examVisibility: 'Exam visibility',
       shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',

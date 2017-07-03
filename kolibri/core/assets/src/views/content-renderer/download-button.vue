@@ -16,7 +16,7 @@
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   export default {
     components: { dropdownMenu },
-    $trNameSpace: 'downloadButton',
+    name: 'downloadButton',
     $trs: { downloadContent: 'Download content' },
     props: {
       files: {

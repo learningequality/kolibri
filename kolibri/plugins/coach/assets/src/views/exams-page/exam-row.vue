@@ -64,7 +64,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   export default {
-    $trNameSpace: 'examRow',
+    name: 'examRow',
     $trs: {
       change: 'Change',
       activate: 'Activate',

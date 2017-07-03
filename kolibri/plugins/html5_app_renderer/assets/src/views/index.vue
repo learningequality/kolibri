@@ -56,7 +56,7 @@
       }
       this.$emit('stopTracking');
     },
-    $trNameSpace: 'html5Renderer',
+    name: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',

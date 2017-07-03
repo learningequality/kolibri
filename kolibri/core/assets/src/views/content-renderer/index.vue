@@ -42,7 +42,7 @@
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
-    $trNameSpace: 'contentRender',
+    name: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
       rendererNotAvailable: 'Kolibri is unable to render this content',

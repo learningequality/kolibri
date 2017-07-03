@@ -43,7 +43,7 @@
   import contentCard from '../content-card';
   import contentCardGrid from '../content-card-grid';
   export default {
-    $trNameSpace: 'learnExplore',
+    name: 'learnExplore',
     $trs: {
       explore: 'Topics',
       navigate: 'Navigate content using headings',

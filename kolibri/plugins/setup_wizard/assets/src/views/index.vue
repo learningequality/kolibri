@@ -105,7 +105,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
-    $trNameSpace: 'setupWizard',
+    name: 'setupWizard',
     $trs: {
       formHeader: 'Create device owner and facility',
       deviceOwnerSectionHeader: 'Device Owner',

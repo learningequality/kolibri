@@ -47,7 +47,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'coreModal',
+    name: 'coreModal',
     $trs: {
       // error alerts
       errorAlert: 'Error in:',

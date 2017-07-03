@@ -79,7 +79,7 @@
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   export default {
-    $trNameSpace: 'breadcrumbs',
+    name: 'breadcrumbs',
     mixins: [ResponsiveElement],
     components: { uiIconButton },
     props: {

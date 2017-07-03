@@ -27,7 +27,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
-    $trNameSpace: 'renameExamModal',
+    name: 'renameExamModal',
     $trs: {
       renameExam: 'Rename exam',
       examName: 'Exam name',

@@ -22,7 +22,7 @@
   import uiSelect from 'keen-ui/src/UiSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
-    $trNameSpace: 'classSelector',
+    name: 'classSelector',
     $trs: {
       allClasses: 'All classes',
       selectClass: 'Class',

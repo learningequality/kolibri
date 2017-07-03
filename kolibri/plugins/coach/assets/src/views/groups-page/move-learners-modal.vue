@@ -40,7 +40,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'moveLearnersModal',
+    name: 'moveLearnersModal',
     $trs: {
       moveLearners: 'Move Learners',
       moveThe: 'Move the',
