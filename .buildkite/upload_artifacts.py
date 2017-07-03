@@ -78,17 +78,17 @@ file_manifest = {
         'category': 'Python package',
         'content_type': 'application/gzip',
     },
-    'apk': {
-        'extension': 'apk',
-        'description': 'Android Installer',
-        'category': 'installer',
-        'content_type': 'application/vnd.android.package-archive',
-    },
+    # 'apk': {
+    #     'extension': 'apk',
+    #     'description': 'Android Installer',
+    #     'category': 'installer',
+    #     'content_type': 'application/vnd.android.package-archive',
+    # },
 }
 
 file_order = [
     'exe',
-    'apk',
+    # 'apk',
     'pex',
     'whl',
     'zip',

@@ -130,3 +130,6 @@ release_phase_increment:
 release_number_increment:
 	$(eval PART_INCREMENT = release_number)
 	$(BUMPVERSION_CMD)
+
+upload:
+	python .buildkite/upload_artifacts.py
