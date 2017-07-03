@@ -80,15 +80,17 @@ extract$trs.prototype.apply = function(compiler) {
                     }
                   });
                   // We also want to take a note of the name space these messages have been put in too!
-                } else if (property.key.name === '$trNameSpace') {
-                  // Check that the trNameSpace id is camelCase.
-                  if (!isCamelCase(property.value.value)) {
-                    logging.error(
-                      `$trNameSpace id "${property.value
-                        .value}" should be in camelCase. Found in ${module.resource}`
+                } else if (property.key.name === '$trNameSpace' || property.key.name === 'name') {
+                  if (!messageNameSpace || property.key.name === 'name') {
+                    // Add a name space if one is not there already, unless it is 'name'
+                    // in which case it takes precedence.
+                    messageNameSpace = property.value.value;
+                  }
+                  if (property.key.name === '$trNameSpace') {
+                    logging.warn(
+                      `$trNameSpace is deprecated, please transition to using name property. Found in ${module.resource}`
                     );
                   }
-                  messageNameSpace = property.value.value;
                 }
               });
             }
@@ -99,7 +101,13 @@ extract$trs.prototype.apply = function(compiler) {
               logging.error(
                 'Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource
               );
-            } else {
+            } else if (Object.keys(messages).length) {
+              // Check that the trNameSpace id is camelCase.
+              if (!isCamelCase(messageNameSpace)) {
+                logging.error(
+                  `Name or $trNameSpace id "${messageNameSpace}" should be in camelCase. Found in ${module.resource}`
+                );
+              }
               nameSpaces.push(messageNameSpace);
               Object.keys(messages).forEach(function(key) {
                 // Every message needs to be namespaced - don't pollute our top level!

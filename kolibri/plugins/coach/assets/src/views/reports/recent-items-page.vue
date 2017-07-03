@@ -66,7 +66,6 @@
   export default {
     mixins: [alignMixin],
     name: 'coachRecentReports',
-    $trNameSpace: 'coachRecentReports',
     $trs: {
       title: 'Recent Activity',
       name: 'Name',

@@ -82,7 +82,7 @@ export default class CoreApp {
         }
         const defaultMessageText = this.$options.$trs[messageId];
         const message = {
-          id: `${this.$options.$trNameSpace}.${messageId}`,
+          id: `${this.options.name || this.$options.$trNameSpace}.${messageId}`,
           defaultMessage: defaultMessageText,
         };
         if (vue.locale === 'rt-lft') {

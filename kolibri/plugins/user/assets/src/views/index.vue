@@ -18,9 +18,8 @@
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
   export default {
-    $trNameSpace: 'userRoot',
     $trs: { userProfileTitle: 'Profile' },
-    name: 'User-Plugin',
+    name: 'userPlugin',
     components: {
       coreBase,
       signInPage,
