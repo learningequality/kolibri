@@ -13,6 +13,7 @@ var base_config = require('./webpack.config.base');
 var _ = require('lodash');
 var extract$trs = require('./extract_$trs');
 var merge = require('webpack-merge');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -91,6 +92,7 @@ var parseBundlePlugin = function(data, base_dir) {
   };
 
   bundle.plugins = bundle.plugins.concat([
+    new ExtractTextPlugin('[name]' + data.version + '.css'),
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
     new BundleTracker({

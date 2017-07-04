@@ -242,12 +242,24 @@ export default class Mediator {
    */
   _scriptLoader(url) {
     return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = url;
-      script.async = true;
-      script.addEventListener('load', resolve);
-      script.addEventListener('error', reject);
+      let script;
+      if (url.endsWith('js')) {
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.async = true;
+        script.addEventListener('load', resolve);
+        script.addEventListener('error', reject);
+      } else if (url.endsWith('css')) {
+        script = document.createElement('link');
+        script.rel = 'stylesheet';
+        script.type = 'text/css';
+        script.href = url;
+        // Can't detect loading for css, so just assume it worked.
+        resolve();
+      } else {
+        return resolve();
+      }
       global.document.body.appendChild(script);
     });
   }
@@ -451,6 +463,7 @@ export default class Mediator {
             }
           })
           .catch(error => {
+            logging.error(error);
             reject('Content renderer failed to load properly');
           });
       }

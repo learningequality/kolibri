@@ -236,9 +236,13 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
-        for chunk in self.bundle:
+        css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
+        # Sorted to load css before js
+        for chunk in sorted(self.bundle, key=lambda x: x['name'].split('.')[-1]):
             if chunk['name'].endswith('.js'):
                 yield js_tag.format(url=chunk['url'])
+            elif chunk['name'].endswith('.css'):
+                yield css_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
         if self.frontend_messages():
@@ -278,7 +282,7 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
-        urls = [chunk['url'] for chunk in self.bundle]
+        urls = [chunk['url'] for chunk in sorted(self.bundle, key=lambda x: x['name'].split('.')[-1])]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
                 kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,

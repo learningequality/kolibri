@@ -33,12 +33,10 @@ var path = require('path');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
-
-// helps convert to older string syntax for vue-loader
-var combineLoaders = require('webpack-combine-loaders');
 
 var postCSSLoader = {
   loader: 'postcss-loader',
@@ -51,16 +49,15 @@ var cssLoader = {
 };
 
 // for stylus blocks in vue files.
-// note: vue-style-loader includes postcss processing
-var vueStylusLoaders = ['vue-style-loader', cssLoader, 'stylus-loader'];
+var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader'];
 if (lint) {
   vueStylusLoaders.push('stylint-loader');
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
-  'vue-style-loader', // includes postcss processing
   cssLoader,
+  postCSSLoader,
   {
     loader: 'sass-loader',
     // prepends these variable override values to every parsed vue SASS block
@@ -79,8 +76,14 @@ var config = {
           preserveWhitespace: false,
           loaders: {
             js: 'buble-loader',
-            stylus: combineLoaders(vueStylusLoaders),
-            scss: combineLoaders(vueSassLoaders),
+            stylus: ExtractTextPlugin.extract({
+              allChunks: true,
+              use: vueStylusLoaders,
+            }),
+            scss: ExtractTextPlugin.extract({
+              allChunks: true,
+              use: vueSassLoaders,
+            }),
           },
           // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
           preLoaders: { html: 'svg-icon-inline-loader' },
@@ -93,15 +96,24 @@ var config = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', cssLoader, postCSSLoader],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader],
+        }),
       },
       {
         test: /\.styl$/,
-        use: ['style-loader', cssLoader, postCSSLoader, 'stylus-loader'],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader, 'stylus-loader'],
+        }),
       },
       {
         test: /\.s[a|c]ss$/,
-        use: ['style-loader', cssLoader, postCSSLoader, 'sass-loader'],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader, 'sass-loader'],
+        }),
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
