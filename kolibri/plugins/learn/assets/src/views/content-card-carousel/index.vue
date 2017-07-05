@@ -108,13 +108,16 @@
     },
     data() {
       return {
+        // flag marks holds the index (in contents array, prop) of first item in carousel
         contentSetStart: 0,
+        // flag that marks when the slide animation will be going start at left
         leftToRight: false,
         // tracks whether the carousel has been interacted with
         interacted: false,
       };
     },
     watch: {
+      // ensures that indeces in contentSetStart/End are within bounds of the contents
       contentSetStart(newStartIndex, oldStartIndex) {
         const nextSet = newStartIndex > oldStartIndex;
         const previousSet = newStartIndex < oldStartIndex;
@@ -133,6 +136,7 @@
           this.contentSetStart = 0;
         }
       },
+      // ensures that carousel correctly readjusts # of cards if resize occurs at end of contents
       contentSetSize(newSetSize, oldSetSize) {
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
@@ -182,6 +186,8 @@
         return { left: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
+        // sets the initial spot from which cards will be sliding into place from
+        // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
@@ -193,6 +199,8 @@
         }
       },
       slide(el) {
+        // moves cards from their starting point by their offset
+        // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
