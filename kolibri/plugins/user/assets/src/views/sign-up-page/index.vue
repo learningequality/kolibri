@@ -39,7 +39,7 @@
         :aria-label="$tr('username')"
         :maxlength="30"
         :invalid="!usernameIsValid"
-        :error="usernameIsInvalidText"
+        :error="usernameIsInvalidError"
         @input="resetSignUpState"
         v-model="username"
         autocomplete="username"
@@ -89,7 +89,7 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -110,8 +110,8 @@
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
       genericError: 'Something went wrong during sign up!',
-      usernameAlphaNum: 'Username can only contain letters, numbers, and underscores',
-      usernameAlreadyExists: 'An account with that username already exists',
+      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+      usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       finish: 'Finish',
@@ -167,11 +167,11 @@
       usernameIsValid() {
         return this.usernameIsAlphaNumUnderscore && this.usernameDoesNotExistYet;
       },
-      usernameIsInvalidText() {
+      usernameIsInvalidError() {
         if (!this.usernameIsAlphaNumUnderscore) {
-          return this.$tr('usernameAlphaNum');
+          return this.$tr('usernameAlphaNumError');
         } else if (!this.usernameDoesNotExistYet) {
-          return this.$tr('usernameAlreadyExists');
+          return this.$tr('usernameAlreadyExistsError');
         }
       },
       allFieldsPopulated() {
@@ -240,8 +240,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: actions.signUp,
-        resetSignUpState: actions.resetSignUpState,
+        signUpAction: signUp,
+        resetSignUpState: resetSignUpState,
       },
     },
   };
