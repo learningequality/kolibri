@@ -35,7 +35,7 @@
           class="user-field"
           v-model="password"/>
         <core-textbox
-          :label="$tr('confirmPassword')"
+          :label="$tr('reEnterPassword')"
           :required="true"
           :invalid="passwordConfirmInvalid"
           :error="$tr('pwMismatchError')"
@@ -74,18 +74,18 @@
   export default {
     $trNameSpace: 'userCreateModal',
     $trs: {
-      addNewAccountTitle: 'Add New Account',
+      addNewAccountTitle: 'Add new account',
       name: 'Full name',
       username: 'Username',
       password: 'Password',
-      confirmPassword: 'Confirm Password',
+      reEnterPassword: 'Re-enter password',
       typeOfUser: 'Type of user',
       createAccount: 'Create Account',
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
       usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNum: 'Username can only contain letters and digits',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
@@ -119,17 +119,19 @@
       usernameAlreadyExists() {
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
-      usernameIsAlphaNum() {
+      usernameIsAlphaNumUnderscore() {
         return /^\w+$/g.test(this.username);
       },
       usernameInvalid() {
-        return this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNum);
+        return (
+          this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNumUnderscore)
+        );
       },
       usernameInvalidMsg() {
         if (this.usernameAlreadyExists) {
           return this.$tr('usernameAlreadyExists');
-        } else if (!this.usernameIsAlphaNum) {
-          return this.$tr('usernameNotAlphaNum');
+        } else if (!this.usernameIsAlphaNumUnderscore) {
+          return this.$tr('usernameNotAlphaNumUnderscore');
         }
         return '';
       },
