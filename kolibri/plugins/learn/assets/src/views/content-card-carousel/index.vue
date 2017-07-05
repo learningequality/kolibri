@@ -110,6 +110,8 @@
       return {
         contentSetStart: 0,
         leftToRight: false,
+        // tracks whether the carousel has been interacted with
+        interacted: false,
       };
     },
     watch: {
@@ -119,6 +121,12 @@
         const newIndexTooLarge = this.contentSetEnd >= this.contents.length;
         const newIndexTooSmall = newStartIndex < 0;
         const enoughContentForASet = this.contents.length >= this.contentSetSize;
+
+        // turns animation on in case this is the first time it's been updated
+        if (!this.interacted) {
+          this.interacted = true;
+        }
+
         if (nextSet && newIndexTooLarge && enoughContentForASet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
         } else if (previousSet && newIndexTooSmall) {
@@ -179,7 +187,10 @@
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
-        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+
+        if (this.interacted) {
+          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+        }
       },
       slide(el) {
         const originalPosition = parseInt(el.style.left, 10);
@@ -187,7 +198,10 @@
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+
+        if (this.interacted) {
+          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+        }
       },
       isInThisSet(index) {
         return this.contentSetStart <= index && index <= this.contentSetEnd;
