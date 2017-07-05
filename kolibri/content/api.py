@@ -84,9 +84,10 @@ class ContentNodeFilter(filters.FilterSet):
 
         completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
-        return queryset.filter(
+        return queryset.exclude(pk__in=completed_content_nodes).filter(
             Q(has_prerequisite__in=completed_content_nodes) |
-            Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])).order_by()
+            Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+        ).order_by()
 
     def filter_popular(self, queryset, value):
         """
