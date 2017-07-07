@@ -47,7 +47,7 @@
       </icon-button>
     </assessment-wrapper>
 
-    <p>{{ content.description }}</p>
+    <p v-html="description"></p>
 
 
     <div class="metadata">
@@ -116,6 +116,7 @@
   import contentPoints from '../content-points';
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
+  import markdownIt from 'markdown-it';
   export default {
     $trNameSpace: 'learnContent',
     $trs: {
@@ -133,6 +134,12 @@
           return this.content.kind !== ContentNodeKinds.EXERCISE;
         }
         return false;
+      },
+      description() {
+        if (this.content) {
+          const md = new markdownIt('zero', { breaks: true });
+          return md.render(this.content.description);
+        }
       },
       showNextBtn() {
         return this.content && this.nextContentLink;
