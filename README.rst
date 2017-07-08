@@ -46,7 +46,7 @@ deployments.
 **We expect a public beta to be available during second half of 2017.**
 
 In the meantime, take a look at
-`KA-Lite <https://learningequality.org/kolibri/>`_, Kolibri's predecessor which
+`KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
 is already deployed around the world.
 
 
