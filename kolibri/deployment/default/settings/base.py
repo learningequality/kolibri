@@ -155,6 +155,7 @@ LANGUAGES = [
     ('en', 'English'),
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
+    ('es-mx', 'Español (México)'),
     ('fr-fr', 'Français, langue française'),
     ('pt-pt', 'Português'),
     ('hi-in', 'हिंदी')
