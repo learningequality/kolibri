@@ -46,6 +46,15 @@ Push your changes to Github::
     $ git push origin releases/$SERIES
 
 
+Check list before releasing
+---------------------------
+
+Before a stable release, make sure that:
+
+ * Migrations are squashed
+ * Dependencies are up to date
+
+
 Tag the release
 ---------------
 
