@@ -192,11 +192,15 @@ def get_docs_version(version=None):
 
 
 def get_git_changeset():
-    """Returns a numeric identifier of the latest git changeset.
+    """
+    Returns a numeric identifier of the latest git changeset.
 
     The result is the UTC timestamp of the changeset in YYYYMMDDHHMMSS format.
     This value isn't guaranteed to be unique, but collisions are very unlikely,
     so it's sufficient for generating the development version numbers.
+
+    If there is no git data or git installed, it will gracefully return a
+    timestamp based on datetime.now()
     """
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     git_log = subprocess.Popen(
@@ -212,9 +216,11 @@ def get_git_changeset():
     timestamp = git_log.communicate()[0]
     try:
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
+        return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except ValueError:
-        return None
-    return timestamp.strftime('%Y%m%d%H%M%S')
+        return "{}-export".format(
+            datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        )
 
 
 def get_git_describe():
@@ -336,7 +342,7 @@ def get_prerelease_version(version):
 
     # If a description from git is available and we haven't already
     # found a suffix
-    if not suffix and not tag_describe:
+    if not suffix and tag_describe:
         git_version, git_suffix = get_version_from_git(tag_describe)
 
         # Fail in case the VERSION tuple and version derived from Git are

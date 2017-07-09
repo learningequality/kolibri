@@ -55,23 +55,6 @@ class TestKolibriVersion(KolibriTestBase):
         v = get_version((0, 1, 0, "alpha", 0))
         self.assertIn("0.1.dev", v)
 
-    def test_alpha_0_version_inconsistent_version_file(self):
-        """
-        Test that when doing something with a 0th alpha doesn't provoke any
-        hickups with ``git describe --tag``.
-        """
-        # Simple mocking
-        get_version_file = version.get_version_file
-        version.get_version_file = lambda: "0.2a1"
-        try:
-            self.assertRaises(
-                AssertionError,
-                get_version,
-                (0, 1, 0, "alpha", 0)
-            )
-        finally:
-            version.get_version_file = get_version_file
-
     def test_alpha_1_version(self):
         """
         Test some normal alpha version, but don't assert that the
