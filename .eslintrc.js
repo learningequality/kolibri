@@ -1,6 +1,5 @@
 module.exports = {
   root: true,
-  extends: 'airbnb/base',
   // required to lint *.vue files
   plugins: [
     'html'
