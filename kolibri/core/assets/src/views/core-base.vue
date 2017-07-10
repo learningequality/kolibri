@@ -106,7 +106,7 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        const posKey = Vue.bidi === 'rtl' ? 'Right' : 'Left';
+        const posKey = Vue.bidiDirection === 'rtl' ? 'Right' : 'Left';
         return this.mobile ? {} : { ['padding' + posKey]: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {

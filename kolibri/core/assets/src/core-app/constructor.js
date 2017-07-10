@@ -51,7 +51,7 @@ export default class CoreApp {
      */
     vue.use(vuex);
     vue.use(router);
-    vue.set(vue, 'bidi', global.languageBidi || 'ltr');
+    vue.set(vue, 'bidiDirection', global.languageBidi || 'ltr');
 
     this.i18n = {
       reversed: false,

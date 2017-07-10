@@ -16,7 +16,7 @@
       <thead slot="thead">
         <tr>
           <header-cell
-            :align="align"
+            :align="alignStart"
             :text="$tr('name')"
             :column="TableColumns.NAME"
             :sortable="true"
@@ -28,13 +28,13 @@
             :sortable="true"
           />
           <header-cell
-            :align="align"
+            :align="alignStart"
             :text="$tr('group')"
             :column="TableColumns.GROUP"
             :sortable="true"
           />
           <header-cell
-            :align="align"
+            :align="alignStart"
             v-if="!isRootLearnerPage"
             :text="$tr('lastActivity')"
             :column="TableColumns.DATE"

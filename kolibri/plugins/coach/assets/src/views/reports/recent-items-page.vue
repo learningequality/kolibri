@@ -11,7 +11,7 @@
         <tr>
           <header-cell
             :text="$tr('name')"
-            :align="align"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"/>
           <header-cell
@@ -20,7 +20,7 @@
             :column="tableColumns.CONTENT"/>
           <header-cell
             :text="$tr('lastActivity')"
-            :align="align"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.DATE"/>
         </tr>

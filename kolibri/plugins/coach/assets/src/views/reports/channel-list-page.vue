@@ -11,12 +11,12 @@
         <tr>
           <header-cell
             :text="$tr('channels')"
-            :align="align"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"/>
           <header-cell
             :text="$tr('lastActivity')"
-            :align="align"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.DATE"/>
         </tr>
