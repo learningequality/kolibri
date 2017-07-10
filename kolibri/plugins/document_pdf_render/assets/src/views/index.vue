@@ -1,9 +1,12 @@
 <template>
 
-  <div ref="container" class="container" allowfullscreen>
+  <div ref="container"
+    class="container"
+    :class="!fullscreenAllowed && isFullScreen ? 'semi-full-screen' : ''"
+    allowfullscreen>
     <icon-button
       class="btn"
-      v-if="fullscreenAllowed && supportsPDFs"
+      v-if="supportsPDFs"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
@@ -31,13 +34,22 @@
     }),
     computed: {
       fullscreenAllowed() {
-        return ScreenFull.enabled;
+        return false;
       },
     },
     methods: {
       toggleFullScreen() {
-        ScreenFull.toggle(this.$refs.container);
-        this.isFullScreen = ScreenFull.isFullscreen;
+        if (this.isFullScreen) {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullScreen = false;
+        } else {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullScreen = true;
+        }
       },
     },
     mounted() {
@@ -84,5 +96,17 @@
 
   .pdfcontainer
     height: 100%
+
+  .semi-full-screen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    width: 100vw
+    height: 100vh
+    max-width: 100vw
+    max-height: 100vh
+    z-index: 5
 
 </style>
