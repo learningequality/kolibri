@@ -53,10 +53,6 @@ export default class CoreApp {
     vue.use(router);
     vue.set(vue, 'bidiDirection', global.languageBidi || 'ltr');
 
-    this.i18n = {
-      reversed: false,
-    };
-
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
       window.location.origin = `${window.location.protocol}//${window.location.hostname}${window
@@ -85,10 +81,12 @@ export default class CoreApp {
           id: `${this.$options.$trNameSpace}.${messageId}`,
           defaultMessage: defaultMessageText,
         };
-        // Allow string reversal in debug mode.
+        // Allow mirror text in debug mode.
         if (process.env.NODE_ENV === 'debug') {
-          if (self.i18n.reversed) {
-            return defaultMessageText.split('').reverse().join('');
+          if (vue.locale === 'rt-lft') {
+            // Use require in conditional import, as it is not clear to me that ES6 imports would get omitted
+            const { toFakeRTL } = require('../utils/mirrorText');
+            return toFakeRTL(defaultMessageText);
           }
         }
         return formatter(message, args);
