@@ -8,6 +8,17 @@ import {
   DeviceOwnerResource,
   FacilityResource,
 } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'userPageTitles';
+
+const messages = {
+  userProfilePageTitle: 'User Profile',
+  userSignInPageTitle: 'User Sign In',
+  userSignUpPageTitle: 'User Sign Up',
+};
+
+const translator = createTranslator(name, messages);
 
 function redirectToHome() {
   window.location = '/';
@@ -108,7 +119,7 @@ function showProfile(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Profile');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userProfilePageTitle'));
   resetProfileState(store);
 }
 
@@ -124,7 +135,7 @@ function showSignIn(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Sign In');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userSignInPageTitle'));
 }
 
 function resetSignUpState(store) {
@@ -152,7 +163,7 @@ function showSignUp(store) {
     store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+    store.dispatch('CORE_SET_TITLE', translator.$tr('userSignUpPageTitle'));
     resetSignUpState(store);
   }).catch(error => coreActions.handleApiError(store, error));
 }
