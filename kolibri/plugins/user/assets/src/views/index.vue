@@ -1,9 +1,8 @@
 <template>
 
-  <core-base v-if="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
+  <core-base :navBarNeeded="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
     <component :is="currentPage"/>
   </core-base>
-  <component v-else :is="currentPage"/>
 
 </template>
 
