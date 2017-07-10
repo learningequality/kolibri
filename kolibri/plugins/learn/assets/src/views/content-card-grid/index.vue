@@ -52,7 +52,7 @@
     $trNameSpace: 'contentCardGrid',
     $trs: {
       display: 'Display',
-      all: 'All content ({ count, number })',
+      all: 'All content ({ num, number })',
       topics: 'Topics ({ count, number })',
       exercises: 'Exercises ({ count, number })',
       videos: 'Videos ({ count, number })',
