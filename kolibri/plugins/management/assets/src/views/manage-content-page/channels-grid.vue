@@ -37,7 +37,7 @@
           </td>
           <td>
             <button
-              @click="selectedChannelIdx=idx"
+              @click="selectedChannelId=channel.id"
               class="delete-button"
             >
               {{ $tr('deleteButtonLabel') }}
@@ -52,7 +52,7 @@
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
       @confirm="handleDeleteChannel()"
-      @cancel="selectedChannelIdx=null"
+      @cancel="selectedChannelId=null"
     />
   </div>
 
@@ -65,22 +65,24 @@
   import * as manageContentActions from '../../state/manageContentActions';
   import map from 'lodash/map';
   import orderBy from 'lodash/orderBy';
+  import find from 'lodash/find';
   import uiButton from 'keen-ui/src/UiButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
     data: () => ({
-      selectedChannelIdx: null,
+      selectedChannelId: null,
       notification: null,
     }),
     computed: {
       channelIsSelected() {
-        return this.selectedChannelIdx !== null;
+        return this.selectedChannelId !== null;
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.sortedChannels[this.selectedChannelIdx].title;
+          const channel = find(this.channelList, { id: this.selectedChannelId });
+          return channel.title;
         }
         return '';
       },
@@ -104,9 +106,9 @@
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelIdx !== null) {
-          const channelId = this.sortedChannels[this.selectedChannelIdx].id;
-          this.selectedChannelIdx = null;
+        if (this.selectedChannelId !== null) {
+          const channelId = this.selectedChannelId;
+          this.selectedChannelId = null;
           this.deleteChannel(channelId)
             .then(() => {
               this.$emit('deletesuccess');
