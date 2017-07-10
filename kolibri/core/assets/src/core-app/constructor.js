@@ -33,6 +33,9 @@ const publicMethods = [
   'retrieveContentRenderer',
 ];
 
+let toFakeRTL;
+// This will get set during initialization if the dummy language
+
 /**
  * Constructor for object that forms the public API for the Kolibri
  * core app.
@@ -81,13 +84,8 @@ export default class CoreApp {
           id: `${this.$options.$trNameSpace}.${messageId}`,
           defaultMessage: defaultMessageText,
         };
-        // Allow mirror text in debug mode.
-        if (process.env.NODE_ENV === 'debug') {
-          if (vue.locale === 'rt-lft') {
-            // Use require in conditional import, as it is not clear to me that ES6 imports would get omitted
-            const { toFakeRTL } = require('../utils/mirrorText');
-            return toFakeRTL(defaultMessageText);
-          }
+        if (vue.locale === 'rt-lft') {
+          return toFakeRTL(defaultMessageText);
         }
         return formatter(message, args);
       }
@@ -136,6 +134,11 @@ export default class CoreApp {
           logging.error('An error occurred trying to setup Internationalization', error);
         }
       );
+    } else if (global.languageCode === 'rt-lft') {
+      require.ensure([], () => {
+        toFakeRTL = require('../utils/mirrorText').toFakeRTL;
+        setUpVueIntl();
+      });
     } else {
       setUpVueIntl();
     }
