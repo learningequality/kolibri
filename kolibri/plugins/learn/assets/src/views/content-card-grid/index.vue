@@ -53,12 +53,12 @@
     $trs: {
       display: 'Display',
       all: 'All content ({ num, number })',
-      topics: 'Topics ({ count, number })',
-      exercises: 'Exercises ({ count, number })',
-      videos: 'Videos ({ count, number })',
-      audio: 'Audio ({ count, number })',
-      documents: 'Documents ({ count, number })',
-      html5: 'HTML5 Apps ({ count, number })',
+      topics: 'Topics ({ num, number })',
+      exercises: 'Exercises ({ num, number })',
+      videos: 'Videos ({ num, number })',
+      audio: 'Audio ({ num, number })',
+      documents: 'Documents ({ num, number })',
+      html5: 'HTML5 Apps ({ num, number })',
     },
     components: {
       contentCard,
@@ -113,17 +113,17 @@
       filterOptions() {
         const options = [
           {
-            label: this.$tr('all', { count: this.contents.length }),
+            label: this.$tr('all', { num: this.contents.length }),
             value: 'all',
           },
         ];
         const kindLabelsMap = {
-          [ContentNodeKinds.TOPIC]: this.$tr('topics', { count: this.topics.length }),
-          [ContentNodeKinds.EXERCISE]: this.$tr('exercises', { count: this.exercises.length }),
-          [ContentNodeKinds.VIDEO]: this.$tr('videos', { count: this.videos.length }),
-          [ContentNodeKinds.AUDIO]: this.$tr('audio', { count: this.audio.length }),
-          [ContentNodeKinds.DOCUMENT]: this.$tr('documents', { count: this.documents.length }),
-          [ContentNodeKinds.HTML5]: this.$tr('html5', { count: this.html5.length }),
+          [ContentNodeKinds.TOPIC]: this.$tr('topics', { num: this.topics.length }),
+          [ContentNodeKinds.EXERCISE]: this.$tr('exercises', { num: this.exercises.length }),
+          [ContentNodeKinds.VIDEO]: this.$tr('videos', { num: this.videos.length }),
+          [ContentNodeKinds.AUDIO]: this.$tr('audio', { num: this.audio.length }),
+          [ContentNodeKinds.DOCUMENT]: this.$tr('documents', { num: this.documents.length }),
+          [ContentNodeKinds.HTML5]: this.$tr('html5', { num: this.html5.length }),
         };
         forEach(kindLabelsMap, (value, key) => {
           if (this.contentsContain(key)) {
