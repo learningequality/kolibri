@@ -80,7 +80,7 @@
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.channelList[this.selectedChannelIdx].title;
+          return this.sortedChannels[this.selectedChannelIdx].title;
         }
         return '';
       },
@@ -105,7 +105,7 @@
     methods: {
       handleDeleteChannel() {
         if (this.selectedChannelIdx !== null) {
-          const channelId = this.channelList[this.selectedChannelIdx].id;
+          const channelId = this.sortedChannels[this.selectedChannelIdx].id;
           this.selectedChannelIdx = null;
           this.deleteChannel(channelId)
             .then(() => {
