@@ -111,7 +111,7 @@
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
-        const posKey = Vue.bidi === 'rtl' ? 'right' : 'left';
+        const posKey = Vue.bidiDirection === 'rtl' ? 'right' : 'left';
         style[posKey] = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
       },
