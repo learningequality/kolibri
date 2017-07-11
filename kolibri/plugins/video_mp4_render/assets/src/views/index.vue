@@ -89,7 +89,7 @@
         );
       },
       fullscreenAllowed() {
-        return ScreenFull.enabled;
+        return false;
       },
     },
     methods: {
@@ -253,6 +253,7 @@
       handleFullscreen() {
         if (!this.fullscreenAllowed) {
           this.mimicFullscreen = !this.mimicFullscreen;
+          alert('fake fullscreen');
         }
       },
     },
