@@ -27,7 +27,7 @@
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
   import LangLookup from './languagelookup';
-  import * as customButtons from './videojs-replay-forward-btns';
+  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
@@ -140,7 +140,7 @@
         if (this.fullscreenAllowed) {
           videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
         } else {
-          videojs.registerComponent('MimicFullscreenToggle', customButtons.MimicFullscreenToggle);
+          videojs.registerComponent('MimicFullscreenToggle', MimicFullscreenToggle);
           videojsConfig.controlBar.children.push({ name: 'MimicFullscreenToggle' });
         }
 
@@ -263,10 +263,10 @@
       },
     },
     created() {
-      customButtons.ReplayButton.prototype.controlText_ = this.$tr('replay');
-      customButtons.ForwardButton.prototype.controlText_ = this.$tr('forward');
-      videojs.registerComponent('ReplayButton', customButtons.ReplayButton);
-      videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
+      ReplayButton.prototype.controlText_ = this.$tr('replay');
+      ForwardButton.prototype.controlText_ = this.$tr('forward');
+      videojs.registerComponent('ReplayButton', ReplayButton);
+      videojs.registerComponent('ForwardButton', ForwardButton);
       this.videoLang = Lockr.get('videoLang') || this.videoLang;
     },
     mounted() {
@@ -308,10 +308,11 @@
     bottom: 0
     left: 0
     z-index: 24
-    max-width: 100vw
-    max-height: 100vh
-    width: 100vw
-    height: 100vh
+    max-width: calc(100vh * (16/9))
+    max-height: 100%
+    width: 100%
+    height: 100%
+    background-color: black
 
 </style>
 
