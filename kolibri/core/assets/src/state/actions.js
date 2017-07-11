@@ -622,9 +622,10 @@ function saveAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
+  const user = getters.isFacilityUser(store.state) ? getters.currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
-    user: store.state.core.session.user_id,
+    user,
     masterylog: store.state.core.logging.mastery.id || null,
     sessionlog: store.state.core.logging.session.id,
     start_timestamp: now(),
