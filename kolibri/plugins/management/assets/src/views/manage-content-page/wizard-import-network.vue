@@ -10,7 +10,7 @@
     @back="goBack"
   >
     <div class="main">
-      <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
+      <core-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -50,13 +50,13 @@
       iconButton,
       coreTextbox,
     },
-    data: () => ({ contentId: '' }),
+    data: () => ({ channelId: '' }),
     computed: {
       canSubmit() {
         if (this.wizardState.busy) {
           return false;
         }
-        return Boolean(this.contentId);
+        return Boolean(this.channelId);
       },
     },
     methods: {
@@ -65,7 +65,7 @@
       },
       submit() {
         if (this.canSubmit) {
-          this.transitionWizardPage('forward', { contentId: this.contentId });
+          this.transitionWizardPage('forward', { channelId: this.channelId });
         }
       },
       cancel() {

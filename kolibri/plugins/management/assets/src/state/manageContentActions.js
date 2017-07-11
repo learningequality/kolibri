@@ -117,8 +117,9 @@ function transitionWizardPage(store, transition, params) {
       return actions.startImportWizard(store);
     }
     if (transition === FORWARD) {
-      // params :: { channelId : string }
-      return actions.showNetworkImportPreviewWizard(store, params);
+      return actions.showNetworkImportPreviewWizard(store, {
+        channelId: params.channelId,
+      });
     }
   }
 
@@ -134,14 +135,14 @@ function transitionWizardPage(store, transition, params) {
   // At Local Import Preview
   if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
     if (transition === FORWARD) {
-      return actions.triggerLocalContentImportTask(store, params.driveId);
+      return actions.triggerLocalContentImportTask(store, params.sourceId);
     }
   }
 
   // At Network Import Preview
   if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
     if (transition === FORWARD) {
-      return actions.triggerRemoteContentImportTask(store, params.driveId);
+      return actions.triggerRemoteContentImportTask(store, params.sourceId);
     }
   }
 
