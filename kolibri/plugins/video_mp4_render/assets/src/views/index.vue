@@ -7,7 +7,7 @@
     <div
       v-show="!loading"
       class="fill-space"
-      :class="!fullscreenAllowed && mimicFullscreen ? 'mimic-fullscreen' : ''">
+      :class="mimicFullscreen ? 'mimic-fullscreen' : ''">
       <video ref="video" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
@@ -136,7 +136,7 @@
           },
         };
 
-        // Add appropriate fullscreen toggle
+        // Add appropriate fullscreen button
         if (this.fullscreenAllowed) {
           videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
         } else {
@@ -160,16 +160,16 @@
         this.videoPlayer.on('play', () => this.setPlayState(true));
         this.videoPlayer.on('pause', () => this.setPlayState(false));
         this.videoPlayer.on('ended', () => this.setPlayState(false));
+        this.videoPlayer.on('mimicFullscreenToggled', () => {
+          this.mimicFullscreen = !this.mimicFullscreen;
+        });
+
         this.$watch('elSize.width', this.updateVideoSizeClass);
         this.updateVideoSizeClass();
         this.resizeVideo();
         this.getDefaults();
         this.loading = false;
         this.$refs.video.tabIndex = -1;
-
-        this.videoPlayer.on('mimicFullscreenToggled', () => {
-          this.mimicFullscreen = !this.mimicFullscreen;
-        });
       },
       resizeVideo() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
