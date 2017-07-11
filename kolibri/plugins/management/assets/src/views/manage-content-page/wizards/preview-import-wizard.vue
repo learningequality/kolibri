@@ -50,7 +50,7 @@
       localImportPrompt() {
         return this.$tr('localImportPrompt', {
           numChannels: this.channelList.length,
-          driveName: this.sourceMeta.driveName
+          driveName: this.sourceMeta.driveName,
         })
       },
       importSource() {
@@ -62,15 +62,21 @@
       channelList() {
         return this.sourceMeta.channelList;
       },
+      sourceId() {
+        if (this.importSource === 'local') {
+          return this.sourceMeta.driveId;
+        } else {
+          return this.sourceMeta.channelId;
+        }
+      }
     },
     methods: {
       cancel() {
-        this.transitionWizardPage("cancel");
+        this.transitionWizardPage('cancel');
       },
       submit() {
-        // if meta.driveId, then it is a local import
-        // if meta.channelId, then it is a remote import
-      }
+        return this.transitionWizardPage('forward', { sourceId: this.sourceId });
+      },
     },
     vuex: {
       getters: {
