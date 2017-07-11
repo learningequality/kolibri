@@ -593,6 +593,10 @@ function showLocalImportPreviewWizard(store, params) {
   showWizardPage(store, ContentWizardPages.LOCAL_IMPORT_PREVIEW, params);
 }
 
+function showNetworkImportPreviewWizard(store, params) {
+  showWizardPage(store, ContentWizardPages.REMOTE_IMPORT_PREVIEW, params);
+}
+
 // rename to 'closeImportExportWizard'
 function cancelImportExportWizard(store) {
   showWizardPage(store, false); // should make None an explicit state
@@ -727,6 +731,7 @@ export {
   startExportWizard,
   showImportNetworkWizard,
   showLocalImportPreviewWizard,
+  showNetworkImportPreviewWizard,
   showImportLocalWizard,
   cancelImportExportWizard,
   triggerLocalContentExportTask,

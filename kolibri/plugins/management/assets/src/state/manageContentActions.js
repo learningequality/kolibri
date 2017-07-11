@@ -108,10 +108,9 @@ function transitionWizardPage(store, transition, params) {
     if (transition === BACKWARD) {
       return actions.startImportWizard(store);
     }
-    // Now: Start downloading immediately
-    // Later: Show preview of imported channels
     if (transition === FORWARD) {
-      return actions.triggerRemoteContentImportTask(store, params.contentId);
+      // params :: { channelId : string }
+      return actions.showNetworkImportPreviewWizard(store, params);
     }
   }
 
@@ -128,6 +127,13 @@ function transitionWizardPage(store, transition, params) {
   if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
     if (transition === FORWARD) {
       return actions.triggerLocalContentImportTask(store, params.driveId);
+    }
+  }
+
+  // At Network Import Preview
+  if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
+    if (transition === FORWARD) {
+      return actions.triggerRemoteContentImportTask(store, params.driveId);
     }
   }
 
