@@ -1,8 +1,6 @@
 <template>
 
   <div ref="wrapper" class="wrapper">
-    fullscreenAllowed: {{ fullscreenAllowed }}
-    mimicFullscreen: {{ mimicFullscreen }}
     <div v-show="loading" class="fill-space">
       <loading-spinner/>
     </div>
@@ -134,10 +132,18 @@
               },
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
-              { name: 'fullscreenToggle' },
             ],
           },
         };
+
+        // Add appropriate fullscreen toggle
+        if (this.fullscreenAllowed) {
+          videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
+        } else {
+          videojs.registerComponent('MimicFullscreenToggle', customButtons.MimicFullscreenToggle);
+          videojsConfig.controlBar.children.push({ name: 'MimicFullscreenToggle' });
+        }
+
         this.$nextTick(() => {
           this.videoPlayer = videojs(this.$refs.video, videojsConfig);
           this.videoPlayer.on('loadedmetadata', this.handleReadyPlayer);
@@ -160,7 +166,10 @@
         this.getDefaults();
         this.loading = false;
         this.$refs.video.tabIndex = -1;
-        this.attachFullscreenListener();
+
+        this.videoPlayer.on('mimicFullscreenToggled', () => {
+          this.mimicFullscreen = !this.mimicFullscreen;
+        });
       },
       resizeVideo() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
@@ -250,17 +259,6 @@
         }
         if (this.elSize.width < 360) {
           this.videoPlayer.addClass('player-tiny');
-        }
-      },
-      attachFullscreenListener() {
-        this.videoPlayer.controlBar.fullscreenToggle.el_.addEventListener(
-          'touchend',
-          this.handleFullscreen
-        );
-      },
-      handleFullscreen() {
-        if (!this.fullscreenAllowed) {
-          this.mimicFullscreen = !this.mimicFullscreen;
         }
       },
     },
