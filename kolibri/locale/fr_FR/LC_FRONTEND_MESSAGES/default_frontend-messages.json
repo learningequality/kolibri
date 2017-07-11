@@ -36,5 +36,5 @@
   "progressBar.label":"Progression :",
   "progressBar.pct":"{0, number, percent}",
   "progressIcon.inProgress":"En cours...",
-  "progressIcon.completed":"Completed"
+  "progressIcon.completed":"Terminé"
 }
