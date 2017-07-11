@@ -1,6 +1,8 @@
 <template>
 
   <div ref="wrapper" class="wrapper">
+    fullscreenAllowed: {{ fullscreenAllowed }}
+    mimicFullscreen: {{ mimicFullscreen }}
     <div v-show="loading" class="fill-space">
       <loading-spinner/>
     </div>
@@ -253,7 +255,6 @@
       handleFullscreen() {
         if (!this.fullscreenAllowed) {
           this.mimicFullscreen = !this.mimicFullscreen;
-          alert('fake fullscreen');
         }
       },
     },
