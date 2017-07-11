@@ -152,10 +152,10 @@
     }),
     computed: {
       topicsLink: function() { return { path: this.$route.path } },
-      recentLink: function() { return { path: this.$route.path + 'foo' } },
-      learnersLink: function() { return { path: this.$route.path + 'foo' } },
-      groupsLink: function() { return { path: this.$route.path + 'foo' } },
-      examsLink: function() { return { path: this.$route.path + 'foo' } },
+      recentLink: function() { return { path: this.$route.path, query: { page: 'recent' } } },
+      learnersLink: function() { return { path: this.$route.path, query: { page: 'learners' } } },
+      groupsLink: function() { return { path: this.$route.path, query: { page: 'groups' } } },
+      examsLink: function() { return { path: this.$route.path, query: { page: 'exams' } } },
     },
     components: {
       // 'tabs': require('kolibri.coreVue.components.tabs'),
