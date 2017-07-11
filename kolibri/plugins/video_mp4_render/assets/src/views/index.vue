@@ -254,7 +254,7 @@
       },
       attachFullscreenListener() {
         this.videoPlayer.controlBar.fullscreenToggle.el_.addEventListener(
-          'click',
+          'touchend',
           this.handleFullscreen
         );
       },
