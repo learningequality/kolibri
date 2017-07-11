@@ -97,10 +97,9 @@ function transitionWizardPage(store, transition, params) {
     if (transition === BACKWARD) {
       return actions.startImportWizard(store);
     }
-    // Now: Start downloading immediately
-    // Later: Show preview of imported channels
     if (transition === FORWARD) {
-      return actions.triggerLocalContentImportTask(store, params.driveId);
+      // params :: { driveId: string }
+      return actions.showLocalImportPreviewWizard(store, params);
     }
   }
 
@@ -125,11 +124,17 @@ function transitionWizardPage(store, transition, params) {
     }
   }
 
+  // At Local Import Preview
+  if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
+    if (transition === FORWARD) {
+      return actions.triggerLocalContentImportTask(store, params.driveId);
+    }
+  }
+
   return undefined;
 }
 
 export {
-  actionTypes,
   addChannelFileSummaries,
   deleteChannel,
   transitionWizardPage,

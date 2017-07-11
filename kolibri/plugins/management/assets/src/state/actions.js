@@ -559,7 +559,7 @@ function updateWizardLocalDriveList(store) {
     });
 }
 
-function showWizardPage(store, pageName) {
+function showWizardPage(store, pageName, meta = {}) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: Boolean(pageName),
     page: pageName || null,
@@ -567,6 +567,7 @@ function showWizardPage(store, pageName) {
     busy: false,
     drivesLoading: false,
     driveList: null,
+    meta,
   });
 }
 
@@ -588,6 +589,11 @@ function showImportLocalWizard(store) {
   updateWizardLocalDriveList(store);
 }
 
+function showLocalImportPreviewWizard(store, params) {
+  showWizardPage(store, ContentWizardPages.LOCAL_IMPORT_PREVIEW, params);
+}
+
+// rename to 'closeImportExportWizard'
 function cancelImportExportWizard(store) {
   showWizardPage(store, false); // should make None an explicit state
 }
@@ -720,6 +726,7 @@ export {
   startImportWizard,
   startExportWizard,
   showImportNetworkWizard,
+  showLocalImportPreviewWizard,
   showImportLocalWizard,
   cancelImportExportWizard,
   triggerLocalContentExportTask,
