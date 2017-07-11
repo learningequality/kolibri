@@ -12,8 +12,8 @@ from kolibri.content.models import ChannelMetadataCache
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 
 n_users = 2
-n_classes = 1
-n_facilities = 1
+n_classes = 2
+n_facilities = 2
 
 the_channel_id = uuid.uuid4()
 
