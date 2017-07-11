@@ -1,3 +1,4 @@
+/* eslint-env node */
 import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import {
@@ -558,10 +559,10 @@ function updateWizardLocalDriveList(store) {
     });
 }
 
-function startImportWizard(store) {
+function showWizardPage(store, pageName) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
+    shown: Boolean(pageName),
+    page: pageName || null,
     error: null,
     busy: false,
     drivesLoading: false,
@@ -569,49 +570,26 @@ function startImportWizard(store) {
   });
 }
 
+function startImportWizard(store) {
+  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
+}
+
 function startExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.EXPORT,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  showWizardPage(store, ContentWizardPages.EXPORT);
   updateWizardLocalDriveList(store);
 }
 
 function showImportNetworkWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_NETWORK,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  showWizardPage(store, ContentWizardPages.IMPORT_NETWORK);
 }
 
 function showImportLocalWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_LOCAL,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  showWizardPage(store, ContentWizardPages.IMPORT_LOCAL);
   updateWizardLocalDriveList(store);
 }
 
 function cancelImportExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: false,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  showWizardPage(store, false); // should make None an explicit state
 }
 
 // called from a timer to continually update UI
