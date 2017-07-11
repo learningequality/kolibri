@@ -19,7 +19,7 @@
       v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
       <slot
         :title="content.title"
-        :thumbnail="content.thumnail"
+        :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
         :id="content.id">
