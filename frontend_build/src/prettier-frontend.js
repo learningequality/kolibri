@@ -29,7 +29,8 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
         } else if (vueComponent && vueComponent.script) {
           const start = vueComponent.script.start;
           const end = vueComponent.script.end;
-          let formattedJs = prettier.format(source.slice(start, end), options);
+          const code = source.slice(start, end).replace(/(\n)  /g, '$1');
+          let formattedJs = prettier.format(code, options);
           // Ensure that the beginning and end of the JS has two newlines to fit our
           // Component linting conventions
           // Ensure it is indented by two spaces
