@@ -3,6 +3,7 @@ import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../constants';
 import * as actions from './actions';
 import { mutationTypes } from './manageContentMutations';
+import find from 'lodash/find';
 
 /**
  * Force-refresh the ChannelResource Collection
@@ -98,8 +99,15 @@ function transitionWizardPage(store, transition, params) {
       return actions.startImportWizard(store);
     }
     if (transition === FORWARD) {
-      // params :: { driveId: string }
-      return actions.showLocalImportPreviewWizard(store, params);
+      const driveInfo = find(
+        store.state.pageState.wizardState.driveList,
+        { id: params.driveId }
+      );
+      return actions.showLocalImportPreviewWizard(store, {
+        driveId: params.driveId,
+        driveName: driveInfo.name,
+        channelList: driveInfo.metadata.channels,
+      });
     }
   }
 

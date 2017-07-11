@@ -2,16 +2,24 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error ? true : false"
     :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
   >
     <div>
-      <div>
-          Preview Stuff
-          {{ importSource }}
+
+      <!-- LOCAL IMPORT PREVIEW -->
+      <div v-if="importSource === 'local'">
+        <p>{{ localImportPrompt }}</p>
+
+        <ul class="channel-list">
+          <li v-for="(channel, i) in channelList" :key="i" >
+            {{ channel.name }}
+          </li>
+        </ul>
       </div>
+
+      <!-- REMOTE IMPORT PREVIEW -->
 
       <div class="button-wrapper">
         <icon-button @click="cancel" :text="$tr('cancelButtonLabel')" />
@@ -38,7 +46,23 @@
       coreModal,
       iconButton
     },
-    computed: {},
+    computed: {
+      localImportPrompt() {
+        return this.$tr('localImportPrompt', {
+          numChannels: this.channelList.length,
+          driveName: this.sourceMeta.driveName
+        })
+      },
+      importSource() {
+        if (this.sourceMeta.driveId !== undefined) {
+          return "local";
+        }
+        return "remote";
+      },
+      channelList() {
+        return this.sourceMeta.channelList;
+      },
+    },
     methods: {
       cancel() {
         this.transitionWizardPage("cancel");
@@ -50,13 +74,7 @@
     },
     vuex: {
       getters: {
-        wizardState: state => state.pageState.wizardState,
-        importSource(state) {
-          if (state.pageState.wizardState.meta.driveId !== undefined) {
-            return "local";
-          }
-          return "remote";
-        }
+        sourceMeta: state => state.pageState.wizardState.meta,
       },
       actions: {
         transitionWizardPage,
@@ -64,11 +82,12 @@
     },
     $trNameSpace: "previewImportWizard",
     $trs: {
-      title: "Import from local drive",
+      cancelButtonLabel: "Cancel",
+      confirmButtonLabel: "Import",
+      localImportPrompt: 'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
       localImportTitle: "Import from local drive",
       remoteImporttitle: "Import from internet",
-      confirmButtonLabel: "Import",
-      cancelButtonLabel: "Cancel"
+      title: "Import from local drive",
     }
   };
 </script>
@@ -79,5 +98,13 @@
   .button-wrapper
     margin: 1em 0
     text-align: center
+
+  .channel-list
+    list-style: none
+    padding-left: 0
+
+  .channel-list li
+    margin: 1rem 0
+
 
 </style>
