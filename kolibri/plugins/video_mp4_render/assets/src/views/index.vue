@@ -4,7 +4,10 @@
     <div v-show="loading" class="fill-space">
       <loading-spinner/>
     </div>
-    <div v-show="!loading" class="fill-space">
+    <div
+      v-show="!loading"
+      class="fill-space"
+      :class="mimicFullscreen ? 'mimic-fullscreen' : ''">
       <video ref="video" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
@@ -29,6 +32,7 @@
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import ScreenFull from 'screenfull';
 
   const GlobalLangCode = vue.locale;
 
@@ -60,6 +64,7 @@
       videoMuted: false,
       videoRate: 1.0,
       videoLang: GlobalLangCode,
+      mimicFullscreen: false,
     }),
 
     computed: {
@@ -82,6 +87,9 @@
         return this.supplementaryFiles.filter(file =>
           trackFileExtensions.some(ext => ext === file.extension)
         );
+      },
+      fullscreenAllowed() {
+        return ScreenFull.enabled;
       },
     },
     methods: {
@@ -141,6 +149,7 @@
         this.videoPlayer.on('volumechange', this.throttledUpdateVolume);
         this.videoPlayer.on('ratechange', this.updateRate);
         this.videoPlayer.on('texttrackchange', this.updateLang);
+        this.videoPlayer.on('fullscreenchange', this.handleFullscreen);
         this.videoPlayer.on('play', () => this.setPlayState(true));
         this.videoPlayer.on('pause', () => this.setPlayState(false));
         this.videoPlayer.on('ended', () => this.setPlayState(false));
@@ -241,6 +250,11 @@
           this.videoPlayer.addClass('player-tiny');
         }
       },
+      handleFullscreen() {
+        if (!this.fullscreenAllowed) {
+          this.mimicFullscreen = !this.mimicFullscreen;
+        }
+      },
     },
     created() {
       customButtons.ReplayButton.prototype.controlText_ = this.$tr('replay');
@@ -280,6 +294,18 @@
   .fill-space
     width: 100%
     height: 100%
+
+  .mimic-fullscreen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 24
+    max-width: 100vw
+    max-height: 100vh
+    width: 100vw
+    height: 100vh
 
 </style>
 
