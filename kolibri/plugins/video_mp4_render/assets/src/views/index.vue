@@ -9,7 +9,7 @@
     <div
       v-show="!loading"
       class="fill-space"
-      :class="mimicFullscreen ? 'mimic-fullscreen' : ''">
+      :class="!fullscreenAllowed && mimicFullscreen ? 'mimic-fullscreen' : ''">
       <video ref="video" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
@@ -91,7 +91,7 @@
         );
       },
       fullscreenAllowed() {
-        return false;
+        return ScreenFull.enabled;
       },
     },
     methods: {
@@ -151,7 +151,6 @@
         this.videoPlayer.on('volumechange', this.throttledUpdateVolume);
         this.videoPlayer.on('ratechange', this.updateRate);
         this.videoPlayer.on('texttrackchange', this.updateLang);
-        this.videoPlayer.on('fullscreenchange', this.handleFullscreen);
         this.videoPlayer.on('play', () => this.setPlayState(true));
         this.videoPlayer.on('pause', () => this.setPlayState(false));
         this.videoPlayer.on('ended', () => this.setPlayState(false));
@@ -161,6 +160,7 @@
         this.getDefaults();
         this.loading = false;
         this.$refs.video.tabIndex = -1;
+        this.attachFullscreenListener();
       },
       resizeVideo() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
@@ -251,6 +251,12 @@
         if (this.elSize.width < 360) {
           this.videoPlayer.addClass('player-tiny');
         }
+      },
+      attachFullscreenListener() {
+        this.videoPlayer.controlBar.fullscreenToggle.el_.addEventListener(
+          'click',
+          this.handleFullscreen
+        );
       },
       handleFullscreen() {
         if (!this.fullscreenAllowed) {
