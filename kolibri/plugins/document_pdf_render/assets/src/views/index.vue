@@ -1,8 +1,9 @@
 <template>
 
-  <div ref="container"
+  <div
+    ref="container"
     class="container"
-    :class="!fullscreenAllowed && isFullScreen ? 'semi-full-screen' : ''"
+    :class="!fullscreenAllowed && isFullScreen ? 'container-mimic-fullscreen' : ''"
     allowfullscreen>
     <icon-button
       class="btn"
@@ -34,7 +35,7 @@
     }),
     computed: {
       fullscreenAllowed() {
-        return false;
+        return ScreenFull.enabled;
       },
     },
     methods: {
@@ -94,19 +95,19 @@
       min-height: inherit
       max-height: inherit
 
-  .pdfcontainer
-    height: 100%
-
-  .semi-full-screen
+  .container-mimic-fullscreen
     position: fixed
     top: 0
     right: 0
     bottom: 0
     left: 0
-    width: 100vw
-    height: 100vh
+    z-index: 24
     max-width: 100vw
     max-height: 100vh
-    z-index: 5
+    width: 100vw
+    height: 100vh
+
+  .pdfcontainer
+    height: 100%
 
 </style>
