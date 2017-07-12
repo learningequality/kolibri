@@ -5,6 +5,8 @@
     :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
+    :enableBackBtn="true"
+    @back="goBack"
   >
     <div>
 
@@ -96,6 +98,9 @@
     methods: {
       cancel() {
         this.transitionWizardPage('cancel');
+      },
+      goBack() {
+        this.transitionWizardPage('backward');
       },
       submit() {
         return this.transitionWizardPage('forward', { sourceId: this.sourceId });

@@ -82,7 +82,6 @@ export function transitionWizardPage(store, transition, params) {
   // At Choose Source Wizard
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
     if (transition === FORWARD && params.source === 'local') {
-      actions.updateWizardLocalDriveList(store);
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD && params.source === 'network') {
@@ -96,10 +95,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
     if (transition === FORWARD) {
-      const driveInfo = find(
-        store.state.pageState.wizardState.driveList,
-        { id: params.driveId }
-      );
+      const driveInfo = find(store.state.pageState.wizardState.driveList, { id: params.driveId });
       return showPage(ContentWizardPages.LOCAL_IMPORT_PREVIEW, {
         driveId: params.driveId,
         driveName: driveInfo.name,
