@@ -1,0 +1,93 @@
+# Config file for automatic testing at appveyor.com
+
+version: '{branch}-{build}'
+
+build: off
+
+cache:
+  - "%LOCALAPPDATA%\\pip\\Cache"
+
+environment:
+  matrix:
+    - PYTHON_VERSION: '2.7'
+      TOX_ENV: 'py2.7'
+      TOX_PYTHON: 'C:\Python27\python.exe'
+      PYTHON_HOME: 'C:\Python27'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '2.7'
+      TOX_ENV: 'py2.7'
+      TOX_PYTHON: 'C:\Python27\python.exe'
+      PYTHON_HOME: 'C:\Python27'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.4'
+      TOX_ENV: 'py3.4'
+      TOX_PYTHON: 'C:\Python34\python.exe'
+      PYTHON_HOME: 'C:\Python34'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.5'
+      TOX_ENV: 'py3.5'
+      TOX_PYTHON: 'C:\Python35-x64\python.exe'
+      PYTHON_HOME: 'C:\Python35-x64'
+      PYTHON_ARCH: '64'
+    - PYTHON_VERSION: '3.4'
+      TOX_ENV: 'py3.4'
+      TOX_PYTHON: 'C:\Python34\python.exe'
+      PYTHON_HOME: 'C:\Python34'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '2.7'
+      TOX_ENV: 'py2.7'
+      TOX_PYTHON: 'C:\Python27\python.exe'
+      PYTHON_HOME: 'C:\Python27'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.4'
+      TOX_ENV: 'py3.4'
+      TOX_PYTHON: 'C:\Python34\python.exe'
+      PYTHON_HOME: 'C:\Python34'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.5'
+      TOX_ENV: 'py3.5'
+      TOX_PYTHON: 'C:\Python35-x64\python.exe'
+      PYTHON_HOME: 'C:\Python35-x64'
+      PYTHON_ARCH: '64'
+    - PYTHON_VERSION: '3.5'
+      TOX_ENV: 'py3.5'
+      TOX_PYTHON: 'C:\Python35\python.exe'
+      PYTHON_HOME: 'C:\Python35'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '2.7'
+      TOX_ENV: 'py2.7'
+      TOX_PYTHON: 'C:\Python27\python.exe'
+      PYTHON_HOME: 'C:\Python27'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.4'
+      TOX_ENV: 'py3.4'
+      TOX_PYTHON: 'C:\Python34\python.exe'
+      PYTHON_HOME: 'C:\Python34'
+      PYTHON_ARCH: '32'
+    - PYTHON_VERSION: '3.5'
+      TOX_ENV: 'py3.5'
+      TOX_PYTHON: 'C:\Python35-x64\python.exe'
+      PYTHON_HOME: 'C:\Python35-x64'
+      PYTHON_ARCH: '64'
+
+install:
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside a powershell script as it would require us to restart the
+  # parent CMD process).
+  - "SET PATH=%PYTHON_HOME%;%PYTHON_HOME%\\Scripts;%PATH%"
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - 'pip install --disable-pip-version-check --user --upgrade pip'
+  - pip install tox
+
+# command to run tests, e.g. python setup.py test
+test_script:
+  # run tox tests
+  - '%PYTHON_HOME%\Scripts\tox -e %TOX_ENV%'
+
+on_failure:
+  - ps: dir "env:"
+  - ps: get-content .tox\*\log\*
