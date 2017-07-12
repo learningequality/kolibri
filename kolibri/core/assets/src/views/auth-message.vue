@@ -14,15 +14,9 @@
 
 <script>
 
-  const userRoles = [
-    'admin',
-    'adminOrCoach',
-    'deviceOwner',
-    'learner',
-    'registeredUser'
-  ];
+  const userRoles = ['admin', 'adminOrCoach', 'deviceOwner', 'learner', 'registeredUser'];
 
-  module.exports = {
+  export default {
     props: {
       authorizedRole: {
         type: String,
@@ -41,8 +35,10 @@
     },
     computed: {
       defaultDetails() {
-        return this.$tr('mustBeSignedInAsRole', { role: this.$tr(this.authorizedRole) });
-      }
+        return this.$tr('mustBeSignedInAsRole', {
+          role: this.$tr(this.authorizedRole),
+        });
+      },
     },
     $trNameSpace: 'authMessage',
     $trs: {

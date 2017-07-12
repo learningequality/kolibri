@@ -17,7 +17,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'error',
     $trs: {
       errorHeader: 'Error',

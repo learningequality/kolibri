@@ -1,9 +1,9 @@
-const KolibriModule = require('kolibri_module');
-const Vue = require('kolibri.lib.vue');
-const RootVue = require('./views');
-const router = require('kolibri.coreVue.router');
-const { navigationMenuRoutes } = require('./views/shell/navigation-menu');
-const Vuep = require('vuep');
+import KolibriModule from 'kolibri_module';
+import Vue from 'kolibri.lib.vue';
+import RootVue from './views';
+import router from 'kolibri.coreVue.router';
+import { navigationMenuRoutes } from './views/shell/navigation-menu';
+import Vuep from 'vuep';
 
 Vue.use(Vuep);
 
@@ -25,10 +25,10 @@ class StyleGuideModule extends KolibriModule {
           }
 
           return { x: 0, y: 0 };
-        }
-      })
+        },
+      }),
     });
   }
 }
 
-module.exports = new StyleGuideModule();
+export default new StyleGuideModule();

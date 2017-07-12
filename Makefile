@@ -11,7 +11,8 @@ help:
 	@echo "coverage - check code coverage quickly with the default Python"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
-	@echo "sdist - package"
+	@echo "dist - package"
+	@echo "writeversion - updates the kolibri/VERSION file"
 
 clean: clean-build clean-pyc clean-docs clean-static
 
@@ -19,6 +20,7 @@ clean-static:
 	yarn run clean
 
 clean-build:
+	rm -f kolibri/VERSION
 	rm -fr build/
 	rm -fr dist/
 	rm -fr dist-packages-cache/
@@ -65,13 +67,15 @@ docs: clean-docs
 release: clean assets
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
+	@echo ""
+	@echo "Now run something like twine -s dist/* to upload all results in the dist/ folder"
 
 staticdeps: clean
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
-	git describe --tags > kolibri/VERSION
+	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 
 dist: writeversion staticdeps assets compilemessages
 	pip install -r requirements/build.txt
@@ -79,8 +83,8 @@ dist: writeversion staticdeps assets compilemessages
 	python setup.py bdist_wheel --static
 	ls -l dist
 
-pex:
-	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`unzip -p $$whlfile kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
+pex: writeversion
+	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 makedocsmessages:
 	make -C docs/ gettext
@@ -112,21 +116,3 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
-
-BUMPVERSION_CMD = bumpversion --current-version `python -m kolibri --version` $(PART_INCREMENT) --allow-dirty -m "new version" --no-commit --list
-
-minor_increment:
-	$(eval PART_INCREMENT = minor)
-	$(BUMPVERSION_CMD)
-
-patch_increment:
-	$(eval PART_INCREMENT = patch)
-	$(BUMPVERSION_CMD)
-
-release_phase_increment:
-	$(eval PART_INCREMENT = release_phase)
-	$(BUMPVERSION_CMD)
-
-release_number_increment:
-	$(eval PART_INCREMENT = release_number)
-	$(BUMPVERSION_CMD)

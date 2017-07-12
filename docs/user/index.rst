@@ -9,4 +9,4 @@ User Guide
    facility_admin
    coach
    learner
-   
+   faq

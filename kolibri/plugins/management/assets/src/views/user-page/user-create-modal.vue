@@ -35,7 +35,7 @@
           class="user-field"
           v-model="password"/>
         <core-textbox
-          :label="$tr('confirmPassword')"
+          :label="$tr('reEnterPassword')"
           :required="true"
           :invalid="passwordConfirmInvalid"
           :error="$tr('pwMismatchError')"
@@ -64,39 +64,38 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  export default {
     $trNameSpace: 'userCreateModal',
     $trs: {
-      // Modal title
-      addNewAccountTitle: 'Add New Account',
-      // Labels
+      addNewAccountTitle: 'Add new account',
       name: 'Full name',
       username: 'Username',
       password: 'Password',
-      confirmPassword: 'Confirm Password',
+      reEnterPassword: 'Re-enter password',
       typeOfUser: 'Type of user',
-      // Button Labels
       createAccount: 'Create Account',
-      // Select inputs
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
-      // Status Messages
       usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNum: 'Username can only contain letters and digits',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
-      'ui-select': require('keen-ui/src/UiSelect'),
+      iconButton,
+      coreModal,
+      coreTextbox,
+      uiAlert,
+      uiSelect,
     },
     data() {
       return {
@@ -110,7 +109,6 @@
       };
     },
     mounted() {
-      // clear form on load
       Object.assign(this.$data, this.$options.data());
       this.kind = {
         label: this.$tr('learner'),
@@ -121,17 +119,19 @@
       usernameAlreadyExists() {
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
-      usernameIsAlphaNum() {
+      usernameIsAlphaNumUnderscore() {
         return /^\w+$/g.test(this.username);
       },
       usernameInvalid() {
-        return this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNum);
+        return (
+          this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNumUnderscore)
+        );
       },
       usernameInvalidMsg() {
         if (this.usernameAlreadyExists) {
           return this.$tr('usernameAlreadyExists');
-        } else if (!this.usernameIsAlphaNum) {
-          return this.$tr('usernameNotAlphaNum');
+        } else if (!this.usernameIsAlphaNumUnderscore) {
+          return this.$tr('usernameNotAlphaNumUnderscore');
         }
         return '';
       },
@@ -160,30 +160,27 @@
         this.errorMessage = '';
         if (!this.usernameInvalid && !this.passwordConfirmInvalid) {
           this.loading = true;
-
           const newUser = {
             username: this.username,
             full_name: this.fullName,
             kind: this.kind.value,
             password: this.password,
           };
-          // using promise to ensure that the user is created before closing
           this.createUser(newUser).then(
             () => {
               this.close();
             },
             error => {
               this.loading = false;
-
               if (error.status.code === 400) {
-                // access the first error message
                 this.errorMessage = Object.values(error.entity)[0][0];
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
                 this.errorMessage = this.$tr('unknownError');
               }
-            });
+            }
+          );
         }
       },
       close() {
@@ -191,9 +188,7 @@
       },
     },
     vuex: {
-      getters: {
-        users: state => state.pageState.facilityUsers,
-      },
+      getters: { users: state => state.pageState.facilityUsers },
       actions: {
         createUser: actions.createUser,
         displayModal: actions.displayModal,

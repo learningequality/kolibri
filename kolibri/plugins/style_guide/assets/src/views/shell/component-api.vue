@@ -63,28 +63,28 @@
 
 <script>
 
-  const escodegen = require('escodegen');
+  import escodegen from 'escodegen';
 
   /**
    * The programming API for the specific component: its require path, its description,
    * and tables storing a list of its props, events, and slots.
    */
-  module.exports = {
+  export default {
     props: {
       /*
        * A JSON object returned from the vue-loader when parsing the specific component file.
        * Should correspond to the output of require('!vue-loader!path/to/component/file').
        */
       api: {
-        type: Object
+        type: Object,
       },
       /*
        * The path of the component to be used in a require statement if a developer
        * wished to use that require statement.
        */
       requirePath: {
-        type: String
-      }
+        type: String,
+      },
     },
     methods: {
       parsePropType(propType) {
@@ -124,8 +124,8 @@
           return escodegen.generate(propDefault);
         }
         return propDefault;
-      }
-    }
+      },
+    },
   };
 
 </script>

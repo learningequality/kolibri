@@ -1,6 +1,5 @@
 import logging as logger
 import os
-import signal
 import shutil
 import requests
 from requests.adapters import HTTPAdapter
@@ -45,10 +44,14 @@ class Transfer(object):
         self.finalized = False
         self.closed = False
 
-        signal.signal(signal.SIGINT, self._kill_gracefully)
-        signal.signal(signal.SIGTERM, self._kill_gracefully)
+        # TODO (aron): Instead of using signals, have bbq/iceqube add
+        # hooks that the app calls every so often to determine whether it
+        # should shut down or not.
+        # signal.signal(signal.SIGINT, self._kill_gracefully)
+        # signal.signal(signal.SIGTERM, self._kill_gracefully)
 
-        assert not os.path.isdir(dest), "dest must include the target filename, not just directory path"
+        assert not os.path.isdir(
+            dest), "dest must include the target filename, not just directory path"
 
         # ensure the directories in the destination path exist
         try:
@@ -56,7 +59,8 @@ class Transfer(object):
             os.makedirs(filedir)
         except OSError as e:
             if e.errno == 17:  # File exists (folder already created)
-                logger.debug("Not creating directory '{}' as it already exists.".format(filedir))
+                logger.debug(
+                    "Not creating directory '{}' as it already exists.".format(filedir))
             else:
                 raise
 
@@ -64,7 +68,8 @@ class Transfer(object):
             if remove_existing_temp_file:
                 os.remove(self.dest_tmp)
             else:
-                raise ExistingTransferInProgress("Temporary transfer destination '{}' already exists!".format(self.dest_tmp))
+                raise ExistingTransferInProgress(
+                    "Temporary transfer destination '{}' already exists!".format(self.dest_tmp))
 
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
@@ -113,9 +118,11 @@ class Transfer(object):
 
     def finalize(self):
         if not self.completed:
-            raise TransferNotYetCompleted("Transfer must have completed before it can be finalized.")
+            raise TransferNotYetCompleted(
+                "Transfer must have completed before it can be finalized.")
         if not self.closed:
-            raise TransferNotYetClosed("Transfer must be closed before it can be finalized.")
+            raise TransferNotYetClosed(
+                "Transfer must be closed before it can be finalized.")
         if self.finalized:
             return
         self._move_tmp_to_dest()
@@ -137,7 +144,8 @@ class FileDownload(Transfer):
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
         # initiate the download, check for status errors, and calculate download size
-        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
+        self.response = self.session.get(
+            self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
         self.total_size = int(self.response.headers['content-length'])
 

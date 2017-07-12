@@ -21,9 +21,9 @@
 
 <script>
 
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
 
-  module.exports = {
+  export default {
     props: {
       backPageLink: {
         type: Object,

@@ -13,13 +13,13 @@
 
 <script>
 
-  const map = require('lodash/map');
+  import map from 'lodash/map';
 
   /**
    * A component for auto-generating a table of contents for a page. All
    * elements with an [id] attribute defined will be shown in the TOC.
    */
-  module.exports = {
+  export default {
     name: 'TableOfContents',
     data() {
       return {
@@ -29,12 +29,10 @@
       };
     },
     mounted() {
-      this.anchors = map(
-        this.$parent.$el.querySelectorAll('[id]'),
-        (sectionHeadingEl) => ({
-          hash: `#${sectionHeadingEl.id}`,
-          label: sectionHeadingEl.innerText
-        }));
+      this.anchors = map(this.$parent.$el.querySelectorAll('[id]'), sectionHeadingEl => ({
+        hash: `#${sectionHeadingEl.id}`,
+        label: sectionHeadingEl.innerText,
+      }));
     },
     methods: {
       getAnchorLink(hash) {

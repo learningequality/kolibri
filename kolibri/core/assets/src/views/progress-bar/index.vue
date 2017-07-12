@@ -18,7 +18,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'progressBar',
     $trs: {
       label: 'Progress:',

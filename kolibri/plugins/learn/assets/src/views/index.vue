@@ -2,40 +2,8 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
-
-      <form
-        @submit.prevent="search"
-        class="search-box">
-        <input
-          type="search"
-          :placeholder="$tr('search')"
-          v-model="searchQuery"
-          class="search-input"
-          :style="searchInputStyle"
-        >
-        <ui-icon-button
-          :ariaLabel="$tr('clear')"
-          icon="clear"
-          color="black"
-          class="search-clear-button"
-          :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-          @click="searchQuery = ''"
-          size="small"
-        />
-        <div class="search-submit-button-wrapper">
-          <ui-icon-button
-            :ariaLabel="$tr('search')"
-            icon="search"
-            type="secondary"
-            color="white"
-            @click="search"
-            class="search-submit-button"
-          />
-        </div>
-      </form>
-
+      <action-bar-search-box v-if="!isWithinSearchPage"/>
       <channel-switcher @switch="switchChannel"/>
-
     </div>
 
     <div v-if="tabLinksAreVisible" class="tab-links">
@@ -79,46 +47,52 @@
 
 <script>
 
-  const getters = require('../state/getters');
-  const store = require('../state/store');
-  const { PageNames, PageModes } = require('../constants');
-  const { TopLevelPageNames } = require('kolibri.coreVue.vuex.constants');
-  const { isUserLoggedIn } = require('kolibri.coreVue.vuex.getters');
-  const ResponsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
-    mixins: [ResponsiveWindow],
+  import * as getters from '../state/getters';
+  import store from '../state/store';
+  import { PageNames, PageModes } from '../constants';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import explorePage from './explore-page';
+  import contentPage from './content-page';
+  import learnPage from './learn-page';
+  import scratchpadPage from './scratchpad-page';
+  import contentUnavailablePage from './content-unavailable-page';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import channelSwitcher from './channel-switcher';
+  import breadcrumbs from './breadcrumbs';
+  import searchPage from './search-page';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabLink from 'kolibri.coreVue.components.tabLink';
+  import examList from './exam-list';
+  import examPage from './exam-page';
+  import totalPoints from './total-points';
+  import actionBarSearchBox from './action-bar-search-box';
+  export default {
     $trNameSpace: 'learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
       topics: 'Topics',
-      search: 'Search',
       exams: 'Exams',
-      clear: 'Clear',
     },
+    mixins: [responsiveWindow],
     components: {
-      'explore-page': require('./explore-page'),
-      'content-page': require('./content-page'),
-      'learn-page': require('./learn-page'),
-      'scratchpad-page': require('./scratchpad-page'),
-      'content-unavailable-page': require('./content-unavailable-page'),
-      'core-base': require('kolibri.coreVue.components.coreBase'),
-      'channel-switcher': require('./channel-switcher'),
-      'breadcrumbs': require('./breadcrumbs'),
-      'search-page': require('./search-page'),
-      'tabs': require('kolibri.coreVue.components.tabs'),
-      'tab-link': require('kolibri.coreVue.components.tabLink'),
-      'exam-list': require('./exam-list'),
-      'exam-page': require('./exam-page'),
-      'total-points': require('./total-points'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
-    data() {
-      return {
-        searchQuery: this.searchTerm,
-      };
+      explorePage,
+      contentPage,
+      learnPage,
+      scratchpadPage,
+      contentUnavailablePage,
+      coreBase,
+      channelSwitcher,
+      breadcrumbs,
+      searchPage,
+      tabs,
+      tabLink,
+      examList,
+      examPage,
+      totalPoints,
+      actionBarSearchBox,
     },
     methods: {
       switchChannel(channelId) {
@@ -135,42 +109,22 @@
               return;
             }
             break;
-
           case PageModes.LEARN:
             page = PageNames.LEARN_CHANNEL;
             break;
-
           case PageModes.EXAM:
             page = PageNames.EXAM_LIST;
             break;
-
           default:
             page = PageNames.EXPLORE_CHANNEL;
         }
-
         this.$router.push({
           name: page,
           params: { channel_id: channelId },
         });
       },
-      search() {
-        if (this.searchQuery !== '') {
-          this.$router.push({
-            name: PageNames.SEARCH,
-            query: { query: this.searchQuery },
-          });
-        }
-      },
     },
     computed: {
-      searchInputStyle() {
-        if (this.windowSize.breakpoint === 0) {
-          return { width: '40px' };
-        } else if (this.windowSize.breakpoint === 1) {
-          return { width: '150px' };
-        }
-        return {};
-      },
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
       },
@@ -178,12 +132,16 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (this.pageName === PageNames.EXPLORE_CHANNEL ||
-          this.pageName === PageNames.EXPLORE_TOPIC) {
+        if (
+          this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC
+        ) {
           return 'explore-page';
         }
-        if (this.pageName === PageNames.EXPLORE_CONTENT ||
-          this.pageName === PageNames.LEARN_CONTENT) {
+        if (
+          this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT
+        ) {
           return 'content-page';
         }
         if (this.pageName === PageNames.LEARN_CHANNEL) {
@@ -206,34 +164,35 @@
         }
         return null;
       },
-      searchPage() {
-        return { name: PageNames.SEARCH_ROOT };
+      isWithinSearchPage() {
+        return this.pageName === PageNames.SEARCH || this.pageName === PageNames.SEARCH_ROOT;
       },
       tabLinksAreVisible() {
-        return (
-          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
-          this.pageName !== PageNames.SEARCH
-        );
+        return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;
       },
       pointsAreVisible() {
-        return this.windowSize.breakpoint > 0 &&
-          this.pageName !== PageNames.SEARCH;
+        return this.windowSize.breakpoint > 0 && this.pageName !== PageNames.SEARCH;
       },
       recommendedLink() {
-        return { name: PageNames.LEARN_CHANNEL, params: { channel_id: this.channelId } };
+        return {
+          name: PageNames.LEARN_CHANNEL,
+          params: { channel_id: this.channelId },
+        };
       },
       topicsLink() {
-        return { name: PageNames.EXPLORE_CHANNEL, params: { channel_id: this.channelId } };
+        return {
+          name: PageNames.EXPLORE_CHANNEL,
+          params: { channel_id: this.channelId },
+        };
       },
       examsLink() {
-        return { name: PageNames.EXAM_LIST, params: { channel_id: this.channelId } };
+        return {
+          name: PageNames.EXAM_LIST,
+          params: { channel_id: this.channelId },
+        };
       },
     },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
-      },
-    },
+
     vuex: {
       getters: {
         memberships: state => state.learnAppState.memberships,
@@ -244,7 +203,7 @@
         channelId: state => state.core.channels.currentId,
       },
     },
-    store, // make this and all child components aware of the store
+    store,
   };
 
 </script>
@@ -261,45 +220,6 @@
   .points-link
     display: inline-block
     text-decoration: none
-
-  .search-box
-    display: inline-block
-    margin-left: 0.5em
-    background-color: white
-
-  .search-input
-    background-color: white
-    color: $core-text-default
-    border: none
-    width: 150px
-    height: 36px
-    padding: 0
-    padding-left: 0.5em
-    padding-right: 0.5em
-    margin: 0
-    vertical-align: middle
-
-  ::placeholder
-      color: $core-text-annotation
-
-  .search-clear-button
-    color: $core-text-default
-    width: 18px
-    height: 22px
-    visibility: hidden
-    vertical-align: middle
-
-  .search-clear-button-visble
-    visibility: visible
-
-  .search-submit-button
-    width: 36px
-    height: 36px
-
-  .search-submit-button-wrapper
-    display: inline-block
-    background-color: $core-action-dark
-    vertical-align: middle
 
   .points-wrapper
     margin-top: -70px

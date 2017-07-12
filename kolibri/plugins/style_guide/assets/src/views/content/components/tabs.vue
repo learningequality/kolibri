@@ -102,16 +102,20 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('tabs', require('kolibri.coreVue.components.tabs'));
-  FullVue.component('tab-link', require('kolibri.coreVue.components.tabLink'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import tabs from 'kolibri.coreVue.components.tabs';
+  import tabLink from 'kolibri.coreVue.components.tabLink';
+  import tabLinkApi from '!vue-doc!kolibri.coreVue.components.tabLink';
+  FullVue.component('tabs', tabs);
+  FullVue.component('tab-link', tabLink);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <tabs>
     <tab-link
       type="icon-and-title"
@@ -144,9 +148,9 @@
       :link="examsLink">
     </tab-link>
   </tabs>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
     }),
@@ -162,18 +166,18 @@
       // 'tab-link': require('kolibri.coreVue.components.tabLink'),
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!kolibri.coreVue.components.tabLink'), // eslint-disable-line
+      api: tabLinkApi,
       requirePath: 'kolibri.coreVue.components.tabLink',
-    })
+    }),
   };
 
 </script>

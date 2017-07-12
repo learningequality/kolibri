@@ -13,17 +13,21 @@
 
 <script>
 
-  const { totalPoints, currentUserId, isUserLoggedIn, isSuperuser } = require('kolibri.coreVue.vuex.getters');
-  const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
-
-  module.exports = {
+  import {
+    totalPoints,
+    currentUserId,
+    isUserLoggedIn,
+    isSuperuser,
+  } from 'kolibri.coreVue.vuex.getters';
+  import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
+  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import uiTooltip from 'keen-ui/src/UiTooltip';
+  export default {
     $trNameSpace: 'totalPoints',
-    $trs: {
-      pointsTooltip: 'You have earned { points, number } points!',
-    },
+    $trs: { pointsTooltip: 'You have earned { points, number } points!' },
     components: {
-      'points-icon': require('kolibri.coreVue.components.pointsIcon'),
-      'ui-tooltip': require('keen-ui/src/UiTooltip'),
+      pointsIcon,
+      uiTooltip,
     },
     vuex: {
       getters: {
@@ -32,16 +36,12 @@
         isUserLoggedIn,
         isSuperuser,
       },
-      actions: {
-        fetchPoints,
-      }
+      actions: { fetchPoints },
     },
     created() {
       this.fetchPoints();
     },
-    watch: {
-      currentUserId: 'fetchPoints',
-    },
+    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>

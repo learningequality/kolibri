@@ -65,9 +65,11 @@
 
 <script>
 
-  const groupActions = require('../../state/actions/group');
-
-  module.exports = {
+  import * as groupActions from '../../state/actions/group';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     $trNameSpace: 'coachGroupsTable',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
@@ -81,9 +83,9 @@
       noLearners: 'No Learners in this group',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      iconButton,
+      uiButton,
+      uiMenu,
     },
     props: {
       group: {
@@ -91,7 +93,7 @@
         required: true,
         validator(group) {
           return group.name && group.users;
-        }
+        },
       },
       isUngrouped: {
         type: Boolean,
@@ -103,17 +105,16 @@
       },
     },
     data() {
-      return {
-        selectedUsers: [],
-      };
+      return { selectedUsers: [] };
     },
     computed: {
       menuOptions() {
         return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
       },
       allUsersAreSelected() {
-        return (this.group.users.length === this.selectedUsers.length)
-          && (this.selectedUsers.length !== 0);
+        return (
+          this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
+        );
       },
     },
     methods: {
@@ -150,12 +151,8 @@
       },
     },
     vuex: {
-      getters: {
-        groupModalShown: state => state.pageState.groupModalShown,
-      },
-      actions: {
-        displayModal: groupActions.displayModal,
-      },
+      getters: { groupModalShown: state => state.pageState.groupModalShown },
+      actions: { displayModal: groupActions.displayModal },
     },
   };
 

@@ -1,13 +1,23 @@
-const _ = require('lodash');
+import { sortBy, flatten } from 'lodash';
+import typography from '../content/style/typography';
+import checkboxes from '../content/components/checkboxes';
+import radioButtons from '../content/components/radio-buttons';
+import buttons from '../content/components/buttons';
+import textFields from '../content/components/text-fields';
+import simpleModals from '../content/components/simple-modals';
+import filters from '../content/components/filters';
+import breadcrumbs from '../content/components/breadcrumbs';
+import tabs from '../content/components/tabs';
+import homePage from '../content/home/home-page';
 
-const sortSectionLink = (links) => _.sortBy(links, [(link) => link.linkLabel]);
+const sortSectionLink = links => sortBy(links, [link => link.linkLabel]);
 const base = '/style_guide';
 
 const homeRoute = [
   {
     path: `${base}/`,
-    component: require('../content/home/home-page')
-  }
+    component: homePage,
+  },
 ];
 
 // This data structure contains the navigational links pointing to all the
@@ -22,10 +32,10 @@ const navigationMenu = [
         linkLabel: 'Typography',
         linkRoute: {
           path: `${base}/typography`,
-          component: require('../content/style/typography')
-        }
+          component: typography,
+        },
       },
-    ])
+    ]),
   },
   {
     sectionHeading: 'Components',
@@ -34,66 +44,67 @@ const navigationMenu = [
         linkLabel: 'Checkboxes',
         linkRoute: {
           path: `${base}/components/checkboxes`,
-          component: require('../content/components/checkboxes')
-        }
+          component: checkboxes,
+        },
       },
       {
         linkLabel: 'Radio buttons',
         linkRoute: {
           path: `${base}/components/radio-buttons`,
-          component: require('../content/components/radio-buttons')
-        }
+          component: radioButtons,
+        },
       },
       {
         linkLabel: 'Buttons',
         linkRoute: {
           path: `${base}/components/buttons`,
-          component: require('../content/components/buttons')
-        }
+          component: buttons,
+        },
       },
       {
         linkLabel: 'Text fields',
         linkRoute: {
           path: `${base}/components/text-fields`,
-          component: require('../content/components/text-fields')
-        }
+          component: textFields,
+        },
       },
       {
         linkLabel: 'Simple modals',
         linkRoute: {
           path: `${base}/components/simple-modals`,
-          component: require('../content/components/simple-modals')
-        }
+          component: simpleModals,
+        },
       },
       {
         linkLabel: 'Filters',
         linkRoute: {
           path: `${base}/components/filters`,
-          component: require('../content/components/filters')
-        }
+          component: filters,
+        },
       },
       {
         linkLabel: 'Breadcrumbs',
         linkRoute: {
           path: `${base}/components/breadcrumbs`,
-          component: require('../content/components/breadcrumbs')
-        }
+          component: breadcrumbs,
+        },
       },
       {
         linkLabel: 'Tabs',
         linkRoute: {
           path: `${base}/components/tabs`,
-          component: require('../content/components/tabs')
-        }
+          component: tabs,
+        },
       },
-    ])
-  }
+    ]),
+  },
 ];
 
 // Extract the routes from the sideNavMenu so they can be added to VueRouter.
 // Add in the path to the home page.
-const navigationMenuRoutes = _.flatten(homeRoute.concat(
-    navigationMenu.map(menuSection =>
-        menuSection.sectionLinks.map(link => link.linkRoute))));
-
-module.exports = { navigationMenu, navigationMenuRoutes };
+const navigationMenuRoutes = flatten(
+  homeRoute.concat(
+    navigationMenu.map(menuSection => menuSection.sectionLinks.map(link => link.linkRoute))
+  )
+);
+export { navigationMenu, navigationMenuRoutes };

@@ -1,13 +1,9 @@
-
-const Constants = require('../../constants');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreApp = require('kolibri');
-
-const ClassroomResource = coreApp.resources.ClassroomResource;
+import * as Constants from '../../constants';
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { ClassroomResource } from 'kolibri.resources';
 
 // ================================
 // CLASS LIST ACTIONS
-
 
 function _classState(classData) {
   return {
@@ -19,11 +15,9 @@ function _classState(classData) {
 
 function setClassState(store, classId = null) {
   const classCollection = ClassroomResource.getCollection();
-  return classCollection.fetch().then(
-    classes => {
-      store.dispatch('SET_CLASS_INFO', classId, classes.map(_classState));
-    }
-  );
+  return classCollection.fetch().then(classes => {
+    store.dispatch('SET_CLASS_INFO', classId, classes.map(_classState));
+  });
 }
 
 function showClassListPage(store) {
@@ -36,10 +30,11 @@ function showClassListPage(store) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', 'Coach - Classes'); // Follow Naming Scheme
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 // - - - - - Action for Coach Exercise Render Page - - - - - -
 
@@ -47,9 +42,4 @@ function setSelectedAttemptLogIndex(store, index) {
   store.dispatch('SET_SELETED_ATTEMPTLOG_INDEX', index);
 }
 
-
-module.exports = {
-  setClassState,
-  showClassListPage,
-  setSelectedAttemptLogIndex,
-};
+export { setClassState, showClassListPage, setSelectedAttemptLogIndex };

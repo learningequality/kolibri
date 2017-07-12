@@ -22,22 +22,33 @@
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
+
           <td>
-            <ui-progress-circular
-              color="primary"
-              v-show="!numberOfFilesInChannel(channel.id)"
-            />
-            {{ numberOfFilesInChannel(channel.id) }}
+            <transition mode="out-in">
+              <ui-progress-circular
+                v-if="!numberOfFilesInChannel(channel.id)"
+                :size="16"
+                color="primary"
+              />
+              <span v-else>{{ numberOfFilesInChannel(channel.id) }}</span>
+            </transition>
           </td>
           <td>
-            {{ totalSizeOfFilesInChannel(channel.id) }}
+            <transition mode="out-in">
+                <ui-progress-circular
+                  v-if="!totalSizeOfFilesInChannel(channel.id)"
+                  :size="16"
+                  color="primary"
+                />
+                <span v-else>{{ totalSizeOfFilesInChannel(channel.id) }}</span>
+              </transition>
           </td>
           <td>
             <elapsed-time :date="channel.last_updated" />
           </td>
           <td>
             <button
-              @click="selectedChannelIdx=idx"
+              @click="selectedChannelId=channel.id"
               class="delete-button"
             >
               {{ $tr('deleteButtonLabel') }}
@@ -52,7 +63,7 @@
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
       @confirm="handleDeleteChannel()"
-      @cancel="selectedChannelIdx=null"
+      @cancel="selectedChannelId=null"
     />
   </div>
 
@@ -61,39 +72,40 @@
 
 <script>
 
-  const bytesForHumans = require('./bytesForHumans');
-  const manageContentActions = require('../../state/manageContentActions');
-  const map = require('lodash/map');
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import bytesForHumans from './bytesForHumans';
+  import * as manageContentActions from '../../state/manageContentActions';
+  import map from 'lodash/map';
+  import orderBy from 'lodash/orderBy';
+  import find from 'lodash/find';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
+  import deleteChannelModal from './delete-channel-modal';
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  export default {
     data: () => ({
-      selectedChannelIdx: null,
+      selectedChannelId: null,
       notification: null,
     }),
     computed: {
       channelIsSelected() {
-        return this.selectedChannelIdx !== null;
+        return this.selectedChannelId !== null;
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.channelList[this.selectedChannelIdx].title;
+          const channel = find(this.channelList, { id: this.selectedChannelId });
+          return channel.title;
         }
         return '';
       },
       sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
       },
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-progress-circular': require('keen-ui/src/UiProgressCircular'),
-      'delete-channel-modal': require('./delete-channel-modal'),
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      uiButton,
+      uiProgressCircular,
+      deleteChannelModal,
+      elapsedTime,
     },
     mounted() {
       this.addChannelFileSummaries(map(this.channelList, 'id'));
@@ -101,20 +113,20 @@
     watch: {
       channelList(val, newVal) {
         this.addChannelFileSummaries(map(newVal, 'id'));
-      }
+      },
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelIdx !== null) {
-          const channelId = this.channelList[this.selectedChannelIdx].id;
-          this.selectedChannelIdx = null;
+        if (this.selectedChannelId !== null) {
+          const channelId = this.selectedChannelId;
+          this.selectedChannelId = null;
           this.deleteChannel(channelId)
-          .then(() => {
-            this.$emit('deletesuccess');
-          })
-          .catch(() => {
-            this.$emit('deletefailure');
-          });
+            .then(() => {
+              this.$emit('deletesuccess');
+            })
+            .catch(() => {
+              this.$emit('deletefailure');
+            });
         }
       },
       numberOfFilesInChannel(channelId) {
@@ -123,7 +135,9 @@
       },
       totalSizeOfFilesInChannel(channelId) {
         const channel = this.channelFileSummaries[channelId];
-        return this.channelFileSummaries[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
+        return this.channelFileSummaries[channelId]
+          ? bytesForHumans(channel.totalFileSizeInBytes)
+          : '';
       },
     },
     vuex: {
@@ -145,7 +159,7 @@
       nameHeader: 'Channel',
       numContentsHeader: '# Contents',
       sizeHeader: 'Size',
-    }
+    },
   };
 
 </script>

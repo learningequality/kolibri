@@ -44,13 +44,15 @@
 
 <script>
 
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  module.exports = {
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      uiButton,
+      uiIconButton,
+      uiMenu,
     },
     mixins: [responsiveWindow],
     props: {
@@ -72,7 +74,7 @@
       },
       color: {
         type: String,
-        default: 'primary'
+        default: 'primary',
       },
       inAppBar: {
         type: Boolean,

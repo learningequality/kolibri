@@ -11,14 +11,14 @@
 
 <script>
 
-  const router = require('kolibri.coreVue.router');
+  import router from 'kolibri.coreVue.router';
 
-  module.exports = {
+  export default {
     methods: {
       goHome() {
         router.getInstance().replace({ path: '/style_guide/' });
-      }
-    }
+      },
+    },
   };
 
 </script>

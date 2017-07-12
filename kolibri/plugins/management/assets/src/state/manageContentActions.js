@@ -1,13 +1,8 @@
 /* eslint-disable prefer-arrow-callback */
-const { ChannelResource, FileSummaryResource } = require('kolibri').resources;
-const { ContentWizardPages } = require('../constants');
-const actions = require('./actions');
-
-const namespace = 'MANAGE_CONTENT';
-
-const actionTypes = {
-  ADD_CHANNEL_FILE_SUMMARY: `${namespace}_ADD_CHANNEL_FILE_SUMMARY`,
-};
+import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
+import { ContentWizardPages } from '../constants';
+import * as actions from './actions';
+import { mutationTypes } from './manageContentMutations';
 
 /**
  * Force-refresh the ChannelResource Collection
@@ -26,8 +21,7 @@ function refreshChannelList(store) {
  * @returns {Promise}
  */
 function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId).delete()
-  .then(refreshChannelList);
+  return ChannelResource.getModel(channelId).delete().then(refreshChannelList);
 }
 
 /**
@@ -38,14 +32,17 @@ function deleteChannel(store, channelId) {
  * @returns {Promise}
  */
 function addChannelFileSummary(store, channelId) {
-  return FileSummaryResource.getCollection({ channel_id: channelId }).fetch()
-  // FileSummary response is wrapped in an array as workaround on server side
-  .then(function onSuccess([data]) {
-    store.dispatch(actionTypes.ADD_CHANNEL_FILE_SUMMARY, data);
-  })
-  .catch(function onFailure(err) {
-    console.error(err); // eslint-disable-line
-  });
+  return (
+    FileSummaryResource.getCollection({ channel_id: channelId })
+      .fetch()
+      // FileSummary response is wrapped in an array as workaround on server side
+      .then(function onSuccess([data]) {
+        store.dispatch(mutationTypes.ADD_CHANNEL_FILE_SUMMARY, data);
+      })
+      .catch(function onFailure(err) {
+        console.error(err); // eslint-disable-line
+      })
+  );
 }
 
 /**
@@ -57,7 +54,7 @@ function addChannelFileSummary(store, channelId) {
  * @return {undefined}
  */
 function addChannelFileSummaries(store, channelIds) {
-  channelIds.forEach((channelId) => {
+  channelIds.forEach(channelId => {
     addChannelFileSummary(store, channelId);
   });
 }
@@ -131,7 +128,7 @@ function transitionWizardPage(store, transition, params) {
   return undefined;
 }
 
-module.exports = {
+export {
   actionTypes,
   addChannelFileSummaries,
   deleteChannel,

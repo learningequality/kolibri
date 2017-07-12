@@ -26,7 +26,7 @@
       v-if="all.content.length"
       :showViewAll="true"
       :gen-link="genLink"
-      :header="$tr('allContentSectionHeader')"
+      :header="$tr('overviewSectionHeader')"
       :contents="all.content" />
   </div>
 
@@ -35,10 +35,11 @@
 
 <script>
 
-  const { PageNames } = require('../../constants');
-  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import pageHeader from '../page-header';
+  import contentCardCarousel from '../content-card-carousel';
+  export default {
     $trNameSpace: 'learnPageIndex',
     $trs: {
       pageHeader: 'Recommended',
@@ -48,11 +49,11 @@
       popularSectionSubHeader: '{numOfItems, number} popular items',
       suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
       resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
-      allContentSectionHeader: 'All items',
+      overviewSectionHeader: 'Overview',
     },
     components: {
-      'page-header': require('../page-header'),
-      'content-card-carousel': require('../content-card-carousel'),
+      pageHeader,
+      contentCardCarousel,
     },
     methods: {
       genLink(id, kind) {
@@ -66,12 +67,12 @@
           name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
-      }
+      },
     },
     vuex: {
       getters: {
         all: state => state.pageState.all,
-        channelId: (state) => getCurrentChannelObject(state).id,
+        channelId: state => getCurrentChannelObject(state).id,
         recommendations: state => state.pageState.recommendations,
       },
     },

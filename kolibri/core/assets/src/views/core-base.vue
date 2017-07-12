@@ -32,13 +32,15 @@
 
 <script>
 
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const values = require('lodash/values');
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   const PADDING = 16;
-
-  module.exports = {
+  import appBar from './app-bar';
+  import navBar from 'kolibri.coreVue.components.navBar';
+  import errorBox from './error-box';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  export default {
     mixins: [responsiveWindow],
     props: {
       // This prop breaks the separation between core and plugins.
@@ -59,10 +61,10 @@
       },
     },
     components: {
-      'app-bar': require('./app-bar'),
-      'nav-bar': require('kolibri.coreVue.components.navBar'),
-      'error-box': require('./error-box'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      appBar,
+      navBar,
+      errorBox,
+      loadingSpinner,
     },
     vuex: {
       getters: {
@@ -85,13 +87,11 @@
         }
       },
     },
-    data: () => ({
-      navShown: false,
-    }),
+    data: () => ({ navShown: false }),
     methods: {
       updateDocumentTitle(newTitle) {
         document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
-      }
+      },
     },
     computed: {
       mobile() {

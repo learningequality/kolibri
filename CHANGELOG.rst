@@ -14,6 +14,7 @@ Changes are ordered reverse-chronologically.
  - Newly imported channels are given a 'last_updated' timestamp
  - Add progress annotation for topics, lazily loaded to increase page load performance
  - Add API endpoint for getting number and total size of files in a channel
+ - Migrate all JS linting to prettier rather than eslint
 
 
 0.4

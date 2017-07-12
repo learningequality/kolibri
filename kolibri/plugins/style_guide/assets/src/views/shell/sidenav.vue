@@ -20,14 +20,14 @@
 
 <script>
 
-  const { navigationMenu } = require('./navigation-menu.js');
+  import { navigationMenu } from './navigation-menu.js';
 
-  module.exports = {
+  export default {
     data() {
       return {
-        navigationMenu
+        navigationMenu,
       };
-    }
+    },
   };
 
 </script>

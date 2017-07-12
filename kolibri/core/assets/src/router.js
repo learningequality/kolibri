@@ -1,7 +1,6 @@
+import VueRouter from 'vue-router';
 
-const VueRouter = require('vue-router');
-
-const Vue = require('vue');
+import Vue from 'vue';
 
 Vue.use(VueRouter);
 
@@ -26,15 +25,16 @@ class Router {
     }
   }
 
-  init(routes, routerOptions = {}) {
-    routes.forEach((route) => {
+
+  init(routes) {
+    routes.forEach(route => {
       if (route.handler) {
         // route.component = {};
         this._actions[route.name] = route.handler;
         delete route.handler;
       }
     });
-    this._vueRouter = new VueRouter(Object.assign({ routes }, routerOptions));
+    this._vueRouter = new VueRouter(Object.assign({ routes }));
     this._vueRouter.beforeEach(this._hook.bind(this));
     return this.getInstance();
   }
@@ -44,4 +44,6 @@ class Router {
   }
 }
 
-module.exports = new Router();
+const router = new Router();
+
+export { router as default };

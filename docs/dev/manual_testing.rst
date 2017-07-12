@@ -88,3 +88,15 @@ To use this, ensure that you have development dependencies installed, and instal
   DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.debug_panel
 
 This will activate the debug panel, and will display in the Dev tools panel of Chrome. This panel will track all page loads and API requests. However, all data bootstrapping into the template will be disabled, as our data bootstrapping prevents the page load request from being profiled, and also does not profile the bootstrapped API requests.
+
+
+Generating User Data
+--------------------
+
+For manual testing, it is sometimes helpful to have generated user data, particularly for Coach and Admin facing functionality.
+
+In order to do this, a management command is available::
+
+  kolibri manage generateuserdata
+
+This will generate user data for the each currently existing channel on the system. Use the `--help` flag for options.

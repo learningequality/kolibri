@@ -44,13 +44,10 @@
 
 <script>
 
-  require('html5media/dist/api/1.1.8/html5media');
+  import 'html5media/dist/api/1.1.8/html5media';
 
-  module.exports = {
-
-    props: [
-      'defaultFile',
-    ],
+  export default {
+    props: ['defaultFile'],
 
     data: () => ({
       isPlaying: false,
@@ -171,8 +168,10 @@
       },
 
       recordProgress() {
-        this.$emit('updateProgress', Math.max((this.displayTime
-          - this.progressStartingPoint) / Math.floor(this.max), 0));
+        this.$emit(
+          'updateProgress',
+          Math.max((this.displayTime - this.progressStartingPoint) / Math.floor(this.max), 0)
+        );
         this.progressStartingPoint = this.$refs.audio.currentTime;
       },
     },

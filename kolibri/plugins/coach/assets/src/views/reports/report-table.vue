@@ -13,10 +13,10 @@
 
 <script>
 
-  module.exports = {
+  export default {
     props: {
       caption: { type: String },
-    }
+    },
   };
 
 </script>

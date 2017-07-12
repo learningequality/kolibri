@@ -94,15 +94,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-icon', require('keen-ui/src/UiIcon'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiIcon from 'keen-ui/src/UiIcon';
+
+  FullVue.component('ui-icon', UiIcon);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div>
     <router-link :to="topicsLink">
       <span>{{ $tr('Topics') }}</span>
@@ -116,9 +119,9 @@
       <span>{{ $tr('Decimal Addition') }}</span>
     </router-link>
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
     }),
@@ -128,16 +131,16 @@
       decimalAddLink: function() { return { path: this.$route.path } },
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-    })
+    }),
   };
 
 </script>

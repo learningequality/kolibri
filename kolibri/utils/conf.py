@@ -64,6 +64,14 @@ config['FIRST_RUN'] = True
 
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
+
+def update(new_values):
+    """
+    Updates current configuration with ``new_values``. Does not save to file.
+    """
+    config.update(new_values)
+
+
 def save(first_run=False):
     """Saves the current state of the configuration"""
     config['FIRST_RUN'] = first_run

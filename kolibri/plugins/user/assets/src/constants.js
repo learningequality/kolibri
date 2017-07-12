@@ -1,4 +1,3 @@
-
 // a name for every URL pattern
 const PageNames = {
   ROOT: 'ROOT',
@@ -7,6 +6,4 @@ const PageNames = {
   PROFILE: 'PROFILE',
 };
 
-module.exports = {
-  PageNames,
-};
+export { PageNames };

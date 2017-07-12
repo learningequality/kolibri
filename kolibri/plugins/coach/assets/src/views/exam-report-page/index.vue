@@ -68,25 +68,25 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const actions = require('../../state/actions/exam');
-  const sumBy = require('lodash/sumBy');
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions/exam';
+  import sumBy from 'lodash/sumBy';
 
-  module.exports = {
+  export default {
     computed: {
       noExamData() {
         return this.examTakers.length === 0;
       },
       averageScore() {
         const totalScores = sumBy(this.examsInProgress, 'score');
-        return (totalScores / this.takenBy) / this.exam.question_count;
+        return totalScores / this.takenBy / this.exam.question_count;
       },
       examsInProgress() {
         return this.examTakers.filter(examTaker => examTaker.progress !== undefined);
       },
       takenBy() {
         return this.examsInProgress.length;
-      }
+      },
     },
     methods: {
       examDetailPageLink(id) {
@@ -96,7 +96,7 @@
             classId: this.classId,
             channelId: this.channelId,
             examId: this.exam.id,
-            userId: id
+            userId: id,
           },
         };
       },

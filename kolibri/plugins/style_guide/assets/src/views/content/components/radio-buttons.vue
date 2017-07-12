@@ -80,15 +80,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-radio', require('keen-ui/src/UiRadio'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiRadio from 'keen-ui/src/UiRadio';
+  import UiRadioApi from '!vue-doc!keen-ui/src/UiRadio';
+  FullVue.component('ui-radio', UiRadio);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div class="examples">
     <div class="example">
       <h4>Normal</h4>
@@ -110,9 +113,9 @@
       </ui-radio>
     </div>
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       value: '1',
@@ -121,18 +124,18 @@
       // textbox: require('keen-ui/src/UiRadio')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiRadio'), // eslint-disable-line
+      api: UiRadioApi,
       requirePath: 'keen-ui/src/UiRadio',
-    })
+    }),
   };
 
 </script>

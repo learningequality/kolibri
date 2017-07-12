@@ -15,13 +15,15 @@ Architecture
 .. toctree::
    :maxdepth: 1
 
-   tests
-   stack
-   plugins
-   building
-   conventions
-   frontend
-   i18n
+   architecture/tests
+   architecture/stack
+   architecture/plugins
+   architecture/building
+   architecture/conventions
+   architecture/frontend
+   architecture/i18n
+   architecture/release_process
+   architecture/version_numbers
 
 .. _themes:
 

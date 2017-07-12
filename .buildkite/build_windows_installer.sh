@@ -22,8 +22,8 @@ cp $PARENT_PATH/dist/*.whl $KOLIBRI_WINDOWS_PATH
 
 # Build kolibri windows installer docker image.
 cd $KOLIBRI_DOCKER_PATH
-KOLBIRI_VERSION=$(cat $PARENT_PATH/kolibri/VERSION)
-DOCKER_BUILD_CMD="docker build -t $KOLBIRI_VERSION-build ."
+KOLIBRI_VERSION=$(cat $PARENT_PATH/kolibri/VERSION)
+DOCKER_BUILD_CMD="docker build -t $KOLIBRI_VERSION-build ."
 $DOCKER_BUILD_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error running $DOCKER_BUILD_CMD."
@@ -31,17 +31,16 @@ if [ $? -ne 0 ]; then
 fi
 
 INSTALLER_PATH="$KOLIBRI_DOCKER_PATH/installer"
-rm -rf $INSTALLER_PATH
-mkdir $INSTALLER_PATH
+mkdir -p $INSTALLER_PATH
 
 # Run kolibri windows installer docker image.
-DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installer/ $KOLBIRI_VERSION-build"
+DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installer/ $KOLIBRI_VERSION-build"
 $DOCKER_RUN_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error running $DOCKER_RUN_CMD."
     exit 1
 fi
 
-# Upload built kolibri windows installer at buildkite artifact. 
+# Upload built kolibri windows installer at buildkite artifact.
 cd $KOLIBRI_DOCKER_PATH
 buildkite-agent artifact upload './installer/*.exe'

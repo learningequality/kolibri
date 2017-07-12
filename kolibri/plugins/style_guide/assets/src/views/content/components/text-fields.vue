@@ -138,15 +138,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('textbox', require('kolibri.coreVue.components.textbox'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import textbox from 'kolibri.coreVue.components.textbox';
+  import textboxApi from '!vue-doc!kolibri.coreVue.components.textbox';
+  FullVue.component('textbox', textbox);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div>
 
     <div class="example">
@@ -198,9 +201,9 @@
     </div>
 
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       name: '',
@@ -210,18 +213,18 @@
       // textbox: require('keen-ui/src/UiTextbox')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!kolibri.coreVue.components.textbox'), // eslint-disable-line
+      api: textboxApi,
       requirePath: 'kolibri.coreVue.components.textbox',
-    })
+    }),
   };
 
 </script>

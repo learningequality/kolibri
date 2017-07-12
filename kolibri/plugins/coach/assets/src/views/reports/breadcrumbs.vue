@@ -7,18 +7,14 @@
 
 <script>
 
-  const find = require('lodash/find');
-  const CoachConstants = require('../../constants');
-  const coachGetters = require('../../state/getters/main');
-
-  module.exports = {
+  import find from 'lodash/find';
+  import * as CoachConstants from '../../constants';
+  import * as coachGetters from '../../state/getters/main';
+  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  export default {
     $trNameSpace: 'reportBreadcrumbs',
-    $trs: {
-      channels: 'Channels',
-    },
-    components: {
-      breadcrumbs: require('kolibri.coreVue.components.breadcrumbs'),
-    },
+    $trs: { channels: 'Channels' },
+    components: { breadcrumbs },
     computed: {
       channelTitle() {
         return find(this.channels, channel => channel.id === this.pageState.channelId).title;
@@ -42,9 +38,7 @@
               params: { classId: this.classId },
             },
           },
-          {
-            text: this.channelTitle
-          }
+          { text: this.channelTitle },
         ];
       },
       recentItemCrumbs() {
@@ -66,9 +60,7 @@
               },
             },
           },
-          {
-            text: this.pageState.contentScopeSummary.title
-          }
+          { text: this.pageState.contentScopeSummary.title },
         ];
       },
       topicCrumbs() {
@@ -85,7 +77,6 @@
           ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
             const breadcrumb = { text: item.title };
             if (index) {
-              // links to parent topics
               breadcrumb.link = {
                 name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
                 params: {
@@ -107,9 +98,7 @@
             return breadcrumb;
           }),
           // current item
-          {
-            text: this.pageState.contentScopeSummary.title
-          }
+          { text: this.pageState.contentScopeSummary.title },
         ];
       },
     },

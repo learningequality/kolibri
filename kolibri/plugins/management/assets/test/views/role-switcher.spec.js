@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-const Vue = require('vue-test');
-const assert = require('assert');
-const roleSwitcherComponent = require('../../src/views/class-edit-page/role-switcher.vue');
+import Vue from 'vue-test';
+import assert from 'assert';
+import roleSwitcherComponent from '../../src/views/class-edit-page/role-switcher.vue';
 
 function makeWrapper(propsData) {
   const Ctor = Vue.extend(roleSwitcherComponent);
@@ -16,7 +16,7 @@ function getElements(wrapper) {
 }
 
 function hasPrimaryClass(el) {
-  return Array.from(el.classList).find((x) => x.match(/--color-primary/));
+  return Array.from(el.classList).find(x => x.match(/--color-primary/));
 }
 
 describe('role-switcher component', () => {
