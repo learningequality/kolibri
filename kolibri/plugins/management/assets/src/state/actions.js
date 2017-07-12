@@ -581,7 +581,7 @@ function startExportWizard(store) {
 }
 
 // rename to 'closeImportExportWizard'
-function cancelImportExportWizard(store) {
+function closeImportExportWizard(store) {
   showWizardPage(store, false); // should make None an explicit state
 }
 
@@ -600,7 +600,7 @@ function pollTasksAndChannels(store) {
         // (this can be removed when we support more than one
         // concurrent task.)
         if (taskList.length && store.state.pageState.wizardState.shown) {
-          cancelImportExportWizard(store);
+          closeImportExportWizard(store);
         }
       });
     },
@@ -627,7 +627,7 @@ function triggerLocalContentImportTask(store, driveId) {
   localImportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
@@ -641,7 +641,7 @@ function triggerLocalContentExportTask(store, driveId) {
   localExportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
@@ -655,7 +655,7 @@ function triggerRemoteContentImportTask(store, channelId) {
   return remoteImportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       if (error.status.code === 404) {
@@ -713,6 +713,7 @@ export {
   startImportWizard,
   startExportWizard,
   showWizardPage,
+  closeImportExportWizard,
   triggerLocalContentExportTask,
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
