@@ -20,9 +20,9 @@
         class="username-text">
         <template v-if="windowSize.breakpoint > 2">
           {{ username }}
-          <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
-          <template v-if="isAdmin">({{ $tr('admin') }})</template>
-          <template v-if="isCoach">({{ $tr('coach') }})</template>
+          <template v-if="isSuperuser">{{ $tr('superuser') }}</template>
+          <template v-if="isAdmin">{{ $tr('admin') }}</template>
+          <template v-if="isCoach">{{ $tr('coach') }}</template>
         </template>
         <ui-menu
           slot="dropdown"
@@ -68,9 +68,9 @@
       profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
-      superuser: 'Device owner',
-      admin: 'Admin',
-      coach: 'Coach',
+      superuser: '(Device owner)',
+      admin: '(Admin)',
+      coach: '(Coach)',
     },
     props: {
       title: {

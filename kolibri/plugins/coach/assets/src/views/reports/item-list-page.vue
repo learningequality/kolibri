@@ -22,7 +22,7 @@
         <tr>
           <header-cell
             :text="$tr('name')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"/>
           <header-cell
@@ -35,7 +35,7 @@
             :column="tableColumns.CONTENT"/>
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
             :column="tableColumns.DATE"/>
         </tr>
@@ -72,7 +72,11 @@
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
   import activityCell from './table-cells/activity-cell';
+
+  import alignMixin from './align-mixin';
+
   export default {
+    mixins: [alignMixin],
     $trNameSpace: 'itemReportPage',
     $trs: {
       name: 'Name',
