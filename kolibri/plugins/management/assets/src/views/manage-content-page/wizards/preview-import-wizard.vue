@@ -15,12 +15,14 @@
         <ul class="channel-list">
           <li v-for="(channel, i) in channelList" :key="i" >
             {{ channel.name }}
+            <span v-if="channelIsInstalled(channel.id)" class="already-installed">
+              (Already installed)
+            </span>
           </li>
         </ul>
       </div>
 
       <!-- REMOTE IMPORT PREVIEW -->
-
       <div class="button-wrapper">
         <icon-button @click="cancel" :text="$tr('cancelButtonLabel')" />
         <icon-button
@@ -37,9 +39,10 @@
 
 
 <script>
-  import coreModal from "kolibri.coreVue.components.coreModal";
-  import iconButton from "kolibri.coreVue.components.iconButton";
-  import { transitionWizardPage } from "../../../state/manageContentActions";
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import { transitionWizardPage } from '../../../state/manageContentActions';
+  import find from 'lodash/find';
 
   export default {
     components: {
@@ -81,6 +84,9 @@
     vuex: {
       getters: {
         sourceMeta: state => state.pageState.wizardState.meta,
+        channelIsInstalled: state => channelId => {
+          return find(state.core.channels.list, { id: channelId })
+        },
       },
       actions: {
         transitionWizardPage,
@@ -112,5 +118,7 @@
   .channel-list li
     margin: 1rem 0
 
+  .already-installed
+    font-weight: bold
 
 </style>
