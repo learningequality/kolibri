@@ -24,8 +24,16 @@ def parse_timezonestamp(value):
     return value.astimezone(tz)
 
 def create_timezonestamp(value):
-    if value.tzinfo:
+    if value.tzinfo and hasattr(value.tzinfo, 'zone'):
+        # We have a pytz timezone, we can work with this
         tz = value.tzinfo.zone
+    elif value.tzinfo:
+        # Got some timezone data, but it's not a pytz timezone
+        # Let's just assume someone used dateutil parser on a UTC
+        # ISO format timestamp
+        # Fixes https://github.com/learningequality/kolibri/issues/1824
+        tz = pytz.utc
+        value = value.astimezone(tz)
     else:
         tz = timezone.get_current_timezone().zone
         value = timezone.make_aware(value, timezone.get_current_timezone())
