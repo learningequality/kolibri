@@ -15,5 +15,7 @@ RUN apt-get install -y python2.7 python3.6 python-pip git nodejs yarn gettext py
 COPY . /kolibri
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
+# add buildkite pipeline specific installation here:
+RUN pip install requests github3.py
 CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && yarn install && make dist && cp /kolibri/dist/* /kolibridist/
 
