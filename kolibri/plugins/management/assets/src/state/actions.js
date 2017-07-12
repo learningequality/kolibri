@@ -580,9 +580,8 @@ function startExportWizard(store) {
   updateWizardLocalDriveList(store);
 }
 
-// rename to 'closeImportExportWizard'
 function closeImportExportWizard(store) {
-  showWizardPage(store, false); // should make None an explicit state
+  showWizardPage(store, false);
 }
 
 // called from a timer to continually update UI
