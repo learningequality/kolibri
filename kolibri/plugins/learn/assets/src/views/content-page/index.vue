@@ -44,7 +44,7 @@
       :extraFields="content.extra_fields"
       :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn float" :text="$tr('nextContent')" alignment="right">
-        <mat-svg v-if="align==='right'" class="arrow" category="navigation" name="chevron_right"/>
+        <mat-svg v-if="isRtl" class="arrow" category="navigation" name="chevron_right"/>
         <mat-svg v-else class="arrow" category="navigation" name="chevron_left"/>
       </icon-button>
     </assessment-wrapper>
@@ -92,7 +92,7 @@
       :title="content.next_content.title">
 
       <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right">
-        <mat-svg v-if="align==='right'" class="arrow" category="navigation" name="chevron_right"/>
+        <mat-svg v-if="isRtl" class="arrow" category="navigation" name="chevron_right"/>
         <mat-svg v-else class="arrow" category="navigation" name="chevron_left"/>
       </icon-button>
     </content-points>
@@ -169,6 +169,9 @@
           return true;
         }
         return false;
+      },
+      isRtl() {
+        return Vue.bidiDirection === 'rtl';
       },
     },
     components: {

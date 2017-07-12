@@ -15,9 +15,9 @@ const mapping = {
   8: '8',
   9: '9',
   ';': '⁏',
-  '?': '␚',
+  '?': '⸮',
   A: 'A',
-  B: '&#x1660;',
+  B: 'ᙠ',
   C: 'Ɔ',
   D: 'ᗡ',
   E: 'Ǝ',
@@ -69,8 +69,6 @@ const mapping = {
   y: 'y',
   z: 'z',
 };
-
-console.log(mapping);
 
 /**
  * @typedef GeneratorOptions
@@ -146,7 +144,6 @@ function transformSentences(text, options) {
       words.forEach(word => {
         word = Array.from(word)
           .map(char => {
-            console.log(char);
             return mapping[char] ? mapping[char] : char;
           })
           .join('');

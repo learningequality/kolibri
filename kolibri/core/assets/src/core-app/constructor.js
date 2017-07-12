@@ -35,6 +35,7 @@ const publicMethods = [
 
 let toFakeRTL;
 // This will get set during initialization if the dummy language
+// has been activated
 
 /**
  * Constructor for object that forms the public API for the Kolibri
