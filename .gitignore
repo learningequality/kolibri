@@ -33,7 +33,6 @@ htmlcov/
 kolibrihome_test/
 
 # Translations
-*.mo
 kolibri/locale/en/
 
 # Mr Developer
