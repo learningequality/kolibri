@@ -15,7 +15,6 @@
     * BUILDKITE_COMMIT = Git commit hash that the build was made from.
     * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
 """
-import json
 import logging
 import os
 import sys
@@ -203,7 +202,7 @@ def upload_artifacts():
         ))
         if get_release_asset_url.status_code == 200:
             # Definitely a release!
-            release_id = json.loads(get_release_asset_url.content)['id']
+            release_id = get_release_asset_url.json()['id']
             url = "https://api.github.com/repos/{owner}/{repo}/releases/{id}/assets".format(
                 owner=REPO_OWNER,
                 repo=REPO_NAME,
