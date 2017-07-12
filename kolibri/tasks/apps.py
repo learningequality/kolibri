@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import atexit
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -17,3 +18,4 @@ class KolibriTasksConfig(AppConfig):
         global client
         client = SimpleClient(app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH)
         client.clear(force=True)
+        atexit.register(client.shutdown)
