@@ -5,6 +5,12 @@
     "extensions": [
         "mp4"
       ]
+    },
+    {
+    "name": "audio",
+    "extensions": [
+        "mp3"
+      ]
     }
   ]
 }
