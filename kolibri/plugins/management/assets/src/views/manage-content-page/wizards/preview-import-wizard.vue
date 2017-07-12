@@ -58,6 +58,7 @@
 
 
 <script>
+
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import { transitionWizardPage } from '../../../state/manageContentActions';
@@ -66,20 +67,20 @@
   export default {
     components: {
       coreModal,
-      iconButton
+      iconButton,
     },
     computed: {
       localImportPrompt() {
         return this.$tr('localImportPrompt', {
           numChannels: this.channelList.length,
           driveName: this.sourceMeta.driveName,
-        })
+        });
       },
       importSource() {
         if (this.sourceMeta.driveId !== undefined) {
-          return "local";
+          return 'local';
         }
-        return "remote";
+        return 'remote';
       },
       channelList() {
         return this.sourceMeta.channelList;
@@ -105,25 +106,27 @@
         error: state => state.pageState.wizardState.error,
         sourceMeta: state => state.pageState.wizardState.meta,
         coreChannel: state => channelId => {
-          return find(state.core.channels.list, { id: channelId })
+          return find(state.core.channels.list, { id: channelId });
         },
       },
       actions: {
         transitionWizardPage,
-      }
+      },
     },
-    $trNameSpace: "previewImportWizard",
+    $trNameSpace: 'previewImportWizard',
     $trs: {
-      cancelButtonLabel: "Cancel",
+      cancelButtonLabel: 'Cancel',
       channelAlreadyInstalled: 'Already installed',
-      confirmButtonLabel: "Import",
-      localImportPrompt: 'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
-      localImportTitle: "Import from local drive",
+      confirmButtonLabel: 'Import',
+      localImportPrompt:
+        'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
+      localImportTitle: 'Import from local drive',
       remoteImportPrompt: 'You are about to import 1 channel',
-      remoteImporttitle: "Import from internet",
-      title: "Import from local drive",
-    }
+      remoteImporttitle: 'Import from internet',
+      title: 'Import from local drive',
+    },
   };
+
 </script>
 
 

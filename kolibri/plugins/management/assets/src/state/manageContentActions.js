@@ -122,8 +122,6 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
-    // Now: Start exporting immediately
-    // Later: Show preview of exported channels
     if (transition === FORWARD) {
       return actions.triggerLocalContentExportTask(store, params.driveId);
     }
@@ -131,6 +129,9 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Local Import Preview
   if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.IMPORT_LOCAL);
+    }
     if (transition === FORWARD) {
       return actions.triggerLocalContentImportTask(store, params.sourceId);
     }
@@ -138,6 +139,9 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Network Import Preview
   if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.IMPORT_NETWORK);
+    }
     if (transition === FORWARD) {
       return actions.triggerRemoteContentImportTask(store, params.sourceId);
     }

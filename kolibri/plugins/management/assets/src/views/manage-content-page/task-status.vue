@@ -12,6 +12,7 @@
 
 
 <script>
+
   /* eslint-env node */
 
   import * as manageContentActions from '../../state/manageContentActions';
