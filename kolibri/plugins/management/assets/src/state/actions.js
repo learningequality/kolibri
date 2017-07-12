@@ -580,23 +580,6 @@ function startExportWizard(store) {
   updateWizardLocalDriveList(store);
 }
 
-function showImportNetworkWizard(store) {
-  showWizardPage(store, ContentWizardPages.IMPORT_NETWORK);
-}
-
-function showImportLocalWizard(store) {
-  showWizardPage(store, ContentWizardPages.IMPORT_LOCAL);
-  updateWizardLocalDriveList(store);
-}
-
-function showLocalImportPreviewWizard(store, params) {
-  showWizardPage(store, ContentWizardPages.LOCAL_IMPORT_PREVIEW, params);
-}
-
-function showNetworkImportPreviewWizard(store, params) {
-  showWizardPage(store, ContentWizardPages.REMOTE_IMPORT_PREVIEW, params);
-}
-
 // rename to 'closeImportExportWizard'
 function cancelImportExportWizard(store) {
   showWizardPage(store, false); // should make None an explicit state
@@ -729,16 +712,11 @@ export {
   clearTask,
   startImportWizard,
   startExportWizard,
-  showImportNetworkWizard,
-  showLocalImportPreviewWizard,
-  showNetworkImportPreviewWizard,
-  showImportLocalWizard,
-  cancelImportExportWizard,
+  showWizardPage,
   triggerLocalContentExportTask,
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
   updateWizardLocalDriveList,
   showDataPage,
   showScratchpad,
-  showWizardPage
 };

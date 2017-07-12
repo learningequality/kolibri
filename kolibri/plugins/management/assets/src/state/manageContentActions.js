@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback */
 import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../constants';
 import * as actions from './actions';
@@ -8,9 +7,8 @@ import find from 'lodash/find';
 /**
  * Force-refresh the ChannelResource Collection
  *
- * @param {Object} store - vuex store object
  */
-export function refreshChannelList(store) {
+export function refreshChannelList() {
   return ChannelResource.getCollection().fetch({}, true);
 }
 
@@ -75,35 +73,34 @@ export function transitionWizardPage(store, transition, params) {
   const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
+  const showPage = actions.showWizardPage.bind(null, store);
+
   if (transition === CANCEL) {
-    return actions.cancelImportExportWizard(store);
+    return showPage(false);
   }
 
   // At Choose Source Wizard
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
-    // Now: Shows list of local drives
-    // Later: `source` is driveId, and next screen is preview of imported channels
     if (transition === FORWARD && params.source === 'local') {
-      return actions.showImportLocalWizard(store);
+      actions.updateWizardLocalDriveList(store);
+      return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
-    // Now: Show text box to get channelId
-    // Later: Same
     if (transition === FORWARD && params.source === 'network') {
-      return actions.showImportNetworkWizard(store);
+      return showPage(ContentWizardPages.IMPORT_NETWORK);
     }
   }
 
   // At Local Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
     if (transition === BACKWARD) {
-      return actions.startImportWizard(store);
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
     if (transition === FORWARD) {
       const driveInfo = find(
         store.state.pageState.wizardState.driveList,
         { id: params.driveId }
       );
-      return actions.showLocalImportPreviewWizard(store, {
+      return showPage(ContentWizardPages.LOCAL_IMPORT_PREVIEW, {
         driveId: params.driveId,
         driveName: driveInfo.name,
         channelList: driveInfo.metadata.channels,
@@ -114,10 +111,10 @@ export function transitionWizardPage(store, transition, params) {
   // At Network Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
     if (transition === BACKWARD) {
-      return actions.startImportWizard(store);
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
     if (transition === FORWARD) {
-      return actions.showNetworkImportPreviewWizard(store, {
+      return showPage(ContentWizardPages.REMOTE_IMPORT_PREVIEW, {
         channelId: params.channelId,
       });
     }
