@@ -60,16 +60,17 @@ export function addChannelFileSummaries(store, channelIds) {
 
 /**
  * State machine for the Import/Export wizards.
- * Only handles forward and cancel transitions.
+ * Only handles forward, back, and cancel transitions.
  *
  * @param store - vuex store object
- * @param {string} transition - 'forward', 'cancel'
+ * @param {string} transition - 'forward', 'backward', or 'cancel'
  * @param {Object} params - data needed to execute transition
  * @returns {undefined}
  */
 export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
   const FORWARD = 'forward';
+  const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
   const showPage = actions.showWizardPage.bind(null, store);
@@ -91,6 +92,9 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Local Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
+    }
     if (transition === FORWARD) {
       const driveInfo = find(
         store.state.pageState.wizardState.driveList,
@@ -106,6 +110,9 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Network Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
+    }
     if (transition === FORWARD) {
       return showPage(ContentWizardPages.REMOTE_IMPORT_PREVIEW, {
         channelId: params.channelId,
@@ -115,6 +122,8 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
+    // Now: Start exporting immediately
+    // Later: Show preview of exported channels
     if (transition === FORWARD) {
       return actions.triggerLocalContentExportTask(store, params.driveId);
     }
