@@ -130,7 +130,8 @@
 
   .search-buttons-wrapper
     display: table-cell
-    width: 76px
+    text-align: right
+    width: 78px
 
   .search-clear-button
     visibility: hidden

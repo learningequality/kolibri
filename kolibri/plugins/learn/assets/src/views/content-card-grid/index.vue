@@ -6,10 +6,20 @@
       <span v-if="subheader"> {{subheader}} </span>
     </header>
 
-    <span v-for="content in contents" class="content-card">
+    <ui-select
+      v-if="filter"
+      :label="$tr('display')"
+      :options="filterOptions"
+      v-model="selectedFilter"
+      class="filter"
+    />
+
+    <span
+      v-for="content in contents" class="content-card"
+      v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
       <slot
         :title="content.title"
-        :thumbnail="content.thumnail"
+        :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
         :id="content.id">
@@ -32,8 +42,28 @@
 <script>
 
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import some from 'lodash/some';
+  import forEach from 'lodash/forEach';
+  import uiSelect from 'keen-ui/src/UiSelect';
   import contentCard from '../content-card';
+
   export default {
+    $trNameSpace: 'contentCardGrid',
+    $trs: {
+      display: 'Display',
+      all: 'All content ({ num, number })',
+      topics: 'Topics ({ num, number })',
+      exercises: 'Exercises ({ num, number })',
+      videos: 'Videos ({ num, number })',
+      audio: 'Audio ({ num, number })',
+      documents: 'Documents ({ num, number })',
+      html5: 'HTML5 Apps ({ num, number })',
+    },
+    components: {
+      contentCard,
+      uiSelect,
+    },
     props: {
       contents: {
         type: Array,
@@ -55,8 +85,65 @@
         default: () => {},
         required: false,
       },
+      filter: {
+        type: Boolean,
+        default: true,
+      },
     },
-    components: { contentCard },
+    data: () => ({ selectedFilter: '' }),
+    computed: {
+      topics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
+      exercises() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
+      },
+      videos() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.VIDEO);
+      },
+      audio() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.AUDIO);
+      },
+      documents() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.DOCUMENT);
+      },
+      html5() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.HTML5);
+      },
+      filterOptions() {
+        const options = [
+          {
+            label: this.$tr('all', { num: this.contents.length }),
+            value: 'all',
+          },
+        ];
+        const kindLabelsMap = {
+          [ContentNodeKinds.TOPIC]: this.$tr('topics', { num: this.topics.length }),
+          [ContentNodeKinds.EXERCISE]: this.$tr('exercises', { num: this.exercises.length }),
+          [ContentNodeKinds.VIDEO]: this.$tr('videos', { num: this.videos.length }),
+          [ContentNodeKinds.AUDIO]: this.$tr('audio', { num: this.audio.length }),
+          [ContentNodeKinds.DOCUMENT]: this.$tr('documents', { num: this.documents.length }),
+          [ContentNodeKinds.HTML5]: this.$tr('html5', { num: this.html5.length }),
+        };
+        forEach(kindLabelsMap, (value, key) => {
+          if (this.contentsContain(key)) {
+            options.push({
+              label: value,
+              value: key,
+            });
+          }
+        });
+        return options;
+      },
+    },
+    methods: {
+      contentsContain(kind) {
+        return some(this.contents, content => content.kind === kind);
+      },
+    },
+    mounted() {
+      this.selectedFilter = this.filterOptions[0];
+    },
     vuex: { getters: { channelId: state => state.core.channels.currentId } },
   };
 
@@ -70,5 +157,9 @@
   .content-card
     display: inline-block
     margin: 10px
+
+  .filter
+    width: 200px
+    margin-top: 2em
 
 </style>

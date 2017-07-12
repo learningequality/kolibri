@@ -121,9 +121,10 @@
       noRendererAvailable: false,
     }),
     methods: {
-      // Check the Kolibri core app for a content renderer module that is able to
-      // handle the rendering of the current content node. This is the entrance point for changes
-      // in the props,so any change in the props will trigger this function first.
+      /* Check the Kolibri core app for a content renderer module that is able to
+       * handle the rendering of the current content node. This is the entrance point for changes
+       * in the props,so any change in the props will trigger this function first.
+       */
       updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;

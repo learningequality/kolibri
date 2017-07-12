@@ -1,0 +1,12 @@
+{
+  "setupWizard.header":"Crear un propietario del dispositivo y un centro educativo",
+  "setupWizard.deviceOwner":"Propietario del dispositivo",
+  "setupWizard.deviceOwnerDescription":"Para usar Kolibri, primero necesitas crear una cuenta de Propietario del Dispositivo. Esta cuenta será usada para configurar los ajustes de alto nivel de esta instalación, y crear otras cuentas de administración",
+  "setupWizard.username":"Nombre de usuario",
+  "setupWizard.password":"Contraseña",
+  "setupWizard.confirmPassword":"Confirma contraseña",
+  "setupWizard.facility":"Centro educativo",
+  "setupWizard.facilityDescription":"También necesitas crear un Centro educativo, que representa tu escuela, centro de entrenamiento, o cualquier otro lugar donde esta instalación será usada",
+  "setupWizard.facilityName":"Nombre del centro educativo",
+  "setupWizard.getStarted":"Crear y empezar"
+}
