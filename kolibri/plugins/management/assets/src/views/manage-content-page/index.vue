@@ -69,7 +69,7 @@
   import wizardImportNetwork from './wizard-import-network';
   import wizardImportLocal from './wizard-import-local';
   import wizardExport from './wizard-export';
-  import previewImportWizard from './wizards/preview-import-wizard';
+  import importPreview from './wizards/import-preview';
 
   export default {
     $trNameSpace: 'manageContentState',
@@ -85,7 +85,7 @@
       channelsGrid,
       iconButton,
       notifications,
-      previewImportWizard,
+      importPreview,
       taskStatus,
       wizardImportSource,
       wizardImportNetwork,
@@ -129,7 +129,7 @@
             return 'wizard-export';
           case ContentWizardPages.LOCAL_IMPORT_PREVIEW:
           case ContentWizardPages.REMOTE_IMPORT_PREVIEW:
-            return 'preview-import-wizard';
+            return 'import-preview';
           default:
             return undefined;
         }
