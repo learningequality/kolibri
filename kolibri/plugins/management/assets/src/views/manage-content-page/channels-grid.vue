@@ -22,15 +22,26 @@
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
+
           <td>
-            <ui-progress-circular
-              color="primary"
-              v-show="!numberOfFilesInChannel(channel.id)"
-            />
-            {{ numberOfFilesInChannel(channel.id) }}
+            <transition mode="out-in">
+              <ui-progress-circular
+                v-if="!numberOfFilesInChannel(channel.id)"
+                :size="16"
+                color="primary"
+              />
+              <span v-else>{{ numberOfFilesInChannel(channel.id) }}</span>
+            </transition>
           </td>
           <td>
-            {{ totalSizeOfFilesInChannel(channel.id) }}
+            <transition mode="out-in">
+                <ui-progress-circular
+                  v-if="!totalSizeOfFilesInChannel(channel.id)"
+                  :size="16"
+                  color="primary"
+                />
+                <span v-else>{{ totalSizeOfFilesInChannel(channel.id) }}</span>
+              </transition>
           </td>
           <td>
             <elapsed-time :date="channel.last_updated" />
