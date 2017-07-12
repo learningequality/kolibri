@@ -42,7 +42,7 @@ matrix:
       env:
         - TOX_ENV=py2.7
         - TRAVIS_NODE_VERSION="6"
-    - python: "2.7"
+    - python: "3.5"
       env:
         - TOX_ENV=docs
         - TRAVIS_NODE_VERSION="6"
