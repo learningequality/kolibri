@@ -10,7 +10,7 @@ import find from 'lodash/find';
  *
  * @param {Object} store - vuex store object
  */
-function refreshChannelList(store) {
+export function refreshChannelList(store) {
   return ChannelResource.getCollection().fetch({}, true);
 }
 
@@ -21,7 +21,7 @@ function refreshChannelList(store) {
  * @param {string} channelId - a valid channel UUID
  * @returns {Promise}
  */
-function deleteChannel(store, channelId) {
+export function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId).delete().then(refreshChannelList);
 }
 
@@ -32,7 +32,7 @@ function deleteChannel(store, channelId) {
  * @param {string} channelId - channel UUID
  * @returns {Promise}
  */
-function addChannelFileSummary(store, channelId) {
+export function addChannelFileSummary(store, channelId) {
   return (
     FileSummaryResource.getCollection({ channel_id: channelId })
       .fetch()
@@ -54,7 +54,7 @@ function addChannelFileSummary(store, channelId) {
  * @param {Array<String>} channelIds - an array of channelIds
  * @return {undefined}
  */
-function addChannelFileSummaries(store, channelIds) {
+export function addChannelFileSummaries(store, channelIds) {
   channelIds.forEach(channelId => {
     addChannelFileSummary(store, channelId);
   });
@@ -69,7 +69,7 @@ function addChannelFileSummaries(store, channelIds) {
  * @param {Object} params - data needed to execute transition
  * @returns {undefined}
  */
-function transitionWizardPage(store, transition, params) {
+export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
   const FORWARD = 'forward';
   const BACKWARD = 'backward';
@@ -148,10 +148,3 @@ function transitionWizardPage(store, transition, params) {
 
   return undefined;
 }
-
-export {
-  addChannelFileSummaries,
-  deleteChannel,
-  transitionWizardPage,
-  refreshChannelList,
-};

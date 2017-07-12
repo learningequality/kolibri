@@ -669,7 +669,7 @@ function triggerLocalContentExportTask(store, driveId) {
 function triggerRemoteContentImportTask(store, channelId) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  remoteImportPromise
+  return remoteImportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
       cancelImportExportWizard(store);
@@ -740,4 +740,5 @@ export {
   updateWizardLocalDriveList,
   showDataPage,
   showScratchpad,
+  showWizardPage
 };

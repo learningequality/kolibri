@@ -15,17 +15,36 @@
         <ul class="channel-list">
           <li v-for="(channel, i) in channelList" :key="i" >
             {{ channel.name }}
-            <span v-if="channelIsInstalled(channel.id)" class="already-installed">
-              (Already installed)
+            <span v-if="coreChannel(channel.id)" class="already-installed">
+              ({{ $tr('channelAlreadyInstalled') }})
             </span>
           </li>
         </ul>
       </div>
 
       <!-- REMOTE IMPORT PREVIEW -->
+      <div v-if="importSource === 'remote'">
+        <p>{{ $tr('remoteImportPrompt') }}</p>
+
+        <p v-if="coreChannel(sourceMeta.channelId)">
+          {{ coreChannel(sourceMeta.channelId).title }}
+          <span class="already-installed">
+            ({{ $tr('channelAlreadyInstalled') }})
+          </span>
+        </p>
+        <p v-else>
+          {{ sourceMeta.channelId }}
+        </p>
+      </div>
+
+      <div v-if="error" class="error">
+        {{ error }}
+      </div>
+
       <div class="button-wrapper">
         <icon-button @click="cancel" :text="$tr('cancelButtonLabel')" />
         <icon-button
+          v-show="!error"
           :text="$tr('confirmButtonLabel')"
           @click="submit"
           :primary="true"
@@ -71,7 +90,7 @@
         } else {
           return this.sourceMeta.channelId;
         }
-      }
+      },
     },
     methods: {
       cancel() {
@@ -83,8 +102,9 @@
     },
     vuex: {
       getters: {
+        error: state => state.pageState.wizardState.error,
         sourceMeta: state => state.pageState.wizardState.meta,
-        channelIsInstalled: state => channelId => {
+        coreChannel: state => channelId => {
           return find(state.core.channels.list, { id: channelId })
         },
       },
@@ -95,9 +115,11 @@
     $trNameSpace: "previewImportWizard",
     $trs: {
       cancelButtonLabel: "Cancel",
+      channelAlreadyInstalled: 'Already installed',
       confirmButtonLabel: "Import",
       localImportPrompt: 'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
       localImportTitle: "Import from local drive",
+      remoteImportPrompt: 'You are about to import 1 channel',
       remoteImporttitle: "Import from internet",
       title: "Import from local drive",
     }
@@ -120,5 +142,8 @@
 
   .already-installed
     font-weight: bold
+
+  .error
+    color: red
 
 </style>
