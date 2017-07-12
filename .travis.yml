@@ -62,7 +62,7 @@ matrix:
       env:
         - TOX_ENV=node6.x
         - TRAVIS_NODE_VERSION="6"
-    - python: "2.7"
+    - python: "3.5"
       env:
         - TOX_ENV=postgres
         - TRAVIS_NODE_VERSION="6"
