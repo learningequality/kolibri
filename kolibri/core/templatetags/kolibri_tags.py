@@ -122,6 +122,8 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     client = APIClient()
     # copy session key to client to make requests on behalf of user
     client.cookies[settings.SESSION_COOKIE_NAME] = context['request'].session.session_key
+    # Copy language cookie to request
+    client.cookies[settings.LANGUAGE_COOKIE_NAME] = context['request'].COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     reversal = dict()
     kwargs_check = 'kwargs_'
     # remove prepended string and matching items from kwargs
@@ -133,6 +135,8 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     url = reverse('{0}-{1}'.format(base_name, route), kwargs=reversal)
     # switch out None temporarily because invalid filtering and caching can occur
     _replace_dict_values(None, str(''), kwargs)
-    response = client.get(url, data=kwargs)
+    # Get headers from current request
+    language_accept_header = context['request'].META.get('HTTP_ACCEPT_LANGUAGE', '')
+    response = client.get(url, data=kwargs, HTTP_ACCEPT_LANGUAGE=language_accept_header)
     _replace_dict_values(str(''), None, kwargs)
     return response, kwargs, reversal
