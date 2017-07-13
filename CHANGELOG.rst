@@ -21,6 +21,7 @@ Changes are ordered reverse-chronologically.
  - Add progress annotation for topics, lazily loaded to increase page load performance
  - Add API endpoint for getting number and total size of files in a channel
  - Migrate all JS linting to prettier rather than eslint
+ - Merge audio_mp3_render and video_mp4_render plugins into one single media_player plugin
 
 
 0.4

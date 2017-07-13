@@ -48,10 +48,12 @@ function validateProgress(data) {
 
 function _topicState(data, ancestors = []) {
   const progress = validateProgress(data);
+  const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
+    thumbnail: thumbnail.storage_url,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
     kind: data.kind,
