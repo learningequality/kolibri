@@ -170,9 +170,6 @@
         }
         return false;
       },
-      isRtl() {
-        return Vue.bidiDirection === 'rtl';
-      },
     },
     components: {
       pageHeader,

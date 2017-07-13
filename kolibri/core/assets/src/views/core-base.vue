@@ -118,12 +118,12 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        const posKey = Vue.bidiDirection === 'rtl' ? 'Right' : 'Left';
+        const posKey = this.isRtl ? 'Right' : 'Left';
         return this.mobile ? {} : { ['padding' + posKey]: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
-        const posKey = Vue.bidiDirection === 'rtl' ? 'right' : 'left';
+        const posKey = this.isRtl ? 'right' : 'left';
         style[posKey] = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
       },

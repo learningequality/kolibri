@@ -29,6 +29,9 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   return formatter(message, args);
 }
 
+// Default to ltr
+export let languageDirection = 'ltr';
+
 /**
  * Class exposing translation functions for a particular message name space.
  * @class
@@ -69,7 +72,9 @@ function setUpVueIntl() {
    **/
   vue.use(VueIntl, { defaultLocale: 'en-us' });
 
-  vue.set(vue, 'bidiDirection', global.languageBidi || 'ltr');
+  vue.prototype.isRtl = global.languageBidi === 'rtl';
+
+  languageDirection = global.languageBidi || languageDirection;
 
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
@@ -122,6 +127,7 @@ export function setUpIntl() {
       require.ensure([], () => {
         toFakeRTL = require('./mirrorText').toFakeRTL;
         setUpVueIntl();
+        resolve();
       });
     } else {
       setUpVueIntl();
