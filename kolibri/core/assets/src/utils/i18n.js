@@ -32,6 +32,47 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
 // Default to ltr
 export let languageDirection = 'ltr';
 
+export const languageDensities = {
+  englishLike: 'english_like',
+  tall: 'tall',
+  dense: 'dense',
+};
+
+export let languageDensity = languageDensities.englishLike;
+
+const languageDensityMapping = {
+  ar: languageDensities.tall,
+  bn: languageDensities.tall,
+  fa: languageDensities.tall,
+  gu: languageDensities.tall,
+  hi: languageDensities.tall,
+  ja: languageDensities.dense,
+  km: languageDensities.tall,
+  kn: languageDensities.tall,
+  ko: languageDensities.dense,
+  lo: languageDensities.tall,
+  ml: languageDensities.tall,
+  mr: languageDensities.tall,
+  my: languageDensities.tall,
+  ne: languageDensities.tall,
+  pa: languageDensities.tall,
+  si: languageDensities.tall,
+  ta: languageDensities.tall,
+  te: languageDensities.tall,
+  th: languageDensities.tall,
+  ur: languageDensities.tall,
+  vi: languageDensities.tall,
+  zh: languageDensities.dense,
+};
+
+function setLanguageDensity(lang_code) {
+  const shortCode = lang_code.split('-')[0].toLowerCase();
+  // Set the exported languageDensity in JS
+  languageDensity = languageDensityMapping[shortCode] || languageDensities.englishLike;
+  // Set the body class for global typography
+  global.document.body.classList.add(`language-${languageDensity}`);
+}
+
 /**
  * Class exposing translation functions for a particular message name space.
  * @class
@@ -87,6 +128,8 @@ function setUpVueIntl() {
 
   if (global.languageCode) {
     vue.setLocale(global.languageCode);
+    setLanguageDensity(global.languageCode);
+
     if (global.coreLanguageMessages) {
       vue.registerMessages(global.languageCode, global.coreLanguageMessages);
     }
