@@ -96,6 +96,22 @@ class Translator {
       args
     );
   }
+  // For convenience, also proxy all vue intl translation methods on this object
+  $formatDate(date, options = {}) {
+    return vue.prototype.$formatDate(date, options);
+  }
+  $formatTime(time, options = {}) {
+    return vue.prototype.$formatTime(time, options);
+  }
+  $formatRelative(date, options = {}) {
+    return vue.prototype.$formatRelative(date, options);
+  }
+  $formatNumber(number, options = {}) {
+    return vue.prototype.$formatNumber(number, options);
+  }
+  $formatPlural(plural, options = {}) {
+    return vue.prototype.$formatPlural(plural, options);
+  }
 }
 
 /**
