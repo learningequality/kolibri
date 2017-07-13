@@ -296,6 +296,11 @@
   $video-player-font-size = 12px
 
 
+  /* Hide control bar when playing & inactive */
+  .vjs-has-started.vjs-playing.vjs-user-inactive
+    .vjs-control-bar
+      visibility: hidden
+
 
   /*** CUSTOM VIDEOJS SKIN ***/
   .custom-skin
