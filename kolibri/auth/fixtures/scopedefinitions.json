@@ -20,9 +20,9 @@
       "version": 1,
       "primary_scope_param_key": "",
       "description": "Allows syncing data for FacilityUser ${user_id} under Facility with FacilityDataset ID ${dataset_id}.",
-      "read_scope_def": "${dataset_id}:crossuser",
+      "read_scope_def": "${dataset_id}:allusers-ro\n${dataset_id}:user-ro:${user_id}",
       "write_scope_def": "${dataset_id}:anonymous",
-      "read_write_scope_def": "${dataset_id}:userspecific"
+      "read_write_scope_def": "${dataset_id}:user-rw:${user_id}"
     }
   }
 ]

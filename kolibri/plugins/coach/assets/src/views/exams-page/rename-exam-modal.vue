@@ -22,9 +22,11 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'renameExamModal',
     $trs: {
       renameExam: 'Rename exam',
@@ -34,9 +36,9 @@
       duplicateTitle: 'An exam with that title already exists',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      coreModal,
+      iconButton,
+      coreTextbox,
     },
     props: {
       examId: {
@@ -57,9 +59,7 @@
       },
     },
     data() {
-      return {
-        newExamTitle: this.examTitle,
-      };
+      return { newExamTitle: this.examTitle };
     },
     computed: {
       duplicateTitle() {
@@ -67,7 +67,8 @@
           return false;
         }
         const index = this.exams.findIndex(
-          exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase());
+          exam => exam.title.toUpperCase() === this.newExamTitle.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }

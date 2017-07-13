@@ -9,6 +9,4 @@ const Modals = {
   PREVIEW_NEW_EXAM: 'PREVIEW_NEW_EXAM',
 };
 
-module.exports = {
-  Modals,
-};
+export { Modals };

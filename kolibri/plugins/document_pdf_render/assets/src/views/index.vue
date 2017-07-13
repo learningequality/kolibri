@@ -18,29 +18,22 @@
 
 <script>
 
-  const PDFobject = require('pdfobject');
-  const ScreenFull = require('screenfull');
-
-  module.exports = {
-
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
-
+  import PDFobject from 'pdfobject';
+  import ScreenFull from 'screenfull';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
+    components: { iconButton },
     props: ['defaultFile'],
-
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
       isFullScreen: false,
     }),
-
     computed: {
       fullscreenAllowed() {
         return ScreenFull.enabled;
       },
     },
-
     methods: {
       toggleFullScreen() {
         ScreenFull.toggle(this.$refs.container);

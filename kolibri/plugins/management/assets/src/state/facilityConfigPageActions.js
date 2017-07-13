@@ -1,22 +1,19 @@
 /* eslint-disable prefer-arrow-callback */
-const CoreMappers = require('kolibri.coreVue.vuex.mappers');
+import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 
-const {
-  FacilityResource,
-  FacilityDatasetResource,
-} = require('kolibri').resources;
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
-const preparePage = require('./preparePage');
-const { PageNames, defaultFacilityConfig, notificationTypes } = require('../constants');
+import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import preparePage from './preparePage';
+import { PageNames, defaultFacilityConfig, notificationTypes } from '../constants';
 
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
 // The `_promise` property is accessed because the thenable returned by
 // ConditionalPromise does not chain with `catch` in the expected way
 function resolveOnlyIfOnSamePage(promises, store) {
   const ident = x => x;
-  return ConditionalPromise.all(promises)
-  .only(samePageCheckGenerator(store), ident, ident)._promise;
+  return ConditionalPromise.all(promises).only(samePageCheckGenerator(store), ident, ident)
+    ._promise;
 }
 
 function showNotification(store, notificationType) {
@@ -35,46 +32,46 @@ function showFacilityConfigPage(store) {
   ];
 
   return resolveOnlyIfOnSamePage(resourceRequests, store)
-  .then(function onSuccess([facility, facilityDatasets]) {
-    const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
-    store.dispatch('SET_PAGE_STATE', {
-      facilityDatasetId: dataset.id,
-      facilityName: facility.name,
-      // this part of state is mutated as user interacts with form
-      settings: CoreMappers.convertKeysToCamelCase(dataset),
-      // this copy is kept for the purpose of undoing if save fails
-      settingsCopy: CoreMappers.convertKeysToCamelCase(dataset),
-      notification: null
+    .then(function onSuccess([facility, facilityDatasets]) {
+      const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
+      store.dispatch('SET_PAGE_STATE', {
+        facilityDatasetId: dataset.id,
+        facilityName: facility.name,
+        // this part of state is mutated as user interacts with form
+        settings: CoreMappers.convertKeysToCamelCase(dataset),
+        // this copy is kept for the purpose of undoing if save fails
+        settingsCopy: CoreMappers.convertKeysToCamelCase(dataset),
+        notification: null,
+      });
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(function onFailure(err) {
+      store.dispatch('SET_PAGE_STATE', {
+        facilityName: '',
+        settings: null,
+        notification: notificationTypes.PAGELOAD_FAILURE,
+      });
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  })
-  .catch(function onFailure(err) {
-    store.dispatch('SET_PAGE_STATE', {
-      facilityName: '',
-      settings: null,
-      notification: notificationTypes.PAGELOAD_FAILURE,
-    });
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
 }
 
 function saveFacilityConfig(store) {
   showNotification(store, null);
   const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource
-      .getModel(facilityDatasetId)
-      .save(CoreMappers.convertKeysToSnakeCase(settings)),
+    FacilityDatasetResource.getModel(facilityDatasetId).save(
+      CoreMappers.convertKeysToSnakeCase(settings)
+    ),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
-  .then(function onSuccess(x) {
-    showNotification(store, notificationTypes.SAVE_SUCCESS);
-    store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
-  })
-  .catch(function onFailure(err) {
-    showNotification(store, notificationTypes.SAVE_FAILURE);
-    store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
-  });
+    .then(function onSuccess(x) {
+      showNotification(store, notificationTypes.SAVE_SUCCESS);
+      store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
+    })
+    .catch(function onFailure(err) {
+      showNotification(store, notificationTypes.SAVE_FAILURE);
+      store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+    });
 }
 
 function resetFacilityConfig(store) {
@@ -82,8 +79,4 @@ function resetFacilityConfig(store) {
   return saveFacilityConfig(store);
 }
 
-module.exports = {
-  resetFacilityConfig,
-  saveFacilityConfig,
-  showFacilityConfigPage,
-};
+export { resetFacilityConfig, saveFacilityConfig, showFacilityConfigPage };

@@ -1,6 +1,6 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class ContentNodeProgressResource extends Resource {
+export default class ContentNodeProgressResource extends Resource {
   static resourceName() {
     return 'contentnodeprogress';
   }
@@ -8,10 +8,6 @@ class ContentNodeProgressResource extends Resource {
     return 'pk';
   }
   static resourceIdentifiers() {
-    return [
-      'channel_id',
-    ];
+    return ['channel_id'];
   }
 }
-
-module.exports = ContentNodeProgressResource;

@@ -37,8 +37,8 @@ const TaskTypes = {
 };
 
 const TaskStatuses = {
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
+  IN_PROGRESS: 'INPROGRESS',
+  SUCCESS: 'COMPLETED',
   FAILED: 'FAILED',
   PENDING: 'PENDING',
 };
@@ -60,7 +60,7 @@ const notificationTypes = {
   CHANNEL_IMPORT_SUCCESS: 'CHANNEL_IMPORT_SUCCESS',
 };
 
-module.exports = {
+export {
   PageNames,
   Modals,
   ContentWizardPages,

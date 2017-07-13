@@ -25,7 +25,10 @@
 
 <script>
 
-  module.exports = {
+  import componentApi from './component-api';
+  import tableOfContents from './table-of-contents';
+
+  export default {
     props: {
       codeExamplesTemplate: {
         type: String,
@@ -39,8 +42,8 @@
       },
     },
     components: {
-      'component-api': require('./component-api'),
-      'table-of-contents': require('./table-of-contents'),
+      componentApi,
+      tableOfContents,
     },
   };
 

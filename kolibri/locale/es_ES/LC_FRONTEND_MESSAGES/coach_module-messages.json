@@ -142,7 +142,7 @@
   "moveLearnersModal.ungrouped":"No agrupados",
   "moveLearnersModal.cancel":"Cancelar",
   "moveLearnersModal.move":"Mover",
-  "renameGroupModal.renameLearnerGroup":"Eliminar grupo de estudiantes",
+  "renameGroupModal.renameLearnerGroup":"Renombrar grupo de estudiantes",
   "renameGroupModal.learnerGroupName":"Nombre del grupo de estudiantes",
   "renameGroupModal.cancel":"Cancelar",
   "renameGroupModal.save":"Guardar",

@@ -171,19 +171,22 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component(
-      'core-modal',
-      require('kolibri.coreVue.components.coreModal'));
-  FullVue.component('ui-button', require('keen-ui/src/UiButton'));
-  FullVue.component('ui-radio', require('keen-ui/src/UiRadio'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiButton from 'keen-ui/src/UiButton';
+  import UiRadio from 'keen-ui/src/UiRadio';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import coreModalApi from '!vue-doc!kolibri.coreVue.components.coreModal';
+  FullVue.component('ui-button', UiButton);
+  FullVue.component('ui-radio', UiRadio);
+  FullVue.component('core-modal', coreModal);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div>
 
     <ui-button
@@ -250,9 +253,9 @@
     </core-modal>
 
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       isConfirmationModalShown: false,
@@ -271,17 +274,17 @@
       // 'core-modal': require('kolibri.coreVue.components.coreModal')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!kolibri.coreVue.components.coreModal'), // eslint-disable-line
-    })
+      api: coreModalApi,
+    }),
   };
 
 </script>

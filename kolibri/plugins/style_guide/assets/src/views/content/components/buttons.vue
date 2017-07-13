@@ -158,15 +158,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-button', require('keen-ui/src/UiButton'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiButton from 'keen-ui/src/UiButton';
+  import UiButtonApi from '!vue-doc!keen-ui/src/UiButton';
+  FullVue.component('ui-button', UiButton);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div class="examples">
     <div class="example">
       <h4>Raised</h4>
@@ -190,9 +193,9 @@
     </div>
 
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       selected: true,
@@ -202,18 +205,18 @@
       // textbox: require('keen-ui/src/UiButton')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiButton'), // eslint-disable-line
+      api: UiButtonApi,
       requirePath: 'keen-ui/src/UiButton',
-    })
+    }),
   };
 
 </script>

@@ -127,15 +127,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-select', require('keen-ui/src/UiSelect'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiSelect from 'keen-ui/src/UiSelect';
+  import UiSelectApi from '!vue-doc!keen-ui/src/UiSelect';
+  FullVue.component('ui-select', UiSelect);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
 
   <div>
     <div class="dropdown-filter-examples">
@@ -173,9 +176,9 @@
     </div>
   </div>
 
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       dropdownFilterOptions: [
@@ -191,18 +194,18 @@
       // textbox: require('keen-ui/src/UiSelect')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiSelect'), // eslint-disable-line
+      api: UiSelectApi,
       requirePath: 'keen-ui/src/UiSelect',
-    })
+    }),
   };
 
 </script>

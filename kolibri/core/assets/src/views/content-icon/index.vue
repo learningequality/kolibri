@@ -50,10 +50,10 @@
 
 <script>
 
-  const Constants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash/values');
-
-  module.exports = {
+  import * as Constants from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
       kind: {
         type: String,
@@ -77,9 +77,7 @@
         return `color-${this.colorStyle}`;
       },
     },
-    components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+    components: { uiIcon },
     methods: {
       is(kind) {
         return this.kind === kind;

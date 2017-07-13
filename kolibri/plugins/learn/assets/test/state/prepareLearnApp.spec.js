@@ -1,17 +1,19 @@
 /* eslint-env mocha */
-const assert = require('assert');
-const kolibri = require('kolibri');
-const sinon = require('sinon');
-const prepareLearnApp = require('../../src/state/prepareLearnApp');
-const makeStore = require('../util/makeStore');
+import assert from 'assert';
+import sinon from 'sinon';
+import prepareLearnApp from '../../src/state/prepareLearnApp';
+import makeStore from '../util/makeStore';
+import { mockResource } from 'testUtils';
 
-const { MembershipResource } = kolibri.resources;
+import { MembershipResource } from 'kolibri.resources';
+
+mockResource(MembershipResource);
 
 describe('prepareLearnApp action', () => {
   let store;
 
   const getMemberships = ({ state }) => state.learnAppState.memberships;
-  const setSessionUserId = (userId) => {
+  const setSessionUserId = userId => {
     store.state.core.session.user_id = userId;
   };
 
@@ -23,8 +25,7 @@ describe('prepareLearnApp action', () => {
   it('does not modify state for guest user', () => {
     setSessionUserId(null);
 
-    return prepareLearnApp(store)
-    .then(() => {
+    return prepareLearnApp(store).then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
       assert.deepEqual(getMemberships(store), []);
     });
@@ -32,15 +33,13 @@ describe('prepareLearnApp action', () => {
 
   it('adds memberships to state for logged-in user', () => {
     setSessionUserId(101);
-    const fakeMemberships = [
-      { id: 'membership_1' },
-      { id: 'membership_2' },
-    ];
+    const fakeMemberships = [{ id: 'membership_1' }, { id: 'membership_2' }];
     MembershipResource.__getCollectionFetchReturns(fakeMemberships);
 
-    return prepareLearnApp(store)
-    .then(() => {
-      sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 101 });
+    return prepareLearnApp(store).then(() => {
+      sinon.assert.calledWith(MembershipResource.getCollection, {
+        user_id: 101,
+      });
       assert.deepEqual(getMemberships(store), fakeMemberships);
     });
   });
@@ -49,9 +48,10 @@ describe('prepareLearnApp action', () => {
     setSessionUserId(102);
     MembershipResource.__getCollectionFetchReturns('fetch error', true);
 
-    return prepareLearnApp(store)
-    .catch(() => {
-      sinon.assert.calledWith(MembershipResource.getCollection, { user_id: 102 });
+    return prepareLearnApp(store).catch(() => {
+      sinon.assert.calledWith(MembershipResource.getCollection, {
+        user_id: 102,
+      });
       assert.deepEqual(store.state.core.error, 'fetch error');
       assert.deepEqual(getMemberships(store), []);
     });

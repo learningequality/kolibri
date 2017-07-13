@@ -11,21 +11,23 @@
 
 <script>
 
-  const FullVue = require('vue/dist/vue.common');
-  const VueRouter = require('vue-router');
+  import FullVue from 'vue/dist/vue.common';
+  import VueRouter from 'vue-router';
+  import sidenav from './shell/sidenav';
+  import pageHeader from './shell/page-header';
 
   // To illustrate how user-facing text should always be translated, we will
   // set up a fake $tr, and use it in the code example.
-  FullVue.prototype.$tr = (text) => text;
+  FullVue.prototype.$tr = text => text;
 
   // Some components (e.g. <tab-link>) need the router.
   FullVue.use(VueRouter);
 
-  module.exports = {
+  export default {
     components: {
-      'sidenav': require('./shell/sidenav'),
-      'page-header': require('./shell/page-header'),
-    }
+      sidenav,
+      pageHeader,
+    },
   };
 
 </script>

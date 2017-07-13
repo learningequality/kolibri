@@ -118,36 +118,37 @@
 
 <script>
 
-  const constants = require('../../constants');
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const actions = require('../../state/actions');
-  const orderBy = require('lodash/orderBy');
-
-
-  module.exports = {
+  import * as constants from '../../constants';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import * as actions from '../../state/actions';
+  import orderBy from 'lodash/orderBy';
+  import classRenameModal from './class-rename-modal';
+  import roleSwitcher from './role-switcher';
+  import userRemoveModal from './user-remove-modal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import userRole from '../user-role';
+  export default {
     $trNameSpace: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users',
       tableTitle: 'Manage learners in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
-      // table info
       fullName: 'Full name',
       username: 'Username',
       role: 'Role',
       learner: 'Learner',
       coach: 'Coach',
       remove: 'Remove',
-      // search-related error messages
       noUsersExist: 'No users in this class',
       allUsersFilteredOut: 'No matching users',
     },
     components: {
-      'class-rename-modal': require('./class-rename-modal'),
-      'role-switcher': require('./role-switcher'),
-      'user-remove-modal': require('./user-remove-modal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'user-role': require('../user-role'),
+      classRenameModal,
+      roleSwitcher,
+      userRemoveModal,
+      iconButton,
+      userRole,
     },
     data: () => ({
       searchFilter: '',
@@ -166,32 +167,21 @@
         return this.users.length === 0;
       },
       allUsersFilteredOut() {
-        return !this.noUsersExist && (this.visibleUsers.length === 0);
+        return !this.noUsersExist && this.visibleUsers.length === 0;
       },
       usersMatchFilter() {
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
         const searchFilter = this.searchFilter;
-
         function matchesText(user) {
-          const searchTerms = searchFilter
-            .split(' ')
-            .filter(Boolean)
-            .map(val => val.toLowerCase());
-
+          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
-
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         }
-
         const filteredUsers = this.users.filter(user => matchesText(user));
-        return orderBy(
-          filteredUsers,
-          [user => user.username.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
       },
       showEditNameModal() {
         return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
@@ -204,13 +194,13 @@
       addCoachRoleToUser(user) {
         return this.addCoachRole({
           userId: user.id,
-          classId: this.currClass.id
+          classId: this.currClass.id,
         });
       },
       removeCoachRoleFromUser(user) {
         return this.removeCoachRole({
           userId: user.id,
-          classId: this.currClass.id
+          classId: this.currClass.id,
         });
       },
       openEditNameModal() {
@@ -226,7 +216,7 @@
         modalShown: state => state.pageState.modalShown,
         users: state => state.pageState.classUsers,
         currClass: state => state.pageState.currentClass,
-        classes: state => state.pageState.classes
+        classes: state => state.pageState.classes,
       },
       actions: {
         displayModal: actions.displayModal,

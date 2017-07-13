@@ -77,15 +77,18 @@
   // Globally register the Kolibri components to make them accessible in the
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
-  const FullVue = require('vue/dist/vue.common');
-  FullVue.component('ui-checkbox', require('keen-ui/src/UiCheckbox'));
+  import FullVue from 'vue/dist/vue.common';
+  import componentStyleGuide from '../../shell/component-style-guide';
+  import UiCheckbox from 'keen-ui/src/UiCheckbox';
+  import UiCheckboxApi from '!vue-doc!keen-ui/src/UiCheckbox';
+  FullVue.component('ui-checkbox', UiCheckbox);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-<template>
+  <template>
   <div class="examples">
     <div class="example">
       <h4>Normal</h4>
@@ -100,9 +103,9 @@
       <ui-checkbox :disabled="true" v-model="unselected"></ui-checkbox>
     </div>
   </div>
-</template>
+  </template>
 
-<${script}>
+  <${script}>
   module.exports = {
     data: () => ({
       selected: true,
@@ -112,18 +115,18 @@
       // textbox: require('keen-ui/src/UiCheckbox')
     }
   };
-</${script}>
-`;
+  </${script}>
+  `;
 
-  module.exports = {
+  export default {
     components: {
-      'component-style-guide': require('../../shell/component-style-guide'),
+      componentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: require('!vue-doc!keen-ui/src/UiCheckbox'), // eslint-disable-line
+      api: UiCheckboxApi,
       requirePath: 'keen-ui/src/UiCheckbox',
-    })
+    }),
   };
 
 </script>

@@ -1,6 +1,6 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class UserProgressResource extends Resource {
+export default class UserProgressResource extends Resource {
   static resourceName() {
     return 'userprogress';
   }
@@ -8,5 +8,3 @@ class UserProgressResource extends Resource {
     return 'id';
   }
 }
-
-module.exports = UserProgressResource;

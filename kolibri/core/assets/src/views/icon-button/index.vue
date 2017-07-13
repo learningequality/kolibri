@@ -29,11 +29,11 @@
 
 <script>
 
-  module.exports = {
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
-      text: {
-        type: String,
-      },
+      text: { type: String },
       primary: {
         type: Boolean,
         default: false,
@@ -50,9 +50,7 @@
         type: String,
         default: 'normal',
       },
-      type: {
-        type: String,
-      },
+      type: { type: String },
       alignment: {
         type: String,
         default: 'left',
@@ -80,8 +78,8 @@
       },
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
+      uiButton,
+      uiIcon,
     },
   };
 

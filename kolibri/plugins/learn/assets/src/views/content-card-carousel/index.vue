@@ -72,29 +72,26 @@
 
 <script>
 
-  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import contentCard from '../content-card';
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
 
-  module.exports = {
+  export default {
     mixins: [responsiveElement],
     $trNameSpace: 'contentCardCarousel',
-    $trs: {
-      viewAllButtonLabel: 'View all'
-    },
+    $trs: { viewAllButtonLabel: 'View all' },
     props: {
       contents: {
         type: Array,
         required: true,
       },
-      header: {
-        type: String,
-      },
-      subheader: {
-        type: String,
-      },
+      header: { type: String },
+      subheader: { type: String },
       genLink: {
         type: Function,
         validator(value) {
@@ -105,17 +102,22 @@
       },
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'content-card': require('../content-card'),
+      iconButton,
+      uiIconButton,
+      contentCard,
     },
     data() {
       return {
+        // flag marks holds the index (in contents array, prop) of first item in carousel
         contentSetStart: 0,
+        // flag that marks when the slide animation will be going start at left
         leftToRight: false,
+        // tracks whether the carousel has been interacted with
+        interacted: false,
       };
     },
     watch: {
+      // ensures that indeces in contentSetStart/End are within bounds of the contents
       contentSetStart(newStartIndex, oldStartIndex) {
         const nextSet = newStartIndex > oldStartIndex;
         const previousSet = newStartIndex < oldStartIndex;
@@ -123,45 +125,39 @@
         const newIndexTooSmall = newStartIndex < 0;
         const enoughContentForASet = this.contents.length >= this.contentSetSize;
 
+        // turns animation on in case this is the first time it's been updated
+        if (!this.interacted) {
+          this.interacted = true;
+        }
+
         if (nextSet && newIndexTooLarge && enoughContentForASet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
         } else if (previousSet && newIndexTooSmall) {
           this.contentSetStart = 0;
         }
       },
+      // ensures that carousel correctly readjusts # of cards if resize occurs at end of contents
       contentSetSize(newSetSize, oldSetSize) {
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
-
         this.leftToRight = removingCards;
-
         if (this.isLastSet && addingCards) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
-
-          // adding cards on the left rather than the right.
           this.leftToRight = true;
         }
       },
     },
     computed: {
       contentSetSize() {
-        // need space for at least 2 cards and a gutter
-        if (this.elSize.width > (2 * contentCardWidth)) {
+        if (this.elSize.width > 2 * contentCardWidth) {
           const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
           const numOfGutters = numOfCards - 1;
-
-          const totalWidth = (numOfCards * contentCardWidth) + (numOfGutters * gutterWidth);
-
+          const totalWidth = numOfCards * contentCardWidth + numOfGutters * gutterWidth;
           if (this.elSize.width >= totalWidth) {
-            // enough room for all cards with gutters
             return numOfCards;
           }
-
-          // going to have to drop down one card to make room for other cards' gutters
           return numOfCards - 1;
         }
-
-        // 1 is the minimum amount of cards and there is no gutter in this case
         return 1;
       },
       contentSetEnd() {
@@ -177,7 +173,7 @@
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
-          'width': `${cards + gutters}px`,
+          width: `${cards + gutters}px`,
           'min-width': `${contentCardWidth}px`,
         };
       },
@@ -187,26 +183,33 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return {
-          left: `${cardOffset + gutterOffset}px`
-        };
+        return { left: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
-        // posibility room for optimization by deleting elements as soon as they're out of sight
+        // sets the initial spot from which cards will be sliding into place from
+        // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
-        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
+
+        if (this.interacted) {
+          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+        }
       },
       slide(el) {
+        // moves cards from their starting point by their offset
+        // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
-        el.style.left = `${(sign * carouselContainerOffset) + originalPosition}px`;
+
+        if (this.interacted) {
+          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+        }
       },
       isInThisSet(index) {
         return this.contentSetStart <= index && index <= this.contentSetEnd;

@@ -1,9 +1,9 @@
-const vue = require('../node_modules/vue');
-const vuex = require('vuex');
-const router = require('vue-router');
-const vueintl = require('vue-intl');
+import vue from 'vue';
+import vuex from 'vuex';
+import router from 'vue-router';
+import vueintl from 'vue-intl';
 
-vue.prototype.Kolibri = require('kolibri');
+vue.prototype.Kolibri = {};
 vue.config.silent = true;
 vue.use(vuex);
 vue.use(router);
@@ -37,4 +37,4 @@ vue.prototype.$trHtml = function $trHtml(messageId, args) {
   return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
 };
 
-module.exports = vue;
+export default vue;

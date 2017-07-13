@@ -24,21 +24,22 @@
 
 <script>
 
-  const examActions = require('../../state/actions/exam');
-
-  module.exports = {
+  import * as examActions from '../../state/actions/exam';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  export default {
     $trNameSpace: 'deactivateExamModal',
     $trs: {
-      deactivateExam: 'Dectivate exam',
+      deactivateExam: 'Deactivate exam',
       areYouSure: 'Are you sure you want to deactivate <strong>{ examTitle }</strong>?',
       noLongerVisible: 'The exam will be no longer be visible to the following:',
       cancel: 'Cancel',
       deactivate: 'Deactivate',
-      entireClass: 'Entire class'
+      entireClass: 'Entire class',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      coreModal,
+      iconButton,
     },
     props: {
       examId: {

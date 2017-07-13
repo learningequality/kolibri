@@ -2,6 +2,7 @@ import datetime
 import re
 
 import pytz
+from django.db.backends.utils import typecast_timestamp
 from django.db.models.fields import Field
 from django.utils import timezone
 
@@ -16,13 +17,23 @@ def parse_timezonestamp(value):
     else:
         tz = timezone.get_current_timezone()
     utc_value = tz_regex.sub('', value)
-    value = datetime.datetime.strptime(utc_value, date_time_format)
-    value = timezone.make_aware(value, pytz.utc)
+    value = typecast_timestamp(utc_value)
+    if value.tzinfo is None:
+        # Naive datetime, make aware
+        value = timezone.make_aware(value, pytz.utc)
     return value.astimezone(tz)
 
 def create_timezonestamp(value):
-    if value.tzinfo:
+    if value.tzinfo and hasattr(value.tzinfo, 'zone'):
+        # We have a pytz timezone, we can work with this
         tz = value.tzinfo.zone
+    elif value.tzinfo:
+        # Got some timezone data, but it's not a pytz timezone
+        # Let's just assume someone used dateutil parser on a UTC
+        # ISO format timestamp
+        # Fixes https://github.com/learningequality/kolibri/issues/1824
+        tz = pytz.utc
+        value = value.astimezone(tz)
     else:
         tz = timezone.get_current_timezone().zone
         value = timezone.make_aware(value, timezone.get_current_timezone())

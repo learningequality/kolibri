@@ -26,7 +26,7 @@ lib64
 pip-log.txt
 
 # Unit test / coverage reports
-.coverage
+.coverage*
 .tox
 nosetests.xml
 htmlcov/
@@ -39,6 +39,10 @@ kolibri/locale/
 # Mr Developer
 .mr.developer.cfg
 .project
+# vscode files
+.vscode  
+# pycharm project file
+kolibri.iml  
 .pydevproject
 .venv
 .idea
