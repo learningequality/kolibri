@@ -4,11 +4,11 @@ from kolibri.content import hooks as content_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
 
-class VideoMP4RenderPlugin(KolibriPluginBase):
+class MediaPlayerPlugin(KolibriPluginBase):
     pass
 
 
-class VideoMP4RenderAsset(content_hooks.ContentRendererHook):
-    unique_slug = "video_mp4_render_module"
+class MediaPlayerAsset(content_hooks.ContentRendererHook):
+    unique_slug = "media_player_module"
     src_file = "assets/src/module.js"
     content_types_file = "content_types.json"

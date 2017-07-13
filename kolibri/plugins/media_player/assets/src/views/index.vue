@@ -5,7 +5,7 @@
       <loading-spinner/>
     </div>
     <div v-show="!loading" class="fill-space">
-      <video ref="video" class="video-js custom-skin">
+      <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
@@ -13,6 +13,12 @@
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="isDefaultTrack(track.lang)">
         </template>
       </video>
+
+      <audio v-else ref="player" class="video-js custom-skin">
+        <template v-for="audio in audioSources">
+          <source :src="audio.storage_url" :type="`audio/${audio.extension}`">
+        </template>
+      </audio>
     </div>
   </div>
 
@@ -56,9 +62,9 @@
       progressStartingPoint: 0,
       lastUpdateTime: 0,
       loading: true,
-      videoVolume: 1.0,
-      videoMuted: false,
-      videoRate: 1.0,
+      playerVolume: 1.0,
+      playerMuted: false,
+      playerRate: 1.0,
       videoLang: GlobalLangCode,
     }),
 
@@ -77,11 +83,18 @@
         const videoFileExtensions = ['mp4', 'webm', 'ogg'];
         return this.files.filter(file => videoFileExtensions.some(ext => ext === file.extension));
       },
+      audioSources() {
+        const audioFileExtensions = ['mp3'];
+        return this.files.filter(file => audioFileExtensions.some(ext => ext === file.extension));
+      },
       trackSources() {
         const trackFileExtensions = ['vtt'];
         return this.supplementaryFiles.filter(file =>
           trackFileExtensions.some(ext => ext === file.extension)
         );
+      },
+      isVideo() {
+        return this.videoSources.length;
       },
     },
     methods: {
@@ -128,37 +141,42 @@
             ],
           },
         };
+
+        if (!this.isVideo) {
+          videojsConfig.poster = this.posterSource;
+        }
+
         this.$nextTick(() => {
-          this.videoPlayer = videojs(this.$refs.video, videojsConfig);
-          this.videoPlayer.on('loadedmetadata', this.handleReadyPlayer);
+          this.player = videojs(this.$refs.player, videojsConfig);
+          this.player.on('loadedmetadata', this.handleReadyPlayer);
         });
       },
       handleReadyPlayer() {
-        this.videoPlayer.on('play', this.focusOnPlayControl);
-        this.videoPlayer.on('pause', this.focusOnPlayControl);
-        this.videoPlayer.on('timeupdate', this.updateTime);
-        this.videoPlayer.on('seeking', this.handleSeek);
-        this.videoPlayer.on('volumechange', this.throttledUpdateVolume);
-        this.videoPlayer.on('ratechange', this.updateRate);
-        this.videoPlayer.on('texttrackchange', this.updateLang);
-        this.videoPlayer.on('play', () => this.setPlayState(true));
-        this.videoPlayer.on('pause', () => this.setPlayState(false));
-        this.videoPlayer.on('ended', () => this.setPlayState(false));
-        this.$watch('elSize.width', this.updateVideoSizeClass);
-        this.updateVideoSizeClass();
-        this.resizeVideo();
+        this.player.on('play', this.focusOnPlayControl);
+        this.player.on('pause', this.focusOnPlayControl);
+        this.player.on('timeupdate', this.updateTime);
+        this.player.on('seeking', this.handleSeek);
+        this.player.on('volumechange', this.throttledUpdateVolume);
+        this.player.on('ratechange', this.updateRate);
+        this.player.on('texttrackchange', this.updateLang);
+        this.player.on('play', () => this.setPlayState(true));
+        this.player.on('pause', () => this.setPlayState(false));
+        this.player.on('ended', () => this.setPlayState(false));
+        this.$watch('elSize.width', this.updatePlayerSizeClass);
+        this.updatePlayerSizeClass();
+        this.resizePlayer();
         this.getDefaults();
         this.loading = false;
-        this.$refs.video.tabIndex = -1;
+        this.$refs.player.tabIndex = -1;
       },
-      resizeVideo() {
+      resizePlayer() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
         const aspectRatio = 16 / 9;
         const adjustedHeight = wrapperWidth * (1 / aspectRatio);
         this.$refs.wrapper.setAttribute('style', `height:${adjustedHeight}px`);
       },
-      throttledResizeVideo: throttle(function resizeVideo() {
-        this.resizeVideo();
+      throttledResizePlayer: throttle(function resizePlayer() {
+        this.resizePlayer();
       }, 300),
 
       throttledUpdateVolume: throttle(function updateVolume() {
@@ -166,16 +184,16 @@
       }, 1000),
 
       updateVolume() {
-        Lockr.set('videoVolume', this.videoPlayer.volume());
-        Lockr.set('videoMuted', this.videoPlayer.muted());
+        Lockr.set('playerVolume', this.player.volume());
+        Lockr.set('playerMuted', this.player.muted());
       },
 
       updateRate() {
-        Lockr.set('videoRate', this.videoPlayer.playbackRate());
+        Lockr.set('playerRate', this.player.playbackRate());
       },
 
       updateLang() {
-        const currentTrack = Array.from(this.videoPlayer.textTracks()).find(
+        const currentTrack = Array.from(this.player.textTracks()).find(
           track => track.mode === 'showing'
         );
         if (currentTrack) {
@@ -184,12 +202,12 @@
       },
 
       getDefaults() {
-        this.videoVolume = Lockr.get('videoVolume') || this.videoVolume;
-        this.videoMuted = Lockr.get('videoMuted') || this.videoMuted;
-        this.videoRate = Lockr.get('videoRate') || this.videoRate;
-        this.videoPlayer.volume(this.videoVolume);
-        this.videoPlayer.muted(this.videoMuted);
-        this.videoPlayer.playbackRate(this.videoRate);
+        this.playerVolume = Lockr.get('playerVolume') || this.playerVolume;
+        this.playerMuted = Lockr.get('playerMuted') || this.playerMuted;
+        this.playerRate = Lockr.get('playerRate') || this.playerRate;
+        this.player.volume(this.playerVolume);
+        this.player.muted(this.playerMuted);
+        this.player.playbackRate(this.playerRate);
       },
 
       focusOnPlayControl() {
@@ -198,11 +216,11 @@
       },
       handleSeek() {
         this.recordProgress();
-        this.dummyTime = this.videoPlayer.currentTime();
+        this.dummyTime = this.player.currentTime();
         this.lastUpdateTime = this.dummyTime;
       },
       updateTime() {
-        this.dummyTime = this.videoPlayer.currentTime();
+        this.dummyTime = this.player.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
           this.lastUpdateTime = this.dummyTime;
@@ -221,24 +239,24 @@
           'updateProgress',
           Math.max(
             0,
-            (this.dummyTime - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration())
+            (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
           )
         );
-        this.progressStartingPoint = this.videoPlayer.currentTime();
+        this.progressStartingPoint = this.player.currentTime();
       },
-      updateVideoSizeClass() {
-        this.videoPlayer.removeClass('player-medium');
-        this.videoPlayer.removeClass('player-small');
-        this.videoPlayer.removeClass('player-tiny');
+      updatePlayerSizeClass() {
+        this.player.removeClass('player-medium');
+        this.player.removeClass('player-small');
+        this.player.removeClass('player-tiny');
 
         if (this.elSize.width < 600) {
-          this.videoPlayer.addClass('player-medium');
+          this.player.addClass('player-medium');
         }
         if (this.elSize.width < 480) {
-          this.videoPlayer.addClass('player-small');
+          this.player.addClass('player-small');
         }
         if (this.elSize.width < 360) {
-          this.videoPlayer.addClass('player-tiny');
+          this.player.addClass('player-tiny');
         }
       },
     },
@@ -251,13 +269,13 @@
     },
     mounted() {
       this.initPlayer();
-      window.addEventListener('resize', this.throttledResizeVideo);
+      window.addEventListener('resize', this.throttledResizePlayer);
     },
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
-      window.removeEventListener('resize', this.throttledResizeVideo);
-      this.videoPlayer.dispose();
+      window.removeEventListener('resize', this.throttledResizePlayer);
+      this.player.dispose();
     },
   };
 

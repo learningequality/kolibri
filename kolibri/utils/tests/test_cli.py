@@ -42,7 +42,7 @@ def test_plugin_cannot_be_imported_disable(conf):
 
 def test_real_plugin_disable(conf):
     installed_apps_before = conf.config["INSTALLED_APPS"][:]
-    test_plugin = "kolibri.plugins.audio_mp3_render"
+    test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
     cli.plugin(test_plugin, disable=True)
@@ -51,7 +51,7 @@ def test_real_plugin_disable(conf):
 
 def test_real_plugin_disable_twice(conf):
     installed_apps_before = conf.config["INSTALLED_APPS"][:]
-    test_plugin = "kolibri.plugins.audio_mp3_render"
+    test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
     cli.plugin(test_plugin, disable=True)
