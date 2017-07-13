@@ -22,7 +22,7 @@
       :extraFields="content.extra_fields"
       :initSession="initSession">
       <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn float" :text="$tr('nextContent')" alignment="right">
-        <mat-svg v-if="align==='right'" class="arrow" category="navigation" name="chevron_right"/>
+        <mat-svg v-if="isRtl" class="arrow" category="navigation" name="chevron_right"/>
         <mat-svg v-else class="arrow" category="navigation" name="chevron_left"/>
       </icon-button>
     </content-renderer>
