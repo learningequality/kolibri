@@ -24,11 +24,11 @@ function generateMessagesObject(messagesObject) {
       operator: '=',
       left: {
         type: 'Identifier',
-        name: 'messages'
+        name: 'messages',
       },
       right: messagesObject,
-    }
-  }
+    },
+  };
   return eval(escodegen.generate(messagesAST));
 }
 
@@ -47,9 +47,7 @@ extract$trs.prototype.apply = function(compiler) {
       if (messageNameSpace) {
         // Warn about duplicate nameSpaces *within* a bundle (no way to warn across).
         if (nameSpaces.indexOf(messageNameSpace) !== -1) {
-          logging.error(
-            'Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource
-          );
+          logging.error('Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource);
         } else if (Object.keys(messages).length) {
           // Check that the trNameSpace id is camelCase.
           if (!isCamelCase(messageNameSpace)) {
@@ -151,7 +149,11 @@ extract$trs.prototype.apply = function(compiler) {
               registerFoundMessages(messageNameSpace, messages, module);
             }
           });
-        } else if (module.resource && module.resource.indexOf('.js') === module.resource.length - 3 && !module.resource.includes('node_modules')) {
+        } else if (
+          module.resource &&
+          module.resource.indexOf('.js') === module.resource.length - 3 &&
+          !module.resource.includes('node_modules')
+        ) {
           // Inspect each source file in the chunk if it is a js file too.
           var ast = esprima.parse(module._source.source(), {
             sourceType: 'module',
@@ -160,9 +162,11 @@ extract$trs.prototype.apply = function(compiler) {
           // First find the reference being used for the create translator function
           ast.body.forEach(node => {
             // Check if an import
-            if (node.type === esprima.Syntax.ImportDeclaration &&
+            if (
+              node.type === esprima.Syntax.ImportDeclaration &&
               // Check if importing from the i18n alias
-              node.source.value === i18nAlias) {
+              node.source.value === i18nAlias
+            ) {
               node.specifiers.forEach(spec => {
                 // Check if this import spec is for the createTranslator function
                 if (spec.imported.name === 'createTranslator') {
@@ -176,13 +180,14 @@ extract$trs.prototype.apply = function(compiler) {
             function getVarScope(name) {
               return scopeChain.find(scope => typeof scope[name] !== 'undefined');
             }
-            if (node.type === esprima.Syntax.FunctionDeclaration ||
+            if (
+              node.type === esprima.Syntax.FunctionDeclaration ||
               node.type === esprima.Syntax.FunctionExpression ||
-              node.type === esprima.Syntax.Program) {
+              node.type === esprima.Syntax.Program
+            ) {
               // These node types create a new scope
               scopeChain.unshift({});
             }
-            console.log(scopeChain);
             var localScope = scopeChain[0];
             // New declarations only affect the local scope
             if (node.type === esprima.Syntax.VariableDeclaration) {
@@ -191,20 +196,23 @@ extract$trs.prototype.apply = function(compiler) {
               });
             }
             // Check if is an expression
-            if (node.type === esprima.Syntax.ExpressionStatement &&
+            if (
+              node.type === esprima.Syntax.ExpressionStatement &&
               // That assigns a value
               node.expression.type === esprima.Syntax.AssignmentExpression &&
               // To a variable
               node.expression.left.type === esprima.Syntax.Identifier &&
               // But only handle equality, because other kinds are difficult to track
-              node.expression.operator === '=') {
+              node.expression.operator === '='
+            ) {
               // Find the relevant scope where the variable being assigned to is defined
               var varScope = getVarScope(node.expression.left.name);
-              console.log(node);
               varScope[node.expression.left.name] = node.expression.right;
             }
-            if (node.type === esprima.Syntax.CallExpression &&
-              node.callee.name === createTranslateFn) {
+            if (
+              node.type === esprima.Syntax.CallExpression &&
+              node.callee.name === createTranslateFn
+            ) {
               var messageNameSpace, messages;
               var firstArg = node.arguments[0];
               if (firstArg.type === esprima.Syntax.Literal) {
@@ -216,7 +224,9 @@ extract$trs.prototype.apply = function(compiler) {
                 if (varScope) {
                   messageNameSpace = varScope[firstArg.name].value;
                 } else {
-                  logging.warn(`Translator object called with undefined name space argument in ${module.resource}`);
+                  logging.warn(
+                    `Translator object called with undefined name space argument in ${module.resource}`
+                  );
                 }
               }
               var secondArg = node.arguments[1];
@@ -229,7 +239,9 @@ extract$trs.prototype.apply = function(compiler) {
                 if (varScope) {
                   messages = generateMessagesObject(varScope[secondArg.name]);
                 } else {
-                  logging.warn(`Translator object called with undefined messages argument in ${module.resource}`);
+                  logging.warn(
+                    `Translator object called with undefined messages argument in ${module.resource}`
+                  );
                 }
               }
               registerFoundMessages(messageNameSpace, messages, module);
@@ -238,7 +250,6 @@ extract$trs.prototype.apply = function(compiler) {
               if (node.hasOwnProperty(key)) {
                 var child = node[key];
                 if (typeof child === 'object' && child !== null) {
-
                   if (Array.isArray(child)) {
                     child.forEach(function(node) {
                       traverseTree(node, scopeChain);
@@ -249,11 +260,12 @@ extract$trs.prototype.apply = function(compiler) {
                 }
               }
             }
-            if (node.type === esprima.Syntax.FunctionDeclaration ||
+            if (
+              node.type === esprima.Syntax.FunctionDeclaration ||
               node.type === esprima.Syntax.FunctionExpression ||
-              node.type === esprima.Syntax.Program) {
+              node.type === esprima.Syntax.Program
+            ) {
               // Leaving this scope now!
-              console.log(node.type);
               scopeChain.shift();
             }
           }
