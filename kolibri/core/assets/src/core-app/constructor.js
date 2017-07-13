@@ -86,7 +86,7 @@ export default class CoreApp {
           defaultMessage: defaultMessageText,
         };
         if (vue.locale === 'rt-lft') {
-          return toFakeRTL(defaultMessageText);
+          message.defaultMessage = toFakeRTL(defaultMessageText);
         }
         return formatter(message, args);
       }

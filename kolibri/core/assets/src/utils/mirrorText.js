@@ -139,22 +139,17 @@ function transformSentences(text, options) {
       words = expandedWords;
     }
 
-    if (options.accents) {
-      const accentedWords = [];
-      words.forEach(word => {
-        word = Array.from(word)
-          .map(char => {
-            return mapping[char] ? mapping[char] : char;
-          })
-          .join('');
-        accentedWords.push(word);
-      });
-      words = accentedWords;
-    }
-
     text = words.join(' ');
   }
   return text;
+}
+
+function mirrorWord(word) {
+  return Array.from(word)
+    .map(char => {
+      return mapping[char] ? mapping[char] : char;
+    })
+    .join('');
 }
 
 /**
@@ -170,12 +165,12 @@ function walkAST(node, parts) {
       const hash = node.value.split('#');
       if (hash.length > 1) {
         hash.forEach(part => {
-          parts.push({ token: false, text: part });
+          parts.push({ token: false, text: mirrorWord(part) });
           parts.push({ token: true, text: '#' });
         });
         parts.pop();
       } else {
-        parts.push({ token: false, text: node.value });
+        parts.push({ token: false, text: mirrorWord(node.value) });
       }
       break;
     case 'messageFormatPattern':
@@ -226,67 +221,45 @@ function walkAST(node, parts) {
  * @param {GeneratorOptions} options Generator options
  * @returns {string} Pseudo generated text
  */
-function toPseudoText(text, options, messageParser) {
+function toPseudoText(text, messageParser) {
   let result = text;
-  if (options) {
-    let message = undefined;
-    try {
-      message = messageParser.parse(text);
-    } catch (err) {
-      if (options.forceException) {
-        throw err;
-      }
-    }
-
-    const parts = [];
-    if (message) {
-      walkAST(message, parts, options);
-    } else {
-      parts.push({ text });
-    }
-
-    for (let index = 0; index < parts.length; index++) {
-      if (!parts[index].token && parts[index].text !== ' ') {
-        // Text part can start or end with space
-        const startsFromSpace = parts[index].text[0] === ' ';
-        const endsWithSpace = parts[index].text[parts[index].text.length - 1] === ' ';
-
-        parts[index].text = `${startsFromSpace ? ' ' : ''}${transformSentences(
-          parts[index].text.trim(),
-          options
-        )}${endsWithSpace ? ' ' : ''}`;
-      }
-    }
-
-    if (options.exclamations) {
-      parts.splice(0, 0, { text: '!!! ' });
-      parts.push({ text: ' !!!' });
-    }
-
-    if (options.brackets) {
-      parts.splice(0, 0, { text: '[ ' });
-      parts.push({ text: ' ]' });
-    }
-
-    result = parts.map(part => part.text).join('');
-
-    if (options.rightToLeft) {
-      const RLO = '\u202e';
-      const PDF = '\u202c';
-      const RLM = '\u200F';
-      result = RLM + RLO + result + PDF + RLM;
+  let message = undefined;
+  try {
+    message = messageParser.parse(text);
+  } catch (err) {
+    if (options.forceException) {
+      throw err;
     }
   }
+
+  const parts = [];
+  if (message) {
+    walkAST(message, parts);
+  } else {
+    parts.push({ text });
+  }
+
+  for (let index = 0; index < parts.length; index++) {
+    if (!parts[index].token && parts[index].text !== ' ') {
+      // Text part can start or end with space
+      const startsFromSpace = parts[index].text[0] === ' ';
+      const endsWithSpace = parts[index].text[parts[index].text.length - 1] === ' ';
+
+      parts[index].text = `${startsFromSpace ? ' ' : ''}${parts[index].text.trim()}${endsWithSpace
+        ? ' '
+        : ''}`;
+    }
+  }
+
+  result = parts.map(part => part.text).join('');
+
+  const RLO = '\u202e';
+  const PDF = '\u202c';
+  const RLM = '\u200F';
+  result = RLM + RLO + result + PDF + RLM;
   return result;
 }
 
 export function toFakeRTL(text) {
-  return toPseudoText(
-    text,
-    {
-      accents: true,
-      rightToLeft: true,
-    },
-    IntlMessageFormatParser
-  );
+  return toPseudoText(text, IntlMessageFormatParser);
 }
