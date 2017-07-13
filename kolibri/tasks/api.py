@@ -24,8 +24,7 @@ from rest_framework.response import Response
 from barbequeue.common.classes import State
 
 from .permissions import IsDeviceOwnerOnly
-from .apps import client
-
+from .client import get_client
 
 logging = logger.getLogger(__name__)
 
@@ -37,7 +36,7 @@ class TasksViewSet(viewsets.ViewSet):
     permission_classes = (IsDeviceOwnerOnly,)
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in client.all_jobs()]
+        jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
         return Response(jobs_response)
 
     def create(self, request):
@@ -45,7 +44,7 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        task = _job_to_response(client.status(pk))
+        task = _job_to_response(get_client().status(pk))
         return Response(task)
 
     def destroy(self, request, pk=None):
@@ -73,11 +72,11 @@ class TasksViewSet(viewsets.ViewSet):
                 _("The requested channel does not exist on the content server")
             )
 
-        task_id = client.schedule(
+        task_id = get_client().schedule(
             _networkimport, channel_id, track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(client.status(task_id))
+        resp = _job_to_response(get_client().status(task_id))
 
         return Response(resp)
 
@@ -92,11 +91,11 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'drive_id' field is required.")
 
-        job_id = client.schedule(
+        job_id = get_client().schedule(
             _localimport, request.data['drive_id'], track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(client.status(job_id))
+        resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)
 
@@ -111,11 +110,11 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'drive_id' field is required.")
 
-        job_id = client.schedule(
+        job_id = get_client().schedule(
             _localexport, request.data['drive_id'], track_progress=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(client.status(job_id))
+        resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)
 
@@ -129,7 +128,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
 
-        client.clear(force=True)
+        get_client().clear(force=True)
         return Response({})
 
     @list_route(methods=['get'])
