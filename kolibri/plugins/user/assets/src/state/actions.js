@@ -1,6 +1,6 @@
 import { PageNames } from '../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import { isUserLoggedIn, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 import {
   SignUpResource,
@@ -14,7 +14,7 @@ function redirectToHome() {
 }
 
 function showRoot(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -30,7 +30,7 @@ function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
-    if (coreGetters.isAdmin(store.state)) {
+    if (isSuperuser(store.state)) {
       return DeviceOwnerResource.getModel(session.user_id);
     }
     return FacilityUserResource.getModel(session.user_id);
@@ -98,7 +98,7 @@ function resetProfileState(store) {
 }
 
 function showProfile(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (!userSignedIn) {
     router.getInstance().replace({
       name: PageNames.SIGN_IN,
@@ -113,7 +113,7 @@ function showProfile(store) {
 }
 
 function showSignIn(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -138,7 +138,7 @@ function resetSignUpState(store) {
 }
 
 function showSignUp(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
