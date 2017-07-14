@@ -21,7 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right"/>
+      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="right" :text="$tr('nextContent')" alignment="right"/>
     </content-renderer>
 
     <assessment-wrapper
@@ -40,7 +40,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right"/>
+      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="right" :text="$tr('nextContent')" alignment="right"/>
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -85,7 +85,7 @@
       :kind="content.next_content.kind"
       :title="content.next_content.title">
 
-      <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right"/>
+      <icon-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
     </content-points>
 
   </div>
@@ -233,17 +233,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .next-btn
-    background-color: #4A8DDC
-    border: none
-    color: $core-bg-light
-    &:hover
-      &:not(.is-disabled)
-        background-color: #336db1
-
-  .next-btn:hover svg
-    fill: $core-bg-light
 
   .right
     float: right

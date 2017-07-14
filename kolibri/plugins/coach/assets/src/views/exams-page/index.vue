@@ -9,15 +9,13 @@
       v-model="filterSelected"
       class="radio-group"
     />
-    <ui-button
-      type="primary"
-      color="primary"
+    <icon-button
+      :primary="true"
       :raised="true"
-      icon="add"
       class="create-button"
-      @click="openCreateExamModal">
-      {{ $tr('newExam') }}
-    </ui-button>
+      @click="openCreateExamModal"
+      :text="$tr('newExam')"
+    />
     <table v-if="sortedExams.length">
       <thead>
         <tr>
@@ -109,7 +107,7 @@
   import { Modals as ExamModals } from '../../examConstants';
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
-  import uiButton from 'keen-ui/src/UiButton';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiRadioGroup from 'keen-ui/src/UiRadioGroup';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
@@ -135,7 +133,7 @@
       noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
-      uiButton,
+      iconButton,
       uiRadioGroup,
       examRow,
       createExamModal,

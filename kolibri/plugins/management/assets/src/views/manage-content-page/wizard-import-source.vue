@@ -4,10 +4,12 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button
+          :primary="true"
           :text="$tr('internet')"
           :showTextBelowIcon="true"
           @click="goForward('network')"/>
         <icon-button
+          :primary="true"
           :text="$tr('localDrives')"
           :showTextBelowIcon="true"
           @click="goForward('local')"/>

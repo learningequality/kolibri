@@ -30,25 +30,19 @@
         </div>
 
         <div>
-          <ui-button
-            :ariaLabel="$tr('resetToDefaultSettings')"
+          <icon-button
+            :primary="false"
+            :raised="true"
             @click="showModal=true"
-            class="mr"
-            name="reset-settings"
-          >
-            {{ $tr('resetToDefaultSettings') }}
-          </ui-button>
+            :text="$tr('resetToDefaultSettings')"
+          />
 
-          <span class="space"></span>
-
-          <ui-button
-            :ariaLabel="$tr('saveChanges')"
+          <icon-button
+            :primary="true"
+            :raised="true"
             @click="saveFacilityConfig()"
-            color="primary"
-            name="save-settings"
-          >
-            {{ $tr('saveChanges') }}
-          </ui-button>
+            :text="$tr('saveChanges')"
+          />
         </div>
       </div>
     </template>
@@ -81,13 +75,13 @@
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
   import uiCheckbox from 'keen-ui/src/UiCheckbox';
-  import uiButton from 'keen-ui/src/UiButton';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
     components: {
       confirmResetModal,
       notifications,
       uiCheckbox,
-      uiButton,
+      iconButton,
     },
     data: () => ({ showModal: false }),
     computed: { settingsList: () => settingsList },
@@ -138,9 +132,6 @@
 
 
 <style lang="stylus" scoped>
-
-  .mr
-    margin-right: 5px
 
   .mb
     margin-bottom: 2rem

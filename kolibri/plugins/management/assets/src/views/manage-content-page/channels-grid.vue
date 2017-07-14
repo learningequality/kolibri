@@ -76,7 +76,6 @@
   import map from 'lodash/map';
   import orderBy from 'lodash/orderBy';
   import find from 'lodash/find';
-  import uiButton from 'keen-ui/src/UiButton';
   import IconButton from 'kolibri.coreVue.components.iconButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
@@ -102,7 +101,6 @@
       },
     },
     components: {
-      uiButton,
       uiProgressCircular,
       deleteChannelModal,
       elapsedTime,

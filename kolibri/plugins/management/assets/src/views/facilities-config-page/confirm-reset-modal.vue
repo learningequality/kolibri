@@ -4,29 +4,24 @@
     :title="$tr('title')"
     @cancel="handleCancel"
   >
-    <div class="tc">
+    <div>
       <p>{{ $tr('confirmationQuestion') }}</p>
       <p>{{ $tr('changesWillBeLost') }}</p>
     </div>
 
-    <div>
-      <ui-button
-        class="w-48 fl"
-        :ariaLabel="$tr('cancel')"
+    <div class="modal-buttons">
+      <icon-button
+        :primary="false"
+        :raised="true"
         @click="handleCancel()"
-        name="cancel"
-      >
-        {{ $tr('cancel') }}
-      </ui-button>
-      <ui-button
-        class="w-48 fr"
-        :ariaLabel="$tr('reset')"
+        :text="$tr('cancel')"
+      />
+      <icon-button
+        :primary="true"
+        :raised="true"
         @click="handleConfirm()"
-        color="primary"
-        name="reset"
-      >
-        {{ $tr('reset') }}
-      </ui-button>
+        :text="$tr('reset')"
+      />
 
     </div>
 
@@ -38,11 +33,11 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import uiButton from 'keen-ui/src/UiButton';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
     components: {
       coreModal,
-      uiButton,
+      iconButton,
     },
     methods: {
       handleConfirm() {
@@ -67,16 +62,7 @@
 
 <style lang="stylus" scoped>
 
-  .tc
-    text-align: center
-
-  .fl
-    float: left
-
-  .fr
-    float: right
-
-  .w-48
-    width: 48%
+  .modal-buttons
+    text-align: right
 
 </style>
