@@ -13,6 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
 from django.utils.timezone import now
+from django.utils.translation import get_language, get_language_bidi
 from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
 from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
@@ -21,6 +22,22 @@ from rest_framework.test import APIClient
 from six import iteritems
 
 register = template.Library()
+
+@register.simple_tag(takes_context=True)
+def kolibri_language_globals(context):
+    lang_dir = "rtl" if get_language_bidi() else "ltr"
+    js = """
+    <script>
+      var languageCode = '{lang_code}';
+      var languageDir = '{lang_dir}';
+      var languages = JSON.parse('{languages}');
+    </script>
+    """.format(
+        lang_code=get_language(),
+        lang_dir=lang_dir,
+        languages=json.dumps({code: {'code': code, 'name': name} for code, name in settings.LANGUAGES}),
+    )
+    return mark_safe(js)
 
 
 @register.simple_tag()

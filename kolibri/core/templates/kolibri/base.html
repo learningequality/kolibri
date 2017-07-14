@@ -1,6 +1,5 @@
 {% load i18n kolibri_tags webpack_tags content_tags cache %}
 {% load staticfiles %}
-{% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
 <html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}">
@@ -47,11 +46,7 @@
   </script>
 </rootvue>
 {% block frontend_assets %}
-<script>
-  // Set global language variable.
-  var languageCode = "{{ LANGUAGE_CODE }}";
-  var languageBidi = "{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}";
-</script>
+{% kolibri_language_globals %}
 {% cache 5000 default_frontend %}
   {% webpack_asset 'default_frontend' %}
 {% endcache %}

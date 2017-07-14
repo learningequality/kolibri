@@ -129,9 +129,9 @@ function setUpVueIntl() {
    **/
   vue.use(VueIntl, { defaultLocale: 'en-us' });
 
-  vue.prototype.isRtl = global.languageBidi === 'rtl';
+  vue.prototype.isRtl = global.languageDir === 'rtl';
 
-  languageDirection = global.languageBidi || languageDirection;
+  languageDirection = global.languageDir || languageDirection;
 
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
