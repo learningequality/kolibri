@@ -5,7 +5,7 @@
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
-    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/>
+    <icon-button @click="clearTaskHandler" :text="buttonMessage"/>
   </div>
 
 </template>
@@ -112,10 +112,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .buttons
-    margin: 10px
-    text-align: center
 
   .task
     text-align: center

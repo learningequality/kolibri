@@ -6,10 +6,7 @@
       v-if="fullscreenAllowed && supportsPDFs"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
-      :primary="true">
-      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
-      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
-    </icon-button>
+      :primary="true"/>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 

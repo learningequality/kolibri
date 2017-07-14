@@ -14,13 +14,11 @@
 
         <icon-button
           :text="$tr('cancel')"
-          class="undo-btn"
           @click="close"
         />
 
         <icon-button
           :text="$tr('remove')"
-          class="confirm-btn"
           :primary="true"
           @click="userRemove"
         />
@@ -109,16 +107,13 @@
 
   @require '~kolibri.styles.definitions'
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
-
   .header
     text-align: center
 
   p
     word-break: keep-all
+
+  section
+    text-align: right
 
 </style>

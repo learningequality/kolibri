@@ -296,7 +296,6 @@
       margin-top: 0
 
   #submit
-    width: 90%
     display: block
     margin-left: auto
     margin-right: auto

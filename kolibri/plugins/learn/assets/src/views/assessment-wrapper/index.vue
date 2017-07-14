@@ -439,8 +439,6 @@ oriented data synchronization.
 
   .question-btn
     color: $core-bg-light
-    padding-left: 16px
-    padding-right: 16px
     margin-left: 1.5em
 
   .check-answer-button

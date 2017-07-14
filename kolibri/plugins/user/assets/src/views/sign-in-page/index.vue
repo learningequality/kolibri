@@ -53,10 +53,10 @@
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
         <router-link v-if="canSignUp" class="group-btn" :to="signUp">
-          <icon-button id="signup-button" :text="$tr('createAccount')" :primary="true"/>
+          <icon-button :text="$tr('createAccount')" :primary="true"/>
         </router-link>
         <a class="group-btn" href="/learn">
-          <icon-button id="guest-access-button" :text="$tr('accessAsGuest')" :primary="false"/>
+          <icon-button :text="$tr('accessAsGuest')" :primary="false"/>
         </a>
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
@@ -229,11 +229,6 @@
       &button
         background-color: $login-red
 
-        &#guest-access-button
-          background-color: transparent
-          color: $login-text
-          border: 2px solid $core-action-normal
-
 </style>
 
 
@@ -291,7 +286,6 @@
     display: block
     margin: auto
     margin-top: 38px
-    width: 100%
 
   #btn-group
     display: table

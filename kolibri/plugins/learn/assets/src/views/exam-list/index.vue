@@ -22,8 +22,8 @@
           </p>
           <div class="button-or-score">
             <router-link :to="generateExamLink(exam)">
-              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"></icon-button>
-              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"></icon-button>
+              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"/>
+              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"/>
             </router-link>
           </div>
         </div>

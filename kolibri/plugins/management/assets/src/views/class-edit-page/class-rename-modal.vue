@@ -19,14 +19,12 @@
 
         <section class="footer">
           <icon-button
-            class="undo-btn"
             type="button"
             :text="$tr('cancel')"
             @click="close"
           />
 
           <icon-button
-            class="update-btn"
             type="submit"
             :text="$tr('update')"
             :primary="true"
@@ -115,8 +113,5 @@
 
   .footer
     text-align: center
-
-  .update-btn, .undo-btn
-    width: 48%
 
 </style>

@@ -6,14 +6,12 @@
       <ul class="review-enroll-ul">
         <li class="review-enroll-li" v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
-      <div>
+      <div class="modal-buttons">
         <icon-button
           :text="$tr('noGoBack')"
-          class="undo-btn"
           @click="close"/>
         <icon-button
           :text="$tr('yesEnrollUsers')"
-          class="confirm-btn"
           :primary="true"
           @click="enrollUsers"/>
       </div>
@@ -104,10 +102,7 @@
   .header
     text-align: center
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  .modal-buttons
+    text-align: right
 
 </style>

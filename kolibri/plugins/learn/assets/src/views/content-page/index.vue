@@ -21,9 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
-        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
-      </icon-button>
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right"/>
     </content-renderer>
 
     <assessment-wrapper
@@ -42,9 +40,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
-        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
-      </icon-button>
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right"/>
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -89,9 +85,7 @@
       :kind="content.next_content.kind"
       :title="content.next_content.title">
 
-      <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right">
-        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
-      </icon-button>
+      <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right"/>
     </content-points>
 
   </div>
@@ -253,12 +247,6 @@
 
   .right
     float: right
-
-  .right-arrow
-    fill: $core-bg-light
-
-  .right-arrow:hover
-    fill: $core-bg-light
 
   .metadata
     font-size: smaller

@@ -24,7 +24,6 @@
           v-if="canMove"
           :text="$tr('moveLearners')"
           :primary="true"
-          size="small"
           @click="emitMove"
           :disabled="selectedUsers.length === 0" />
       </div>

@@ -19,14 +19,12 @@
 
         <section class="footer">
           <icon-button
-            class="undo-btn"
             type="button"
             :text="$tr('cancel')"
             @click="close"
           />
 
           <icon-button
-            class="create-btn"
             type="submit"
             :text="$tr('create')"
             :primary="true"
@@ -103,9 +101,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-
-  .create-btn, .undo-btn
-    width: 48%
+    text-align: right
 
 </style>

@@ -12,7 +12,7 @@
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <icon-button class="submit-exam-button" @click="toggleModal" :text="$tr('submitExam')" :primary="true"></icon-button>
+            <icon-button @click="toggleModal" :text="$tr('submitExam')" :primary="true"/>
           </div>
         </div>
         <div class="question-container">
@@ -43,8 +43,8 @@
                 {{ $tr('noItemId') }}
               </ui-alert>
               <div class="question-navbutton-container">
-                <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
-                <icon-button :disabled="questionNumber===exam.questionCount-1" alignment="right" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
+                <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"/>
+                <icon-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"/>
               </div>
             </div>
           </div>
@@ -230,9 +230,6 @@
 
   .exam-title
     display: inline-block
-
-  .submit-exam-button
-    margin-left: 10px
 
   .questions-answered
     display: inline-block

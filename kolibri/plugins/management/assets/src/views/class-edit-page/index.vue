@@ -33,9 +33,8 @@
       </div>
 
       <div class="enroll">
-        <router-link :to="classEnrollLink" class="table-name">
+        <router-link :to="classEnrollLink">
           <icon-button
-            class="enroll-user-button"
             :text="$tr('enrollUsers')"
             :primary="true"/>
         </router-link>

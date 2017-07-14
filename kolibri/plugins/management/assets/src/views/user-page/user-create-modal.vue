@@ -54,7 +54,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <icon-button class="create-btn" :text="$tr('createAccount')" :primary="true" :loading="loading"/>
+        <icon-button :text="$tr('createAccount')" :primary="true" :loading="loading"/>
       </section>
     </form>
   </core-modal>
@@ -203,9 +203,6 @@
 
   .footer
     text-align: center
-
-  .create-btn
-    width: 200px
 
   .kind-select
     margin-bottom: 3em

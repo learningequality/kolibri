@@ -4,21 +4,13 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button
-          class="large-icon-button"
           :text="$tr('internet')"
           :showTextBelowIcon="true"
-          @click="goForward('network')"
-        >
-          <mat-svg class="icon" category="action" name="language"/>
-        </icon-button>
+          @click="goForward('network')"/>
         <icon-button
-          class="large-icon-button"
           :text="$tr('localDrives')"
           :showTextBelowIcon="true"
-          @click="goForward('local')"
-        >
-          <mat-svg class="icon" category="device" name="storage"/>
-        </icon-button>
+          @click="goForward('local')"/>
       </div>
       <icon-button
         @click="cancel"
@@ -69,11 +61,6 @@
   .main
     text-align: center
     margin-bottom: 4em 0
-
-  .large-icon-button
-    min-width: 150px
-    min-height: 120px
-    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0

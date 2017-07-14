@@ -20,9 +20,7 @@
           />
         </div>
         <div class="refresh-btn-wrapper">
-          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')">
-            <mat-svg category="navigation" name="refresh"/>
-          </icon-button>
+          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')"/>
         </div>
       </template>
       <loading-spinner v-else :delay="500" class="spinner"/>

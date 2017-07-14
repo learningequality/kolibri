@@ -41,9 +41,7 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
-                {{ $tr('deleteClass') }}
-              </button>
+              <icon-button :raised="false" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
             </td>
           </tr>
         </tbody>
@@ -160,9 +158,5 @@
     position: absolute
     top: 0
     right: 0
-
-  .delete-class-button
-    color: $core-text-error
-    border: none
 
 </style>

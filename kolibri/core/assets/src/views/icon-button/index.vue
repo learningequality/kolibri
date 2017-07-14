@@ -67,32 +67,30 @@
   $raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12)
 
   .k-button
+    background: none
+    border: none
     display: inline-block
+    cursor: pointer
+    outline: none
+    overflow: hidden
+    text-align: center
+    text-decoration: none
+    user-select: none
+    white-space: nowrap
     margin: 8px
     padding: 0 16px
     min-width: 64px
     min-height: 36px
-    overflow: hidden
-    user-select: none
-    cursor: pointer
-    outline: none
-    background: none
-    border: none
     border-radius: 2px
     transition: $transition
     font-size: 14px
     font-weight: bold
     line-height: 36px
-    text-align: center
     text-transform: uppercase
-    text-decoration: none
-    vertical-align: top
-    white-space: nowrap
     &:focus
       outline: none
     &::-moz-focus-inner
       border: none
-
 
   .k-button-primary-raised
     background-color: $core-action-normal

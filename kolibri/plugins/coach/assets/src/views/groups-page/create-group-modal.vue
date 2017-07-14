@@ -13,11 +13,9 @@
           :error="$tr('duplicateName')"
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
-          class="cancel-btn"
           @click="close"
           type="button" />
         <icon-button :text="$tr('save')"
-          class="save-btn"
           :primary="true"
           type="submit" />
       </form>

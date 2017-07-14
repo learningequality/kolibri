@@ -28,16 +28,12 @@
               :text="$tr('import')"
               class="button"
               @click="openWizard('import')"
-              :primary="true">
-              <mat-svg category="content" name="add"/>
-            </icon-button>
+              :primary="true"/>
             <icon-button
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="openWizard('export')">
-              <ion-svg name="ios-upload-outline"/>
-            </icon-button>
+              @click="openWizard('export')"/>
           </div>
         </div>
         <hr>

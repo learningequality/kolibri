@@ -36,8 +36,8 @@
         </div>
 
         <div class="advanced-options" @keydown.enter.stop>
-          <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
-          <button @click="usr_delete=!usr_delete" :disabled="userid === session_user_id"> {{$tr('deleteUsr')}}</button>
+          <icon-button @click="pw_reset=!pw_reset" :text="$tr('resetPw')" :raised="false"/>
+          <icon-button @click="usr_delete=!usr_delete" :disabled="userid === session_user_id" :text="$tr('deleteUsr')" :raised="false"/>
         </div>
 
         <hr class="end-modal">
@@ -78,13 +78,11 @@
 
         <icon-button
           :text="cancelText"
-          class="undo-btn"
           @click="cancelClick"
         />
 
         <icon-button
           :text="submitText"
-          class="confirm-btn"
           :primary="true"
           @click="submit"
         />
@@ -291,11 +289,8 @@
   .title
     display: inline
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  section
+    text-align: right
 
   .cancel-btn
     float:left

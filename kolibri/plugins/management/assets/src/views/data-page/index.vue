@@ -14,9 +14,7 @@
         {{$tr('detailsSubHeading')}}
       </p>
       <form :action="sessionlogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
+        <icon-button :text="$tr('download')"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
@@ -29,9 +27,7 @@
         {{$tr('summarySubHeading')}}
       </p>
       <form :action="summarylogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
+        <icon-button :text="$tr('download')"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}

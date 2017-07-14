@@ -6,9 +6,7 @@
         :text="$tr('newGroup')"
         :primary="true"
         @click="openCreateGroupModal"
-      >
-        <mat-svg category="content" name="add" />
-      </icon-button>
+      />
     </div>
 
     <create-group-modal v-if="showCreateGroupModal"

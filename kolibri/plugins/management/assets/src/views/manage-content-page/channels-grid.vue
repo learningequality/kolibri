@@ -47,12 +47,11 @@
             <elapsed-time :date="channel.last_updated" />
           </td>
           <td>
-            <button
+            <icon-button
               @click="selectedChannelId=channel.id"
-              class="delete-button"
-            >
-              {{ $tr('deleteButtonLabel') }}
-            </button>
+              :raised="false"
+              :text="$tr('deleteButtonLabel')"
+            />
           </td>
         </tr>
       </tbody>
@@ -78,6 +77,7 @@
   import orderBy from 'lodash/orderBy';
   import find from 'lodash/find';
   import uiButton from 'keen-ui/src/UiButton';
+  import IconButton from 'kolibri.coreVue.components.iconButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
@@ -106,6 +106,7 @@
       uiProgressCircular,
       deleteChannelModal,
       elapsedTime,
+      IconButton,
     },
     mounted() {
       this.addChannelFileSummaries(map(this.channelList, 'id'));
@@ -185,13 +186,5 @@
 
   .table-cell-title
     font-weight: bold
-
-  .delete-button
-    $red = rgb(255, 0 , 0)
-    transition: none
-    border-style: none
-    color: $red
-    &:hover
-      color: darken($red, 30)
 
 </style>

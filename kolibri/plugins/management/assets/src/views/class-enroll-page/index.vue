@@ -7,9 +7,7 @@
         <router-link :to="editClassLink" class="link-button">
           <icon-button
             :text="$tr('backToClassDetails')"
-            :primary="false">
-            <mat-svg category="navigation" name="arrow_back"/>
-          </icon-button>
+            :primary="false"/>
         </router-link>
       </div>
 

@@ -31,11 +31,8 @@
       <div class="create">
         <icon-button
           @click="openCreateUserModal"
-          class="create-user-button"
           :text="$tr('addNew')"
-          :primary="true">
-          <mat-svg class="add-user" category="social" name="person_add"/>
-        </icon-button>
+          :primary="true"/>
       </div>
 
     </div>
@@ -91,10 +88,7 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button class="edit-user-button" @click="openEditUserModal(user)">
-              <span class="visuallyhidden">$tr('editAccountInfo')</span>
-              <mat-svg category="editor" name="mode_edit"/>
-            </icon-button>
+            <icon-button @click="openEditUserModal(user)" :text="$tr('editAccountInfo')" :raised="false"/>
           </td>
 
         </tr>
@@ -192,7 +186,7 @@
     $trNameSpace: 'userPage',
     $trs: {
       filterUserType: 'Filter User Type',
-      editAccountInfo: 'Edit Account Information',
+      editAccountInfo: 'Edit',
       searchText: 'Search for a user...',
       allUsers: 'All Users',
       admins: 'Admins',
@@ -295,17 +289,6 @@
     height: $toolbar-height
     float: left
     margin-left: 5px
-
-  .edit-user-button
-    border: none
-    svg
-      fill: $core-action-normal
-      cursor: pointer
-      &:hover
-        fill: $core-action-dark
-
-  .create-user-button
-    width: 100%
 
 
   @media screen and (min-width: $portrait-breakpoint + 1)
