@@ -1,10 +1,10 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
-    <div slot="app-bar-actions">
+    <template slot="app-bar-actions">
       <action-bar-search-box v-if="!isWithinSearchPage"/>
       <channel-switcher @switch="switchChannel"/>
-    </div>
+    </template>
 
     <div v-if="tabLinksAreVisible" class="tab-links">
       <tabs>

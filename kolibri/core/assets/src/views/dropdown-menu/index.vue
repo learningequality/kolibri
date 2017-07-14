@@ -3,6 +3,7 @@
   <span>
     <span v-if="windowSize.breakpoint > 2">
       <ui-button
+        :disabled="disabled"
         :ariaLabel="name"
         :type="type"
         :color="color"
@@ -22,6 +23,7 @@
     </span>
     <span v-else>
       <ui-icon-button
+        :disabled="disabled"
         :ariaLabel="name"
         :type="type"
         :color="color"
@@ -81,6 +83,10 @@
         default: false,
       },
       displayDisabledAsSelected: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },
