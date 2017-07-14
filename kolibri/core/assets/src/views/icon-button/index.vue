@@ -103,7 +103,7 @@
       background-color: $core-action-dark
     &:disabled
       background-color: rgba($core-action-normal, 0.75)
-      color: rgba(white, 0.5)
+      color: rgba(white, 0.45)
 
   .k-button-primary-flat
     color: $core-action-normal
@@ -118,15 +118,15 @@
     &:hover, &:focus
       background-color: $grey-300
     &:disabled
-      background-color: rgba($grey-200, 0.75)
-      color: rgba($core-text-default, 0.5)
+      background-color: rgba($core-text-default, 0.1)
+      color: rgba($core-text-default, 0.25)
 
   .k-button-secondary-flat
     color: $core-text-default
     &:hover, &:focus
       background-color: $grey-300
     &:disabled
-      color: rgba($core-text-default, 0.5)
+      color: rgba($core-text-default, 0.25)
 
   .k-button-primary-raised, .k-button-secondary-raised
     box-shadow: $raised-shadow
