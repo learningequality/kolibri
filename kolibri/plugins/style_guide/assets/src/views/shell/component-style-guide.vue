@@ -7,6 +7,10 @@
 
     <table-of-contents></table-of-contents>
 
+    <h2>Status</h2>
+    <p v-if="status === 'complete'" class="status-complete">Fully implemented</p>
+    <p v-else class="status-incomplete">Not fully implemented</p>
+
     <h2 id="guidelines-and-usage">Guidelines & Usage</h2>
     <slot name="guidelines-and-usage"></slot>
 
@@ -40,6 +44,13 @@
       requirePath: {
         type: String,
       },
+      status: {
+        type: String,
+        default: 'incomplete',
+        validator(value) {
+          return ['complete', 'incomplete'].includes(value);
+        },
+      },
     },
     components: {
       componentApi,
@@ -50,4 +61,14 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .status-complete
+    color: $core-status-correct
+
+  .status-incomplete
+    color: $core-status-wrong
+
+</style>

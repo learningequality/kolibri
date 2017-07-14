@@ -5,6 +5,7 @@
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="CoreButtonApi"
       :requirePath="requirePath"
+      :status="'complete'"
     >
 
     <h1 slot="title">Buttons</h1>
