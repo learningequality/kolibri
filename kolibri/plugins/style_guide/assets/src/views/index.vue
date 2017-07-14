@@ -95,21 +95,17 @@
         margin-bottom: 0.3em
 
   .vuep
-    flex-direction: column-reverse
+    display: initial
+    height: initial
     margin-top: 1.3em
-    height: 1000px
 
     .vuep-preview,
     .vuep-editor
       width: 100%
 
     .vuep-preview
-      height: 100px
-      padding: 10px
+      padding: 0
       border: none
-
-    .vuep-editor
-      height: 100%
 
   table,
   th,
