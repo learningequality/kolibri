@@ -29,6 +29,17 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   return formatter(message, args);
 }
 
+const defaultLocale = 'en';
+
+export const availableLanguages = {
+  en: {
+    code: 'en',
+    name: 'English',
+  },
+};
+
+export let currentLanguage = defaultLocale;
+
 // Default to ltr
 export let languageDirection = 'ltr';
 
@@ -127,11 +138,15 @@ function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
-  vue.use(VueIntl, { defaultLocale: 'en-us' });
+  vue.use(VueIntl, { defaultLocale });
 
   vue.prototype.isRtl = global.languageDir === 'rtl';
 
   languageDirection = global.languageDir || languageDirection;
+
+  if (global.languages) {
+    Object.assign(availableLanguages, global.languages);
+  }
 
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
@@ -143,11 +158,12 @@ function setUpVueIntl() {
   };
 
   if (global.languageCode) {
-    vue.setLocale(global.languageCode);
-    setLanguageDensity(global.languageCode);
+    currentLanguage = global.languageCode;
+    vue.setLocale(currentLanguage);
+    setLanguageDensity(currentLanguage);
 
     if (global.coreLanguageMessages) {
-      vue.registerMessages(global.languageCode, global.coreLanguageMessages);
+      vue.registerMessages(currentLanguage, global.coreLanguageMessages);
     }
   }
 }
