@@ -63,8 +63,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  $grey-200 = #EEEEEE
-  $grey-300 = #E0E0E0
   $transition = all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
   $raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12)
 
@@ -108,15 +106,15 @@
   .k-button-primary-flat
     color: $core-action-normal
     &:hover, &:focus
-      background-color: $grey-300
+      background-color: $core-grey-300
     &:disabled
       color: rgba($core-action-normal, 0.5)
 
   .k-button-secondary-raised
-    background-color: $grey-200
+    background-color: $core-grey-200
     color: $core-text-default
     &:hover, &:focus
-      background-color: $grey-300
+      background-color: $core-grey-300
     &:disabled
       background-color: rgba($core-text-default, 0.1)
       color: rgba($core-text-default, 0.25)
@@ -124,7 +122,7 @@
   .k-button-secondary-flat
     color: $core-text-default
     &:hover, &:focus
-      background-color: $grey-300
+      background-color: $core-grey-300
     &:disabled
       color: rgba($core-text-default, 0.25)
 
