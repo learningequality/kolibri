@@ -3,7 +3,7 @@
   <component-style-guide
       class="button-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api"
+      :api="CoreButtonApi"
       :requirePath="requirePath"
     >
 
@@ -159,7 +159,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import ComponentStyleGuide from '../../shell/component-style-guide';
   import CoreButton from 'kolibri.coreVue.components.iconButton';
   import CoreButtonApi from '!vue-doc!kolibri.coreVue.components.iconButton';
   FullVue.component('core-button', CoreButton);
@@ -169,48 +169,28 @@
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-  <template>
-  <div class="examples">
-    <div class="example">
-      <h4>Raised</h4>
-      <core-button text="raised primary" :primary="true" :raised="true"></core-button>
-      <core-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></core-button>
-      <core-button text="raised secondary" :primary="false" :raised="true"></core-button>
-      <core-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></core-button>
-    </div>
-
-    <div class="example">
-      <h4>Flat</h4>
-      <core-button text="flat primary" :primary="true" :raised="false"></core-button>
-      <core-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></core-button>
-      <core-button text="flat secondary" :primary="false" :raised="false" ></core-button>
-      <core-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></core-button>
-    </div>
-
-  </div>
-  </template>
-
-  <${script}>
-  module.exports = {
-    data: () => ({
-      selected: true,
-      unselected: false
-    }),
-    components: {
-      // textbox: require('keen-ui/src/UiButton')
-    }
-  };
-  </${script}>
-  `;
+    <template>
+      <div>
+        <core-button text="raised primary" :primary="true" :raised="true"></core-button>
+        <core-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></core-button>
+        <core-button text="raised secondary" :primary="false" :raised="true"></core-button>
+        <core-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></core-button>
+        <core-button text="flat primary" :primary="true" :raised="false"></core-button>
+        <core-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></core-button>
+        <core-button text="flat secondary" :primary="false" :raised="false" ></core-button>
+        <core-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></core-button>
+      </div>
+    </template>
+    `;
 
   export default {
     components: {
-      componentStyleGuide,
+      ComponentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: CoreButtonApi,
-      requirePath: 'kkolibri.coreVue.components.iconButton',
+      CoreButtonApi,
+      requirePath: 'kolibri.coreVue.components.iconButton',
     }),
   };
 

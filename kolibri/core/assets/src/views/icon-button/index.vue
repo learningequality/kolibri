@@ -3,7 +3,7 @@
   <button
     class="k-button"
     ref="button"
-    :class="classes"
+    :class="buttonClass"
     :type="type"
     :disabled="disabled"
     @click="handleClick">
@@ -36,21 +36,16 @@
       type: { type: String },
     },
     computed: {
-      classes() {
-        let classes = [];
+      buttonClass() {
         if (this.primary && this.raised) {
-          classes.push('k-button-primary-raised');
+          return 'k-button-primary-raised';
         } else if (this.primary && !this.raised) {
-          classes.push('k-button-primary-flat');
+          return 'k-button-primary-flat';
         } else if (!this.primary && this.raised) {
-          classes.push('k-button-secondary-raised');
+          return 'k-button-secondary-raised';
         } else if (!this.primary && !this.raised) {
-          classes.push('k-button-secondary-flat');
+          return 'k-button-secondary-flat';
         }
-        if (this.disabled) {
-          classes.push('k-button-disabled');
-        }
-        return classes;
       },
     },
     methods: {
@@ -136,9 +131,10 @@
   .k-button-primary-raised, .k-button-secondary-raised
     box-shadow: $raised-shadow
 
-  .k-button-disabled
-    box-shadow: none
-    cursor: default
-    pointer-events: none
+  .k-button-primary-raised, .k-button-primary-flat, .k-button-secondary-raised, .k-button-secondary-flat
+    &:disabled
+      box-shadow: none
+      cursor: default
+      pointer-events: none
 
 </style>
