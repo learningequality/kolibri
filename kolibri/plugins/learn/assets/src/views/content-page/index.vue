@@ -101,11 +101,16 @@
 
 <script>
 
-  import * as Constants from '../../constants';
-  import * as getters from '../../state/getters';
+  import {
+    initSessionAction,
+    updateProgressAction,
+    startTracking,
+    stopTracking,
+  } from 'kolibri.coreVue.vuex.actions';
+  import { PageNames } from '../../constants';
+  import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import * as coreGetters from 'kolibri.coreVue.vuex.getters';
-  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../../state/actions';
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
@@ -117,6 +122,7 @@
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+
   export default {
     $trNameSpace: 'learnContent',
     $trs: {
@@ -158,12 +164,12 @@
         if (nextContent) {
           if (nextContent.kind === 'topic') {
             return {
-              name: Constants.PageNames.EXPLORE_TOPIC,
+              name: PageNames.EXPLORE_TOPIC,
               params: { channel_id: this.channelId, id: nextContent.id },
             };
           }
           return {
-            name: Constants.PageNames.EXPLORE_CONTENT,
+            name: PageNames.EXPLORE_CONTENT,
             params: { channel_id: this.channelId, id: nextContent.id },
           };
         }
@@ -207,12 +213,12 @@
       genRecLink(id, kind) {
         if (kind === 'topic') {
           return {
-            name: Constants.PageNames.EXPLORE_TOPIC,
+            name: PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: Constants.PageNames.LEARN_CONTENT,
+          name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
@@ -222,7 +228,6 @@
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
         searchOpen: state => state.searchOpen,
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
@@ -232,13 +237,14 @@
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
-        isSuperuser: coreGetters.isSuperuser,
+        pageMode,
+        isSuperuser,
       },
       actions: {
-        initSessionAction: actions.initContentSession,
-        updateProgressAction: actions.updateProgress,
-        startTracking: actions.startTrackingProgress,
-        stopTracking: actions.stopTrackingProgress,
+        initSessionAction,
+        updateProgressAction,
+        startTracking,
+        stopTracking,
       },
     },
   };
