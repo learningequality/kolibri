@@ -79,7 +79,7 @@
 
     <content-card-carousel
       v-if="showRecommended"
-      :gen-link="genLink"
+      :gen-link="genRecLink"
       :header="recommendedText"
       :contents="recommended"/>
 
@@ -155,7 +155,7 @@
       },
       nextContentLink() {
         if (this.content.next_content) {
-          return this.genLink(this.content.next_content.id, this.content.next_content.kind);
+          return this.genNextLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
       },
@@ -194,7 +194,7 @@
       closeModal() {
         this.wasIncomplete = false;
       },
-      genLink(id, kind) {
+      genRecLink(id, kind) {
         if (kind === 'topic') {
           return {
             name: Constants.PageNames.EXPLORE_TOPIC,
@@ -203,6 +203,18 @@
         }
         return {
           name: Constants.PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+      genNextLink(id, kind) {
+        if (kind === 'topic') {
+          return {
+            name: Constants.PageNames.EXPLORE_TOPIC,
+            params: { channel_id: this.channelId, id },
+          };
+        }
+        return {
+          name: Constants.PageNames.EXPLORE_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
