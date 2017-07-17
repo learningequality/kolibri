@@ -22,6 +22,7 @@ from os import listdir
 
 import requests
 from gcloud import storage
+from github3 import login
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -98,7 +99,9 @@ file_order = [
     'gz',
 ]
 
-session = requests.Session()
+gh = login(token=ACCESS_TOKEN)
+repository = gh.repository(REPO_OWNER, REPO_NAME)
+
 
 def create_status_report_html(artifacts):
     """
@@ -122,22 +125,17 @@ def create_github_status(report_url):
     Create a github status with a link to the report URL,
     only do this once buildkite has been successful, so only report success here.
     """
-    url = 'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'.format(
-        owner=REPO_OWNER,
-        repo=REPO_NAME,
-        commit=COMMIT
+    status = repository.create_status(
+        COMMIT,
+        "success",
+        target_url=report_url,
+        description="Kolibri Buildkite assets",
+        context="buildkite/kolibri/assets"
     )
-    payload = {
-        "state": "success",
-        "target_url": report_url,
-        "description": "Kolibri Buildkite assets",
-        "context": "buildkite/kolibri/assets"
-    }
-    r = session.post(url, json=payload, headers=headers)
-    if r.status_code == 201:
-        logging.info('Successfully created Github status(%s).' % url)
+    if status:
+        logging.info('Successfully created Github status for commit %s.' % COMMIT)
     else:
-        logging.info('Error encounter(%s). Now exiting!' % r.status_code)
+        logging.info('Error encounter. Now exiting!')
         sys.exit(1)
 
 
@@ -195,6 +193,7 @@ def upload_artifacts():
 
     if TAG:
         # Building from a tag, this is probably a release!
+        # Have to do this with requests because github3 does not support this interface yet
         get_release_asset_url = requests.get("https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
             owner=REPO_OWNER,
             repo=REPO_NAME,
@@ -203,21 +202,24 @@ def upload_artifacts():
         if get_release_asset_url.status_code == 200:
             # Definitely a release!
             release_id = get_release_asset_url.json()['id']
-            url = "https://api.github.com/repos/{owner}/{repo}/releases/{id}/assets".format(
-                owner=REPO_OWNER,
-                repo=REPO_NAME,
-                id=release_id,
-            )
+            release_name = get_release_asset_url.json()['name']
+            release = repository.release(id=release_id)
+            logging.info("Uploading built assets to Github Release: %s" % release_name)
             for file_extension in file_order:
                 artifact = artifacts[file_extension]
-                params = {
-                    'name': artifact['name'],
-                    'label': artifact['description']
-                }
-                files = {
-                    'file': (artifact['name'], open(artifact['file_location'], 'rb'), artifact['content_type'])
-                }
-                session.post(url, params=params, files=files, headers=headers)
+                logging.info("Uploading release asset: %s" % (artifact.get("name")))
+                # For some reason github3 does not let us set a label at initial upload
+                asset = release.upload_asset(
+                    content_type=artifact['content_type'],
+                    name=artifact['name'],
+                    asset=open(artifact['file_location'], 'rb')
+                )
+                if asset:
+                    # So do it after the initial upload instead
+                    asset.edit(artifact['name'], label=artifact['description'])
+                    logging.info("Successfully uploaded release asset: %s" % (artifact.get('name')))
+                else:
+                    logging.error("Error uploading release asset: %s" % (artifact.get('name')))
 
 
 def main():

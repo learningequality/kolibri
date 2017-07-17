@@ -33,6 +33,10 @@ const publicMethods = [
   'retrieveContentRenderer',
 ];
 
+let toFakeRTL;
+// This will get set during initialization if the dummy language
+// has been activated
+
 /**
  * Constructor for object that forms the public API for the Kolibri
  * core app.
@@ -51,10 +55,7 @@ export default class CoreApp {
      */
     vue.use(vuex);
     vue.use(router);
-
-    this.i18n = {
-      reversed: false,
-    };
+    vue.set(vue, 'bidiDirection', global.languageBidi || 'ltr');
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
@@ -84,11 +85,8 @@ export default class CoreApp {
           id: `${this.$options.$trNameSpace}.${messageId}`,
           defaultMessage: defaultMessageText,
         };
-        // Allow string reversal in debug mode.
-        if (process.env.NODE_ENV === 'debug') {
-          if (self.i18n.reversed) {
-            return defaultMessageText.split('').reverse().join('');
-          }
+        if (vue.locale === 'rt-lft') {
+          message.defaultMessage = toFakeRTL(defaultMessageText);
         }
         return formatter(message, args);
       }
@@ -137,6 +135,11 @@ export default class CoreApp {
           logging.error('An error occurred trying to setup Internationalization', error);
         }
       );
+    } else if (global.languageCode === 'rt-lft') {
+      require.ensure([], () => {
+        toFakeRTL = require('../utils/mirrorText').toFakeRTL;
+        setUpVueIntl();
+      });
     } else {
       setUpVueIntl();
     }

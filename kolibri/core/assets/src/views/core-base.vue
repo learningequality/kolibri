@@ -40,6 +40,8 @@
   import navBar from 'kolibri.coreVue.components.navBar';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import Vue from 'kolibri.lib.vue';
+
   export default {
     mixins: [responsiveWindow],
     props: {
@@ -104,11 +106,13 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
+        const posKey = Vue.bidiDirection === 'rtl' ? 'Right' : 'Left';
+        return this.mobile ? {} : { ['padding' + posKey]: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
-        style.left = this.mobile ? 0 : `${this.navWidth}px`;
+        const posKey = Vue.bidiDirection === 'rtl' ? 'right' : 'left';
+        style[posKey] = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
       },
     },

@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-07-10 15:26-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: kolibri/auth/constants/collection_kinds.py:12
+msgid "Facility"
+msgstr ""
+
+#: kolibri/auth/constants/collection_kinds.py:13
+msgid "Classroom"
+msgstr ""
+
+#: kolibri/auth/constants/collection_kinds.py:14
+msgid "Learner group"
+msgstr ""
+
+#: kolibri/auth/constants/role_kinds.py:10
+msgid "Admin"
+msgstr ""
+
+#: kolibri/auth/constants/role_kinds.py:11
+msgid "Coach"
+msgstr ""
+
+#: kolibri/auth/models.py:212
+msgid "username"
+msgstr ""
+
+#: kolibri/auth/models.py:214
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr ""
+
+#: kolibri/auth/models.py:218
+msgid ""
+"Enter a valid username. This value may contain only letters and numbers."
+msgstr ""
+
+#: kolibri/auth/models.py:222
+msgid "full name"
+msgstr ""
+
+#: kolibri/auth/models.py:223
+msgid "date joined"
+msgstr ""
+
+#: kolibri/auth/serializers.py:29
+msgid "An account with that username already exists"
+msgstr ""
+
+#: kolibri/content/models.py:217
+msgid "Unknown format"
+msgstr ""
+
+#: kolibri/core/templates/kolibri/base.html:12
+msgid "Kolibri"
+msgstr ""
+
+#: kolibri/plugins/management/kolibri_plugin.py:29
+msgid "Management"
+msgstr ""
+
+#: kolibri/tasks/api.py:76
+msgid "The requested channel does not exist on the content server"
+msgstr ""

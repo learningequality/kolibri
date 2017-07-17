@@ -16,7 +16,7 @@
       <thead slot="thead">
         <tr>
           <header-cell
-            align="left"
+            :align="alignStart"
             :text="$tr('name')"
             :column="TableColumns.NAME"
             :sortable="true"
@@ -28,13 +28,13 @@
             :sortable="true"
           />
           <header-cell
-            align="left"
+            :align="alignStart"
             :text="$tr('group')"
             :column="TableColumns.GROUP"
             :sortable="true"
           />
           <header-cell
-            align="left"
+            :align="alignStart"
             v-if="!isRootLearnerPage"
             :text="$tr('lastActivity')"
             :column="TableColumns.DATE"
@@ -79,7 +79,11 @@
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
   import activityCell from './table-cells/activity-cell';
+
+  import alignMixin from './align-mixin';
+
   export default {
+    mixins: [alignMixin],
     $trNameSpace: 'learnerReportPage',
     $trs: {
       name: 'Name',

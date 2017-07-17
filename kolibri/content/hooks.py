@@ -82,7 +82,7 @@ class ContentRendererHook(WebpackBundleHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
-        urls = [chunk['url'] for chunk in self.bundle]
+        urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
                 kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
