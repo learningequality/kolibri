@@ -126,8 +126,8 @@
     data: () => ({
     }),
     computed: {
-      topicsLink: function() { return { path: this.$route.path + '_' } },
-      decimalLink: function() { return { path: this.$route.path + '_' } },
+      topicsLink: function() { return { path: this.$route.path, query: { page: 'topics' } } },
+      decimalLink: function() { return { path: this.$route.path, query: { page: 'decimal' } } },
       decimalAddLink: function() { return { path: this.$route.path } },
     }
   };

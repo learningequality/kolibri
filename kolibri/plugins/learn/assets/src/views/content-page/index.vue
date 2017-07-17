@@ -21,7 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="right" :text="$tr('nextContent')" alignment="right"/>
+      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
     </content-renderer>
 
     <assessment-wrapper
@@ -40,7 +40,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="right" :text="$tr('nextContent')" alignment="right"/>
+      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -111,6 +111,8 @@
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+  import Vue from 'kolibri.lib.vue';
+
   export default {
     $trNameSpace: 'learnContent',
     $trs: {
@@ -158,6 +160,9 @@
           return true;
         }
         return false;
+      },
+      isRtl() {
+        return Vue.bidiDirection === 'rtl';
       },
     },
     components: {
@@ -234,7 +239,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .right
+  .float
     float: right
 
   .metadata

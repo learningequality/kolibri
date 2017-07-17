@@ -159,7 +159,7 @@ LANGUAGES = [
     ('es-mx', 'Español (México)'),
     ('fr-fr', 'Français, langue française'),
     ('pt-pt', 'Português'),
-    ('hi-in', 'हिंदी')
+    ('hi-in', 'हिंदी'),
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
