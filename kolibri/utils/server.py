@@ -61,9 +61,9 @@ def start(port=8080):
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
 
-    # TODO: not sure where it should ideally be located. Question is if it
-    # should be run every time the server is started or if it depends on some
-    # kind of state change.
+    # This should be run every time the server is started for now.
+    # Events to trigger it are hard, because of copying a content folder into
+    # ~/.kolibri, or deleting a channel DB on disk
     from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
 
