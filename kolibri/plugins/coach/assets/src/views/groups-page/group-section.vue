@@ -50,7 +50,8 @@
             <input type="checkbox"
               :id="user.id"
               :value="user.id"
-              v-model="selectedUsers">
+              v-model="selectedUsers"
+              @click.stop>
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
           <td class="col-username">{{ user.username }}</td>
