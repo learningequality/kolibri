@@ -33,7 +33,10 @@
         type: Boolean,
         default: false,
       },
-      type: { type: String },
+      type: {
+        type: String,
+        default: 'button',
+      },
     },
     computed: {
       buttonClass() {

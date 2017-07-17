@@ -18,24 +18,24 @@
           <th>Default</th>
           <th>Description</th>
         </tr>
-        <tr v-for="prop in api.props">
+        <tr v-for="(prop, i) in api.props" :key="i">
           <td>{{ prop.name }}</td>
-          <td>{{ parsePropType(prop.value.type) }}</td>
-          <td>{{ parsePropRequired(prop.value.required) }}</td>
-          <td>{{ parsePropDefault(prop.value.type, prop.value.default) }}</td>
+          <td><code>{{ parsePropType(prop.value.type) }}</code></td>
+          <td><code>{{ parsePropRequired(prop.value.required) }}</code></td>
+          <td><code>{{ parsePropDefault(prop.value.type, prop.value.default) }}</code></td>
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
       </table>
     </template>
 
     <template v-if="api.events.length">
-      <h3>Emitted events</h3>
+      <h3>Events</h3>
       <table>
         <tr>
           <th>Name</th>
           <th>Description</th>
         </tr>
-        <tr v-for="event in api.events">
+        <tr v-for="(event, i) in api.events" :key="i">
           <td>{{ event.name }}</td>
           <td>{{ event.description ? event.description : '-' }}</td>
         </tr>
@@ -49,7 +49,7 @@
           <th>Name</th>
           <th>Description</th>
         </tr>
-        <tr v-for="slot in api.slots">
+        <tr v-for="(slot, i) in api.slots" :key="i">
           <td>{{ slot.name }}</td>
           <td>{{ slot.description ? slot.description : '-' }}</td>
         </tr>
@@ -114,16 +114,11 @@
         return escodegen.generate(propRequired);
       },
       parsePropDefault(propType, propDefault) {
-        if (!propDefault) {
-          return '-';
+        const stringfiedDefault = JSON.stringify(propDefault);
+        if (stringfiedDefault) {
+          return stringfiedDefault;
         }
-        if (propType === 'String') {
-          return JSON.stringify(propDefault);
-        }
-        if (propDefault.type) {
-          return escodegen.generate(propDefault);
-        }
-        return propDefault;
+        return '-';
       },
     },
   };
@@ -131,4 +126,10 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  code
+    color: red
+    font-size: smaller
+
+</style>

@@ -1,18 +1,13 @@
 <template>
 
   <component-style-guide
-      class="button-style-guide"
-      :codeExamplesTemplate="codeExamplesTemplate"
-      :api="CoreButtonApi"
-      :requirePath="requirePath"
-      :status="'complete'"
-    >
+    :codeExamplesTemplate="codeExamplesTemplate"
+    :api="CoreButtonApi"
+    :requirePath="requirePath"
+    :status="'complete'">
 
     <h1 slot="title">Buttons</h1>
-    <p slot="summary">
-      Buttons initialize actions and communicate what will happen upon clicking
-      them
-    </p>
+    <p slot="summary">Buttons initialize actions and communicate what will happen upon clicking them</p>
 
     <div slot="guidelines-and-usage">
       <h3>Scope</h3>
@@ -168,7 +163,6 @@
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
-  const script = 'script';
   const codeExamplesTemplate = `
     <template>
       <div>

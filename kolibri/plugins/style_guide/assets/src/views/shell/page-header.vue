@@ -1,9 +1,9 @@
 <template>
 
   <div class="page-header">
-    <h1 v-on:click="goHome">
-        Kolibri Style Guide
-    </h1>
+    <router-link :to="'/style_guide/'" >
+      <h1>Kolibri Style Guide</h1>
+    </router-link>
   </div>
 
 </template>
@@ -11,42 +11,29 @@
 
 <script>
 
-  import router from 'kolibri.coreVue.router';
-
-  export default {
-    methods: {
-      goHome() {
-        router.getInstance().replace({ path: '/style_guide/' });
-      },
-    },
-  };
+  export default {};
 
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   @import '../../styles/core-theme.styl'
 
   .page-header
-    background: #996189
-    color: white
-
-    height: $page-header-height
-    line-height: $page-header-height
-    padding-left: $nav-padding-left
-
     position: fixed
     left: 0
     right: 0
     top: 0
-    z-index: 999
-
-    h1
-      margin: 0
-      font-size: 1.125em
-      font-weight: 500
-      display: inline
-      cursor: pointer
+    z-index: 4
+    background: #212121
+    color: white
+    padding-left: 1em
+    a
+      color: white
+      text-decoration: none
+      h1
+        display: inline-block
+        font-size: 1.25em
 
 </style>
