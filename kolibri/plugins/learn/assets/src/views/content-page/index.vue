@@ -21,7 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
+      <icon-button @click="nextContentClicked" v-if="showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </content-renderer>
@@ -42,7 +42,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
+      <icon-button @click="nextContentClicked" v-if="showNextBtn" class="next-btn right" :text="$tr('nextContent')" alignment="right">
         <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
       </icon-button>
     </assessment-wrapper>
@@ -142,7 +142,7 @@
         }
       },
       showNextBtn() {
-        return this.content && this.nextContentLink;
+        return this.progress >= 1 && this.content && this.nextContentLink;
       },
       recommendedText() {
         return this.$tr('recommended');
@@ -154,8 +154,18 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        if (this.content.next_content) {
-          return this.genNextLink(this.content.next_content.id, this.content.next_content.kind);
+        const nextContent = this.content.next_content;
+        if (nextContent) {
+          if (nextContent.kind === 'topic') {
+            return {
+              name: Constants.PageNames.EXPLORE_TOPIC,
+              params: { channel_id: this.channelId, id: nextContent.id },
+            };
+          }
+          return {
+            name: Constants.PageNames.EXPLORE_CONTENT,
+            params: { channel_id: this.channelId, id: nextContent.id },
+          };
         }
         return null;
       },
@@ -203,18 +213,6 @@
         }
         return {
           name: Constants.PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
-        };
-      },
-      genNextLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: Constants.PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
-        return {
-          name: Constants.PageNames.EXPLORE_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
