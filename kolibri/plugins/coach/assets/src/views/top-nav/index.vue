@@ -15,6 +15,12 @@
     />
     <tab-link
       type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignment_late"
+      :link="examsLink"
+    />
+    <tab-link
+      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -24,12 +30,6 @@
       :title="$tr('groups')"
       icon="group_work"
       :link="groupsLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignment_late"
-      :link="examsLink"
     />
   </tabs>
 
