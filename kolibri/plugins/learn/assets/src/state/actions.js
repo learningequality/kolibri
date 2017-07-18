@@ -344,6 +344,7 @@ function showLearnChannel(store, channelId, cursor) {
       ]).only(
         samePageCheckGenerator(store),
         ([nextSteps, popular, resume, allContent]) => {
+          const currentChannelTitle = coreGetters.getCurrentChannelObject(store.state).title;
           const pageState = {
             recommendations: {
               // Hard to guarantee this uniqueness on the database side, so
@@ -358,13 +359,12 @@ function showLearnChannel(store, channelId, cursor) {
               next: allContentCollection.next,
               previous: allContentCollection.previous,
             },
+            channelTitle: currentChannelTitle,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-
-          const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
+          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannelTitle}`);
         },
         error => {
           coreActions.handleApiError(store, error);
