@@ -1,32 +1,42 @@
 <template>
 
   <div class="group-section">
-    <h2>{{ group.name }}</h2>
-    <div>
-      <div class="meta">
-        <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
-        <span v-if="group.users.length">{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
+    <div class="pure-g">
+      <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
+        <h2 class="group-name right-margin">{{ group.name }}</h2>
+        <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
       </div>
-      <div class="buttons">
-        <ui-button v-if="!isUngrouped"
+
+      <div
+        class="no-side-padding"
+        :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2 right-align vertically-align'"
+      >
+        <span v-if="group.users.length" class="right-margin small-text">
+          {{ `${selectedUsers.length} ${$tr('selected')}` }}
+        </span>
+        <icon-button
+          v-if="canMove"
+          size="small"
+          class="right-margin"
+          :text="$tr('moveLearners')"
+          :primary="true"
+          :disabled="selectedUsers.length === 0"
+          @click="emitMove"
+        />
+        <ui-button
+          v-if="!isUngrouped"
           color="primary"
-          :has-dropdown="true"
           ref="dropdownButton"
-          size="small">
-          <ui-menu slot="dropdown"
+          size="small"
+          :has-dropdown="true"
+        >
+          <ui-menu
+            slot="dropdown"
             :options="menuOptions"
             @select="handleSelection"
             @close="close"
           />
-          {{ $tr('actions') }}
         </ui-button>
-        <icon-button
-          v-if="canMove"
-          :text="$tr('moveLearners')"
-          :primary="true"
-          size="small"
-          @click="emitMove"
-          :disabled="selectedUsers.length === 0" />
       </div>
     </div>
 
@@ -34,30 +44,34 @@
       <thead>
         <tr>
           <th class="col-checkbox">
-            <input type="checkbox"
-              :checked="allUsersAreSelected"
-              @change="toggleSelectAll">
+            <input type="checkbox" :checked="allUsersAreSelected" @change="toggleSelectAll">
           </th>
           <th class="col-name">{{ $tr('name') }}</th>
           <th class="col-username">{{ $tr('username') }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in group.users"
+        <tr
+          v-for="user in group.users"
+          :key="user.id"
           :class="isSelected(user.id) ? 'selectedrow' : ''"
-          @click="toggleSelection(user.id)">
+          @click="toggleSelection(user.id)"
+        >
           <td class="col-checkbox">
-            <input type="checkbox"
+            <input
+              v-model="selectedUsers"
+              type="checkbox"
               :id="user.id"
               :value="user.id"
-              v-model="selectedUsers">
+              @click.stop
+            >
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
           <td class="col-username">{{ user.username }}</td>
         </tr>
       </tbody>
     </table>
-    <p v-else>{{ $tr('noLearners') }}</p>
+    <span v-else>{{ $tr('noLearners') }}</span>
   </div>
 
 </template>
@@ -69,6 +83,8 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
+  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+
   export default {
     $trNameSpace: 'coachGroupsTable',
     $trs: {
@@ -82,6 +98,7 @@
       selected: 'Selected',
       noLearners: 'No Learners in this group',
     },
+    mixins: [ResponsiveElement],
     components: {
       iconButton,
       uiButton,
@@ -164,13 +181,26 @@
   @require '~kolibri.styles.definitions'
 
   .group-section
-    padding-bottom: 2em
+    margin-top: 32px
 
-  .meta
+  .group-name
     display: inline-block
 
-  .buttons
-    float: right
+  .right-align
+    text-align: right
+
+  .right-margin
+    margin-right: 8px
+
+  .no-side-padding
+    padding-left: 0
+    padding-right: 0
+
+  .small-text
+    font-size: small
+
+  .vertically-align
+    line-height: 50px
 
   table
     width: 100%
@@ -180,7 +210,7 @@
     text-align: left
 
   td, th
-    padding: 0.5em
+    padding: 8px
 
   tbody
     tr
