@@ -17,15 +17,15 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
     }
   }
   const defaultMessageText = defaultMessages[messageId];
+  const message = {
+    id: `${nameSpace}.${messageId}`,
+    defaultMessage: defaultMessageText,
+  };
 
   if (vue.locale === 'rt-lft') {
     message.defaultMessage = toFakeRTL(defaultMessageText);
   }
 
-  const message = {
-    id: `${nameSpace}.${messageId}`,
-    defaultMessage: defaultMessageText,
-  };
   return formatter(message, args);
 }
 
