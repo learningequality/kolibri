@@ -70,7 +70,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   export default {
-    $trNameSpace: 'coachGroupsTable',
+    name: 'coachGroupsTable',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',

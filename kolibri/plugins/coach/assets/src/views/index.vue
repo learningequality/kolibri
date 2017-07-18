@@ -46,7 +46,7 @@
   import learnerListPage from './reports/learner-list-page';
   import classSelector from './class-selector';
   export default {
-    $trNameSpace: 'coachRoot',
+    name: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
       superUserPrompt: 'Signed in as device owner',

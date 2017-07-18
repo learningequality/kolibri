@@ -44,8 +44,8 @@
   import topNav from './top-nav';
   import userPage from './user-page';
   export default {
-    $trNameSpace: 'managementRoot',
     $trs: { managementTitle: 'Manage' },
+    name: 'managementRoot',
     components: {
       authMessage,
       classEditPage,

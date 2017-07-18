@@ -123,7 +123,7 @@
   import Vue from 'kolibri.lib.vue';
 
   export default {
-    $trNameSpace: 'learnContent',
+    name: 'learnContent',
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Go to next item',
@@ -169,9 +169,6 @@
           return true;
         }
         return false;
-      },
-      isRtl() {
-        return Vue.bidiDirection === 'rtl';
       },
     },
     components: {

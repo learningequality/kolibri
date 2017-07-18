@@ -47,7 +47,7 @@
         this.$emit('dismiss');
       },
     },
-    $trNameSpace: 'configPageNotifications',
+    name: 'configPageNotifications',
     $trs: {
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated!',

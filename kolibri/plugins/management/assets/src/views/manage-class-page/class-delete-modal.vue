@@ -40,7 +40,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
-    $trNameSpace: 'classDeleteModal',
+    name: 'classDeleteModal',
     $trs: {
       modalTitle: 'Delete Class',
       delete: 'Delete Class',

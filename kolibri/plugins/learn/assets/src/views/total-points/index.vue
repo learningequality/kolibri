@@ -23,7 +23,7 @@
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
   export default {
-    $trNameSpace: 'totalPoints',
+    name: 'totalPoints',
     $trs: { pointsTooltip: 'You have earned { points, number } points!' },
     components: {
       pointsIcon,

@@ -18,7 +18,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'error',
+    name: 'error',
     $trs: {
       errorHeader: 'Error',
       errorButtonLabel: 'Hide error',

@@ -49,7 +49,7 @@
   import contentCard from '../content-card';
 
   export default {
-    $trNameSpace: 'contentCardGrid',
+    name: 'contentCardGrid',
     $trs: {
       display: 'Display',
       all: 'All content ({ num, number })',

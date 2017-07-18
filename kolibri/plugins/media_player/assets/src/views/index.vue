@@ -39,7 +39,7 @@
   const GlobalLangCode = vue.locale;
 
   export default {
-    $trNameSpace: 'videoRender',
+    name: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
       forward: 'Go forward 10 seconds',

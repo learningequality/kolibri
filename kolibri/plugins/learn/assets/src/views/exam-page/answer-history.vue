@@ -22,7 +22,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'examAnswerHistory',
+    name: 'examAnswerHistory',
     $trs: {
       question: 'Question { num }',
     },

@@ -106,7 +106,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
-    $trNameSpace: 'userEditModal',
+    name: 'userEditModal',
     $trs: {
       editTitle: 'Edit account info',
       passwordTitle: 'Reset account password',

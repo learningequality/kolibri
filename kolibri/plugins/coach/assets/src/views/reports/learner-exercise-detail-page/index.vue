@@ -56,7 +56,7 @@
   import attemptLogList from '../../attempt-log-list';
   import interactionList from '../../interaction-list';
   export default {
-    $trNameSpace: 'coachExerciseRenderPage',
+    name: 'coachExerciseRenderPage',
     $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
       immersiveFullScreen,

@@ -117,7 +117,7 @@
         },
       },
     },
-    $trNameSpace: 'facilityConfigPage',
+    name: 'facilityConfigPage',
     $trs: {
       currentFacilityHeader: 'Your current Facility',
       learnerCanDeleteAccount: 'Allow users to delete their account',

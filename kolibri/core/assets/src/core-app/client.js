@@ -31,3 +31,12 @@ const client = options => {
 };
 
 export default client;
+
+export const httpClient = rest
+  .wrap(mime, {
+    mime: 'application/x-www-form-urlencoded',
+  })
+  .wrap(csrf, {
+    name: 'X-CSRFToken',
+    token: cookiejs.get('csrftoken'),
+  });

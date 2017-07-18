@@ -9,6 +9,7 @@ Changes are ordered reverse-chronologically.
 ---
 
  - Add support for RTL languages
+ - Add support for frontend translation outside of Vue components
 
 
 0.5

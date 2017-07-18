@@ -18,7 +18,7 @@
   import previewExamModal from '../exams-page/preview-exam-modal';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'previewNewExamModal',
+    name: 'previewNewExamModal',
     $trs: { randomize: 'Randomize questions' },
     components: {
       previewExamModal,

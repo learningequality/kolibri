@@ -14,7 +14,7 @@
   import * as getters from 'kolibri.coreVue.vuex.getters';
 
   export default {
-    $trNameSpace: 'learnContentUnavailable',
+    name: 'learnContentUnavailable',
     $trs: {
       header: 'No content channels available',
       adminLink:

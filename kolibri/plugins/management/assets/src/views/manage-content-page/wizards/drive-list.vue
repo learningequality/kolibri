@@ -83,7 +83,7 @@
         return this.drives.filter(drive => !this.enabledDrivePred(drive));
       },
     },
-    $trNameSpace: 'wizardDriveList',
+    name: 'wizardDriveList',
     $trs: {
       drivesFound: 'Drives found:',
       noDrivesDetected: 'No drives were detected',

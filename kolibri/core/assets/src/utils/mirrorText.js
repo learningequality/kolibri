@@ -227,9 +227,7 @@ function toPseudoText(text, messageParser) {
   try {
     message = messageParser.parse(text);
   } catch (err) {
-    if (options.forceException) {
-      throw err;
-    }
+    return text;
   }
 
   const parts = [];

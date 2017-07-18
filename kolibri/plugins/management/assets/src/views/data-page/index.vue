@@ -50,7 +50,7 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
     mixins: [responsiveWindow],
-    $trNameSpace: 'manageData',
+    name: 'manageData',
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:

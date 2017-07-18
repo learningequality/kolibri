@@ -72,7 +72,7 @@
   import uiAlert from 'keen-ui/src/UiAlert';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
-    $trNameSpace: 'userCreateModal',
+    name: 'userCreateModal',
     $trs: {
       addNewAccountTitle: 'Add new account',
       name: 'Full name',

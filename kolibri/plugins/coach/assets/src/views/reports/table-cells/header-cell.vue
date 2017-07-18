@@ -33,7 +33,7 @@
   import * as reportActions from '../../../state/actions/reports';
 
   export default {
-    $trNameSpace: 'headerCell',
+    name: 'headerCell',
     $trs: {
       ascending: '(sorted ascending)',
       descending: '(sorted descending)',

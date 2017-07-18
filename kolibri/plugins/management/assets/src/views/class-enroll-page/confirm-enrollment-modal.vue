@@ -30,7 +30,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'confirmEnrollmentModal',
+    name: 'confirmEnrollmentModal',
     $trs: {
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',

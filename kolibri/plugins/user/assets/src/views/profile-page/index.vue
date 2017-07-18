@@ -72,8 +72,7 @@
   import uiAlert from 'keen-ui/src/UiAlert';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   export default {
-    name: 'profile-page',
-    $trNameSpace: 'profilePage',
+    name: 'profilePage',
     $trs: {
       genericError: 'Something went wrong',
       success: 'Profile details updated!',

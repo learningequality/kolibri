@@ -42,7 +42,7 @@
   import tabs from 'kolibri.coreVue.components.tabs';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   export default {
-    $trNameSpace: 'topNav',
+    name: 'topNav',
     $trs: {
       recent: 'Recent',
       topics: 'Topics',

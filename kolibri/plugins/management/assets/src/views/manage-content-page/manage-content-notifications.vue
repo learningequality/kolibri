@@ -47,7 +47,7 @@
         this.$emit('dismiss');
       },
     },
-    $trNameSpace: 'manageContentPageNotifications',
+    name: 'manageContentPageNotifications',
     $trs: {
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',

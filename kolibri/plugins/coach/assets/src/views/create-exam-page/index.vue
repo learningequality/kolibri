@@ -143,7 +143,7 @@
   import previewNewExamModal from './preview-new-exam-modal';
   export default {
     mixins: [responsiveWindow],
-    $trNameSpace: 'createExamPage',
+    name: 'createExamPage',
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',

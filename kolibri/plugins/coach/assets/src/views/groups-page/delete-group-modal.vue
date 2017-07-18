@@ -21,7 +21,7 @@
   import textbox from 'kolibri.coreVue.components.textbox';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'deleteGroupModal',
+    name: 'deleteGroupModal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
       areYouSure: 'Are you sure you want to delete <strong>{ groupName }</strong>?',

@@ -57,7 +57,7 @@
         this.$emit('confirm');
       },
     },
-    $trNameSpace: 'deleteChannelModal',
+    name: 'deleteChannelModal',
     $trs: {
       deleteActionDescription: 'This channel will be deleted',
       confirmationQuestion: 'Are you sure you want to do this?',

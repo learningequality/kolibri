@@ -46,7 +46,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
-    $trNameSpace: 'classnameEditModal',
+    name: 'classnameEditModal',
     $trs: {
       modalTitle: 'Change Class Name',
       classname: 'Class Name',

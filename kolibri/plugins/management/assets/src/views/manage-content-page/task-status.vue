@@ -22,7 +22,7 @@
   const TaskStatuses = constants.TaskStatuses;
   import iconButton from 'kolibri.coreVue.components.iconButton';
   export default {
-    $trNameSpace: 'contentPage',
+    name: 'contentPage',
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',

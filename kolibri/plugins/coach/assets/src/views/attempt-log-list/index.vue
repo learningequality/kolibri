@@ -50,7 +50,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'coachExerciseAnswerHistory',
+    name: 'coachExerciseAnswerHistory',
     $trs: {
       header: 'Answer history',
       today: 'Today',

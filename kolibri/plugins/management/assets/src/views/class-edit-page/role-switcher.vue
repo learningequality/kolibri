@@ -68,7 +68,7 @@
         return roleName === this.currentRole;
       },
     },
-    $trNameSpace: 'roleSwitcher',
+    name: 'roleSwitcher',
     $trs: {
       admin: 'Admin',
       coach: 'Coach',
