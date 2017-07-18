@@ -49,10 +49,10 @@ extract$trs.prototype.apply = function(compiler) {
         if (nameSpaces.indexOf(messageNameSpace) !== -1) {
           logging.error('Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource);
         } else if (Object.keys(messages).length) {
-          // Check that the trNameSpace id is camelCase.
+          // Check that the namespace is camelCase.
           if (!isCamelCase(messageNameSpace)) {
             logging.error(
-              `Name or $trNameSpace id "${messageNameSpace}" should be in camelCase. Found in ${module.resource}`
+              `Name id "${messageNameSpace}" should be in camelCase. Found in ${module.resource}`
             );
           }
           nameSpaces.push(messageNameSpace);
@@ -85,9 +85,9 @@ extract$trs.prototype.apply = function(compiler) {
             sourceType: 'module',
           });
           ast.body.forEach(function(node) {
-            // Look through each top level node until we find the module.exports
+            // Look through each top level node until we find the module.exports or export default
             // N.B. this relies on our convention of directly exporting the Vue component
-            // with the module.exports, rather than defining it and then setting it to export.
+            // with the module.exports or export default, rather than defining it and then setting it to export.
 
             // Is it an expression?
             if (
@@ -133,17 +133,8 @@ extract$trs.prototype.apply = function(compiler) {
                     }
                   });
                   // We also want to take a note of the name space these messages have been put in too!
-                } else if (property.key.name === '$trNameSpace' || property.key.name === 'name') {
-                  if (!messageNameSpace || property.key.name === 'name') {
-                    // Add a name space if one is not there already, unless it is 'name'
-                    // in which case it takes precedence.
-                    messageNameSpace = property.value.value;
-                  }
-                  if (property.key.name === '$trNameSpace') {
-                    logging.warn(
-                      `$trNameSpace is deprecated, please transition to using name property. Found in ${module.resource}`
-                    );
-                  }
+                } else if (property.key.name === 'name') {
+                  messageNameSpace = property.value.value;
                 }
               });
               registerFoundMessages(messageNameSpace, messages, module);
