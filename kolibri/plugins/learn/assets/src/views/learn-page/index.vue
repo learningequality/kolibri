@@ -5,11 +5,11 @@
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
     <content-card-carousel
-      v-if="recommendations.popular.length"
+      v-if="recommendations.resume.length"
       :gen-link="genLink"
-      :contents="recommendations.popular"
-      :header="$tr('popularSectionHeader')"
-      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
+      :contents="recommendations.resume"
+      :header="$tr('resumeSectionHeader')"
+      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
     <content-card-carousel
       v-if="recommendations.nextSteps.length"
       :gen-link="genLink"
@@ -17,11 +17,11 @@
       :header="$tr('suggestedNextStepsSectionHeader')"
       :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
     <content-card-carousel
-      v-if="recommendations.resume.length"
+      v-if="recommendations.popular.length"
       :gen-link="genLink"
-      :contents="recommendations.resume"
-      :header="$tr('resumeSectionHeader')"
-      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
+      :contents="recommendations.popular"
+      :header="$tr('popularSectionHeader')"
+      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
     <content-card-carousel
       v-if="all.content.length"
       :showViewAll="true"
@@ -74,6 +74,7 @@
         all: state => state.pageState.all,
         channelId: state => getCurrentChannelObject(state).id,
         recommendations: state => state.pageState.recommendations,
+        channelTitle: state => state.pageState.channelTitle,
       },
     },
   };
