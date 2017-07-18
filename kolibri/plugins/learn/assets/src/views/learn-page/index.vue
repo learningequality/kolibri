@@ -26,7 +26,7 @@
       v-if="all.content.length"
       :showViewAll="true"
       :gen-link="genLink"
-      :header="$tr('overviewSectionHeader')"
+      :header="$tr('featuredSection', {nameOfChannel: channelTitle})"
       :contents="all.content" />
   </div>
 
@@ -49,7 +49,7 @@
       popularSectionSubHeader: '{numOfItems, number} popular items',
       suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
       resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
-      overviewSectionHeader: 'Overview',
+      featuredSection: 'Featured in {nameOfChannel}',
     },
     components: {
       pageHeader,
