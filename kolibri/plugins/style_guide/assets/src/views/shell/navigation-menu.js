@@ -2,7 +2,7 @@ import { sortBy, flatten } from 'lodash';
 import typography from '../content/style/typography';
 import checkboxes from '../content/components/checkboxes';
 import radioButtons from '../content/components/radio-buttons';
-import buttons from '../content/components/buttons';
+import kButton from '../content/components/k-button';
 import textFields from '../content/components/text-fields';
 import simpleModals from '../content/components/simple-modals';
 import filters from '../content/components/filters';
@@ -24,6 +24,11 @@ const homeRoute = [
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
 // rendered (whether it's a side-nav or a horizontal menu).
+
+const componentsMap = {
+  kButton: 'k-button',
+};
+
 const navigationMenu = [
   {
     sectionHeading: 'Styles',
@@ -41,6 +46,13 @@ const navigationMenu = [
     sectionHeading: 'Components',
     sectionLinks: sortSectionLink([
       {
+        linkLabel: componentsMap.kButton,
+        linkRoute: {
+          path: `${base}/components/${componentsMap.kButton}`,
+          component: kButton,
+        },
+      },
+      {
         linkLabel: 'Checkboxes',
         linkRoute: {
           path: `${base}/components/checkboxes`,
@@ -52,13 +64,6 @@ const navigationMenu = [
         linkRoute: {
           path: `${base}/components/radio-buttons`,
           component: radioButtons,
-        },
-      },
-      {
-        linkLabel: 'Buttons',
-        linkRoute: {
-          path: `${base}/components/buttons`,
-          component: buttons,
         },
       },
       {

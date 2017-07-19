@@ -84,13 +84,6 @@
       api: {
         type: Object,
       },
-      /*
-       * The path of the component to be used in a require statement if a developer
-       * wished to use that require statement.
-       */
-      requirePath: {
-        type: String,
-      },
     },
     computed: {
       camelCasedName() {

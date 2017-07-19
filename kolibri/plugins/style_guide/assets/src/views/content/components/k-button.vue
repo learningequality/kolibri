@@ -1,9 +1,8 @@
 <template>
 
   <component-template
-    :codeExamplesTemplate="coreButtonExamples"
+    :codeExamplesTemplate="kButtonExamples"
     :api="kButtonApi"
-    :requirePath="requirePath"
     :status="'complete'"
   >
 
@@ -158,7 +157,7 @@
    * need to work around it by dynamically constructing them.
    */
   // TODO: Currently self-closing components are not handled by vuep
-  const coreButtonExamples = `
+  const kButtonExamples = `
     <template>
       <div>
         <k-button text="raised primary" :primary="true" :raised="true"></k-button>
@@ -178,7 +177,7 @@
       componentTemplate,
     },
     data: () => ({
-      coreButtonExamples,
+      kButtonExamples,
       kButtonApi,
       requirePath: 'kolibri.coreVue.components.kButton',
     }),

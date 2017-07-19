@@ -1,19 +1,23 @@
 <template>
 
-  <nav class="sidenav">
+  <div class="sidenav">
+    <router-link :to="'/style_guide/'" class="sidenav-heading">
+      <h1>Kolibri Style Guide</h1>
+    </router-link>
 
-    <template v-for="menuSection in navigationMenu">
-      <h2>{{ menuSection.sectionHeading }}</h2>
-      <ul>
-        <li v-for="sectionLink in menuSection.sectionLinks">
-          <router-link :to="sectionLink.linkRoute">
-            {{ sectionLink.linkLabel }}
-          </router-link>
-        </li>
-      </ul>
-    </template>
-
-  </nav>
+    <nav class="sidenav-menu">
+      <template v-for="menuSection in navigationMenu">
+        <h2>{{ menuSection.sectionHeading }}</h2>
+        <ul>
+          <li v-for="sectionItem in menuSection.sectionLinks">
+            <router-link :to="sectionItem.linkRoute">
+              {{ sectionItem.linkLabel }}
+            </router-link>
+          </li>
+        </ul>
+      </template>
+    </nav>
+  </div>
 
 </template>
 
@@ -35,19 +39,28 @@
 
 <style lang="stylus" scoped>
 
-  @import '../../styles/core-theme.styl'
+  @import '../../styles/style-guide.styl'
 
   .sidenav
     border-right: 1px solid #e0e0e0
     background: #f7f7f7
     position: fixed
-    top: $page-header-height
+    top: 0
     bottom: 0
     left: 0
-    right: initial
     overflow-y: auto
     width: $sidenav-width
 
+  .sidenav-heading
+    text-decoration: none
+    display: block
+    padding: 1em 2em
+    h1
+      font-size: 1.25em
+      margin: 0
+
+
+  .sidenav-menu
     h2
       padding-left: $nav-padding-left
       margin-top: 1.2em

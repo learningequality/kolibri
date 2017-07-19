@@ -3,7 +3,7 @@
   <div>
 
     <div v-if="api">
-      <component-api :api="api" :requirePath="requirePath"/>
+      <component-api :api="api"/>
     </div>
 
     <table-of-contents/>
@@ -30,6 +30,10 @@
   import tableOfContents from './table-of-contents';
 
   export default {
+    components: {
+      componentApi,
+      tableOfContents,
+    },
     props: {
       codeExamplesTemplate: {
         type: String,
@@ -37,9 +41,7 @@
       },
       api: {
         type: Object,
-      },
-      requirePath: {
-        type: String,
+        required: true,
       },
       status: {
         type: String,
@@ -48,10 +50,6 @@
           return ['complete', 'incomplete'].includes(value);
         },
       },
-    },
-    components: {
-      componentApi,
-      tableOfContents,
     },
   };
 
