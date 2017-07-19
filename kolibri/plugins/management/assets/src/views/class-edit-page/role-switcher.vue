@@ -9,6 +9,7 @@
       <button
         :class="buttonClass(LEARNER)"
         :disabled="isCurrentRole(LEARNER)"
+        :name="LEARNER"
         @click="handleClick(LEARNER)"
         class="role-button btn-left-edge"
       >
@@ -17,6 +18,7 @@
       <button
         :class="buttonClass(COACH)"
         :disabled="isCurrentRole(COACH)"
+        :name="COACH"
         @click="handleClick(COACH)"
         class="role-button btn-right-edge"
       >

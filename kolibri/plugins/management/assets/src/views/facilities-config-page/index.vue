@@ -35,6 +35,7 @@
             :raised="true"
             @click="showModal=true"
             :text="$tr('resetToDefaultSettings')"
+            name="reset-settings"
           />
 
           <k-button
@@ -42,6 +43,7 @@
             :raised="true"
             @click="saveFacilityConfig()"
             :text="$tr('saveChanges')"
+            name="save-settings"
           />
         </div>
       </div>

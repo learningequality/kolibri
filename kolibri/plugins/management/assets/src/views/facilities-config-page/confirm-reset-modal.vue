@@ -15,12 +15,14 @@
         :raised="false"
         @click="handleCancel()"
         :text="$tr('cancel')"
+        name="cancel"
       />
       <k-button
         :primary="true"
         :raised="true"
         @click="handleConfirm()"
         :text="$tr('reset')"
+        name="reset"
       />
 
     </div>
