@@ -6,6 +6,7 @@
 
 import Vue from 'vue';
 import logger from 'kolibri.lib.logging';
+import { languageDirection, languageDirections } from 'kolibri.utils.i18n';
 
 const logging = logger.getLogger(__filename);
 
@@ -238,9 +239,8 @@ export default class Mediator {
    * Loads a Javascript file and executes it.
    * @param  {String} url URL for the script
    * @return {Promise}     Promise that resolves when the script has loaded
-   * @private
    */
-  _scriptLoader(url) {
+  scriptLoader(url) {
     return new Promise((resolve, reject) => {
       let script;
       if (url.endsWith('js')) {
@@ -248,7 +248,7 @@ export default class Mediator {
         script.type = 'text/javascript';
         script.src = url;
         script.async = true;
-        script.addEventListener('load', resolve);
+        script.addEventListener('load', () => resolve(script));
         script.addEventListener('error', reject);
       } else if (url.endsWith('css')) {
         script = document.createElement('link');
@@ -256,7 +256,7 @@ export default class Mediator {
         script.type = 'text/css';
         script.href = url;
         // Can't detect loading for css, so just assume it worked.
-        resolve();
+        resolve(script);
       } else {
         return resolve();
       }
@@ -311,7 +311,7 @@ export default class Mediator {
               method: value,
             });
             // Load all the kolibriModule files.
-            Promise.all(kolibriModuleUrls.map(this._scriptLoader))
+            Promise.all(kolibriModuleUrls.map(this.scriptLoader))
               .then(() => {
                 resolve();
               })
@@ -450,13 +450,27 @@ export default class Mediator {
       } else {
         // We have a content renderer for this, but it has not been loaded, so load it, and then
         // resolve the promise when it has been loaded.
-        Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader))
-          .then(() => {
+        const urls = this._contentRendererUrls[kolibriModuleName].filter(
+          url =>
+            (languageDirection === languageDirections.RTL &&
+              url.includes(languageDirections.RTL)) ||
+            !url.includes('css')
+        );
+        Promise.all(urls.map(this.scriptLoader))
+          .then(scriptsArray => {
+            const storeTags = module => {
+              module.urlTags = {};
+              urls.forEach((url, index) => {
+                module.urlTags[url] = scriptsArray[index];
+              });
+            };
             if (this._kolibriModuleRegistry[kolibriModuleName]) {
+              storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
               resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
             } else {
               this.on('kolibri_register', moduleName => {
                 if (moduleName === kolibriModuleName) {
+                  storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
                   resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
                 }
               });
@@ -466,6 +480,41 @@ export default class Mediator {
             logging.error(error);
             reject('Content renderer failed to load properly');
           });
+      }
+    });
+  }
+  loadDirectionalCSS(contentRendererModule, direction) {
+    return new Promise((resolve, reject) => {
+      if (!contentRendererModule.urlTags) {
+        reject(`${contentRendererModule.name} has not already loaded - improper method call`);
+      }
+      const urls = this._contentRendererUrls[contentRendererModule.name];
+      const cssUrl = urls.find(
+        url =>
+          (direction === languageDirections.RTL && url.includes(languageDirections.RTL)) ||
+          (direction === languageDirections.LTR &&
+            !url.includes(languageDirections.RTL) &&
+            url.includes('css'))
+      );
+      const otherCssUrl = urls.find(
+        url =>
+          (direction !== languageDirections.RTL && url.includes(languageDirections.RTL)) ||
+          (direction !== languageDirections.LTR &&
+            !url.includes(languageDirections.RTL) &&
+            url.includes('css'))
+      );
+      if (contentRendererModule.urlTags[cssUrl]) {
+        // This css file is already loaded and in the DOM, nothing to do.
+        resolve();
+      } else {
+        if (contentRendererModule.urlTags[otherCssUrl]) {
+          contentRendererModule.urlTags[otherCssUrl].remove();
+          delete contentRendererModule.urlTags[otherCssUrl];
+        }
+        this.scriptLoader(cssUrl).then(tag => {
+          contentRendererModule.urlTags[cssUrl] = tag;
+          resolve();
+        });
       }
     });
   }

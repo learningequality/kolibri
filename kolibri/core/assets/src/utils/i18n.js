@@ -30,17 +30,31 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
 
 const defaultLocale = 'en';
 
+export const languageDirections = {
+  LTR: 'ltr',
+  RTL: 'rtl',
+};
+
 export const availableLanguages = {
   en: {
     code: 'en',
     name: 'English',
+    langDir: languageDirections.LTR,
   },
 };
 
 export let currentLanguage = defaultLocale;
 
 // Default to ltr
-export let languageDirection = 'ltr';
+export let languageDirection = languageDirections.LTR;
+
+export const getLangDir = lang_code => {
+  return (availableLanguages[lang_code] || {}).langDir || languageDirections.LTR;
+};
+
+export const isRtl = lang_code => {
+  return getLangDir(lang_code) === languageDirections.RTL;
+};
 
 export const languageDensities = {
   englishLike: 'english_like',
