@@ -178,9 +178,13 @@ export function setUpIntl() {
     if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
       Promise.all([
         new Promise(resolve => {
-          require.ensure([], require => {
-            resolve(() => require('intl'));
-          });
+          require.ensure(
+            ['intl'],
+            require => {
+              resolve(() => require('intl'));
+            },
+            'intl'
+          );
         }),
         importIntlLocale(global.languageCode),
       ]).then(
@@ -200,11 +204,15 @@ export function setUpIntl() {
         }
       );
     } else if (global.languageCode === 'rt-lft') {
-      require.ensure([], () => {
-        toFakeRTL = require('./mirrorText').toFakeRTL;
-        setUpVueIntl();
-        resolve();
-      });
+      require.ensure(
+        ['./mirrorText'],
+        require => {
+          toFakeRTL = require('./mirrorText').default;
+          setUpVueIntl();
+          resolve();
+        },
+        'fakeRtl'
+      );
     } else {
       setUpVueIntl();
       resolve();
