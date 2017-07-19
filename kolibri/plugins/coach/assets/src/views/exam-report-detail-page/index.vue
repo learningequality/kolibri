@@ -42,6 +42,7 @@
             :available="exercise.available"
             :answerState="currentInteraction.answer"
             :extraFields="exercise.extra_fields"
+            :interactive="false"
             :assessment="true"/>
           <content-renderer
             v-else
@@ -55,6 +56,7 @@
             :channelId="channelId"
             :available="exercise.available"
             :extraFields="exercise.extra_fields"
+            :interactive="false"
             :assessment="true"/>
         </div>
       </div>

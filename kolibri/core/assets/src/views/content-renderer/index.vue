@@ -22,6 +22,7 @@
         :allowHints="allowHints"
         :supplementaryFiles="supplementaryFiles"
         :thumbnailFiles="thumbnailFiles"
+        :interactive="interactive"
         ref="contentView"
         />
       </div>
@@ -85,6 +86,12 @@
       initSession: {
         type: Function,
         default: () => Promise.resolve(),
+      },
+      // Allow content renderers to display in a static mode
+      // where user interaction is not allowed
+      interactive: {
+        type: Boolean,
+        default: true,
       },
     },
     components: {
