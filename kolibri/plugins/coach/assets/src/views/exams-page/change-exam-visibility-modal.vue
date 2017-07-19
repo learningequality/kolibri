@@ -17,8 +17,8 @@
       class="group-select"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <icon-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
     </div>
   </core-modal>
 
@@ -30,7 +30,7 @@
   import * as examActions from '../../state/actions/exam';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
     $trNameSpace: 'changeExamVisibilityModal',
@@ -46,7 +46,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
       uiSelect,
     },
     props: {

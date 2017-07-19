@@ -12,13 +12,13 @@
       <!-- Button Section TODO: cleaunup -->
       <section>
 
-        <icon-button
+        <k-button
           :text="$tr('cancel')"
           :raised="false"
           @click="close"
         />
 
-        <icon-button
+        <k-button
           :text="$tr('remove')"
           :primary="true"
           @click="userRemove"
@@ -38,7 +38,7 @@
   function bold(stringToBold) {
     return `<strong v-html> ${stringToBold} </strong>`;
   }
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
     $trNameSpace: 'userRemoveModal',
@@ -51,7 +51,7 @@
       usersTab: 'Users',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
     },
     props: {

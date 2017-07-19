@@ -1,7 +1,7 @@
 <template>
 
   <div ref="container" class="container" allowfullscreen>
-    <icon-button
+    <k-button
       class="btn"
       v-if="fullscreenAllowed"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
@@ -16,9 +16,9 @@
 <script>
 
   import ScreenFull from 'screenfull';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    components: { iconButton },
+    components: { kButton },
     props: {
       defaultFile: {
         type: Object,

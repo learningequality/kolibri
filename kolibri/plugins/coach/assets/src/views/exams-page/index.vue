@@ -9,7 +9,7 @@
       v-model="filterSelected"
       class="radio-group"
     />
-    <icon-button
+    <k-button
       :primary="true"
       :raised="true"
       class="create-button"
@@ -107,7 +107,7 @@
   import { Modals as ExamModals } from '../../examConstants';
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiRadioGroup from 'keen-ui/src/UiRadioGroup';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
@@ -133,7 +133,7 @@
       noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
-      iconButton,
+      kButton,
       uiRadioGroup,
       examRow,
       createExamModal,

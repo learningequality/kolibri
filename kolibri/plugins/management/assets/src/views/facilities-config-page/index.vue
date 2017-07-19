@@ -30,14 +30,14 @@
         </div>
 
         <div>
-          <icon-button
+          <k-button
             :primary="false"
             :raised="true"
             @click="showModal=true"
             :text="$tr('resetToDefaultSettings')"
           />
 
-          <icon-button
+          <k-button
             :primary="true"
             :raised="true"
             @click="saveFacilityConfig()"
@@ -75,13 +75,13 @@
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
   import uiCheckbox from 'keen-ui/src/UiCheckbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       confirmResetModal,
       notifications,
       uiCheckbox,
-      iconButton,
+      kButton,
     },
     data: () => ({ showModal: false }),
     computed: { settingsList: () => settingsList },

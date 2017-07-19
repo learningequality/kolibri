@@ -3,7 +3,7 @@
   <component-style-guide
       class="button-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="CoreButtonApi"
+      :api="kButtonApi"
       :requirePath="requirePath"
       :status="'complete'"
     >
@@ -161,9 +161,9 @@
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
   import ComponentStyleGuide from '../../shell/component-style-guide';
-  import CoreButton from 'kolibri.coreVue.components.iconButton';
-  import CoreButtonApi from '!vue-doc!kolibri.coreVue.components.iconButton';
-  FullVue.component('core-button', CoreButton);
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
+  FullVue.component('k-button', kButton);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
@@ -172,14 +172,14 @@
   const codeExamplesTemplate = `
     <template>
       <div>
-        <core-button text="raised primary" :primary="true" :raised="true"></core-button>
-        <core-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></core-button>
-        <core-button text="raised secondary" :primary="false" :raised="true"></core-button>
-        <core-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></core-button>
-        <core-button text="flat primary" :primary="true" :raised="false"></core-button>
-        <core-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></core-button>
-        <core-button text="flat secondary" :primary="false" :raised="false" ></core-button>
-        <core-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></core-button>
+        <k-button text="raised primary" :primary="true" :raised="true"></k-button>
+        <k-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></k-button>
+        <k-button text="raised secondary" :primary="false" :raised="true"></k-button>
+        <k-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></k-button>
+        <k-button text="flat primary" :primary="true" :raised="false"></k-button>
+        <k-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></k-button>
+        <k-button text="flat secondary" :primary="false" :raised="false" ></k-button>
+        <k-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></k-button>
       </div>
     </template>
     `;
@@ -190,8 +190,8 @@
     },
     data: () => ({
       codeExamplesTemplate,
-      CoreButtonApi,
-      requirePath: 'kolibri.coreVue.components.iconButton',
+      kButtonApi,
+      requirePath: 'kolibri.coreVue.components.kButton',
     }),
   };
 

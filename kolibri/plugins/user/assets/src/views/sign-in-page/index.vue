@@ -44,7 +44,7 @@
             :invalid="passwordMissing"
             :error="passwordMissing ? $tr('enterPassword') : ''"/>
         </transition>
-        <icon-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
+        <k-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
 
         <p v-if="invalidCredentials" class="sign-in-error">{{ $tr('signInError') }}</p>
       </form>
@@ -53,10 +53,10 @@
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
         <router-link v-if="canSignUp" class="group-btn" :to="signUp">
-          <icon-button :text="$tr('createAccount')" :primary="false"/>
+          <k-button :text="$tr('createAccount')" :primary="false"/>
         </router-link>
         <a class="group-btn" href="/learn">
-          <icon-button :text="$tr('accessAsGuest')" :primary="false"/>
+          <k-button :text="$tr('accessAsGuest')" :primary="false"/>
         </a>
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
@@ -73,7 +73,7 @@
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
@@ -93,7 +93,7 @@
       poweredBy: 'Kolibri {version}',
     },
     components: {
-      iconButton,
+      kButton,
       coreTextbox,
       logo,
       uiAutocompleteSuggestion,

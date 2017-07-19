@@ -3,14 +3,14 @@
   <core-modal :title="$tr('title')" @cancel="cancel">
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button
+        <k-button
           :text="$tr('internet')"
           @click="goForward('network')"/>
-        <icon-button
+        <k-button
           :text="$tr('localDrives')"
           @click="goForward('local')"/>
       </div>
-      <icon-button
+      <k-button
         @click="cancel"
         :raised="false"
         :text="$tr('cancel')"/>
@@ -24,7 +24,7 @@
 
   import * as manageContentActions from '../../state/manageContentActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'wizardImportSource',
     $trs: {
@@ -43,7 +43,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     vuex: {
       actions: { transitionWizardPage: manageContentActions.transitionWizardPage },

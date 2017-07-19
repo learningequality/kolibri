@@ -13,13 +13,13 @@
     </div>
 
     <div class="buttons">
-      <icon-button
+      <k-button
         :primary="false"
         @click="handleClickCancel()"
         :text="$tr('cancelButtonLabel')"
       />
 
-      <icon-button
+      <k-button
         :primary="true"
         @click="handleClickConfirm()"
         :text="$tr('confirmButtonLabel')"
@@ -34,11 +34,11 @@
 <script>
 
   import modal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       modal,
-      iconButton,
+      kButton,
     },
     props: {
       channelTitle: {

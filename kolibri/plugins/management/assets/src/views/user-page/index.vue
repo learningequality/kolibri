@@ -29,7 +29,7 @@
       </div>
 
       <div class="create">
-        <icon-button
+        <k-button
           @click="openCreateUserModal"
           :text="$tr('addNew')"
           :primary="true"/>
@@ -88,7 +88,7 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button @click="openEditUserModal(user)" :text="$tr('editAccountInfo')" :raised="false"/>
+            <k-button @click="openEditUserModal(user)" :text="$tr('editAccountInfo')" :raised="false"/>
           </td>
 
         </tr>
@@ -112,13 +112,13 @@
   import orderBy from 'lodash/orderBy';
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import userRole from '../user-role';
   export default {
     components: {
       userCreateModal,
       userEditModal,
-      iconButton,
+      kButton,
       userRole,
     },
     data: () => ({

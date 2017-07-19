@@ -38,7 +38,7 @@ oriented data synchronization.
 
     <div>
       <transition mode="out-in">
-        <icon-button
+        <k-button
           :text="$tr('check')"
           :primary="false"
           :raised="true"
@@ -48,7 +48,7 @@ oriented data synchronization.
           :class="{shaking: shake}"
           :disabled="checkingAnswer"
         />
-        <icon-button
+        <k-button
           :text="$tr('correct')"
           :primary="true"
           :raised="true"
@@ -87,7 +87,7 @@ oriented data synchronization.
   import { updateContentNodeProgress } from '../../state/actions';
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
     $trNameSpace: 'assessmentWrapper',
@@ -138,7 +138,7 @@ oriented data synchronization.
     components: {
       exerciseAttempts,
       contentRenderer,
-      iconButton,
+      kButton,
       uiAlert,
     },
     data: () => ({

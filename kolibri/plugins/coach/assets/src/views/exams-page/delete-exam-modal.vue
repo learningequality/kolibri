@@ -3,8 +3,8 @@
   <core-modal :title="$tr('deleteExam')" @cancel="close">
     <p v-html="$trHtml('areYouSure', { examTitle })"></p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
+      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
     </div>
   </core-modal>
 
@@ -15,7 +15,7 @@
 
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'deleteExamModal',
     $trs: {
@@ -27,7 +27,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       examId: {
