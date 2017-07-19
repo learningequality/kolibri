@@ -1,6 +1,6 @@
 <template>
 
-  <content-card-grid
+  <content-card-group-grid
     :contents="recommendations"
     :gen-content-link="genContentLink"
     :header="header"
@@ -13,7 +13,7 @@
 <script>
 
   import { PageNames } from '../../constants';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
 
   export default {
     $trNameSpace: 'recommendedSubpage',
@@ -25,7 +25,7 @@
       pageSubheader: '{numOfItems, number} items',
     },
     components: {
-      contentCardGrid,
+      contentCardGroupGrid,
     },
     computed: {
       header() {

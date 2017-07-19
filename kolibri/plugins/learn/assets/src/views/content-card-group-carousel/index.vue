@@ -2,42 +2,6 @@
 
   <section class="content-carousel">
 
-    <!-- TEMP using a before route is set up -->
-    <router-link v-if="showViewMore" :to="viewMorePageLink">
-      <!-- linking the entire details section to a "view more" page -->
-      <div :style="widthOfCarousel" class="content-carousel-details">
-          <header v-if="header" class="content-carousel-details-header">
-              <h1>
-                {{header}}
-                <mat-svg
-                class="content-carousel-details-link-icon"
-                category="hardware"
-                name="keyboard_arrow_right" />
-              </h1>
-            <span v-if="subheader"> {{subheader}} </span>
-          </header>
-          <span class="content-carousel-details-view-more">
-            View more
-            <mat-svg
-              class="content-carousel-details-link-icon"
-              category="hardware"
-              name="keyboard_arrow_right" />
-          </span>
-      </div>
-    </router-link>
-
-    <template v-else>
-      <!-- relying on vue to not have to re-render all of this -->
-      <div class="content-carousel-details">
-          <header v-if="header" class="content-carousel-details-header">
-              <h1>
-                {{header}}
-              </h1>
-            <span v-if="subheader"> {{subheader}} </span>
-          </header>
-      </div>
-    </template>
-
     <div :style="widthOfCarousel" class="content-carousel-controls">
       <div class="previous" @click="previousSet">
         <ui-icon-button
@@ -277,37 +241,6 @@
   .content-carousel
     margin-top: 1em
     clearfix()
-
-    &-details
-      // vertical-align: bottom
-      // text-align: justify
-      clearfix()
-      position: relative
-      margin-bottom: 1em
-
-      &-header
-        float: left
-        text-decoration: none
-        color: $core-text-default
-
-      &-view-more
-        position: absolute
-        right: 0
-        bottom: 0
-
-      &-link-icon
-        // puts drops the center angle of the arrow to about the level of text's midline
-        transform: translateY(30%)
-        display: inline
-
-        ../-header &
-          $header-size = 1.5em
-          height: $header-size
-          width: $header-size
-        ../-view-more &
-          $view-more-size = 1.3em
-          height: $view-more-size
-          width: $view-more-size
 
     &-controls
       $hit-height = 100px

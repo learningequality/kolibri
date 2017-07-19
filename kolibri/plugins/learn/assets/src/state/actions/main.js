@@ -61,7 +61,7 @@ function _topicState(data, ancestors = []) {
   return state;
 }
 
-function _contentState(data, nextContent, ancestors = []) {
+function contentState(data, nextContent, ancestors = []) {
   const progress = validateProgress(data);
   const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
@@ -91,7 +91,7 @@ function _collectionState(data) {
     if (item.kind === CoreConstants.ContentNodeKinds.TOPIC) {
       return _topicState(item);
     }
-    return _contentState(item);
+    return contentState(item);
   });
 }
 
@@ -282,7 +282,7 @@ function showExploreContent(store, channelId, id) {
         return;
       }
       const pageState = {
-        content: _contentState(content, nextContent, ancestors),
+        content: contentState(content, nextContent, ancestors),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -551,7 +551,7 @@ function showExam(store, channelId, id, questionNumber) {
                   questions,
                   currentQuestion,
                   questionNumber,
-                  content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
+                  content: contentState(contentNodeMap[questions[questionNumber].contentId]),
                   channelId,
                   questionsAnswered,
                 };
@@ -661,7 +661,7 @@ function closeExam(store) {
 }
 
 export {
-  _contentState,
+  contentState,
   redirectToExploreChannel,
   redirectToLearnChannel,
   showExploreChannel,

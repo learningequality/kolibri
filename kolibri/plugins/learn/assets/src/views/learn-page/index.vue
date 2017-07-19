@@ -1,38 +1,38 @@
 <template>
 
   <div>
-    <content-card-carousel
+    <component
+      :is="recommendationDisplay"
       v-if="popular.length"
       :show-view-more="popular.length > trimmedPopular.length"
       :view-more-page-link="popularPageLink"
       :gen-content-link="genContentLink"
       :contents="trimmedPopular"
       :header="$tr('popularSectionHeader')"
-      :subheader="subHeader(trimmedPopular, popular)"/>
-    <content-card-carousel
+    <component
+      :is="recommendationDisplay"
       v-if="nextSteps.length"
       :show-view-more="nextSteps.length > trimmedNextSteps.length"
       :view-more-page-link="nextStepsPageLink"
       :gen-content-link="genContentLink"
       :contents="trimmedNextSteps"
       :header="$tr('suggestedNextStepsSectionHeader')"
-      :subheader="subHeader(trimmedNextSteps, nextSteps)"/>
-    <content-card-carousel
+    <component
+      :is="recommendationDisplay"
       v-if="resume.length"
       :show-view-more="resume.length > trimmedResume.length"
       :view-more-page-link="resumePageLink"
       :gen-content-link="genContentLink"
       :contents="trimmedResume"
       :header="$tr('resumeSectionHeader')"
-      :subheader="subHeader(trimmedResume, resume)"/>
-    <content-card-carousel
+    <component
+      :is="recommendationDisplay"
       v-if="overview.length"
       :show-view-more="overview.length > trimmedOverview.length"
       :view-more-page-link="overviewPageLink"
       :gen-content-link="genContentLink"
       :header="$tr('overviewSectionHeader')"
       :contents="trimmedOverview"
-      :subheader="subHeader(trimmedOverview, overview)" />
   </div>
 
 </template>
@@ -42,7 +42,7 @@
 
   import { PageNames } from '../../constants';
   import contentCardCarousel from '../content-card-carousel';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   const mobileCarouselLimit = 3;
@@ -55,13 +55,11 @@
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
       overviewSectionHeader: 'Overview',
-      sectionSubHeader: '{numOfItems, plural, one {# item} other {# items}}',
-      subsetSectionSubHeader: '{subset, number} of {total, plural, one {# item} other {# items}}',
     },
     mixins: [responsiveWindow],
     components: {
       contentCardCarousel,
-      contentCardGrid,
+      contentCardGroupGrid,
     },
     computed: {
       isMobile() {
@@ -69,7 +67,7 @@
       },
       recommendationDisplay() {
         if (this.isMobile) {
-          return contentCardGrid;
+          return contentCardGroupGrid;
         }
         return contentCardCarousel;
       },

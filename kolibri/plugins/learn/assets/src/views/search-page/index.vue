@@ -14,7 +14,7 @@
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-grid v-else :gen-content-link="genContentLink" :contents="contents" />
+      <content-card-group-grid v-else :gen-content-link="genContentLink" :contents="contents" />
 
     </template>
 
@@ -29,7 +29,7 @@
   import { PageNames } from '../../constants';
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   import searchBox from '../search-box';
   export default {
     name: 'learnSearch',
@@ -41,7 +41,7 @@
     },
     components: {
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
       searchBox,
     },
     methods: {

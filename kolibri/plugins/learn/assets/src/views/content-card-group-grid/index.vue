@@ -1,11 +1,6 @@
 <template>
 
   <div class="content-grid">
-    <header v-if="header" class="content-grid-header">
-      <h2> {{header}} </h2>
-      <span v-if="subheader"> {{subheader}} </span>
-    </header>
-
     <ui-select
       v-if="filter"
       :label="$tr('display')"
@@ -45,7 +40,7 @@
 
   export default {
     mixins: [responsiveWindow],
-    name: 'contentCardGrid',
+    name: 'contentCardGroupGrid',
     $trs: {
       display: 'Display',
       all: 'All content ({ num, number })',

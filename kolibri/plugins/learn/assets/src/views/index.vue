@@ -47,9 +47,9 @@
 
 <script>
 
-  import * as getters from '../state/getters';
+  import { pageMode } from '../state/getters';
   import store from '../state/store';
-  import { PageNames, PageModes } from '../constants';
+  import { PageNames, PageModes, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -159,12 +159,7 @@
         if (this.pageName === PageNames.EXAM) {
           return 'exam-page';
         }
-        if (
-          this.pageName === PageNames.RECOMMENDED_POPULAR ||
-          this.pageName === PageNames.RECOMMENDED_NEXT_STEPS ||
-          this.pageName === PageNames.RECOMMENDED_RESUME ||
-          this.pageName === PageNames.RECOMMENDED_OVERVIEW
-        ) {
+        if (RecommendedPages.includes(this.pageName)) {
           return 'recommended-subpage';
         }
         return null;
@@ -201,11 +196,11 @@
     vuex: {
       getters: {
         memberships: state => state.learnAppState.memberships,
-        pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
-        isUserLoggedIn,
         channelId: state => state.core.channels.currentId,
+        pageMode,
+        isUserLoggedIn,
       },
     },
     store,
