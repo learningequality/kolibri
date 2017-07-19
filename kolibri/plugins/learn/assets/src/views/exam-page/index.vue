@@ -12,7 +12,7 @@
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <icon-button @click="toggleModal" :text="$tr('submitExam')" :primary="true"/>
+            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true"/>
           </div>
         </div>
         <div class="question-container">
@@ -43,8 +43,8 @@
                 {{ $tr('noItemId') }}
               </ui-alert>
               <div class="question-navbutton-container">
-                <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"/>
-                <icon-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"/>
+                <k-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"/>
+                <k-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"/>
               </div>
             </div>
           </div>
@@ -53,8 +53,8 @@
       <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
-        <icon-button :text="$tr('cancel')" @click="toggleModal"/>
-        <icon-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
+        <k-button :text="$tr('cancel')" :raised="false" @click="toggleModal"/>
+        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
       </core-modal>
     </template>
   </immersive-full-screen>
@@ -72,7 +72,7 @@
   import throttle from 'lodash/throttle';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import answerHistory from './answer-history';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -94,7 +94,7 @@
     components: {
       immersiveFullScreen,
       contentRenderer,
-      iconButton,
+      kButton,
       answerHistory,
       coreModal,
       uiAlert,

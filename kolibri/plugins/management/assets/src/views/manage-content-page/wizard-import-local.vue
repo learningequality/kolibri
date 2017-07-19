@@ -21,7 +21,7 @@
           />
         </div>
         <div class="refresh-btn-wrapper">
-          <icon-button
+          <k-button
             :text="$tr('refresh')"
             @click="updateWizardLocalDriveList"
             :disabled="wizardState.busy"
@@ -34,10 +34,11 @@
       {{ wizardState.error }}
     </div>
     <div class="button-wrapper">
-      <icon-button
+      <k-button
         @click="cancel"
+        :raised="false"
         :text="$tr('cancel')"/>
-      <icon-button
+      <k-button
         :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
@@ -53,7 +54,7 @@
   import * as actions from '../../state/actions';
   import * as manageContentActions from '../../state/manageContentActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import driveList from './wizards/drive-list';
   export default {
@@ -67,7 +68,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
       loadingSpinner,
       driveList,
     },

@@ -18,13 +18,14 @@
         />
 
         <section class="footer">
-          <icon-button
+          <k-button
             type="button"
+            :raised="false"
             :text="$tr('cancel')"
             @click="close"
           />
 
-          <icon-button
+          <k-button
             type="submit"
             :text="$tr('update')"
             :primary="true"
@@ -40,7 +41,7 @@
 <script>
 
   import * as actions from '../../state/actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
@@ -53,7 +54,7 @@
       duplicateName: 'A class with that name already exists',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
       coreTextbox,
     },

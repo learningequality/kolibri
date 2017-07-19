@@ -13,12 +13,13 @@
       <!-- Button Section TODO: cleaunup -->
       <section>
 
-        <icon-button
+        <k-button
           :text="$tr('cancel')"
+          :raised="false"
           @click="close"
         />
 
-        <icon-button
+        <k-button
           :text="$tr('delete')"
           :primary="true"
           @click="classDelete"
@@ -35,7 +36,7 @@
 <script>
 
   import * as actions from '../../state/actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
     $trNameSpace: 'classDeleteModal',
@@ -48,7 +49,7 @@
       deleteConfirmation: 'Are you sure you want to delete { classname }?',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
     },
     props: {

@@ -48,7 +48,7 @@
           type="text" />
       </template>
 
-      <icon-button
+      <k-button
         :disabled="busy"
         :primary="true"
         :text="$tr('updateProfile')"
@@ -67,7 +67,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { totalPoints } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import uiAlert from 'keen-ui/src/UiAlert';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
@@ -88,7 +88,7 @@
       role: 'Role',
     },
     components: {
-      iconButton,
+      kButton,
       coreTextbox,
       uiAlert,
       pointsIcon,

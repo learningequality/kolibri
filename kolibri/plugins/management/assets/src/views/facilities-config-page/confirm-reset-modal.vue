@@ -10,17 +10,19 @@
     </div>
 
     <div class="modal-buttons">
-      <icon-button
+      <k-button
         :primary="false"
-        :raised="true"
+        :raised="false"
         @click="handleCancel()"
         :text="$tr('cancel')"
+        name="cancel"
       />
-      <icon-button
+      <k-button
         :primary="true"
         :raised="true"
         @click="handleConfirm()"
         :text="$tr('reset')"
+        name="reset"
       />
 
     </div>
@@ -33,11 +35,11 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     methods: {
       handleConfirm() {

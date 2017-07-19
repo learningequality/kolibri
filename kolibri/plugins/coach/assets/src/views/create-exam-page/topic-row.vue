@@ -29,7 +29,7 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'topicRow',
     $trs: {
@@ -38,7 +38,7 @@
     },
     components: {
       contentIcon,
-      iconButton,
+      kButton,
     },
     props: {
       topicId: {

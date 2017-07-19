@@ -13,7 +13,7 @@
     <td class="col-title"><strong>{{ examTitle }}</strong></td>
 
     <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
-      <icon-button
+      <k-button
         :primary="false"
         :raised="false"
         @click="emitChangeExamVisibility"
@@ -22,7 +22,7 @@
     </td>
 
     <td class="col-action">
-      <icon-button
+      <k-button
         v-if="examActive"
         :primary="true"
         :raised="false"
@@ -30,7 +30,7 @@
         :text="$tr('deactivate')"
       />
 
-      <icon-button
+      <k-button
         v-else
         :primary="false"
         :raised="false"
@@ -59,7 +59,7 @@
 
 <script>
 
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiMenu from 'keen-ui/src/UiMenu';
@@ -81,7 +81,7 @@
       uiIconButton,
       uiIcon,
       uiMenu,
-      iconButton,
+      kButton,
     },
     props: {
       examId: {

@@ -14,8 +14,8 @@
       </span>
     </p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)"/>
+      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)"/>
     </div>
   </core-modal>
 
@@ -26,7 +26,7 @@
 
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'activateExamModal',
     $trs: {
@@ -39,7 +39,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       examId: {

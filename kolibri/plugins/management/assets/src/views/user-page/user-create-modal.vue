@@ -54,7 +54,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <icon-button :text="$tr('createAccount')" :primary="true" :loading="loading"/>
+        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading"/>
       </section>
     </form>
   </core-modal>
@@ -66,7 +66,7 @@
 
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -91,7 +91,7 @@
       loadingConfirmation: 'Loading...',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
       coreTextbox,
       uiAlert,
@@ -202,7 +202,7 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
+    text-align: right
 
   .kind-select
     margin-bottom: 3em

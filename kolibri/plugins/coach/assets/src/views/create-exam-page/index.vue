@@ -98,10 +98,10 @@
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
       <p class="validation-error">{{ validationError }}</p>
 
-      <icon-button :text="$tr('preview')" @click="preview"/>
+      <k-button :text="$tr('preview')" @click="preview"/>
 
       <br>
-      <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
+      <k-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
 
     <preview-new-exam-modal
@@ -134,7 +134,7 @@
   import uiSnackbar from 'keen-ui/src/UiSnackbar';
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import textbox from 'kolibri.coreVue.components.textbox';
   import topicRow from './topic-row';
   import exerciseRow from './exercise-row';
@@ -183,7 +183,7 @@
       uiSnackbar,
       uiSnackbarContainer,
       uiProgressLinear,
-      iconButton,
+      kButton,
       textbox,
       topicRow,
       exerciseRow,

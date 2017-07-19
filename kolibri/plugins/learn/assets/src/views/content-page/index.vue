@@ -21,7 +21,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
     </content-renderer>
 
     <assessment-wrapper
@@ -40,7 +40,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <icon-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -85,7 +85,7 @@
       :kind="content.next_content.kind"
       :title="content.next_content.title">
 
-      <icon-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
     </content-points>
 
   </div>
@@ -105,7 +105,7 @@
   import contentCardCarousel from '../content-card-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import assessmentWrapper from '../assessment-wrapper';
   import contentPoints from '../content-points';
   import uiPopover from 'keen-ui/src/UiPopover';
@@ -170,7 +170,7 @@
       contentCardCarousel,
       contentRenderer,
       downloadButton,
-      iconButton,
+      kButton,
       assessmentWrapper,
       contentPoints,
       uiPopover,

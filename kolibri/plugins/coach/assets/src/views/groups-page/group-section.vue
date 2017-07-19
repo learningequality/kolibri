@@ -20,10 +20,10 @@
           />
           {{ $tr('actions') }}
         </ui-button>
-        <icon-button
+        <k-button
           v-if="canMove"
           :text="$tr('moveLearners')"
-          :primary="true"
+          :primary="false"
           @click="emitMove"
           :disabled="selectedUsers.length === 0" />
       </div>
@@ -65,7 +65,7 @@
 <script>
 
   import * as groupActions from '../../state/actions/group';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   export default {
@@ -82,7 +82,7 @@
       noLearners: 'No Learners in this group',
     },
     components: {
-      iconButton,
+      kButton,
       uiButton,
       uiMenu,
     },

@@ -13,7 +13,7 @@
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
-                <icon-button
+                <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
                   :raised="false"
@@ -53,7 +53,7 @@
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   export default {
     $trNameSpace: 'previewExamModal',
@@ -67,7 +67,7 @@
     components: {
       coreModal,
       contentRenderer,
-      iconButton,
+      kButton,
       uiProgressLinear,
     },
     props: {
