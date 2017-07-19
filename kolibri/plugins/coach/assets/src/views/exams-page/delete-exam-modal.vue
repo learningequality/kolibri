@@ -3,7 +3,7 @@
   <core-modal :title="$tr('deleteExam')" @cancel="close">
     <p v-html="$trHtml('areYouSure', { examTitle })"></p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
       <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
     </div>
   </core-modal>

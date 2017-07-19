@@ -14,6 +14,7 @@
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
           @click="close"
+          :raised="false"
           type="button" />
         <icon-button :text="$tr('save')"
           :primary="true"

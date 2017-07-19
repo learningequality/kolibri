@@ -17,7 +17,7 @@
       class="group-select"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
       <icon-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
     </div>
   </core-modal>

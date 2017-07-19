@@ -10,7 +10,7 @@
       class="channel-select"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
       <icon-button :text="$tr('createExam')" :primary="true" :disabled="!selectedChannel" @click="routeToCreateExamPage"/>
     </div>
   </core-modal>

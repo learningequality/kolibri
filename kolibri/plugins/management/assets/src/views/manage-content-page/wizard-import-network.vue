@@ -19,6 +19,7 @@
       <icon-button
         @click="cancel"
         :text="$tr('cancel')"
+        :raised="false"
         :disabled="wizardState.busy"/>
       <icon-button
         :text="$tr('import')"

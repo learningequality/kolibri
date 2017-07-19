@@ -9,6 +9,7 @@
       <div class="modal-buttons">
         <icon-button
           :text="$tr('noGoBack')"
+          :raised="false"
           @click="close"/>
         <icon-button
           :text="$tr('yesEnrollUsers')"

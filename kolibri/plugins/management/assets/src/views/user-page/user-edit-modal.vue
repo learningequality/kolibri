@@ -78,6 +78,7 @@
 
         <icon-button
           :text="cancelText"
+          :raised="false"
           @click="cancelClick"
         />
 

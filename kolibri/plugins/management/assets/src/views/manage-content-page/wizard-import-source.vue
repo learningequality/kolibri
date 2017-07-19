@@ -4,18 +4,15 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button
-          :primary="true"
           :text="$tr('internet')"
-          :showTextBelowIcon="true"
           @click="goForward('network')"/>
         <icon-button
-          :primary="true"
           :text="$tr('localDrives')"
-          :showTextBelowIcon="true"
           @click="goForward('local')"/>
       </div>
       <icon-button
         @click="cancel"
+        :raised="false"
         :text="$tr('cancel')"/>
     </div>
   </core-modal>

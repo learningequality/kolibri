@@ -11,7 +11,7 @@
         :error="$tr('duplicateTitle')"
         v-model.trim="newExamTitle"/>
       <div class="footer">
-        <icon-button :text="$tr('cancel')" type="button" @click="close"/>
+        <icon-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>
         <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
       </div>
     </form>

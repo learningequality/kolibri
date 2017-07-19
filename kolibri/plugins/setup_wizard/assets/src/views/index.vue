@@ -87,7 +87,7 @@
             {{ $tr('setupProgressFeedback') }}
           </ui-alert>
 
-          <icon-button :disabled="submitted" :text="$tr('formSubmissionButton')" type="submit"/>
+          <icon-button :disabled="submitted" :primary="true" :text="$tr('formSubmissionButton')" type="submit"/>
         </div>
       </form>
 

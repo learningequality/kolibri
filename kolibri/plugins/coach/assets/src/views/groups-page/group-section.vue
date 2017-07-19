@@ -23,7 +23,7 @@
         <icon-button
           v-if="canMove"
           :text="$tr('moveLearners')"
-          :primary="true"
+          :primary="false"
           @click="emitMove"
           :disabled="selectedUsers.length === 0" />
       </div>

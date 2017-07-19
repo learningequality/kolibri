@@ -31,6 +31,7 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
+        :raised="false"
         :text="$tr('cancel')"/>
       <icon-button
         :text="$tr('export')"

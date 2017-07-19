@@ -15,6 +15,7 @@
 
         <icon-button
           :text="$tr('cancel')"
+          :raised="false"
           @click="close"
         />
 

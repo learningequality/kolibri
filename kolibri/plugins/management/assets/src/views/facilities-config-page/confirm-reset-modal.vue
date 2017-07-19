@@ -12,7 +12,7 @@
     <div class="modal-buttons">
       <icon-button
         :primary="false"
-        :raised="true"
+        :raised="false"
         @click="handleCancel()"
         :text="$tr('cancel')"
       />

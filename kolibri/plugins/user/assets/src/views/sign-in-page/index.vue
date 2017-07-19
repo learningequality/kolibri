@@ -53,7 +53,7 @@
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
         <router-link v-if="canSignUp" class="group-btn" :to="signUp">
-          <icon-button :text="$tr('createAccount')" :primary="true"/>
+          <icon-button :text="$tr('createAccount')" :primary="false"/>
         </router-link>
         <a class="group-btn" href="/learn">
           <icon-button :text="$tr('accessAsGuest')" :primary="false"/>
@@ -286,6 +286,7 @@
     display: block
     margin: auto
     margin-top: 38px
+    width: 100%
 
   #btn-group
     display: table

@@ -23,6 +23,7 @@
 
     <div class="button-section">
       <icon-button :text="$tr('cancel')"
+        :raised="false"
         @click="close" />
       <icon-button :text="$tr('move')"
         :primary="true"

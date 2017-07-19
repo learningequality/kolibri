@@ -202,7 +202,7 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
+    text-align: right
 
   .kind-select
     margin-bottom: 3em

@@ -20,6 +20,7 @@
         <section class="footer">
           <icon-button
             type="button"
+            :raised="false"
             :text="$tr('cancel')"
             @click="close"
           />

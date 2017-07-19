@@ -78,7 +78,7 @@
         @input="updateSelection"
       />
 
-      <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
+      <icon-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -294,14 +294,6 @@
     margin-bottom: 1em
     p
       margin-top: 0
-
-  #submit
-    display: block
-    margin-left: auto
-    margin-right: auto
-
-    margin-top: $vertical-page-margin
-    margin-bottom: $vertical-page-margin
 
   .app-bar-icon
     font-size: 2.5em

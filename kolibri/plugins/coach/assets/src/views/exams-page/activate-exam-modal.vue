@@ -14,7 +14,7 @@
       </span>
     </p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('cancel')" :raised="false" @click="close"/>
       <icon-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)"/>
     </div>
   </core-modal>

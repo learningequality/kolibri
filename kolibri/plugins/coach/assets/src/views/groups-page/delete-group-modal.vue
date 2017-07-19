@@ -5,6 +5,7 @@
     <p v-html="$trHtml('areYouSure', { groupName: groupName })"></p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <icon-button :text="$tr('cancel')"
+      :raised="false"
       @click="close" />
     <icon-button :text="$tr('deleteGroup')"
       :primary="true"
