@@ -15,24 +15,43 @@
 
 <script>
 
+  /**
+   * A button
+   */
   export default {
+    name: 'k-button',
     props: {
+      /**
+       * Text within button
+       */
       text: {
         type: String,
         required: true,
       },
+      /**
+       * Primary or secondary button
+       */
       primary: {
         type: Boolean,
         default: false,
       },
+      /**
+       * Raised or flat button
+       */
       raised: {
         type: Boolean,
         default: true,
       },
+      /**
+       * Disabled state
+       */
       disabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * HTML5 button type
+       */
       type: {
         type: String,
         default: 'button',
@@ -53,6 +72,9 @@
     },
     methods: {
       handleClick(event) {
+        /**
+         * Emits click event
+         */
         this.$emit('click', event);
         this.$refs.button.blur();
       },

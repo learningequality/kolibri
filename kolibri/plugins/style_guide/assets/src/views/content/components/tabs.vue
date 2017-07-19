@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
       class="tab-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api"
@@ -92,7 +92,7 @@
       </ul>
 
     </div>
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -103,7 +103,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import tabs from 'kolibri.coreVue.components.tabs';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   import tabLinkApi from '!vue-doc!kolibri.coreVue.components.tabLink';
@@ -171,7 +171,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,

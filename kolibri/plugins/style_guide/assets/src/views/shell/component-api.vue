@@ -1,12 +1,12 @@
 <template>
 
   <div>
+    <h1>{{ api.name }}</h1>
+    <p>{{ api.description }}</p>
+    <h2 id="api">API</h2>
 
-    <h3>Require Path</h3>
-    <p>require('{{ requirePath }}');</p>
-
-    <h3>Description</h3>
-    <p>{{ api.description ? api.description : '-' }}</p>
+    <h3>Import</h3>
+    <code>import {{ camelCasedName }} from 'kolibri.coreVue.components.{{ camelCasedName }}';</code>
 
     <template v-if="api.props.length">
       <h3>Props</h3>
@@ -22,7 +22,12 @@
           <td>{{ prop.name }}</td>
           <td><code>{{ parsePropType(prop.value.type) }}</code></td>
           <td><code>{{ parsePropRequired(prop.value.required) }}</code></td>
-          <td><code>{{ parsePropDefault(prop.value.type, prop.value.default) }}</code></td>
+          <td>
+            <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
+              {{ parsePropDefault(prop.value.type, prop.value.default) }}
+            </code>
+            <template v-else>-</template>
+          </td>
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
       </table>
@@ -64,6 +69,7 @@
 <script>
 
   import escodegen from 'escodegen';
+  import CamelCase from 'lodash/camelCase';
 
   /**
    * The programming API for the specific component: its require path, its description,
@@ -84,6 +90,11 @@
        */
       requirePath: {
         type: String,
+      },
+    },
+    computed: {
+      camelCasedName() {
+        return CamelCase(this.api.name);
       },
     },
     methods: {
@@ -118,7 +129,7 @@
         if (stringfiedDefault) {
           return stringfiedDefault;
         }
-        return '-';
+        return null;
       },
     },
   };
@@ -129,7 +140,9 @@
 <style lang="stylus" scoped>
 
   code
-    color: red
+    background: #fdf6e3
+    color: #268bd2
     font-size: smaller
+    padding: 4px
 
 </style>

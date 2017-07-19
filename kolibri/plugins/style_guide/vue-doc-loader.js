@@ -1,6 +1,6 @@
-const vuedoc = require('@vuedoc/parser');
-const path = require('path');
-const mkdirp = require('mkdirp');
+var vuedoc = require('@vuedoc/parser');
+var path = require('path');
+var mkdirp = require('mkdirp');
 
 /**
  * Loader that extracts the props, events, slots and methods from a Vue component
@@ -11,7 +11,7 @@ module.exports = function(content) {
 
   var callback = this.async();
 
-  const options = {
+  var options = {
     filecontent: content
   }
 
@@ -19,7 +19,7 @@ module.exports = function(content) {
   vuedoc.parse(options)
     .then((component) => {
       json = JSON.stringify(component);
-      callback(null, `module.exports = ${json}; `);
+      callback(null, `export default ${json}; `);
     })
     .catch((err) => {
       callback(err);

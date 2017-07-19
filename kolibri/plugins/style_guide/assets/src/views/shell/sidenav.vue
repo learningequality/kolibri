@@ -40,6 +40,13 @@
   .sidenav
     border-right: 1px solid #e0e0e0
     background: #f7f7f7
+    position: fixed
+    top: $page-header-height
+    bottom: 0
+    left: 0
+    right: initial
+    overflow-y: auto
+    width: $sidenav-width
 
     h2
       padding-left: $nav-padding-left

@@ -1,15 +1,13 @@
 <template>
 
-  <component-style-guide
-    :codeExamplesTemplate="codeExamplesTemplate"
+  <component-template
+    :codeExamplesTemplate="coreButtonExamples"
     :api="CoreButtonApi"
     :requirePath="requirePath"
-    :status="'complete'">
+    :status="'complete'"
+  >
 
-    <h1 slot="title">Buttons</h1>
-    <p slot="summary">Buttons initialize actions and communicate what will happen upon clicking them</p>
-
-    <div slot="guidelines-and-usage">
+    <div slot="guidelines">
       <h3>Scope</h3>
       <p>
         This is meant to cover 90% of buttons. There will always be edge cases,
@@ -24,15 +22,9 @@
         visual hierarchy
       </p>
       <ul>
-        <li>
-          Raised buttons for more prominent actions
-        </li>
-        <li>
-          Flat buttons for less prominent or actions that repeat in a list
-        </li>
-        <li>
-          Hyperlink text for very deemphasized actions or in paragraphs.
-        </li>
+        <li>Raised buttons for more prominent actions</li>
+        <li>Flat buttons for less prominent or actions that repeat in a list</li>
+        <li>Hyperlink text for very deemphasized actions or in paragraphs.</li>
       </ul>
 
       <h3>Dropdown buttons</h3>
@@ -57,7 +49,7 @@
       </p>
       <p>
         The buttons language should avoid any ambiguity, be specific to the
-        action you are completing. For example, use ‘Save’ instead of ‘OK’.
+        action you are completing. For example, use 'Save' instead of 'OK'.
       </p>
       <p>
         Never use commas or other punctuation in buttons
@@ -144,26 +136,29 @@
         <li>Top right for major creation actions</li>
       </ul>
     </div>
-  </component-style-guide>
+  </component-template>
 
 </template>
 
 
 <script>
 
-  // Globally register the Kolibri components to make them accessible in the
-  // Vuep renderer. This has to be done on the compiler-included version of Vue
-  // because that's what Vuep uses to dynamically render template.
+  /* Globally register the Kolibri components to make them accessible in the
+   * Vuep renderer. This has to be done on the compiler-included version of Vue
+   * because that's what Vuep uses to dynamically render template.
+   */
   import FullVue from 'vue/dist/vue.common';
-  import ComponentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import CoreButton from 'kolibri.coreVue.components.iconButton';
   import CoreButtonApi from '!vue-doc!kolibri.coreVue.components.iconButton';
   FullVue.component('core-button', CoreButton);
 
-  // Define the examples as the initial content of the Vuep editor.
-  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
-  // need to work around it by dynamically constructing them.
-  const codeExamplesTemplate = `
+  /* Define the examples as the initial content of the Vuep editor.
+   * Notes: htmlhint would incorrectly warn about nested script tags, so we'd
+   * need to work around it by dynamically constructing them.
+   */
+  // TODO: Currently self-closing components are not handled by vuep
+  const coreButtonExamples = `
     <template>
       <div>
         <core-button text="raised primary" :primary="true" :raised="true"></core-button>
@@ -180,10 +175,10 @@
 
   export default {
     components: {
-      ComponentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
-      codeExamplesTemplate,
+      coreButtonExamples,
       CoreButtonApi,
       requirePath: 'kolibri.coreVue.components.iconButton',
     }),

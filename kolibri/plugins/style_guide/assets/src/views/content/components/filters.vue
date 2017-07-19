@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
       class="filter-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api"
@@ -117,7 +117,7 @@
 
     </div>
 
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -128,7 +128,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import UiSelect from 'keen-ui/src/UiSelect';
   import UiSelectApi from '!vue-doc!keen-ui/src/UiSelect';
   FullVue.component('ui-select', UiSelect);
@@ -199,7 +199,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,

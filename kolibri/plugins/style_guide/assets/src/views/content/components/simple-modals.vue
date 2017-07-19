@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
       class="modal-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api">
@@ -161,7 +161,7 @@
         There should never be horizontal scrolling inside a modal
       </p>
     </div>
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -172,7 +172,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import UiRadio from 'keen-ui/src/UiRadio';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreModalApi from '!vue-doc!kolibri.coreVue.components.coreModal';
@@ -186,7 +186,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,

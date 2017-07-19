@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
       class="text-fields-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api"
@@ -128,7 +128,7 @@
       </p>
     </div>
 
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -139,7 +139,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import textbox from 'kolibri.coreVue.components.textbox';
   import textboxApi from '!vue-doc!kolibri.coreVue.components.textbox';
   FullVue.component('textbox', textbox);
@@ -218,7 +218,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,

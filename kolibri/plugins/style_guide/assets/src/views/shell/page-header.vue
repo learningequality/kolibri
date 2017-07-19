@@ -1,7 +1,7 @@
 <template>
 
   <div class="page-header">
-    <router-link :to="'/style_guide/'" >
+    <router-link :to="'/style_guide/'">
       <h1>Kolibri Style Guide</h1>
     </router-link>
   </div>
@@ -19,6 +19,7 @@
 <style lang="stylus" scoped>
 
   @import '../../styles/core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .page-header
     position: fixed
@@ -26,7 +27,7 @@
     right: 0
     top: 0
     z-index: 4
-    background: #212121
+    background: $core-action-normal
     color: white
     padding-left: 1em
     a
