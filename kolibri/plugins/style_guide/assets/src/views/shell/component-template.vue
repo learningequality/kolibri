@@ -155,9 +155,27 @@
 
 <style lang="stylus">
 
+  // NOT SCOPED
+
+  @require '~vuep/dist/vuep.css'
+
+  .vuep
+    display: initial
+    height: initial
+
+    .vuep-preview, .vuep-editor
+      width: 100%
+
+    .vuep-preview
+      padding: 0.5em
+
+</style>
+
+
+<style lang="stylus" scoped>
+
   @require '~kolibri.styles.definitions'
-  @import '~vuep/dist/vuep.css'
-  @import '../../styles/style-guide.styl'
+  @require '../../styles/style-guide.styl'
 
   .component-template
     margin-left: $sidenav-width
@@ -199,26 +217,16 @@
       background: #e0e0e0
       text-align: left
 
-    .status-complete
-      color: $core-status-correct
-
-    .status-incomplete
-      color: $core-status-wrong
-
     code
       background: #fdf6e3
       color: #268bd2
       font-size: smaller
       padding: 4px
 
-    .vuep
-      display: initial
-      height: initial
+    .status-complete
+      color: $core-status-correct
 
-      .vuep-preview, .vuep-editor
-        width: 100%
-
-      .vuep-preview
-        padding: 0.5em
+    .status-incomplete
+      color: $core-status-wrong
 
 </style>

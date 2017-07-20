@@ -32,6 +32,8 @@
 
 <style lang="stylus">
 
+  // NOT SCOPED
+
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
   html, body
