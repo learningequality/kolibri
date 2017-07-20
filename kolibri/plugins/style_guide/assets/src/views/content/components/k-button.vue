@@ -159,9 +159,8 @@
       componentTemplate,
     },
     data: () => ({
-      kButtonExample,
       kButtonApi,
-      requirePath: 'kolibri.coreVue.components.kButton',
+      kButtonExample,
     }),
   };
 
