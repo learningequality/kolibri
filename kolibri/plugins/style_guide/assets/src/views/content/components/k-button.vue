@@ -1,7 +1,7 @@
 <template>
 
   <component-template
-    :codeExamplesTemplate="kButtonExamples"
+    :codeExamplesTemplate="kButtonExample"
     :api="kButtonApi"
     :status="'complete'"
   >
@@ -151,33 +151,15 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
   FullVue.component('k-button', kButton);
-
-  /* Define the examples as the initial content of the Vuep editor.
-   * Notes: htmlhint would incorrectly warn about nested script tags, so we'd
-   * need to work around it by dynamically constructing them.
-   */
   // TODO: Currently self-closing components are not handled by vuep
-  const kButtonExamples = `
-    <template>
-      <div>
-        <k-button text="raised primary" :primary="true" :raised="true"></k-button>
-        <k-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></k-button>
-        <k-button text="raised secondary" :primary="false" :raised="true"></k-button>
-        <k-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></k-button>
-        <k-button text="flat primary" :primary="true" :raised="false"></k-button>
-        <k-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></k-button>
-        <k-button text="flat secondary" :primary="false" :raised="false" ></k-button>
-        <k-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></k-button>
-      </div>
-    </template>
-    `;
+  import kButtonExample from 'raw-loader!./k-button-example.html';
 
   export default {
     components: {
       componentTemplate,
     },
     data: () => ({
-      kButtonExamples,
+      kButtonExample,
       kButtonApi,
       requirePath: 'kolibri.coreVue.components.kButton',
     }),
