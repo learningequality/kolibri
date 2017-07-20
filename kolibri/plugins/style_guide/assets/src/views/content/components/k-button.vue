@@ -91,30 +91,6 @@
         Buttons should elide if you really really really have but pls don’t thx
       </p>
 
-      <h3>
-        Details for devs (to be deleted after button component is implemented)
-      </h3>
-      <h4>Spacing</h4>
-      <ul>
-        <li>
-          Height: 36
-        </li>
-        <li>
-          Min width is 64
-        </li>
-        <li>
-          Button length corresponds to text length + 16px padding on each side
-        </li>
-        <li>
-          8px padding between buttons
-        </li>
-      </ul>
-      <h4>Typography</h4>
-      <ul>
-        <li>14 pt</li>
-        <li>Caps</li>
-        <li>bold</li>
-      </ul>
       <h4>Language</h4>
       <ul>
         <li>Buttons should be specific to action</li>

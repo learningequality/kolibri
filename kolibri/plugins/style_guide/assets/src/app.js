@@ -2,7 +2,7 @@ import KolibriModule from 'kolibri_module';
 import Vue from 'kolibri.lib.vue';
 import RootVue from './views';
 import router from 'kolibri.coreVue.router';
-import { navigationMenuRoutes } from './views/shell/navigation-menu';
+import { navMenuRoutes } from './views/shell/nav-menu';
 import Vuep from 'vuep';
 
 Vue.use(Vuep);
@@ -13,7 +13,7 @@ class StyleGuideModule extends KolibriModule {
       name: 'StyleGuideRoot',
       el: 'rootvue',
       render: createElement => createElement(RootVue),
-      router: router.init(navigationMenuRoutes, {
+      router: router.init(navMenuRoutes, {
         // Enable the anchor scrolling behavior (which requires the vue-router
         // to use the HTML5 History API).
         mode: 'history',

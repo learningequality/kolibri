@@ -4,16 +4,21 @@
 
     <h1>{{ api.name }}</h1>
 
+
     <p>{{ api.description }}</p>
 
+
     <h2>Status</h2>
+
     <p v-if="status === 'complete'" class="status-complete">Fully implemented</p>
     <p v-else class="status-incomplete">Not fully implemented</p>
+
 
     <h2 id="api">API</h2>
 
     <h3>Import</h3>
-    <code>import {{ camelCasedName }} from 'kolibri.coreVue.components.{{ camelCasedName }}';</code>
+    <code>{{ importString }}</code>
+
 
     <template v-if="api.props.length">
       <h3>Props</h3>
@@ -40,6 +45,7 @@
       </table>
     </template>
 
+
     <template v-if="api.events.length">
       <h3>Events</h3>
       <table>
@@ -53,6 +59,7 @@
         </tr>
       </table>
     </template>
+
 
     <template v-if="api.slots.length">
       <h3>Slots</h3>
@@ -68,6 +75,7 @@
       </table>
     </template>
 
+
     <h2 id="examples">Examples</h2>
     <vuep :template="codeExamplesTemplate"/>
 
@@ -82,14 +90,10 @@
 
 <script>
 
-  import tableOfContents from './table-of-contents';
   import escodegen from 'escodegen';
   import CamelCase from 'lodash/camelCase';
 
   export default {
-    components: {
-      tableOfContents,
-    },
     props: {
       codeExamplesTemplate: {
         type: String,
@@ -108,8 +112,10 @@
       },
     },
     computed: {
-      camelCasedName() {
-        return CamelCase(this.api.name);
+      importString() {
+        return `import ${CamelCase(this.api.name)} from 'kolibri.coreVue.components.${CamelCase(
+          this.api.name
+        )}';`;
       },
     },
 
@@ -167,7 +173,7 @@
       width: 100%
 
     .vuep-preview
-      padding: 0.5em
+      padding: 8px
 
 </style>
 
@@ -179,7 +185,7 @@
 
   .component-template
     margin-left: $sidenav-width
-    padding: 2em
+    padding: 32px
     line-height: 1.3em
 
     h1
