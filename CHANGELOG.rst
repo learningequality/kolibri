@@ -25,6 +25,32 @@ Changes are ordered reverse-chronologically.
  - Merge audio_mp3_render and video_mp4_render plugins into one single media_player plugin
 
 
+0.4.4
+-----
+
+ - Fix for Python 3 compatibility in Whl, Windows and Pex builds #1797
+
+
+0.4.3
+-----
+
+ - Speed improvements for content recommendation #1798
+
+
+0.4.2
+-----  
+
+ - Fixes for morango database migrations 
+
+
+0.4.1
+-----
+
+ - Makes usernames for login case insensitive #1733 
+ - Fixes various issues with exercise rendering #1757 
+ - Removes wrong CLI usage instructions #1742
+
+
 0.4
 ---
 

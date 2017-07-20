@@ -296,9 +296,6 @@
   tbody tr:nth-child(odd)
     background-color: $core-bg-canvas
 
-  .full-name
-    padding-left: 5px
-
   .roster
     width: 100%
     word-break: break-all
@@ -364,7 +361,6 @@
     line-height: $line-height
     max-height: ($line-height * 2)
     display: inline-block
-    padding-right: 1em
 
   @media print
     .toolbar
