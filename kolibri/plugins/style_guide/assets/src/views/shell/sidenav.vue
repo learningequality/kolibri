@@ -1,7 +1,7 @@
 <template>
 
   <div class="sidenav">
-    <router-link :to="'/style_guide/'" class="sidenav-heading">
+    <router-link :to="'/'" class="sidenav-heading">
       <h1>Kolibri Style Guide</h1>
     </router-link>
 

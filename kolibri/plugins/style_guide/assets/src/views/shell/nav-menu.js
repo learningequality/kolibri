@@ -11,15 +11,13 @@ import kBreadcrumbs from '../content/components/k-breadcrumbs';
 import tabs from '../content/components/tabs';
 import homePage from '../content/home/home-page';
 
-const BASE = '/style_guide';
-
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
 }
 
 const homeRoute = [
   {
-    path: `${BASE}/`,
+    path: `/`,
     component: homePage,
   },
 ];
@@ -54,14 +52,14 @@ const navMenu = [
       {
         itemName: componentsMap.kButton,
         itemRoute: {
-          path: `${BASE}/components/${componentsMap.kButton}`,
+          path: `/components/${componentsMap.kButton}`,
           component: kButton,
         },
       },
       {
         itemName: componentsMap.kBreadcrumbs,
         itemRoute: {
-          path: `${BASE}/components/${componentsMap.kBreadcrumbs}`,
+          path: `/components/${componentsMap.kBreadcrumbs}`,
           component: kBreadcrumbs,
         },
       },

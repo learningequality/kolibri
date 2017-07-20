@@ -166,6 +166,8 @@
   @require '~vuep/dist/vuep.css'
 
   .vuep
+    // TODO: vuep pullutes the font-family
+    font-family: NotoSans
     display: initial
     height: initial
 
