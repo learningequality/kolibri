@@ -1,15 +1,16 @@
 <template>
 
   <div>
-    <div class="btn">
-      <icon-button
-        :text="$tr('newGroup')"
-        :primary="true"
-        @click="openCreateGroupModal"
-      >
-        <mat-svg category="content" name="add" />
-      </icon-button>
-    </div>
+    <h1 class="header">{{ $tr('classGroups') }}</h1>
+
+    <icon-button
+      :text="$tr('newGroup')"
+      :primary="true"
+      size="small"
+      @click="openCreateGroupModal"
+    >
+      <mat-svg category="content" name="add" />
+    </icon-button>
 
     <create-group-modal v-if="showCreateGroupModal"
       :groups="sortedGroups" />
@@ -62,7 +63,7 @@
   export default {
     $trNameSpace: 'coachGroupsPage',
     $trs: {
-      groups: 'Groups',
+      classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
     },
@@ -164,7 +165,9 @@
 
   @require '~kolibri.styles.definitions'
 
-  .btn
-    text-align: right
+  .header
+    display: inline-block
+    vertical-align: middle
+    margin-right: 16px
 
 </style>

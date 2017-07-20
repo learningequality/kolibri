@@ -102,12 +102,12 @@
 <script>
 
   import {
-    initSessionAction,
-    updateProgressAction,
-    startTracking,
-    stopTracking,
+    initContentSession as initSessionAction,
+    updateProgress as updateProgressAction,
+    startTrackingProgress as startTracking,
+    stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames } from '../../constants';
+  import { PageNames, PageModes } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
@@ -176,7 +176,7 @@
         return null;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === Constants.PageModes.LEARN) {
+        if (this.recommended && this.pageMode === PageModes.LEARN) {
           return true;
         }
         return false;

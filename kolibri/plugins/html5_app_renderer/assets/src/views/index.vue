@@ -1,13 +1,16 @@
 <template>
 
-  <div ref="container" class="container" allowfullscreen>
+  <div
+    ref="container"
+    class="container"
+    :class="{ 'container-mimic-fullscreen': mimicFullscreen }"
+    allowfullscreen>
     <icon-button
       class="btn"
-      v-if="fullscreenAllowed"
-      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullScreen"
+      :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullscreen"
       :primary="true">
-      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-if="isFullscreen" class="icon" category="navigation" name="fullscreen_exit"/>
       <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
@@ -28,7 +31,7 @@
         required: true,
       },
     },
-    data: () => ({ isFullScreen: false }),
+    data: () => ({ isFullscreen: false }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
@@ -36,11 +39,23 @@
       fullscreenAllowed() {
         return ScreenFull.enabled;
       },
+      mimicFullscreen() {
+        return !this.fullscreenAllowed && this.isFullscreen;
+      },
     },
     methods: {
-      toggleFullScreen() {
-        ScreenFull.toggle(this.$refs.container);
-        this.isFullScreen = ScreenFull.isFullscreen;
+      toggleFullscreen() {
+        if (this.isFullscreen) {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullscreen = false;
+        } else {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullscreen = true;
+        }
       },
     },
     mounted() {
@@ -85,6 +100,18 @@
       height: 100%
       min-height: inherit
       max-height: inherit
+
+  .container-mimic-fullscreen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 24
+    max-width: 100%
+    max-height: 100%
+    width: 100%
+    height: 100%
 
   .sandbox
     height: 100%
