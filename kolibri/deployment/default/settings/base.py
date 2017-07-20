@@ -60,9 +60,12 @@ INSTALLED_APPS = [
     'kolibri.tasks.apps.KolibriTasksConfig',
     'django_q',
     'kolibri.core.webpack',
+    'kolibri.core.exams',
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
+    'jsonfield',
+    'morango',
 ] + conf.config['INSTALLED_APPS']
 
 # Add in the external plugins' locale paths. Our frontend messages depends
@@ -114,6 +117,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 100,
+        }
     },
     'ormq': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -149,8 +155,10 @@ LANGUAGES = [
     ('en', 'English'),
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
+    ('es-mx', 'Español (México)'),
     ('fr-fr', 'Français, langue française'),
     ('pt-pt', 'Português'),
+    ('hi-in', 'हिंदी')
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
@@ -309,3 +317,5 @@ JS_REVERSE_JS_VAR_NAME = 'urls'
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
+
+ENABLE_DATA_BOOTSTRAPPING = True

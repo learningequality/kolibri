@@ -13,8 +13,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
+from jsonfield import JSONField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
 from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
@@ -63,7 +65,7 @@ class UUIDField(models.CharField):
         return value
 
 
-class ContentQuerySet(models.QuerySet):
+class ContentQuerySet(TreeQuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
@@ -111,7 +113,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField()
+    content_id = UUIDField(db_index=True)
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -131,14 +133,13 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
     def get_descendant_content_ids(self):
         """
-        Retrieve a queryset of unique content_ids for non-topic content nodes that are
+        Retrieve a queryset of content_ids for non-topic content nodes that are
         descendants of this node.
         """
         return ContentNode.objects \
             .filter(lft__gte=self.lft, lft__lte=self.rght) \
             .exclude(kind=content_kinds.TOPIC) \
-            .values_list("content_id", flat=True) \
-            .distinct().order_by("content_id")
+            .values_list("content_id", flat=True)
 
     def get_descendant_kind_counts(self):
         """ Return a dict mapping content kinds to counts, indicating how many descendant nodes there are of that kind.
@@ -237,12 +238,36 @@ class License(ContentDatabaseModel):
     Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
+    license_description = models.CharField(max_length=400, null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.license_name
 
+
+class AssessmentMetaData(ContentDatabaseModel):
+    """
+    A model to describe additional metadata that characterizes assessment behaviour in Kolibri.
+    This model contains additional fields that are only revelant to content nodes that probe a
+    user's state of knowledge and allow them to practice to Mastery.
+    ContentNodes with this metadata may also be able to be used within quizzes and exams.
+    """
+    id = UUIDField(primary_key=True)
+    contentnode = models.ForeignKey(
+        ContentNode, related_name='assessmentmetadata', blank=True, null=True
+    )
+    # A JSON blob containing a serialized list of ids for questions that the assessment can present.
+    assessment_item_ids = JSONField(default=[])
+    # Length of the above assessment_item_ids for a convenience lookup.
+    number_of_assessments = models.IntegerField()
+    # A JSON blob describing the mastery model that is used to set this assessment as mastered.
+    mastery_model = JSONField(default={})
+    # Should the questions listed in assessment_item_ids be presented in a random order?
+    randomize = models.BooleanField(default=False)
+    # Is this assessment compatible with being previewed and answer filled for display in coach reports
+    # and use in summative and formative tests?
+    is_manipulable = models.BooleanField(default=False)
 
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):

@@ -1,40 +1,91 @@
 const Resource = require('../api-resource').Resource;
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 class ContentNodeResource extends Resource {
-  constructor(...args) {
-    super(...args);
-    this._models = {};
-    this._collections = {};
-  }
-  setChannel(channelId) {
-    // Track models for different channels separately.
-    if (!this._models[channelId]) {
-      this._models[channelId] = {};
-    }
-    if (!this._collections[channelId]) {
-      this._collections[channelId] = {};
-    }
-    this.models = this._models[channelId];
-    this.collections = this._collections[channelId];
-    this.channelId = channelId;
-  }
-  get modelUrl() {
-    // Return a function that calls the modelUrl method of the base class, but prefix the arguments
-    // with the channelId that is currently set.
-    // N.B. Here and below the super calls are to getters that return functions that are
-    // immediately invoked.
-    return (...args) => this.urls[`${this.name}_detail`](this.channelId, ...args);
-  }
-  get collectionUrl() {
-    // Return a function that calls the collectionUrl method of the base class, but prefix the
-    // arguments with the channelId that is currently set.
-    return (...args) => this.urls[`${this.name}_list`](this.channelId, ...args);
-  }
   static resourceName() {
     return 'contentnode';
   }
   static idKey() {
     return 'pk';
+  }
+  static resourceIdentifiers() {
+    return [
+      'channel_id',
+    ];
+  }
+  getDescendantsCollection(id, resourceIds = {}, getParams = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    if (!this.hasResourceIds) {
+      if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
+        throw TypeError(
+          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
+          'resource, which does not use resourceIds, only pass getParams for this resource');
+      } else if (Object.keys(resourceIds).length) {
+        getParams = resourceIds; // eslint-disable-line no-param-reassign
+      }
+    }
+    // Add the id to the getParams for cache identification
+    getParams.modelId = id;
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    let collection;
+    const key = this.cacheKey(getParams, filteredResourceIds);
+    if (!this.collections[key]) {
+      collection = this.createCollection(filteredResourceIds, getParams, []);
+      collection.url = (...args) => this.urls[`${this.name}-descendants`](...args, id);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
+  }
+  fetchAncestors(id, resourceIds = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    let promise;
+    this.ancestor_cache = this.ancestor_cache || {};
+    const key = this.cacheKey({ id }, filteredResourceIds);
+    if (!this.ancestor_cache[key]) {
+      const url = this.urls[`${this.name}-ancestors`](
+        ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
+      promise = this.client({ path: url }).then(response => {
+        if (Array.isArray(response.entity)) {
+          this.ancestor_cache[key] = response.entity;
+          return Promise.resolve(response.entity);
+        }
+        logging.debug('Data appears to be malformed', response.entity);
+        return Promise.reject(response);
+      });
+    } else {
+      promise = Promise.resolve(this.ancestor_cache[key]);
+    }
+    return promise;
+  }
+  fetchNextContent(id, resourceIds = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    let promise;
+    this.next_cache = this.next_cache || {};
+    const key = this.cacheKey({ id }, filteredResourceIds);
+    if (!this.next_cache[key]) {
+      const url = this.urls[`${this.name}_next_content`](
+        ...this.resourceIds.map((resourceKey) => resourceIds[resourceKey]), id);
+      promise = this.client({ path: url }).then(response => {
+        if (Object(response.entity) === response.entity) {
+          this.next_cache[key] = response.entity;
+          return Promise.resolve(response.entity);
+        }
+        logging.debug('Data appears to be malformed', response.entity);
+        return Promise.reject(response);
+      });
+    } else {
+      promise = Promise.resolve(this.next_cache[key]);
+    }
+    return promise;
   }
 }
 

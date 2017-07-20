@@ -4,16 +4,37 @@ const router = require('kolibri.coreVue.router');
 
 const Vue = require('kolibri.lib.vue');
 
-const RootVue = require('./vue');
-const actions = require('./actions');
+const RootVue = require('./views');
+const actions = require('./state/actions');
 const store = require('./state/store');
-const PageNames = require('./state/constants').PageNames;
+const PageNames = require('./constants').PageNames;
 
 
 class ManagementModule extends KolibriModule {
   ready() {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
+        {
+          name: PageNames.CLASS_MGMT_PAGE,
+          path: '/classes',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassesPage(store);
+          },
+        },
+        {
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
+          path: '/classes/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassEditPage(store, toRoute.params.id);
+          },
+        },
+        {
+          name: PageNames.CLASS_ENROLL_MGMT_PAGE,
+          path: '/classes/:id/enroll',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassEnrollPage(store, toRoute.params.id);
+          },
+        },
         {
           name: PageNames.USER_MGMT_PAGE,
           path: '/users',
@@ -36,6 +57,13 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.FACILITY_CONFIG_PAGE,
+          path: '/facilities',
+          handler: (toRoute, fromRoute) => {
+            actions.showFacilityConfigPage(store);
+          },
+        },
+        {
           name: PageNames.SCRATCHPAD,
           path: '/scratchpad',
           handler: (toRoute, fromRoute) => {
@@ -44,7 +72,7 @@ class ManagementModule extends KolibriModule {
         },
         {
           path: '/',
-          redirect: '/users',
+          redirect: '/classes',
         },
       ];
 

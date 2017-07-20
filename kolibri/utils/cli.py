@@ -38,9 +38,7 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
-  kolibri stop [options] [-- DJANGO_OPTIONS ...]
-  kolibri restart [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
   kolibri status [options]
   kolibri shell [options] [-- DJANGO_OPTIONS ...]
   kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
@@ -50,6 +48,12 @@ Usage:
   kolibri plugin --list
   kolibri -h | --help
   kolibri --version
+
+Coming in 0.5:
+  kolibri start         Will start the daemon per default
+  kolibri stop          Stops the daemon
+  kolibri restart       Restarts the daemon
+  kolibri diagnose      Shows diagnostics for bug reports
 
 Options:
   -h --help             Show this screen.

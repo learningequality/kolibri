@@ -268,9 +268,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertTrue("pk" not in response.data)
 
     def test_contentnode_recommendations(self):
-        root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 4)
+        id = content.ContentNode.objects.get(title="c2c2").id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
+        self.assertEqual(len(response.data), 2)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -325,9 +325,11 @@ class ContentNodeAPITestCase(APITestCase):
 
         # check that progress is calculated appropriately when user is logged in
         self.client.login(username="learner", password="pass", facility=facility)
-        assert_progress(root, 0.3)
-        assert_progress(c1, 0)
-        assert_progress(c2, 0.4)
+        # Topic so None
+        assert_progress(root, None)
+        assert_progress(c1, None)
+        # Topic so None
+        assert_progress(c2, None)
         assert_progress(c2c1, 0.7)
 
     def tearDown(self):

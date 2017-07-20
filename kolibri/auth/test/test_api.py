@@ -85,7 +85,12 @@ class LearnerGroupAPITestCase(APITestCase):
             ('id', group.id),
             ('name', group.name),
             ('parent', group.parent.id),
+            ('user_ids', [member.id for member in group.get_members()])
         )) for group in self.learner_groups]
+        # assertItemsEqual does not deal well with embedded objects, as it does
+        # not do a deepEqual, so check each individual list of user_ids
+        for i, group in enumerate(response.data):
+            self.assertItemsEqual(group.pop('user_ids'), expected[i].pop('user_ids'))
         self.assertItemsEqual(response.data, expected)
 
     def test_learnergroup_detail(self):
@@ -94,8 +99,9 @@ class LearnerGroupAPITestCase(APITestCase):
             'id': self.learner_groups[0].id,
             'name': self.learner_groups[0].name,
             'parent': self.learner_groups[0].parent.id,
+            'user_ids': [member.id for member in self.learner_groups[0].get_members()],
         }
-        self.assertDictEqual(response.data, expected)
+        self.assertItemsEqual(response.data, expected)
 
     def test_parent_in_queryparam_with_one_id(self):
         classroom_id = self.classrooms[0].id
@@ -105,7 +111,12 @@ class LearnerGroupAPITestCase(APITestCase):
             ('id', group.id),
             ('name', group.name),
             ('parent', group.parent.id),
+            ('user_ids', [member.id for member in group.get_members()]),
         )) for group in self.learner_groups if group.parent.id == classroom_id]
+        # assertItemsEqual does not deal well with embedded objects, as it does
+        # not do a deepEqual, so check each individual list of user_ids
+        for i, group in enumerate(response.data):
+            self.assertItemsEqual(group.pop('user_ids'), expected[i].pop('user_ids'))
         self.assertItemsEqual(response.data, expected)
 
 
@@ -124,6 +135,9 @@ class ClassroomAPITestCase(APITestCase):
             ('id', classroom.id),
             ('name', classroom.name),
             ('parent', classroom.parent.id),
+            ('learner_count', 0),
+            ('coach_count', 0),
+            ('admin_count', 0),
         )) for classroom in self.classrooms]
         self.assertItemsEqual(response.data, expected)
 
@@ -133,6 +147,9 @@ class ClassroomAPITestCase(APITestCase):
             'id': self.classrooms[0].id,
             'name': self.classrooms[0].name,
             'parent': self.classrooms[0].parent.id,
+            'learner_count': 0,
+            'coach_count': 0,
+            'admin_count': 0,
         }
         self.assertDictEqual(response.data, expected)
 
@@ -157,10 +174,6 @@ class FacilityAPITestCase(APITestCase):
         self.assertDictContainsSubset({
             'name': self.facility1.name,
         }, dict(response.data))
-
-    def test_anonymous_user_gets_empty_list(self):
-        response = self.client.get(reverse('facility-list'), format='json')
-        self.assertEqual(response.data, [])
 
     def test_device_admin_can_create_facility(self):
         new_facility_name = "New Facility"
@@ -360,7 +373,6 @@ class FacilityDatasetAPITestCase(APITestCase):
     def setUp(self):
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
-        FacilityFactory.create(name='extra')
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(self.admin)
@@ -368,7 +380,7 @@ class FacilityDatasetAPITestCase(APITestCase):
     def test_return_dataset_that_user_is_an_admin_for(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
         self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
 
     def test_return_all_datasets_for_device_owner(self):
@@ -376,7 +388,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
-    def test_return_nothing_for_facility_user(self):
+    def test_return_dataset_for_facility_user(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))

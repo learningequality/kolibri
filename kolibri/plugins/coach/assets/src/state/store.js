@@ -1,68 +1,83 @@
 const Vuex = require('kolibri.lib.vuex');
+const Vue = require('kolibri.lib.vue');
 const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.REPORTS,
-  pageState: {
-    // URL-input
-    channel_id: '',
-    content_scope: '',
-    content_scope_id: '',
-    user_scope: '',
-    user_scope_id: '',
-    all_or_recent: '',
-    view_by_content_or_learners: '',
-    sort_column: '',
-    sort_order: '',
-
-    // API-generated
-    content_scope_summary: {},
-    user_scope_summary: {},
-    // list of objects from server
-    table_data: [{}],
-  },
+  pageName: '',
+  pageState: {},
+  classId: null,
+  classList: [],
 };
 
 const mutations = {
+
+  // coach-wide
+  SET_PAGE_STATE(state, pageState) {
+    state.pageState = pageState;
+  },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CHANNEL_ID(state, channelId) {
-    state.pageState.channel_id = channelId;
+  SET_CLASS_INFO(state, classId, classList) {
+    state.classId = classId;
+    state.classList = classList;
   },
-  SET_CONTENT_SCOPE(state, contentScope) {
-    state.pageState.content_scope = contentScope;
+
+  // report
+  SET_REPORT_SORTING(state, sortColumn, sortOrder) {
+    Vue.set(state.pageState, 'sortColumn', sortColumn);
+    Vue.set(state.pageState, 'sortOrder', sortOrder);
   },
-  SET_CONTENT_SCOPE_ID(state, contentScopeId) {
-    state.pageState.content_scope_id = contentScopeId;
+  SET_REPORT_PROPERTIES(state, options) {
+    Vue.set(state.pageState, 'channelId', options.channelId);
+    Vue.set(state.pageState, 'contentScope', options.contentScope);
+    Vue.set(state.pageState, 'contentScopeId', options.contentScopeId);
+    Vue.set(state.pageState, 'userScope', options.userScope);
+    Vue.set(state.pageState, 'userScopeId', options.userScopeId);
+    Vue.set(state.pageState, 'viewBy', options.viewBy);
+    Vue.set(state.pageState, 'showRecentOnly', options.showRecentOnly);
   },
-  SET_USER_SCOPE(state, userScope) {
-    state.pageState.user_scope = userScope;
+  SET_REPORT_TABLE_DATA(state, tableData) {
+    Vue.set(state.pageState, 'tableData', tableData);
   },
-  SET_USER_SCOPE_ID(state, userScopeId) {
-    state.pageState.user_scope_id = userScopeId;
+  SET_REPORT_CONTENT_SUMMARY(state, summary) {
+    Vue.set(state.pageState, 'contentScopeSummary', summary);
   },
-  SET_ALL_OR_RECENT(state, allOrRecent) {
-    state.pageState.all_or_recent = allOrRecent;
+  SET_REPORT_USER_SUMMARY(state, summary) {
+    Vue.set(state.pageState, 'userScopeSummary', summary);
   },
-  SET_VIEW_BY_CONTENT_OR_LEARNERS(state, viewByContentOrLearners) {
-    state.pageState.view_by_content_or_learners = viewByContentOrLearners;
+
+  // groups
+  SET_GROUP_MODAL(state, modalName) {
+    state.pageState.groupModalShown = modalName;
   },
-  SET_SORT_COLUMN(state, sortColumn) {
-    state.pageState.sort_column = sortColumn;
+  SET_GROUPS(state, groups) {
+    state.pageState.groups = groups;
   },
-  SET_SORT_ORDER(state, sortOrder) {
-    state.pageState.sort_order = sortOrder;
+
+  SET_TOPIC(state, topic) {
+    state.pageState.topic = topic;
   },
-  SET_CONTENT_SCOPE_SUMMARY(state, contentScopeSummary) {
-    state.pageState.content_scope_summary = contentScopeSummary;
+
+  SET_SUBTOPICS(state, subtopics) {
+    state.pageState.subtopics = subtopics;
   },
-  SET_USER_SCOPE_SUMMARY(state, userScopeSummary) {
-    state.pageState.user_scope_summary = userScopeSummary;
+
+  SET_EXERCISES(state, exercises) {
+    state.pageState.exercises = exercises;
   },
-  SET_TABLE_DATA(state, tableData) {
-    state.pageState.table_data = tableData;
+  SET_SELECTED_EXERCISES(state, selectedExercises) {
+    state.pageState.selectedExercises = selectedExercises;
+  },
+  SET_EXAMS(state, exams) {
+    state.pageState.exams = exams;
+  },
+  SET_EXAM_MODAL(state, modalName) {
+    state.pageState.examModalShown = modalName;
+  },
+  // etc
+  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+    state.pageState.selectedAttemptLogIndex = attemptLog;
   },
 };
 

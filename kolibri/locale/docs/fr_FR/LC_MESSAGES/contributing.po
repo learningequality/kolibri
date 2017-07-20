@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-05-19 01:26-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/contributing.po\n"
+"X-Crowdin-File: /release-v0.4.x/docs/en/LC_MESSAGES/contributing.po\n"
 "Language: fr_FR\n"
 
 #: ../../../CONTRIBUTING.rst:3
@@ -23,7 +23,7 @@ msgstr "Contributions"
 
 #: ../../../CONTRIBUTING.rst:5
 msgid "Contributions are welcome, and they are greatly appreciated! Every little bit helps, and credit will always be given."
-msgstr ""
+msgstr "Les contributions sont les bienvenues, et sont grandement appréciées ! Chaque petite contribution est utile, et une reconnaissance sera toujours accordée."
 
 #: ../../../CONTRIBUTING.rst:8
 msgid "You can contribute in many ways:"

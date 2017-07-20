@@ -1,0 +1,119 @@
+<template>
+
+  <tr>
+    <th class="col-checkbox">
+      <input
+        type="checkbox"
+        :checked="allExercisesWithinTopicSelected"
+        :indeterminate.prop="someExercisesWithinTopicSelected"
+        :disabled="!topicHasExercises"
+        @change="changeSelection"
+      >
+    </th>
+    <td class="col-title">
+      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
+      <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
+      <span v-else class="disabled">{{ topicTitle }}</span>
+    </td>
+    <td class="col-selection">
+      <template v-if="!noExercisesWithinTopicSelected">
+      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic })}}
+      </template>
+    </td>
+  </tr>
+
+</template>
+
+
+<script>
+
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+
+  module.exports = {
+    $trNameSpace: 'topicRow',
+    $trs: {
+      exercisesSelected: '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
+
+    },
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
+    props: {
+      topicId: {
+        type: String,
+        requires: true,
+      },
+      topicTitle: {
+        type: String,
+        required: true,
+      },
+      selectedExercises: {
+        type: Array,
+        required: true,
+      },
+      allExercisesWithinTopic: {
+        type: Array,
+        required: true,
+      },
+    },
+    computed: {
+      topic() {
+        return ContentNodeKinds.TOPIC;
+      },
+      topicHasExercises() {
+        return this.allExercisesWithinTopic.length !== 0;
+      },
+      numExercisesWithinTopic() {
+        return this.allExercisesWithinTopic.length;
+      },
+      numExercisesWithinTopicSelected() {
+        return this.allExercisesWithinTopic.filter(
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id)).length;
+      },
+      allExercisesWithinTopicSelected() {
+        if (!this.topicHasExercises) {
+          return false;
+        }
+        return this.allExercisesWithinTopic.every(
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id));
+      },
+      noExercisesWithinTopicSelected() {
+        return this.allExercisesWithinTopic.every(
+            exercise => !this.selectedExercises.some(
+              selectedExercise => selectedExercise.id === exercise.id));
+      },
+      someExercisesWithinTopicSelected() {
+        return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
+      }
+    },
+    methods: {
+      changeSelection() {
+        if (this.allExercisesWithinTopicSelected) {
+          this.$emit('removeTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
+        } else {
+          this.$emit('addTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
+        }
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .title
+    padding: 0
+    border: none
+    font-size: 1em
+
+  .disabled
+    color: $core-text-disabled
+
+</style>
+

@@ -5,7 +5,7 @@ class AttemptLogResource extends Resource {
     return 'attemptlog';
   }
   static idKey() {
-    return 'pk';
+    return 'id';
   }
 }
 

@@ -43,7 +43,7 @@ module.exports = {
     this.$options._resizeSensor = new ResizeSensor(this.$el, this._updateEl);
   },
   beforeDestroy() {
-    this.$options._resizeSensor.detach(this.$el, this.update);
+    this.$options._resizeSensor.detach(this.$el, this._updateEl);
   },
 };
 

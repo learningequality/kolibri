@@ -28,14 +28,14 @@ module.exports = {
       vuex: {
         module: require('vuex'),
       },
-      vueRouter: {
-        module: require('vue-router'),
-      },
-      jscookie: {
-        module: require('js-cookie'),
-      },
       conditionalPromise: {
         module: require('../conditionalPromise'),
+      },
+      apiResource: {
+        module: require('../api-resource'),
+      },
+      seededshuffle: {
+        module: require('seededshuffle'),
       },
     },
     coreVue: {
@@ -44,63 +44,72 @@ module.exports = {
           module: require('../constants'),
         },
         getters: {
-          module: require('../core-getters'),
+          module: require('../state/getters'),
         },
         actions: {
-          module: require('../core-actions'),
+          module: require('../state/actions'),
         },
         store: {
-          module: require('../core-store'),
+          module: require('../state/store'),
+        },
+        mappers: {
+          module: require('../state/mappers'),
         },
       },
       components: {
         contentRenderer: {
-          module: require('../vue/content-renderer'),
-        },
-        assessmentWrapper: {
-          module: require('../vue/assessment-wrapper'),
+          module: require('../views/content-renderer'),
         },
         exerciseAttempts: {
-          module: require('../vue/exercise-attempts'),
+          module: require('../views/exercise-attempts'),
         },
         downloadButton: {
-          module: require('../vue/content-renderer/download-button'),
+          module: require('../views/content-renderer/download-button'),
         },
         loadingSpinner: {
-          module: require('../vue/loading-spinner'),
+          module: require('../views/loading-spinner'),
         },
         progressBar: {
-          module: require('../vue/progress-bar'),
+          module: require('../views/progress-bar'),
         },
         contentIcon: {
-          module: require('../vue/content-icon'),
+          module: require('../views/content-icon'),
         },
         progressIcon: {
-          module: require('../vue/progress-icon'),
+          module: require('../views/progress-icon'),
         },
         coreBase: {
-          module: require('../vue/core-base'),
+          module: require('../views/core-base'),
         },
         coreModal: {
-          module: require('../vue/core-modal'),
+          module: require('../views/core-modal'),
         },
         navBar: {
-          module: require('../vue/nav-bar'),
+          module: require('../views/nav-bar'),
         },
         iconButton: {
-          module: require('../vue/icon-button'),
+          module: require('../views/icon-button'),
         },
         textbox: {
-          module: require('../vue/textbox'),
+          module: require('../views/textbox'),
         },
-        channelSwitcher: {
-          module: require('../vue/channel-switcher'),
+        dropdownMenu: {
+          module: require('../views/dropdown-menu'),
         },
         tabs: {
-          module: require('../vue/tabs'),
+          module: require('../views/tabs'),
         },
         logo: {
-          module: require('../vue/logo'),
+          module: require('../views/logo'),
+        },
+        immersiveFullScreen: {
+          module: require('../views/immersive-full-screen'),
+        },
+        elapsedTime: {
+          module: require('../views/elapsed-time'),
+        },
+        pointsIcon: {
+          module: require('../views/points-icon'),
         },
       },
       router: {
@@ -124,6 +133,17 @@ module.exports = {
       },
       keenVars: {
         module: require('../keen-config/variables.scss'),
+      },
+    },
+    utils: {
+      exams: {
+        module: require('../exams/utils'),
+      },
+      validateLinkObject: {
+        module: require('../validateLinkObject'),
+      },
+      serverClock: {
+        module: require('../serverClock'),
       },
     },
   },
