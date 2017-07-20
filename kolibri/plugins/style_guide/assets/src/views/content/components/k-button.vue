@@ -1,11 +1,6 @@
 <template>
 
-  <component-template
-    :codeExamplesTemplate="kButtonExample"
-    :api="kButtonApi"
-    :status="'complete'"
-  >
-
+  <component-template :codeExamplesTemplate="kButtonExample" :api="kButtonApi" :status="'complete'">
     <div slot="guidelines">
       <h3>Scope</h3>
       <p>

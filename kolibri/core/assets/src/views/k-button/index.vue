@@ -16,7 +16,7 @@
 <script>
 
   /**
-   * A button
+   * Used to initiate actions
    */
   export default {
     name: 'k-button',

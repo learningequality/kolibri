@@ -1,7 +1,7 @@
 <template>
 
-  <breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
-  <breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
+  <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
+  <k-breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
 
 </template>
 
@@ -12,11 +12,11 @@
   import { PageModes } from '../../constants';
   import * as getters from '../../state/getters';
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
-  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     $trNameSpace: 'learnBreadcrumbs',
     $trs: { recommended: 'Recommended' },
-    components: { breadcrumbs },
+    components: { kBreadcrumbs },
     computed: {
       inLearn() {
         return this.pageMode === PageModes.LEARN;

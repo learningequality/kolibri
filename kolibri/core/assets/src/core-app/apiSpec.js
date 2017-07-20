@@ -44,7 +44,7 @@ import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
 import authMessage from '../views/auth-message';
-import breadcrumbs from '../views/breadcrumbs';
+import kBreadcrumbs from '../views/k-breadcrumbs';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -98,7 +98,7 @@ export default {
       elapsedTime,
       pointsIcon,
       authMessage,
-      breadcrumbs,
+      kBreadcrumbs,
     },
     router,
     mixins: {

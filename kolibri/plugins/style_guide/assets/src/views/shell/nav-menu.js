@@ -7,7 +7,7 @@ import radioButtons from '../content/components/radio-buttons';
 import textFields from '../content/components/text-fields';
 import simpleModals from '../content/components/simple-modals';
 import filters from '../content/components/filters';
-import breadcrumbs from '../content/components/breadcrumbs';
+import kBreadcrumbs from '../content/components/k-breadcrumbs';
 import tabs from '../content/components/tabs';
 import homePage from '../content/home/home-page';
 
@@ -26,6 +26,7 @@ const homeRoute = [
 
 const componentsMap = {
   kButton: 'k-button',
+  kBreadcrumbs: 'k-breadcrumbs',
 };
 
 // This data structure contains the navigational links pointing to all the
@@ -58,10 +59,10 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Breadcrumbs',
+        itemName: componentsMap.kBreadcrumbs,
         itemRoute: {
-          path: `${BASE}/components/breadcrumbs`,
-          component: breadcrumbs,
+          path: `${BASE}/components/${componentsMap.kBreadcrumbs}`,
+          component: kBreadcrumbs,
         },
       },
       /*
