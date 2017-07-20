@@ -39,7 +39,7 @@
 
 <style lang="stylus" scoped>
 
-  @import '../../styles/style-guide.styl'
+  @require '../../styles/style-guide.styl'
 
   .sidenav
     position: fixed
