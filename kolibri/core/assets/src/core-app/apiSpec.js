@@ -32,7 +32,7 @@ import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
 import coreBase from '../views/core-base';
 import coreModal from '../views/core-modal';
-import navBar from '../views/nav-bar';
+import sideNav from '../views/side-nav';
 import kButton from '../views/k-button';
 import textbox from '../views/textbox';
 import dropdownMenu from '../views/dropdown-menu';
@@ -86,7 +86,7 @@ export default {
       progressIcon,
       coreBase,
       coreModal,
-      navBar,
+      sideNav,
       kButton,
       textbox,
       dropdownMenu,
