@@ -109,7 +109,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
@@ -124,11 +123,16 @@ DATABASES = {
     'ormq': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'ormq.sqlite3'),
+    },
+    'session': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(KOLIBRI_HOME, 'session.sqlite3'),
     }
 }
 
 # Enable dynamic routing for content databases
 DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
+                    'kolibri.core.router.SessionDBRouter',
                     # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
                     'kolibri.content.content_db_router.ContentDBRouter']
 

@@ -6,7 +6,6 @@ import platform
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
-
 from kolibri.content.utils import paths
 
 
@@ -30,6 +29,7 @@ def start(port=None):
     call_command("collectstatic_js_reverse", interactive=False)
     call_command("migrate", interactive=False, database="default")
     call_command("migrate", interactive=False, database="ormq")
+    call_command("migrate", interactive=False, database="session")
 
     # start the qcluster process
     # don't run on windows; we don't run a full cluster there.
