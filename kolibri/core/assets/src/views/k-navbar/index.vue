@@ -12,7 +12,7 @@
 <script>
 
   export default {
-    name: 'k-tabs',
+    name: 'k-navbar',
   };
 
 </script>

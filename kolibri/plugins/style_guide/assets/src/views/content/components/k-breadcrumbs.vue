@@ -10,7 +10,7 @@
         <li>Should include the current item/location, which does not require a link.</li>
       </ul>
 
-      <h3>Responsive behaviors</h3>
+      <h3>Responsiveness</h3>
       <ul>
         <li>Items do not wrap to another line.</li>
         <li>The current item/location is always shown, and truncated if necessary.</li>

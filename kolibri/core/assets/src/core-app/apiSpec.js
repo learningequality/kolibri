@@ -36,7 +36,7 @@ import sideNav from '../views/side-nav';
 import kButton from '../views/k-button';
 import textbox from '../views/textbox';
 import dropdownMenu from '../views/dropdown-menu';
-import kTabs from '../views/k-tabs';
+import kNavbar from '../views/k-navbar';
 import tabLink from '../views/tab-link';
 import tabButton from '../views/tab-button';
 import logo from '../views/logo';
@@ -90,7 +90,7 @@ export default {
       kButton,
       textbox,
       dropdownMenu,
-      kTabs,
+      kNavbar,
       tabLink,
       tabButton,
       logo,
