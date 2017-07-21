@@ -6,14 +6,13 @@
       <ul class="review-enroll-ul">
         <li class="review-enroll-li" v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
-      <div>
-        <icon-button
+      <div class="modal-buttons">
+        <k-button
           :text="$tr('noGoBack')"
-          class="undo-btn"
+          :raised="false"
           @click="close"/>
-        <icon-button
+        <k-button
           :text="$tr('yesEnrollUsers')"
-          class="confirm-btn"
           :primary="true"
           @click="enrollUsers"/>
       </div>
@@ -28,7 +27,7 @@
   import * as actions from '../../state/actions';
   import * as constants from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'confirmEnrollmentModal',
     $trs: {
@@ -39,7 +38,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       className: {
@@ -104,10 +103,7 @@
   .header
     text-align: center
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  .modal-buttons
+    text-align: right
 
 </style>

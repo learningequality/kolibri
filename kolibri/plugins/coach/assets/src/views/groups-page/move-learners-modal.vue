@@ -22,9 +22,10 @@
     </div>
 
     <div class="button-section">
-      <icon-button :text="$tr('cancel')"
+      <k-button :text="$tr('cancel')"
+        :raised="false"
         @click="close" />
-      <icon-button :text="$tr('move')"
+      <k-button :text="$tr('move')"
         :primary="true"
         :disabled="!groupSelected"
         @click="moveUsers" />
@@ -38,7 +39,7 @@
 
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'moveLearnersModal',
     $trs: {
@@ -52,7 +53,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       groupId: {

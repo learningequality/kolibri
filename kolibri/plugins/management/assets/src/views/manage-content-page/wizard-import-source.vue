@@ -3,25 +3,16 @@
   <core-modal :title="$tr('title')" @cancel="cancel">
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button
-          class="large-icon-button"
+        <k-button
           :text="$tr('internet')"
-          :showTextBelowIcon="true"
-          @click="goForward('network')"
-        >
-          <mat-svg class="icon" category="action" name="language"/>
-        </icon-button>
-        <icon-button
-          class="large-icon-button"
+          @click="goForward('network')"/>
+        <k-button
           :text="$tr('localDrives')"
-          :showTextBelowIcon="true"
-          @click="goForward('local')"
-        >
-          <mat-svg class="icon" category="device" name="storage"/>
-        </icon-button>
+          @click="goForward('local')"/>
       </div>
-      <icon-button
+      <k-button
         @click="cancel"
+        :raised="false"
         :text="$tr('cancel')"/>
     </div>
   </core-modal>
@@ -33,7 +24,7 @@
 
   import * as manageContentActions from '../../state/manageContentActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'wizardImportSource',
     $trs: {
@@ -52,7 +43,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     vuex: {
       actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
@@ -69,11 +60,6 @@
   .main
     text-align: center
     margin-bottom: 4em 0
-
-  .large-icon-button
-    min-width: 150px
-    min-height: 120px
-    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0

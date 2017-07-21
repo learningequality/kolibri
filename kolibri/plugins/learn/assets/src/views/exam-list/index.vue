@@ -22,8 +22,8 @@
           </p>
           <div class="button-or-score">
             <router-link :to="generateExamLink(exam)">
-              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"></icon-button>
-              <icon-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"></icon-button>
+              <k-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"/>
+              <k-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"/>
             </router-link>
           </div>
         </div>
@@ -40,7 +40,7 @@
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'examIndex',
     $trs: {
@@ -56,7 +56,7 @@
     components: {
       authMessage,
       pageHeader,
-      iconButton,
+      kButton,
     },
     computed: {
       activeExams() {

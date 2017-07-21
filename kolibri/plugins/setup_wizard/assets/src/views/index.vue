@@ -87,7 +87,7 @@
             {{ $tr('setupProgressFeedback') }}
           </ui-alert>
 
-          <icon-button :disabled="submitted" :text="$tr('formSubmissionButton')" type="submit"/>
+          <k-button :disabled="submitted" :primary="true" :text="$tr('formSubmissionButton')" type="submit"/>
         </div>
       </form>
 
@@ -102,7 +102,7 @@
   import { createDeviceOwnerAndFacility } from '../state/actions';
   import store from '../state/store';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
     $trNameSpace: 'setupWizard',
@@ -143,7 +143,7 @@
     },
     components: {
       coreTextbox,
-      iconButton,
+      kButton,
       uiAlert,
     },
     computed: {

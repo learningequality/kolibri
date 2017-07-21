@@ -25,7 +25,6 @@ class Router {
     }
   }
 
-
   init(routes) {
     routes.forEach(route => {
       if (route.handler) {

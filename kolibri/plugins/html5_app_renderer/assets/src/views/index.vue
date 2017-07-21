@@ -1,15 +1,12 @@
 <template>
 
   <div ref="container" class="container" allowfullscreen>
-    <icon-button
+    <k-button
       class="btn"
       v-if="fullscreenAllowed"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
-      :primary="true">
-      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
-      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
-    </icon-button>
+      :primary="true"/>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
@@ -19,9 +16,9 @@
 <script>
 
   import ScreenFull from 'screenfull';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    components: { iconButton },
+    components: { kButton },
     props: {
       defaultFile: {
         type: Object,

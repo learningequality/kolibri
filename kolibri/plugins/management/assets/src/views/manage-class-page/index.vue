@@ -5,7 +5,7 @@
     <div class="header">
       <h1>{{ $tr('allClasses') }}</h1>
 
-      <icon-button
+      <k-button
         class="create-btn"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
@@ -41,9 +41,7 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
-                {{ $tr('deleteClass') }}
-              </button>
+              <k-button :raised="false" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
             </td>
           </tr>
         </tbody>
@@ -64,12 +62,12 @@
   import orderBy from 'lodash/orderBy';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       classCreateModal,
       classDeleteModal,
-      iconButton,
+      kButton,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
@@ -160,9 +158,5 @@
     position: absolute
     top: 0
     right: 0
-
-  .delete-class-button
-    color: $core-text-error
-    border: none
 
 </style>

@@ -12,10 +12,11 @@
           :invalid="duplicateName"
           :error="$tr('duplicateName')"
           v-model.trim="groupNameInput" />
-        <icon-button :text="$tr('cancel')"
+        <k-button :text="$tr('cancel')"
+          :raised="false"
           type="button"
           @click="close" />
-        <icon-button :text="$tr('save')"
+        <k-button :text="$tr('save')"
           :primary="true"
           type="submit" />
       </form>
@@ -30,7 +31,7 @@
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import textbox from 'kolibri.coreVue.components.textbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     $trNameSpace: 'renameGroupModal',
     $trs: {
@@ -49,7 +50,7 @@
     components: {
       coreModal,
       textbox,
-      iconButton,
+      kButton,
     },
     props: {
       groupName: {

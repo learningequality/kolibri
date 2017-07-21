@@ -14,9 +14,7 @@
         {{$tr('detailsSubHeading')}}
       </p>
       <form :action="sessionlogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
+        <k-button :text="$tr('download')"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
@@ -29,9 +27,7 @@
         {{$tr('summarySubHeading')}}
       </p>
       <form :action="summarylogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
+        <k-button :text="$tr('download')"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
@@ -47,7 +43,7 @@
 
   import urls from 'kolibri.urls';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     mixins: [responsiveWindow],
     $trNameSpace: 'manageData',
@@ -66,7 +62,7 @@
       download: 'Download',
       note: 'Note',
     },
-    components: { iconButton },
+    components: { kButton },
     computed: {
       columnSize() {
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';

@@ -3,8 +3,9 @@
   <component-style-guide
       class="button-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api"
+      :api="kButtonApi"
       :requirePath="requirePath"
+      :status="'complete'"
     >
 
     <h1 slot="title">Buttons</h1>
@@ -159,98 +160,42 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
-  import UiButton from 'keen-ui/src/UiButton';
-  import UiButtonApi from '!vue-doc!keen-ui/src/UiButton';
-  FullVue.component('ui-button', UiButton);
+  import ComponentStyleGuide from '../../shell/component-style-guide';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
+  FullVue.component('k-button', kButton);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
   const script = 'script';
   const codeExamplesTemplate = `
-  <template>
-  <div class="examples">
-    <div class="example">
-      <h4>Raised</h4>
-      <ui-button raised color="primary">PRIMARY</ui-button>
-      <ui-button raised>SECONDARY</ui-button>
-      <ui-button raised disabled>DISABLED</ui-button>
-    </div>
-
-    <div class="example">
-      <h4>Flat</h4>
-      <ui-button type="secondary" color="primary">PRIMARY</ui-button>
-      <ui-button type="secondary">SECONDARY</ui-button>
-      <ui-button type="secondary" disabled>DISABLED</ui-button>
-    </div>
-
-    <div class="example links">
-      <h4>Link</h4>
-      <a href="javascript:void(0)">Primary</a>
-      <a href="javascript:void(0)" class="secondary">Secondary</a>
-      <a href="javascript:void(0)" class="disabled">Disabled</a>
-    </div>
-
-  </div>
-  </template>
-
-  <${script}>
-  module.exports = {
-    data: () => ({
-      selected: true,
-      unselected: false
-    }),
-    components: {
-      // textbox: require('keen-ui/src/UiButton')
-    }
-  };
-  </${script}>
-  `;
+    <template>
+      <div>
+        <k-button text="raised primary" :primary="true" :raised="true"></k-button>
+        <k-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></k-button>
+        <k-button text="raised secondary" :primary="false" :raised="true"></k-button>
+        <k-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></k-button>
+        <k-button text="flat primary" :primary="true" :raised="false"></k-button>
+        <k-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></k-button>
+        <k-button text="flat secondary" :primary="false" :raised="false" ></k-button>
+        <k-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></k-button>
+      </div>
+    </template>
+    `;
 
   export default {
     components: {
-      componentStyleGuide,
+      ComponentStyleGuide,
     },
     data: () => ({
       codeExamplesTemplate,
-      api: UiButtonApi,
-      requirePath: 'keen-ui/src/UiButton',
+      kButtonApi,
+      requirePath: 'kolibri.coreVue.components.kButton',
     }),
   };
 
 </script>
 
 
-<style lang="stylus">
-
-  .button-style-guide
-    .vuep-preview
-      height: 300px
-
-    .examples
-      display: flex
-
-      .example
-        margin: 0 2em
-
-        .ui-button
-          display: block
-          margin: 1em 0
-
-        &.links
-          h4
-            margin-bottom: 1.3em
-
-        a
-          display: block
-          margin-bottom: 29px
-
-          &.secondary
-            color: rgba(0, 0, 0, 0.87)
-
-          &.disabled
-            color: rgba(0, 0, 0, 0.4)
-            cursor: default
-
-</style>
+<style lang="stylus"></style>

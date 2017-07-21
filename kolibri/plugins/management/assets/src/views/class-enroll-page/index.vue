@@ -5,21 +5,19 @@
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
         <router-link :to="editClassLink" class="link-button">
-          <icon-button
+          <k-button
             :text="$tr('backToClassDetails')"
-            :primary="false">
-            <mat-svg category="navigation" name="arrow_back"/>
-          </icon-button>
+            :primary="false"/>
         </router-link>
       </div>
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
-        <icon-button
+        <k-button
           :text="$tr('createNewUser')"
           :primary="false"
           @click="openCreateUserModal"
         />
-        <icon-button
+        <k-button
           :text="$tr('enrollSelectedUsers')"
           :primary="true"
           @click="openConfirmEnrollmentModal"
@@ -151,7 +149,7 @@
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiCheckbox from 'keen-ui/src/UiCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
@@ -187,7 +185,7 @@
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     components: {
-      iconButton,
+      kButton,
       uiCheckbox,
       uiIconButton,
       uiIcon,

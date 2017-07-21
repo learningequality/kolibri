@@ -13,11 +13,12 @@
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
-                <ui-button
+                <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  :type="isSelected(question.itemId, exercise.exercise_id) ? 'primary' : 'secondary'">
-                    {{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}
-                </ui-button>
+                  :primary="isSelected(question.itemId, exercise.exercise_id)"
+                  :raised="false"
+                  :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
+                />
               </li>
             </ol>
           </div>
@@ -52,7 +53,7 @@
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   export default {
     $trNameSpace: 'previewExamModal',
@@ -66,7 +67,7 @@
     components: {
       coreModal,
       contentRenderer,
-      uiButton,
+      kButton,
       uiProgressLinear,
     },
     props: {

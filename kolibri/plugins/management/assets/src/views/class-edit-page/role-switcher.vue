@@ -6,28 +6,24 @@
     </template>
 
     <template v-else>
-      <ui-button
-        :ariaLabel="$tr('learner')"
-        :color="buttonColor(LEARNER)"
-        :disableRipple="true"
+      <button
+        :class="buttonClass(LEARNER)"
         :disabled="isCurrentRole(LEARNER)"
         :name="LEARNER"
         @click="handleClick(LEARNER)"
-        class="ttn role-button btn-left-edge"
+        class="role-button btn-left-edge"
       >
         {{ $tr('learner') }}
-      </ui-button>
-      <ui-button
-        :ariaLabel="$tr('coach')"
-        :color="buttonColor(COACH)"
-        :disableRipple="true"
+      </button>
+      <button
+        :class="buttonClass(COACH)"
         :disabled="isCurrentRole(COACH)"
         :name="COACH"
         @click="handleClick(COACH)"
-        class="ttn role-button btn-right-edge"
+        class="role-button btn-right-edge"
       >
         {{ $tr('coach') }}
-      </ui-button>
+      </button>
     </template>
   </div>
 
@@ -37,12 +33,10 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import uiButton from 'keen-ui/src/UiButton';
 
   const { ADMIN, COACH, LEARNER } = UserKinds;
 
   export default {
-    components: { uiButton },
     props: {
       currentRole: {
         type: String,
@@ -55,8 +49,8 @@
       LEARNER: () => LEARNER,
     },
     methods: {
-      buttonColor(roleName) {
-        return this.isCurrentRole(roleName) ? 'primary' : 'secondary';
+      buttonClass(roleName) {
+        return this.isCurrentRole(roleName) ? 'role-button-selected' : '';
       },
       handleClick(roleName) {
         if (roleName === LEARNER) {
@@ -81,17 +75,18 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .role-button
-    border: solid #996189 1px
+    border: solid $core-action-normal 1px
     border-radius: 5px
-    font-size: 1rem
-    height: 100%
-    width: 50%
+    padding: 4px 8px
     &[disabled]
       opacity: 1.0
 
-  .ttn
-    text-transform: none
+  .role-button-selected
+    color: white
+    background-color: $core-action-normal
 
   .btn-left-edge
     border-top-right-radius: 0

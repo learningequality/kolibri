@@ -37,22 +37,24 @@ oriented data synchronization.
     </div>
 
     <div>
-      <icon-button
-        :text="$tr('check')"
-        :primary="true"
-        v-show="!complete"
-        @click="checkAnswer"
-        class="question-btn check-answer-button"
-        :class="{shaking: shake}"
-        :disabled="checkingAnswer"
-      />
-      <transition name="delay">
-        <icon-button
+      <transition mode="out-in">
+        <k-button
+          :text="$tr('check')"
+          :primary="false"
+          :raised="true"
+          v-if="!complete"
+          @click="checkAnswer"
+          class="question-btn"
+          :class="{shaking: shake}"
+          :disabled="checkingAnswer"
+        />
+        <k-button
           :text="$tr('correct')"
           :primary="true"
-          v-show="complete"
+          :raised="true"
+          v-else
           @click="nextQuestion"
-          class="question-btn next-question-button"
+          class="question-btn"
         />
       </transition>
       <slot/>
@@ -85,7 +87,7 @@ oriented data synchronization.
   import { updateContentNodeProgress } from '../../state/actions';
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
     $trNameSpace: 'assessmentWrapper',
@@ -93,7 +95,7 @@ oriented data synchronization.
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
       tryAgain: 'Try again!',
-      check: 'Check answer',
+      check: 'Check',
       correct: 'Next question',
       incorrect: 'Sorry, try again',
       itemError: 'There was an error showing this item',
@@ -136,7 +138,7 @@ oriented data synchronization.
     components: {
       exerciseAttempts,
       contentRenderer,
-      iconButton,
+      kButton,
       uiAlert,
     },
     data: () => ({
@@ -438,30 +440,7 @@ oriented data synchronization.
     padding-top: 20px
 
   .question-btn
-    color: $core-bg-light
-    padding-left: 16px
-    padding-right: 16px
     margin-left: 1.5em
-
-  .check-answer-button
-    background-color: $core-action-normal
-
-  .next-question-button
-    background-color: $core-status-correct
-    &:hover
-      &:not(.is-disabled)
-        background-color: #2a7d2e
-
-  // next-question-button transition effect
-  .delay-enter-active
-    background-color: $core-status-correct
-    transition: background-color 1s
-
-  .delay-enter
-    background-color: $core-action-normal
-
-  .delay-leave-active
-    display: none
 
   // checkAnswer btn animation
   .shaking

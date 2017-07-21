@@ -13,30 +13,30 @@
     <td class="col-title"><strong>{{ examTitle }}</strong></td>
 
     <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
-      <ui-button
-        type="secondary"
-        color="default"
-        @click="emitChangeExamVisibility">
-        {{ $tr('change') }}
-      </ui-button>
+      <k-button
+        :primary="false"
+        :raised="false"
+        @click="emitChangeExamVisibility"
+        :text="$tr('change')"
+      />
     </td>
 
     <td class="col-action">
-      <ui-button
+      <k-button
         v-if="examActive"
-        type="secondary"
-        color="red"
-        @click="emitDeactivateExam">
-        {{ $tr('deactivate') }}
-      </ui-button>
+        :primary="true"
+        :raised="false"
+        @click="emitDeactivateExam"
+        :text="$tr('deactivate')"
+      />
 
-      <ui-button
+      <k-button
         v-else
-        type="secondary"
-        color="primary"
-        @click="emitActivateExam">
-        {{ $tr('activate') }}
-      </ui-button>
+        :primary="false"
+        :raised="false"
+        @click="emitActivateExam"
+        :text="$tr('activate')"
+      />
 
       <ui-icon-button
         type="secondary"
@@ -59,7 +59,7 @@
 
 <script>
 
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiMenu from 'keen-ui/src/UiMenu';
@@ -78,10 +78,10 @@
       nobody: 'Nobody',
     },
     components: {
-      uiButton,
-      uiIcon,
       uiIconButton,
+      uiIcon,
       uiMenu,
+      kButton,
     },
     props: {
       examId: {

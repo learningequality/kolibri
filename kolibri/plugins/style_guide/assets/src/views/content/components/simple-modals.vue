@@ -173,109 +173,16 @@
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
   import componentStyleGuide from '../../shell/component-style-guide';
-  import UiButton from 'keen-ui/src/UiButton';
   import UiRadio from 'keen-ui/src/UiRadio';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreModalApi from '!vue-doc!kolibri.coreVue.components.coreModal';
-  FullVue.component('ui-button', UiButton);
   FullVue.component('ui-radio', UiRadio);
   FullVue.component('core-modal', coreModal);
 
   // Define the examples as the initial content of the Vuep editor.
   // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
   // need to work around it by dynamically constructing them.
-  const script = 'script';
-  const codeExamplesTemplate = `
-  <template>
-  <div>
-
-    <ui-button
-      @click="isConfirmationModalShown = true">
-      Open confirmation modal
-    </ui-button>
-
-    <core-modal
-        v-if="isConfirmationModalShown"
-        :title="'Confirmation Title'"
-        @cancel="closeConfirmationModal">
-
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-        sagittis vel ipsum finibus mattis.
-      </p>
-
-      <div class="button-section">
-        <ui-button
-            type="secondary"
-            @click="closeConfirmationModal">
-          CANCEL
-        </ui-button>
-        <ui-button
-            raised
-            color="primary"
-            @click="closeConfirmationModal" >
-          CONFIRM
-        </ui-button>
-      </div>
-    </core-modal>
-
-    <ui-button
-      @click="isFormModalShown = true">
-      Open form modal
-    </ui-button>
-
-    <core-modal
-        v-if="isFormModalShown"
-        :title="'Form Title'"
-        @cancel="closeFormModal">
-
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-        sagittis vel ipsum finibus mattis.
-      </p>
-      <ui-radio v-model="value" true-value="1">Option 1</ui-radio>
-      <ui-radio v-model="value" true-value="2">Option 2</ui-radio>
-      <ui-radio v-model="value" true-value="3">Option 3</ui-radio>
-
-      <div class="button-section">
-        <ui-button
-            type="secondary"
-            @click="closeFormModal">
-          CANCEL
-        </ui-button>
-        <ui-button
-            raised
-            color="primary"
-            @click="closeFormModal" >
-          SAVE
-        </ui-button>
-      </div>
-    </core-modal>
-
-  </div>
-  </template>
-
-  <${script}>
-  module.exports = {
-    data: () => ({
-      isConfirmationModalShown: false,
-      isFormModalShown: false,
-      value: '1'
-    }),
-    methods: {
-      closeConfirmationModal() {
-        this.isConfirmationModalShown = false;
-      },
-      closeFormModal() {
-        this.isFormModalShown = false;
-      }
-    },
-    components: {
-      // 'core-modal': require('kolibri.coreVue.components.coreModal')
-    }
-  };
-  </${script}>
-  `;
+  const codeExamplesTemplate = ``;
 
   export default {
     components: {
