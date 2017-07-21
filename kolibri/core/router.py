@@ -22,6 +22,8 @@ class SessionDBRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
 
-        if db == 'session' and model_name == 'session':
-            return True
-        return False
+        if db == 'session':
+            if model_name == 'session':
+                return True
+            return False
+        return None

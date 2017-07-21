@@ -296,6 +296,8 @@ class UserUpdateTestCase(APITestCase):
 class LoginLogoutTestCase(APITestCase):
 
     def setUp(self):
+        # Delete any pre-existing sessions, as does not seem to flush properly even with multi_db = True
+        Session.objects.all().delete()
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
         self.user = FacilityUserFactory.create(facility=self.facility)
@@ -337,6 +339,8 @@ class LoginLogoutTestCase(APITestCase):
 class AnonSignUpTestCase(APITestCase):
 
     def setUp(self):
+        # Delete any pre-existing sessions, as does not seem to flush properly even with multi_db = True
+        Session.objects.all().delete()
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
 
