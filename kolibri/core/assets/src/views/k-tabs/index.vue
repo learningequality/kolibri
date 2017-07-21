@@ -11,7 +11,9 @@
 
 <script>
 
-  export default {};
+  export default {
+    name: 'k-tabs',
+  };
 
 </script>
 

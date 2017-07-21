@@ -1,6 +1,6 @@
 <template>
 
-  <tabs>
+  <k-tabs>
     <tab-link
       type="icon-and-title"
       :title="$tr('topics')"
@@ -31,7 +31,7 @@
       icon="assignment_late"
       :link="examsLink"
     />
-  </tabs>
+  </k-tabs>
 
 </template>
 
@@ -39,7 +39,7 @@
 <script>
 
   import * as Constants from '../../constants';
-  import tabs from 'kolibri.coreVue.components.tabs';
+  import kTabs from 'kolibri.coreVue.components.kTabs';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   export default {
     $trNameSpace: 'topNav',
@@ -51,7 +51,7 @@
       groups: 'Groups',
     },
     components: {
-      tabs,
+      kTabs,
       tabLink,
     },
     computed: {

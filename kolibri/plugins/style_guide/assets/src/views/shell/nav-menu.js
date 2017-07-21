@@ -8,7 +8,7 @@ import textFields from '../content/components/text-fields';
 import simpleModals from '../content/components/simple-modals';
 import filters from '../content/components/filters';
 import kBreadcrumbs from '../content/components/k-breadcrumbs';
-import tabs from '../content/components/tabs';
+import kTabs from '../content/components/k-tabs';
 import homePage from '../content/home/home-page';
 
 function sortSectionItems(items) {
@@ -25,6 +25,7 @@ const homeRoute = [
 const componentsMap = {
   kButton: 'k-button',
   kBreadcrumbs: 'k-breadcrumbs',
+  kTabs: 'k-tabs',
 };
 
 // This data structure contains the navigational links pointing to all the
@@ -63,6 +64,13 @@ const navMenu = [
           component: kBreadcrumbs,
         },
       },
+      {
+        itemName: componentsMap.kTabs,
+        itemRoute: {
+          path: `/components/${componentsMap.kTabs}`,
+          component: kTabs,
+        },
+      },
       /*
       {
         itemName: 'Checkboxes',
@@ -97,13 +105,6 @@ const navMenu = [
         itemRoute: {
           path: `${BASE}/components/filters`,
           component: filters,
-        },
-      },
-      {
-        itemName: 'Tabs',
-        itemRoute: {
-          path: `${BASE}/components/tabs`,
-          component: tabs,
         },
       },
       */

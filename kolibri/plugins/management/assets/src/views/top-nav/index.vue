@@ -1,6 +1,6 @@
 <template>
 
-  <tabs>
+  <k-tabs>
     <tab-link
       type="icon-and-title"
       :title="$tr('classes')"
@@ -31,7 +31,7 @@
       icon="view_module"
       :link="contentLink"
     />
-  </tabs>
+  </k-tabs>
 
 </template>
 
@@ -40,7 +40,7 @@
 
   import { PageNames } from '../../constants';
   const linkify = name => ({ name });
-  import tabs from 'kolibri.coreVue.components.tabs';
+  import kTabs from 'kolibri.coreVue.components.kTabs';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   export default {
     $trNameSpace: 'topNav',
@@ -52,7 +52,7 @@
       users: 'Users',
     },
     components: {
-      tabs,
+      kTabs,
       tabLink,
     },
     computed: {
