@@ -31,6 +31,7 @@
   import ScreenFull from 'screenfull';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
 
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
@@ -60,6 +61,9 @@
       },
       mimicFullscreen() {
         return !this.fullscreenAllowed && this.isFullscreen;
+      },
+      targetTime() {
+        return this.totalPages * 30;
       },
     },
     methods: {
@@ -208,12 +212,15 @@
       });
     },
     mounted() {
-      this.pdfloadingPromise.then(() => this.showPage(1));
-      this.$emit('startTracking');
+      this.pdfloadingPromise.then(() => {
+        this.showPage(1);
+        this.$emit('startTracking');
+      });
       const self = this;
       this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', 1);
-      }, 15000);
+        console.log(self.sessionTimeSpent / self.targetTime);
+        self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
+      }, 30000);
     },
     beforeDestroy() {
       if (this.timeout) {
@@ -227,6 +234,11 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
+    },
+    vuex: {
+      getters: {
+        sessionTimeSpent,
+      },
     },
   };
 
