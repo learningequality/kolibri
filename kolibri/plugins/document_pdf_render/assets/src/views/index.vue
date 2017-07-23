@@ -49,11 +49,9 @@
       timeout: null,
       isFullscreen: false,
       loading: true,
-      progress: 0,
       totalPages: 0,
       pageHeight: 0,
       pageWidth: 0,
-      zoom: 1.0,
     }),
     computed: {
       fullscreenAllowed() {
@@ -132,7 +130,11 @@
           if (!this.pdfPages[pageNum]) {
             this.pdfPages[pageNum] = {};
           }
-          if (!this.pdfPages[pageNum].rendered && !this.pdfPages[pageNum].loading) {
+          if (
+            !this.pdfPages[pageNum].rendered &&
+            !this.pdfPages[pageNum].loading &&
+            !this.pdfPages[pageNum].rendering
+          ) {
             this.pdfPages[pageNum].loading = true;
             if (!this.pdfPages[pageNum].pdfPage) {
               this.pdfPages[pageNum].displayPromise = this.getPage(pageNum).then(this.displayPage);
@@ -218,7 +220,6 @@
       });
       const self = this;
       this.timeout = setTimeout(() => {
-        console.log(self.sessionTimeSpent / self.targetTime);
         self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
       }, 30000);
     },
