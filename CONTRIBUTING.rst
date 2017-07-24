@@ -93,52 +93,16 @@ Pull Request Guidelines
 Before you submit a pull request, check that it meets these guidelines:
 
 1. For your pull request description on Github, consider using our
-   template, see :ref:`prtemplate`.
+   template.
 2. Remember to add yourself to ``AUTHORS.rst`` and fill in ``CHANGELOG.rst``
    with your feature or bug fix.
 3. The pull request should include tests.
 4. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-5. The pull request should work for Python 2.7, 3.4, and 3.5, and for PyPy.
+5. The pull request should work for Python 2.7, 3.4, and 3.5, 3.6, and for PyPy.
    PRs will be automatically tested, we recommend running the ``tox`` command
    locally before submitting your PR for review.
-
-
-.. _prtemplate:
-
-Pull Request Template
-~~~~~~~~~~~~~~~~~~~~~
-
-Copy-paste the following to your Pull Request description on Github::
-
-    ## Summary
-
-    *Short description*
-
-    ## TODO
-
-    - [ ] Have tests been written for the new code?
-    - [ ] Has documentation been written/updated?
-    - [ ] New dependencies (if any) added to requirements file
-    - [ ] Add an entry to CHANGELOG.rst
-    - [ ] Add yourself it AUTHORS.rst if you don't appear there
-
-    ## Reviewer guidance
-
-    *If you PR has a significant size, give the reviewer some helpful remarks*
-
-    ## Issues addressed
-
-    List the issues solved or partly solved by the PR
-
-    ## Documentation
-
-    If the PR has documentation, link the file here (either .rst in your repo or if built on Read The Docs)
-
-    ## Screenshots (if appropriate)
-
-    They're nice. :)
 
 
 Tips
