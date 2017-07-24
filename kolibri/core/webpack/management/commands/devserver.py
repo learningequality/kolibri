@@ -8,7 +8,6 @@ import sys
 from threading import Thread
 
 from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
-from django.core.management import call_command
 from django.core.management.base import CommandError
 from kolibri.content.utils.annotation import update_channel_metadata_cache
 
@@ -60,9 +59,6 @@ class Command(RunserverCommand):
             self.spawn_karma()
 
         update_channel_metadata_cache()
-
-        # migrate the ormq DB before starting.
-        call_command("migrate", interactive=False, database="ormq")
 
         return super(Command, self).handle(*args, **options)
 

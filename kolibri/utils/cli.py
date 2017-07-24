@@ -173,7 +173,6 @@ def _first_run():
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate", interactive=False, database="default")
-        call_command("migrate", interactive=False, database="ormq")
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -207,7 +206,6 @@ def update():
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate", interactive=False, database="default")
-        call_command("migrate", interactive=False, database="ormq")
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
