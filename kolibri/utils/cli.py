@@ -25,7 +25,7 @@ os.environ.setdefault(
 os.environ.setdefault(
     "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
 )
-os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
+os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
 
 import django  # noqa
 from django.core.management import call_command  # noqa
@@ -95,6 +95,8 @@ Environment:
    - Where Kolibri will store its data and configuration files. If you are using
      an external drive
 
+  KOLIBRI_LISTEN_PORT
+   - Default: 8080
 
 """
 
@@ -171,7 +173,6 @@ def _first_run():
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate", interactive=False, database="default")
-        call_command("migrate", interactive=False, database="ormq")
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -205,7 +206,6 @@ def update():
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate", interactive=False, database="default")
-        call_command("migrate", interactive=False, database="ormq")
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
@@ -214,7 +214,7 @@ def update():
 update.called = False
 
 
-def start(port=8080, daemon=True):
+def start(port=None, daemon=True):
     """
     Start the server on given port.
 
@@ -226,16 +226,17 @@ def start(port=8080, daemon=True):
     # https://github.com/learningequality/kolibri/issues/1615
     update()
 
+    if port is None:
+        try:
+            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
+        except ValueError:
+            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
+            raise
+
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
-
-    # TODO: moved from server.start() but not sure where it should ideally be
-    # located. Question is if it should be run every time the server is started
-    # or if it depends on some kind of state change.
-    from kolibri.content.utils.annotation import update_channel_metadata_cache
-    update_channel_metadata_cache()
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -253,7 +254,7 @@ def start(port=8080, daemon=True):
     server.start(port=port)
 
 
-def stop():
+def stop(sys_exit=True):
     """
     Stops the server unless it isn't running
     """
@@ -288,7 +289,8 @@ def stop():
 
     if stopped:
         logger.info("Server stopped")
-        sys.exit(0)
+        if sys_exit:
+            sys.exit(0)
 
 
 def status():
@@ -547,7 +549,8 @@ def main(args=None):
         return
 
     if arguments['start']:
-        port = int(arguments['--port'] or 8080)
+        port = arguments['--port']
+        port = int(port) if port else None
         start(port, daemon=not arguments['--foreground'])
         return
 

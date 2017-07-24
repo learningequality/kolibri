@@ -3,12 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.template import Template, Context
 from django.test.testcases import TestCase
 
-from ..hooks import WebpackBundleHook
-from .base import TestHookMixin
-
-
-class TestHook(TestHookMixin, WebpackBundleHook):
-    unique_slug = 'non_default_frontend'
+from .base import TestHook
 
 
 class KolibriTagNavigationTestCase(TestCase):

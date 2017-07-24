@@ -16,6 +16,7 @@ Changes are ordered reverse-chronologically.
  - Add API endpoint for getting number and total size of files in a channel
  - Migrate all JS linting to prettier rather than eslint
  - Merge audio_mp3_render and video_mp4_render plugins into one single media_player plugin
+ - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
 
 
 0.4.4

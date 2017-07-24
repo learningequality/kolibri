@@ -3,13 +3,13 @@ Tests for `kolibri` module.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import unittest
+
 import kolibri
 from kolibri.utils.version import get_version
 
-from .base import KolibriTestBase
 
-
-class TestKolibriVersion(KolibriTestBase):
+class TestKolibriVersion(unittest.TestCase):
 
     def test_version(self):
         """

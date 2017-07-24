@@ -12,8 +12,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# Determines which platform kolibri is running on
-import platform
 
 # import kolibri, so we can get the path to the module.
 import kolibri
@@ -123,10 +121,6 @@ DATABASES = {
             'timeout': 100,
         }
     },
-    'ormq': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(KOLIBRI_HOME, 'ormq.sqlite3'),
-    }
 }
 
 # Enable dynamic routing for content databases
@@ -171,34 +165,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-Q_CLUSTER = {
-    # name of the queue for this project. Since each kolibri installation's queue is self
-    # contained (since we use an isolated sqlite file), this doesn't really matter.
-    "name": "kolibriqueue",
-
-    # 3 concurrent worker processes, so 3 concurrent jobs at once
-    "workers": 1,
-
-    # 50 jobs before a worker gets reset, releasing its memory
-    "recycle": 50,
-
-    # seconds before a task is terminated. None means wait indefinitely for a task.
-    "timeout": None,
-
-    # number of successful tasks we save to the DB. 0 means save all. All failed tasks are saved.
-    "save_limit": 0,
-
-    # catch_up, when True, makes the workers catch up to all scheduled tasks that elapsed while it was down.
-    "catch_up": False,
-
-    # # DB name to use for the task queue. Should be separate from the default DB.
-    # "orm": "task_queue",
-    "orm": "ormq",
-
-    # If this is true, make tasks synchronous (Windows can't handle multiprocessing very well)
-    "sync": platform.system() == "Windows",
-}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
