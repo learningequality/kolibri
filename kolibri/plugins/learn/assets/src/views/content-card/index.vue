@@ -34,12 +34,12 @@
 
 <script>
 
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
+
   export default {
     props: {
       title: {
@@ -58,7 +58,7 @@
         type: String,
         required: true,
         validator(value) {
-          return values(CoreConstants.ContentNodeKinds).includes(value);
+          return values(ContentNodeKinds).includes(value);
         },
       },
       progress: {
@@ -146,7 +146,7 @@
 
   .card-thumbnail
     position: relative
-    width: $card-width
+    width: 100%
     height: $card-thumbnail-height
     background-size: cover
     background-position: center
