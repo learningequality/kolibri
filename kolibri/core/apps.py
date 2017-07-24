@@ -1,14 +1,17 @@
 from __future__ import unicode_literals
 
 from django.apps import AppConfig
+from django.db.backends.signals import connection_created
 
 
 class KolibriCoreConfig(AppConfig):
     name = 'kolibri.core'
 
     def ready(self):
-        from django.db import connection
+        connection_created.connect(self.activate_connection_pragmas)
 
+    @staticmethod
+    def activate_connection_pragmas(sender, connection, **kwargs):
         # Only run the PRAGMAs if we're using SQLite
         if connection.vendor == "sqlite":
             cursor = connection.cursor()
