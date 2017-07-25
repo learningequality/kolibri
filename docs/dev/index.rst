@@ -14,16 +14,9 @@ Architecture
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   architecture/tests
-   architecture/stack
-   architecture/plugins
-   architecture/building
-   architecture/conventions
-   architecture/frontend
-   architecture/i18n
-   architecture/release_process
-   architecture/version_numbers
+   architecture/*
 
 .. _themes:
 
