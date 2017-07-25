@@ -4,29 +4,37 @@
     <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <content-card-carousel
+    <component
       v-if="trimmedResume.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
       :contents="trimmedResume"
       :header="$tr('resumeSectionHeader')"
+      :filter="false"
       :subheader="$tr('resumeSectionSubHeader', {numOfItems: trimmedResume.length})"/>
-    <content-card-carousel
+    <component
       v-if="trimmedNextSteps.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
       :contents="trimmedNextSteps"
       :header="$tr('suggestedNextStepsSectionHeader')"
+      :filter="false"
       :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: trimmedNextSteps.length})"/>
-    <content-card-carousel
+    <component
       v-if="trimmedPopular.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
       :contents="trimmedPopular"
       :header="$tr('popularSectionHeader')"
+      :filter="false"
       :subheader="$tr('popularSectionSubHeader', {numOfItems: trimmedPopular.length})"/>
-    <content-card-carousel
+    <component
       v-if="trimmedOverview.length"
+      :is="recommendationDisplay"
       :showViewAll="true"
       :gen-link="genLink"
       :header="$tr('overviewSectionHeader')"
+      :filter="false"
       :contents="trimmedOverview" />
   </div>
 
@@ -39,12 +47,13 @@
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
+  import contentCardGrid from '../content-card-grid';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   const mobileCardNumber = 3;
 
   export default {
-    $trNameSpace: 'learnPageIndex',
+    name: 'recommendedPage',
     $trs: {
       pageHeader: 'Recommended',
       popularSectionHeader: 'Most popular',
@@ -59,10 +68,17 @@
     components: {
       pageHeader,
       contentCardCarousel,
+      contentCardGrid,
     },
     computed: {
       isMobile() {
         return this.windowSize.breakpoint <= 2;
+      },
+      recommendationDisplay() {
+        if (this.isMobile) {
+          return contentCardGrid;
+        }
+        return contentCardCarousel;
       },
       trimmedResume() {
         if (this.isMobile) {
