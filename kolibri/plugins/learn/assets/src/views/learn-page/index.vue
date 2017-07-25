@@ -5,29 +5,29 @@
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
     <content-card-carousel
-      v-if="recommendations.resume.length"
+      v-if="trimmedResume.length"
       :gen-link="genLink"
-      :contents="recommendations.resume"
+      :contents="trimmedResume"
       :header="$tr('resumeSectionHeader')"
-      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
+      :subheader="$tr('resumeSectionSubHeader', {numOfItems: trimmedResume.length})"/>
     <content-card-carousel
-      v-if="recommendations.nextSteps.length"
+      v-if="trimmedNextSteps.length"
       :gen-link="genLink"
-      :contents="recommendations.nextSteps"
+      :contents="trimmedNextSteps"
       :header="$tr('suggestedNextStepsSectionHeader')"
-      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
+      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: trimmedNextSteps.length})"/>
     <content-card-carousel
-      v-if="recommendations.popular.length"
+      v-if="trimmedPopular.length"
       :gen-link="genLink"
-      :contents="recommendations.popular"
+      :contents="trimmedPopular"
       :header="$tr('popularSectionHeader')"
-      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
+      :subheader="$tr('popularSectionSubHeader', {numOfItems: trimmedPopular.length})"/>
     <content-card-carousel
-      v-if="all.content.length"
+      v-if="trimmedOverview.length"
       :showViewAll="true"
       :gen-link="genLink"
       :header="$tr('overviewSectionHeader')"
-      :contents="all.content" />
+      :contents="trimmedOverview" />
   </div>
 
 </template>
@@ -39,6 +39,10 @@
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
+  const mobileCardNumber = 3;
+
   export default {
     $trNameSpace: 'learnPageIndex',
     $trs: {
@@ -51,9 +55,39 @@
       resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
       overviewSectionHeader: 'Overview',
     },
+    mixins: [responsiveWindow],
     components: {
       pageHeader,
       contentCardCarousel,
+    },
+    computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 2;
+      },
+      trimmedResume() {
+        if (this.isMobile) {
+          return this.recommendations.resume.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.resume.slice(0, mobileCardNumber);
+      },
+      trimmedNextSteps() {
+        if (this.isMobile) {
+          return this.recommendations.nextSteps.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.nextSteps;
+      },
+      trimmedPopular() {
+        if (this.isMobile) {
+          return this.recommendations.popular.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.popular;
+      },
+      trimmedOverview() {
+        if (this.isMobile) {
+          return this.all.content.slice(0, mobileCardNumber);
+        }
+        return this.all.content;
+      },
     },
     methods: {
       genLink(id, kind) {
