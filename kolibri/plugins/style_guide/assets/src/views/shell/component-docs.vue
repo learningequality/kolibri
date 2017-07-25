@@ -74,6 +74,17 @@
       api: {
         type: Object,
         required: true,
+        validator(component) {
+          if (!component.name) {
+            console.log('Component does not have a name');
+            return false;
+          }
+          if (!component.description) {
+            console.log('Component does not have a description');
+            return false;
+          }
+          return true;
+        },
       },
     },
     computed: {

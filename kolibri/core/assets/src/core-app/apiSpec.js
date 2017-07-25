@@ -45,6 +45,7 @@ import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
 import authMessage from '../views/auth-message';
 import kBreadcrumbs from '../views/k-breadcrumbs';
+import kCheckbox from '../views/k-checkbox';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -100,6 +101,7 @@ export default {
       pointsIcon,
       authMessage,
       kBreadcrumbs,
+      kCheckbox,
     },
     router,
     mixins: {

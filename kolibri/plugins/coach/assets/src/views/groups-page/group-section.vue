@@ -58,10 +58,11 @@
         >
           <td class="col-checkbox">
             <input
-              v-model="selectedUsers"
               type="checkbox"
               :id="user.id"
               :value="user.id"
+              :checked="isSelected(user.id)"
+              @change="toggleSelection"
               @click.stop
             >
           </td>
