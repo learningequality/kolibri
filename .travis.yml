@@ -73,9 +73,7 @@ matrix:
 
 before_install:
   - git describe --tags
-  - pip install -U pip
-  - pip install codecov
-  - pip install tox
+  - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
   - nvm install $TRAVIS_NODE_VERSION
   - nvm use $TRAVIS_NODE_VERSION
