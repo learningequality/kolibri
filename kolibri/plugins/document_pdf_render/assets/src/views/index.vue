@@ -49,6 +49,7 @@
       timeout: null,
       isFullscreen: false,
       loading: true,
+      progress: 0,
       totalPages: 0,
       pageHeight: 0,
       pageWidth: 0,
