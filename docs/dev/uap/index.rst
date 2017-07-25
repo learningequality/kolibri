@@ -6,8 +6,8 @@ This is a core module found in ``kolibri/auth``.
 .. toctree::
    :maxdepth: 1
 
-   uap/concepts_and_definitions
-   uap/implementation
+   concepts_and_definitions
+   implementation
 
 
 Models
