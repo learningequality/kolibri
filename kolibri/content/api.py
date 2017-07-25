@@ -199,7 +199,17 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
-        return Response(self.get_object().get_ancestors().values('pk', 'title'))
+        cache_key = 'contentnode_ancestors_{db}_{pk}'.format(db=get_active_content_database(), pk=kwargs.get('pk'))
+
+        if cache.get(cache_key) is not None:
+            return Response(cache.get(cache_key))
+
+        # Call prefetch_related None to not retrieve the unnecessary prefetches set on the queryset
+        ancestors = list(self.get_object().get_ancestors().values('pk', 'title'))
+
+        cache.set(cache_key, ancestors, 60 * 10)
+
+        return Response(ancestors)
 
     @detail_route(methods=['get'])
     def next_content(self, request, **kwargs):
