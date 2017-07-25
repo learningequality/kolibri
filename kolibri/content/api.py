@@ -184,10 +184,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().prefetch_related(
-            'assessmentmetadata',
-            'files',
-        ).select_related('license')
+        return models.ContentNode.objects.all()
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):

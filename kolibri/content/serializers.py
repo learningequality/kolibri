@@ -1,6 +1,8 @@
+from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
+from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from .content_db_router import default_database_is_attached, get_active_content_database
@@ -76,6 +78,20 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
 
+        # Dealing with nested relationships, data can be a Manager,
+        # so, first get a queryset from the Manager if needed
+        data = data.all() if isinstance(data, Manager) else data
+
+        data = data.prefetch_related(
+            'assessmentmetadata',
+            'files',
+        ).select_related('license')
+
+        cache_key = 'contentnode_list_{db}_{query}'.format(db=get_active_content_database(), query=hash(str(data.query)))
+
+        if cache.get(cache_key):
+            return cache.get(cache_key)
+
         if not data:
             return data
 
@@ -85,13 +101,21 @@ class ContentNodeListSerializer(serializers.ListSerializer):
             user = self.context["request"].user
             progress_dict = get_progress_fractions(data, user)
 
-        # Dealing with nested relationships, data can be a Manager,
-        # so, first get a queryset from the Manager if needed
-        iterable = data.all() if isinstance(data, Manager) else data
+        result = []
+        topic_only = True
+        for item in data:
+            obj = self.child.to_representation(item, progress_dict.get(item.content_id))
+            topic_only = topic_only and obj.get('kind') == content_kinds.TOPIC
+            result.append(obj)
 
-        return [
-            self.child.to_representation(item, progress_dict.get(item.content_id)) for item in iterable
-        ]
+        # Only store if all nodes are topics, because we don't annotate progress on them
+        # This has the happy side effect of not caching our dynamically calculated
+        # recommendation queries, which might change for the same user over time
+        # because they do not return topics
+        if topic_only:
+            cache.set(cache_key, result, 60 * 10)
+
+        return result
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
