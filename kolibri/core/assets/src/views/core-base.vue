@@ -12,7 +12,7 @@
         <slot name="app-bar-actions"/>
       </div>
     </app-bar>
-    <nav-bar
+    <side-nav
       @toggleSideNav="navShown=!navShown"
       :topLevelPageName="topLevelPageName"
       :navShown="navShown"
@@ -37,7 +37,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   const PADDING = 16;
   import appBar from './app-bar';
-  import navBar from 'kolibri.coreVue.components.navBar';
+  import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import Vue from 'kolibri.lib.vue';
@@ -64,7 +64,7 @@
     },
     components: {
       appBar,
-      navBar,
+      sideNav,
       errorBox,
       loadingSpinner,
     },

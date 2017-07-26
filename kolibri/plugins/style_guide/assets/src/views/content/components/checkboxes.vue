@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
       class="checkbox-style-guide"
       :codeExamplesTemplate="codeExamplesTemplate"
       :api="api"
@@ -67,7 +67,7 @@
       </p>
     </div>
 
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -78,7 +78,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import UiCheckbox from 'keen-ui/src/UiCheckbox';
   import UiCheckboxApi from '!vue-doc!keen-ui/src/UiCheckbox';
   FullVue.component('ui-checkbox', UiCheckbox);
@@ -120,7 +120,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,

@@ -1,20 +1,7 @@
 <template>
 
-  <component-style-guide
-      class="button-style-guide"
-      :codeExamplesTemplate="codeExamplesTemplate"
-      :api="kButtonApi"
-      :requirePath="requirePath"
-      :status="'complete'"
-    >
-
-    <h1 slot="title">Buttons</h1>
-    <p slot="summary">
-      Buttons initialize actions and communicate what will happen upon clicking
-      them
-    </p>
-
-    <div slot="guidelines-and-usage">
+  <component-template :codeExamplesTemplate="kButtonExample" :api="kButtonApi" :status="'complete'">
+    <div slot="guidelines">
       <h3>Scope</h3>
       <p>
         This is meant to cover 90% of buttons. There will always be edge cases,
@@ -29,15 +16,9 @@
         visual hierarchy
       </p>
       <ul>
-        <li>
-          Raised buttons for more prominent actions
-        </li>
-        <li>
-          Flat buttons for less prominent or actions that repeat in a list
-        </li>
-        <li>
-          Hyperlink text for very deemphasized actions or in paragraphs.
-        </li>
+        <li>Raised buttons for more prominent actions</li>
+        <li>Flat buttons for less prominent or actions that repeat in a list</li>
+        <li>Hyperlink text for very deemphasized actions or in paragraphs.</li>
       </ul>
 
       <h3>Dropdown buttons</h3>
@@ -62,7 +43,7 @@
       </p>
       <p>
         The buttons language should avoid any ambiguity, be specific to the
-        action you are completing. For example, use ‘Save’ instead of ‘OK’.
+        action you are completing. For example, use 'Save' instead of 'OK'.
       </p>
       <p>
         Never use commas or other punctuation in buttons
@@ -105,30 +86,6 @@
         Buttons should elide if you really really really have but pls don’t thx
       </p>
 
-      <h3>
-        Details for devs (to be deleted after button component is implemented)
-      </h3>
-      <h4>Spacing</h4>
-      <ul>
-        <li>
-          Height: 36
-        </li>
-        <li>
-          Min width is 64
-        </li>
-        <li>
-          Button length corresponds to text length + 16px padding on each side
-        </li>
-        <li>
-          8px padding between buttons
-        </li>
-      </ul>
-      <h4>Typography</h4>
-      <ul>
-        <li>14 pt</li>
-        <li>Caps</li>
-        <li>bold</li>
-      </ul>
       <h4>Language</h4>
       <ul>
         <li>Buttons should be specific to action</li>
@@ -149,53 +106,36 @@
         <li>Top right for major creation actions</li>
       </ul>
     </div>
-  </component-style-guide>
+  </component-template>
 
 </template>
 
 
 <script>
 
-  // Globally register the Kolibri components to make them accessible in the
-  // Vuep renderer. This has to be done on the compiler-included version of Vue
-  // because that's what Vuep uses to dynamically render template.
+  /* Globally register the Kolibri components to make them accessible in the
+   * Vuep renderer. This has to be done on the compiler-included version of Vue
+   * because that's what Vuep uses to dynamically render template.
+   */
   import FullVue from 'vue/dist/vue.common';
-  import ComponentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
   FullVue.component('k-button', kButton);
-
-  // Define the examples as the initial content of the Vuep editor.
-  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
-  // need to work around it by dynamically constructing them.
-  const script = 'script';
-  const codeExamplesTemplate = `
-    <template>
-      <div>
-        <k-button text="raised primary" :primary="true" :raised="true"></k-button>
-        <k-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></k-button>
-        <k-button text="raised secondary" :primary="false" :raised="true"></k-button>
-        <k-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></k-button>
-        <k-button text="flat primary" :primary="true" :raised="false"></k-button>
-        <k-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></k-button>
-        <k-button text="flat secondary" :primary="false" :raised="false" ></k-button>
-        <k-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></k-button>
-      </div>
-    </template>
-    `;
+  // TODO: Currently self-closing components are not handled by vuep
+  import kButtonExample from 'raw-loader!./k-button-example.html';
 
   export default {
     components: {
-      ComponentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
-      codeExamplesTemplate,
       kButtonApi,
-      requirePath: 'kolibri.coreVue.components.kButton',
+      kButtonExample,
     }),
   };
 
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus" scoped></style>

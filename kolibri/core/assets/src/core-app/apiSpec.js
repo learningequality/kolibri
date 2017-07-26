@@ -32,11 +32,11 @@ import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
 import coreBase from '../views/core-base';
 import coreModal from '../views/core-modal';
-import navBar from '../views/nav-bar';
+import sideNav from '../views/side-nav';
 import kButton from '../views/k-button';
 import textbox from '../views/textbox';
 import dropdownMenu from '../views/dropdown-menu';
-import tabs from '../views/tabs';
+import kNavbar from '../views/k-navbar';
 import tabLink from '../views/tab-link';
 import tabButton from '../views/tab-button';
 import logo from '../views/logo';
@@ -44,7 +44,7 @@ import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
 import authMessage from '../views/auth-message';
-import breadcrumbs from '../views/breadcrumbs';
+import kBreadcrumbs from '../views/k-breadcrumbs';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -86,11 +86,11 @@ export default {
       progressIcon,
       coreBase,
       coreModal,
-      navBar,
+      sideNav,
       kButton,
       textbox,
       dropdownMenu,
-      tabs,
+      kNavbar,
       tabLink,
       tabButton,
       logo,
@@ -98,7 +98,7 @@ export default {
       elapsedTime,
       pointsIcon,
       authMessage,
-      breadcrumbs,
+      kBreadcrumbs,
     },
     router,
     mixins: {

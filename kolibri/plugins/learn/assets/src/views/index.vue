@@ -7,7 +7,7 @@
     </div>
 
     <div v-if="tabLinksAreVisible" class="tab-links">
-      <tabs>
+      <k-navbar>
         <tab-link
           type="icon-and-title"
           :title="$tr('recommended')"
@@ -28,7 +28,7 @@
           icon="assignment_late"
           :link="examsLink"
         />
-      </tabs>
+      </k-navbar>
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
@@ -62,7 +62,7 @@
   import channelSwitcher from './channel-switcher';
   import breadcrumbs from './breadcrumbs';
   import searchPage from './search-page';
-  import tabs from 'kolibri.coreVue.components.tabs';
+  import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   import examList from './exam-list';
   import examPage from './exam-page';
@@ -87,7 +87,7 @@
       channelSwitcher,
       breadcrumbs,
       searchPage,
-      tabs,
+      kNavbar,
       tabLink,
       examList,
       examPage,

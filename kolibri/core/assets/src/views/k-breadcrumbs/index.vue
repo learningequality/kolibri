@@ -78,11 +78,19 @@
   const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
+  /**
+   * Used to aid deeply nested navigation
+   */
   export default {
+    name: 'k-breadcrumbs',
     $trNameSpace: 'breadcrumbs',
-    mixins: [ResponsiveElement],
     components: { uiIconButton },
+    mixins: [ResponsiveElement],
     props: {
+      /**
+       * An array of item objects. All objects must have a text value.
+       * All objects, but the last, must have a router link object.
+       */
       items: {
         type: Array,
         required: true,
@@ -122,6 +130,17 @@
       collapsedCrumbMaxWidth() {
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
       },
+    },
+    created() {
+      this.crumbs = Array.from(this.items);
+    },
+    mounted() {
+      this.attachSensors();
+      this.$watch('parentWidth', this.throttleUpdateCrumbs);
+    },
+
+    beforeDestroy() {
+      this.detachSensors();
     },
     methods: {
       attachSensors() {
@@ -180,17 +199,6 @@
       throttleUpdateCrumbs: throttle(function updateCrumbs() {
         this.updateCrumbs();
       }, 100),
-    },
-    created() {
-      this.crumbs = Array.from(this.items);
-    },
-    mounted() {
-      this.attachSensors();
-      this.$watch('parentWidth', this.throttleUpdateCrumbs);
-    },
-
-    beforeDestroy() {
-      this.detachSensors();
     },
   };
 

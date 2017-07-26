@@ -14,8 +14,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-</style>
+<style lang="stylus" scoped></style>

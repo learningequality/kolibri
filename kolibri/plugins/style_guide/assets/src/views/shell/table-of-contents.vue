@@ -47,8 +47,8 @@
 <style lang="stylus" scoped>
 
   ul
-    list-style-type: none
     padding-left: 0
+    list-style-type: none
 
     a
       text-decoration: none

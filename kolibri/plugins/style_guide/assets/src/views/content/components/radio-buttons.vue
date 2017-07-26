@@ -1,6 +1,6 @@
 <template>
 
-  <component-style-guide
+  <component-template
     class="radio-style-guide"
     :codeExamplesTemplate="codeExamplesTemplate"
     :api="api"
@@ -70,7 +70,7 @@
         Radio buttons are vertically stacked
       </p>
     </div>
-  </component-style-guide>
+  </component-template>
 
 </template>
 
@@ -81,7 +81,7 @@
   // Vuep renderer. This has to be done on the compiler-included version of Vue
   // because that's what Vuep uses to dynamically render template.
   import FullVue from 'vue/dist/vue.common';
-  import componentStyleGuide from '../../shell/component-style-guide';
+  import componentTemplate from '../../shell/component-template';
   import UiRadio from 'keen-ui/src/UiRadio';
   import UiRadioApi from '!vue-doc!keen-ui/src/UiRadio';
   FullVue.component('ui-radio', UiRadio);
@@ -129,7 +129,7 @@
 
   export default {
     components: {
-      componentStyleGuide,
+      componentTemplate,
     },
     data: () => ({
       codeExamplesTemplate,
