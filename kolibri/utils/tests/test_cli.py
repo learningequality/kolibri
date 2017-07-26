@@ -23,6 +23,28 @@ def conf():
     conf.save()
 
 
+def test_bogus_plugin_autoremove(conf):
+    """
+    Checks that a plugin is auto-removed when it cannot be imported
+    """
+    plugin_name = "giraffe.horse"
+    conf.config["INSTALLED_APPS"].append(plugin_name)
+    conf.save()
+    conf.autoremove_unavailable_plugins()
+    assert plugin_name not in conf.config["INSTALLED_APPS"]
+
+
+def test_bogus_plugin_autoremove_no_path(conf):
+    """
+    Checks that a plugin without a dotted path is also auto-removed
+    """
+    plugin_name = "giraffehorse"
+    conf.config["INSTALLED_APPS"].append(plugin_name)
+    conf.save()
+    conf.autoremove_unavailable_plugins()
+    assert plugin_name not in conf.config["INSTALLED_APPS"]
+
+
 def test_bogus_plugin_disable(conf):
     installed_apps_before = conf.config["INSTALLED_APPS"][:]
     cli.plugin("i_do_not_exist", disable=True)
