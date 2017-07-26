@@ -1,18 +1,16 @@
 <template>
 
   <div
-    class="k-checkbox"
-    :class="{
-      'k-checkbox-checked': isCurrentlyChecked,
-      'k-checkbox-indeterminate': isCurrentlyIndeterminate,
-      'k-checkbox-disabled': disabled
-    }"
+    class="k-checkbox-container"
+    :class="{ 'k-checkbox-disabled': disabled }"
     @click.prevent="toggleCheck"
   >
-    <div class="wrapper">
-      <div class="k-checkbox-container" :class="{ 'k-checkbox-active': isActive }">
+    <div class="tr">
+
+      <div class="k-checkbox" :class="{ 'k-checkbox-active': isActive }">
         <input
           type="checkbox"
+          class="k-checkbox-input"
           :name="name"
           :checked="isCurrentlyChecked"
           :indeterminate.prop="isCurrentlyIndeterminate"
@@ -22,13 +20,29 @@
           @blur="isActive = false"
         >
 
-        <mat-svg v-if="isCurrentlyIndeterminate" category="toggle" name="indeterminate_check_box"/>
-        <mat-svg v-else-if="!isCurrentlyIndeterminate && isCurrentlyChecked" category="toggle" name="check_box"/>
-        <mat-svg v-else category="toggle" name="check_box_outline_blank"/>
+        <mat-svg
+          v-if="isCurrentlyIndeterminate"
+          category="toggle"
+          name="indeterminate_check_box"
+          class="k-checkbox-indeterminate"
+        />
+        <mat-svg
+          v-else-if="!isCurrentlyIndeterminate && isCurrentlyChecked"
+          category="toggle"
+          name="check_box"
+          class="k-checkbox-checked"
+        />
+        <mat-svg
+          v-else
+          category="toggle"
+          name="check_box_outline_blank"
+          class="k-checkbox-unchecked"
+        />
 
       </div>
 
-      <label :for="name" class="k-checkbox-label" v-if="label" >{{ label }}</label>
+      <label v-if="label" :for="name" class="k-checkbox-label">{{ label }}</label>
+
     </div>
   </div>
 
@@ -123,52 +137,55 @@
 
   $checkbox-height = 24px
 
-  .k-checkbox
+  .k-checkbox-container
+    display: table
     margin-top: 8px
     margin-bottom: 8px
-    display: table
-    &:not(.k-checkbox-disabled)
-      cursor: pointer
-    .wrapper
-      display: table-row
 
-    .k-checkbox-container
-      display: inline-block
-      width: $checkbox-height
-      height: $checkbox-height
-      vertical-align: top
-      display: table-cell
-      position: relative
-      svg
-        fill: $core-text-annotation
-      &.k-checkbox-active
-        svg
-          fill: $core-text-default
-      input
-        position: absolute
-        top: 50%
-        left: 50%
-        transform: translate(-50%, -50%)
-        opacity: 0
+  .tr
+    display: table-row
 
-    .k-checkbox-label
-      // height: $checkbox-height
-      padding-left: 8px
-      // line-height: $checkbox-height
-      display: table-cell
+  .k-checkbox
+    display: table-cell
+    position: relative
+    vertical-align: top
+    width: $checkbox-height
+    height: $checkbox-height
+    cursor: pointer
 
-    &.k-checkbox-checked, &.k-checkbox-indeterminate
-      .k-checkbox-container
-        svg
-          fill: $core-action-normal
-        &.k-checkbox-active
-          svg
-            fill: $core-action-dark
+  .k-checkbox-input
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    opacity: 0
+    cursor: pointer
 
+  .k-checkbox-checked, .k-checkbox-indeterminate
+    fill: $core-action-normal
 
-    &.k-checkbox-disabled
-      .k-checkbox-container
-        svg
-          fill: $core-grey-300
+  .k-checkbox-unchecked
+    fill: $core-text-annotation
+
+  .k-checkbox-active
+    .k-checkbox-checked, .k-checkbox-indeterminate
+      fill: $core-action-dark
+
+    .k-checkbox-unchecked
+      fill: $core-text-default
+
+  .k-checkbox-label
+    display: table-cell
+    padding-left: 8px
+    cursor: pointer
+    line-height: 24px
+    user-select: none
+
+  .k-checkbox-disabled
+    svg
+      fill: $core-grey-300
+
+    .k-checkbox, .k-checkbox-input, .k-checkbox-label
+      cursor: default
 
 </style>
