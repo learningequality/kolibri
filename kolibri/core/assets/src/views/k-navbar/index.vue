@@ -2,6 +2,7 @@
 
   <nav class="tabs">
     <ul>
+      <!-- Pass in 'tab-link' components -->
       <slot/>
     </ul>
   </nav>
