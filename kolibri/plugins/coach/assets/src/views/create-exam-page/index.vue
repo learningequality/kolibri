@@ -58,11 +58,11 @@
             <thead>
               <tr>
                 <th class="col-checkbox">
-                  <input
-                    type="checkbox"
+                  <k-checkbox
                     :checked="allExercisesWithinCurrentTopicSelected"
-                    :indeterminate.prop="someExercisesWithinCurrentTopicSelected"
-                    @change="changeSelection">
+                    :indeterminate="someExercisesWithinCurrentTopicSelected"
+                    @change="changeSelection"
+                  />
                 </th>
                 <th class="col-title">{{ $tr('selectAll') }}</th>
                 <th class="col-selection"></th>
@@ -135,6 +135,7 @@
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import textbox from 'kolibri.coreVue.components.textbox';
   import topicRow from './topic-row';
   import exerciseRow from './exercise-row';
@@ -188,6 +189,7 @@
       topicRow,
       exerciseRow,
       previewNewExamModal,
+      kCheckbox,
     },
     computed: {
       duplicateTitle() {
@@ -489,5 +491,8 @@
 
   .col-title
     text-align: left
+
+  .col-checkbox
+    width: 40px
 
 </style>

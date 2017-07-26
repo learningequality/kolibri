@@ -18,14 +18,12 @@
         <div class="settings">
           <h2>{{ $tr('settingsHeader') }}</h2>
           <template v-for="setting in settingsList">
-            <ui-checkbox
+            <k-checkbox
               :name="setting"
-              :value="settings[setting]"
+              :checked="settings[setting]"
               @change="toggleSetting(setting)"
-              box-position="right"
-            >
-              {{ $tr(setting) }}
-            </ui-checkbox>
+              :label="$tr(setting)"
+            />
           </template>
         </div>
 
@@ -76,13 +74,13 @@
   ];
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
-  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       confirmResetModal,
       notifications,
-      uiCheckbox,
+      kCheckbox,
       kButton,
     },
     data: () => ({ showModal: false }),

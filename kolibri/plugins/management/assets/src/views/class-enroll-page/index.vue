@@ -79,13 +79,13 @@
         <thead>
           <tr>
             <th class="col-checkbox">
-              <ui-checkbox
+              <k-checkbox
                 :name="$tr('selectAllOnPage')"
-                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
+                :checked="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
                 class="inline-block check"
-                />
+              />
             </th>
             <th class="col-username">{{ $tr('username') }}</th>
             <th class="col-role">{{ $tr('role') }}</th>
@@ -97,12 +97,12 @@
           <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
               @click.prevent="toggleSelection(learner.id)" :key="learner.id">
             <td class="col-checkbox">
-              <ui-checkbox
+              <k-checkbox
                 :name="$tr('selectUser')"
-                :value="isSelected(learner.id)"
+                :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
                 class="inline-block check"
-                />
+              />
             </td>
             <th class="col-username">{{ learner.username }}</th>
             <td class="col-role">{{ learner.kind }}</td>
@@ -150,7 +150,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
   import textbox from 'kolibri.coreVue.components.textbox';
@@ -186,7 +186,7 @@
     },
     components: {
       kButton,
-      uiCheckbox,
+      kCheckbox,
       uiIconButton,
       uiIcon,
       textbox,

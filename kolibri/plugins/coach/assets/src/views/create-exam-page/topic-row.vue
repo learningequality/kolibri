@@ -2,13 +2,12 @@
 
   <tr>
     <th class="col-checkbox">
-      <input
-        type="checkbox"
+      <k-checkbox
         :checked="allExercisesWithinTopicSelected"
-        :indeterminate.prop="someExercisesWithinTopicSelected"
+        :indeterminate="someExercisesWithinTopicSelected"
         :disabled="!topicHasExercises"
         @change="changeSelection"
-      >
+      />
     </th>
     <td class="col-title">
       <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
@@ -30,6 +29,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   export default {
     name: 'topicRow',
     $trs: {
@@ -39,6 +39,7 @@
     components: {
       contentIcon,
       kButton,
+      kCheckbox,
     },
     props: {
       topicId: {

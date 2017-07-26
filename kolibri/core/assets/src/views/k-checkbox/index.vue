@@ -8,25 +8,26 @@
       'k-checkbox-disabled': disabled
     }"
   >
-    <div class="k-checkbox-container" @click.stop="toggleCheck" tabindex="0">
-      <input
-        type="checkbox"
-        tabindex="-1"
-        class="visuallyhidden"
-        :name="name"
-        :checked="isCurrentlyChecked"
-        :indeterminate.prop="isCurrentlyIndeterminate"
-        :disabled="disabled"
-      >
+    <div class="wrapper">
+      <div class="k-checkbox-container" @click.stop="toggleCheck" tabindex="0">
+        <input
+          type="checkbox"
+          tabindex="-1"
+          class="visuallyhidden"
+          :name="name"
+          :checked="isCurrentlyChecked"
+          :indeterminate.prop="isCurrentlyIndeterminate"
+          :disabled="disabled"
+        >
 
-      <mat-svg v-if="isCurrentlyIndeterminate" category="toggle" name="indeterminate_check_box"/>
-      <mat-svg v-else-if="!isCurrentlyIndeterminate && isCurrentlyChecked" category="toggle" name="check_box"/>
-      <mat-svg v-else category="toggle" name="check_box_outline_blank"/>
+        <mat-svg v-if="isCurrentlyIndeterminate" category="toggle" name="indeterminate_check_box"/>
+        <mat-svg v-else-if="!isCurrentlyIndeterminate && isCurrentlyChecked" category="toggle" name="check_box"/>
+        <mat-svg v-else category="toggle" name="check_box_outline_blank"/>
 
+      </div>
+
+      <label :for="name" class="k-checkbox-label" v-if="label" @click.prevent="toggleCheck">{{ label }}</label>
     </div>
-
-    <label :for="name" class="k-checkbox-label" v-if="label" @click.prevent="toggleCheck">{{ label }}</label>
-
   </div>
 
 </template>
@@ -49,7 +50,7 @@
        */
       name: {
         type: String,
-        required: true,
+        required: false,
       },
       /**
        * Optional text label
@@ -88,6 +89,9 @@
       checked(newCheckedState) {
         this.isCurrentlyChecked = newCheckedState;
       },
+      indeterminate(newIndeterminateState) {
+        this.isCurrentlyIndeterminate = newIndeterminateState;
+      },
     },
     created() {
       this.isCurrentlyChecked = this.checked;
@@ -118,32 +122,41 @@
 
   .k-checkbox
     height: $checkbox-height
-    margin-top: 16px
-    margin-bottom: 16px
+    margin-top: 8px
+    margin-bottom: 8px
+    display: table
     &:not(.k-checkbox-disabled)
-      cursor: pointer
-      .k-checkbox-label
+      .k-checkbox-container, .k-checkbox-label
         cursor: pointer
+    .wrapper
+      display: table-row
 
     .k-checkbox-container
       display: inline-block
       width: $checkbox-height
       height: $checkbox-height
       vertical-align: top
-      &:focus
-        outline: none
+      display: table-cell
       svg
         fill: $core-text-annotation
+      &:hover, &:focus
+        svg
+          fill: $core-text-default
 
     .k-checkbox-label
-      height: $checkbox-height
-      margin-left: 8px
-      line-height: $checkbox-height
+      // height: $checkbox-height
+      padding-left: 8px
+      // line-height: $checkbox-height
+      display: table-cell
 
     &.k-checkbox-checked, &.k-checkbox-indeterminate
       .k-checkbox-container
         svg
           fill: $core-action-normal
+        &:hover, &:focus
+          svg
+            fill: $core-action-dark
+
 
     &.k-checkbox-disabled
       .k-checkbox-container

@@ -43,7 +43,11 @@
       <thead>
         <tr>
           <th class="col-checkbox">
-            <input type="checkbox" :checked="allUsersAreSelected" @change="toggleSelectAll">
+            <k-checkbox
+              :checked="allUsersAreSelected"
+              :indeterminate="someUsersAreSelected"
+              @change="toggleSelectAll"
+            />
           </th>
           <th class="col-name">{{ $tr('name') }}</th>
           <th class="col-username">{{ $tr('username') }}</th>
@@ -57,14 +61,11 @@
           @click="toggleSelection(user.id)"
         >
           <td class="col-checkbox">
-            <input
-              type="checkbox"
-              :id="user.id"
-              :value="user.id"
+            <k-checkbox
               :checked="isSelected(user.id)"
               @change="toggleSelection"
               @click.stop
-            >
+            />
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
           <td class="col-username">{{ user.username }}</td>
@@ -81,6 +82,7 @@
 
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -101,6 +103,7 @@
     mixins: [ResponsiveElement],
     components: {
       kButton,
+      kCheckbox,
       uiButton,
       uiMenu,
     },
@@ -132,6 +135,9 @@
         return (
           this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
         );
+      },
+      someUsersAreSelected() {
+        return !this.allUsersAreSelected && this.selectedUsers.length !== 0;
       },
     },
     methods: {

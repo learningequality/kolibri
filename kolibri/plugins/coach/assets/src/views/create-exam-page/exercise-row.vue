@@ -1,7 +1,7 @@
 <template>
 
   <tr>
-    <th class="col-checkbox"><input type="checkbox" :checked="isSelected" @change="changeSelection"></th>
+    <th class="col-checkbox"><k-checkbox :checked="isSelected" @change="changeSelection"/></th>
     <td class="col-title">
       <content-icon :kind="exercise"/>
       <span>{{ exerciseTitle }}</span>
@@ -17,11 +17,14 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+
   export default {
     name: 'exerciseRow',
     components: {
       contentIcon,
       kButton,
+      kCheckbox,
     },
     props: {
       exerciseId: {
