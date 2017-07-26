@@ -39,7 +39,7 @@ describe('facility config page view', () => {
     const wrapper = makeWrapper();
     const dispatchSpy = sinon.spy(wrapper.$store, 'dispatch');
     const { checkbox } = getElements(wrapper);
-    simulant.fire(checkbox(), 'change');
+    simulant.fire(checkbox(), 'click');
     sinon.assert.calledWith(dispatchSpy, 'CONFIG_PAGE_MODIFY_SETTING', {
       name: 'learnerCanEditUsername',
       value: true,
