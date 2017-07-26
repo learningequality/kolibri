@@ -79,7 +79,7 @@
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   /**
-   * Used to aid deeply nesed navigation
+   * Used to aid deeply nested navigation
    */
   export default {
     name: 'k-breadcrumbs',
