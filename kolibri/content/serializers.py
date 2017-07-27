@@ -87,10 +87,15 @@ class ContentNodeListSerializer(serializers.ListSerializer):
             'files',
         ).select_related('license')
 
-        cache_key = 'contentnode_list_{db}_{query}'.format(db=get_active_content_database(), query=hash(str(data.query)))
+        cache_key = None
+        # Cache parent look ups only
+        if "parent" in self.context['request'].GET:
+            cache_key = 'contentnode_list_{db}_{parent}'.format(
+                db=get_active_content_database(),
+                parent=self.context['request'].GET.get('parent'))
 
-        if cache.get(cache_key):
-            return cache.get(cache_key)
+            if cache.get(cache_key):
+                return cache.get(cache_key)
 
         if not data:
             return data
@@ -112,7 +117,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only:
+        if topic_only and cache_key:
             cache.set(cache_key, result, 60 * 10)
 
         return result
@@ -144,7 +149,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 progress_fraction = 0
             else:
                 user = self.context["request"].user
-                progress_fraction = get_progress_fraction(instance.content_id, user)
+                if instance.kind != content_kinds.TOPIC:
+                    progress_fraction = get_progress_fraction(instance.content_id, user)
         value = super(ContentNodeSerializer, self).to_representation(instance)
         value['progress_fraction'] = progress_fraction
         return value

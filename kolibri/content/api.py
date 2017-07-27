@@ -204,7 +204,6 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        # Call prefetch_related None to not retrieve the unnecessary prefetches set on the queryset
         ancestors = list(self.get_object().get_ancestors().values('pk', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
