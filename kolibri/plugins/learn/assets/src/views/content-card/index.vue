@@ -1,9 +1,9 @@
 <template>
 
-  <router-link :to="link" class="card">
+  <router-link :to="link" class="card" :style="cardHeight">
 
     <div class="card-thumbnail" :style="backgroundImg">
-      <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
+      <content-icon v-if="!thumbnail" :kind="kind" :style="iconSize" class="card-thumbnail-backup"/>
       <div v-show="progress > 0" class="card-progress-icon-wrapper">
         <progress-icon :progress="progress"/>
       </div>
@@ -34,6 +34,7 @@
 
 <script>
 
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
@@ -41,6 +42,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
+    mixins: [responsiveElement],
     props: {
       title: {
         type: String,
@@ -83,6 +85,20 @@
       mastered() {
         return this.progress === 1;
       },
+      cardHeight() {
+        // set here so that parent component can set width and have height dynamically calculated
+        return {
+          height: `${this.elSize.width}px`,
+        };
+      },
+      iconSize() {
+        const cardHeight = this.elSize.width; // can use height or width because it's a square
+        // maintain the thumbnail 16:9 ratio
+        const thumbnailHeight = this.elSize.width * (9 / 16);
+        return {
+          'font-size': `${thumbnailHeight / 2}px`,
+        };
+      },
       inProgress() {
         return this.progress > 0 && this.progress < 1;
       },
@@ -121,10 +137,9 @@
   @require '~kolibri.styles.definitions'
 
   $card-width = 210px
-  $card-height = $card-width
   $card-thumbnail-ratio = (9 / 16)
-  $card-thumbnail-height = $card-width * $card-thumbnail-ratio
-  $card-text-height = $card-height - $card-thumbnail-height
+  $card-thumbnail-height = 100% * $card-thumbnail-ratio
+  $card-text-height = $card-width - $card-thumbnail-height
   $card-text-padding = ($card-width / (320 / 24))
   $card-elevation-resting = 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
   $card-elevation-raised = 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
@@ -136,7 +151,6 @@
   .card
     display: inline-block
     width: $card-width
-    height: $card-height
     border-radius: 2px
     background-color: $core-bg-light
     box-shadow: $card-elevation-resting
@@ -158,7 +172,6 @@
     left: 50%
     transform: translate(-50%, -50%)
     color: $core-text-annotation
-    font-size: ($card-thumbnail-height / 2)
 
   .card-progress-icon-wrapper
     position: absolute
