@@ -129,7 +129,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f['name']
-            if any(regex.match(filename) for regex in settings.IGNORE_PATTERNS):
+            if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
                 continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
             if django_settings.DEBUG:
