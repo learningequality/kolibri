@@ -70,8 +70,7 @@
 */
 
 /* module internal state */
-
-const windowListeners = [];
+import { throttle } from 'frame-throttle';
 
 /* methods */
 
@@ -147,31 +146,23 @@ function windowMetrics() {
   };
 }
 
-import { throttle } from 'frame-throttle';
-
-const windowResizeHandler = throttle(e => {
-  const metrics = windowMetrics();
-  windowListeners.forEach(cb => cb(metrics));
-});
-
 function addWindowListener(cb) {
-  windowListeners.push(cb);
-  cb(windowMetrics()); // call it once initially
+  const listener = throttle(cb);
+  if (window.addEventListener) {
+    window.addEventListener('resize', listener, true);
+  } else if (window.attachEvent) {
+    window.attachEvent('onresize', listener);
+  }
 }
 
 function removeWindowListener(cb) {
-  windowListeners.pop(cb);
+  const listener = throttle(cb);
+  if (window.removeEventListener) {
+    window.addEventListener('resize', listener, true);
+  } else if (window.detachEvent) {
+    window.attachEvent('onresize', listener);
+  }
 }
-
-/* setup */
-
-if (window.addEventListener) {
-  window.addEventListener('resize', windowResizeHandler, true);
-} else if (window.attachEvent) {
-  window.attachEvent('onresize', windowResizeHandler);
-}
-
-windowResizeHandler(); // call it once initially
 
 /* export mixin */
 
@@ -179,24 +170,12 @@ export default {
   data() {
     return {
       // becomes available for use
-      windowSize: {
-        width: 0,
-        height: 0,
-        breakpoint: 0,
-        numCols: 0,
-        gutterWidth: 0,
-        range: null,
-      },
+      windowSize: windowMetrics(),
     };
   },
   methods: {
-    _updateWindow(metrics) {
-      this.windowSize.width = metrics.width;
-      this.windowSize.height = metrics.height;
-      this.windowSize.breakpoint = metrics.breakpoint;
-      this.windowSize.numCols = metrics.numCols;
-      this.windowSize.gutterWidth = metrics.gutterWidth;
-      this.windowSize.range = metrics.range;
+    _updateWindow() {
+      this.windowSize = windowMetrics();
     },
   },
   mounted() {
