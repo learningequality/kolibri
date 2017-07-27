@@ -1,7 +1,7 @@
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 class HeartBeat {
-  constructor(kolibri, delay = 60000) {
+  constructor(kolibri, delay = 150000) {
     if (!kolibri) {
       throw new ReferenceError('A kolibri instance must be passed into the constructor');
     }
