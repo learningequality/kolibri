@@ -21,17 +21,22 @@ class KolibriCoreConfig(AppConfig):
         right now, but kept around as infrastructure if we ever want to add
         PRAGMAs in the future.
         """
-        # We don't have any per-connection pragmas, because they have negligible
-        # performance impacts. For reference, here's what we've tested:
-        # Only run the PRAGMAs if we're using SQLite
 
-        # Don't ensure that the OS has fully flushed
-        # our data to disk.
-        # cursor.execute("PRAGMA synchronous=OFF;")
+        if connection.vendor == "sqlite":
+            cursor = connection.cursor()
 
-        # Store cross-database JOINs in memory.
-        # cursor.execute("PRAGMA temp_store=MEMORY;")
-        pass
+            # Shorten the default WAL autocheckpoint from 1000 pages to 500
+            cursor.execute("PRAGMA wal_autocheckpoint=500;")
+
+            # We don't turn on the following pragmas, because they have negligible
+            # performance impact. For reference, here's what we've tested:
+
+            # Don't ensure that the OS has fully flushed
+            # our data to disk.
+            # cursor.execute("PRAGMA synchronous=OFF;")
+
+            # Store cross-database JOINs in memory.
+            # cursor.execute("PRAGMA temp_store=MEMORY;")
 
     @staticmethod
     def activate_pragmas_on_start():
