@@ -13,8 +13,8 @@ const { now } = require('kolibri.utils.serverClock');
 const intervalTimer = require('../timer');
 
 const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
-const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
+const progressThreshold = 0.25; // Update logs if user has reached 25% more progress
+const timeThreshold = 60; // Update logs if 60 seconds have passed since last update
 
 
 /**
@@ -201,12 +201,12 @@ function getCurrentSession(store, force = false) {
     sessionPromise = SessionResource.getModel('current').fetch()._promise;
   }
   return sessionPromise
-  .then((session) => {
-    logging.info('Session set.');
-    store.dispatch('CORE_SET_SESSION', _sessionState(session));
-    return session;
-  })
-  .catch(error => { handleApiError(store, error); });
+    .then((session) => {
+      logging.info('Session set.');
+      store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      return session;
+    })
+    .catch(error => { handleApiError(store, error); });
 }
 
 
@@ -246,7 +246,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
 
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id && !getters.isSuperuser(store.state)) {
-     /* Fetch collection matching content and user */
+    /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
       user_id: store.state.core.session.user_id,
