@@ -292,7 +292,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
-        node = self.get_object()
+        node = self.get_object(prefetch=False)
         kind = self.request.query_params.get('descendant_kind', None)
         descendants = node.get_descendants()
         if kind:
@@ -308,7 +308,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(self.get_object().get_ancestors().values('pk', 'title'))
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
