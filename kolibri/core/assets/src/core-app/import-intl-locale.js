@@ -24,6 +24,12 @@ module.exports = (locale, callback) => {
           resolve(() => require('intl/locale-data/jsonp/es-ES.js'));
         });
       });
+    case 'es-MX':
+      return new Promise((resolve) => {
+        require.ensure([], (require) => {
+          resolve(() => require('intl/locale-data/jsonp/es-MX.js'));
+        });
+      });
     default:
       return new Promise((resolve) => {
         require.ensure([], (require) => {
