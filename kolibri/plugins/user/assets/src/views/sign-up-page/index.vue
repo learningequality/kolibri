@@ -100,8 +100,7 @@
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
-    name: 'Sign-Up-Page',
-    $trNameSpace: 'signUpPage',
+    name: 'signUpPage',
     $trs: {
       createAccount: 'Create an account',
       name: 'Full name',

@@ -49,7 +49,7 @@
         this.$emit('click-cancel');
       },
     },
-    $trNameSpace: 'confirmResetModal',
+    name: 'confirmResetModal',
     $trs: {
       cancel: 'Cancel',
       changesWillBeLost: 'Your changes will be lost',

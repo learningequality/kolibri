@@ -4,7 +4,10 @@
     <div v-show="loading" class="fill-space">
       <loading-spinner/>
     </div>
-    <div v-show="!loading" class="fill-space">
+    <div
+       v-show="!loading"
+       class="fill-space"
+       :class="{ 'mimic-fullscreen': mimicFullscreen }">
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`">
@@ -30,16 +33,17 @@
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
   import LangLookup from './languagelookup';
-  import * as customButtons from './videojs-replay-forward-btns';
+  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import ScreenFull from 'screenfull';
 
   const GlobalLangCode = vue.locale;
 
   export default {
-    $trNameSpace: 'videoRender',
+    name: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
       forward: 'Go forward 10 seconds',
@@ -66,6 +70,7 @@
       playerMuted: false,
       playerRate: 1.0,
       videoLang: GlobalLangCode,
+      mimicFullscreen: false,
     }),
 
     computed: {
@@ -95,6 +100,9 @@
       },
       isVideo() {
         return this.videoSources.length;
+      },
+      fullscreenAllowed() {
+        return ScreenFull.enabled;
       },
     },
     methods: {
@@ -137,13 +145,20 @@
               },
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
-              { name: 'fullscreenToggle' },
             ],
           },
         };
 
         if (!this.isVideo) {
           videojsConfig.poster = this.posterSource;
+        }
+
+        // Add appropriate fullscreen button
+        if (this.fullscreenAllowed) {
+          videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
+        } else {
+          videojs.registerComponent('MimicFullscreenToggle', MimicFullscreenToggle);
+          videojsConfig.controlBar.children.push({ name: 'MimicFullscreenToggle' });
         }
 
         this.$nextTick(() => {
@@ -162,6 +177,9 @@
         this.player.on('play', () => this.setPlayState(true));
         this.player.on('pause', () => this.setPlayState(false));
         this.player.on('ended', () => this.setPlayState(false));
+        this.player.on('mimicFullscreenToggled', () => {
+          this.mimicFullscreen = !this.mimicFullscreen;
+        });
         this.$watch('elSize.width', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();
@@ -261,10 +279,10 @@
       },
     },
     created() {
-      customButtons.ReplayButton.prototype.controlText_ = this.$tr('replay');
-      customButtons.ForwardButton.prototype.controlText_ = this.$tr('forward');
-      videojs.registerComponent('ReplayButton', customButtons.ReplayButton);
-      videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
+      ReplayButton.prototype.controlText_ = this.$tr('replay');
+      ForwardButton.prototype.controlText_ = this.$tr('forward');
+      videojs.registerComponent('ReplayButton', ReplayButton);
+      videojs.registerComponent('ForwardButton', ForwardButton);
       this.videoLang = Lockr.get('videoLang') || this.videoLang;
     },
     mounted() {
@@ -298,6 +316,19 @@
   .fill-space
     width: 100%
     height: 100%
+
+  .mimic-fullscreen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 24
+    max-width: calc(100vh * (16/9))
+    max-height: 100%
+    width: 100%
+    height: 100%
+    background-color: black
 
 </style>
 

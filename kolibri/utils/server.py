@@ -61,6 +61,12 @@ def start(port=8080):
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
 
+    # This should be run every time the server is started for now.
+    # Events to trigger it are hard, because of copying a content folder into
+    # ~/.kolibri, or deleting a channel DB on disk
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
+    update_channel_metadata_cache()
+
     def rm_pid_file():
         os.unlink(PID_FILE)
 
@@ -149,15 +155,17 @@ def _read_pid_file(filename):
                           if it exists. If the port number doesn't exist, then
                           port is None.
     """
-    try:
-        pid, port = open(filename, "r").readlines()
+    pid_file_lines = open(filename, "r").readlines()
+
+    if len(pid_file_lines) == 2:
+        pid, port = pid_file_lines
         pid, port = int(pid), int(port)
-    except ValueError:
+    elif len(pid_file_lines) == 1:
         # The file only had one line
-        try:
-            pid, port = int(open(filename, "r").read()), None
-        except ValueError:
-            pid, port = None, None
+        pid, port = int(pid_file_lines[0]), None
+    else:
+        raise ValueError("PID file must have 1 or two lines")
+
     return pid, port
 
 
@@ -198,8 +206,8 @@ def get_status():  # noqa: max-complexity=16
                 # It's dead so assuming the startup went badly
                 else:
                     raise NotRunning(STATUS_FAILED_TO_START)
-            # Couldn't parse to int
-            except TypeError:
+            # Couldn't parse to int or empty PID file
+            except (TypeError, ValueError):
                 raise NotRunning(STATUS_STOPPED)
         raise NotRunning(STATUS_STOPPED)  # Stopped
 
@@ -210,7 +218,7 @@ def get_status():  # noqa: max-complexity=16
         raise NotRunning(STATUS_PID_FILE_INVALID)  # Invalid PID file
 
     # PID file exists, but process is dead
-    if not pid_exists(pid):
+    if pid is None or not pid_exists(pid):
         if os.path.isfile(STARTUP_LOCK):
             raise NotRunning(STATUS_FAILED_TO_START)  # Failed to start
         raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)  # Unclean shutdown

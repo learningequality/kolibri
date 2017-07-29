@@ -78,7 +78,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   export default {
-    $trNameSpace: 'signInPage',
+    name: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
       signIn: 'Sign in',

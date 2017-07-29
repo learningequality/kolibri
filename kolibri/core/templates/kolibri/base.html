@@ -1,6 +1,5 @@
 {% load i18n kolibri_tags webpack_tags content_tags cache %}
 {% load staticfiles %}
-{% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
 <html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}">
@@ -47,14 +46,8 @@
   </script>
 </rootvue>
 {% block frontend_assets %}
-<script>
-  // Set global language variable.
-  var languageCode = "{{ LANGUAGE_CODE }}";
-  var languageBidi = "{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}";
-</script>
-{% cache 5000 default_frontend %}
-  {% webpack_asset 'default_frontend' %}
-{% endcache %}
+{% kolibri_language_globals %}
+{% webpack_asset 'default_frontend' %}
 {% kolibri_set_server_time %}
 <script type="text/javascript">
   {% cache 5000 js_urls %}
@@ -63,11 +56,9 @@
 </script>
 <!-- Bootstrapping the currently logged in user's session object into the page. -->
 {% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
-{% cache 5000 base_assets %}
-  {% webpack_base_assets %}
-  {% webpack_base_async_assets %}
-  {% content_renderer_assets %}
-{% endcache %}
+{% webpack_base_assets %}
+{% webpack_base_async_assets %}
+{% content_renderer_assets %}
 {% endblock %}
 
 {% block content %}

@@ -15,6 +15,12 @@
     />
     <tab-link
       type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignment_late"
+      :link="examsLink"
+    />
+    <tab-link
+      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -24,12 +30,6 @@
       :title="$tr('groups')"
       icon="group_work"
       :link="groupsLink"
-    />
-    <tab-link
-      type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignment_late"
-      :link="examsLink"
     />
   </k-navbar>
 
@@ -42,7 +42,7 @@
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   export default {
-    $trNameSpace: 'topNav',
+    name: 'topNav',
     $trs: {
       recent: 'Recent',
       topics: 'Topics',

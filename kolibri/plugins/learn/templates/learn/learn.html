@@ -22,8 +22,6 @@
     {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' next_steps=user.id kwargs_channel_id=currentChannel.id %}
   {% endif %}
 
-  {% cache 5000 learn_assets %}
-    {% learn_async_assets %}
-    {% learn_assets %}
-  {% endcache %}
+  {% learn_async_assets %}
+  {% learn_assets %}
 {% endblock %}

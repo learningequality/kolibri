@@ -43,7 +43,7 @@
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import tabLink from 'kolibri.coreVue.components.tabLink';
   export default {
-    $trNameSpace: 'topNav',
+    name: 'topNav',
     $trs: {
       classes: 'Classes',
       content: 'Channels',

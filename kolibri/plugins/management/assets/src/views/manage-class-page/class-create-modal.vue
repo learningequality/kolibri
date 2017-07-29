@@ -45,7 +45,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
-    $trNameSpace: 'classCreateModal',
+    name: 'classCreateModal',
     $trs: {
       addNewClassTitle: 'Add New Class',
       classname: 'Class Name',

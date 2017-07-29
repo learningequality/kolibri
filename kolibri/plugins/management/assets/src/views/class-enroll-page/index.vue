@@ -160,7 +160,7 @@
   import userRole from '../user-role';
   export default {
     mixins: [responsiveWindow],
-    $trNameSpace: 'managementClassEnroll',
+    name: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',

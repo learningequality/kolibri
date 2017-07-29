@@ -19,7 +19,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'progressBar',
+    name: 'progressBar',
     $trs: {
       label: 'Progress:',
       pct: '{0, number, percent}',

@@ -24,7 +24,7 @@
   import contentCard from '../content-card';
   import contentCardGrid from '../content-card-grid';
   export default {
-    $trNameSpace: 'allContent',
+    name: 'allContent',
     $trs: {
       prev: 'Previous',
       next: 'Next',

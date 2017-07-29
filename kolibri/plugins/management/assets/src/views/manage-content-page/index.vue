@@ -66,7 +66,7 @@
   import wizardImportLocal from './wizard-import-local';
   import wizardExport from './wizard-export';
   export default {
-    $trNameSpace: 'manageContentState',
+    name: 'manageContentState',
     $trs: {
       title: 'My channels',
       import: 'Import',

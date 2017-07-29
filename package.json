@@ -18,7 +18,7 @@
     "clean": "node ./frontend_build/src/clean.js",
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
     "lint-js:base": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
-    "lint-js": "yarn run lint-js:base -- './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}'",
+    "lint-js": "yarn run lint-js:base -- './\\{kolibri/**/assets,frontend_build,karma_config\\}/**/*.\\{js,vue\\}'",
     "lint-js:fix": "yarn run lint-js -- -w"
   },
   "repository": {

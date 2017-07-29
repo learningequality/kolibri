@@ -39,7 +39,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
-    $trNameSpace: 'wizardImportNetwork',
+    name: 'wizardImportNetwork',
     $trs: {
       title: 'Please choose a source...',
       enterContentChannel: 'Please enter a content channel ID:',

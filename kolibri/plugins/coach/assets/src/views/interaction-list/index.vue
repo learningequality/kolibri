@@ -30,7 +30,7 @@
   import interactionItem from './interaction-item';
   export default {
     mixins: [responsiveElement],
-    $trNameSpace: 'coachExerciseQuestionAttempt',
+    name: 'coachExerciseQuestionAttempt',
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
       questionHeader: 'Question {questionNumber, number} attempts',

@@ -64,7 +64,7 @@
         classes: state => state.classList,
       },
     },
-    $trNameSpace: 'coachClassListPage',
+    name: 'coachClassListPage',
     $trs: {
       myClasses: 'All classes',
       pageDescription: 'View learner progress and performance',

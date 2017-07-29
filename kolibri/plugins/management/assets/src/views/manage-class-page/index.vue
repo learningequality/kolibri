@@ -106,7 +106,7 @@
       },
       actions: { displayModal: actions.displayModal },
     },
-    $trNameSpace: 'classPage',
+    name: 'classPage',
     $trs: {
       allClasses: 'All Classes',
       addNew: 'Add New Class',

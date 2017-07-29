@@ -1,24 +1,34 @@
 <template>
 
-  <div :class="`gutter-${windowSize.gutterWidth}`">
-    <app-bar
-      class="app-bar align-to-parent"
-      :style="appBarStyle"
-      @toggleSideNav="navShown=!navShown"
-      :title="appBarTitle"
-      :navShown="navShown"
-      :height="headerHeight">
-      <div slot="app-bar-actions" class="app-bar-actions">
-        <slot name="app-bar-actions"/>
+  <div>
+    <div v-if="navBarNeeded" :class="`gutter-${windowSize.gutterWidth}`">
+      <app-bar
+        class="app-bar align-to-parent"
+        :style="appBarStyle"
+        @toggleSideNav="navShown=!navShown"
+        :title="appBarTitle"
+        :navShown="navShown"
+        :height="headerHeight">
+        <div slot="app-bar-actions" class="app-bar-actions">
+          <language-switcher/>
+          <slot name="app-bar-actions"/>
+        </div>
+      </app-bar>
+      <side-nav
+        @toggleSideNav="navShown=!navShown"
+        :topLevelPageName="topLevelPageName"
+        :navShown="navShown"
+        :headerHeight="headerHeight"
+        :width="navWidth"/>
+      <div :style="contentStyle" class="content-container">
+        <loading-spinner v-if="loading" class="align-to-parent"/>
+        <template v-else>
+          <error-box v-if="error"/>
+          <slot/>
+        </template>
       </div>
-    </app-bar>
-    <side-nav
-      @toggleSideNav="navShown=!navShown"
-      :topLevelPageName="topLevelPageName"
-      :navShown="navShown"
-      :headerHeight="headerHeight"
-      :width="navWidth"/>
-    <div :style="contentStyle" class="content-container">
+    </div>
+    <div v-else>
       <loading-spinner v-if="loading" class="align-to-parent"/>
       <template v-else>
         <error-box v-if="error"/>
@@ -40,6 +50,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import languageSwitcher from './language-switcher';
   import Vue from 'kolibri.lib.vue';
 
   export default {
@@ -61,12 +72,18 @@
         type: String,
         required: false,
       },
+      // Prop that determines whether to show nav components
+      navBarNeeded: {
+        type: Boolean,
+        default: true,
+      },
     },
     components: {
       appBar,
       sideNav,
       errorBox,
       loadingSpinner,
+      languageSwitcher,
     },
     vuex: {
       getters: {
@@ -76,9 +93,7 @@
       },
     },
     watch: {
-      title(newVal, oldVal) {
-        this.updateDocumentTitle(newVal);
-      },
+      title: 'updateDocumentTitle',
       'windowSize.breakpoint': function updateNav(newVal, oldVal) {
         if (oldVal === 4 && newVal === 5) {
           // Pop out the nav if transitioning from 4 to 5
@@ -91,7 +106,7 @@
     },
     data: () => ({ navShown: false }),
     methods: {
-      updateDocumentTitle(newTitle) {
+      updateDocumentTitle() {
         document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
       },
     },
@@ -106,18 +121,18 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        const posKey = Vue.bidiDirection === 'rtl' ? 'Right' : 'Left';
+        const posKey = this.isRtl ? 'Right' : 'Left';
         return this.mobile ? {} : { ['padding' + posKey]: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
-        const posKey = Vue.bidiDirection === 'rtl' ? 'right' : 'left';
+        const posKey = this.isRtl ? 'right' : 'left';
         style[posKey] = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
       },
     },
-    mounted() {
-      this.updateDocumentTitle(this.title);
+    created() {
+      this.updateDocumentTitle();
       if (this.mobile) {
         this.navShown = false;
       }

@@ -41,7 +41,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
-    $trNameSpace: 'userRemoveModal',
+    name: 'userRemoveModal',
     $trs: {
       modalTitle: 'Remove User from Class',
       remove: 'Remove from Class',

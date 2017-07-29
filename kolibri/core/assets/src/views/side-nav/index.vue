@@ -65,7 +65,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   export default {
     mixins: [responsiveWindow, responsiveElement],
-    $trNameSpace: 'navbar',
+    name: 'navbar',
     $trs: {
       navigationLabel: 'Main user navigation',
       learn: 'Learn',

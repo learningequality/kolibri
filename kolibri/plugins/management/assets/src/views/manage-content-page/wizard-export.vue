@@ -54,7 +54,7 @@
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import driveList from './wizards/drive-list';
   export default {
-    $trNameSpace: 'wizardExport',
+    name: 'wizardExport',
     $trs: {
       title: 'Export to a Local Drive',
       available: 'Available Storage:',

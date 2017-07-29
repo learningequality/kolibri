@@ -150,7 +150,7 @@
         addChannelFileSummaries: manageContentActions.addChannelFileSummaries,
       },
     },
-    $trNameSpace: 'channelsGrid',
+    name: 'channelsGrid',
     $trs: {
       emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',

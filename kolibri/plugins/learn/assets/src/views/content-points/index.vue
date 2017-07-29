@@ -36,7 +36,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'contentPoints',
+    name: 'contentPoints',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       niceWork: 'Great work! Keep it up!',

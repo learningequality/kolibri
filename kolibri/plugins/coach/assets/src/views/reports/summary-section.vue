@@ -76,7 +76,7 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   export default {
-    $trNameSpace: 'reportSummary',
+    name: 'reportSummary',
     $trs: {
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',

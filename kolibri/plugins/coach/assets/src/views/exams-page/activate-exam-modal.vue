@@ -28,7 +28,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'activateExamModal',
+    name: 'activateExamModal',
     $trs: {
       activateExam: 'Activate exam',
       areYouSure: 'Are you sure you want to activate <strong>{ examTitle }</strong>?',

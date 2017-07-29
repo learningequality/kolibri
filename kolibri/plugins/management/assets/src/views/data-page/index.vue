@@ -46,7 +46,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     mixins: [responsiveWindow],
-    $trNameSpace: 'manageData',
+    name: 'manageData',
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:

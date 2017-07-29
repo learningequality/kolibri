@@ -1,6 +1,6 @@
 import { PageNames } from '../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import { isUserLoggedIn, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 import {
   SignUpResource,
@@ -8,13 +8,24 @@ import {
   DeviceOwnerResource,
   FacilityResource,
 } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'userPageTitles';
+
+const messages = {
+  userProfilePageTitle: 'User Profile',
+  userSignInPageTitle: 'User Sign In',
+  userSignUpPageTitle: 'User Sign Up',
+};
+
+const translator = createTranslator(name, messages);
 
 function redirectToHome() {
   window.location = '/';
 }
 
 function showRoot(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -30,7 +41,7 @@ function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
-    if (coreGetters.isAdmin(store.state)) {
+    if (isSuperuser(store.state)) {
       return DeviceOwnerResource.getModel(session.user_id);
     }
     return FacilityUserResource.getModel(session.user_id);
@@ -98,7 +109,7 @@ function resetProfileState(store) {
 }
 
 function showProfile(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (!userSignedIn) {
     router.getInstance().replace({
       name: PageNames.SIGN_IN,
@@ -108,12 +119,12 @@ function showProfile(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Profile');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userProfilePageTitle'));
   resetProfileState(store);
 }
 
 function showSignIn(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -124,7 +135,7 @@ function showSignIn(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Sign In');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userSignInPageTitle'));
 }
 
 function resetSignUpState(store) {
@@ -138,7 +149,7 @@ function resetSignUpState(store) {
 }
 
 function showSignUp(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = isUserLoggedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -152,7 +163,7 @@ function showSignUp(store) {
     store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+    store.dispatch('CORE_SET_TITLE', translator.$tr('userSignUpPageTitle'));
     resetSignUpState(store);
   }).catch(error => coreActions.handleApiError(store, error));
 }

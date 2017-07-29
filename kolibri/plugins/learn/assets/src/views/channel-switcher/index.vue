@@ -19,7 +19,7 @@
   import orderBy from 'lodash/orderBy';
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   export default {
-    $trNameSpace: 'channelSwitcher',
+    name: 'channelSwitcher',
     $trs: { switchChannels: 'Switch channels' },
     components: { dropdownMenu },
     computed: {

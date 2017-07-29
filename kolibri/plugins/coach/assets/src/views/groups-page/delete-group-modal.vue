@@ -22,7 +22,7 @@
   import textbox from 'kolibri.coreVue.components.textbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'deleteGroupModal',
+    name: 'deleteGroupModal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
       areYouSure: 'Are you sure you want to delete <strong>{ groupName }</strong>?',

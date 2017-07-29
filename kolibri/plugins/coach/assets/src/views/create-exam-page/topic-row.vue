@@ -31,7 +31,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'topicRow',
+    name: 'topicRow',
     $trs: {
       exercisesSelected:
         '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',

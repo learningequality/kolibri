@@ -46,7 +46,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    $trNameSpace: 'searchBox',
+    name: 'searchBox',
     $trs: {
       search: 'Search',
       clear: 'Clear',

@@ -118,7 +118,7 @@
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
   export default {
-    $trNameSpace: 'coachExamsPage',
+    name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
       show: 'Show',

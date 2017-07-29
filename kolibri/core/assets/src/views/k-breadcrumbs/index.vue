@@ -83,7 +83,6 @@
    */
   export default {
     name: 'k-breadcrumbs',
-    $trNameSpace: 'breadcrumbs',
     components: { uiIconButton },
     mixins: [ResponsiveElement],
     props: {

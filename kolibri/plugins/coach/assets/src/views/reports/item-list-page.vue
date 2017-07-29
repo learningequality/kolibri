@@ -77,7 +77,7 @@
 
   export default {
     mixins: [alignMixin],
-    $trNameSpace: 'itemReportPage',
+    name: 'itemReportPage',
     $trs: {
       name: 'Name',
       avgExerciseProgress: 'Avg. exercise progress',

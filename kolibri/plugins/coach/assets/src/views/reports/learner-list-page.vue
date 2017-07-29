@@ -84,7 +84,7 @@
 
   export default {
     mixins: [alignMixin],
-    $trNameSpace: 'learnerReportPage',
+    name: 'learnerReportPage',
     $trs: {
       name: 'Name',
       group: 'Group',

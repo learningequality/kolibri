@@ -1,13 +1,13 @@
 <template>
 
   <div>
-    <div class="btn">
-      <k-button
-        :text="$tr('newGroup')"
-        :primary="true"
-        @click="openCreateGroupModal"
-      />
-    </div>
+    <h1 class="header">{{ $tr('classGroups') }}</h1>
+
+    <k-button
+      :text="$tr('newGroup')"
+      :primary="true"
+      @click="openCreateGroupModal"
+    />
 
     <create-group-modal v-if="showCreateGroupModal"
       :groups="sortedGroups" />
@@ -59,9 +59,9 @@
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
   export default {
-    $trNameSpace: 'coachGroupsPage',
+    name: 'coachGroupsPage',
     $trs: {
-      groups: 'Groups',
+      classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
     },
@@ -163,7 +163,9 @@
 
   @require '~kolibri.styles.definitions'
 
-  .btn
-    text-align: right
+  .header
+    display: inline-block
+    vertical-align: middle
+    margin-right: 16px
 
 </style>

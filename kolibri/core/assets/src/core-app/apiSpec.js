@@ -57,6 +57,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import urls from './urls';
 import client from './client';
+import * as i18n from '../utils/i18n';
 
 export default {
   client,
@@ -117,5 +118,6 @@ export default {
     exams,
     validateLinkObject,
     serverClock,
+    i18n,
   },
 };

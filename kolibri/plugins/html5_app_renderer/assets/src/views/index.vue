@@ -1,10 +1,13 @@
 <template>
 
-  <div ref="container" class="container" allowfullscreen>
+  <div
+    ref="container"
+    class="container"
+    :class="{ 'container-mimic-fullscreen': mimicFullscreen }"
+    allowfullscreen>
     <k-button
       class="btn"
-      v-if="fullscreenAllowed"
-      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true"/>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
@@ -25,7 +28,7 @@
         required: true,
       },
     },
-    data: () => ({ isFullScreen: false }),
+    data: () => ({ isFullscreen: false }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
@@ -33,11 +36,23 @@
       fullscreenAllowed() {
         return ScreenFull.enabled;
       },
+      mimicFullscreen() {
+        return !this.fullscreenAllowed && this.isFullscreen;
+      },
     },
     methods: {
-      toggleFullScreen() {
-        ScreenFull.toggle(this.$refs.container);
-        this.isFullScreen = ScreenFull.isFullscreen;
+      toggleFullscreen() {
+        if (this.isFullscreen) {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullscreen = false;
+        } else {
+          if (this.fullscreenAllowed) {
+            ScreenFull.toggle(this.$refs.container);
+          }
+          this.isFullscreen = true;
+        }
       },
     },
     mounted() {
@@ -53,7 +68,7 @@
       }
       this.$emit('stopTracking');
     },
-    $trNameSpace: 'html5Renderer',
+    name: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
@@ -82,6 +97,18 @@
       height: 100%
       min-height: inherit
       max-height: inherit
+
+  .container-mimic-fullscreen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 24
+    max-width: 100%
+    max-height: 100%
+    width: 100%
+    height: 100%
 
   .sandbox
     height: 100%

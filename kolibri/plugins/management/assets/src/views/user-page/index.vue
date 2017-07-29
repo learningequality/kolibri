@@ -183,7 +183,7 @@
         displayModal: actions.displayModal,
       },
     },
-    $trNameSpace: 'userPage',
+    name: 'userPage',
     $trs: {
       filterUserType: 'Filter User Type',
       editAccountInfo: 'Edit',

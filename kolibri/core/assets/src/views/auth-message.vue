@@ -40,7 +40,7 @@
         });
       },
     },
-    $trNameSpace: 'authMessage',
+    name: 'authMessage',
     $trs: {
       admin: 'an Admin',
       adminOrCoach: 'an Admin or Coach',

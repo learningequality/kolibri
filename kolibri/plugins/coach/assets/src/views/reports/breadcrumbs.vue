@@ -12,7 +12,7 @@
   import * as coachGetters from '../../state/getters/main';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
-    $trNameSpace: 'reportBreadcrumbs',
+    name: 'reportBreadcrumbs',
     $trs: { channels: 'Channels' },
     components: { kBreadcrumbs },
     computed: {

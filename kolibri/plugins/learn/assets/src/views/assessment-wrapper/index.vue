@@ -90,7 +90,7 @@ oriented data synchronization.
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
-    $trNameSpace: 'assessmentWrapper',
+    name: 'assessmentWrapper',
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',

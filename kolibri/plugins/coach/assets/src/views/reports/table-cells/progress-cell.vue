@@ -18,7 +18,7 @@
 
   import progressBar from 'kolibri.coreVue.components.progressBar';
   export default {
-    $trNameSpace: 'progressIndicator',
+    name: 'progressIndicator',
     $trs: {
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',

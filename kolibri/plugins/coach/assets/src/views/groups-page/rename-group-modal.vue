@@ -33,7 +33,7 @@
   import textbox from 'kolibri.coreVue.components.textbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'renameGroupModal',
+    name: 'renameGroupModal',
     $trs: {
       renameLearnerGroup: 'Rename Learner Group',
       learnerGroupName: 'Learner Group Name',

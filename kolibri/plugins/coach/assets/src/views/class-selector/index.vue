@@ -1,8 +1,7 @@
 <template>
 
   <div>
-    <router-link :to="classListPage"><h1>{{ $tr('allClasses') }}</h1></router-link>
-    <span class="seperator">&#62;</span>
+    <h1 class="classes-link"><router-link :to="classListPage">{{ $tr('allClasses') }}</router-link></h1>
     <ui-select
       :name="$tr('selectClass')"
       :value="currentClass"
@@ -22,7 +21,7 @@
   import uiSelect from 'keen-ui/src/UiSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
-    $trNameSpace: 'classSelector',
+    name: 'classSelector',
     $trs: {
       allClasses: 'All classes',
       selectClass: 'Class',
@@ -84,12 +83,13 @@
     display: inline-flex
     vertical-align: bottom
 
-  .seperator
+  .classes-link
     display: inline-block
-    vertical-align: bottom
-    padding-right: 0.25em
-    padding-left: 0.25em
-    padding-bottom: 23px
+    &:after
+      content: '\203A'
+      margin-right: 8px
+      margin-left: 8px
+      vertical-align: top
 
   a
     display: inline-block
