@@ -158,27 +158,6 @@
 </script>
 
 
-<style lang="stylus">
-
-  // NOT SCOPED
-
-  @require '~vuep/dist/vuep.css'
-
-  .vuep
-    // TODO: vuep pullutes the font-family
-    font-family: NotoSans
-    display: initial
-    height: initial
-
-    .vuep-preview, .vuep-editor
-      width: 100%
-
-    .vuep-preview
-      padding: 8px
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
