@@ -1,31 +1,31 @@
 <template>
 
   <k-navbar>
-    <tab-link
+    <k-navbar-link
       type="icon-and-title"
       :title="$tr('topics')"
       icon="folder"
       :link="topicsLink"
     />
-    <tab-link
+    <k-navbar-link
       type="icon-and-title"
       :title="$tr('recent')"
       icon="access_time"
       :link="recentLink"
     />
-    <tab-link
+    <k-navbar-link
       type="icon-and-title"
       :title="$tr('exams')"
       icon="assignment_late"
       :link="examsLink"
     />
-    <tab-link
+    <k-navbar-link
       type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
     />
-    <tab-link
+    <k-navbar-link
       type="icon-and-title"
       :title="$tr('groups')"
       icon="group_work"
@@ -40,7 +40,7 @@
 
   import * as Constants from '../../constants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import tabLink from 'kolibri.coreVue.components.tabLink';
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   export default {
     name: 'topNav',
     $trs: {
@@ -52,7 +52,7 @@
     },
     components: {
       kNavbar,
-      tabLink,
+      kNavbarLink,
     },
     computed: {
       Constants() {

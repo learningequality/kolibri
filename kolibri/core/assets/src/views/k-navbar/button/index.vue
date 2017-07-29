@@ -26,7 +26,7 @@
 
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
-    name: 'tab-button',
+    name: 'k-navbar-button',
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title.
@@ -74,6 +74,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '../tab-items.styl'
+  @require '../items.styl'
 
 </style>

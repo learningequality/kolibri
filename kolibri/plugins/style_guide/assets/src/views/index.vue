@@ -18,7 +18,7 @@
   // set up a fake $tr, and use it in the code example.
   FullVue.prototype.$tr = text => text;
 
-  // Some components (e.g. <tab-link>) need the router.
+  // Some components (e.g. <k-navbar-link>) need the router.
   FullVue.use(VueRouter);
 
   export default {

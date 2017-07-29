@@ -25,7 +25,7 @@
   import ValidateLinkObject from 'kolibri.utils.validateLinkObject';
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
-    name: 'tab-link',
+    name: 'k-navbar-link',
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title.
@@ -68,6 +68,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '../tab-items.styl'
+  @require '../items.styl'
 
 </style>
