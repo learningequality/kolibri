@@ -2,7 +2,7 @@
 
   <div>
     <sidenav/>
-    <router-view/>
+    <router-view class="content"/>
   </div>
 
 </template>
@@ -30,6 +30,17 @@
 </script>
 
 
+<style lang="stylus" scoped>
+
+  @require '../styles/style-guide.styl'
+
+  .content
+    margin-left: $sidenav-width + 32
+    margin-top: 24px
+
+</style>
+
+
 <style lang="stylus">
 
   // NOT SCOPED
@@ -46,3 +57,4 @@
     overflow: initial
 
 </style>
+

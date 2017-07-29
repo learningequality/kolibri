@@ -185,11 +185,6 @@
   @require '~kolibri.styles.definitions'
   @require '../../styles/style-guide.styl'
 
-  .component-template
-    margin-left: $sidenav-width
-    padding: 32px
-    line-height: 1.3em
-
   h1
     line-height: 1.7em
 
