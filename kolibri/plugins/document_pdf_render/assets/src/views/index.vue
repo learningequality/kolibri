@@ -14,7 +14,7 @@
       <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
     <div ref="pdfcontainer" class="pdfcontainer" @scroll="checkPages">
-      <progress-bar v-if="loading" class="progress-bar" :show-percentage="true" :progress="progress"/>
+      <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
       <p class="page-container" v-for="index in totalPages"
         :ref="pageRef(index)"
         :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
@@ -39,6 +39,7 @@
   const pageDisplayWindow = 1;
 
   export default {
+    name: 'documentPDFRender',
     components: {
       iconButton,
       progressBar,
@@ -48,7 +49,6 @@
       supportsPDFs: true,
       timeout: null,
       isFullscreen: false,
-      loading: true,
       progress: 0,
       totalPages: 0,
       pageHeight: 0,
@@ -63,6 +63,9 @@
       },
       targetTime() {
         return this.totalPages * 30;
+      },
+      documentLoading() {
+        return this.progress !== 1;
       },
     },
     methods: {
@@ -82,13 +85,15 @@
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
       },
-      displayPage(pdfPage) {
+      getPageViewport(pdfPage) {
         return new Promise((resolve, reject) => {
           const pageNum = pdfPage.pageNumber;
           if (this.pdfPages[pageNum]) {
             // Display page on the existing canvas with 100% scale.
             const viewport = pdfPage.getViewport(1.0);
             this.pdfPages[pageNum].pdfPage = pdfPage;
+
+            // put together the canvas elment where page will be rendered
             const canvas = document.createElement('canvas');
             if (this.pageHeight === 0 && this.pageWidth === 0) {
               this.pageHeight = viewport.height;
@@ -96,6 +101,8 @@
             }
             canvas.width = viewport.width;
             canvas.height = viewport.height;
+
+            // specify the rules for render and create the necessary task
             const ctx = canvas.getContext('2d');
             const renderTask = pdfPage.render({
               canvasContext: ctx,
@@ -138,9 +145,11 @@
           ) {
             this.pdfPages[pageNum].loading = true;
             if (!this.pdfPages[pageNum].pdfPage) {
-              this.pdfPages[pageNum].displayPromise = this.getPage(pageNum).then(this.displayPage);
+              this.pdfPages[pageNum].viewportPromise = this.getPage(pageNum).then(
+                this.getPageViewport
+              );
             } else {
-              this.pdfPages[pageNum].displayPromise = this.displayPage(
+              this.pdfPages[pageNum].viewportPromise = this.getPageViewport(
                 this.pdfPages[pageNum].pdfPage
               );
             }
@@ -162,7 +171,7 @@
           } else if (pdfPage.loading) {
             // Currently loading, cancel the task
             const renderTask = pdfPage.renderTask;
-            pdfPage.displayPromise.then(() => {
+            pdfPage.viewportPromise.then(() => {
               renderTask && renderTask.cancel();
             });
           } else if (pdfPage.rendering) {
@@ -206,7 +215,6 @@
           this.progress = progress.loaded / progress.total;
         }
       ).then(pdfDocument => {
-        this.loading = false;
         this.totalPages = pdfDocument.numPages;
         // Track the pdf document
         this.pdfDocument = pdfDocument;
