@@ -7,12 +7,11 @@
 
     <p>{{ api.description }}</p>
 
-
+    <!--
     <h2>Status</h2>
-
     <p v-if="status === 'complete'" class="status-complete">Fully implemented</p>
     <p v-else class="status-incomplete">Not fully implemented</p>
-
+    -->
 
     <h2 id="api">API</h2>
 
