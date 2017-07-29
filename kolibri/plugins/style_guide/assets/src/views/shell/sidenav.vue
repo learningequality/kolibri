@@ -1,23 +1,23 @@
 <template>
 
-  <div class="sidenav">
+  <nav class="sidenav">
     <router-link :to="'/'" class="sidenav-heading">
-      <h1>Kolibri Style Guide</h1>
+      Kolibri Style Guide
     </router-link>
 
-    <nav class="sidenav-menu">
+    <div>
       <template v-for="section in navMenu">
-        <h2>{{ section.sectionName }}</h2>
+        <div class="section-heading">{{ section.sectionName }}</div>
         <ul>
           <li v-for="sectionItem in section.sectionItems">
-            <router-link :to="sectionItem.itemRoute">
+            <router-link :to="sectionItem.itemRoute" class="link">
               {{ sectionItem.itemName }}
             </router-link>
           </li>
         </ul>
       </template>
-    </nav>
-  </div>
+    </div>
+  </nav>
 
 </template>
 
@@ -53,34 +53,29 @@
 
   .sidenav-heading
     display: block
-    padding: 16px 24px
+    padding: 32px 24px
     text-decoration: none
-    h1
-      margin: 0
-      font-size: 1.25em
+    font-size: 1.25em
 
+  .section-heading
+    font-weight: bold
+    margin-right: 24px
+    margin-left: 24px
+    margin-top: 24px
+    margin-bottom: 12px
 
-  .sidenav-menu
-    h2
-      margin-right: 24px
-      margin-left: 24px
-      margin-top: 24px
-      margin-bottom: 12px
+  ul
+    margin: 0
+    padding: 0
+    list-style-type: none
 
-    ul
-      margin: 0
-      padding: 0
-      list-style-type: none
+  .link
+    display: block
+    padding: 12px 24px
+    text-decoration: none
 
-      li
-
-        a
-          display: block
-          padding: 12px 24px
-          text-decoration: none
-
-          &.router-link-active
-            font-weight: bold
-            background-color: #E0E0E0
+    &.router-link-active
+      font-weight: bold
+      background-color: #E0E0E0
 
 </style>
