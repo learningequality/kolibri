@@ -1,7 +1,11 @@
 <template>
 
   <li>
-    <router-link :to="link" class="tab" :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }">
+    <router-link
+      class="tab"
+      :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }"
+      :to="link"
+    >
 
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
         <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>

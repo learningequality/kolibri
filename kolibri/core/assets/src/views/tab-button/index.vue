@@ -5,7 +5,8 @@
       class="tab"
       :class="{ 'tab-has-icon-and-title': type === 'icon-and-title', 'tab-selected': selected }"
       @click="handleClick"
-      ref="tab">
+      ref="tab"
+    >
 
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
         <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>
@@ -25,7 +26,11 @@
 
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
+    name: 'tab-button',
     props: {
+      /**
+        * The type of tab. title, icon, or icon-and-title.
+        */
       type: {
         type: String,
         validator(type) {
@@ -33,14 +38,23 @@
         },
         required: true,
       },
+      /**
+        * The text
+        */
       title: {
         type: String,
         required: false,
       },
+      /**
+        * A material icon name.
+        */
       icon: {
         type: String,
         required: false,
       },
+      /**
+        * Whether or not to display as selected
+        */
       selected: {
         type: Boolean,
         default: false,
