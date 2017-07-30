@@ -22,12 +22,6 @@ const homeRoute = [
   },
 ];
 
-const componentsMap = {
-  kButton: 'k-button',
-  kBreadcrumbs: 'k-breadcrumbs',
-  kNavbar: 'k-navbar',
-};
-
 // This data structure contains the navigational links pointing to all the
 // content pages in the style guide.
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
@@ -51,23 +45,23 @@ const navMenu = [
     sectionName: 'Components',
     sectionItems: sortSectionItems([
       {
-        itemName: componentsMap.kButton,
+        itemName: 'Buttons',
         itemRoute: {
-          path: `/components/${componentsMap.kButton}`,
+          path: `/components/buttons`,
           component: kButton,
         },
       },
       {
-        itemName: componentsMap.kBreadcrumbs,
+        itemName: 'Breadcrumbs',
         itemRoute: {
-          path: `/components/${componentsMap.kBreadcrumbs}`,
+          path: `/components/breadcrumbs`,
           component: kBreadcrumbs,
         },
       },
       {
-        itemName: componentsMap.kNavbar,
+        itemName: 'Horizontal Navbar',
         itemRoute: {
-          path: `/components/${componentsMap.kNavbar}`,
+          path: `/components/navbar`,
           component: kNavbar,
         },
       },
