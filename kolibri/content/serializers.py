@@ -1,17 +1,15 @@
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
-from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
+from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from .content_db_router import default_database_is_attached, get_active_content_database
 
-
-class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
+class ChannelMetadataSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ChannelMetadataCache
+        model = ChannelMetadata
         fields = ('root_pk', 'id', 'name', 'description', 'author', 'last_updated')
 
 
@@ -50,11 +48,8 @@ def get_summary_logs(content_ids, user):
     if not content_ids:
         return ContentSummaryLog.objects.none()
     # get all summary logs for the current user that correspond to the descendant content nodes
-    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-        channel_alias = get_active_content_database()
-        return ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=content_ids)
-    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-        return ContentSummaryLog.objects.filter(user=user, content_id__in=list(content_ids))
+    # do a direct join between the content and default databases
+    return ContentSummaryLog.objects.filter(user=user, content_id__in=content_ids)
 
 
 def get_topic_progress_fraction(topic, user):

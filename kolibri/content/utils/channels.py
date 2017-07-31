@@ -5,7 +5,6 @@ import os
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
-from ..content_db_router import using_content_database
 from .paths import get_content_database_folder_path
 
 logging = logger.getLogger(__name__)
@@ -52,16 +51,7 @@ def enumerate_content_database_file_paths(content_database_dir):
 
 def read_channel_metadata_from_db_file(channeldbpath):
     # import here to avoid circular imports whenever kolibri.content.models imports utils too
-    from kolibri.content.models import ChannelMetadata
-    with using_content_database(channeldbpath):
-        channel_metadata = ChannelMetadata.objects.first()
-
-    # FIX for #1818.2: DB file on removable media remains locked after import
-    from django.db import connections
-    connections.close_all()
-
-    return channel_metadata
-
+    return {}
 
 def get_channels_for_data_folder(datafolder):
     channels = []
@@ -83,15 +73,15 @@ def get_mounted_drives_with_channel_info():
 
 def get_current_or_first_channel(request):
     # import here to avoid circular imports whenever kolibri.content.models imports utils too
-    from kolibri.content.models import ChannelMetadataCache
+    from kolibri.content.models import ChannelMetadata
 
     currentChannelId = request.COOKIES.get('currentChannelId')
-    firstChannel = ChannelMetadataCache.objects.first()
+    firstChannel = ChannelMetadata.objects.first()
     # try to get channel from cookie
     if currentChannelId:
         try:
-            return ChannelMetadataCache.objects.get(pk=currentChannelId)
-        except ChannelMetadataCache.DoesNotExist:
+            return ChannelMetadata.objects.get(pk=currentChannelId)
+        except ChannelMetadata.DoesNotExist:
             return None
     # if no id from cookie, grab first channel from list of channels
     elif firstChannel:

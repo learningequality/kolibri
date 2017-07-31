@@ -125,11 +125,6 @@ DATABASES = {
     },
 }
 
-# Enable dynamic routing for content databases
-DATABASE_ROUTERS = [
-    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
-    'kolibri.content.content_db_router.ContentDBRouter']
-
 # Content directories and URLs for channel metadata and content files
 
 # Directory and URL for storing content databases for channel data

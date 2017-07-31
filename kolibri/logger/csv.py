@@ -1,6 +1,5 @@
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
-from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import ChannelMetadataCache, ContentNode
+from kolibri.content.models import ChannelMetadata, ContentNode
 from kolibri.core.api import CSVModelViewSet
 from rest_framework import serializers
 
@@ -30,20 +29,17 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
 
     def get_channel_name(self, obj):
         try:
-            channel = ChannelMetadataCache.objects.get(id=obj.channel_id)
-        except ChannelMetadataCache.DoesNotExist:
+            channel = ChannelMetadata.objects.get(id=obj.channel_id)
+        except ChannelMetadata.DoesNotExist:
             return ""
         return channel.name
 
     def get_content_title(self, obj):
-        try:
-            with using_content_database(obj.channel_id):
-                node = ContentNode.objects.filter(content_id=obj.content_id).first()
-                if node:
-                    return node.title
-                else:
-                    return ""
-        except KeyError:  # content DB doesn't exist
+        channel = ChannelMetadata.objects.get(id=obj.channel_id)
+        node = ContentNode.objects.filter(tree=channel.root_node.tree_id).first()
+        if node:
+            return node.title
+        else:
             return ""
 
     def get_time_spent(self, obj):

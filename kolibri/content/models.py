@@ -18,9 +18,7 @@ from kolibri.core.fields import DateTimeTzField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
 from mptt.models import MPTTModel, TreeForeignKey
-from mptt.querysets import TreeQuerySet
 
-from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -67,36 +65,17 @@ class UUIDField(models.CharField):
         return value
 
 
-class ContentQuerySet(TreeQuerySet):
-    """
-    Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
-    """
-    def __init__(self, *args, **kwargs):
-        kwargs["using"] = kwargs.get("using", None) or get_active_content_database(return_none_if_not_set=True)
-        super(ContentQuerySet, self).__init__(*args, **kwargs)
-
-
-class ContentDatabaseModel(models.Model):
-    """
-    All models that exist in content databases (rather than in the default database) should inherit from this class.
-    """
-    class Meta:
-        abstract = True
-
-
 @python_2_unicode_compatible
-class ContentTag(ContentDatabaseModel):
+class ContentTag(models.Model):
     id = UUIDField(primary_key=True)
     tag_name = models.CharField(max_length=30, blank=True)
-
-    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.tag_name
 
 
 @python_2_unicode_compatible
-class ContentNode(MPTTModel, ContentDatabaseModel):
+class ContentNode(MPTTModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
@@ -116,6 +95,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
     content_id = UUIDField(db_index=True)
+    channel_id = UUIDField()
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -125,8 +105,6 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     available = models.BooleanField(default=False)
     stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
     lang = models.ForeignKey('Language', blank=True, null=True)
-
-    objects = ContentQuerySet.as_manager()
 
     class Meta:
         ordering = ('lft',)
@@ -144,22 +122,9 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
             .exclude(kind=content_kinds.TOPIC) \
             .values_list("content_id", flat=True)
 
-    def get_descendant_kind_counts(self):
-        """ Return a dict mapping content kinds to counts, indicating how many descendant nodes there are of that kind.
-        (Note: descendant nodes with identical content_id's are only counted once)"""
-        # build a queryset of all non-topic descendant nodes
-        descendants = ContentNode.objects.filter(lft__gte=self.lft, lft__lte=self.rght).exclude(kind="'{}'".format(content_kinds.TOPIC))
-        # extract the unique pairs of content_id and kind, as a queryset
-        unique_content_id_kinds = descendants.values("content_id", "kind").order_by("content_id", "kind").distinct().values("kind")
-        # construct and execute a SQL query to count the number of nodes with unique content_ids for each kind
-        query = 'SELECT "kind", COUNT(kind) as count FROM ({}) GROUP BY kind'.format(str(unique_content_id_kinds.query))
-        conn = get_content_database_connection(self._state.db)
-        # turn the results into a dict, mapping kind into unique count
-        return dict(conn.execute(query))
-
 
 @python_2_unicode_compatible
-class Language(ContentDatabaseModel):
+class Language(models.Model):
     id = models.CharField(max_length=14, primary_key=True)
     lang_code = models.CharField(max_length=3, db_index=True)
     lang_subcode = models.CharField(max_length=10, db_index=True, blank=True, null=True)
@@ -167,14 +132,12 @@ class Language(ContentDatabaseModel):
     lang_name = models.CharField(max_length=100, blank=True, null=True)
     lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS)
 
-    objects = ContentQuerySet.as_manager()
-
     def __str__(self):
         return self.lang_name
 
 
 @python_2_unicode_compatible
-class File(ContentDatabaseModel):
+class File(models.Model):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
@@ -189,9 +152,7 @@ class File(ContentDatabaseModel):
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
-    priority = models.IntegerField(blank=True, null=True)
-
-    objects = ContentQuerySet.as_manager()
+    priority = models.IntegerField(blank=True, null=True, db_index=True)
 
     class Meta:
         ordering = ["priority"]
@@ -239,20 +200,18 @@ class File(ContentDatabaseModel):
 
 
 @python_2_unicode_compatible
-class License(ContentDatabaseModel):
+class License(models.Model):
     """
     Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
     license_description = models.CharField(max_length=400, null=True, blank=True)
 
-    objects = ContentQuerySet.as_manager()
-
     def __str__(self):
         return self.license_name
 
 
-class AssessmentMetaData(ContentDatabaseModel):
+class AssessmentMetaData(models.Model):
     """
     A model to describe additional metadata that characterizes assessment behaviour in Kolibri.
     This model contains additional fields that are only revelant to content nodes that probe a
@@ -277,7 +236,7 @@ class AssessmentMetaData(ContentDatabaseModel):
 
 
 @python_2_unicode_compatible
-class ChannelMetadataAbstractBase(models.Model):
+class ChannelMetadata(models.Model):
     """
     Holds metadata about all existing content databases that exist locally.
     """
@@ -287,29 +246,13 @@ class ChannelMetadataAbstractBase(models.Model):
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
-    root_pk = UUIDField()
+    last_updated = DateTimeTzField(null=True)
+
+    class Admin:
+        pass
 
     class Meta:
         abstract = True
 
     def __str__(self):
         return self.name
-
-
-class ChannelMetadata(ChannelMetadataAbstractBase, ContentDatabaseModel):
-    """
-    This class stores the channel metadata within the content database itself.
-    """
-
-    objects = ContentQuerySet.as_manager()
-
-
-class ChannelMetadataCache(ChannelMetadataAbstractBase):
-    """
-    This class stores the channel metadata cached/denormed into the primary database.
-    """
-
-    last_updated = DateTimeTzField(null=True)
-
-    class Admin:
-        pass

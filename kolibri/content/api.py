@@ -7,7 +7,6 @@ from django.core.cache import cache
 from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database, using_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -26,19 +25,19 @@ def _join_with_logical_operator(lst, operator):
     return "(({items}))".format(items=op.join(lst))
 
 
-class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
+class ChannelMetadataViewSet(viewsets.ModelViewSet):
     permission_classes = (OnlySuperuserCanDelete,)
-    serializer_class = serializers.ChannelMetadataCacheSerializer
+    serializer_class = serializers.ChannelMetadataSerializer
 
     def get_queryset(self):
-        return models.ChannelMetadataCache.objects.all()
+        return models.ChannelMetadata.objects.all()
 
     def destroy(self, request, pk=None):
         """
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
-        super(ChannelMetadataCacheViewSet, self).destroy(request)
+        super(ChannelMetadataViewSet, self).destroy(request)
 
         if self.delete_content_db_file(pk):
             response_msg = 'Channel {} removed from device'.format(pk)
@@ -127,7 +126,7 @@ class ContentNodeFilter(IdFilter):
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
 
-    def filter_popular(self, queryset, value):
+    def filter_popular(self, queryset, value, channel_id=None):
         """
         Recommend content that is popular with all users.
 
@@ -139,17 +138,17 @@ class ContentNodeFilter(IdFilter):
             # return 25 random content nodes if not enough session logs
             pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
             # .count scales with table size, so can get slow on larger channels
-            count_cache_key = 'content_count_for_{}'.format(get_active_content_database())
+            count_cache_key = 'content_count_for_{}'.format(channel_id)
             count = cache.get(count_cache_key) or min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
-        cache_key = 'popular_for_{}'.format(get_active_content_database())
+        cache_key = 'popular_for_{}'.format(channel_id)
         if cache.get(cache_key):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
         content_counts_sorted = ContentSessionLog.objects \
-            .filter(channel_id=get_active_content_database()) \
+            .filter(channel_id=channel_id) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
@@ -160,7 +159,7 @@ class ContentNodeFilter(IdFilter):
         cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
 
-    def filter_resume(self, queryset, value):
+    def filter_resume(self, queryset, value, channel_id=None):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
@@ -175,7 +174,7 @@ class ContentNodeFilter(IdFilter):
 
         # get the most recently viewed, but not finished, content nodes
         content_ids = ContentSummaryLog.objects \
-            .filter(user=value, channel_id=get_active_content_database()) \
+            .filter(user=value, channel_id=channel_id) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
             .values_list('content_id', flat=True) \
@@ -359,11 +358,10 @@ class FileViewset(viewsets.ModelViewSet):
 
 class ChannelFileSummaryViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
-        with using_content_database(kwargs['channel_id']):
-            file_summary = models.File.objects.aggregate(
-                total_files=Count('pk'),
-                total_file_size=Sum('file_size')
-            )
-            file_summary['channel_id'] = get_active_content_database()
-            # Need to wrap in an array to be fetchable as a Collection on client
-            return Response([file_summary])
+        file_summary = models.File.objects.aggregate(
+            total_files=Count('pk'),
+            total_file_size=Sum('file_size')
+        )
+        file_summary['channel_id'] = kwargs['channel_id']
+        # Need to wrap in an array to be fetchable as a Collection on client
+        return Response([file_summary])

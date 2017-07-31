@@ -26,7 +26,7 @@ class UserReportSerializer(serializers.ModelSerializer):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
         # progress details for a topic node and everything under it
         if content_node.kind == content_kinds.TOPIC:
-            kind_counts = content_node.get_descendant_kind_counts()
+            kinds = content_node.get_descendants().values_list('kind', flat=True).distinct()
             topic_details = ContentSummaryLog.objects \
                 .filter_by_topic(content_node) \
                 .filter(user=target_user) \
@@ -37,9 +37,9 @@ class UserReportSerializer(serializers.ModelSerializer):
             # evaluate queryset so we can add data for kinds that do not have logs
             topic_details = list(topic_details)
             for kind in topic_details:
-                del kind_counts[kind['kind']]
-            for key in kind_counts:
-                topic_details.append({'kind': key, 'total_progress': 0.0, 'log_count_total': 0, 'log_count_complete': 0})
+                kinds.remove(kind['kind'])
+            for kind in kinds:
+                topic_details.append({'kind': kind, 'total_progress': 0.0, 'log_count_total': 0, 'log_count_complete': 0})
             return topic_details
         else:
             # progress details for a leaf node (exercise, video, etc.)

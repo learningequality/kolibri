@@ -1,10 +1,10 @@
 from django.conf.urls import include, url
 from rest_framework import routers
 
-from .api import ChannelMetadataCacheViewSet, ContentNodeProgressViewset, ContentNodeViewset, FileViewset, ChannelFileSummaryViewSet
+from .api import ChannelFileSummaryViewSet, ChannelMetadataViewSet, ContentNodeProgressViewset, ContentNodeViewset, FileViewset
 
 router = routers.SimpleRouter()
-router.register('content', ChannelMetadataCacheViewSet, base_name="channel")
+router.register('content', ChannelMetadataViewSet, base_name="channel")
 
 content_router = routers.SimpleRouter()
 content_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
