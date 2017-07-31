@@ -2,6 +2,7 @@
 
   <nav class="tabs">
     <ul>
+      <!-- Can contain either tab-buttons or tab-links. -->
       <slot/>
     </ul>
   </nav>
@@ -10,6 +11,10 @@
 
 
 <script>
+
+  /**
+    * Used for navigation within a plugin
+    */
 
   export default {
     name: 'k-navbar',

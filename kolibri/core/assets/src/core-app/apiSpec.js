@@ -37,8 +37,8 @@ import kButton from '../views/k-button';
 import textbox from '../views/textbox';
 import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
-import tabLink from '../views/tab-link';
-import tabButton from '../views/tab-button';
+import kNavbarButton from '../views/k-navbar/button';
+import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
@@ -92,8 +92,8 @@ export default {
       textbox,
       dropdownMenu,
       kNavbar,
-      tabLink,
-      tabButton,
+      kNavbarButton,
+      kNavbarLink,
       logo,
       immersiveFullScreen,
       elapsedTime,
