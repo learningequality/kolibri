@@ -4,13 +4,26 @@
     ref="container"
     class="container"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
+
     <k-button
-      class="btn"
       v-if="supportsPDFs"
+      class="btn"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullScreen"
-      :primary="true"/>
+      :primary="true"
+      @click="toggleFullscreen"
+    />
+
+    <template v-else>
+      <p role="alert">
+        {{ $tr('pdfCompatibilityError') }}
+      </p>
+      <a :href="pdfURL">
+        {{ $tr('pdfDownloadLink')}}
+      </a>
+    </template>
+
     <div ref="pdfcontainer" class="pdfcontainer"></div>
+
   </div>
 
 </template>
@@ -21,7 +34,19 @@
   import PDFobject from 'pdfobject';
   import ScreenFull from 'screenfull';
   import kButton from 'kolibri.coreVue.components.kButton';
+
+  const pdfObjectOptions = {
+    fallbackLink: false,
+  };
+
   export default {
+    $trs: {
+      pdfCompatibilityError: 'Unable to display the document',
+      pdfDownloadLink: 'Download the PDF file',
+      exitFullscreen: 'Exit fullscreen',
+      enterFullscreen: 'Enter fullscreen',
+    },
+    name: 'pdfRender',
     components: { kButton },
     props: ['defaultFile'],
     data: () => ({
@@ -32,6 +57,9 @@
     computed: {
       fullscreenAllowed() {
         return ScreenFull.enabled;
+      },
+      pdfURL() {
+        return this.defaultFile.storage_url;
       },
       mimicFullscreen() {
         return !this.fullscreenAllowed && this.isFullscreen;
@@ -53,7 +81,7 @@
       },
     },
     mounted() {
-      PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
+      PDFobject.embed(this.pdfURL, this.$refs.pdfcontainer, pdfObjectOptions);
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
@@ -65,11 +93,6 @@
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-    },
-    name: 'pdfRenderer',
-    $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
     },
   };
 
