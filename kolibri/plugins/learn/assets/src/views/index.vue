@@ -6,21 +6,21 @@
       <channel-switcher @switch="switchChannel"/>
     </template>
 
-    <div v-if="tabLinksAreVisible" class="tab-links">
+    <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
-        <tab-link
+        <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
           icon="forum"
           :link="recommendedLink"
         />
-        <tab-link
+        <k-navbar-link
           type="icon-and-title"
           :title="$tr('topics')"
           icon="folder"
           :link="topicsLink"
         />
-        <tab-link
+        <k-navbar-link
           name="exam-link"
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
@@ -63,7 +63,7 @@
   import breadcrumbs from './breadcrumbs';
   import searchPage from './search-page';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import tabLink from 'kolibri.coreVue.components.tabLink';
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import examList from './exam-list';
   import examPage from './exam-page';
   import totalPoints from './total-points';
@@ -88,7 +88,7 @@
       breadcrumbs,
       searchPage,
       kNavbar,
-      tabLink,
+      kNavbarLink,
       examList,
       examPage,
       totalPoints,

@@ -32,8 +32,8 @@
   FullVue.component('k-navbar', kNavbar);
   import kTabsExample from 'raw-loader!./k-navbar-example.html';
 
-  import tabLink from 'kolibri.coreVue.components.tabLink';
-  FullVue.component('tab-link', tabLink);
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  FullVue.component('k-navbar-link', kNavbarLink);
 
   export default {
     components: {
