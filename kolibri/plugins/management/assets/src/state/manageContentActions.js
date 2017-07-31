@@ -1,15 +1,14 @@
-/* eslint-disable prefer-arrow-callback */
 import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../constants';
 import * as actions from './actions';
 import { mutationTypes } from './manageContentMutations';
+import find from 'lodash/find';
 
 /**
  * Force-refresh the ChannelResource Collection
  *
- * @param {Object} store - vuex store object
  */
-function refreshChannelList(store) {
+export function refreshChannelList() {
   return ChannelResource.getCollection().fetch({}, true);
 }
 
@@ -20,7 +19,7 @@ function refreshChannelList(store) {
  * @param {string} channelId - a valid channel UUID
  * @returns {Promise}
  */
-function deleteChannel(store, channelId) {
+export function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId).delete().then(refreshChannelList);
 }
 
@@ -31,7 +30,7 @@ function deleteChannel(store, channelId) {
  * @param {string} channelId - channel UUID
  * @returns {Promise}
  */
-function addChannelFileSummary(store, channelId) {
+export function addChannelFileSummary(store, channelId) {
   return (
     FileSummaryResource.getCollection({ channel_id: channelId })
       .fetch()
@@ -53,7 +52,7 @@ function addChannelFileSummary(store, channelId) {
  * @param {Array<String>} channelIds - an array of channelIds
  * @return {undefined}
  */
-function addChannelFileSummaries(store, channelIds) {
+export function addChannelFileSummaries(store, channelIds) {
   channelIds.forEach(channelId => {
     addChannelFileSummary(store, channelId);
   });
@@ -68,70 +67,81 @@ function addChannelFileSummaries(store, channelIds) {
  * @param {Object} params - data needed to execute transition
  * @returns {undefined}
  */
-function transitionWizardPage(store, transition, params) {
+export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
   const FORWARD = 'forward';
   const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
+  const showPage = actions.showWizardPage.bind(null, store);
+
   if (transition === CANCEL) {
-    return actions.cancelImportExportWizard(store);
+    return showPage(false);
   }
 
   // At Choose Source Wizard
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
-    // Now: Shows list of local drives
-    // Later: `source` is driveId, and next screen is preview of imported channels
     if (transition === FORWARD && params.source === 'local') {
-      return actions.showImportLocalWizard(store);
+      return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
-    // Now: Show text box to get channelId
-    // Later: Same
     if (transition === FORWARD && params.source === 'network') {
-      return actions.showImportNetworkWizard(store);
+      return showPage(ContentWizardPages.IMPORT_NETWORK);
     }
   }
 
   // At Local Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
     if (transition === BACKWARD) {
-      return actions.startImportWizard(store);
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
-    // Now: Start downloading immediately
-    // Later: Show preview of imported channels
     if (transition === FORWARD) {
-      return actions.triggerLocalContentImportTask(store, params.driveId);
+      const driveInfo = find(store.state.pageState.wizardState.driveList, { id: params.driveId });
+      return showPage(ContentWizardPages.LOCAL_IMPORT_PREVIEW, {
+        driveId: params.driveId,
+        driveName: driveInfo.name,
+        channelList: driveInfo.metadata.channels,
+      });
     }
   }
 
   // At Network Import Wizard
   if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
     if (transition === BACKWARD) {
-      return actions.startImportWizard(store);
+      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
-    // Now: Start downloading immediately
-    // Later: Show preview of imported channels
     if (transition === FORWARD) {
-      return actions.triggerRemoteContentImportTask(store, params.contentId);
+      return showPage(ContentWizardPages.REMOTE_IMPORT_PREVIEW, {
+        channelId: params.channelId,
+      });
     }
   }
 
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
-    // Now: Start exporting immediately
-    // Later: Show preview of exported channels
     if (transition === FORWARD) {
       return actions.triggerLocalContentExportTask(store, params.driveId);
     }
   }
 
+  // At Local Import Preview
+  if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.IMPORT_LOCAL);
+    }
+    if (transition === FORWARD) {
+      return actions.triggerLocalContentImportTask(store, params.sourceId);
+    }
+  }
+
+  // At Network Import Preview
+  if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
+    if (transition === BACKWARD) {
+      return showPage(ContentWizardPages.IMPORT_NETWORK);
+    }
+    if (transition === FORWARD) {
+      return actions.triggerRemoteContentImportTask(store, params.sourceId);
+    }
+  }
+
   return undefined;
 }
-
-export {
-  actionTypes,
-  addChannelFileSummaries,
-  deleteChannel,
-  transitionWizardPage,
-  refreshChannelList,
-};

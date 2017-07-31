@@ -81,6 +81,9 @@
         return !this.drivesLoading && this.selectedDrive !== '' && !this.wizardState.busy;
       },
     },
+    mounted() {
+      this.updateWizardLocalDriveList();
+    },
     methods: {
       driveIsEnabled: drive => drive.metadata.channels.length > 0,
       goBack() {

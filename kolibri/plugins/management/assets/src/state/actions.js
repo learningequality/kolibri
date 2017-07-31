@@ -1,3 +1,4 @@
+/* eslint-env node */
 import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import {
@@ -558,60 +559,29 @@ function updateWizardLocalDriveList(store) {
     });
 }
 
-function startImportWizard(store) {
+function showWizardPage(store, pageName, meta = {}) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
+    shown: Boolean(pageName),
+    page: pageName || null,
     error: null,
     busy: false,
     drivesLoading: false,
     driveList: null,
+    meta,
   });
+}
+
+function startImportWizard(store) {
+  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
 }
 
 function startExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.EXPORT,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  showWizardPage(store, ContentWizardPages.EXPORT);
   updateWizardLocalDriveList(store);
 }
 
-function showImportNetworkWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_NETWORK,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
-}
-
-function showImportLocalWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.IMPORT_LOCAL,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
-  updateWizardLocalDriveList(store);
-}
-
-function cancelImportExportWizard(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: false,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+function closeImportExportWizard(store) {
+  showWizardPage(store, false);
 }
 
 // called from a timer to continually update UI
@@ -629,7 +599,7 @@ function pollTasksAndChannels(store) {
         // (this can be removed when we support more than one
         // concurrent task.)
         if (taskList.length && store.state.pageState.wizardState.shown) {
-          cancelImportExportWizard(store);
+          closeImportExportWizard(store);
         }
       });
     },
@@ -656,7 +626,7 @@ function triggerLocalContentImportTask(store, driveId) {
   localImportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
@@ -670,7 +640,7 @@ function triggerLocalContentExportTask(store, driveId) {
   localExportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
@@ -681,10 +651,10 @@ function triggerLocalContentExportTask(store, driveId) {
 function triggerRemoteContentImportTask(store, channelId) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  remoteImportPromise
+  return remoteImportPromise
     .then(response => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      cancelImportExportWizard(store);
+      closeImportExportWizard(store);
     })
     .catch(error => {
       if (error.status.code === 404) {
@@ -741,9 +711,8 @@ export {
   clearTask,
   startImportWizard,
   startExportWizard,
-  showImportNetworkWizard,
-  showImportLocalWizard,
-  cancelImportExportWizard,
+  showWizardPage,
+  closeImportExportWizard,
   triggerLocalContentExportTask,
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
