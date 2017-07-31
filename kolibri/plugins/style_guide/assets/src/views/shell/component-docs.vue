@@ -1,26 +1,12 @@
 <template>
 
-  <div class="component-template">
+  <div>
 
-    <h1>{{ api.name }}</h1>
-
-
-    <p>{{ api.description }}</p>
-
-    <!--
-    <h2>Status</h2>
-    <p v-if="status === 'complete'" class="status-complete">Fully implemented</p>
-    <p v-else class="status-incomplete">Not fully implemented</p>
-    -->
-
-    <h2 id="api">API</h2>
-
-    <h3>Import</h3>
+    <strong>Import</strong>
     <p><code>{{ importString }}</code></p>
 
-
     <template v-if="api.props.length">
-      <h3>Props</h3>
+      <strong>Props</strong>
       <table>
         <tr>
           <th>Name</th>
@@ -44,9 +30,8 @@
       </table>
     </template>
 
-
     <template v-if="api.events.length">
-      <h3>Events</h3>
+      <strong>Events</strong>
       <table>
         <tr>
           <th>Name</th>
@@ -59,9 +44,8 @@
       </table>
     </template>
 
-
     <template v-if="api.slots.length">
-      <h3>Slots</h3>
+      <strong>Slots</strong>
       <table>
         <tr>
           <th>Name</th>
@@ -73,14 +57,6 @@
         </tr>
       </table>
     </template>
-
-
-    <h2 id="examples">Examples</h2>
-    <vuep :template="codeExamplesTemplate"/>
-
-
-    <h2 id="guidelines">Guidelines</h2>
-    <slot name="guidelines"/>
 
   </div>
 
@@ -94,20 +70,9 @@
 
   export default {
     props: {
-      codeExamplesTemplate: {
-        type: String,
-        required: true,
-      },
       api: {
         type: Object,
         required: true,
-      },
-      status: {
-        type: String,
-        default: 'incomplete',
-        validator(value) {
-          return ['complete', 'incomplete'].includes(value);
-        },
       },
     },
     computed: {
@@ -117,7 +82,6 @@
         )}';`;
       },
     },
-
     methods: {
       parsePropType(propType) {
         if (!propType) {
@@ -163,29 +127,8 @@
   @require '~kolibri.styles.definitions'
   @require '../../styles/style-guide.styl'
 
-  h1
-    line-height: 1.7em
-
-  h1, h2, h3
-    color: #333
-
-  h2, h3
-    margin-top: 2em
-    margin-bottom: 0.5em
-
-  h4
-    margin-bottom: 0.5em
-
   p
-    margin-top: 0
     max-width: $max-content-width
-
-  ul
-    margin-top: 0.5em
-
-    li
-      margin-bottom: 0.3em
-
 
   table, th, td
     border: 1px solid darkgray
@@ -204,11 +147,5 @@
     font-size: smaller
     padding: 4px
     white-space: nowrap
-
-  .status-complete
-    color: $core-status-correct
-
-  .status-incomplete
-    color: $core-status-wrong
 
 </style>

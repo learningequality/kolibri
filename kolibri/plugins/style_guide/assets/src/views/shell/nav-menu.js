@@ -1,12 +1,6 @@
 import { sortBy, flatten } from 'lodash';
 
 import buttonsPage from '../content/buttons';
-import typographyPage from '../content/typography';
-import checkboxesPage from '../content/checkboxes';
-import radioButtonsPage from '../content/radio-buttons';
-import textFieldsPage from '../content/text-fields';
-import modalsPage from '../content/modals';
-import filtersPage from '../content/filters';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
 import homePage from '../content/style-guide-home';
