@@ -190,6 +190,7 @@
         const bottom = top + this.$refs.pdfcontainer.clientHeight;
         const topPageNum = Math.ceil(top / this.pageHeight);
         const bottomPageNum = Math.ceil(bottom / this.pageHeight);
+
         let i;
         // Loop through all pages, show ones that are in the display window,
         // hide ones that are not
@@ -206,27 +207,28 @@
       scrollPos: 'checkPages',
     },
     created() {
-      this.pdfPages = {};
-      this.pdfloadingPromise = PDFJSLib.getDocument(
-        this.defaultFile.storage_url,
-        null,
-        null,
-        progress => {
-          this.progress = progress.loaded / progress.total;
-        }
-      ).then(pdfDocument => {
-        this.totalPages = pdfDocument.numPages;
-        // Track the pdf document
-        this.pdfDocument = pdfDocument;
-        // Begin retrieving the first page
-        return this.getPage(1);
-      });
+      this.loadPDF = PDFJSLib.getDocument(this.defaultFile.storage_url);
     },
     mounted() {
-      this.pdfloadingPromise.then(() => {
-        this.showPage(1);
-        this.$emit('startTracking');
+      this.loadPDF.onProgress = loadingProgress => {
+        this.progress = loadingProgress.loaded / loadingProgress.total;
+      };
+
+      this.loadPDF.then(pdfDocument => {
+        this.pdfPages = {};
+        this.totalPages = pdfDocument.numPages;
+        // Begin retrieving the first page
+        pdfDocument.getPage(1).then(() => {
+          this.showPage(1);
+
+          // Track the pdf document
+          this.$emit('startTracking');
+        });
+
+        this.pdfDocument = pdfDocument;
       });
+
+      // progress tracking
       const self = this;
       this.timeout = setTimeout(() => {
         self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
