@@ -15,15 +15,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '../../../styles/style-guide.styl'
-
-  // TODO: dry up this shared styling
-  .intro
-    margin-left: $sidenav-width
-    padding: 32px
-    h1
-      line-height: 1.7em
-
-</style>
+<style lang="stylus" scoped></style>

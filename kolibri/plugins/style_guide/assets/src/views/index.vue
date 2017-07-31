@@ -2,7 +2,7 @@
 
   <div>
     <sidenav/>
-    <router-view/>
+    <router-view class="content"/>
   </div>
 
 </template>
@@ -30,6 +30,17 @@
 </script>
 
 
+<style lang="stylus" scoped>
+
+  @require '../styles/style-guide.styl'
+
+  .content
+    margin-left: $sidenav-width + 32
+    margin-top: 24px
+
+</style>
+
+
 <style lang="stylus">
 
   // NOT SCOPED
@@ -45,4 +56,19 @@
   html
     overflow: initial
 
+  @require '~vuep/dist/vuep.css'
+
+  .vuep
+    // TODO: vuep pullutes the font-family
+    font-family: NotoSans
+    display: initial
+    height: initial
+
+    .vuep-preview, .vuep-editor
+      width: 100%
+
+    .vuep-preview
+      padding: 8px
+
 </style>
+
