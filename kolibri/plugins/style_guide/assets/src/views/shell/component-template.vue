@@ -16,7 +16,7 @@
     <h2 id="api">API</h2>
 
     <h3>Import</h3>
-    <code>{{ importString }}</code>
+    <p><code>{{ importString }}</code></p>
 
 
     <template v-if="api.props.length">
@@ -203,6 +203,7 @@
     color: #268bd2
     font-size: smaller
     padding: 4px
+    white-space: nowrap
 
   .status-complete
     color: $core-status-correct
