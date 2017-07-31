@@ -5,7 +5,7 @@
     <strong>Import</strong>
     <p><code>{{ importString }}</code></p>
 
-    <template v-if="api.props.length">
+    <p v-if="api.props.length">
       <strong>Props</strong>
       <table>
         <tr>
@@ -28,9 +28,9 @@
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
       </table>
-    </template>
+    </p>
 
-    <template v-if="api.events.length">
+    <p v-if="api.events.length">
       <strong>Events</strong>
       <table>
         <tr>
@@ -42,9 +42,9 @@
           <td>{{ event.description ? event.description : '-' }}</td>
         </tr>
       </table>
-    </template>
+    </p>
 
-    <template v-if="api.slots.length">
+    <p v-if="api.slots.length">
       <strong>Slots</strong>
       <table>
         <tr>
@@ -56,7 +56,7 @@
           <td>{{ slot.description ? slot.description : '-' }}</td>
         </tr>
       </table>
-    </template>
+    </p>
 
   </div>
 
