@@ -42,10 +42,9 @@
   };
 
   export default {
-    $trNameSpace: 'pdfDisplayPage',
     $trs: {
-      pdfCompatibilityError: 'PDFs cannot be displayed inside Kolibri on your device',
-      pdfDownloadLink: 'Click here download the PDF for viewing in a third-party application',
+      pdfCompatibilityError: 'Unable to display the document',
+      pdfDownloadLink: 'Download the PDF file',
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
     },
