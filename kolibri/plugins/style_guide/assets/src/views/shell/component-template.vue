@@ -178,7 +178,7 @@
 
   p
     margin-top: 0
-    max-width: 50em
+    max-width: $max-content-width
 
   ul
     margin-top: 0.5em

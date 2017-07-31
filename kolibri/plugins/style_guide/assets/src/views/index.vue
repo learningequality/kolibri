@@ -56,6 +56,7 @@
   html
     overflow: initial
 
+  @require '../styles/style-guide.styl'
   @require '~vuep/dist/vuep.css'
 
   .vuep
@@ -66,6 +67,7 @@
 
     .vuep-preview, .vuep-editor
       width: 100%
+      max-width: $max-content-width
 
     .vuep-preview
       padding: 8px

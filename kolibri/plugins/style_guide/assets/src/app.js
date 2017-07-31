@@ -5,7 +5,7 @@ import router from 'kolibri.coreVue.router';
 import { navMenuRoutes } from './views/shell/nav-menu';
 import Vuep from 'vuep';
 
-Vue.use(Vuep);
+Vue.use(Vuep, { lineNumbers: false });
 
 class StyleGuideModule extends KolibriModule {
   ready() {
