@@ -13,6 +13,8 @@
 
 <script>
 
+  /* eslint-env node */
+
   import * as manageContentActions from '../../state/manageContentActions';
   import * as actions from '../../state/actions';
   import * as constants from '../../constants';
