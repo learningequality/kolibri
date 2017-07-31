@@ -1,6 +1,6 @@
 <template>
 
-  <component-template :codeExamplesTemplate="kBreadcrumbsExample" :api="kBreadcrumbsApi" status="complete">
+  <component-template :codeExamplesTemplate="example" :api="api" status="complete">
     <div slot="guidelines">
 
       <h3>Usage</h3>
@@ -28,17 +28,17 @@
   import FullVue from 'vue/dist/vue.common';
   import componentTemplate from '../../shell/component-template';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
-  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.kBreadcrumbs';
+  import api from '!vue-doc!kolibri.coreVue.components.kBreadcrumbs';
   FullVue.component('k-breadcrumbs', kBreadcrumbs);
-  import kBreadcrumbsExample from 'raw-loader!./k-breadcrumbs-example.html';
+  import example from 'raw-loader!./example.html';
 
   export default {
     components: {
       componentTemplate,
     },
     data: () => ({
-      kBreadcrumbsApi,
-      kBreadcrumbsExample,
+      api,
+      example,
     }),
   };
 

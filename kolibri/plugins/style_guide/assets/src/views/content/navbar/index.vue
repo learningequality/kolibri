@@ -1,6 +1,6 @@
 <template>
 
-  <component-template :codeExamplesTemplate="kTabsExample" :api="kTabsApi" status="complete">
+  <component-template :codeExamplesTemplate="example" :api="api" status="complete">
     <div slot="guidelines">
 
       <h3>Usage</h3>
@@ -28,9 +28,9 @@
   import FullVue from 'vue/dist/vue.common';
   import componentTemplate from '../../shell/component-template';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kTabsApi from '!vue-doc!kolibri.coreVue.components.kNavbar';
+  import api from '!vue-doc!kolibri.coreVue.components.kNavbar';
   FullVue.component('k-navbar', kNavbar);
-  import kTabsExample from 'raw-loader!./k-navbar-example.html';
+  import example from 'raw-loader!./example.html';
 
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   FullVue.component('k-navbar-link', kNavbarLink);
@@ -40,8 +40,8 @@
       componentTemplate,
     },
     data: () => ({
-      kTabsApi,
-      kTabsExample,
+      api,
+      example,
     }),
   };
 

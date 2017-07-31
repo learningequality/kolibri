@@ -1,6 +1,6 @@
 <template>
 
-  <component-template :codeExamplesTemplate="kButtonExample" :api="kButtonApi" :status="'complete'">
+  <component-template :codeExamplesTemplate="example" :api="api" :status="'complete'">
     <div slot="guidelines">
       <h3>Scope</h3>
       <p>
@@ -120,18 +120,18 @@
   import FullVue from 'vue/dist/vue.common';
   import componentTemplate from '../../shell/component-template';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
+  import api from '!vue-doc!kolibri.coreVue.components.kButton';
   FullVue.component('k-button', kButton);
   // TODO: Currently self-closing components are not handled by vuep
-  import kButtonExample from 'raw-loader!./k-button-example.html';
+  import example from 'raw-loader!./example.html';
 
   export default {
     components: {
       componentTemplate,
     },
     data: () => ({
-      kButtonApi,
-      kButtonExample,
+      api,
+      example,
     }),
   };
 
