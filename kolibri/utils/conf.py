@@ -20,6 +20,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import json
 import logging
 import os
+from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,7 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.setup_wizard",
     "kolibri.plugins.coach",
     "kolibri.plugins.user",
+    "kolibri.plugins.style_guide",  # TODO - remove before merging in to a release branch
     "kolibri_exercise_perseus_plugin"
 ]
 
@@ -84,3 +86,30 @@ else:
     # Open up the config file and overwrite defaults
     with open(conf_file, 'r') as kolibri_conf_file:
         config.update(json.load(kolibri_conf_file))
+
+
+def autoremove_unavailable_plugins():
+    """
+    Sanitize INSTALLED_APPS - something that should be done separately for all
+    build in plugins, but we should not auto-remove plugins that are actually
+    configured by the user or some other kind of hard dependency that should
+    make execution stop if not loadable.
+    """
+    global config
+    changed = False
+    for module_path in config['INSTALLED_APPS']:
+        if not module_exists(module_path):
+            config['INSTALLED_APPS'].remove(module_path)
+            logger.error(
+                (
+                    "Plugin {mod} not found and disabled. To re-enable it, run:\n"
+                    "   $ kolibri plugin {mod} enable"
+                ).format(mod=module_path)
+            )
+            changed = True
+
+    if changed:
+        save()
+
+
+autoremove_unavailable_plugins()

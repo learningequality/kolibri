@@ -1,6 +1,6 @@
 <template>
 
-  <breadcrumbs  v-if="breadcrumbs.length" :items="breadcrumbs"/>
+  <k-breadcrumbs  v-if="breadcrumbs.length" :items="breadcrumbs"/>
 
 </template>
 
@@ -10,11 +10,11 @@
   import find from 'lodash/find';
   import * as CoachConstants from '../../constants';
   import * as coachGetters from '../../state/getters/main';
-  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'reportBreadcrumbs',
     $trs: { channels: 'Channels' },
-    components: { breadcrumbs },
+    components: { kBreadcrumbs },
     computed: {
       channelTitle() {
         return find(this.channels, channel => channel.id === this.pageState.channelId).title;

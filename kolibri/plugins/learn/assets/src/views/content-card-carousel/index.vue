@@ -74,7 +74,7 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
@@ -102,7 +102,7 @@
       },
     },
     components: {
-      iconButton,
+      kButton,
       uiIconButton,
       contentCard,
     },

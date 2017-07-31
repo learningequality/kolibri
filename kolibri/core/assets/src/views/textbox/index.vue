@@ -26,7 +26,12 @@
 
 <script>
 
+  /**
+   * A simple textbox that emits an event when its text is updated.
+   */
+
   import uiTextbox from 'keen-ui/src/UiTextbox';
+
   export default {
     name: 'KolibriTextBox',
     props: {

@@ -36,8 +36,8 @@
         </div>
 
         <div class="advanced-options" @keydown.enter.stop>
-          <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
-          <button @click="usr_delete=!usr_delete" :disabled="userid === session_user_id"> {{$tr('deleteUsr')}}</button>
+          <k-button @click="pw_reset=!pw_reset" :text="$tr('resetPw')" :raised="false"/>
+          <k-button @click="usr_delete=!usr_delete" :disabled="userid === session_user_id" :text="$tr('deleteUsr')" :raised="false"/>
         </div>
 
         <hr class="end-modal">
@@ -76,15 +76,14 @@
       <!-- Button Section TODO: cleaunup -->
       <section @keydown.enter.stop>
 
-        <icon-button
+        <k-button
           :text="cancelText"
-          class="undo-btn"
+          :raised="false"
           @click="cancelClick"
         />
 
-        <icon-button
+        <k-button
           :text="submitText"
-          class="confirm-btn"
           :primary="true"
           @click="submit"
         />
@@ -102,7 +101,7 @@
   import * as actions from '../../state/actions';
   import * as coreActions from 'kolibri.coreVue.vuex.actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
@@ -132,7 +131,7 @@
       noNewPw: 'Please enter a new password',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
       coreTextbox,
     },
@@ -291,11 +290,8 @@
   .title
     display: inline
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  section
+    text-align: right
 
   .cancel-btn
     float:left

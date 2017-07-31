@@ -11,8 +11,8 @@
         :error="$tr('duplicateTitle')"
         v-model.trim="newExamTitle"/>
       <div class="footer">
-        <icon-button :text="$tr('cancel')" type="button" @click="close"/>
-        <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
+        <k-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>
+        <k-button :text="$tr('rename')" :primary="true" type="submit"/>
       </div>
     </form>
   </core-modal>
@@ -24,7 +24,7 @@
 
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
     name: 'renameExamModal',
@@ -37,7 +37,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
       coreTextbox,
     },
     props: {

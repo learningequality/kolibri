@@ -78,7 +78,7 @@
         @input="updateSelection"
       />
 
-      <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -91,7 +91,7 @@
 
   import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
@@ -118,7 +118,7 @@
       selectFacility: 'Select a facility',
     },
     components: {
-      iconButton,
+      kButton,
       uiAlert,
       coreTextbox,
       uiToolbar,
@@ -293,15 +293,6 @@
     margin-bottom: 1em
     p
       margin-top: 0
-
-  #submit
-    width: 90%
-    display: block
-    margin-left: auto
-    margin-right: auto
-
-    margin-top: $vertical-page-margin
-    margin-bottom: $vertical-page-margin
 
   .app-bar-icon
     font-size: 2.5em

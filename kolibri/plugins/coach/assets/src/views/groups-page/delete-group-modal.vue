@@ -4,9 +4,10 @@
     @cancel="close">
     <p v-html="$trHtml('areYouSure', { groupName: groupName })"></p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
-    <icon-button :text="$tr('cancel')"
+    <k-button :text="$tr('cancel')"
+      :raised="false"
       @click="close" />
-    <icon-button :text="$tr('deleteGroup')"
+    <k-button :text="$tr('deleteGroup')"
       :primary="true"
       @click="deleteGroup(groupId)" />
   </core-modal>
@@ -19,7 +20,7 @@
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import textbox from 'kolibri.coreVue.components.textbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'deleteGroupModal',
     $trs: {
@@ -33,7 +34,7 @@
     components: {
       coreModal,
       textbox,
-      iconButton,
+      kButton,
     },
     props: {
       groupName: {

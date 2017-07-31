@@ -10,8 +10,8 @@
       class="channel-select"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('createExam')" :primary="true" :disabled="!selectedChannel" @click="routeToCreateExamPage"/>
+      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('createExam')" :primary="true" :disabled="!selectedChannel" @click="routeToCreateExamPage"/>
     </div>
   </core-modal>
 
@@ -23,7 +23,7 @@
   import * as ExamActions from '../../state/actions/exam';
   import { PageNames } from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
     name: 'createExamModal',
@@ -36,7 +36,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
       uiSelect,
     },
     props: {

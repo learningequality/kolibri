@@ -24,20 +24,16 @@
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
           <div class="button-wrapper" v-if="!pageState.taskList.length">
-            <icon-button
+            <k-button
               :text="$tr('import')"
               class="button"
               @click="openWizard('import')"
-              :primary="true">
-              <mat-svg category="content" name="add"/>
-            </icon-button>
-            <icon-button
+              :primary="true"/>
+            <k-button
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="openWizard('export')">
-              <ion-svg name="ios-upload-outline"/>
-            </icon-button>
+              @click="openWizard('export')"/>
           </div>
         </div>
         <hr>
@@ -62,13 +58,15 @@
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import notifications from './manage-content-notifications';
   import taskStatus from './task-status';
   import wizardImportSource from './wizard-import-source';
   import wizardImportNetwork from './wizard-import-network';
   import wizardImportLocal from './wizard-import-local';
   import wizardExport from './wizard-export';
+  import importPreview from './wizards/import-preview';
+
   export default {
     name: 'manageContentState',
     $trs: {
@@ -81,8 +79,9 @@
     components: {
       authMessage,
       channelsGrid,
-      iconButton,
+      kButton,
       notifications,
+      importPreview,
       taskStatus,
       wizardImportSource,
       wizardImportNetwork,
@@ -124,6 +123,9 @@
             return 'wizard-import-local';
           case ContentWizardPages.EXPORT:
             return 'wizard-export';
+          case ContentWizardPages.LOCAL_IMPORT_PREVIEW:
+          case ContentWizardPages.REMOTE_IMPORT_PREVIEW:
+            return 'import-preview';
           default:
             return undefined;
         }

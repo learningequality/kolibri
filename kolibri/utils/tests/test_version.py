@@ -3,12 +3,11 @@ Tests for `kolibri` module.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import unittest
 from functools import wraps
 
 import kolibri
 from kolibri.utils import version
-
-from .base import KolibriTestBase
 
 #: Because we don't want to call the original (decorated function), it uses
 #: caching and will return the result of the first call always. We call
@@ -37,7 +36,7 @@ def mock_get_git_describe(func):
     return wrapper
 
 
-class TestKolibriVersion(KolibriTestBase):
+class TestKolibriVersion(unittest.TestCase):
 
     def test_version(self):
         """

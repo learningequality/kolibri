@@ -14,12 +14,11 @@
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
         </span>
-        <icon-button
+        <k-button
           v-if="canMove"
-          size="small"
           class="right-margin"
           :text="$tr('moveLearners')"
-          :primary="true"
+          :primary="false"
           :disabled="selectedUsers.length === 0"
           @click="emitMove"
         />
@@ -80,7 +79,7 @@
 <script>
 
   import * as groupActions from '../../state/actions/group';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -100,7 +99,7 @@
     },
     mixins: [ResponsiveElement],
     components: {
-      iconButton,
+      kButton,
       uiButton,
       uiMenu,
     },

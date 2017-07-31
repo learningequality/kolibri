@@ -13,20 +13,17 @@
     </div>
 
     <div class="buttons">
-      <ui-button
-        type="secondary"
+      <k-button
+        :primary="false"
         @click="handleClickCancel()"
-      >
-        {{ $tr('cancelButtonLabel') }}
-      </ui-button>
+        :text="$tr('cancelButtonLabel')"
+      />
 
-      <ui-button
-        type="primary"
-        color="primary"
+      <k-button
+        :primary="true"
         @click="handleClickConfirm()"
-      >
-        {{ $tr('confirmButtonLabel') }}
-      </ui-button>
+        :text="$tr('confirmButtonLabel')"
+      />
     </div>
 
   </modal>
@@ -37,11 +34,11 @@
 <script>
 
   import modal from 'kolibri.coreVue.components.coreModal';
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     components: {
       modal,
-      uiButton,
+      kButton,
     },
     props: {
       channelTitle: {
