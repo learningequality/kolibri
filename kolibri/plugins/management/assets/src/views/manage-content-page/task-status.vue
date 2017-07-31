@@ -5,7 +5,7 @@
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
-    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/>
+    <k-button @click="clearTaskHandler" :text="buttonMessage"/>
   </div>
 
 </template>
@@ -20,7 +20,7 @@
   const logging = logger.getLogger(__filename);
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'contentPage',
     $trs: {
@@ -35,7 +35,7 @@
       localImport: 'Importing from local drive',
       localExport: 'Exporting to local drive',
     },
-    components: { iconButton },
+    components: { kButton },
     computed: {
       buttonMessage() {
         if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
@@ -112,10 +112,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .buttons
-    margin: 10px
-    text-align: center
 
   .task
     text-align: center

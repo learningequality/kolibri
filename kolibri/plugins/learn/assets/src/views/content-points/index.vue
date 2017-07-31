@@ -18,7 +18,7 @@
     </div>
 
     <div class="buttons">
-      <icon-button :text="$tr('close')" @click="closePopover" class="close-button"/>
+      <k-button :text="$tr('close')" @click="closePopover"/>
       <slot name="nextItemBtn"/>
     </div>
 
@@ -34,7 +34,7 @@
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'contentPoints',
     $trs: {
@@ -54,7 +54,7 @@
       pointsIcon,
       contentIcon,
       coreModal,
-      iconButton,
+      kButton,
     },
     vuex: { getters: { contentPoints } },
     props: {
@@ -128,8 +128,5 @@
 
   .next-item-heading
     margin: 0
-
-  .close-button
-    margin-right: 0.5em
 
 </style>

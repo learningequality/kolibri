@@ -4,15 +4,12 @@
     ref="container"
     class="container"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
-    <icon-button
+    <k-button
       class="btn"
       v-if="supportsPDFs"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullscreen"
-      :primary="true">
-      <mat-svg v-if="isFullscreen" class="icon" category="navigation" name="fullscreen_exit"/>
-      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
-    </icon-button>
+      @click="toggleFullScreen"
+      :primary="true"/>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
@@ -23,9 +20,9 @@
 
   import PDFobject from 'pdfobject';
   import ScreenFull from 'screenfull';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    components: { iconButton },
+    components: { kButton },
     props: ['defaultFile'],
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,

@@ -18,15 +18,14 @@
         />
 
         <section class="footer">
-          <icon-button
-            class="undo-btn"
+          <k-button
             type="button"
             :text="$tr('cancel')"
+            :raised="false"
             @click="close"
           />
 
-          <icon-button
-            class="create-btn"
+          <k-button
             type="submit"
             :text="$tr('create')"
             :primary="true"
@@ -42,7 +41,7 @@
 <script>
 
   import * as actions from '../../state/actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
@@ -55,7 +54,7 @@
       duplicateName: 'A class with that name already exists',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
       coreTextbox,
     },
@@ -103,9 +102,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-
-  .create-btn, .undo-btn
-    width: 48%
+    text-align: right
 
 </style>

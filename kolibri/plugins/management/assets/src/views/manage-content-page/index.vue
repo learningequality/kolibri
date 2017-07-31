@@ -24,20 +24,16 @@
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
           <div class="button-wrapper" v-if="!pageState.taskList.length">
-            <icon-button
+            <k-button
               :text="$tr('import')"
               class="button"
               @click="openWizard('import')"
-              :primary="true">
-              <mat-svg category="content" name="add"/>
-            </icon-button>
-            <icon-button
+              :primary="true"/>
+            <k-button
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="openWizard('export')">
-              <ion-svg name="ios-upload-outline"/>
-            </icon-button>
+              @click="openWizard('export')"/>
           </div>
         </div>
         <hr>
@@ -62,7 +58,7 @@
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import notifications from './manage-content-notifications';
   import taskStatus from './task-status';
   import wizardImportSource from './wizard-import-source';
@@ -81,7 +77,7 @@
     components: {
       authMessage,
       channelsGrid,
-      iconButton,
+      kButton,
       notifications,
       taskStatus,
       wizardImportSource,

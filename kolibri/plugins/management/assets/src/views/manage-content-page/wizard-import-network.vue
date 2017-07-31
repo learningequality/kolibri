@@ -16,11 +16,12 @@
       {{ wizardState.error }}
     </div>
     <div class="button-wrapper">
-      <icon-button
+      <k-button
         @click="cancel"
         :text="$tr('cancel')"
+        :raised="false"
         :disabled="wizardState.busy"/>
-      <icon-button
+      <k-button
         :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
@@ -35,7 +36,7 @@
 
   import * as manageContentActions from '../../state/manageContentActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   export default {
     name: 'wizardImportNetwork',
@@ -47,7 +48,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
       coreTextbox,
     },
     data: () => ({ contentId: '' }),

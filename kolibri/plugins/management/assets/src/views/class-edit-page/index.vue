@@ -33,9 +33,8 @@
       </div>
 
       <div class="enroll">
-        <router-link :to="classEnrollLink" class="table-name">
-          <icon-button
-            class="enroll-user-button"
+        <router-link :to="classEnrollLink">
+          <k-button
             :text="$tr('enrollUsers')"
             :primary="true"/>
         </router-link>
@@ -125,7 +124,7 @@
   import classRenameModal from './class-rename-modal';
   import roleSwitcher from './role-switcher';
   import userRemoveModal from './user-remove-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import userRole from '../user-role';
   export default {
     name: 'classEnrollPage',
@@ -147,7 +146,7 @@
       classRenameModal,
       roleSwitcher,
       userRemoveModal,
-      iconButton,
+      kButton,
       userRole,
     },
     data: () => ({

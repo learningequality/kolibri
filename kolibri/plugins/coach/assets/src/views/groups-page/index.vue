@@ -3,14 +3,11 @@
   <div>
     <h1 class="header">{{ $tr('classGroups') }}</h1>
 
-    <icon-button
+    <k-button
       :text="$tr('newGroup')"
       :primary="true"
-      size="small"
       @click="openCreateGroupModal"
-    >
-      <mat-svg category="content" name="add" />
-    </icon-button>
+    />
 
     <create-group-modal v-if="showCreateGroupModal"
       :groups="sortedGroups" />
@@ -55,7 +52,7 @@
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
   import renameGroupModal from './rename-group-modal';
@@ -69,7 +66,7 @@
       ungrouped: 'Ungrouped',
     },
     components: {
-      iconButton,
+      kButton,
       createGroupModal,
       groupSection,
       renameGroupModal,
