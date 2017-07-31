@@ -18,7 +18,7 @@
       </thead>
 
       <tbody class="table-body">
-        <tr v-for="(channel, idx) in sortedChannels">
+        <tr v-for="channel in sortedChannels" :key="channel.id">
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
@@ -48,7 +48,7 @@
           </td>
           <td>
             <button
-              @click="selectedChannelIdx=idx"
+              @click="selectedChannelId=channel.id"
               class="delete-button"
             >
               {{ $tr('deleteButtonLabel') }}
@@ -63,7 +63,7 @@
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
       @confirm="handleDeleteChannel()"
-      @cancel="selectedChannelIdx=null"
+      @cancel="selectedChannelId=null"
     />
   </div>
 
@@ -82,18 +82,15 @@
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
     data: () => ({
-      selectedChannelIdx: null,
+      selectedChannelId: null,
       notification: null,
     }),
     computed: {
       channelIsSelected() {
-        return this.selectedChannelIdx !== null;
+        return this.selectedChannelId !== null;
       },
       selectedChannelTitle() {
-        if (this.channelIsSelected) {
-          return this.channelList[this.selectedChannelIdx].title;
-        }
-        return '';
+        return this.channelList.find(channel => channel.id === this.selectedChannelId).title;
       },
       sortedChannels() {
         return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
@@ -115,9 +112,9 @@
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelIdx !== null) {
-          const channelId = this.channelList[this.selectedChannelIdx].id;
-          this.selectedChannelIdx = null;
+        if (this.selectedChannelId !== null) {
+          const channelId = this.selectedChannelId;
+          this.selectedChannelId = null;
           this.deleteChannel(channelId)
             .then(() => {
               this.$emit('deletesuccess');
