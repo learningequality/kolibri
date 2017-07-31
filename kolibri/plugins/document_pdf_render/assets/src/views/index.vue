@@ -32,11 +32,13 @@
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
+  import { debounce } from 'lodash';
 
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
   // Number of pages before and after current visible to keep rendered
   const pageDisplayWindow = 1;
+  const renderDebounceTime = 500;
 
   export default {
     name: 'documentPDFRender',
@@ -185,23 +187,22 @@
       pageRef(index) {
         return `pdfPage-${index}`;
       },
-      checkPages() {
+      // debouncing so we're not de/re-render many pages unnecessarily
+      checkPages: debounce(function() {
         const top = this.$refs.pdfcontainer.scrollTop;
         const bottom = top + this.$refs.pdfcontainer.clientHeight;
         const topPageNum = Math.ceil(top / this.pageHeight);
         const bottomPageNum = Math.ceil(bottom / this.pageHeight);
 
-        let i;
-        // Loop through all pages, show ones that are in the display window,
-        // hide ones that are not
-        for (i = 1; i <= this.totalPages; i++) {
+        // Loop through all pages, show ones that are in the display window, hide ones that aren't
+        for (let i = 1; i <= this.totalPages; i++) {
           if (i < topPageNum - pageDisplayWindow || i > bottomPageNum + pageDisplayWindow) {
             this.hidePage(i);
           } else {
             this.showPage(i);
           }
         }
-      },
+      }, renderDebounceTime),
     },
     watch: {
       scrollPos: 'checkPages',
