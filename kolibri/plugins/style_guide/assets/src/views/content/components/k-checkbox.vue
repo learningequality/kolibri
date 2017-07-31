@@ -1,6 +1,6 @@
 <template>
 
-  <component-template :codeExamplesTemplate="kCheckboxExample" :api="kCheckboxApi">
+  <component-template :codeExamplesTemplate="kCheckboxExample" :api="kCheckboxApi" :isComplete="true">
     <div slot="guidelines">
 
       <h3>Usage</h3>

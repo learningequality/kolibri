@@ -56,10 +56,6 @@
     */
   export default {
     name: 'k-checkbox',
-    model: {
-      prop: 'checked',
-      event: 'change',
-    },
     props: {
       /**
        * Name attribute

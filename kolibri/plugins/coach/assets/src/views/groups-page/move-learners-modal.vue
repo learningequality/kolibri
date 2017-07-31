@@ -4,20 +4,23 @@
     @cancel="close">
     <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
     <label v-for="group in groupsExcludingCurrent">
-    <input
-      type="radio"
-      :value="group.id"
-      v-model="groupSelected">
+      <input
+        type="radio"
+        :value="group.id"
+        v-model="groupSelected"
+      >
       {{ group.name }}
     </label>
 
     <div v-if="!isUngrouped">
       <hr>
       <label>
-      <input type="radio"
-        value="ungrouped"
-        v-model="groupSelected">
-        Ungrouped
+        <input
+          type="radio"
+          value="ungrouped"
+          v-model="groupSelected"
+        >
+          Ungrouped
       </label>
     </div>
 

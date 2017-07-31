@@ -1,0 +1,46 @@
+<template>
+
+  <div>
+    <k-radio
+      name="uncheckedenabled"
+      label="uncheckedenabled"
+      :radiovalue="1"
+      v-model="sample1"
+    >
+    </k-radio>
+    <k-radio
+      name="checkedenabled"
+      label="checkedenabled"
+      :radiovalue="2"
+      v-model="sample1"
+    >
+    </k-radio>
+    <k-radio
+      name="uncheckeddisabled"
+      label="uncheckeddisabled"
+      :radiovalue="3"
+      v-model="sample2"
+    >
+    </k-radio>
+    <k-radio
+      name="checkeddisabled"
+      label="checkeddisabled"
+      :radiovalue="4"
+      v-model="sample2"
+    >
+    </k-radio>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      sample1: '1',
+      sample2: '3',
+    }),
+  };
+
+</script>
