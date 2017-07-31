@@ -44,8 +44,8 @@
       </div>
 
       <div class="button-wrapper">
-        <icon-button @click="cancel" :text="$tr('cancelButtonLabel')" />
-        <icon-button
+        <k-button @click="cancel" :text="$tr('cancelButtonLabel')" />
+        <k-button
           v-show="!error"
           :text="$tr('confirmButtonLabel')"
           @click="submit"
@@ -62,14 +62,14 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { transitionWizardPage } from '../../../state/manageContentActions';
   import find from 'lodash/find';
 
   export default {
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     computed: {
       localImportPrompt() {
