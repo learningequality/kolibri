@@ -127,9 +127,6 @@
   @require '~kolibri.styles.definitions'
   @require '../../styles/style-guide.styl'
 
-  p
-    max-width: $max-content-width
-
   table, th, td
     border: 1px solid darkgray
     border-collapse: collapse

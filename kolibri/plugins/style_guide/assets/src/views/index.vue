@@ -35,8 +35,10 @@
   @require '../styles/style-guide.styl'
 
   .content
+    margin-right: auto
     margin-left: $sidenav-width + 32
     margin-top: 24px
+    max-width: 50em
 
 </style>
 
@@ -67,7 +69,6 @@
 
     .vuep-preview, .vuep-editor
       width: 100%
-      max-width: $max-content-width
 
     .vuep-preview
       padding: 8px
