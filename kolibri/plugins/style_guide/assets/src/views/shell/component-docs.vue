@@ -2,11 +2,12 @@
 
   <div>
 
-    <strong>Import</strong>
-    <p><code>{{ importString }}</code></p>
+    <p>Import using: <code>{{ importString }}</code></p>
+
+    <p v-if="api.description">{{ api.description }}</p>
 
     <p v-if="api.props.length">
-      <strong>Props</strong>
+      Props:
       <table>
         <tr>
           <th>Name</th>
@@ -31,7 +32,7 @@
     </p>
 
     <p v-if="api.events.length">
-      <strong>Events</strong>
+      Events:
       <table>
         <tr>
           <th>Name</th>
@@ -45,7 +46,7 @@
     </p>
 
     <p v-if="api.slots.length">
-      <strong>Slots</strong>
+      Slots:
       <table>
         <tr>
           <th>Name</th>
