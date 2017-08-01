@@ -76,7 +76,6 @@
       genLink: {
         type: Function,
         validator(value) {
-          // callback: function(contentId, contentKind)
           return validateLinkObject(value(1, 'exercise'));
         },
         default: () => {},
