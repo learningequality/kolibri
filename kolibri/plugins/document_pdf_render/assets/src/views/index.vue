@@ -1,11 +1,13 @@
 <template>
 
   <div
-    ref="container"
-    class="container"
+    ref="docViewer"
+    class="doc-viewer"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
+
     <icon-button
-      class="btn"
+      class="doc-viewer-controls button-fullscreen"
+      aria-controls="pdf-container"
       v-if="supportsPDFs"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen"
@@ -14,10 +16,20 @@
       <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
 
-    <icon-button text="Zoom In" @click="zoomIn()"/>
-    <icon-button text="Zoom out" @click="zoomOut()"/>
+    <ui-icon-button
+      class="doc-viewer-controls button-zoom-in"
+      aria-controls="pdf-container"
+      icon="add"
+      size="large"
+      @click="zoomIn()"/>
+      <ui-icon-button
+      class="doc-viewer-controls button-zoom-out"
+      aria-controls="pdf-container"
+      icon="remove"
+      size="large"
+      @click="zoomOut()"/>
 
-    <div ref="pdfcontainer" class="pdfcontainer" @scroll="checkPages">
+    <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
       <p class="page-container" v-for="index in totalPages"
         :ref="pageRef(index)"
@@ -35,6 +47,7 @@
   import ScreenFull from 'screenfull';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
@@ -52,6 +65,7 @@
     components: {
       iconButton,
       progressBar,
+      uiIconButton,
     },
     props: ['defaultFile'],
     data: () => ({
@@ -59,6 +73,7 @@
       scale: null,
       timeout: null,
       isFullscreen: false,
+      error: false,
       progress: 0,
       totalPages: 0,
       pageHeight: 0,
@@ -81,11 +96,11 @@
     methods: {
       toggleFullscreen() {
         if (this.fullscreenAllowed) {
-          ScreenFull.toggle(this.$refs.container);
+          ScreenFull.toggle(this.$refs.docViewer);
         } else {
           this.isFullscreen = !this.isFullscreen;
         }
-        // might want to reset pageScale here
+        this.setupInitialPageScale();
       },
       zoomIn() {
         this.scale += 0.1;
@@ -93,31 +108,28 @@
       zoomOut() {
         this.scale -= 0.1;
       },
-      getPage(pageNum, firstRender = false) {
-        const pagePromise = this.pdfDocument.getPage(pageNum);
-        if (firstRender) {
-          return pagePromise.then(pdfPage => this.setupZoom(pdfPage));
-        }
-        return pagePromise;
+      getPage(pageNum) {
+        return this.pdfDocument.getPage(pageNum);
       },
-      setupZoom(pdfPage) {
-        console.log(pdfPage.view);
+      // get the page dimensions. By default, uses the first page
+      setupInitialPageScale() {
+        this.getPage(1).then(
+          firstPage => {
+            const pdfPageWidth = firstPage.view[2];
+            const pdfPageHeight = firstPage.view[3];
 
-        return pdfPage;
-      },
-      setupInitialPageScale(pdfPage) {
-        // IDEA don't use a specific page, just look for one of them?
-        // pageProxy.view returns visible dimensions of a page. First 2 values are on a 3d plane
-        const pdfPageWidth = pdfPage.view[2];
-        const pdfPageHeight = pdfPage.view[3];
+            const isMobile = this.windowSize.breakpoint === 0;
 
-        const isMobile = this.windowSize.breakpoint === 0;
-
-        if (isMobile) {
-          this.scale = this.elSize.width / pdfPageWidth;
-        } else {
-          this.scale = this.elSize.height / pdfPageHeight;
-        }
+            if (isMobile) {
+              this.scale = this.elSize.width / pdfPageWidth;
+            } else {
+              this.scale = this.elSize.height / pdfPageHeight;
+            }
+          },
+          error => {
+            this.error = true;
+          }
+        );
       },
       startRender(pdfPage) {
         // use a promise because this also calls render, allowing us to cancel
@@ -221,8 +233,8 @@
       },
       // debouncing so we're not de/re-render many pages unnecessarily
       checkPages: debounce(function() {
-        const top = this.$refs.pdfcontainer.scrollTop;
-        const bottom = top + this.$refs.pdfcontainer.clientHeight;
+        const top = this.$refs.pdfContainer.scrollTop;
+        const bottom = top + this.$refs.pdfContainer.clientHeight;
         const topPageNum = Math.ceil(top / this.pageHeight);
         const bottomPageNum = Math.ceil(bottom / this.pageHeight);
 
@@ -253,33 +265,36 @@
       },
     },
     created() {
-      this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
-    },
-    mounted() {
       if (this.fullscreenAllowed) {
         ScreenFull.onchange(() => {
           this.isFullscreen = ScreenFull.isFullscreen;
         });
       }
 
+      this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
+
       // pass callback to update loading bar
       this.loadPdfPromise.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
 
-      // Retrieve the document and its corresponding object
       this.loadPdfPromise.then(pdfDocument => {
+        if (PDFJSLib.FormatError) {
+          this.error = true;
+          return;
+        }
+
         this.pdfDocument = pdfDocument;
         this.totalPages = pdfDocument.numPages;
         this.pdfPages = {};
 
-        // Retrieve the first Page object
-        this.getPage(1).then(pdfPage => {
-          this.setupInitialPageScale(pdfPage);
-          this.$emit('startTracking');
-        });
-        this.checkPages();
+        this.setupInitialPageScale();
       });
+    },
+    mounted() {
+      // Retrieve the document and its corresponding object
+      this.$emit('startTracking');
+      this.checkPages();
 
       // progress tracking
       const self = this;
@@ -312,46 +327,66 @@
 
 <style lang="stylus" scoped>
 
-  .btn
-    position: absolute
-    left: 50%
-    transform: translateX(-50%)
+  @require '~kolibri.styles.definitions'
 
-  .progress-bar
-    top: 50%
-    margin: 0 auto
-    max-width: 200px
+  $keen-button-height = 48px
+  $fullscreen-button-height = 36px
 
-  .container
+  .doc-viewer
     position: relative
     height: 100vh
     max-height: calc(100vh - 24em)
     min-height: 400px
+
     &:fullscreen
       width: 100%
       height: 100%
       min-height: inherit
       max-height: inherit
 
-  .container-mimic-fullscreen
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 24
-    max-width: 100%
-    max-height: 100%
-    width: 100%
-    height: 100%
+    &-mimic-fullscreen
+      position: fixed
+      top: 0
+      right: 0
+      bottom: 0
+      left: 0
+      z-index: 24
+      max-width: 100%
+      max-height: 100%
+      width: 100%
+      height: 100%
 
-  .pdfcontainer
+    &-controls
+      position: absolute
+
+  #pdf-container
     height: 100%
     overflow-y: scroll
     text-align: center
 
+    // prevents a never-visible spot underneath the fullscreen button
+    padding-top: $fullscreen-button-height
+
   .page-container
     background: #FFFFFF
     margin: 5px auto
+
+  .button
+    &-fullscreen
+      transform: translateX(-50%)
+      left: 50%
+
+    &-zoom
+      &-in, &-out
+        right: $keen-button-height
+      &-in
+        bottom: $keen-button-height * 2.5
+      &-out
+        bottom: $keen-button-height
+
+  .progress-bar
+    top: 50%
+    margin: 0 auto
+    max-width: 200px
 
 </style>
