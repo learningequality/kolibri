@@ -3,6 +3,7 @@
   <div
     ref="docViewer"
     class="doc-viewer"
+    :style="minViewerHeight"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
 
     <icon-button
@@ -18,12 +19,14 @@
 
     <ui-icon-button
       class="doc-viewer-controls button-zoom-in"
+      :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="add"
       size="large"
       @click="zoomIn()"/>
       <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
+      :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
@@ -58,6 +61,7 @@
   // Number of pages before and after current visible to keep rendered
   const pageDisplayWindow = 1;
   const renderDebounceTime = 500;
+  const minViewerHeight = 400;
 
   export default {
     name: 'documentPDFRender',
@@ -85,6 +89,12 @@
       },
       mimicFullscreen() {
         return !this.fullscreenAllowed && this.isFullscreen;
+      },
+      shortDisplay() {
+        return this.elSize.height === minViewerHeight;
+      },
+      minViewerHeight() {
+        return `min-height: ${minViewerHeight}px`;
       },
       targetTime() {
         return this.totalPages * 30;
@@ -334,7 +344,6 @@
     position: relative
     height: 100vh
     max-height: calc(100vh - 20em)
-    min-height: 400px
 
     &:fullscreen
       width: 100%
@@ -381,6 +390,13 @@
         bottom: $keen-button-height * 2.5
       &-out
         bottom: $keen-button-height
+
+      // Align to top when there's a chance bottom-aligned controls are below the fold
+      &-in.short-display
+        top: $keen-button-height
+      &-out.short-display
+        top: $keen-button-height * 2.5
+
 
   .progress-bar
     top: 50%
