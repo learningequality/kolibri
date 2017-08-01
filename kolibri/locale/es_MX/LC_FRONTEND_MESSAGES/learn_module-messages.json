@@ -9,13 +9,13 @@
   "channelSwitcher.switchChannels":"Cambiar canales",
   "contentCardCarousel.viewAllButtonLabel":"Ver todo",
   "contentCardGrid.display":"Pantalla",
-  "contentCardGrid.all":"All content ({ num, number })",
+  "contentCardGrid.all":"Todo el contenido ({ num, number })",
   "contentCardGrid.topics":"Temas ({ num, number })",
   "contentCardGrid.exercises":"Ejercicios ({ num, number })",
   "contentCardGrid.videos":"Vídeos ({ num, number })",
   "contentCardGrid.audio":"Audio ({ num, number })",
   "contentCardGrid.documents":"Documentos ({ num, number })",
-  "contentCardGrid.html5":"HTML5 Apps ({ num, number })",
+  "contentCardGrid.html5":"Aplicaciones HTML5 ({ num, number })",
   "learnContent.recommended":"Recomendaciones",
   "learnContent.nextContent":"Ir al elemento siguiente",
   "learnContent.author":"Autor",
@@ -73,6 +73,6 @@
   "learnSearch.noSearch":"Busca escribiendo algo en el cuadro de búsqueda arriba",
   "learnSearch.showingResultsFor":"Resultados de la búsqueda para \"{searchTerm}\"",
   "learnSearch.withinChannel":"En {channelName}",
-  "learnSearch.noResultsMsg":"No results for \"{searchTerm}\"",
+  "learnSearch.noResultsMsg":"No hay resultados para \"{searchTerm}\"",
   "totalPoints.pointsTooltip":"¡Has ganado { points, number } puntos!"
 }
