@@ -116,14 +116,12 @@
         this.getPage(1).then(
           firstPage => {
             const pdfPageWidth = firstPage.view[2];
-            const pdfPageHeight = firstPage.view[3];
+            const isDesktop = this.windowSize.breakpoint >= 5;
 
-            const isMobile = this.windowSize.breakpoint === 0;
-
-            if (isMobile) {
-              this.scale = this.elSize.width / pdfPageWidth;
+            if (isDesktop) {
+              this.scale = 1;
             } else {
-              this.scale = this.elSize.height / pdfPageHeight;
+              this.scale = this.elSize.width / pdfPageWidth;
             }
           },
           error => {
@@ -335,7 +333,7 @@
   .doc-viewer
     position: relative
     height: 100vh
-    max-height: calc(100vh - 24em)
+    max-height: calc(100vh - 20em)
     min-height: 400px
 
     &:fullscreen
