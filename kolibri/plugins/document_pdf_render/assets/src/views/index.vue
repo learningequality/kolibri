@@ -76,16 +76,12 @@
     },
     methods: {
       toggleFullscreen() {
-        if (this.isFullscreen) {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
-          }
-          this.isFullscreen = false;
+        if (this.fullscreenAllowed) {
+          ScreenFull.toggle(this.$refs.container);
         } else {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
-          }
-          this.isFullscreen = true;
+          this.isFullscreen = !this.isFullscreen;
+        }
+      },
       getPage(pageNum, firstRender = false) {
         const pagePromise = this.pdfDocument.getPage(pageNum);
         if (firstRender) {
@@ -235,7 +231,14 @@
       this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
     },
     mounted() {
-      this.loadPDF.onProgress = loadingProgress => {
+      if (this.fullscreenAllowed) {
+        ScreenFull.onchange(() => {
+          this.isFullscreen = ScreenFull.isFullscreen;
+        });
+      }
+
+      // pass callback to update loading bar
+      this.loadPdfPromise.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
 
