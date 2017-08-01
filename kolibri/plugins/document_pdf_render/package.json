@@ -3,7 +3,6 @@
   "description": "Document/PDF Render Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "pdfjs-dist": "^1.8.559",
-    "pdfobject": "2.0.201604172"
+    "pdfjs-dist": "^1.8.559"
   }
 }
