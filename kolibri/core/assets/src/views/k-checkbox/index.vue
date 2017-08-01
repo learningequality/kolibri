@@ -11,10 +11,11 @@
         <input
           type="checkbox"
           class="k-checkbox-input"
-          :name="name"
+          :id="id"
           :checked="isCurrentlyChecked"
           :indeterminate.prop="isCurrentlyIndeterminate"
           :disabled="disabled"
+          :title="label"
           @click.stop="toggleCheck"
           @focus="isActive = true"
           @blur="isActive = false"
@@ -41,7 +42,14 @@
 
       </div>
 
-      <label v-if="label" :for="name" class="k-checkbox-label">{{ label }}</label>
+      <label
+        v-if="label"
+        class="k-checkbox-label"
+        :for="id"
+        :class="{ 'visuallyhidden': !showLabel }"
+      >
+        {{ label }}
+      </label>
 
     </div>
   </div>
@@ -58,18 +66,18 @@
     name: 'k-checkbox',
     props: {
       /**
-       * Name attribute
-       */
-      name: {
-        type: String,
-        required: false,
-      },
-      /**
-       * Optional text label
+       * Label
        */
       label: {
         type: String,
-        required: false,
+        required: true,
+      },
+      /**
+       * Whether to show label
+       */
+      showLabel: {
+        type: Boolean,
+        default: true,
       },
       /**
        * Checked state
@@ -98,6 +106,11 @@
       isCurrentlyIndeterminate: false,
       isActive: false,
     }),
+    computed: {
+      id() {
+        return `k-checkbox-${this._uid}`;
+      },
+    },
     watch: {
       checked(newCheckedState) {
         this.isCurrentlyChecked = newCheckedState;

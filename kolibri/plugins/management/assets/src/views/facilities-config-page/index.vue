@@ -19,10 +19,9 @@
           <h2>{{ $tr('settingsHeader') }}</h2>
           <template v-for="setting in settingsList">
             <k-checkbox
-              :name="setting"
+              :label="$tr(setting)"
               :checked="settings[setting]"
               @change="toggleSetting(setting)"
-              :label="$tr(setting)"
             />
           </template>
         </div>

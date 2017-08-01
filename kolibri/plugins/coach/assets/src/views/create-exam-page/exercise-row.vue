@@ -1,7 +1,14 @@
 <template>
 
   <tr>
-    <th class="col-checkbox"><k-checkbox :checked="isSelected" @change="changeSelection"/></th>
+    <th class="col-checkbox">
+      <k-checkbox
+        :label="$tr('selectExercise')"
+        :showLabel="false"
+        :checked="isSelected"
+        @change="changeSelection"
+      />
+    </th>
     <td class="col-title">
       <content-icon :kind="exercise"/>
       <span>{{ exerciseTitle }}</span>
@@ -21,6 +28,9 @@
 
   export default {
     name: 'exerciseRow',
+    $trs: {
+      selectExercise: 'Select exercise',
+    },
     components: {
       contentIcon,
       kButton,

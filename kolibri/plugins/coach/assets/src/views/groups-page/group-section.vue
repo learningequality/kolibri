@@ -44,6 +44,8 @@
         <tr>
           <th class="col-checkbox">
             <k-checkbox
+              :label="$tr('selectAll')"
+              :showLabel="false"
               :checked="allUsersAreSelected"
               :indeterminate="someUsersAreSelected"
               @change="toggleSelectAll"
@@ -62,6 +64,8 @@
         >
           <td class="col-checkbox">
             <k-checkbox
+              :label="$tr('selectLearner')"
+              :showLabel="false"
               :checked="isSelected(user.id)"
               @change="toggleSelection"
               @click.stop
@@ -99,6 +103,8 @@
       username: 'Username',
       selected: 'Selected',
       noLearners: 'No Learners in this group',
+      selectAll: 'Select all',
+      selectLearner: 'Select learner',
     },
     mixins: [ResponsiveElement],
     components: {

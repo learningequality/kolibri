@@ -59,6 +59,8 @@
               <tr>
                 <th class="col-checkbox">
                   <k-checkbox
+                    :label="$tr('selectAll')"
+                    :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
                     :indeterminate="someExercisesWithinCurrentTopicSelected"
                     @change="changeSelection"

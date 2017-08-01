@@ -80,7 +80,8 @@
           <tr>
             <th class="col-checkbox">
               <k-checkbox
-                :name="$tr('selectAllOnPage')"
+                :label="$tr('selectAllOnPage')"
+                :showLabel="false"
                 :checked="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
@@ -98,7 +99,8 @@
               @click.prevent="toggleSelection(learner.id)" :key="learner.id">
             <td class="col-checkbox">
               <k-checkbox
-                :name="$tr('selectUser')"
+                :label="$tr('selectUser')"
+                :showLabel="false"
                 :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
                 class="inline-block check"

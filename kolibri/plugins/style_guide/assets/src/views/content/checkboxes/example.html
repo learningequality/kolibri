@@ -1,12 +1,36 @@
 <template>
 
   <div>
-    <k-checkbox name="unchecked" label="Unchecked"></k-checkbox>
-    <k-checkbox name="indeterminate" label="Indeterminate" :indeterminate="true"></k-checkbox>
-    <k-checkbox name="checked" label="Checked" :checked="true"></k-checkbox>
-    <k-checkbox name="uncheckeddisabled" label="Disabled Unchecked" :disabled="true"></k-checkbox>
-    <k-checkbox name="indeterminatedisabled" label="Disabled Indeterminate" :indeterminate="true" :disabled="true"></k-checkbox>
-    <k-checkbox name="checkeddisabled" label="Disabled Checked" :checked="true" :disabled="true"></k-checkbox>
+    <k-checkbox
+      label="Unchecked"
+    ></k-checkbox>
+    <k-checkbox
+      label="Indeterminate"
+      :indeterminate="true"
+    ></k-checkbox>
+    <k-checkbox
+      label="Checked"
+      :checked="true"
+    ></k-checkbox>
+    <k-checkbox
+      label="Disabled Unchecked"
+      :disabled="true"
+    ></k-checkbox>
+    <k-checkbox
+      label="Disabled Indeterminate"
+      :indeterminate="true"
+      :disabled="true"
+    ></k-checkbox>
+    <k-checkbox
+      label="Disabled Checked"
+      :checked="true"
+      :disabled="true"
+    ></k-checkbox>
+    <k-checkbox
+      label="Checked No Label"
+      :checked="true"
+      :show-label="false"
+    ></k-checkbox>
   </div>
 
 </template>

@@ -3,6 +3,8 @@
   <tr>
     <th class="col-checkbox">
       <k-checkbox
+        :label="$tr('selectTopic')"
+        :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
         :indeterminate="someExercisesWithinTopicSelected"
         :disabled="!topicHasExercises"
@@ -35,6 +37,7 @@
     $trs: {
       exercisesSelected:
         '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
+      selectTopic: 'Select topic',
     },
     components: {
       contentIcon,

@@ -27,7 +27,7 @@ function makeWrapper(propsData = {}) {
 function getElements(wrapper) {
   return {
     cancelResetButton: () => wrapper.$el.querySelector('button[name="cancel"]'),
-    checkbox: () => wrapper.$el.querySelector('input[name="learnerCanEditUsername"]'),
+    checkbox: () => wrapper.$el.querySelector('input[class="k-checkbox-input"]'),
     confirmResetButton: () => wrapper.$el.querySelector('button[name="reset"]'),
     resetButton: () => wrapper.$el.querySelector('button[name="reset-settings"]'),
     saveButton: () => wrapper.$el.querySelector('button[name="save-settings"]'),
