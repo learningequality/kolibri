@@ -235,8 +235,23 @@ def start(port=None, daemon=True):
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
+
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
+
+    __, urls = server.get_urls(listen_port=port)
+    if not urls:
+        logger.error(
+            "Could not detect an IP address that Kolibri binds to, but try "
+            "opening up the following addresses:\n")
+        urls = [
+            "http://{}:{}".format(ip, port) for ip in ("0.0.0.0", "127.0.0.1")
+        ]
+    else:
+        logger.info("Kolibri running on:\n")
+    for addr in urls:
+        sys.stderr.write("\t{}\n".format(addr))
+    sys.stderr.write("\n")
 
     # Daemonize at this point, no more user output is needed
     if daemon:

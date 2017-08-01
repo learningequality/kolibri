@@ -22,3 +22,4 @@ requests-toolbelt==0.7.1
 clint==0.5.1
 tzlocal==1.4
 python-dateutil==2.6.0
+ifcfg==0.11b4
