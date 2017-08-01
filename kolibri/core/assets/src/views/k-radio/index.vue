@@ -11,13 +11,13 @@
         <input
           type="radio"
           class="k-radio-input"
-          :name="name"
+          :id="id"
           :value="radiovalue"
-          :checked="isCurrentlySelected"
           :disabled="disabled"
-          @change.stop="select"
           @focus="isActive = true"
           @blur="isActive = false"
+          v-model="model"
+          @click.stop
         >
 
         <mat-svg
@@ -35,7 +35,7 @@
 
       </div>
 
-      <label v-if="label" :for="name" class="k-radio-label">{{ label }}</label>
+      <label :for="id" class="k-radio-label">{{ label }}</label>
 
     </div>
   </div>
@@ -52,28 +52,23 @@
     name: 'k-radio',
     props: {
       /**
-       * Name attribute
-       */
-      name: {
-        type: String,
-        required: false,
-      },
-      /**
-       * Text label
+       * Label
        */
       label: {
         type: String,
-        required: false,
-      },
-      value: {
-        type: [String, Boolean, Number],
         required: true,
+      },
+      /**
+       * v-model value
+       */
+      value: {
+        type: [String, Number],
       },
       /**
        * Value of the radio
        */
       radiovalue: {
-        type: [String, Boolean, Number],
+        type: [String, Number],
         required: true,
       },
       /**
@@ -86,31 +81,31 @@
     },
     data: () => ({
       isActive: false,
-      currentValue: '',
     }),
     computed: {
+      model: {
+        get() {
+          return this.value;
+        },
+        set(val) {
+          /**
+           * Emits change event
+           */
+          this.$emit('input', val);
+        },
+      },
       isCurrentlySelected() {
-        return (
-          typeof this.value !== 'undefined' &&
-          this.value !== null &&
-          this.radiovalue.toString() === this.value.toString()
-        );
+        return this.radiovalue.toString() === this.model.toString();
+      },
+      id() {
+        return `k-checkbox-${this._uid}`;
       },
     },
-    watch: {
-      value(newValue) {
-        console.log('changed');
-        this.currentValue = newValue;
-      },
-    },
-    created() {
-      this.currentValue = this.value;
-    },
+
     methods: {
-      select(event) {
+      select() {
         if (!this.disabled) {
-          console.log('value', this.value);
-          this.$emit('change', this.radiovalue, event);
+          this.model = this.radiovalue;
         }
       },
     },
@@ -146,7 +141,7 @@
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
-    // opacity: 0
+    opacity: 0
     cursor: pointer
 
   .k-radio-selected
