@@ -13,6 +13,10 @@
       <mat-svg v-if="isFullscreen" class="icon" category="navigation" name="fullscreen_exit"/>
       <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
+
+    <icon-button text="Zoom In" @click="zoomIn()"/>
+    <icon-button text="Zoom out" @click="zoomOut()"/>
+
     <div ref="pdfcontainer" class="pdfcontainer" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
       <p class="page-container" v-for="index in totalPages"
@@ -52,7 +56,7 @@
     props: ['defaultFile'],
     data: () => ({
       supportsPDFs: true,
-      scale: 1,
+      scale: null,
       timeout: null,
       isFullscreen: false,
       progress: 0,
@@ -81,6 +85,13 @@
         } else {
           this.isFullscreen = !this.isFullscreen;
         }
+        // might want to reset pageScale here
+      },
+      zoomIn() {
+        this.scale += 0.1;
+      },
+      zoomOut() {
+        this.scale -= 0.1;
       },
       getPage(pageNum, firstRender = false) {
         const pagePromise = this.pdfDocument.getPage(pageNum);
@@ -95,6 +106,7 @@
         return pdfPage;
       },
       setupInitialPageScale(pdfPage) {
+        // IDEA don't use a specific page, just look for one of them?
         // pageProxy.view returns visible dimensions of a page. First 2 values are on a 3d plane
         const pdfPageWidth = pdfPage.view[2];
         const pdfPageHeight = pdfPage.view[3];
@@ -226,6 +238,19 @@
     },
     watch: {
       scrollPos: 'checkPages',
+      scale(newScale, oldScale) {
+        const noChange = newScale === oldScale;
+        const firstChange = oldScale === null;
+        if (!noChange && !firstChange) {
+          Object.keys(this.pdfPages).forEach(pageNum => {
+            // toggle between hide and show to re-render the page
+            this.hidePage(Number(pageNum));
+            this.showPage(Number(pageNum));
+          });
+          this.checkPages();
+        }
+        this.checkPages();
+      },
     },
     created() {
       this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
@@ -251,9 +276,9 @@
         // Retrieve the first Page object
         this.getPage(1).then(pdfPage => {
           this.setupInitialPageScale(pdfPage);
-          this.showPage(1);
           this.$emit('startTracking');
         });
+        this.checkPages();
       });
 
       // progress tracking
