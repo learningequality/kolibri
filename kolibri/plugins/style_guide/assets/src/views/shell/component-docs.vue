@@ -2,9 +2,9 @@
 
   <div>
 
-    <p>Import using: <code>{{ importString }}</code></p>
-
     <p v-if="api.description">{{ api.description }}</p>
+
+    <p><code>{{ importString }}</code></p>
 
     <p v-if="api.props.length">
       Props:
