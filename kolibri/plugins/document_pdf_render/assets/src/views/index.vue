@@ -34,10 +34,10 @@
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
-      <p class="page-container" v-for="index in totalPages"
+      <section class="page-container" v-for="index in totalPages"
         :ref="pageRef(index)"
         :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-      </p>
+      </section>
     </div>
   </div>
 
@@ -123,6 +123,7 @@
       },
       // get the page dimensions. By default, uses the first page
       setupInitialPageScale() {
+        const pageMargin = 5;
         this.getPage(1).then(
           firstPage => {
             const pdfPageWidth = firstPage.view[2];
@@ -131,7 +132,7 @@
             if (isDesktop) {
               this.scale = 1;
             } else {
-              this.scale = this.elSize.width / pdfPageWidth;
+              this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
             }
           },
           error => {
@@ -339,6 +340,7 @@
 
   $keen-button-height = 48px
   $fullscreen-button-height = 36px
+  $page-padding = 5px
 
   .doc-viewer
     position: relative
@@ -370,22 +372,24 @@
     height: 100%
     overflow-y: scroll
     text-align: center
+    background-color: $core-text-default
 
     // prevents a never-visible spot underneath the fullscreen button
-    padding-top: $fullscreen-button-height
+    padding-top: $fullscreen-button-height + $page-padding
 
   .page-container
     background: #FFFFFF
-    margin: 5px auto
+    margin: $page-padding auto
 
   .button
     &-fullscreen
       transform: translateX(-50%)
       left: 50%
+      top: $page-padding
 
     &-zoom
       &-in, &-out
-        right: $keen-button-height
+        right: ($keen-button-height / 2)
       &-in
         bottom: $keen-button-height * 2.5
       &-out
