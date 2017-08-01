@@ -31,6 +31,8 @@
   import ScreenFull from 'screenfull';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import { debounce } from 'lodash';
 
@@ -42,6 +44,7 @@
 
   export default {
     name: 'documentPDFRender',
+    mixins: [responsiveWindow, responsiveElement],
     components: {
       iconButton,
       progressBar,
@@ -49,6 +52,7 @@
     props: ['defaultFile'],
     data: () => ({
       supportsPDFs: true,
+      scale: 1,
       timeout: null,
       isFullscreen: false,
       progress: 0,
@@ -82,39 +86,63 @@
             ScreenFull.toggle(this.$refs.container);
           }
           this.isFullscreen = true;
+      getPage(pageNum, firstRender = false) {
+        const pagePromise = this.pdfDocument.getPage(pageNum);
+        if (firstRender) {
+          return pagePromise.then(pdfPage => this.setupZoom(pdfPage));
+        }
+        return pagePromise;
+      },
+      setupZoom(pdfPage) {
+        console.log(pdfPage.view);
+
+        return pdfPage;
+      },
+      setupInitialPageScale(pdfPage) {
+        // pageProxy.view returns visible dimensions of a page. First 2 values are on a 3d plane
+        const pdfPageWidth = pdfPage.view[2];
+        const pdfPageHeight = pdfPage.view[3];
+
+        const isMobile = this.windowSize.breakpoint === 0;
+
+        if (isMobile) {
+          this.scale = this.elSize.width / pdfPageWidth;
+        } else {
+          this.scale = this.elSize.height / pdfPageHeight;
         }
       },
-      getPage(pageNum) {
-        return this.pdfDocument.getPage(pageNum);
-      },
-      getPageViewport(pdfPage) {
+      startRender(pdfPage) {
+        // use a promise because this also calls render, allowing us to cancel
         return new Promise((resolve, reject) => {
           const pageNum = pdfPage.pageNumber;
+
           if (this.pdfPages[pageNum]) {
-            // Display page on the existing canvas with 100% scale.
-            const viewport = pdfPage.getViewport(1.0);
             this.pdfPages[pageNum].pdfPage = pdfPage;
 
-            // put together the canvas elment where page will be rendered
-            const canvas = document.createElement('canvas');
-            if (this.pageHeight === 0 && this.pageWidth === 0) {
-              this.pageHeight = viewport.height;
-              this.pageWidth = viewport.width;
-            }
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+            // Get viewport, which contains directions to be passed into render function
+            const viewport = pdfPage.getViewport(this.scale);
 
-            // specify the rules for render and create the necessary task
-            const ctx = canvas.getContext('2d');
+            // put together the canvas element where page will be rendered
+            const canvas = document.createElement('canvas');
+
+            // define canvas and dummy blank page dimensions
+            canvas.width = this.pageWidth = viewport.width;
+            canvas.height = this.pageHeight = viewport.height;
+
             const renderTask = pdfPage.render({
-              canvasContext: ctx,
-              viewport: viewport,
+              canvasContext: canvas.getContext('2d'),
+              viewport,
             });
+
             this.pdfPages[pageNum].canvas = canvas;
             this.pdfPages[pageNum].renderTask = renderTask;
             this.pdfPages[pageNum].rendering = true;
             this.pdfPages[pageNum].loading = false;
+
+            // resolves here to indicate that the page has been set up for render.
+            // check flags for the stages of the render
             resolve();
+
             renderTask.then(
               () => {
                 if (this.pdfPages[pageNum]) {
@@ -147,13 +175,9 @@
           ) {
             this.pdfPages[pageNum].loading = true;
             if (!this.pdfPages[pageNum].pdfPage) {
-              this.pdfPages[pageNum].viewportPromise = this.getPage(pageNum).then(
-                this.getPageViewport
-              );
+              this.pdfPages[pageNum].renderPromise = this.getPage(pageNum).then(this.startRender);
             } else {
-              this.pdfPages[pageNum].viewportPromise = this.getPageViewport(
-                this.pdfPages[pageNum].pdfPage
-              );
+              this.pdfPages[pageNum].renderPromise = this.startRender(this.pdfPages[pageNum].pdfPage);
             }
           }
         }
@@ -173,7 +197,7 @@
           } else if (pdfPage.loading) {
             // Currently loading, cancel the task
             const renderTask = pdfPage.renderTask;
-            pdfPage.viewportPromise.then(() => {
+            pdfPage.renderPromise.then(() => {
               renderTask && renderTask.cancel();
             });
           } else if (pdfPage.rendering) {
@@ -208,25 +232,25 @@
       scrollPos: 'checkPages',
     },
     created() {
-      this.loadPDF = PDFJSLib.getDocument(this.defaultFile.storage_url);
+      this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
     },
     mounted() {
       this.loadPDF.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
 
-      this.loadPDF.then(pdfDocument => {
-        this.pdfPages = {};
+      // Retrieve the document and its corresponding object
+      this.loadPdfPromise.then(pdfDocument => {
+        this.pdfDocument = pdfDocument;
         this.totalPages = pdfDocument.numPages;
-        // Begin retrieving the first page
-        pdfDocument.getPage(1).then(() => {
-          this.showPage(1);
+        this.pdfPages = {};
 
-          // Track the pdf document
+        // Retrieve the first Page object
+        this.getPage(1).then(pdfPage => {
+          this.setupInitialPageScale(pdfPage);
+          this.showPage(1);
           this.$emit('startTracking');
         });
-
-        this.pdfDocument = pdfDocument;
       });
 
       // progress tracking
