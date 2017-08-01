@@ -35,8 +35,10 @@
   @require '../styles/style-guide.styl'
 
   .content
+    margin-right: auto
     margin-left: $sidenav-width + 32
     margin-top: 24px
+    max-width: 50em
 
 </style>
 
@@ -56,6 +58,7 @@
   html
     overflow: initial
 
+  @require '../styles/style-guide.styl'
   @require '~vuep/dist/vuep.css'
 
   .vuep

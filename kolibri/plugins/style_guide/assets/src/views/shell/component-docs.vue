@@ -1,26 +1,13 @@
 <template>
 
-  <div class="component-template">
+  <div>
 
-    <h1>{{ api.name }}</h1>
+    <p v-if="api.description">{{ api.description }}</p>
 
+    <p><code>{{ importString }}</code></p>
 
-    <p>{{ api.description }}</p>
-
-    <!--
-    <h2>Status</h2>
-    <p v-if="status === 'complete'" class="status-complete">Fully implemented</p>
-    <p v-else class="status-incomplete">Not fully implemented</p>
-    -->
-
-    <h2 id="api">API</h2>
-
-    <h3>Import</h3>
-    <code>{{ importString }}</code>
-
-
-    <template v-if="api.props.length">
-      <h3>Props</h3>
+    <p v-if="api.props.length">
+      Props:
       <table>
         <tr>
           <th>Name</th>
@@ -42,11 +29,10 @@
           <td>{{ prop.description ? prop.description : '-' }}</td>
         </tr>
       </table>
-    </template>
+    </p>
 
-
-    <template v-if="api.events.length">
-      <h3>Events</h3>
+    <p v-if="api.events.length">
+      Events:
       <table>
         <tr>
           <th>Name</th>
@@ -57,11 +43,10 @@
           <td>{{ event.description ? event.description : '-' }}</td>
         </tr>
       </table>
-    </template>
+    </p>
 
-
-    <template v-if="api.slots.length">
-      <h3>Slots</h3>
+    <p v-if="api.slots.length">
+      Slots:
       <table>
         <tr>
           <th>Name</th>
@@ -72,15 +57,7 @@
           <td>{{ slot.description ? slot.description : '-' }}</td>
         </tr>
       </table>
-    </template>
-
-
-    <h2 id="examples">Examples</h2>
-    <vuep :template="codeExamplesTemplate"/>
-
-
-    <h2 id="guidelines">Guidelines</h2>
-    <slot name="guidelines"/>
+    </p>
 
   </div>
 
@@ -94,20 +71,9 @@
 
   export default {
     props: {
-      codeExamplesTemplate: {
-        type: String,
-        required: true,
-      },
       api: {
         type: Object,
         required: true,
-      },
-      status: {
-        type: String,
-        default: 'incomplete',
-        validator(value) {
-          return ['complete', 'incomplete'].includes(value);
-        },
       },
     },
     computed: {
@@ -117,7 +83,6 @@
         )}';`;
       },
     },
-
     methods: {
       parsePropType(propType) {
         if (!propType) {
@@ -163,30 +128,6 @@
   @require '~kolibri.styles.definitions'
   @require '../../styles/style-guide.styl'
 
-  h1
-    line-height: 1.7em
-
-  h1, h2, h3
-    color: #333
-
-  h2, h3
-    margin-top: 2em
-    margin-bottom: 0.5em
-
-  h4
-    margin-bottom: 0.5em
-
-  p
-    margin-top: 0
-    max-width: 50em
-
-  ul
-    margin-top: 0.5em
-
-    li
-      margin-bottom: 0.3em
-
-
   table, th, td
     border: 1px solid darkgray
     border-collapse: collapse
@@ -203,11 +144,6 @@
     color: #268bd2
     font-size: smaller
     padding: 4px
-
-  .status-complete
-    color: $core-status-correct
-
-  .status-incomplete
-    color: $core-status-wrong
+    white-space: nowrap
 
 </style>

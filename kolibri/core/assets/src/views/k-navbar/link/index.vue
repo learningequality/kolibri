@@ -24,6 +24,10 @@
 
   import ValidateLinkObject from 'kolibri.utils.validateLinkObject';
   import uiIcon from 'keen-ui/src/UiIcon';
+
+  /**
+   Links for use inside the k-navbar
+   */
   export default {
     name: 'k-navbar-link',
     props: {

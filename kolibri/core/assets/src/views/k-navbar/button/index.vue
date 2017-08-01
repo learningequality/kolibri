@@ -25,6 +25,10 @@
 <script>
 
   import uiIcon from 'keen-ui/src/UiIcon';
+
+  /**
+   Buttons for use inside the k-navbar
+   */
   export default {
     name: 'k-navbar-button',
     props: {
