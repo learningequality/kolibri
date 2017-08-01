@@ -3,6 +3,8 @@ import { sortBy, flatten } from 'lodash';
 import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
+import checkboxesPage from '../content/checkboxes';
+import radiosPage from '../content/radios';
 import homePage from '../content/style-guide-home';
 
 function sortSectionItems(items) {
@@ -43,6 +45,20 @@ const navMenu = [
         itemRoute: {
           path: `/components/navbar`,
           component: navbarPage,
+        },
+      },
+      {
+        itemName: 'Checkboxes',
+        itemRoute: {
+          path: `/components/checkboxes`,
+          component: checkboxesPage,
+        },
+      },
+      {
+        itemName: 'Radios',
+        itemRoute: {
+          path: `/components/radios`,
+          component: radiosPage,
         },
       },
     ]),

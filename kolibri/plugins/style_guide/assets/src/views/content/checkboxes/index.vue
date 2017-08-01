@@ -1,147 +1,69 @@
 <template>
 
-  <component-template
-      class="checkbox-style-guide"
-      :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api"
-      :requirePath="requirePath"
-    >
+  <page-template title="Checkboxes" :completed="false">
 
-    <h1 slot="title">Checkboxes</h1>
-    <p slot="summary">
-      Use if you want to allow the user to select multiple items within a list.
-      Actions should be selectable independently of each other.
-    </p>
+    <h2><code>{{ kCheckboxApi.name }}</code> API</h2>
+    <component-docs :api="kCheckboxApi" />
 
-    <div slot="guidelines-and-usage">
-      <h3>Usage</h3>
-      <p>
-        Use checkboxes in tables and lists only
-      </p>
-      <p>
-        Selected state of controls generally denote “positives”
-        (yes/select/etc.)
-      </p>
+    <h2>Code Example</h2>
+    <vue-example :code="example" />
 
-      <h3>Do not</h3>
-      <ul>
-        <li>
-          Use checkboxes as a filter in a table or a list
-        </li>
-        <li>
-          Nest checkboxes
-        </li>
-      </ul>
+    <h2>Guidelines</h2>
+    <h3>Usage</h3>
+    <ul>
+      <li>Should only be used in tables and lists</li>
+      <li>Selected state of checkboxes should denote positives (yes/select/)</li>
+      <li>Should not be used as filters in tables or lists</li>
+      <li>Should not be nested</li>
 
-      <h3>Style</h3>
-      <p>
-        Kolibri utilizes the default styles + padding from Keen UI
-      </p>
-      <p>
-        Selected checkbox is the action color
-      </p>
-      <p>
-        Indeterminate checkbox is medium grey
-      </p>
-      <p>
-        Unselected checkbox are dark grey
-      </p>
+    </ul>
 
-      <h3>Language</h3>
-      <h4>Labels & option text:</h4>
-      <p>
-        Keep these short, concise, and easy for the user to understand. Should
-        not be structured as a sentence.
-      </p>
+    <h3>Style</h3>
+    <ul>
+      <li>Selected state is the action color</li>
+      <li>Indeterminate state is medium grey</li>
+      <li>Unselected state are dark grey</li>
+      <li>Disabled state is </li>
+      <li>Always left-aligned</li>
+      <li>vertically stacked</li>
+    </ul>
 
-      <h3>Layout</h3>
-      <p>
-        Checkboxes are always left-aligned
-      </p>
-      <p>
-        No inset padding, checkboxes left-align with the content of their
-        container
-      </p>
-      <p>
-        Checkboxes are vertically stacked
-      </p>
-    </div>
+    <h3>Language</h3>
+    <ul>
+      <li>Labels should be short and concise. Should not be sentences.</li>
+    </ul>
 
-  </component-template>
+  </page-template>
 
 </template>
 
 
 <script>
 
-  // Globally register the Kolibri components to make them accessible in the
-  // Vuep renderer. This has to be done on the compiler-included version of Vue
-  // because that's what Vuep uses to dynamically render template.
+  import componentDocs from '../../shell/component-docs';
+  import vueExample from '../../shell/vue-example';
+  import pageTemplate from '../../shell/page-template';
+
+  import example from 'raw-loader!./example.html';
+  import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.kCheckbox';
+
   import FullVue from 'vue/dist/vue.common';
-  import componentTemplate from '../../shell/component-template';
-  import UiCheckbox from 'keen-ui/src/UiCheckbox';
-  import UiCheckboxApi from '!vue-doc!keen-ui/src/UiCheckbox';
-  FullVue.component('ui-checkbox', UiCheckbox);
-
-  // Define the examples as the initial content of the Vuep editor.
-  // Notes: htmlhint would incorrectly warn about nested script tags, so we'd
-  // need to work around it by dynamically constructing them.
-  const script = 'script';
-  const codeExamplesTemplate = `
-  <template>
-  <div class="examples">
-    <div class="example">
-      <h4>Normal</h4>
-      <ui-checkbox v-model="selected"></ui-checkbox>
-      <ui-checkbox v-model="unselected"></ui-checkbox>
-      <input type="checkbox" :indeterminate.prop="true">
-    </div>
-
-    <div class="example">
-      <h4>Disabled</h4>
-      <ui-checkbox :disabled="true" v-model="selected"></ui-checkbox>
-      <ui-checkbox :disabled="true" v-model="unselected"></ui-checkbox>
-    </div>
-  </div>
-  </template>
-
-  <${script}>
-  module.exports = {
-    data: () => ({
-      selected: true,
-      unselected: false
-    }),
-    components: {
-      // textbox: require('keen-ui/src/UiCheckbox')
-    }
-  };
-  </${script}>
-  `;
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  FullVue.component('k-checkbox', kCheckbox);
 
   export default {
     components: {
-      componentTemplate,
+      pageTemplate,
+      componentDocs,
+      vueExample,
     },
     data: () => ({
-      codeExamplesTemplate,
-      api: UiCheckboxApi,
-      requirePath: 'keen-ui/src/UiCheckbox',
+      kCheckboxApi,
+      example,
     }),
   };
 
 </script>
 
 
-<style lang="stylus">
-
-  .checkbox-style-guide
-    .vuep-preview
-      height: 200px
-
-    .examples
-      display: flex
-
-      .example
-        margin: 0 5em
-
-</style>
+<style lang="stylus" scoped></style>
