@@ -139,14 +139,13 @@ class Language(models.Model):
 @python_2_unicode_compatible
 class File(models.Model):
     """
-    The bottom layer of the contentDB schema, defines the basic building brick for content.
+    The second to bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
     id = UUIDField(primary_key=True)
-    checksum = models.CharField(max_length=400, blank=True)
-    extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
+    # The foreign key mapping happens here as many File objects can map onto a single local file
+    local_file = models.ForeignKey('LocalFile')
     available = models.BooleanField(default=False)
-    file_size = models.IntegerField(blank=True, null=True)
     contentnode = models.ForeignKey(ContentNode, related_name='files', blank=True, null=True)
     preset = models.CharField(max_length=150, choices=format_presets.choices, blank=True)
     lang = models.ForeignKey(Language, blank=True, null=True)
@@ -160,22 +159,6 @@ class File(models.Model):
     class Admin:
         pass
 
-    def __str__(self):
-        return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
-
-    def get_filename(self):
-        return "{}.{}".format(self.checksum, self.extension)
-
-    def get_storage_url(self):
-        """
-        Return a url for the client side to retrieve the content file.
-        The same url will also be exposed by the file serializer.
-        """
-        if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
-        else:
-            return None
-
     def get_preset(self):
         """
         Return the preset.
@@ -187,7 +170,7 @@ class File(models.Model):
         Return a valid filename to be downloaded as.
         """
         title = self.contentnode.title
-        filename = "{} ({}).{}".format(title, self.get_preset(), self.extension)
+        filename = "{} ({}).{}".format(title, self.get_preset(), self.local_file.extension)
         valid_filename = get_valid_filename(filename)
         return valid_filename
 
@@ -196,7 +179,38 @@ class File(models.Model):
         Return the download url.
         """
         new_filename = self.get_download_filename()
-        return reverse('downloadcontent', kwargs={'filename': self.get_filename(), 'new_filename': new_filename})
+        return reverse('downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
+
+
+@python_2_unicode_compatible
+class LocalFile(models.Model):
+    """
+    The bottom layer of the contentDB schema, defines the local state of files on the device storage.
+    """
+    # ID should be the checksum of the file
+    id = UUIDField(primary_key=True)
+    extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
+    available = models.BooleanField(default=False)
+    file_size = models.IntegerField(blank=True, null=True)
+
+    class Admin:
+        pass
+
+    def __str__(self):
+        return '{checksum}.{extension}'.format(checksum=self.id, extension=self.extension)
+
+    def get_filename(self):
+        return self.__str__()
+
+    def get_storage_url(self):
+        """
+        Return a url for the client side to retrieve the content file.
+        The same url will also be exposed by the file serializer.
+        """
+        if self.available:
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
+        else:
+            return None
 
 
 @python_2_unicode_compatible
@@ -211,6 +225,7 @@ class License(models.Model):
         return self.license_name
 
 
+@python_2_unicode_compatible
 class AssessmentMetaData(models.Model):
     """
     A model to describe additional metadata that characterizes assessment behaviour in Kolibri.
