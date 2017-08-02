@@ -74,14 +74,13 @@
     props: ['defaultFile'],
     data: () => ({
       supportsPDFs: true,
+      isFullscreen: false,
+      progress: 0,
       scale: null,
       timeout: null,
-      isFullscreen: false,
-      error: false,
-      progress: 0,
-      totalPages: 0,
-      pageHeight: 0,
-      pageWidth: 0,
+      totalPages: null,
+      pageHeight: null,
+      pageWidth: null,
     }),
     computed: {
       fullscreenAllowed() {
@@ -110,7 +109,6 @@
         } else {
           this.isFullscreen = !this.isFullscreen;
         }
-        this.setupInitialPageScale();
       },
       zoomIn() {
         this.scale += 0.1;
@@ -120,25 +118,6 @@
       },
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
-      },
-      // get the page dimensions. By default, uses the first page
-      setupInitialPageScale() {
-        const pageMargin = 5;
-        this.getPage(1).then(
-          firstPage => {
-            const pdfPageWidth = firstPage.view[2];
-            const isDesktop = this.windowSize.breakpoint >= 5;
-
-            if (isDesktop) {
-              this.scale = 1;
-            } else {
-              this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
-            }
-          },
-          error => {
-            this.error = true;
-          }
-        );
       },
       startRender(pdfPage) {
         // use a promise because this also calls render, allowing us to cancel
@@ -266,9 +245,7 @@
           Object.keys(this.pdfPages).forEach(pageNum => {
             // toggle between hide and show to re-render the page
             this.hidePage(Number(pageNum));
-            this.showPage(Number(pageNum));
           });
-          this.checkPages();
         }
         this.checkPages();
       },
@@ -280,30 +257,44 @@
         });
       }
 
-      this.loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
+      const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
       // pass callback to update loading bar
-      this.loadPdfPromise.onProgress = loadingProgress => {
+      loadPdfPromise.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
 
-      this.loadPdfPromise.then(pdfDocument => {
-        if (PDFJSLib.FormatError) {
-          this.error = true;
-          return;
-        }
-
+      this.prepComponentData = loadPdfPromise.then(pdfDocument => {
         this.pdfDocument = pdfDocument;
         this.totalPages = pdfDocument.numPages;
         this.pdfPages = {};
 
-        this.setupInitialPageScale();
+        return this.getPage(1).then(firstPage => {
+          const pageMargin = 5;
+          const pdfPageWidth = firstPage.view[2];
+          const isDesktop = this.windowSize.breakpoint >= 5;
+
+          if (isDesktop) {
+            // if desktop, use default page's default scale size
+            this.scale = 1;
+          } else {
+            // if anything else, use max width
+            this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
+          }
+
+          // set default height and width properties, used in checkPages
+          const initialViewport = firstPage.getViewport(this.scale);
+          this.pageHeight = initialViewport.height;
+          this.pageWidth = initialViewport.width;
+        });
       });
     },
     mounted() {
       // Retrieve the document and its corresponding object
-      this.$emit('startTracking');
-      this.checkPages();
+      this.prepComponentData.then(() => {
+        this.$emit('startTracking');
+        this.checkPages();
+      });
 
       // progress tracking
       const self = this;
