@@ -34,9 +34,10 @@
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
-      <section class="page-container" v-for="index in totalPages"
+      <section class="pdf-page-container" v-for="index in totalPages"
         :ref="pageRef(index)"
         :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
+        <span class="pdf-page-loading"> {{$tr('pageNumber', {pageNumber: index})}} </span>
       </section>
     </div>
   </div>
@@ -60,7 +61,7 @@
 
   // Number of pages before and after current visible to keep rendered
   const pageDisplayWindow = 1;
-  const renderDebounceTime = 500;
+  const renderDebounceTime = 300;
   const minViewerHeight = 400;
 
   export default {
@@ -124,6 +125,11 @@
         return new Promise((resolve, reject) => {
           const pageNum = pdfPage.pageNumber;
 
+          // start the loading message
+          if (this.currentPageNum === pageNum) {
+            this.currentPageRendering = true;
+          }
+
           if (this.pdfPages[pageNum]) {
             this.pdfPages[pageNum].pdfPage = pdfPage;
 
@@ -136,6 +142,9 @@
             // define canvas and dummy blank page dimensions
             canvas.width = this.pageWidth = viewport.width;
             canvas.height = this.pageHeight = viewport.height;
+            canvas.style.position = 'absolute';
+            canvas.style.top = 0;
+            canvas.style.left = 0;
 
             const renderTask = pdfPage.render({
               canvasContext: canvas.getContext('2d'),
@@ -159,6 +168,11 @@
                     // Canvas has not been deleted in the interim
                     this.pdfPages[pageNum].rendered = true;
                     this.$refs[this.pageRef(pageNum)][0].appendChild(this.pdfPages[pageNum].canvas);
+
+                    // end the loading message
+                    if (this.currentPageNum === pageNum) {
+                      this.currentPageRendering = false;
+                    }
                   }
                 }
               },
@@ -241,12 +255,14 @@
       scale(newScale, oldScale) {
         const noChange = newScale === oldScale;
         const firstChange = oldScale === null;
+
         if (!noChange && !firstChange) {
+          // remove all rendered/rendering pages
           Object.keys(this.pdfPages).forEach(pageNum => {
-            // toggle between hide and show to re-render the page
             this.hidePage(Number(pageNum));
           });
         }
+        // find and re-render necessary pages
         this.checkPages();
       },
     },
@@ -314,6 +330,7 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
+      pageNumber: '{pageNumber, number}',
     },
     vuex: {
       getters: {
@@ -337,6 +354,9 @@
     position: relative
     height: 100vh
     max-height: calc(100vh - 20em)
+    width: 90%
+    margin-left: auto
+    margin-right: auto
 
     &:fullscreen
       width: 100%
@@ -368,9 +388,22 @@
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding
 
-  .page-container
-    background: #FFFFFF
-    margin: $page-padding auto
+  .pdf-page
+    &-container
+      background: #FFFFFF
+      margin: $page-padding auto
+      position: relative
+      z-index: 2 // material spec - card (resting)
+    &-loading
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      font-size: 2em
+      line-height: 100%
+
+  .doc-viewer-controls
+    z-index: 6 // material spec - snackbar and FAB
 
   .button
     &-fullscreen
