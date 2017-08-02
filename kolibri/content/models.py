@@ -16,6 +16,7 @@ from django.utils.text import get_valid_filename
 from jsonfield import JSONField
 from kolibri.core.fields import DateTimeTzField
 from le_utils.constants import content_kinds, file_formats, format_presets
+from le_utils.constants.languages import LANGUAGE_DIRECTIONS
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.querysets import TreeQuerySet
 
@@ -123,6 +124,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
     stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
+    lang = models.ForeignKey('Language', blank=True, null=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -158,14 +160,17 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
 @python_2_unicode_compatible
 class Language(ContentDatabaseModel):
-    id = models.CharField(max_length=7, primary_key=True)
+    id = models.CharField(max_length=14, primary_key=True)
     lang_code = models.CharField(max_length=3, db_index=True)
-    lang_subcode = models.CharField(max_length=3, db_index=True, blank=True, null=True)
+    lang_subcode = models.CharField(max_length=10, db_index=True, blank=True, null=True)
+    # Localized name
+    lang_name = models.CharField(max_length=100, blank=True, null=True)
+    lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS)
 
     objects = ContentQuerySet.as_manager()
 
     def __str__(self):
-        return self.lang_code
+        return self.lang_name
 
 
 @python_2_unicode_compatible

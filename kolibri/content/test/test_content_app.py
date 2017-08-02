@@ -135,7 +135,7 @@ class ContentNodeTestCase(TestCase):
         self.assertEqual(str(p), 'tag_2')
         # test for Language __str__
         p = content.Language.objects.get(lang_code="en")
-        self.assertEqual(str(p), 'en')
+        self.assertEqual(str(p), 'English-Test')
         # test for ChannelMetadata __str__
         p = content.ChannelMetadata.objects.get(name="testing")
         self.assertEqual(str(p), 'testing')
