@@ -66,7 +66,7 @@
                     @change="changeSelection"
                   />
                 </th>
-                <th class="col-title">{{ $tr('selectAll') }}</th>
+                <th class="col-title">{{ $tr('name') }}</th>
                 <th class="col-selection"></th>
               </tr>
             </thead>
@@ -165,6 +165,7 @@
       removed: 'Removed',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
       duplicateTitle: 'An exam with that title already exists',
+      name: 'Name',
     },
     data() {
       return {

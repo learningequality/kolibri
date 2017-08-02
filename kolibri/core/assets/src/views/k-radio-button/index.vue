@@ -9,6 +9,7 @@
 
       <div class="k-radio" :class="{ 'k-radio-active': isActive }">
         <input
+          ref="kRadioInput"
           type="radio"
           class="k-radio-input"
           :id="id"
@@ -64,9 +65,10 @@
        */
       value: {
         type: [String, Number, Boolean],
+        required: true,
       },
       /**
-       * Value of the radio
+       * Unique value of the particular radio
        */
       radiovalue: {
         type: [String, Number, Boolean],
@@ -103,6 +105,7 @@
     methods: {
       select() {
         if (!this.disabled) {
+          this.$refs.kRadioInput.focus();
           this.model = this.radiovalue;
           this.emitChange();
         }
@@ -159,10 +162,7 @@
 
   .k-radio-active
     .k-radio-selected
-      fill: $core-action-dark
-
-    .k-radio-unselected
-      fill: $core-text-default
+      outline: $core-outline
 
   .k-radio-label
     display: table-cell

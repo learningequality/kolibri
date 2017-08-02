@@ -9,6 +9,7 @@
 
       <div class="k-checkbox" :class="{ 'k-checkbox-active': isActive }">
         <input
+          ref="kCheckboxInput"
           type="checkbox"
           class="k-checkbox-input"
           :id="id"
@@ -127,6 +128,7 @@
       toggleCheck(event) {
         if (!this.disabled) {
           this.isCurrentlyChecked = !this.isCurrentlyChecked;
+          this.$refs.kCheckboxInput.focus();
           this.isCurrentlyIndeterminate = false;
           /**
            * Emits change event
@@ -178,10 +180,10 @@
 
   .k-checkbox-active
     .k-checkbox-checked, .k-checkbox-indeterminate
-      fill: $core-action-dark
+      outline: $core-outline
 
     .k-checkbox-unchecked
-      fill: $core-text-default
+      outline: $core-outline
 
   .k-checkbox-label
     display: table-cell
