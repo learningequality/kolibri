@@ -54,7 +54,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading"/>
+        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading" type="submit"/>
       </section>
     </form>
   </core-modal>
