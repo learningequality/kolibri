@@ -2,31 +2,33 @@
 
   <div>
     <k-radio
-      name="uncheckedenabled"
-      label="uncheckedenabled"
+      label="Radio 1"
       :radiovalue="1"
       v-model="model1"
     >
     </k-radio>
     <k-radio
-      name="checkedenabled"
-      label="checkedenabled"
+      label="Radio 2"
       :radiovalue="2"
       v-model="model1"
     >
     </k-radio>
     <k-radio
-      name="uncheckeddisabled"
-      label="uncheckeddisabled"
+      label="Radio 3"
       :radiovalue="3"
+      v-model="model1"
+    >
+    </k-radio>
+    <k-radio
+      label="Radio 4 Disabled"
+      :radiovalue="4"
       :disabled="true"
       v-model="model2"
     >
     </k-radio>
     <k-radio
-      name="checkeddisabled"
-      label="checkeddisabled"
-      :radiovalue="4"
+      label="Radio 5 Disabled"
+      :radiovalue="5"
       :disabled="true"
       v-model="model2"
     >
@@ -40,8 +42,8 @@
 
   module.exports = {
     data: () => ({
-      model1: 1,
-      model2: 3,
+      model1: 2,
+      model2: 4,
     }),
   };
 

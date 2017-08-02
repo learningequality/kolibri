@@ -16,6 +16,7 @@
           :disabled="disabled"
           @focus="isActive = true"
           @blur="isActive = false"
+          @change="emitChange"
           v-model="model"
           @click.stop
         >
@@ -62,13 +63,13 @@
        * v-model value
        */
       value: {
-        type: [String, Number],
+        type: [String, Number, Boolean],
       },
       /**
        * Value of the radio
        */
       radiovalue: {
-        type: [String, Number],
+        type: [String, Number, Boolean],
         required: true,
       },
       /**
@@ -88,9 +89,6 @@
           return this.value;
         },
         set(val) {
-          /**
-           * Emits change event
-           */
           this.$emit('input', val);
         },
       },
@@ -106,6 +104,15 @@
       select() {
         if (!this.disabled) {
           this.model = this.radiovalue;
+          this.emitChange();
+        }
+      },
+      emitChange(event) {
+        if (this.model !== this.radiovalue) {
+          /**
+           * Emits change event
+           */
+          this.$emit('change', this.model, event);
         }
       },
     },
@@ -170,5 +177,8 @@
 
     .k-radio, .k-radio-input, .k-radio-label
       cursor: default
+
+    .k-radio-label
+      color: $core-text-disabled
 
 </style>

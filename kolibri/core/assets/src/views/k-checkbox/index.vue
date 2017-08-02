@@ -197,4 +197,7 @@
     .k-checkbox, .k-checkbox-input, .k-checkbox-label
       cursor: default
 
+    .k-checkbox-label
+      color: $core-text-disabled
+
 </style>
