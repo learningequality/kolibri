@@ -10,38 +10,22 @@
 
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
-      <div
-        :name="'drive-'+index"
-        @click="$emit('change', drive.id)"
-        class="drive-list-item drive-list-item-enabled"
-        v-for="(drive, index) in enabledDrives"
-      >
-        <ui-radio
-          :id="'drive-'+index"
-          :trueValue="drive.id"
-          v-model="selectedDrive"
-        >
-          <div class="drive-name">{{ drive.name }}</div>
-          <div v-if="enabledMsg" class="drive-list-item-detail">
-            {{ enabledMsg(drive) }}
-          </div>
-        </ui-radio>
-      </div>
-
-      <div class="drive-list-item drive-list-item-disabled" v-for="(drive, index) in disabledDrives">
-        <ui-radio
-          :id="'disabled-drive-'+index"
-          :trueValue="drive.id"
-          disabled
-          v-model="selectedDrive"
-        >
-          <div>{{ drive.name }}</div>
-          <div class="drive-list-item-detail">
-            {{ disabledMsg }}
-          </div>
-        </ui-radio>
-      </div>
-
+      <k-radio
+        v-for="drive in enabledDrives"
+        :key="drive.id"
+        :label="genEnabledDriveLabel(drive)"
+        :radiovalue="drive.id"
+        v-model="selectedDrive"
+        @change="$emit('change', drive.id)"
+      />
+      <k-radio
+        v-for="drive in disabledDrives"
+        :key="drive.id"
+        :label="genDisabledDriveLabel(drive)"
+        :radiovalue="drive.id"
+        :disabled="true"
+        v-model="selectedDrive"
+      />
     </div>
   </div>
 
@@ -50,9 +34,10 @@
 
 <script>
 
-  import UiRadio from 'keen-ui/src/UiRadio';
+  import kRadio from 'kolibri.coreVue.components.kRadio';
+
   export default {
-    components: { UiRadio },
+    components: { kRadio },
     props: {
       value: {
         type: String,
@@ -83,6 +68,18 @@
         return this.drives.filter(drive => !this.enabledDrivePred(drive));
       },
     },
+    methods: {
+      genEnabledDriveLabel(drive) {
+        let driveLabel = drive.name;
+        if (this.enabledMsg) {
+          driveLabel += ` (${this.enabledMsg(drive)})`;
+        }
+        return driveLabel;
+      },
+      genDisabledDriveLabel(drive) {
+        return `${drive.name} (${this.disabledMsg})`;
+      },
+    },
     name: 'wizardDriveList',
     $trs: {
       drivesFound: 'Drives found:',
@@ -103,28 +100,5 @@
 
   h2
     font-size: 1em
-
-  .drive-list
-    &:not(first-child)
-      border-top: none
-
-  .drive-list-item
-    padding: 1em 0.6em
-    font-size: 0.9em
-    border: 1px $core-bg-canvas solid
-    &-detail
-      color: $core-text-annotation
-      font-size: 0.7em
-    &-disabled
-      color: $core-text-disabled
-    &-enabled
-      cursor: pointer
-      &:hover
-        background-color: $core-bg-canvas
-
-  .drive-name
-    font-size: 0.9em
-    & > label
-      cursor: pointer
 
 </style>
