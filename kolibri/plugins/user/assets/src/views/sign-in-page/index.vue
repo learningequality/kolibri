@@ -160,7 +160,7 @@
         });
       },
       setSuggestionTerm(newVal, oldVal) {
-        if (newVal !== null || typeof newVal !== 'undefined') {
+        if (newVal !== null && typeof newVal !== 'undefined') {
           // Only check if defined or not null
           if (newVal.length < 3) {
             // Don't search for suggestions if less than 3 characters entered
@@ -190,7 +190,7 @@
       },
       fillUsername(username) {
         // Only do this if we have been passed a non-null value
-        if (username !== null || typeof username !== 'undefined') {
+        if (username !== null && typeof username !== 'undefined') {
           this.username = username;
           this.showDropdown = false;
         }
