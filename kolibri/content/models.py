@@ -262,6 +262,8 @@ class ChannelMetadata(models.Model):
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
     last_updated = DateTimeTzField(null=True)
+    # Minimum version of Kolibri that this content database is compatible with
+    min_kolibri_version = models.CharField(max_length=50)
 
     class Admin:
         pass
