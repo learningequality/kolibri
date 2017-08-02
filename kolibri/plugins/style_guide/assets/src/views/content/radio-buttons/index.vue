@@ -1,9 +1,9 @@
 <template>
 
-  <page-template title="Radios" :completed="false">
+  <page-template title="Radio Buttons" :completed="false">
 
-    <h2><code>{{ kRadioApi.name }}</code> API</h2>
-    <component-docs :api="kRadioApi" />
+    <h2><code>{{ kRadioButtonApi.name }}</code> API</h2>
+    <component-docs :api="kRadioButtonApi" />
 
     <h2>Code Example</h2>
     <vue-example :code="example" />
@@ -12,7 +12,7 @@
     <h3>Usage</h3>
     <ul>
       <li>Should be used when all options must be visible. If not, use a select.</li>
-      <li>Selected state of radios should denote positives (yes/selected)</li>
+      <li>Selected state of radio buttons should denote positives (yes/selected)</li>
       <li>Should not be used to filter tables or lists</li>
       <li>Should not be nested</li>
     </ul>
@@ -40,11 +40,11 @@
   import pageTemplate from '../../shell/page-template';
 
   import example from 'raw-loader!./example.html';
-  import kRadioApi from '!vue-doc!kolibri.coreVue.components.kRadio';
+  import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.kRadioButton';
 
   import FullVue from 'vue/dist/vue.common';
-  import kRadio from 'kolibri.coreVue.components.kRadio';
-  FullVue.component('k-radio', kRadio);
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  FullVue.component('k-radio-button', kRadioButton);
 
   export default {
     components: {
@@ -53,7 +53,7 @@
       vueExample,
     },
     data: () => ({
-      kRadioApi,
+      kRadioButtonApi,
       example,
     }),
   };

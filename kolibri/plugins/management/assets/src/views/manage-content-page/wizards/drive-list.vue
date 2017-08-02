@@ -10,7 +10,7 @@
 
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
-      <k-radio
+      <k-radio-button
         v-for="drive in enabledDrives"
         :key="drive.id"
         :label="genEnabledDriveLabel(drive)"
@@ -18,7 +18,7 @@
         v-model="selectedDrive"
         @change="$emit('change', drive.id)"
       />
-      <k-radio
+      <k-radio-button
         v-for="drive in disabledDrives"
         :key="drive.id"
         :label="genDisabledDriveLabel(drive)"
@@ -34,10 +34,10 @@
 
 <script>
 
-  import kRadio from 'kolibri.coreVue.components.kRadio';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
-    components: { kRadio },
+    components: { kRadioButton },
     props: {
       value: {
         type: String,

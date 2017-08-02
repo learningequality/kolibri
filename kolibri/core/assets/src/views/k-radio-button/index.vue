@@ -50,7 +50,7 @@
    * Used to display all options
    */
   export default {
-    name: 'k-radio',
+    name: 'k-radio-button',
     props: {
       /**
        * Label

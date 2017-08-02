@@ -4,7 +4,7 @@ import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
 import checkboxesPage from '../content/checkboxes';
-import radiosPage from '../content/radios';
+import radioButtonsPage from '../content/radio-buttons';
 import homePage from '../content/style-guide-home';
 
 function sortSectionItems(items) {
@@ -55,10 +55,10 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Radios',
+        itemName: 'Radio Buttons',
         itemRoute: {
-          path: `/components/radios`,
-          component: radiosPage,
+          path: `/components/radio-buttons`,
+          component: radioButtonsPage,
         },
       },
     ]),

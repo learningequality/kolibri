@@ -46,7 +46,7 @@ import pointsIcon from '../views/points-icon';
 import authMessage from '../views/auth-message';
 import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
-import kRadio from '../views/k-radio';
+import kRadioButton from '../views/k-radio-button';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -103,7 +103,7 @@ export default {
       authMessage,
       kBreadcrumbs,
       kCheckbox,
-      kRadio,
+      kRadioButton,
     },
     router,
     mixins: {
