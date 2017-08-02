@@ -47,8 +47,8 @@
 <script>
 
   /**
-    * A radio
-    */
+   * A radio button
+   */
   export default {
     name: 'k-radio',
     props: {
@@ -96,7 +96,7 @@
         return this.radiovalue.toString() === this.model.toString();
       },
       id() {
-        return `k-checkbox-${this._uid}`;
+        return `k-radio-${this._uid}`;
       },
     },
 
