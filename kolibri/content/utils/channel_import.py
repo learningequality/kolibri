@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db.models import Model
 from kolibri.content import models
-from kolibri.content.models import ContentNode, File, Language, License, LocalFile
+from kolibri.content.models import ContentNode, File, LocalFile
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
@@ -32,20 +32,12 @@ def get_default_db_string():
         )
 
 
-NO_VERSION = 'unversioned'
-
 table_name_to_model = {
     model._meta.db_table: model for model in models if issubclass(model, Model)
 }
 
-# Some tables we want to merge existing data with,
-# rather than just adding a new row for every row in the imported db
-merge_tables = [
-    License._meta.db_table,
-    Language._meta.db_table,
-    LocalFile._meta.db_table,
-]
 
+NO_VERSION = 'unversioned'
 
 class ChannelImport(object):
 
@@ -53,8 +45,8 @@ class ChannelImport(object):
     # The value for a particular key can either be a function, which will be invoked on the context
     # Or, as a shortcut, a string can be used that will be used to get a different attribute from the
     # source object
-    # Mappings can be 'per_column' affecting a single column on a row, 'per_row', mapping an entire row at a time
-    # or 'per_table' mapping an entire table at a time.
+    # Mappings can be 'per_row', specifying mappings for an entire row
+    # and 'per_table' mapping an entire table at a time. Both can be used simultaneously.
     schema_mapping = {}
 
     def __init__(self, channel_id, source=None, source_engine=None):
@@ -75,6 +67,27 @@ class ChannelImport(object):
 
         # Get the next available tree_id in our database
         self.tree_id = self.find_unique_id()
+
+        self.content_table_names = [
+            table for table in self.DestinationBase.classes.keys() if table.startswith('content')
+        ]
+
+        self.set_all_dest_class_defaults()
+
+    def _set_class_defaults(self, table_name):
+
+        BaseClass = self.DestinationBase.classes[table_name]
+
+        DjangoModel = table_name_to_model[table_name]
+
+        for field in DjangoModel._meta.fields:
+            if field.has_default():
+                column = BaseClass.__table__.columns.get(field.attname)
+                column.default = field.default
+
+    def set_all_dest_class_defaults(self):
+        for table_name in self.content_table_names:
+            self._set_class_defaults(table_name)
 
     def find_unique_tree_id(self):
         tree_ids = sorted(self.destination.query(
@@ -145,9 +158,7 @@ class ChannelImport(object):
 
     def import_channel_data(self):
 
-        table_names = [table for table in self.DestinationBase.classes.keys() if table.startswith('content')]
-
-        for table_name in table_names:
+        for table_name in self.content_table_names:
             mapping = self.schema_mapping.get(table_name, {})
             row_mapper = self.generate_row_mapper(mapping.get('per_row'))
             table_mapper = self.generate_table_mapper(mapping.get('per_table'))
