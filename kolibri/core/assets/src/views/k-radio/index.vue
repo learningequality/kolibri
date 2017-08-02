@@ -47,7 +47,7 @@
 <script>
 
   /**
-   * A radio button
+   * Used to display all options
    */
   export default {
     name: 'k-radio',

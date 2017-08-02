@@ -60,7 +60,7 @@
 <script>
 
   /**
-    * A checkbox
+    * Used for selection
     */
   export default {
     name: 'k-checkbox',
