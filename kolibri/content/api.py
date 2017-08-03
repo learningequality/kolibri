@@ -5,8 +5,10 @@ import logging as logger
 from random import sample
 
 from django.core.cache import cache
+from django.db import transaction
 from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
+from django.utils.decorators import method_decorator
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -37,6 +39,7 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
+    @method_decorator(transaction.non_atomic_requests)
     def destroy(self, request, pk=None):
         """
         Destroys the ChannelMetadata object and its associated sqlite3 file on
@@ -44,6 +47,7 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         """
         logging.info('In ChannelMetadataCacheViewSet.destroy')
         super(ChannelMetadataCacheViewSet, self).destroy(request)
+        transaction.commit()
 
         if self.delete_content_db_file(pk):
             logging.info('delete_content_db_file returned True')
