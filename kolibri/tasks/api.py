@@ -155,7 +155,12 @@ def _localimport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in drive.metadata["channels"]:
-        call_command("importchannel", "local", channel["id"], drive.datafolder)
+        call_command(
+            "importchannel",
+            "local",
+            channel["id"],
+            drive.datafolder,
+            update_progress=update_progress)
         call_command(
             "importcontent",
             "local",
