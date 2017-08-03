@@ -55,7 +55,14 @@ def read_channel_metadata_from_db_file(channeldbpath):
     from kolibri.content.models import ChannelMetadata
 
     with using_content_database(channeldbpath):
-        return ChannelMetadata.objects.first()
+        channel_metadata =  ChannelMetadata.objects.first()
+
+        # FIX for #1818: DB file on removable media remains locked after import
+        from django.db import connections
+        connections.close_all()
+
+        return channel_metadata
+
 
 def get_channels_for_data_folder(datafolder):
     channels = []
