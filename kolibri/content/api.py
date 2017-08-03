@@ -50,15 +50,12 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
         # manually manage the deletion db entry in main DB cache
         # TRANSACTION START ----------------------------------------------------
-        transaction.set_autocommit(False)
-
         super(ChannelMetadataCacheViewSet, self).destroy(request)
-
         transaction.commit()
         # TRANSACTION END ------------------------------------------------------
 
 
-
+        from django.db import connections
         # SHOW  DB CONNECTIONS
         logging.info('\n\n\n A \n')
         db_keys = connections._connections.__dict__.keys()
@@ -68,14 +65,12 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
             logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
 
 
-
         # set_autocommit False on all DB connections
-        from django.db import connections
         db_keys = connections._connections.__dict__.keys()
         for db_key in db_keys:
+            # TODO: maybe skip default
             transaction.set_autocommit(False, using=db_key)
             # PLAN B: use the custom context manager   with using_content_database(db_key):
-
 
 
         # SHOW  DB CONNECTIONS
@@ -87,7 +82,6 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
             logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
 
         connections.close_all()
-
 
         # SHOW  DB CONNECTIONS
         logging.info('\n\n\n C \n')
