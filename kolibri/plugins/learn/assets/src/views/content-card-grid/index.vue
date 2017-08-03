@@ -14,25 +14,19 @@
       class="filter"
     />
 
-    <span
-      v-for="content in contents" class="content-card"
+    <template
+      v-for="content in contents"
       v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
-      <slot
+
+      <content-card
         :title="content.title"
         :thumbnail="content.thumbnail"
+        :class="{'grid-item': true, 'mobile': isMobile}"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
+        :link="genLink(content.id, content.kind)"/>
 
-        <content-card
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :link="genLink(content.id, content.kind)"/>
-
-      </slot>
-    </span>
+    </template>
 
   </div>
 
@@ -47,8 +41,10 @@
   import forEach from 'lodash/forEach';
   import uiSelect from 'keen-ui/src/UiSelect';
   import contentCard from '../content-card';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
+    mixins: [responsiveWindow],
     name: 'contentCardGrid',
     $trs: {
       display: 'Display',
@@ -92,6 +88,9 @@
     },
     data: () => ({ selectedFilter: '' }),
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 1;
+      },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
       },
@@ -154,9 +153,13 @@
 
   @require '~kolibri.styles.definitions'
 
-  .content-card
-    display: inline-block
-    margin: 10px
+  $gutters = 16px
+
+  .grid-item
+    margin-right: $gutters
+    margin-bottom: $gutters
+    &.mobile
+      width: 100%
 
   .filter
     width: 200px

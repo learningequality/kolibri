@@ -124,7 +124,6 @@ class LearnModule extends KolibriModule {
           redirect: '/',
         },
       ];
-
       this.rootvue = new Vue({
         el: 'rootvue',
         render: createElement => createElement(RootVue),

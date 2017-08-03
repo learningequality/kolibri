@@ -21,8 +21,8 @@ import { redirectBrowser } from '../utils/browser';
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
-const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
+const progressThreshold = 0.25; // Update logs if user has reached 25% more progress
+const timeThreshold = 60; // Update logs if 60 seconds have passed since last update
 
 /**
  * Vuex State Mappers
