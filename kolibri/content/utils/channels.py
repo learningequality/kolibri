@@ -8,7 +8,9 @@ from kolibri.utils.uuids import is_valid_uuid
 from ..content_db_router import using_content_database
 from .paths import get_content_database_folder_path
 
+logger.basicConfig(level=logger.DEBUG)
 logging = logger.getLogger(__name__)
+
 
 def get_channel_ids_for_content_database_dir(content_database_dir):
     """

@@ -3,6 +3,7 @@ from collections import OrderedDict
 from functools import reduce
 import logging as logger
 from random import sample
+import shutil
 
 from django.core.cache import cache
 from django.db import transaction
@@ -49,11 +50,44 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         super(ChannelMetadataCacheViewSet, self).destroy(request)
         transaction.commit()
 
+        from django.db import connections
+
+        # SHOW  DB CONNECTIONS
+        db_keys = connections._connections.__dict__.keys()
+        logging.info('BEFORE calling connections.close_all() WWWWW connections._connections keys = ' + str(db_keys))
+        for db_key in db_keys:
+            db = getattr(connections._connections, db_key)
+            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
+
+        connections.close_all()
+
+        # SHOW  DB CONNECTIONS
+        db_keys = connections._connections.__dict__.keys()
+        logging.info('BEFORE calling delete_content_db_file WWWWW connections._connections keys = ' + str(db_keys))
+        for db_key in db_keys:
+            db = getattr(connections._connections, db_key)
+            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
+
+
+        # SUT
         if self.delete_content_db_file(pk):
             logging.info('delete_content_db_file returned True')
             response_msg = 'Channel {} removed from device'.format(pk)
         else:
             response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+
+        # SHOW  DB CONNECTIONS
+        db_keys = connections._connections.__dict__.keys()
+        logging.info('AFTER calling delete_content_db_file WWWWW connections._connections keys = ' + str(db_keys))
+        for db_key in db_keys:
+            db = getattr(connections._connections, db_key)
+            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
+
+
+        # ATTEMPT 3 (sledgehammer approach!)
+        # delattr(django.db.connections._connections, channel_id)
+
 
         return Response(response_msg)
 
