@@ -11,7 +11,7 @@ from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from django.utils.decorators import method_decorator
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database
+from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -23,6 +23,7 @@ from six.moves.urllib.parse import parse_qs, urlparse
 from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
+
 
 
 logger.basicConfig(level=logger.DEBUG)
@@ -40,37 +41,34 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
-    @method_decorator(transaction.non_atomic_requests)
+    # @method_decorator(transaction.non_atomic_requests)
     def destroy(self, request, pk=None):
         """
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
-        logging.info('In ChannelMetadataCacheViewSet.destroy')
+        logging.info('In ChannelMetadataCacheViewSet.destroy pk=' + str(pk) )
 
         # manually manage the deletion db entry in main DB cache
         # TRANSACTION START ----------------------------------------------------
         super(ChannelMetadataCacheViewSet, self).destroy(request)
-        transaction.commit()
+        # transaction.commit()
         # TRANSACTION END ------------------------------------------------------
+
 
 
         from django.db import connections
         # SHOW  DB CONNECTIONS
         logging.info('\n\n\n A \n')
         db_keys = connections._connections.__dict__.keys()
-        logging.info('BEFORE set_autocommit False on all DB connections calling connections.close_all() WWWWW connections._connections keys = ' + str(db_keys))
+        logging.info('BEFORE get_content_database_connection / close WWWWW connections._connections keys = ' + str(db_keys))
         for db_key in db_keys:
             db = getattr(connections._connections, db_key)
             logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
 
-
-        # set_autocommit False on all DB connections
-        db_keys = connections._connections.__dict__.keys()
-        for db_key in db_keys:
-            # TODO: maybe skip default
-            transaction.set_autocommit(False, using=db_key)
-            # PLAN B: use the custom context manager   with using_content_database(db_key):
+        # Close connection to the content DB we're about to delete
+        conn = get_content_database_connection(pk)
+        conn.close()
 
 
         # SHOW  DB CONNECTIONS
