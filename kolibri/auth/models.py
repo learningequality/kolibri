@@ -571,6 +571,26 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         else:
             return queryset.none()
 
+    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
+
+        if scope_params.get("dataset_id") != self.dataset_id:
+            # if the request isn't for the same facility as this user, abort
+            return False
+
+        if scope_definition_id == "full-facility":
+            # if request is for full-facility syncing, return True only if user is a Facility Admin
+            return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
+        elif scope_definition_id == "single-user":
+            # for single-user syncing, return True if this user *is* target user, or is admin for target user
+            target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
+            if self == target_user:
+                return True
+            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+                return True
+            return False
+
+        return False
+
     def __str__(self):
         return '"{user}"@"{facility}"'.format(user=self.full_name or self.username, facility=self.facility)
 
@@ -645,6 +665,9 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     def filter_readable(self, queryset):
         return queryset
+
+    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
+        return True
 
     def __str__(self):
         return self.full_name or self.username
