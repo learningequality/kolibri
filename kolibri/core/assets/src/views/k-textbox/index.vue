@@ -26,14 +26,13 @@
 
 <script>
 
-  /**
-   * A simple textbox that emits an event when its text is updated.
-   */
-
   import uiTextbox from 'keen-ui/src/UiTextbox';
 
+  /**
+   * Handles user input.
+   */
   export default {
-    name: 'KolibriTextBox',
+    name: 'k-textbox',
     props: {
       disabled: { type: Boolean },
       autofocus: { type: Boolean },
@@ -63,7 +62,9 @@
     },
     methods: {
       updateText(text) {
-        // v-model is just a :value + @input
+        /**
+         * v-model is just a :value + @input
+         */
         this.$emit('input', this.currentText);
       },
       reset() {

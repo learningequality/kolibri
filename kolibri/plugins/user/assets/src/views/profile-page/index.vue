@@ -30,7 +30,7 @@
 
       <template v-if="canEditUsername">
         <h3>{{ $tr('username') }}</h3>
-        <core-textbox
+        <k-textbox
           :disabled="busy"
           :invalid="error"
           :error="errorMessage"
@@ -41,7 +41,7 @@
 
       <template v-if="canEditName">
         <h3>{{ $tr('name') }}</h3>
-        <core-textbox
+        <k-textbox
           :disabled="busy"
           v-model="full_name"
           autocomplete="name"
@@ -68,7 +68,7 @@
   import { totalPoints } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiAlert from 'keen-ui/src/UiAlert';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   export default {
@@ -88,7 +88,7 @@
     },
     components: {
       kButton,
-      coreTextbox,
+      kTextbox,
       uiAlert,
       pointsIcon,
     },

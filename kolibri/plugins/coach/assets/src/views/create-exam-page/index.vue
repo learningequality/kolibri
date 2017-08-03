@@ -4,7 +4,7 @@
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <div class="pure-g">
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
+        <k-textbox
           :label="$tr('title')"
           :ariaLabel="$tr('title')"
           :placeholder="$tr('enterTitle')"
@@ -17,7 +17,7 @@
         />
       </div>
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
+        <k-textbox
           :label="$tr('numQuestions')"
           :ariaLabel="$tr('numQuestions')"
           :placeholder="$tr('enterNum')"
@@ -32,7 +32,7 @@
     </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
-    <!--<textbox-->
+    <!--<k-textbox-->
       <!--:ariaLabel="$tr('searchContent')"-->
       <!--:placeholder="$tr('searchContent')"-->
       <!--v-model.trim="searchInput"-->
@@ -138,7 +138,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import topicRow from './topic-row';
   import exerciseRow from './exercise-row';
   import previewNewExamModal from './preview-new-exam-modal';
@@ -188,7 +188,7 @@
       uiSnackbarContainer,
       uiProgressLinear,
       kButton,
-      textbox,
+      kTextbox,
       topicRow,
       exerciseRow,
       previewNewExamModal,

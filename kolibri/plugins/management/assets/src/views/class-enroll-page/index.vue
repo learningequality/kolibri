@@ -49,7 +49,7 @@
             :aria-label="$tr('search')"
             icon="search"
           />
-          <textbox
+          <k-textbox
             :aria-label="$tr('searchForUser')"
             v-model.trim="filterInput"
             type="search"
@@ -155,7 +155,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiSwitch from 'keen-ui/src/UiSwitch';
@@ -191,7 +191,7 @@
       kCheckbox,
       uiIconButton,
       uiIcon,
-      textbox,
+      kTextbox,
       userCreateModal,
       confirmEnrollmentModal,
       uiSwitch,

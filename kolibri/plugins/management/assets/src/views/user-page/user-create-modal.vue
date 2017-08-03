@@ -9,7 +9,7 @@
 
     <form @submit.prevent="createNewUser">
       <section>
-        <core-textbox
+        <k-textbox
           :label="$tr('name')"
           :autofocus="true"
           :required="true"
@@ -18,7 +18,7 @@
           type="text"
           class="user-field"
           v-model.trim="fullName"/>
-        <core-textbox
+        <k-textbox
           :label="$tr('username')"
           :required="true"
           :maxlength="30"
@@ -28,13 +28,13 @@
           type="text"
           class="user-field"
           v-model="username"/>
-        <core-textbox
+        <k-textbox
           :label="$tr('password')"
           :required="true"
           type="password"
           class="user-field"
           v-model="password"/>
-        <core-textbox
+        <k-textbox
           :label="$tr('reEnterPassword')"
           :required="true"
           :invalid="passwordConfirmInvalid"
@@ -68,7 +68,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiAlert from 'keen-ui/src/UiAlert';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
@@ -93,7 +93,7 @@
     components: {
       kButton,
       coreModal,
-      coreTextbox,
+      kTextbox,
       uiAlert,
       uiSelect,
     },

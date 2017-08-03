@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
     <form @submit.prevent="callRenameExam">
-      <core-textbox
+      <k-textbox
         :label="$tr('examName')"
         :aria-label="$tr('examName')"
         :autofocus="true"
@@ -25,7 +25,7 @@
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'renameExamModal',
     $trs: {
@@ -38,7 +38,7 @@
     components: {
       coreModal,
       kButton,
-      coreTextbox,
+      kTextbox,
     },
     props: {
       examId: {

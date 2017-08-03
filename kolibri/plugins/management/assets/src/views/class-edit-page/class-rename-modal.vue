@@ -6,7 +6,7 @@
   >
     <div>
       <form @submit.prevent="updateName">
-        <core-textbox
+        <k-textbox
           :label="$tr('classname')"
           :aria-label="$tr('classname')"
           v-model.trim="name"
@@ -43,7 +43,7 @@
   import * as actions from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'classnameEditModal',
     $trs: {
@@ -56,7 +56,7 @@
     components: {
       kButton,
       coreModal,
-      coreTextbox,
+      kTextbox,
     },
     props: {
       classname: {

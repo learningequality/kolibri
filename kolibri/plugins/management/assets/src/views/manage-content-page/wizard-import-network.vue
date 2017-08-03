@@ -10,7 +10,7 @@
     @back="goBack"
   >
     <div class="main">
-      <core-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
+      <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -37,7 +37,7 @@
   import * as manageContentActions from '../../state/manageContentActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'wizardImportNetwork',
     $trs: {
@@ -49,7 +49,7 @@
     components: {
       coreModal,
       kButton,
-      coreTextbox,
+      kTextbox,
     },
     data: () => ({ channelId: '' }),
     computed: {

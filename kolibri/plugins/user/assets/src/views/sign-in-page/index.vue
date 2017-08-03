@@ -6,7 +6,7 @@
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
         <transition name="textbox">
-          <core-textbox
+          <k-textbox
             :label="$tr('username')"
             id="username"
             :placeholder="$tr('enterUsername')"
@@ -30,7 +30,7 @@
           </ul>
         </transition>
         <transition name="textbox">
-          <core-textbox
+          <k-textbox
             :label="$tr('password')"
             v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
             id="password"
@@ -74,7 +74,7 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   export default {
@@ -94,7 +94,7 @@
     },
     components: {
       kButton,
-      coreTextbox,
+      kTextbox,
       logo,
       uiAutocompleteSuggestion,
     },

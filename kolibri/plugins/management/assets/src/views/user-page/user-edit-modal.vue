@@ -12,14 +12,14 @@
     <div>
       <template v-if="!usr_delete && !pw_reset">
 
-        <core-textbox
+        <k-textbox
           :label="$tr('fullName')"
           type="text"
           class="user-field"
           :aria-label="$tr('fullName')"
           v-model="fullName_new"/>
 
-        <core-textbox
+        <k-textbox
           :label="$tr('username')"
           type="text"
           class="user-field"
@@ -48,13 +48,13 @@
       <template v-if="pw_reset" >
         <p>{{$tr('username')}}: <b>{{ username}}</b></p>
 
-        <core-textbox
+        <k-textbox
           :label="$tr('enterNewPw')"
           type="password"
           class="user-field"
           :aria-label="$tr('enterNewPw')"
           v-model="password_new"/>
-        <core-textbox
+        <k-textbox
           :label="$tr('confirmNewPw')"
           type="password"
           class="user-field"
@@ -103,7 +103,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'userEditModal',
     $trs: {
@@ -133,7 +133,7 @@
     components: {
       kButton,
       coreModal,
-      coreTextbox,
+      kTextbox,
     },
     props: {
       userid: {
