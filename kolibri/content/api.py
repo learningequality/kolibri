@@ -1,6 +1,7 @@
 import os
 from collections import OrderedDict
 from functools import reduce
+import logging as logger
 from random import sample
 
 from django.core.cache import cache
@@ -21,6 +22,9 @@ from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
 
+logger.basicConfig(level=logger.DEBUG)
+logging = logger.getLogger(__name__)
+
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
@@ -38,9 +42,11 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
+        logging.info('In ChannelMetadataCacheViewSet.destroy')
         super(ChannelMetadataCacheViewSet, self).destroy(request)
 
         if self.delete_content_db_file(pk):
+            logging.info('delete_content_db_file returned True')
             response_msg = 'Channel {} removed from device'.format(pk)
         else:
             response_msg = 'Channel {} removed, but no content database was found'.format(pk)
@@ -49,9 +55,21 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
     def delete_content_db_file(self, channel_id):
         try:
-            os.remove(get_content_database_file_path(channel_id))
+            # FIX for #1818: DB file not deleted when channel is removed in UI
+            # from django.db import connections
+            # connections.close_all()
+
+            dbpath = get_content_database_file_path(channel_id)
+            logging.info('dbpath=' + str(dbpath))
+            if os.path.exists(dbpath):
+                logging.info('DB file exists before remove')
+            os.remove(dbpath)
+            if os.path.exists(dbpath):
+                logging.info('DB file exists after remove')
             return True
-        except OSError:
+
+        except OSError as error:
+            logging.info('EEEEEEEEEEEEEEEEEEEEEEEEEE OSError occured ' + str(error))
             return False
 
 
