@@ -16,14 +16,12 @@
           :label="$tr('fullName')"
           type="text"
           class="user-field"
-          :aria-label="$tr('fullName')"
           v-model="fullName_new"/>
 
         <k-textbox
           :label="$tr('username')"
           type="text"
           class="user-field"
-          :aria-label="$tr('username')"
           v-model="username_new"/>
 
         <div class="user-field">
@@ -52,13 +50,11 @@
           :label="$tr('enterNewPw')"
           type="password"
           class="user-field"
-          :aria-label="$tr('enterNewPw')"
           v-model="password_new"/>
         <k-textbox
           :label="$tr('confirmNewPw')"
           type="password"
           class="user-field"
-          :aria-label="$tr('confirmNewPw')"
           v-model="password_new_confirm"/>
       </template>
 

@@ -8,7 +8,6 @@
       <form @submit.prevent="createNewClass">
         <k-textbox
           :label="$tr('classname')"
-          :aria-label="$tr('classname')"
           v-model.trim="name"
           :autofocus="true"
           :required="true"

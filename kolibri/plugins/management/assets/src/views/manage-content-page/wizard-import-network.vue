@@ -10,7 +10,7 @@
     @back="goBack"
   >
     <div class="main">
-      <k-textbox :label="$tr('enterContentChannel')" ariaLabel="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
+      <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}

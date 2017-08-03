@@ -4,7 +4,6 @@
     ref="textbox"
     v-model="currentText"
     :label="label"
-    :aria-label="ariaLabel"
     :disabled="disabled"
     :required="required"
     :invalid="invalid"
@@ -46,14 +45,6 @@
        */
       label: {
         type: String,
-        required: true,
-      },
-      /**
-       * Aria label
-       */
-      ariaLabel: {
-        type: String,
-        // enforcing accessibility
         required: true,
       },
       /**

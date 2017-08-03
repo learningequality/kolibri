@@ -49,6 +49,7 @@
             :aria-label="$tr('search')"
             icon="search"
           />
+          <!-- TODO: Should not be a k-textbox -->
           <k-textbox
             :aria-label="$tr('searchForUser')"
             v-model.trim="filterInput"

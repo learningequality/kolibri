@@ -9,7 +9,6 @@
           <k-textbox
             :label="$tr('username')"
             id="username"
-            :aria-label="$tr('username')"
             v-model="username"
             required
             autofocus
@@ -34,7 +33,6 @@
             v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
             id="password"
             type="password"
-            :aria-label="$tr('password')"
             v-model="password"
             autocomplete="current-password"
             :autofocus="simpleLogin"

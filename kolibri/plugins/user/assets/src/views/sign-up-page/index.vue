@@ -25,7 +25,6 @@
 
       <k-textbox
         :label="$tr('name')"
-        :aria-label="$tr('name')"
         :maxlength="120"
         v-model="name"
         autocomplete="name"
@@ -36,7 +35,6 @@
 
       <k-textbox
         :label="$tr('username')"
-        :aria-label="$tr('username')"
         :maxlength="30"
         :invalid="!usernameIsValid"
         :invalidText="usernameIsInvalidError"
@@ -50,7 +48,6 @@
       <k-textbox
         id="password"
         type="password"
-        :aria-label="$tr('password')"
         :label="$tr('password')"
         v-model="password"
         autocomplete="new-password"
@@ -59,7 +56,6 @@
       <k-textbox
         id="confirmed-password"
         type="password"
-        :aria-label="$tr('reEnterPassword')"
         :label="$tr('reEnterPassword')"
         :invalid="!passwordsMatch"
         :invalidText="passwordError "

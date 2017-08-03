@@ -4,7 +4,6 @@
     <form @submit.prevent="callRenameExam">
       <k-textbox
         :label="$tr('examName')"
-        :aria-label="$tr('examName')"
         :autofocus="true"
         :required="true"
         :invalid="duplicateTitle"

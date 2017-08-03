@@ -6,7 +6,6 @@
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
         <k-textbox
           :label="$tr('title')"
-          :ariaLabel="$tr('title')"
           :autofocus="true"
           :invalid="titleInvalid"
           :invalidText="titleInvalidMsg"
@@ -18,7 +17,6 @@
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
         <k-textbox
           :label="$tr('numQuestions')"
-          :ariaLabel="$tr('numQuestions')"
           :invalid="numQuestionsInvalid"
           :invalidText="numQuestionsInvalidMsg"
           type="number"
@@ -31,7 +29,6 @@
 
     <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<k-textbox-->
-      <!--:ariaLabel="$tr('searchContent')"-->
       <!--v-model.trim="searchInput"-->
     <!--/>-->
     <!--<div v-if="searchInput">-->

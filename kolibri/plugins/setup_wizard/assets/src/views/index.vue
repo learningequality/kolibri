@@ -23,7 +23,6 @@
             :invalidText="usernameError"
             :required="true"
             :label="$tr('usernameInputLabel')"
-            :ariaLabel="$tr('usernameInputLabel')"
             :maxlength="30"
             v-model="username"
           />
@@ -34,7 +33,6 @@
             :invalidText="passwordError"
             :required="true"
             :label="$tr('passwordInputLabel')"
-            :ariaLabel="$tr('passwordInputLabel')"
             type="password"
             v-model="password"
           />
@@ -44,7 +42,6 @@
             :invalid="!!passwordError"
             :required="true"
             :label="$tr('reEnterPasswordInputLabel')"
-            :ariaLabel="$tr('reEnterPasswordInputLabel')"
             type="password"
             v-model="passwordConfirm"
           />
@@ -64,7 +61,6 @@
             :invalidText="facilityError"
             :required="true"
             :label="$tr('facilityInputLabel')"
-            :ariaLabel="$tr('facilityInputLabel')"
             :maxlength="100"
             v-model="facility"
           />

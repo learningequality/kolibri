@@ -29,23 +29,25 @@
     <form v-if="canEditUsername || canEditName" @submit.prevent="submitEdits">
 
       <template v-if="canEditUsername">
-        <h3>{{ $tr('username') }}</h3>
         <k-textbox
           :disabled="busy"
           :invalid="error"
           :invalidText="errorMessage"
           v-model="username"
           autocomplete="username"
-          type="text" />
+          type="text"
+          :label="$tr('username')"
+        />
       </template>
 
       <template v-if="canEditName">
-        <h3>{{ $tr('name') }}</h3>
         <k-textbox
           :disabled="busy"
           v-model="full_name"
           autocomplete="name"
-          type="text" />
+          type="text"
+          :label="$tr('name')"
+        />
       </template>
 
       <k-button

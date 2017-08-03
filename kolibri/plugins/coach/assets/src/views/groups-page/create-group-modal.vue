@@ -6,7 +6,6 @@
       <form @submit.prevent="callCreateGroup">
         <k-textbox type="text"
           :label="$tr('learnerGroupName')"
-          :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
           :required="true"
           :invalid="duplicateName"
