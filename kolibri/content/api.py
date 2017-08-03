@@ -41,54 +41,24 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
-    # @method_decorator(transaction.non_atomic_requests)
+    @method_decorator(transaction.non_atomic_requests)
     def destroy(self, request, pk=None):
         """
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
         logging.info('In ChannelMetadataCacheViewSet.destroy pk=' + str(pk) )
-
-        # manually manage the deletion db entry in main DB cache
-        # TRANSACTION START ----------------------------------------------------
         super(ChannelMetadataCacheViewSet, self).destroy(request)
-        # transaction.commit()
-        # TRANSACTION END ------------------------------------------------------
-
-
-
-        from django.db import connections
-        # SHOW  DB CONNECTIONS
-        logging.info('\n\n\n A \n')
-        db_keys = connections._connections.__dict__.keys()
-        logging.info('BEFORE get_content_database_connection / close WWWWW connections._connections keys = ' + str(db_keys))
-        for db_key in db_keys:
-            db = getattr(connections._connections, db_key)
-            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
 
         # Close connection to the content DB we're about to delete
         conn = get_content_database_connection(pk)
+        logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
         conn.close()
+        logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
 
-
-        # SHOW  DB CONNECTIONS
-        logging.info('\n\n\n B \n')
-        db_keys = connections._connections.__dict__.keys()
-        logging.info('BEFORE calling .close_all() WWWWW connections._connections keys = ' + str(db_keys))
-        for db_key in db_keys:
-            db = getattr(connections._connections, db_key)
-            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
-
+        # FIX for #1818: just in case
+        from django.db import connections
         connections.close_all()
-
-        # SHOW  DB CONNECTIONS
-        logging.info('\n\n\n C \n')
-        db_keys = connections._connections.__dict__.keys()
-        logging.info('AFTER close_all() BEFORE calling delete_content_db_file WWWWW connections._connections keys = ' + str(db_keys))
-        for db_key in db_keys:
-            db = getattr(connections._connections, db_key)
-            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
-
 
         # SUT
         if self.delete_content_db_file(pk):
@@ -97,28 +67,13 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         else:
             response_msg = 'Channel {} removed, but no content database was found'.format(pk)
 
-
-        # SHOW  DB CONNECTIONS
-        logging.info('\n\n\n D \n')
-        db_keys = connections._connections.__dict__.keys()
-        logging.info('AFTER calling delete_content_db_file WWWWW connections._connections keys = ' + str(db_keys))
-        for db_key in db_keys:
-            db = getattr(connections._connections, db_key)
-            logging.info('DB ' + db_key + ' info::::: ' + str(db.__dict__))
-
-
         # ATTEMPT 3 (sledgehammer approach!)
         # delattr(django.db.connections._connections, channel_id)
-
 
         return Response(response_msg)
 
     def delete_content_db_file(self, channel_id):
         try:
-            # FIX for #1818: DB file not deleted when channel is removed in UI
-            from django.db import connections
-            connections.close_all()
-
             dbpath = get_content_database_file_path(channel_id)
             logging.info('dbpath=' + str(dbpath))
             if os.path.exists(dbpath):
