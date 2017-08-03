@@ -3,22 +3,21 @@
   <core-modal :title="$tr('moveLearners')"
     @cancel="close">
     <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
-    <label v-for="group in groupsExcludingCurrent">
-    <input
-      type="radio"
-      :value="group.id"
-      v-model="groupSelected">
-      {{ group.name }}
-    </label>
+    <k-radio-button
+      v-for="group in groupsExcludingCurrent"
+      :key="group.id"
+      :radiovalue="group.id"
+      :label="group.name"
+      v-model="groupSelected"
+    />
 
     <div v-if="!isUngrouped">
       <hr>
-      <label>
-      <input type="radio"
-        value="ungrouped"
-        v-model="groupSelected">
-        Ungrouped
-      </label>
+      <k-radio-button
+        radiovalue="ungrouped"
+        :label="$tr('ungrouped')"
+        v-model="groupSelected"
+      />
     </div>
 
     <div class="button-section">
@@ -40,6 +39,7 @@
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   export default {
     name: 'moveLearnersModal',
     $trs: {
@@ -54,6 +54,7 @@
     components: {
       coreModal,
       kButton,
+      kRadioButton,
     },
     props: {
       groupId: {

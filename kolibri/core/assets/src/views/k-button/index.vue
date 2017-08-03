@@ -112,6 +112,10 @@
     font-weight: bold
     line-height: 36px
     text-transform: uppercase
+    max-width: 100%
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
     &:focus
       outline: none
     &::-moz-focus-inner

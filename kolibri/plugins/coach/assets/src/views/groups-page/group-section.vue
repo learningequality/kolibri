@@ -43,7 +43,13 @@
       <thead>
         <tr>
           <th class="col-checkbox">
-            <input type="checkbox" :checked="allUsersAreSelected" @change="toggleSelectAll">
+            <k-checkbox
+              :label="$tr('selectAll')"
+              :showLabel="false"
+              :checked="allUsersAreSelected"
+              :indeterminate="someUsersAreSelected"
+              @change="toggleSelectAll"
+            />
           </th>
           <th class="col-name">{{ $tr('name') }}</th>
           <th class="col-username">{{ $tr('username') }}</th>
@@ -57,13 +63,13 @@
           @click="toggleSelection(user.id)"
         >
           <td class="col-checkbox">
-            <input
-              v-model="selectedUsers"
-              type="checkbox"
-              :id="user.id"
-              :value="user.id"
+            <k-checkbox
+              :label="$tr('selectLearner')"
+              :showLabel="false"
+              :checked="isSelected(user.id)"
+              @change="toggleSelection"
               @click.stop
-            >
+            />
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
           <td class="col-username">{{ user.username }}</td>
@@ -80,6 +86,7 @@
 
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -96,10 +103,13 @@
       username: 'Username',
       selected: 'Selected',
       noLearners: 'No Learners in this group',
+      selectAll: 'Select all',
+      selectLearner: 'Select learner',
     },
     mixins: [ResponsiveElement],
     components: {
       kButton,
+      kCheckbox,
       uiButton,
       uiMenu,
     },
@@ -131,6 +141,9 @@
         return (
           this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
         );
+      },
+      someUsersAreSelected() {
+        return !this.allUsersAreSelected && this.selectedUsers.length !== 0;
       },
     },
     methods: {

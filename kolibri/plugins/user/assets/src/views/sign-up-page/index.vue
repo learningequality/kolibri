@@ -95,7 +95,6 @@
   import uiAlert from 'keen-ui/src/UiAlert';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import uiCheckbox from 'keen-ui/src/UiCheckbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiSelect from 'keen-ui/src/UiSelect';
@@ -122,7 +121,6 @@
       uiAlert,
       coreTextbox,
       uiToolbar,
-      uiCheckbox,
       logo,
       uiIcon,
       uiSelect,

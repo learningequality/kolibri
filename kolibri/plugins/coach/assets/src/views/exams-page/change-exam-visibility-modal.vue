@@ -2,10 +2,12 @@
 
   <core-modal :title="$tr('examVisibility')" @cancel="close">
     <p v-html="$trHtml('shouldBeVisible', { examTitle })"></p>
-    <label>
-      <input type="radio" :value="true" v-model="classIsSelected" @change="deselectGroups">
-      <span v-html="$trHtml('entireClass', { className })"></span>
-    </label>
+    <k-radio-button
+      :label="$tr('entireClass', { className })"
+      :radiovalue="true"
+      v-model="classIsSelected"
+      @change="deselectGroups"
+    />
     <ui-select
       :name="$tr('group')"
       :label="$tr('specificGroups')"
@@ -31,6 +33,7 @@
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
     name: 'changeExamVisibilityModal',
@@ -47,6 +50,7 @@
     components: {
       coreModal,
       kButton,
+      kRadioButton,
       uiSelect,
     },
     props: {
