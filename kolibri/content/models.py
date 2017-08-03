@@ -146,7 +146,7 @@ class File(models.Model):
     # The foreign key mapping happens here as many File objects can map onto a single local file
     local_file = models.ForeignKey('LocalFile')
     available = models.BooleanField(default=False)
-    contentnode = models.ForeignKey(ContentNode, related_name='files', blank=True, null=True)
+    contentnode = models.ForeignKey(ContentNode, related_name='files')
     preset = models.CharField(max_length=150, choices=format_presets.choices, blank=True)
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
@@ -235,7 +235,7 @@ class AssessmentMetaData(models.Model):
     """
     id = UUIDField(primary_key=True)
     contentnode = models.ForeignKey(
-        ContentNode, related_name='assessmentmetadata', blank=True, null=True
+        ContentNode, related_name='assessmentmetadata'
     )
     # A JSON blob containing a serialized list of ids for questions that the assessment can present.
     assessment_item_ids = JSONField(default=[])

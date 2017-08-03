@@ -77,6 +77,9 @@ class ChannelImport(object):
 
         self.set_all_dest_class_defaults()
 
+    def get_dest_record(self, DjangoModel):
+        return self.DestinationBase.classes[DjangoModel._meta.db_table]
+
     def _set_class_defaults(self, table_name):
 
         BaseClass = self.DestinationBase.classes[table_name]
@@ -98,7 +101,7 @@ class ChannelImport(object):
             self._set_class_defaults(table_name)
 
     def find_unique_tree_id(self):
-        ContentNodeRecord = self.DestinationBase.classes[ContentNode._meta.db_table]
+        ContentNodeRecord = self.get_dest_record(ContentNode)
         tree_ids = sorted(map(lambda x: x[0], self.destination.query(
             ContentNodeRecord.tree_id).distinct().all()))
         # If there are no pre-existing tree_ids just escape here and return 1
@@ -146,8 +149,8 @@ class ChannelImport(object):
                 return getattr(record, column, None)
         return mapper
 
-    def base_table_mapper(self, source_table):
-        for record in self.source.query(source_table).all():
+    def base_table_mapper(self, SourceRecord):
+        for record in self.source.query(SourceRecord).all():
             yield record
 
     def generate_table_mapper(self, mapping=None):
@@ -163,13 +166,13 @@ class ChannelImport(object):
         dest_table = DestinationRecord.__table__
 
         try:
-            source_table = self.SourceBase.classes[table_name].__table__
+            SourceRecord = self.SourceBase.classes[table_name]
         except KeyError:
             # Sometimes a corresponding source table may not exist
-            source_table = None
+            SourceRecord = None
 
         columns = dest_table.columns.keys()
-        for record in table_mapper(source_table):
+        for record in table_mapper(SourceRecord):
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
@@ -184,7 +187,8 @@ class ChannelImport(object):
             self.table_import(table_name, row_mapper, table_mapper)
 
     def delete_content_tree_and_files(self):
-        pass
+        # Use Django ORM to ensure cascading delete:
+        ContentNode.objects.filter(channel_id=self.channel_id).delete()
 
     def commit_changes(self):
         self.destination.commit()
@@ -229,9 +233,9 @@ class NoVersionChannelImport(ChannelImport):
     def get_tree_id(self, source_object):
         return self.tree_id
 
-    def generate_local_file_from_file(self, source_table):
-        source_table = self.SourceBase.classes[File._meta.db_table].__table__
-        for record in self.source.query(source_table).all():
+    def generate_local_file_from_file(self, SourceRecord):
+        SourceRecord = self.SourceBase.classes[File._meta.db_table]
+        for record in self.source.query(SourceRecord).all():
             yield record
 
     def set_version_to_no_version(self, source_object):
