@@ -56,8 +56,8 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def delete_content_db_file(self, channel_id):
         try:
             # FIX for #1818: DB file not deleted when channel is removed in UI
-            # from django.db import connections
-            # connections.close_all()
+            from django.db import connections
+            connections.close_all()
 
             dbpath = get_content_database_file_path(channel_id)
             logging.info('dbpath=' + str(dbpath))
