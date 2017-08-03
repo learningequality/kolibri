@@ -10,7 +10,7 @@
           :autofocus="true"
           :required="true"
           :invalid="duplicateName"
-          :error="$tr('duplicateName')"
+          :invalidText="$tr('duplicateName')"
           v-model.trim="groupNameInput" />
         <k-button :text="$tr('cancel')"
           @click="close"

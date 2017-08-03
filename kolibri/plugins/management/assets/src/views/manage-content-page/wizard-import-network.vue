@@ -10,7 +10,7 @@
     @back="goBack"
   >
     <div class="main">
-      <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
+      <k-textbox :label="$tr('enterContentChannel')" ariaLabel="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -41,8 +41,8 @@
   export default {
     name: 'wizardImportNetwork',
     $trs: {
-      title: 'Please choose a source...',
-      enterContentChannel: 'Please enter a content channel ID:',
+      title: 'Import from the internet',
+      enterContentChannel: 'Content channel ID',
       cancel: 'Cancel',
       import: 'Import',
     },

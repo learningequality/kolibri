@@ -33,7 +33,7 @@
         <k-textbox
           :disabled="busy"
           :invalid="error"
-          :error="errorMessage"
+          :invalidText="errorMessage"
           v-model="username"
           autocomplete="username"
           type="text" />

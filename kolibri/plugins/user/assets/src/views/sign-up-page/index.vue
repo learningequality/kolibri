@@ -39,7 +39,7 @@
         :aria-label="$tr('username')"
         :maxlength="30"
         :invalid="!usernameIsValid"
-        :error="usernameIsInvalidError"
+        :invalidText="usernameIsInvalidError"
         @input="resetSignUpState"
         v-model="username"
         autocomplete="username"
@@ -62,7 +62,7 @@
         :aria-label="$tr('reEnterPassword')"
         :label="$tr('reEnterPassword')"
         :invalid="!passwordsMatch"
-        :error="passwordError "
+        :invalidText="passwordError "
         v-model="confirmed_password"
         autocomplete="new-password"
         required />

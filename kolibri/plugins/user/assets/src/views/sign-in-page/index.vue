@@ -9,7 +9,6 @@
           <k-textbox
             :label="$tr('username')"
             id="username"
-            :placeholder="$tr('enterUsername')"
             :aria-label="$tr('username')"
             v-model="username"
             required
@@ -35,14 +34,13 @@
             v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
             id="password"
             type="password"
-            :placeholder="$tr('enterPassword')"
             :aria-label="$tr('password')"
             v-model="password"
             autocomplete="current-password"
             :autofocus="simpleLogin"
             :required="!simpleLogin"
             :invalid="passwordMissing"
-            :error="passwordMissing ? $tr('enterPassword') : ''"/>
+            :invalidText="passwordMissing ? $tr('enterPassword') : ''"/>
         </transition>
         <k-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
 
@@ -83,7 +81,6 @@
       kolibri: 'Kolibri',
       signIn: 'Sign in',
       username: 'Username',
-      enterUsername: 'Enter username',
       password: 'Password',
       enterPassword: 'Enter password',
       noAccount: `Don't have an account?`,

@@ -8,7 +8,7 @@
         :autofocus="true"
         :required="true"
         :invalid="duplicateTitle"
-        :error="$tr('duplicateTitle')"
+        :invalidText="$tr('duplicateTitle')"
         v-model.trim="newExamTitle"/>
       <div class="footer">
         <k-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>

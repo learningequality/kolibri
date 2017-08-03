@@ -1,24 +1,24 @@
 <template>
 
   <ui-textbox
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-    @input="updateText"
-    @keydown="emitKeydown"
+    ref="textbox"
     v-model="currentText"
-    :disabled="disabled"
-    :placeholder="placeholder"
     :label="label"
     :aria-label="ariaLabel"
-    :autocomplete="autocomplete"
-    :autofocus="autofocus"
+    :disabled="disabled"
     :required="required"
-    :type="type"
-    :error="error"
     :invalid="invalid"
+    :error="invalidText"
+    :autofocus="autofocus"
     :maxlength="maxlength"
-    :enforceMaxlength="enforceMaxlength"
-    ref="textbox"
+    :autocomplete="autocomplete"
+    :type="type"
+    :enforceMaxlength="true"
+    :floatingLabel="true"
+    @input="updateText"
+    @keydown="emitKeydown"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 
 </template>
@@ -33,37 +33,99 @@
    */
   export default {
     name: 'k-textbox',
+    components: { uiTextbox },
     props: {
-      disabled: { type: Boolean },
-      autofocus: { type: Boolean },
-      required: { type: Boolean },
-      invalid: { type: Boolean },
+      /**
+       * v-model
+       */
       value: {
         type: [String, Number],
       },
-      error: { type: String },
-      placeholder: { type: String },
-      label: { type: String },
+      /**
+       * Label
+       */
+      label: {
+        type: String,
+        required: true,
+      },
+      /**
+       * Aria label
+       */
       ariaLabel: {
         type: String,
         // enforcing accessibility
-        required: !!this.label,
+        required: true,
       },
-      autocomplete: { type: String },
-      type: { type: String },
-      maxlength: { type: Number },
-      enforceMaxlength: {
+      /**
+       * Whether or not disabled
+       */
+      disabled: {
         type: Boolean,
-        default: true,
+        default: false,
+      },
+      /**
+       * Whether or not required
+       */
+      required: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Whether or not input is invalid
+       */
+      invalid: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Text displayed if input is invalid
+       */
+      invalidText: {
+        type: String,
+        required: false,
+      },
+      /**
+       * Whether or not to autofocus
+       */
+      autofocus: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Max allowed length of input
+       */
+      maxlength: {
+        type: Number,
+        required: false,
+      },
+      /**
+       * HTML5 autocomplete attribute (off, on, name, username, current-password, etc.)
+       */
+      autocomplete: {
+        type: String,
+        required: false,
+      },
+      /**
+       * HTML5 type of input (text, password, number, etc.)
+       */
+      type: {
+        type: String,
+        default: 'text',
       },
     },
     data() {
       return { currentText: this.value };
     },
+    watch: {
+      value(val) {
+        this.currentText = val;
+      },
+    },
     methods: {
-      updateText(text) {
+      updateText() {
+        // v-model is just a :value + @input
         /**
-         * v-model is just a :value + @input
+         * Emits input event with new value
          */
         this.$emit('input', this.currentText);
       },
@@ -71,15 +133,12 @@
         this.$refs.textbox.reset();
       },
       emitKeydown(e) {
+        /**
+         * Emits keydown event with event
+         */
         this.$emit('keydown', e);
       },
     },
-    watch: {
-      value(val) {
-        this.currentText = val;
-      },
-    },
-    components: { uiTextbox },
   };
 
 </script>

@@ -7,10 +7,9 @@
         <k-textbox
           :label="$tr('title')"
           :ariaLabel="$tr('title')"
-          :placeholder="$tr('enterTitle')"
           :autofocus="true"
           :invalid="titleInvalid"
-          :error="titleInvalidMsg"
+          :invalidText="titleInvalidMsg"
           v-model.trim="inputTitle"
           @blur="validateTitle = true"
           @input="validateTitle = true"
@@ -20,9 +19,8 @@
         <k-textbox
           :label="$tr('numQuestions')"
           :ariaLabel="$tr('numQuestions')"
-          :placeholder="$tr('enterNum')"
           :invalid="numQuestionsInvalid"
-          :error="numQuestionsInvalidMsg"
+          :invalidText="numQuestionsInvalidMsg"
           type="number"
           v-model.trim.number="inputNumQuestions"
           @blur="validateNumQuestMax = true"
@@ -34,7 +32,6 @@
     <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<k-textbox-->
       <!--:ariaLabel="$tr('searchContent')"-->
-      <!--:placeholder="$tr('searchContent')"-->
       <!--v-model.trim="searchInput"-->
     <!--/>-->
     <!--<div v-if="searchInput">-->
@@ -150,9 +147,7 @@
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
       title: 'Exam title',
-      enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
-      enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
       numQuestionsExceed:

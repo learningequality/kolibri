@@ -13,7 +13,7 @@
           :autofocus="true"
           :required="true"
           :invalid="duplicateName"
-          :error="$tr('duplicateName')"
+          :invalidText="$tr('duplicateName')"
           type="text"
         />
 

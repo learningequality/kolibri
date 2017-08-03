@@ -20,20 +20,21 @@
             @focus="firstUsernameFieldVisit || visitUsername()"
             @blur="validateUsername()"
             :invalid="!!usernameError"
-            :error="usernameError"
+            :invalidText="usernameError"
             :required="true"
             :label="$tr('usernameInputLabel')"
+            :ariaLabel="$tr('usernameInputLabel')"
             :maxlength="30"
-            :enforceMaxlength="true"
             v-model="username"
           />
 
           <k-textbox
             @focus="firstPasswordFieldsVisit || visitPassword()"
             :invalid="!!passwordError"
-            :error="passwordError"
+            :invalidText="passwordError"
             :required="true"
             :label="$tr('passwordInputLabel')"
+            :ariaLabel="$tr('passwordInputLabel')"
             type="password"
             v-model="password"
           />
@@ -43,6 +44,7 @@
             :invalid="!!passwordError"
             :required="true"
             :label="$tr('reEnterPasswordInputLabel')"
+            :ariaLabel="$tr('reEnterPasswordInputLabel')"
             type="password"
             v-model="passwordConfirm"
           />
@@ -59,11 +61,11 @@
             @focus="firstFacilityFieldVisit || visitFacility()"
             @blur="validateFacility"
             :invalid="!!facilityError"
-            :error="facilityError"
+            :invalidText="facilityError"
             :required="true"
             :label="$tr('facilityInputLabel')"
+            :ariaLabel="$tr('facilityInputLabel')"
             :maxlength="100"
-            :enforceMaxlength="true"
             v-model="facility"
           />
         </fieldset>

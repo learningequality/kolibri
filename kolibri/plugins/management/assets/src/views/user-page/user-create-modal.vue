@@ -11,34 +11,36 @@
       <section>
         <k-textbox
           :label="$tr('name')"
+          :ariaLabel="$tr('name')"
           :autofocus="true"
           :required="true"
           :maxlength="120"
-          :enforceMaxlength="true"
           type="text"
           class="user-field"
           v-model.trim="fullName"/>
         <k-textbox
           :label="$tr('username')"
+          :ariaLabel="$tr('username')"
           :required="true"
           :maxlength="30"
-          :enforceMaxlength="true"
           :invalid="usernameInvalid"
-          :error="usernameInvalidMsg"
+          :invalidText="usernameInvalidMsg"
           type="text"
           class="user-field"
           v-model="username"/>
         <k-textbox
           :label="$tr('password')"
+          :ariaLabel="$tr('password')"
           :required="true"
           type="password"
           class="user-field"
           v-model="password"/>
         <k-textbox
           :label="$tr('reEnterPassword')"
+          :ariaLabel="$tr('reEnterPassword')"
           :required="true"
           :invalid="passwordConfirmInvalid"
-          :error="$tr('pwMismatchError')"
+          :invalidText="$tr('pwMismatchError')"
           type="password"
           class="user-field"
           v-model="passwordConfirm"/>
