@@ -17,4 +17,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.CreateModel(
+            name='ChannelMetadataCache',
+            fields=[
+                ('id', kolibri.content.models.UUIDField(primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=200)),
+                ('description', models.CharField(blank=True, max_length=400)),
+                ('author', models.CharField(blank=True, max_length=400)),
+                ('version', models.IntegerField(default=0)),
+                ('thumbnail', models.TextField(blank=True)),
+                ('root_pk', kolibri.content.models.UUIDField()),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
     ]

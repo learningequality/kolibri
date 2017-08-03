@@ -4,7 +4,7 @@ import os
 from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...utils import annotation, paths, transfer
+from ...utils import channel_import, paths, transfer
 
 logging = logger.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class Command(AsyncCommand):
                     progress_update(len(chunk), progress_extra_data)
 
         if not self.is_cancelled():
-            annotation.update_channel_metadata_cache()
+            channel_import.import_channel_from_local_db(channel_id)
         else:
             try:
                 os.remove(dest)

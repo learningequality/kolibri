@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.db.models import Model
-from kolibri.content import models
-from kolibri.content.models import ContentNode, File, LocalFile
-from sqlalchemy import create_engine
+from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
+from sqlalchemy import ColumnDefault, create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
@@ -19,7 +18,7 @@ def make_session(connection_string):
 
 def get_default_db_string():
     destination_db = settings.DATABASES.get('default')
-    if destination_db['ENGINE'] == 'sqlite':
+    if 'sqlite' in destination_db['ENGINE']:
         return sqlite_connection_string(destination_db['NAME'])
     else:
         return '{dialect}://{user}:{password}@{host}:{port}/{dbname}'.format(
@@ -31,6 +30,10 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+
+models = [
+    AssessmentMetaData, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
+]
 
 table_name_to_model = {
     model._meta.db_table: model for model in models if issubclass(model, Model)
@@ -66,7 +69,7 @@ class ChannelImport(object):
         self.SourceBase.prepare(self.source_engine, reflect=True)
 
         # Get the next available tree_id in our database
-        self.tree_id = self.find_unique_id()
+        self.tree_id = self.find_unique_tree_id()
 
         self.content_table_names = [
             table for table in self.DestinationBase.classes.keys() if table.startswith('content')
@@ -77,21 +80,32 @@ class ChannelImport(object):
     def _set_class_defaults(self, table_name):
 
         BaseClass = self.DestinationBase.classes[table_name]
+        try:
+            DjangoModel = table_name_to_model[table_name]
 
-        DjangoModel = table_name_to_model[table_name]
-
-        for field in DjangoModel._meta.fields:
-            if field.has_default():
-                column = BaseClass.__table__.columns.get(field.attname)
-                column.default = field.default
+            for field in DjangoModel._meta.fields:
+                if field.has_default():
+                    column = BaseClass.__table__.columns.get(field.attname)
+                    default = ColumnDefault(field.default)
+                    column.default = default
+                    default._set_parent_with_dispatch(column)
+        except KeyError:
+            # Not all tables have a Django model, as some are ManyToMany intermediary tables
+            pass
 
     def set_all_dest_class_defaults(self):
         for table_name in self.content_table_names:
             self._set_class_defaults(table_name)
 
     def find_unique_tree_id(self):
-        tree_ids = sorted(self.destination.query(
-            self.DestinationBase.classes[ContentNode._meta.db_table].tree_id).distinct())
+        ContentNodeRecord = self.DestinationBase.classes[ContentNode._meta.db_table]
+        tree_ids = sorted(map(lambda x: x[0], self.destination.query(
+            ContentNodeRecord.tree_id).distinct().all()))
+        # If there are no pre-existing tree_ids just escape here and return 1
+        if not tree_ids:
+            return 1
+        if len(tree_ids) == 1:
+            return tree_ids[0] + 1
 
         # Do a binary search to find the lowest unused tree_id
         def find_hole_in_list(ids):
@@ -129,10 +143,10 @@ class ChannelImport(object):
                 else:
                     raise AttributeError('Column mapping specified but no valid column name or method found')
             else:
-                return getattr(record, column)
+                return getattr(record, column, None)
         return mapper
 
-    def base_table_mapper(self, source_table, row_mapper):
+    def base_table_mapper(self, source_table):
         for record in self.source.query(source_table).all():
             yield record
 
@@ -146,23 +160,31 @@ class ChannelImport(object):
 
     def table_import(self, table_name, row_mapper, table_mapper):
         DestinationRecord = self.DestinationBase.classes[table_name]
-        SourceRecord = self.SourceBase.classes[table_name]
         dest_table = DestinationRecord.__table__
-        source_table = SourceRecord.__table__
+
+        try:
+            source_table = self.SourceBase.classes[table_name].__table__
+        except KeyError:
+            # Sometimes a corresponding source table may not exist
+            source_table = None
+
         columns = dest_table.columns.keys()
-        for record in table_mapper(columns, source_table):
+        for record in table_mapper(source_table):
             data = {
-                str(column): row_mapper(record, column) for column in columns if row_mapper(record, column)
+                str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
             self.destination.merge(DestinationRecord(**data))
 
     def import_channel_data(self):
 
         for table_name in self.content_table_names:
-            mapping = self.schema_mapping.get(table_name, {})
+            mapping = self.schema_mapping.get(table_name_to_model.get(table_name), {})
             row_mapper = self.generate_row_mapper(mapping.get('per_row'))
             table_mapper = self.generate_table_mapper(mapping.get('per_table'))
             self.table_import(table_name, row_mapper, table_mapper)
+
+    def delete_content_tree_and_files(self):
+        pass
 
     def commit_changes(self):
         self.destination.commit()
@@ -171,26 +193,35 @@ class ChannelImport(object):
 class NoVersionChannelImport(ChannelImport):
 
     schema_mapping = {
-        ContentNode._meta.db_table: {
+        ContentNode: {
             'per_row': {
                 'channel_id': 'infer_channel_id_from_source',
                 'tree_id': 'get_tree_id',
             },
         },
-        File._meta.db_table: {
+        File: {
             'per_row': {
                 File._meta.get_field('local_file').attname: 'checksum',
             },
         },
-        LocalFile._meta.db_table: {
+        LocalFile: {
             'per_table': 'generate_local_file_from_file',
             'per_row': {
                 'checksum': 'id',
                 'extension': 'extension',
                 'file_size': 'file_size',
+                'available': 'none',
+            },
+        },
+        ChannelMetadata: {
+            'per_row': {
+                ChannelMetadata._meta.get_field('min_kolibri_version').attname: 'set_version_to_no_version',
             },
         },
     }
+
+    def none(self, source_object):
+        return None
 
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
@@ -198,10 +229,13 @@ class NoVersionChannelImport(ChannelImport):
     def get_tree_id(self, source_object):
         return self.tree_id
 
-    def generate_local_file_from_file(self, source_table, row_mapper):
+    def generate_local_file_from_file(self, source_table):
         source_table = self.SourceBase.classes[File._meta.db_table].__table__
         for record in self.source.query(source_table).all():
             yield record
+
+    def set_version_to_no_version(self, source_object):
+        return NO_VERSION
 
 
 mappings = {
@@ -209,7 +243,7 @@ mappings = {
 }
 
 
-def initialize_import_object(channel_id):
+def initialize_import_manager(channel_id):
 
     source, source_engine = make_session(sqlite_connection_string(get_content_database_file_path(channel_id)))
 
@@ -218,8 +252,20 @@ def initialize_import_object(channel_id):
 
     source_channel_metadata = source.query(SourceBase.classes['content_channelmetadata']).all()[0]
 
-    min_version = source_channel_metadata.get('min_kolibri_version', NO_VERSION)
+    min_version = getattr(source_channel_metadata, 'min_kolibri_version', NO_VERSION)
 
     ImportClass = mappings.get(min_version)
 
     return ImportClass(channel_id, source=source, source_engine=source_engine)
+
+
+def import_channel_from_local_db(channel_id):
+    import_manager = initialize_import_manager(channel_id)
+
+    if ChannelMetadata.objects.filter(id=channel_id).exists():
+        # We have already imported this channel in some way, so let's clean up first.
+        import_manager.delete_content_tree_and_files()
+
+    import_manager.import_channel_data()
+
+    import_manager.commit_changes()
