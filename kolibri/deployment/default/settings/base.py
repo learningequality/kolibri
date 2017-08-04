@@ -80,7 +80,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
-    'kolibri.content.middleware.ContentDBRoutingMiddleware',
+    'kolibri.content.middleware.ContentDBRoutingMiddleware',  # TODO: test removing this middlware in next iteatoin
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -181,17 +181,17 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '%(levelname)s %(asctime)s(%(thread)d) %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
         'simple_date': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+            'format': '%(levelname)s %(asctime)s(%(thread)d) %(module)s %(message)s'
         },
         'color': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(log_color)s%(levelname)-8s %(message)s',
+            'format': '%(log_color)s%(levelname)-8s (%(thread)d) %(message)s',
             'log_colors': {
                 'DEBUG': 'bold_black',
                 'INFO': 'white',
