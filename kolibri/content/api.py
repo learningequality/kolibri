@@ -4,7 +4,7 @@ from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from six.moves.urllib.parse import parse_qs, urlparse
 
 from .permissions import OnlySuperuserCanDelete
+from .utils.channel_import import delete_content_tree_and_files
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
@@ -38,6 +39,8 @@ class ChannelMetadataViewSet(viewsets.ModelViewSet):
         the filesystem.
         """
         super(ChannelMetadataViewSet, self).destroy(request)
+
+        delete_content_tree_and_files(pk)
 
         if self.delete_content_db_file(pk):
             response_msg = 'Channel {} removed from device'.format(pk)
@@ -254,6 +257,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         return queryset.prefetch_related(
             'assessmentmetadata',
             'files',
+            'files__local_file'
         ).select_related('license')
 
     def get_queryset(self, prefetch=True):
@@ -302,7 +306,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
-        cache_key = 'contentnode_ancestors_{db}_{pk}'.format(db=get_active_content_database(), pk=kwargs.get('pk'))
+        cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
@@ -354,14 +358,3 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
-
-
-class ChannelFileSummaryViewSet(viewsets.ViewSet):
-    def list(self, request, **kwargs):
-        file_summary = models.File.objects.aggregate(
-            total_files=Count('pk'),
-            total_file_size=Sum('file_size')
-        )
-        file_summary['channel_id'] = kwargs['channel_id']
-        # Need to wrap in an array to be fetchable as a Collection on client
-        return Response([file_summary])

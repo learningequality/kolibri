@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.db.models import Manager, Sum
+from django.db.models.aggregates import Count
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File
 from le_utils.constants import content_kinds
@@ -7,16 +8,31 @@ from rest_framework import serializers
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
+    root = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def to_representation(self, instance):
+        value = super(ChannelMetadataSerializer, self).to_representation(instance)
+
+        # if it has the file_size flag add extra file_size information
+        if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
+            file_summary = instance.root.get_descendants().prefetch_related('files__local_file').aggregate(
+                total_file_size=Sum('files__local_file__file_size'),
+                total_files=Count('files__local_file__file_size')
+            )
+            value.update(file_summary)
+        return value
 
     class Meta:
         model = ChannelMetadata
-        fields = ('root_pk', 'id', 'name', 'description', 'author', 'last_updated')
+        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated')
 
 
 class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
     preset = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
+    extension = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
@@ -27,9 +43,15 @@ class FileSerializer(serializers.ModelSerializer):
     def get_download_url(self, target_node):
         return target_node.get_download_url()
 
+    def get_extension(self, target_node):
+        return target_node.get_extension()
+
+    def get_file_size(self, target_node):
+        return target_node.get_file_size()
+
     class Meta:
         model = File
-        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang',
+        fields = ('storage_url', 'id', 'priority', 'available', 'file_size', 'extension', 'preset', 'lang',
                   'supplementary', 'thumbnail', 'download_url')
 
 
@@ -118,8 +140,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         cache_key = None
         # Cache parent look ups only
         if "parent" in self.context['request'].GET:
-            cache_key = 'contentnode_list_{db}_{parent}'.format(
-                db=get_active_content_database(),
+            cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
             if cache.get(cache_key):
