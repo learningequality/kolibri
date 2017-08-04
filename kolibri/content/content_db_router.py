@@ -97,6 +97,9 @@ def _attach_default_database(alias):
     data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
     """
     logging.info('In _attach_default_database UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU unexpected')
+    #import traceback
+    # traceback.print_stack()
+
     # if the default database uses a sqlite file, we can't attach it
     default_db = connections.databases[DEFAULT_DB_ALIAS]
     if default_db["ENGINE"].endswith(".sqlite3") and default_db["NAME"].endswith(".sqlite3"):
@@ -113,6 +116,23 @@ def _attach_default_database(alias):
         except OperationalError:
             # this will happen if the database is already attached; we can safely ignore
             pass
+
+def _detach_default_database(alias):
+    """
+    Detach the default (primary) database file from the content database connection.
+    Need to call this before deleting a content database.
+    """
+    logging.info('In _detach_default_database FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF fix? :fingers crossed:')
+    try:
+        if not connections[alias].connection:
+            connections[alias].connect()
+        connections[alias].connection.execute("DETACH DATABASE defaultdb;")
+        # record the fact that the default database has been detached from this content database
+        _content_databases_with_attached_default_db.remove(alias)
+    except OperationalError as error:
+        logging.info('Hit OperationalError in _detach_default_database ' + str(error))
+        # this will happen if the database is already attached; we can safely ignore
+        pass
 
 def set_active_content_database(alias):
     logging.info('SETTTING set_active_content_database to alias=' + str(alias))
@@ -202,7 +222,7 @@ class using_content_database(object):
 
     def __enter__(self):
         self.previous_alias = getattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', None)
-        logging.info('   __enter__ using_content_database alias=' + str(alias) + ' previous_alias=' + str(self.previous_alias)  )
+        logging.info('   __enter__ using_content_database alias=' + str(self.alias) + ' previous_alias=' + str(self.previous_alias)  )
         set_active_content_database(self.alias)
         return self
 

@@ -12,7 +12,7 @@ from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from django.utils.decorators import method_decorator
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection, default_database_is_attached
+from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection, default_database_is_attached, _detach_default_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -53,15 +53,19 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         super(ChannelMetadataCacheViewSet, self).destroy(request)
         transaction.commit() # needed because we disabled auto commit
 
-        # Close connection to the content DB we're about to delete
-        conn = get_content_database_connection(pk)
-        logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
-        logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
-        conn.commit()
-        conn.close()
-        logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
-        logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
 
+        logging.info('VERY HOPEFUL ABOUT THIS ONE')
+        _detach_default_database(pk)
+
+        # Close connection to the content DB we're about to delete
+        # SKIP THIS STEP BECAUSE default DB GETS RE-ATTACHED
+        # conn = get_content_database_connection(pk)
+        # logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        # logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
+        # conn.commit()
+        # conn.close()
+        # logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        # logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
 
 
         # FIX for #1818: just in case
@@ -69,8 +73,8 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         connections.close_all()
 
 
-        logging.info('Taking a break for 10 secs...')
-        time.sleep(10)
+        logging.info('Taking a break for 2 secs...')
+        time.sleep(2)
 
         # SUT
         if self.delete_content_db_file(pk):
@@ -97,15 +101,6 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
         except OSError as error:
             logging.info('FRIDAY  EEEEEEE   EEEEEEE   EEEEEEE   EEEEEEE  OSError occured ' + str(error))
-
-            logging.info('Taking another break for 10 secs...')
-            time.sleep(10)
-
-            os.remove(dbpath)
-            if not os.path.exists(dbpath):
-                logging.info('DB file remove success after second try')
-                return True
-
             return False
 
 

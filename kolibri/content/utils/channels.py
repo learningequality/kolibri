@@ -63,8 +63,9 @@ def read_channel_metadata_from_db_file(channeldbpath):
         channel_meta =  ChannelMetadata.objects.first()
         channel_meta_dict = dict(id=channel_meta.id, name=channel_meta.name)
 
-        active_conn = get_active_content_database(return_none_if_not_set=True)
-        if active_conn:
+        active_alias = get_active_content_database(return_none_if_not_set=True)
+        if active_alias:
+            active_conn = get_content_database_connection(active_alias)
             active_conn.commit()
             active_conn.close()
 
