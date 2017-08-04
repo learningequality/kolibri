@@ -9,6 +9,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
+  {% if LANGUAGE_CODE == "ach-ug" %}
+    <script type="text/javascript">
+      var _jipt = [];
+      _jipt.push(['project', 'kolibri']);
+    </script>
+    <script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>
+  {% endif %}
 </head>
 <body>
 <rootvue>
