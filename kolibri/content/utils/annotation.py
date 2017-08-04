@@ -36,3 +36,7 @@ def update_channel_metadata_cache():
         if ch_metadata_obj.last_updated is None:
             ch_metadata_obj.last_updated = local_now()
             ch_metadata_obj.save()
+
+    # FIX for #1818: close DB connections after update_channel_metadata_cache
+    from django.db import connections
+    connections.close_all()
