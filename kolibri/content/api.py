@@ -4,6 +4,7 @@ from functools import reduce
 import logging as logger
 from random import sample
 import shutil
+import time
 
 from django.core.cache import cache
 from django.db import transaction
@@ -49,16 +50,22 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         """
         logging.info('In ChannelMetadataCacheViewSet.destroy pk=' + str(pk) )
         super(ChannelMetadataCacheViewSet, self).destroy(request)
+        transaction.commit() # needed because we disabled auto commit
 
         # Close connection to the content DB we're about to delete
         conn = get_content_database_connection(pk)
         logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        conn.commit()
         conn.close()
         logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
 
         # FIX for #1818: just in case
         from django.db import connections
         connections.close_all()
+
+
+        logging.info('Taking a break for 10 secs...')
+        time.sleep(10)
 
         # SUT
         if self.delete_content_db_file(pk):
@@ -84,7 +91,16 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
             return True
 
         except OSError as error:
-            logging.info('EEEEEEEEEEEEEEEEEEEEEEEEEE OSError occured ' + str(error))
+            logging.info('FRIDAY  EEEEEEE   EEEEEEE   EEEEEEE   EEEEEEE  OSError occured ' + str(error))
+
+            logging.info('Taking another break for 10 secs...')
+            time.sleep(10)
+
+            os.remove(dbpath)
+            if not os.path.exists(dbpath):
+                logging.info('DB file remove success after second try')
+                return True
+
             return False
 
 
