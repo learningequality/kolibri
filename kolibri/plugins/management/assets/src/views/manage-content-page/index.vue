@@ -94,7 +94,7 @@
     }),
     mounted() {
       if (this.isSuperuser) {
-        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+        this.intervalId = setInterval(this.pollTasks, 1000);
       }
     },
     destroyed() {
@@ -139,7 +139,7 @@
       actions: {
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
-        pollTasksAndChannels: actions.pollTasksAndChannels,
+        pollTasks: actions.pollTasks,
       },
     },
   };
