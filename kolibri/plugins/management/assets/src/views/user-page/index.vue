@@ -18,15 +18,11 @@
         <option :value="LEARNER"> {{$tr('learners')}} </option>
       </select>
 
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
+      <k-filter
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
 
       <div class="create">
         <k-button
@@ -113,12 +109,14 @@
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilter from 'kolibri.coreVue.components.kFilter';
   import userRole from '../user-role';
   export default {
     components: {
       userCreateModal,
       userEditModal,
       kButton,
+      kFilter,
       userRole,
     },
     data: () => ({
@@ -224,18 +222,6 @@
   .create
     float: right
 
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
   #type-filter
     float: left
     background-color: $core-bg-light
@@ -273,31 +259,9 @@
     padding-bottom: $row-padding
     color: $core-text-default
 
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
   .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
     float: left
     margin-left: 5px
-
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
 
   .table-name
     $line-height = 1em

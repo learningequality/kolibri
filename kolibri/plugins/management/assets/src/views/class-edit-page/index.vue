@@ -22,15 +22,11 @@
     </div>
 
     <div class="toolbar">
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
+      <k-filter
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
 
       <div class="enroll">
         <router-link :to="classEnrollLink">
@@ -125,6 +121,7 @@
   import roleSwitcher from './role-switcher';
   import userRemoveModal from './user-remove-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilter from 'kolibri.coreVue.components.kFilter';
   import userRole from '../user-role';
   export default {
     name: 'classEnrollPage',
@@ -147,6 +144,7 @@
       roleSwitcher,
       userRemoveModal,
       kButton,
+      kFilter,
       userRole,
     },
     data: () => ({
@@ -268,18 +266,6 @@
     color: $core-text-annotation
     margin-left: 10px
 
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
   .header h2
     display: inline-block
     font-weight: normal
@@ -331,29 +317,8 @@
     vertical-align: middle
     white-space: nowrap
 
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
   .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
     float: left
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
 
   .table-name
     $line-height = 1em

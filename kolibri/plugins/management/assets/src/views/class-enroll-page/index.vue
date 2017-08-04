@@ -45,25 +45,12 @@
       <div class="actions-header pure-g">
 
         <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
-          <ui-icon
-            :aria-label="$tr('search')"
-            icon="search"
-          />
-          <!-- TODO: Should not be a k-textbox -->
-          <k-textbox
-            :aria-label="$tr('searchForUser')"
-            v-model.trim="filterInput"
-            type="search"
+
+          <k-filter
             :placeholder="$tr('searchForUser')"
+            v-model.trim="filterInput"
+            class="searchbar"
             @input="pageNum = 1"
-            ref="searchbox"
-            class="inline-block"
-            />
-          <ui-icon-button
-            type="secondary"
-            icon="clear"
-            :class="filterInput === '' ? 'invisible' : ''"
-            @click="$refs.searchbox.reset()"
           />
         </div>
         <div :class="[windowSize.breakpoint > 3 ? 'pure-u-1-4' : 'pure-u-1-1', filterInput === '' ? '' : 'invisible']">
@@ -156,7 +143,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kFilter from 'kolibri.coreVue.components.kFilter';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiSwitch from 'keen-ui/src/UiSwitch';
@@ -192,7 +179,7 @@
       kCheckbox,
       uiIconButton,
       uiIcon,
-      kTextbox,
+      kFilter,
       userCreateModal,
       confirmEnrollmentModal,
       uiSwitch,

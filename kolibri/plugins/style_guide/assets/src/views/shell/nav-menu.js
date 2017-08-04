@@ -6,6 +6,7 @@ import navbarPage from '../content/navbar';
 import checkboxesPage from '../content/checkboxes';
 import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
+import filtersPage from '../content/filters';
 import homePage from '../content/style-guide-home';
 
 function sortSectionItems(items) {
@@ -67,6 +68,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/text-fields`,
           component: textFieldsPage,
+        },
+      },
+      {
+        itemName: 'Filters',
+        itemRoute: {
+          path: `/components/filters`,
+          component: filtersPage,
         },
       },
     ]),
