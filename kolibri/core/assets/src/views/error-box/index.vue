@@ -1,15 +1,7 @@
 <template>
 
-  <div class="error-box-wrapper" :class="{ hidden: isHidden }">
-    <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <mat-svg category="navigation" name="close"/>
-    </button>
-    <h1>{{ $tr('errorHeader') }}</h1>
-    <p>{{ $tr('explanation') }}</p>
-    <label for="error-box" aria-live="polite">{{ $tr('errorLabel') }}</label><br>
-    <div id="error-box" class="error-box">
-      {{ error }}
-    </div>
+  <div class="error-box-wrapper">
+    Hello world
   </div>
 
 </template>
