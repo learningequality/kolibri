@@ -90,6 +90,7 @@ def _attach_default_database(alias):
     This allows us to do direct joins between tables across the two databases, for efficiently integrating
     data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
     """
+    logging.info('In _attach_default_database UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU unexpected')
     # if the default database uses a sqlite file, we can't attach it
     default_db = connections.databases[DEFAULT_DB_ALIAS]
     if default_db["ENGINE"].endswith(".sqlite3") and default_db["NAME"].endswith(".sqlite3"):
@@ -108,6 +109,7 @@ def _attach_default_database(alias):
             pass
 
 def set_active_content_database(alias):
+    logging.info('SETTTING set_active_content_database to alias=' + str(alias))
     setattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', alias)
 
 
@@ -194,10 +196,12 @@ class using_content_database(object):
 
     def __enter__(self):
         self.previous_alias = getattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', None)
+        logging.info('   __enter__ using_content_database alias=' + str(alias) + ' previous_alias=' + str(self.previous_alias)  )
         set_active_content_database(self.alias)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        logging.info('   __exit__ using_content_database putting back self.previous_alias=' + str(self.previous_alias) )
         set_active_content_database(self.previous_alias)
 
     def __call__(self, querying_func):

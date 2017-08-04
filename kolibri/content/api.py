@@ -12,7 +12,7 @@ from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from django.utils.decorators import method_decorator
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection
+from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection, default_database_is_attached
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -55,9 +55,13 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
         # Close connection to the content DB we're about to delete
         conn = get_content_database_connection(pk)
         logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
         conn.commit()
         conn.close()
         logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
+
+
 
         # FIX for #1818: just in case
         from django.db import connections
