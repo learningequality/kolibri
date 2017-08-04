@@ -5,6 +5,9 @@ from ..content_db_router import using_content_database
 from ..models import ChannelMetadata, ChannelMetadataCache
 from .channels import get_channel_ids_for_content_database_dir
 
+import logging as logger
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
+logging = logger.getLogger(__name__)
 
 def update_channel_metadata_cache():
     """
@@ -13,6 +16,7 @@ def update_channel_metadata_cache():
     and pull the data from each database's ChannelMetadata object to update the ChannelMetadataCache
     object in the default database to ensure they are in sync.
     """
+    logging.info('In update_channel_metadata_cache <<<<<<    <<<<<<    <<<<<<   <<<<<<    <<<<<<')
     db_names = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
     # Delete ChannelMetadataCache objects in default db that are not found in CONTENT_DATABASE_DIR
     ChannelMetadataCache.objects.exclude(id__in=db_names).delete()
@@ -32,3 +36,7 @@ def update_channel_metadata_cache():
         if ch_metadata_obj.last_updated is None:
             ch_metadata_obj.last_updated = local_now()
             ch_metadata_obj.save()
+
+    # FIX for #1818: close DB connections after update_channel_metadata_cache
+    from django.db import connections
+    connections.close_all()

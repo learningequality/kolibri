@@ -5,16 +5,19 @@ import os
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
-from ..content_db_router import using_content_database
+from kolibri.content.content_db_router import using_content_database, get_active_content_database, get_content_database_connection
 from .paths import get_content_database_folder_path
 
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
 logging = logger.getLogger(__name__)
+
+
 
 def get_channel_ids_for_content_database_dir(content_database_dir):
     """
     Returns a list of channel IDs for the channel databases that exist in a content database directory.
     """
-
+    logger.info('In get_channel_ids_for_content_database_dir for dir ' + str(content_database_dir))
     # immediately return an empty list if the content database directory doesn't exist
     if not os.path.isdir(content_database_dir):
         return []
@@ -51,20 +54,37 @@ def enumerate_content_database_file_paths(content_database_dir):
     return [full_dir_template.format(f) for f in channel_ids]
 
 def read_channel_metadata_from_db_file(channeldbpath):
+    logger.info('In read_channel_metadata_from_db_file for channeldbpath ' + str(channeldbpath))
     # import here to avoid circular imports whenever kolibri.content.models imports utils too
     from kolibri.content.models import ChannelMetadata
 
+    channel_meta_dict = None
     with using_content_database(channeldbpath):
-        return ChannelMetadata.objects.first()
+        channel_meta =  ChannelMetadata.objects.first()
+        channel_meta_dict = dict(id=channel_meta.id, name=channel_meta.name)
+
+        active_alias = get_active_content_database(return_none_if_not_set=True)
+        if active_alias:
+            active_conn = get_content_database_connection(active_alias)
+            active_conn.commit()
+            active_conn.close()
+
+    # FIX for #1818: DB file on removable media remains locked after import
+    from django.db import connections
+    connections.close_all()
+
+    return channel_meta_dict
+
 
 def get_channels_for_data_folder(datafolder):
+    logger.info('In get_channels_for_data_folder for datafolder ' + str(datafolder))
     channels = []
     for path in enumerate_content_database_file_paths(get_content_database_folder_path(datafolder)):
-        channel = read_channel_metadata_from_db_file(path)
+        channel_meta_dict = read_channel_metadata_from_db_file(path)
         channel_data = {
             "path": path,
-            "id": channel.id,
-            "name": channel.name,
+            "id": channel_meta_dict['id'],
+            "name": channel_meta_dict['name'],
         }
         channels.append(channel_data)
     return channels

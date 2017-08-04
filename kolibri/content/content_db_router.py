@@ -21,6 +21,12 @@ from django.db.utils import ConnectionDoesNotExist
 
 from .errors import ContentModelUsedOutsideDBContext
 
+
+import logging as logger
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
+logging = logger.getLogger(__name__)
+
+
 THREAD_LOCAL = threading.local()
 
 _content_databases_with_attached_default_db = set()
@@ -90,6 +96,10 @@ def _attach_default_database(alias):
     This allows us to do direct joins between tables across the two databases, for efficiently integrating
     data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
     """
+    logging.info('In _attach_default_database UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU unexpected')
+    #import traceback
+    # traceback.print_stack()
+
     # if the default database uses a sqlite file, we can't attach it
     default_db = connections.databases[DEFAULT_DB_ALIAS]
     if default_db["ENGINE"].endswith(".sqlite3") and default_db["NAME"].endswith(".sqlite3"):
@@ -103,11 +113,32 @@ def _attach_default_database(alias):
             connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
             # record the fact that the default database has been attached to this content database
             _content_databases_with_attached_default_db.add(alias)
-        except OperationalError:
+            logging.info('SUUCESSSFULLY ATTACHED ' + str(default_db_path) + '  -------->  db w alias = ' + str(alias))
+        except OperationalError as error:
+            logging.info('Hit OperationalError in _attach_default_database ' + str(error))
             # this will happen if the database is already attached; we can safely ignore
             pass
 
+def _detach_default_database(alias):
+    """
+    Detach the default (primary) database file from the content database connection.
+    Need to call this before deleting a content database.
+    """
+    logging.info('In _detach_default_database FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF fix? :fingers crossed:')
+    try:
+        if not connections[alias].connection:
+            connections[alias].connect()
+        connections[alias].connection.execute("DETACH DATABASE defaultdb;")
+        # record the fact that the default database has been detached from this content database
+        _content_databases_with_attached_default_db.remove(alias)
+        logging.info('SUUCESSSFULLY DETACHED  defaultdb from ' + str(alias))
+    except OperationalError as error:
+        logging.info('Hit OperationalError in _detach_default_database ' + str(error))
+        # this will happen if the database is already attached; we can safely ignore
+        pass
+
 def set_active_content_database(alias):
+    logging.info('SETTTING set_active_content_database to alias=' + str(alias))
     setattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', alias)
 
 
@@ -194,10 +225,12 @@ class using_content_database(object):
 
     def __enter__(self):
         self.previous_alias = getattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', None)
+        logging.info('   __enter__ using_content_database alias=' + str(self.alias) + ' previous_alias=' + str(self.previous_alias)  )
         set_active_content_database(self.alias)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        logging.info('   __exit__ using_content_database putting back self.previous_alias=' + str(self.previous_alias) )
         set_active_content_database(self.previous_alias)
 
     def __call__(self, querying_func):

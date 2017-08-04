@@ -23,6 +23,11 @@ from mptt.querysets import TreeQuerySet
 from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
 
+import logging as logger
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
+logging = logger.getLogger(__name__)
+
+
 PRESET_LOOKUP = dict(format_presets.choices)
 
 
@@ -73,6 +78,7 @@ class ContentQuerySet(TreeQuerySet):
     """
     def __init__(self, *args, **kwargs):
         kwargs["using"] = kwargs.get("using", None) or get_active_content_database(return_none_if_not_set=True)
+        logging.info('In ChannelMetadata objects = ContentQuerySet.__init__ with   using = ' + str(kwargs["using"]) )
         super(ContentQuerySet, self).__init__(*args, **kwargs)
 
 

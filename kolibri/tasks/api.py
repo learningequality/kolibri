@@ -26,6 +26,7 @@ from barbequeue.common.classes import State
 from .permissions import IsDeviceOwnerOnly
 from .client import get_client
 
+logger.basicConfig(level=logger.DEBUG)
 logging = logger.getLogger(__name__)
 
 # all tasks are marked as remote imports for nwo
@@ -155,7 +156,12 @@ def _localimport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in drive.metadata["channels"]:
-        call_command("importchannel", "local", channel["id"], drive.datafolder)
+        call_command(
+            "importchannel",
+            "local",
+            channel["id"],
+            drive.datafolder,
+            update_progress=update_progress)
         call_command(
             "importcontent",
             "local",
@@ -186,6 +192,15 @@ def _job_to_response(job):
             "id": job.job_id,
         }
     else:
+        logging.info('job is truthy')
+        logging.info( str( {
+                    "type": TASKTYPE,
+                    "status": job.state,
+                    "exception": str(job.exception),
+                    "traceback": str(job.traceback),
+                    "percentage": job.percentage_progress,
+                    "id": job.job_id,
+        }))
         return {
             "type": TASKTYPE,
             "status": job.state,

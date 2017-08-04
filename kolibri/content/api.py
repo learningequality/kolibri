@@ -1,13 +1,18 @@
 import os
 from collections import OrderedDict
 from functools import reduce
+import logging as logger
 from random import sample
+import shutil
+import time
 
 from django.core.cache import cache
+from django.db import transaction
 from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
+from django.utils.decorators import method_decorator
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database
+from kolibri.content.content_db_router import get_active_content_database, get_content_database_connection, default_database_is_attached, _detach_default_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -19,6 +24,11 @@ from six.moves.urllib.parse import parse_qs, urlparse
 from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
+
+
+
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
+logging = logger.getLogger(__name__)
 
 
 def _join_with_logical_operator(lst, operator):
@@ -33,25 +43,64 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
+    @method_decorator(transaction.non_atomic_requests)
     def destroy(self, request, pk=None):
         """
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
+        logging.info('In ChannelMetadataCacheViewSet.destroy pk=' + str(pk) )
         super(ChannelMetadataCacheViewSet, self).destroy(request)
+        transaction.commit() # needed because we disabled auto commit
 
+
+        logging.info('VERY HOPEFUL ABOUT THIS ONE')
+        _detach_default_database(pk)
+
+        # Close connection to the content DB we're about to delete
+        # SKIP THIS STEP BECAUSE default DB GETS RE-ATTACHED
+        # conn = get_content_database_connection(pk)
+        # logging.info('BEFORE CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        # logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
+        # conn.commit()
+        # conn.close()
+        # logging.info('AFTER CLOSE conn=' + str(conn) + 'isolation_level=' + str(conn.isolation_level) )
+        # logging.info('default_database_is_attached ?' + str(default_database_is_attached()) )
+
+
+        # FIX for #1818: just in case
+        from django.db import connections
+        connections.close_all()
+
+
+        logging.info('Taking a break for 2 secs...')
+        time.sleep(2)
+
+        # SUT
         if self.delete_content_db_file(pk):
+            logging.info('delete_content_db_file returned True')
             response_msg = 'Channel {} removed from device'.format(pk)
         else:
             response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+        # ATTEMPT 3 (sledgehammer approach!)
+        # delattr(django.db.connections._connections, channel_id)
 
         return Response(response_msg)
 
     def delete_content_db_file(self, channel_id):
         try:
-            os.remove(get_content_database_file_path(channel_id))
+            dbpath = get_content_database_file_path(channel_id)
+            logging.info('dbpath=' + str(dbpath))
+            if os.path.exists(dbpath):
+                logging.info('DB file exists before remove')
+            os.remove(dbpath)
+            if os.path.exists(dbpath):
+                logging.info('DB file exists after remove')
             return True
-        except OSError:
+
+        except OSError as error:
+            logging.info('FRIDAY  EEEEEEE   EEEEEEE   EEEEEEE   EEEEEEE  OSError occured ' + str(error))
             return False
 
 
