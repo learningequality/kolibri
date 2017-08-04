@@ -80,7 +80,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
-    'kolibri.content.middleware.ContentDBRoutingMiddleware',  # TODO: test removing this middlware in next iteatoin
+    # 'kolibri.content.middleware.ContentDBRoutingMiddleware',  # TODO: test removing this middlware in next iteatoin
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
