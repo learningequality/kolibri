@@ -27,8 +27,9 @@ from .utils.search import fuzz
 
 
 
-logger.basicConfig(level=logger.DEBUG)
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
 logging = logger.getLogger(__name__)
+
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)

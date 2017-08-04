@@ -6,7 +6,7 @@ from ..models import ChannelMetadata, ChannelMetadataCache
 from .channels import get_channel_ids_for_content_database_dir
 
 import logging as logger
-logger.basicConfig(level=logger.DEBUG)
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
 logging = logger.getLogger(__name__)
 
 def update_channel_metadata_cache():

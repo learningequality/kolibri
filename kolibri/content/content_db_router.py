@@ -21,6 +21,12 @@ from django.db.utils import ConnectionDoesNotExist
 
 from .errors import ContentModelUsedOutsideDBContext
 
+
+import logging as logger
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s(%(thread)d) %(levelname)s %(name)s: %(message)s')
+logging = logger.getLogger(__name__)
+
+
 THREAD_LOCAL = threading.local()
 
 _content_databases_with_attached_default_db = set()
