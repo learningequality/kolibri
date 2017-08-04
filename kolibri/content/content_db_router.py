@@ -97,8 +97,8 @@ def _attach_default_database(alias):
     data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
     """
     logging.info('In _attach_default_database UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU unexpected')
-    import traceback
-    logging.info('STACK is ' + str(traceback.format_stack()) )
+    #import traceback
+    # traceback.print_stack()
 
     # if the default database uses a sqlite file, we can't attach it
     default_db = connections.databases[DEFAULT_DB_ALIAS]
@@ -108,13 +108,12 @@ def _attach_default_database(alias):
             # ensure we're connected to the content database before attaching the default database
             if not connections[alias].connection:
                 connections[alias].connect()
-            # # attach the default database to the content db connection; this allows tables from both databases
-            # # to be used together in the same query; see https://www.sqlite.org/lang_attach.html
-            # connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
-            # # record the fact that the default database has been attached to this content database
-            # _content_databases_with_attached_default_db.add(alias)
-            # logging.info('SUUCESSSFULLY ATTACHED ' + str(default_db_path) + '  -------->  db w alias = ' + str(alias))
-            logging.info('skipping ATTACH DATABASE')
+            # attach the default database to the content db connection; this allows tables from both databases
+            # to be used together in the same query; see https://www.sqlite.org/lang_attach.html
+            connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
+            # record the fact that the default database has been attached to this content database
+            _content_databases_with_attached_default_db.add(alias)
+            logging.info('SUUCESSSFULLY ATTACHED ' + str(default_db_path) + '  -------->  db w alias = ' + str(alias))
         except OperationalError as error:
             logging.info('Hit OperationalError in _attach_default_database ' + str(error))
             # this will happen if the database is already attached; we can safely ignore

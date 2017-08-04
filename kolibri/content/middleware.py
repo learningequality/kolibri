@@ -13,11 +13,10 @@ class ContentDBRoutingMiddleware(object):
     """
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        PREV = get_active_content_database(return_none_if_not_set=True)
-        logging.info('In ContentDBRoutingMiddleware.process_view.  view_kwargs=' + str(view_kwargs) + ' PREVIOUSLY_ACTIVE_CONTENT_DATABASE = ' + str(PREV) + 'view_func=' + str(view_func.__name__))
-        request.PREVIOUSLY_ACTIVE_CONTENT_DATABASE = PREV
-        if "channel_id" in view_kwargs:
-            set_active_content_database(view_kwargs["channel_id"])
+        if view_func.__name__ != 'TasksViewSet': # skip get_active_content_database if Task worker
+            request.PREVIOUSLY_ACTIVE_CONTENT_DATABASE = get_active_content_database(return_none_if_not_set=True)
+            if "channel_id" in view_kwargs:
+                set_active_content_database(view_kwargs["channel_id"])
 
     def process_response(self, request, response):
         logging.info('In ContentDBRoutingMiddleware.process_response.')
