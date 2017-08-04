@@ -130,7 +130,7 @@ class Language(models.Model):
     lang_subcode = models.CharField(max_length=10, db_index=True, blank=True, null=True)
     # Localized name
     lang_name = models.CharField(max_length=100, blank=True, null=True)
-    lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS)
+    lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS, default=LANGUAGE_DIRECTIONS[0][0])
 
     def __str__(self):
         return self.lang_name
@@ -144,7 +144,7 @@ class File(models.Model):
     """
     id = UUIDField(primary_key=True)
     # The foreign key mapping happens here as many File objects can map onto a single local file
-    local_file = models.ForeignKey('LocalFile')
+    local_file = models.ForeignKey('LocalFile', related_name='files')
     available = models.BooleanField(default=False)
     contentnode = models.ForeignKey(ContentNode, related_name='files')
     preset = models.CharField(max_length=150, choices=format_presets.choices, blank=True)
@@ -159,6 +159,15 @@ class File(models.Model):
     class Admin:
         pass
 
+    def get_extension(self):
+        return self.local_file.extension
+
+    def get_file_size(self):
+        return self.local_file.file_size
+
+    def get_storage_url(self):
+        return self.local_file.get_storage_url()
+
     def get_preset(self):
         """
         Return the preset.
@@ -170,7 +179,7 @@ class File(models.Model):
         Return a valid filename to be downloaded as.
         """
         title = self.contentnode.title
-        filename = "{} ({}).{}".format(title, self.get_preset(), self.local_file.extension)
+        filename = "{} ({}).{}".format(title, self.get_preset(), self.get_extension())
         valid_filename = get_valid_filename(filename)
         return valid_filename
 
@@ -264,6 +273,7 @@ class ChannelMetadata(models.Model):
     last_updated = DateTimeTzField(null=True)
     # Minimum version of Kolibri that this content database is compatible with
     min_kolibri_version = models.CharField(max_length=50)
+    root = models.ForeignKey(ContentNode)
 
     class Admin:
         pass

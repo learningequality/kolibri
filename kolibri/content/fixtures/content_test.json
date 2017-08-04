@@ -296,7 +296,7 @@
       "thumbnail": "",
       "author": "eli",
       "version": 0,
-      "root_pk": "da7ecc42e62553eebc8121242746e88a"
+      "root": "da7ecc42e62553eebc8121242746e88a"
     },
     "pk": "6199dde695db4ee4ab392222d5af1e5c",
     "model": "content.channelmetadata"
