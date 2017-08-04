@@ -130,9 +130,7 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  const model = ContentNodeResource.getModel(contentId, {
-    channel_id: channelId,
-  });
+  const model = ContentNodeResource.getModel(contentId);
   model.set({ progress_fraction: progressFraction });
 }
 
@@ -194,13 +192,12 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
   }
 
-  const channelPayload = { channel_id: channelId };
-  const topicPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
-  const childrenPromise = ContentNodeResource.getCollection(channelPayload, {
+  const topicPromise = ContentNodeResource.getModel(id).fetch();
+  const childrenPromise = ContentNodeResource.getCollection({
     parent: id,
   }).fetch();
   const channelsPromise = setChannelInfo(store, channelId);
-  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, channelPayload);
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
   ConditionalPromise.all([topicPromise, childrenPromise, ancestorsPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
     ([topic, children, ancestors]) => {
@@ -219,7 +216,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
         .filter(item => item.kind === ContentNodeKinds.TOPIC)
         .map(subtopic => subtopic.id);
       if (subtopicIds.length) {
-        const topicProgressPromise = ContentNodeProgressResource.getCollection(channelPayload, {
+        const topicProgressPromise = ContentNodeProgressResource.getCollection({
           ids: subtopicIds,
         }).fetch();
         topicProgressPromise.then(progressArray => {
@@ -258,16 +255,10 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
-  const contentPromise = ContentNodeResource.getModel(id, {
-    channel_id: channelId,
-  }).fetch();
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id, {
-    channel_id: channelId,
-  });
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id);
   const channelsPromise = setChannelInfo(store, channelId);
-  const ancestorsPromise = ContentNodeResource.fetchAncestors(id, {
-    channel_id: channelId,
-  });
+  const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
   ConditionalPromise.all([
     contentPromise,
     channelsPromise,
@@ -307,7 +298,6 @@ function triggerSearch(store, channelId, searchTerm) {
   }
 
   const contentCollection = ContentNodeResource.getPagedCollection(
-    { channel_id: channelId },
     { search: searchTerm }
   );
   const searchResultsPromise = contentCollection.fetch();
@@ -507,7 +497,6 @@ function showExam(store, channelId, id, questionNumber) {
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
           const contentPromise = ContentNodeResource.getCollection(
-            { channel_id: channelId },
             { ids: questionSources.map(item => item.exercise_id) }
           ).fetch();
 

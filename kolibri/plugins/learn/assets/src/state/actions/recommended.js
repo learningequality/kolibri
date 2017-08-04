@@ -29,34 +29,29 @@ import uniqBy from 'lodash/uniqBy';
 // User-agnostic recommendations
 
 function _getPopular(channelId) {
-  const channelPayload = { channel_id: channelId };
   const popularPayload = { popular: 'true' };
-  return ContentNodeResource.getCollection(channelPayload, popularPayload).fetch();
+  return ContentNodeResource.getCollection(popularPayload).fetch();
 }
 
 function _getFeatured(channelId) {
-  const channelPayload = { channel_id: channelId };
-
-  return ContentNodeResource.getAllContentCollection(channelPayload).fetch();
+  return ContentNodeResource.getAllContentCollection().fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(channelId, state) {
   const nextStepsPayload = { next_steps: currentUserId(state) };
-  const channelPayload = { channel_id: channelId };
 
   if (isFacilityUser(state)) {
-    return ContentNodeResource.getCollection(channelPayload, nextStepsPayload).fetch();
+    return ContentNodeResource.getCollection(nextStepsPayload).fetch();
   }
   return Promise.resolve([]);
 }
 
 function _getResume(channelId, state) {
   const resumePayload = { resume: currentUserId(state) };
-  const channelPayload = { channel_id: channelId };
 
   if (isFacilityUser(state)) {
-    return ContentNodeResource.getCollection(channelPayload, resumePayload).fetch();
+    return ContentNodeResource.getCollection(resumePayload).fetch();
   }
   return Promise.resolve([]);
 }
@@ -166,15 +161,12 @@ function showFeaturedPage(store, channelId) {
 function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-  const channelPayload = { channel_id: channelId };
-  const contentPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
-  const recommendedPromise = ContentNodeResource.getCollection(channelPayload, {
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection({
     recommendations_for: id,
   }).fetch();
   const channelsPromise = setChannelInfo(store, channelId);
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id, {
-    channel_id: channelId,
-  });
+  const nextContentPromise = ContentNodeResource.fetchNextContent(id);
   ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
     samePageCheckGenerator(store),
     ([content, channels, nextContent]) => {
