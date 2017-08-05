@@ -6,6 +6,7 @@ from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_parti
 from kolibri.utils.uuids import is_valid_uuid
 
 from .paths import get_content_database_folder_path
+from .sqlalchemybridge import Bridge
 
 logging = logger.getLogger(__name__)
 
@@ -51,7 +52,17 @@ def enumerate_content_database_file_paths(content_database_dir):
 
 def read_channel_metadata_from_db_file(channeldbpath):
     # import here to avoid circular imports whenever kolibri.content.models imports utils too
-    return {}
+    from kolibri.content.models import ChannelMetadata
+
+    source = Bridge(sqlite_file_path=channeldbpath)
+
+    ChannelMetadataClass = source.get_class(ChannelMetadata)
+
+    source_channel_metadata = source.session.query(ChannelMetadataClass).all()[0]
+
+    source.end()
+
+    return source_channel_metadata
 
 def get_channels_for_data_folder(datafolder):
     channels = []

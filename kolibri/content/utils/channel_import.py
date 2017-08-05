@@ -2,6 +2,8 @@ from django.apps import apps
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from kolibri.utils.time import local_now
 
+from .annotation import set_leaf_node_availability_from_local_file_availability
+from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge, ClassNotFoundError
 
@@ -207,17 +209,13 @@ mappings = {
 
 def initialize_import_manager(channel_id):
 
-    source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
+    channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
 
-    ChannelMetadataClass = source.get_class(ChannelMetadata)
-
-    source_channel_metadata = source.session.query(ChannelMetadataClass).all()[0]
-
-    min_version = getattr(source_channel_metadata, 'min_kolibri_version', NO_VERSION)
+    min_version = getattr(channel_metadata, 'min_kolibri_version', NO_VERSION)
 
     ImportClass = mappings.get(min_version)
 
-    return ImportClass(channel_id, source=source)
+    return ImportClass(channel_id)
 
 
 def import_channel_from_local_db(channel_id):
@@ -233,5 +231,8 @@ def import_channel_from_local_db(channel_id):
 
     import_manager.end()
 
+    set_leaf_node_availability_from_local_file_availability(channel_id)
+
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
+    channel.save()
