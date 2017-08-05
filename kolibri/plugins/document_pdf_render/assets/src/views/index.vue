@@ -1,11 +1,14 @@
 <template>
 
   <div
-    ref="container"
-    class="container"
+    ref="docViewer"
+    class="doc-viewer"
+    :style="minViewerHeight"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
+
     <icon-button
-      class="btn"
+      class="doc-viewer-controls button-fullscreen"
+      aria-controls="pdf-container"
       v-if="supportsPDFs"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen"
@@ -13,12 +16,29 @@
       <mat-svg v-if="isFullscreen" class="icon" category="navigation" name="fullscreen_exit"/>
       <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
-    <div ref="pdfcontainer" class="pdfcontainer" @scroll="checkPages">
-      <progress-bar v-if="loading" class="progress-bar" :show-percentage="true" :progress="progress"/>
-      <p class="page-container" v-for="index in totalPages"
+
+    <ui-icon-button
+      class="doc-viewer-controls button-zoom-in"
+      :class="{'short-display': shortDisplay}"
+      aria-controls="pdf-container"
+      icon="add"
+      size="large"
+      @click="zoomIn()"/>
+      <ui-icon-button
+      class="doc-viewer-controls button-zoom-out"
+      :class="{'short-display': shortDisplay}"
+      aria-controls="pdf-container"
+      icon="remove"
+      size="large"
+      @click="zoomOut()"/>
+
+    <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
+      <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
+      <section class="pdf-page-container" v-for="index in totalPages"
         :ref="pageRef(index)"
         :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-      </p>
+        <span class="pdf-page-loading"> {{$tr('pageNumber', {pageNumber: index})}} </span>
+      </section>
     </div>
   </div>
 
@@ -31,27 +51,37 @@
   import ScreenFull from 'screenfull';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
+  import { debounce } from 'lodash';
 
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
   // Number of pages before and after current visible to keep rendered
   const pageDisplayWindow = 1;
+  const renderDebounceTime = 300;
+  const minViewerHeight = 400;
 
   export default {
+    name: 'documentPDFRender',
+    mixins: [responsiveWindow, responsiveElement],
     components: {
       iconButton,
       progressBar,
+      uiIconButton,
     },
     props: ['defaultFile'],
     data: () => ({
       supportsPDFs: true,
-      timeout: null,
       isFullscreen: false,
-      loading: true,
-      totalPages: 0,
-      pageHeight: 0,
-      pageWidth: 0,
+      progress: 0,
+      scale: null,
+      timeout: null,
+      totalPages: null,
+      pageHeight: null,
+      pageWidth: null,
     }),
     computed: {
       fullscreenAllowed() {
@@ -60,51 +90,76 @@
       mimicFullscreen() {
         return !this.fullscreenAllowed && this.isFullscreen;
       },
+      shortDisplay() {
+        return this.elSize.height === minViewerHeight;
+      },
+      minViewerHeight() {
+        return `min-height: ${minViewerHeight}px`;
+      },
       targetTime() {
         return this.totalPages * 30;
+      },
+      documentLoading() {
+        return this.progress !== 1;
       },
     },
     methods: {
       toggleFullscreen() {
-        if (this.isFullscreen) {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
-          }
-          this.isFullscreen = false;
+        if (this.fullscreenAllowed) {
+          ScreenFull.toggle(this.$refs.docViewer);
         } else {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
-          }
-          this.isFullscreen = true;
+          this.isFullscreen = !this.isFullscreen;
         }
+      },
+      zoomIn() {
+        this.scale += 0.1;
+      },
+      zoomOut() {
+        this.scale -= 0.1;
       },
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
       },
-      displayPage(pdfPage) {
+      startRender(pdfPage) {
+        // use a promise because this also calls render, allowing us to cancel
         return new Promise((resolve, reject) => {
           const pageNum = pdfPage.pageNumber;
+
+          // start the loading message
+          if (this.currentPageNum === pageNum) {
+            this.currentPageRendering = true;
+          }
+
           if (this.pdfPages[pageNum]) {
-            // Display page on the existing canvas with 100% scale.
-            const viewport = pdfPage.getViewport(1.0);
             this.pdfPages[pageNum].pdfPage = pdfPage;
+
+            // Get viewport, which contains directions to be passed into render function
+            const viewport = pdfPage.getViewport(this.scale);
+
+            // put together the canvas element where page will be rendered
             const canvas = document.createElement('canvas');
-            if (this.pageHeight === 0 && this.pageWidth === 0) {
-              this.pageHeight = viewport.height;
-              this.pageWidth = viewport.width;
-            }
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
+
+            // define canvas and dummy blank page dimensions
+            canvas.width = this.pageWidth = viewport.width;
+            canvas.height = this.pageHeight = viewport.height;
+            canvas.style.position = 'absolute';
+            canvas.style.top = 0;
+            canvas.style.left = 0;
+
             const renderTask = pdfPage.render({
-              canvasContext: ctx,
-              viewport: viewport,
+              canvasContext: canvas.getContext('2d'),
+              viewport,
             });
+
             this.pdfPages[pageNum].canvas = canvas;
             this.pdfPages[pageNum].renderTask = renderTask;
             this.pdfPages[pageNum].rendering = true;
             this.pdfPages[pageNum].loading = false;
+
+            // resolves here to indicate that the page has been set up for render.
+            // check flags for the stages of the render
             resolve();
+
             renderTask.then(
               () => {
                 if (this.pdfPages[pageNum]) {
@@ -113,6 +168,11 @@
                     // Canvas has not been deleted in the interim
                     this.pdfPages[pageNum].rendered = true;
                     this.$refs[this.pageRef(pageNum)][0].appendChild(this.pdfPages[pageNum].canvas);
+
+                    // end the loading message
+                    if (this.currentPageNum === pageNum) {
+                      this.currentPageRendering = false;
+                    }
                   }
                 }
               },
@@ -137,11 +197,9 @@
           ) {
             this.pdfPages[pageNum].loading = true;
             if (!this.pdfPages[pageNum].pdfPage) {
-              this.pdfPages[pageNum].displayPromise = this.getPage(pageNum).then(this.displayPage);
+              this.pdfPages[pageNum].renderPromise = this.getPage(pageNum).then(this.startRender);
             } else {
-              this.pdfPages[pageNum].displayPromise = this.displayPage(
-                this.pdfPages[pageNum].pdfPage
-              );
+              this.pdfPages[pageNum].renderPromise = this.startRender(this.pdfPages[pageNum].pdfPage);
             }
           }
         }
@@ -161,7 +219,7 @@
           } else if (pdfPage.loading) {
             // Currently loading, cancel the task
             const renderTask = pdfPage.renderTask;
-            pdfPage.displayPromise.then(() => {
+            pdfPage.renderPromise.then(() => {
               renderTask && renderTask.cancel();
             });
           } else if (pdfPage.rendering) {
@@ -175,49 +233,86 @@
       pageRef(index) {
         return `pdfPage-${index}`;
       },
-      checkPages() {
-        const top = this.$refs.pdfcontainer.scrollTop;
-        const bottom = top + this.$refs.pdfcontainer.clientHeight;
+      // debouncing so we're not de/re-render many pages unnecessarily
+      checkPages: debounce(function() {
+        const top = this.$refs.pdfContainer.scrollTop;
+        const bottom = top + this.$refs.pdfContainer.clientHeight;
         const topPageNum = Math.ceil(top / this.pageHeight);
         const bottomPageNum = Math.ceil(bottom / this.pageHeight);
-        let i;
-        // Loop through all pages, show ones that are in the display window,
-        // hide ones that are not
-        for (i = 1; i <= this.totalPages; i++) {
+
+        // Loop through all pages, show ones that are in the display window, hide ones that aren't
+        for (let i = 1; i <= this.totalPages; i++) {
           if (i < topPageNum - pageDisplayWindow || i > bottomPageNum + pageDisplayWindow) {
             this.hidePage(i);
           } else {
             this.showPage(i);
           }
         }
-      },
+      }, renderDebounceTime),
     },
     watch: {
       scrollPos: 'checkPages',
+      scale(newScale, oldScale) {
+        const noChange = newScale === oldScale;
+        const firstChange = oldScale === null;
+
+        if (!noChange && !firstChange) {
+          // remove all rendered/rendering pages
+          Object.keys(this.pdfPages).forEach(pageNum => {
+            this.hidePage(Number(pageNum));
+          });
+        }
+        // find and re-render necessary pages
+        this.checkPages();
+      },
     },
     created() {
-      this.pdfPages = {};
-      this.pdfloadingPromise = PDFJSLib.getDocument(
-        this.defaultFile.storage_url,
-        null,
-        null,
-        progress => {
-          this.progress = progress.loaded / progress.total;
-        }
-      ).then(pdfDocument => {
-        this.loading = false;
-        this.totalPages = pdfDocument.numPages;
-        // Track the pdf document
+      if (this.fullscreenAllowed) {
+        ScreenFull.onchange(() => {
+          this.isFullscreen = ScreenFull.isFullscreen;
+        });
+      }
+
+      const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
+
+      // pass callback to update loading bar
+      loadPdfPromise.onProgress = loadingProgress => {
+        this.progress = loadingProgress.loaded / loadingProgress.total;
+      };
+
+      this.prepComponentData = loadPdfPromise.then(pdfDocument => {
         this.pdfDocument = pdfDocument;
-        // Begin retrieving the first page
-        return this.getPage(1);
+        this.totalPages = pdfDocument.numPages;
+        this.pdfPages = {};
+
+        return this.getPage(1).then(firstPage => {
+          const pageMargin = 5;
+          const pdfPageWidth = firstPage.view[2];
+          const isDesktop = this.windowSize.breakpoint >= 5;
+
+          if (isDesktop) {
+            // if desktop, use default page's default scale size
+            this.scale = 1;
+          } else {
+            // if anything else, use max width
+            this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
+          }
+
+          // set default height and width properties, used in checkPages
+          const initialViewport = firstPage.getViewport(this.scale);
+          this.pageHeight = initialViewport.height;
+          this.pageWidth = initialViewport.width;
+        });
       });
     },
     mounted() {
-      this.pdfloadingPromise.then(() => {
-        this.showPage(1);
+      // Retrieve the document and its corresponding object
+      this.prepComponentData.then(() => {
         this.$emit('startTracking');
+        this.checkPages();
       });
+
+      // progress tracking
       const self = this;
       this.timeout = setTimeout(() => {
         self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
@@ -235,6 +330,7 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
+      pageNumber: '{pageNumber, number}',
     },
     vuex: {
       getters: {
@@ -248,46 +344,91 @@
 
 <style lang="stylus" scoped>
 
-  .btn
-    position: absolute
-    left: 50%
-    transform: translateX(-50%)
+  @require '~kolibri.styles.definitions'
 
-  .progress-bar
-    top: 50%
-    margin: 0 auto
-    max-width: 200px
+  $keen-button-height = 48px
+  $fullscreen-button-height = 36px
+  $page-padding = 5px
 
-  .container
+  .doc-viewer
     position: relative
     height: 100vh
-    max-height: calc(100vh - 24em)
-    min-height: 400px
+    max-height: calc(100vh - 20em)
+    width: 90%
+    margin-left: auto
+    margin-right: auto
+
     &:fullscreen
       width: 100%
       height: 100%
       min-height: inherit
       max-height: inherit
 
-  .container-mimic-fullscreen
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 24
-    max-width: 100%
-    max-height: 100%
-    width: 100%
-    height: 100%
+    &-mimic-fullscreen
+      position: fixed
+      top: 0
+      right: 0
+      bottom: 0
+      left: 0
+      z-index: 24
+      max-width: 100%
+      max-height: 100%
+      width: 100%
+      height: 100%
 
-  .pdfcontainer
+    &-controls
+      position: absolute
+
+  #pdf-container
     height: 100%
     overflow-y: scroll
     text-align: center
+    background-color: $core-text-default
 
-  .page-container
-    background: #FFFFFF
-    margin: 5px auto
+    // prevents a never-visible spot underneath the fullscreen button
+    padding-top: $fullscreen-button-height + $page-padding
+
+  .pdf-page
+    &-container
+      background: #FFFFFF
+      margin: $page-padding auto
+      position: relative
+      z-index: 2 // material spec - card (resting)
+    &-loading
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      font-size: 2em
+      line-height: 100%
+
+  .doc-viewer-controls
+    z-index: 6 // material spec - snackbar and FAB
+
+  .button
+    &-fullscreen
+      transform: translateX(-50%)
+      left: 50%
+      top: $page-padding
+
+    &-zoom
+      &-in, &-out
+        right: ($keen-button-height / 2)
+      &-in
+        bottom: $keen-button-height * 2.5
+      &-out
+        bottom: $keen-button-height
+
+      // Align to top when there's a chance bottom-aligned controls are below the fold
+      &-in.short-display
+        top: $keen-button-height
+      &-out.short-display
+        top: $keen-button-height * 2.5
+
+
+  .progress-bar
+    top: 50%
+    margin: 0 auto
+    max-width: 200px
 
 </style>
