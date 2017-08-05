@@ -261,7 +261,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         ).select_related('license')
 
     def get_queryset(self, prefetch=True):
-        queryset = models.ContentNode.objects.all()
+        queryset = models.ContentNode.objects.filter(available=True)
         if prefetch:
             return self.prefetch_related(queryset)
         return queryset
