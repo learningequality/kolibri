@@ -66,7 +66,7 @@ class Command(AsyncCommand):
 
         with filetransfer:
 
-            with self.start_progress(total=filetransfer.total_size) as progress_update:
+            with self.start_progress(total=filetransfer.total_size*1.1) as progress_update:
 
                 for chunk in filetransfer:
 
@@ -77,6 +77,7 @@ class Command(AsyncCommand):
 
         if not self.is_cancelled():
             channel_import.import_channel_from_local_db(channel_id)
+            progress_update(filetransfer.total_size*0.1, progress_extra_data)
         else:
             try:
                 os.remove(dest)
