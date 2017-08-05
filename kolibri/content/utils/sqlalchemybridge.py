@@ -40,6 +40,7 @@ class Bridge(object):
         self.session, self.engine = make_session(self.connection_string)
 
         self.Base = automap_base()
+        # TODO map relationship backreferences using the django names
         self.Base.prepare(self.engine, reflect=True)
 
         self.set_all_class_defaults()

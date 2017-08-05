@@ -95,7 +95,7 @@ class ContentNode(MPTTModel):
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
     content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
+    channel_id = UUIDField(db_index=True)
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -206,7 +206,7 @@ class LocalFile(models.Model):
         pass
 
     def __str__(self):
-        return '{checksum}.{extension}'.format(checksum=self.id, extension=self.extension)
+        return paths.get_content_file_name(self)
 
     def get_filename(self):
         return self.__str__()
