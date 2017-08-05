@@ -21,9 +21,9 @@ export function refreshChannelList(store) {
  * @returns {Promise}
  */
 export function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId)
-    .delete()
-    .then(refreshChannelList);
+  return ChannelResource.getModel(channelId).delete().then(() => {
+    refreshChannelList(store);
+  });
 }
 
 /**
