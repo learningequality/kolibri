@@ -57,11 +57,16 @@
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import { debounce } from 'lodash';
 
+  // Source from which PDFJS loads its service worker, this is based on the __publicPath
+  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF renderer's
+  // own webpack config
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
   // Number of pages before and after current visible to keep rendered
   const pageDisplayWindow = 1;
+  // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
+  // Minimum height of the PDF viewer in pixels
   const minViewerHeight = 400;
 
   export default {
@@ -136,8 +141,9 @@
             // Get viewport, which contains directions to be passed into render function
             const viewport = pdfPage.getViewport(this.scale);
 
-            // put together the canvas element where page will be rendered
-            const canvas = document.createElement('canvas');
+            // create the canvas element where page will be rendered
+            // we do this dynamically to avoid having many canvas elements simultaneously in the page
+            const canvas = this.pdfPages[pageNum].canvas || document.createElement('canvas');
 
             // define canvas and dummy blank page dimensions
             canvas.width = this.pageWidth = viewport.width;
@@ -151,6 +157,7 @@
               viewport,
             });
 
+            // Keep track of the canvas in case we need to manipulate it later
             this.pdfPages[pageNum].canvas = canvas;
             this.pdfPages[pageNum].renderTask = renderTask;
             this.pdfPages[pageNum].rendering = true;
@@ -162,8 +169,8 @@
 
             renderTask.then(
               () => {
+                // If this has been removed since the rendering started, then we should not proceed
                 if (this.pdfPages[pageNum]) {
-                  this.pdfPages[pageNum].rendering = false;
                   if (this.pdfPages[pageNum].canvas) {
                     // Canvas has not been deleted in the interim
                     this.pdfPages[pageNum].rendered = true;
@@ -174,8 +181,11 @@
                       this.currentPageRendering = false;
                     }
                   }
+                  // Rendering has completed
+                  this.pdfPages[pageNum].rendering = false;
                 }
               },
+              // If the render task is cancelled, then it will reject the promise and end up here.
               () => {
                 if (this.pdfPages[pageNum]) {
                   this.pdfPages[pageNum].rendering = false;
@@ -187,15 +197,20 @@
       },
       showPage(pageNum) {
         if (pageNum <= this.totalPages && pageNum > 0) {
+          // Only try to show pages that exist
           if (!this.pdfPages[pageNum]) {
             this.pdfPages[pageNum] = {};
           }
           if (
+            // Do not try to show the page if it is already renderered,
+            // already loading, or already rendering.
             !this.pdfPages[pageNum].rendered &&
             !this.pdfPages[pageNum].loading &&
             !this.pdfPages[pageNum].rendering
           ) {
             this.pdfPages[pageNum].loading = true;
+            // If we already have a reference to the PDFJS page object, then use it,
+            // rather than refetching it.
             if (!this.pdfPages[pageNum].pdfPage) {
               this.pdfPages[pageNum].renderPromise = this.getPage(pageNum).then(this.startRender);
             } else {
@@ -206,27 +221,33 @@
       },
       hidePage(pageNum) {
         if (pageNum <= this.totalPages && pageNum > 0) {
+          // Only try to hide possibly existing pages.
           if (!this.pdfPages[pageNum]) {
-            // No page rendered, so do nothing
+            // No page to render, so do nothing
             return;
           }
           const pdfPage = this.pdfPages[pageNum];
           if (pdfPage.rendered) {
             pdfPage.rendered = false;
+            // Already rendered, just remove canvas from DOM.
             if (pdfPage.canvas) {
               pdfPage.canvas.remove();
             }
           } else if (pdfPage.loading) {
-            // Currently loading, cancel the task
+            // Otherwise, currently loading - let it finish the render promise,
+            // where the page is still being fetched
+            // then cancel the resulting renderTask.
             const renderTask = pdfPage.renderTask;
             pdfPage.renderPromise.then(() => {
               renderTask && renderTask.cancel();
             });
           } else if (pdfPage.rendering) {
-            // Currently rendering, cancel the task
+            // Currently rendering, cancel the task directly
             pdfPage.renderTask && pdfPage.renderTask.cancel();
           }
+          // Clean everything up (destroys the pdf page object).
           pdfPage.pdfPage && pdfPage.pdfPage.cleanup();
+          // Delete the reference so that this page is now a blank slate.
           delete this.pdfPages[pageNum];
         }
       },
@@ -235,13 +256,17 @@
       },
       // debouncing so we're not de/re-render many pages unnecessarily
       checkPages: debounce(function() {
+        // Calculate the position of the visible top and the bottom of the pdfContainer
         const top = this.$refs.pdfContainer.scrollTop;
         const bottom = top + this.$refs.pdfContainer.clientHeight;
+        // Then work out which pages are visible to the user as a consequence
         const topPageNum = Math.ceil(top / this.pageHeight);
         const bottomPageNum = Math.ceil(bottom / this.pageHeight);
 
         // Loop through all pages, show ones that are in the display window, hide ones that aren't
         for (let i = 1; i <= this.totalPages; i++) {
+          // Hide pages that are less than 'pageDisplayWindow' lower than the top page number
+          // or the same amount higher than the bottom page number
           if (i < topPageNum - pageDisplayWindow || i > bottomPageNum + pageDisplayWindow) {
             this.hidePage(i);
           } else {
@@ -253,6 +278,7 @@
     watch: {
       scrollPos: 'checkPages',
       scale(newScale, oldScale) {
+        // Listen to changes in scale, as we have to rerender every visible page if it changes.
         const noChange = newScale === oldScale;
         const firstChange = oldScale === null;
 
@@ -281,6 +307,7 @@
       };
 
       this.prepComponentData = loadPdfPromise.then(pdfDocument => {
+        // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
         this.totalPages = pdfDocument.numPages;
         this.pdfPages = {};
@@ -302,6 +329,9 @@
           const initialViewport = firstPage.getViewport(this.scale);
           this.pageHeight = initialViewport.height;
           this.pageWidth = initialViewport.width;
+          // Set the firstPage into the pdfPages object so that we do not refetch the page
+          // from PDFJS when we do our initial render
+          this.pdfPages[1] = firstPage;
         });
       });
     },
