@@ -3,10 +3,10 @@ import os
 from django.core.management.base import CommandError
 from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
+from requests.exceptions import HTTPError
 
-from ...content_db_router import using_content_database
-from ...models import File
-from ...utils import paths, transfer
+from ...models import LocalFile
+from ...utils import annotation, paths, transfer
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -66,33 +66,37 @@ class Command(AsyncCommand):
 
     def _transfer(self, method, channel_id, path=None):
 
-        with using_content_database(channel_id):
-            files = File.objects.all()
-            total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
+        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
+        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum']
 
-            downloaded_files = []
+        downloaded_files = []
+        file_checksums_to_annotate = []
 
-            with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
+        with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
-                for f in files:
-                    if self.is_cancelled():
-                        break
+            for f in files_to_download:
 
-                    filename = f.get_filename()
-                    dest = paths.get_content_storage_file_path(filename)
+                if self.is_cancelled():
+                    break
 
-                    # if the file already exists, add its size to our overall progress, and skip
-                    if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
-                        overall_progress_update(f.file_size)
-                        continue
+                filename = f.get_filename()
+                dest = paths.get_content_storage_file_path(filename)
 
-                    # determine where we're downloading/copying from, and create appropriate transfer object
-                    if method == DOWNLOAD_METHOD:
-                        url = paths.get_content_storage_remote_url(filename)
-                        filetransfer = transfer.FileDownload(url, dest)
-                    elif method == COPY_METHOD:
-                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
-                        filetransfer = transfer.FileCopy(srcpath, dest)
+                # if the file already exists, add its size to our overall progress, and skip
+                if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
+                    overall_progress_update(f.file_size)
+                    file_checksums_to_annotate.append(f.id)
+                    continue
+
+                # determine where we're downloading/copying from, and create appropriate transfer object
+                if method == DOWNLOAD_METHOD:
+                    url = paths.get_content_storage_remote_url(filename)
+                    filetransfer = transfer.FileDownload(url, dest)
+                elif method == COPY_METHOD:
+                    srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    filetransfer = transfer.FileCopy(srcpath, dest)
+
+                try:
 
                     with filetransfer:
 
@@ -109,11 +113,22 @@ class Command(AsyncCommand):
                                 # If the for loop didn't break, add this to downloaded files.
                                 downloaded_files.append(dest)
 
-                if self.is_cancelled():
-                    # Cancelled, clean up any already downloading files.
-                    for dest in downloaded_files:
-                        os.remove(dest)
-                    self.cancel()
+                    file_checksums_to_annotate.append(f.id)
+
+                except HTTPError:
+                    pass
+
+        if self.is_cancelled():
+            # Cancelled, clean up any already downloading files.
+            for dest in downloaded_files:
+                os.remove(dest)
+            self.cancel()
+
+        annotation.set_local_file_availability_from_disk(file_checksums_to_annotate)
+
+        annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
+
+        annotation.recurse_availability_up_tree(channel_id)
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
