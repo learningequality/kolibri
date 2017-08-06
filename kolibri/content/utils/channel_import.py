@@ -117,7 +117,7 @@ class ChannelImport(object):
             return getattr(self, mapping)
         raise AttributeError('Table mapping specified but no valid method found')
 
-    def table_import(self, model, row_mapper, table_mapper):
+    def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
         DestinationRecord = self.destination.get_class(model)
         dest_table = DestinationRecord.__table__
 
@@ -131,34 +131,43 @@ class ChannelImport(object):
 
         columns = dest_table.columns.keys()
         data_to_insert = []
+        merge = model in merge_models
         for record in table_mapper(SourceRecord):
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
-            data_to_insert.append(data)
-        if model in merge_models:
-            # Models that should be merged (see list above) need to be individually merged into the session
-            # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
-            # as not available in SQLite, only MySQL as far as I can tell:
-            # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-            for data in data_to_insert:
+            if merge:
+                # Models that should be merged (see list above) need to be individually merged into the session
+                # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
+                # as not available in SQLite, only MySQL as far as I can tell:
+                # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
                 self.destination.session.merge(DestinationRecord(**data))
-        else:
+            else:
+                data_to_insert.append(data)
+            unflushed_rows += 1
+            if unflushed_rows == 10000:
+                if not merge:
+                    self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
+                    data_to_insert = []
+                self.destination.session.flush()
+                unflushed_rows = 0
+        if not merge and data_to_insert:
             self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
+        return unflushed_rows
 
     def import_channel_data(self):
+
+        unflushed_rows = 0
 
         for model in self.content_models:
             mapping = self.schema_mapping.get(model, {})
             row_mapper = self.generate_row_mapper(mapping.get('per_row'))
             table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-            self.table_import(model, row_mapper, table_mapper)
+            unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
+        self.destination.session.commit()
 
     def delete_content_tree_and_files(self):
         delete_content_tree_and_files(self.channel_id)
-
-    def commit_changes(self):
-        self.destination.session.commit()
 
     def end(self):
         self.source.end()
@@ -247,11 +256,9 @@ def import_channel_from_local_db(channel_id):
 
     import_manager.import_channel_data()
 
-    import_manager.commit_changes()
-
     import_manager.end()
 
-    set_leaf_node_availability_from_local_file_availability(channel_id)
+    set_leaf_node_availability_from_local_file_availability()
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
