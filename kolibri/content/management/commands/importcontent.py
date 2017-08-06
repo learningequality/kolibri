@@ -126,7 +126,7 @@ class Command(AsyncCommand):
                     os.remove(dest)
                 self.cancel()
             else:
-                annotation.set_local_file_availability_from_disk(file_checksums_to_annotate)
+                annotation.set_local_file_availability_from_disk(checksums=file_checksums_to_annotate)
 
                 annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
 

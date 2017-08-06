@@ -1,10 +1,11 @@
 import logging as logger
+import math
 import os
 
 from django.conf import settings
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
-from le_utils.constants import content_kinds
+from sqlalchemy import and_, select
 
 from .channels import get_channel_ids_for_content_database_dir
 from .paths import get_content_file_name, get_content_storage_file_path
@@ -27,19 +28,52 @@ def update_channel_metadata_cache():
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             import_channel_from_local_db(channel_id)
 
-def set_leaf_node_availability_from_local_file_availability(channel_id):
+def set_leaf_node_availability_from_local_file_availability():
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
-    ContentNodeClass = bridge.get_class(ContentNode)
-    FileClass = bridge.get_class(File)
+    ContentNodeTable = bridge.get_class(ContentNode).__table__
+    FileTable = bridge.get_class(File).__table__
+    LocalFileTable = bridge.get_class(LocalFile).__table__
 
-    for file in bridge.session.query(FileClass).join(FileClass.content_contentnode).filter(
-            ContentNodeClass.channel_id == channel_id).join(FileClass.content_localfile).all():
-        file.available = file.content_localfile.available
+    connection = bridge.engine.connect()
 
-    for contentnode in bridge.session.query(ContentNodeClass).filter_by(channel_id=channel_id).all():
-        if contentnode.kind != content_kinds.TOPIC:
-            contentnode.available = any([file.available for file in contentnode.content_file_collection if not file.supplementary])
+    file_statement = select([LocalFileTable.c.available]).where(
+        and_(
+            FileTable.c.local_file_id == LocalFileTable.c.id,
+        )
+    ).limit(1)
+
+    connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
+
+    contentnode_statement = select([FileTable.c.contentnode_id]).where(
+        and_(
+            FileTable.c.available == True,  # noqa
+            FileTable.c.supplementary == False
+        )
+    )
+
+    connection.execute(ContentNodeTable.update().where(
+        ContentNodeTable.c.id.in_(contentnode_statement)).values(available=True).execution_options(autocommit=True))
+
+    connection.close()
+
+    bridge.end()
+
+def set_local_file_availability(checksums=None):
+    """
+    Shortcut method to update database if we are sure that the files are available.
+    Can be used after successful downloads to flag availability without having to do expensive disk reads.
+    """
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    LocalFileClass = bridge.get_class(LocalFile)
+
+    for i in range(1, int(math.ceil(len(checksums)/10000.0)) + 1):
+        bridge.session.bulk_update_mappings(LocalFileClass, ({
+            'id': checksum,
+            'available': True
+        } for checksum in checksums[0:i*10000]))
+        bridge.session.flush()
 
     bridge.session.commit()
 
@@ -57,29 +91,53 @@ def set_local_file_availability_from_disk(checksums=None):
     else:
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
+    rows_uncommitted = 0
+    files_to_update = []
     for file in files:
-        file.available = os.path.exists(get_content_storage_file_path(get_content_file_name(file)))
+        if os.path.exists(get_content_storage_file_path(get_content_file_name(file))):
+            files_to_update.append({
+                'id': file.id,
+                'available': True,
+            })
+            rows_uncommitted += 1
+        if rows_uncommitted == 10000:
+            bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
+            bridge.session.flush()
+            files_to_update = []
+            rows_uncommitted = 0
+
+    if files_to_update:
+        bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
 
     bridge.session.commit()
 
     bridge.end()
 
-def recurse_availability_up_tree(channel_id):
+def recurse_availability_up_tree():
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
 
-    node_levels = bridge.session.query(ContentNodeClass.level).filter_by(channel_id=channel_id).distinct().all()
+    ContentNodeTable = ContentNodeClass.__table__
 
-    # We can ignore the deepest level, as either leaves or an empty topic
-    levels = sorted([level[0] for level in node_levels])[:-1]
+    connection = bridge.engine.connect()
+
+    node_levels = bridge.session.query(ContentNodeClass.level).distinct().all()
+
+    # We can ignore the top level, as we annotate based on the level below
+    levels = sorted([level[0] for level in node_levels])[1:]
 
     # Go from the deepest level to the shallowest
     for level in reversed(levels):
-        # Only do aggregate availability stamping on topics
-        for contentnode in bridge.session.query(ContentNodeClass).filter_by(channel_id=channel_id, level=level, kind=content_kinds.TOPIC).all():
-            contentnode.available = any(node.available for node in contentnode.content_contentnode_collection)
+        select_parents_of_available = select([ContentNodeTable.c.parent_id]).where(
+            and_(
+                ContentNodeTable.c.available == True,  # noqa
+                ContentNodeTable.c.level == level,
+            )
+        )
+        connection.execute(ContentNodeTable.update().where(
+            ContentNodeTable.c.id.in_(select_parents_of_available)).values(available=True).execution_options(autocommit=True))
 
-    bridge.session.commit()
+    connection.close()
 
     bridge.end()
