@@ -2,6 +2,7 @@ import logging as logger
 import os
 
 from django.conf import settings
+from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from le_utils.constants import content_kinds
 
@@ -10,6 +11,8 @@ from .paths import get_content_file_name, get_content_storage_file_path
 from .sqlalchemybridge import Bridge
 
 logging = logger.getLogger(__name__)
+
+CONTENT_APP_NAME = KolibriContentConfig.label
 
 def update_channel_metadata_cache():
     """
@@ -25,7 +28,7 @@ def update_channel_metadata_cache():
             import_channel_from_local_db(channel_id)
 
 def set_leaf_node_availability_from_local_file_availability(channel_id):
-    bridge = Bridge()
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
     FileClass = bridge.get_class(File)
@@ -43,7 +46,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
     bridge.end()
 
 def set_local_file_availability_from_disk(checksums=None):
-    bridge = Bridge()
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     LocalFileClass = bridge.get_class(LocalFile)
 
@@ -62,7 +65,7 @@ def set_local_file_availability_from_disk(checksums=None):
     bridge.end()
 
 def recurse_availability_up_tree(channel_id):
-    bridge = Bridge()
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
 

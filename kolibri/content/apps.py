@@ -5,5 +5,5 @@ from django.apps import AppConfig
 
 class KolibriContentConfig(AppConfig):
     name = 'kolibri.content'
-    label = 'kolibricontent'
+    label = 'content'
     verbose_name = 'Kolibri Content'
