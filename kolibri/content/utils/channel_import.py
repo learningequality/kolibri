@@ -1,6 +1,6 @@
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
+from kolibri.content.models import ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
 from kolibri.utils.time import local_now
 
 from .annotation import set_leaf_node_availability_from_local_file_availability
@@ -17,6 +17,13 @@ def delete_content_tree_and_files(channel_id):
 NO_VERSION = 'unversioned'
 
 CONTENT_APP_NAME = KolibriContentConfig.label
+
+merge_models = [
+    ContentTag,
+    LocalFile,
+    License,
+    Language,
+]
 
 class ChannelImport(object):
 
@@ -123,11 +130,21 @@ class ChannelImport(object):
             SourceRecord = None
 
         columns = dest_table.columns.keys()
+        data_to_insert = []
         for record in table_mapper(SourceRecord):
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
-            self.destination.session.merge(DestinationRecord(**data))
+            data_to_insert.append(data)
+        if model in merge_models:
+            # Models that should be merged (see list above) need to be individually merged into the session
+            # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
+            # as not available in SQLite, only MySQL as far as I can tell:
+            # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
+            for data in data_to_insert:
+                self.destination.session.merge(DestinationRecord(**data))
+        else:
+            self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
 
     def import_channel_data(self):
 
