@@ -43,6 +43,8 @@ def set_leaf_node_availability_from_local_file_availability():
         )
     ).limit(1)
 
+    logging.info('Setting availability of File objects based on LocalFile availability')
+
     connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
 
     contentnode_statement = select([FileTable.c.contentnode_id]).where(
@@ -52,12 +54,14 @@ def set_leaf_node_availability_from_local_file_availability():
         )
     )
 
+    logging.info('Setting availability of non-topic ContentNode objects based on File availability')
+
     connection.execute(ContentNodeTable.update().where(
         ContentNodeTable.c.id.in_(contentnode_statement)).values(available=True).execution_options(autocommit=True))
 
     bridge.end()
 
-def set_local_file_availability(checksums=None):
+def set_local_file_availability(checksums):
     """
     Shortcut method to update database if we are sure that the files are available.
     Can be used after successful downloads to flag availability without having to do expensive disk reads.
@@ -65,6 +69,8 @@ def set_local_file_availability(checksums=None):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     LocalFileClass = bridge.get_class(LocalFile)
+
+    logging.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
 
     for i in range(1, int(math.ceil(len(checksums)/10000.0)) + 1):
         bridge.session.bulk_update_mappings(LocalFileClass, ({
@@ -83,13 +89,16 @@ def set_local_file_availability_from_disk(checksums=None):
     LocalFileClass = bridge.get_class(LocalFile)
 
     if checksums is None:
+        logging.info('Setting availability of LocalFile objects based on disk availability')
         files = bridge.session.query(LocalFileClass).all()
     elif type(checksums) == list:
+        logging.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
         files = bridge.session.query(LocalFileClass).filter(LocalFileClass.id.in_(checksums)).all()
     else:
+        logging.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
-    rows_uncommitted = 0
+    rows_unflushed = 0
     files_to_update = []
     for file in files:
         if os.path.exists(get_content_storage_file_path(get_content_file_name(file))):
@@ -97,12 +106,12 @@ def set_local_file_availability_from_disk(checksums=None):
                 'id': file.id,
                 'available': True,
             })
-            rows_uncommitted += 1
-        if rows_uncommitted == 10000:
+            rows_unflushed += 1
+        if rows_unflushed == 10000:
             bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
             bridge.session.flush()
             files_to_update = []
-            rows_uncommitted = 0
+            rows_unflushed = 0
 
     if files_to_update:
         bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
@@ -125,6 +134,8 @@ def recurse_availability_up_tree():
     # We can ignore the top level, as we annotate based on the level below
     levels = sorted([level[0] for level in node_levels])[1:]
 
+    logging.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=len(levels)))
+
     # Go from the deepest level to the shallowest
     for level in reversed(levels):
         select_parents_of_available = select([ContentNodeTable.c.parent_id]).where(
@@ -133,6 +144,7 @@ def recurse_availability_up_tree():
                 ContentNodeTable.c.level == level,
             )
         )
+        logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         connection.execute(ContentNodeTable.update().where(
             ContentNodeTable.c.id.in_(select_parents_of_available)).values(available=True).execution_options(autocommit=True))
 

@@ -67,7 +67,7 @@ class Command(AsyncCommand):
     def _transfer(self, method, channel_id, path=None):
 
         files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
-        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum']
+        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
         downloaded_files = []
         file_checksums_to_annotate = []
@@ -126,7 +126,7 @@ class Command(AsyncCommand):
                     os.remove(dest)
                 self.cancel()
             else:
-                annotation.set_local_file_availability_from_disk(checksums=file_checksums_to_annotate)
+                annotation.set_local_file_availability(file_checksums_to_annotate)
 
                 annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
 

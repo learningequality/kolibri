@@ -1,3 +1,5 @@
+import logging as logger
+
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
@@ -8,6 +10,7 @@ from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge, ClassNotFoundError
 
+logging = logger.getLogger(__name__)
 
 def delete_content_tree_and_files(channel_id):
     # Use Django ORM to ensure cascading delete:
@@ -163,6 +166,7 @@ class ChannelImport(object):
             mapping = self.schema_mapping.get(model, {})
             row_mapper = self.generate_row_mapper(mapping.get('per_row'))
             table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+            logging.info('Importing {model} data'.format(model=model.__name__))
             unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
         self.destination.session.commit()
 
@@ -252,6 +256,7 @@ def import_channel_from_local_db(channel_id):
 
     if ChannelMetadata.objects.filter(id=channel_id).exists():
         # We have already imported this channel in some way, so let's clean up first.
+        logging.info('Channel {channel_id} already exists in database, cleaning up ContentNodes'.format(channel_id=channel_id))
         import_manager.delete_content_tree_and_files()
 
     import_manager.import_channel_data()
