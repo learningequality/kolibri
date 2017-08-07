@@ -91,10 +91,21 @@ class Bridge(object):
 
         self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
 
+        self.connections = []
+
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)
 
+    def get_table(self, DjangoModel):
+        return self.get_class(DjangoModel).__table__
+
+    def get_connection(self):
+        connection = self.engine.connect()
+        self.connections.append(connection)
+        return connection
+
     def end(self):
-        # Clean up session and engine to be cautious
+        # Clean up session
         self.session.close()
-        self.engine.dispose()
+        for connection in self.connections:
+            connection.close()

@@ -31,11 +31,11 @@ def update_channel_metadata_cache():
 def set_leaf_node_availability_from_local_file_availability():
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
-    ContentNodeTable = bridge.get_class(ContentNode).__table__
-    FileTable = bridge.get_class(File).__table__
-    LocalFileTable = bridge.get_class(LocalFile).__table__
+    ContentNodeTable = bridge.get_table(ContentNode)
+    FileTable = bridge.get_table(File)
+    LocalFileTable = bridge.get_table(LocalFile)
 
-    connection = bridge.engine.connect()
+    connection = bridge.get_connection()
 
     file_statement = select([LocalFileTable.c.available]).where(
         and_(
@@ -54,8 +54,6 @@ def set_leaf_node_availability_from_local_file_availability():
 
     connection.execute(ContentNodeTable.update().where(
         ContentNodeTable.c.id.in_(contentnode_statement)).values(available=True).execution_options(autocommit=True))
-
-    connection.close()
 
     bridge.end()
 
@@ -118,9 +116,9 @@ def recurse_availability_up_tree():
 
     ContentNodeClass = bridge.get_class(ContentNode)
 
-    ContentNodeTable = ContentNodeClass.__table__
+    ContentNodeTable = bridge.get_table(ContentNode)
 
-    connection = bridge.engine.connect()
+    connection = bridge.get_connection()
 
     node_levels = bridge.session.query(ContentNodeClass.level).distinct().all()
 
@@ -137,7 +135,5 @@ def recurse_availability_up_tree():
         )
         connection.execute(ContentNodeTable.update().where(
             ContentNodeTable.c.id.in_(select_parents_of_available)).values(available=True).execution_options(autocommit=True))
-
-    connection.close()
 
     bridge.end()
