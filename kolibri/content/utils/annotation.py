@@ -32,3 +32,7 @@ def update_channel_metadata_cache():
         if ch_metadata_obj.last_updated is None:
             ch_metadata_obj.last_updated = local_now()
             ch_metadata_obj.save()
+
+    # Fix #1818.1 content database files get locked (this is called on startup)
+    from django.db import connections
+    connections.close_all()

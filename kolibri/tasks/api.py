@@ -14,6 +14,7 @@ except AppRegistryNotReady:
 import requests
 from django.core.management import call_command
 from django.http import Http404
+from django.db import connections
 from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
@@ -153,7 +154,7 @@ def _networkimport(channel_id, update_progress=None):
         "network",
         channel_id,
         update_progress=update_progress)
-
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 def _localimport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
@@ -172,6 +173,7 @@ def _localimport(drive_id, update_progress=None):
             channel["id"],
             drive.datafolder,
             update_progress=update_progress)
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 
 def _localexport(drive_id, update_progress=None):
@@ -188,6 +190,7 @@ def _localexport(drive_id, update_progress=None):
             channel.id,
             drive.datafolder,
             update_progress=update_progress)
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 
 def _job_to_response(job):
