@@ -678,15 +678,6 @@ function showDataPage(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
-function showScratchpad(store) {
-  preparePage(store.dispatch, {
-    name: PageNames.DATA_EXPORT_PAGE,
-    title: _managePageTitle('Scratchpad'),
-    isAsync: false,
-  });
-  store.dispatch('SET_PAGE_STATE', {});
-}
-
 export {
   displayModal,
   createClass,
@@ -718,5 +709,4 @@ export {
   triggerRemoteContentImportTask,
   updateWizardLocalDriveList,
   showDataPage,
-  showScratchpad,
 };
