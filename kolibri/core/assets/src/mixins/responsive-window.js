@@ -160,7 +160,7 @@ function addWindowListener(cb) {
 }
 
 function removeWindowListener(cb) {
-  windowListeners.pop(cb);
+  windowListeners.splice(windowListeners.indexOf(cb), 1);
 }
 
 /* setup */
