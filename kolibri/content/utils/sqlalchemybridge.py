@@ -1,3 +1,5 @@
+import os
+
 from django.apps import apps
 from django.conf import settings
 from sqlalchemy import ColumnDefault, MetaData, create_engine
@@ -11,7 +13,8 @@ class ClassNotFoundError(Exception):
     pass
 
 def sqlite_connection_string(db_path):
-    return 'sqlite:///{db_path}'.format(db_path=db_path)
+    # Call normpath to ensure that Windows paths are properly formatted
+    return 'sqlite:///{db_path}'.format(db_path=os.path.normpath(db_path))
 
 def get_engine(connection_string):
     if connection_string not in ENGINES_CACHES:
@@ -71,12 +74,12 @@ def get_default_db_string():
     if 'sqlite' in destination_db['ENGINE']:
         return sqlite_connection_string(destination_db['NAME'])
     else:
-        return '{dialect}://{user}:{password}@{host}:{port}/{dbname}'.format(
+        return '{dialect}://{user}:{password}@{host}{port}/{dbname}'.format(
             dialect=destination_db['ENGINE'].split('.')[-1],
             user=destination_db['USER'],
             password=destination_db['PASSWORD'],
-            host=destination_db['HOST'],
-            port=destination_db['PORT'],
+            host=destination_db.get('HOST', 'localhost'),
+            port=':' + destination_db.get('PORT') if destination_db.get('PORT') else '',
             dbname=destination_db['NAME'],
         )
 
