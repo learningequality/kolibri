@@ -39,13 +39,6 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.SCRATCHPAD,
-          path: '/scratchpad',
-          handler: (toRoute, fromRoute) => {
-            actions.showScratchpad(store);
-          },
-        },
-        {
           name: PageNames.CONTENT_UNAVAILABLE,
           path: '/content-unavailable',
           handler: (toRoute, fromRoute) => {

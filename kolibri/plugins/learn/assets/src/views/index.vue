@@ -56,7 +56,6 @@
   import explorePage from './explore-page';
   import contentPage from './content-page';
   import learnPage from './learn-page';
-  import scratchpadPage from './scratchpad-page';
   import contentUnavailablePage from './content-unavailable-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import channelSwitcher from './channel-switcher';
@@ -81,7 +80,6 @@
       explorePage,
       contentPage,
       learnPage,
-      scratchpadPage,
       contentUnavailablePage,
       coreBase,
       channelSwitcher,
@@ -146,9 +144,6 @@
         }
         if (this.pageName === PageNames.LEARN_CHANNEL) {
           return 'learn-page';
-        }
-        if (this.pageName === PageNames.SCRATCHPAD) {
-          return 'scratchpad-page';
         }
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
           return 'content-unavailable-page';
