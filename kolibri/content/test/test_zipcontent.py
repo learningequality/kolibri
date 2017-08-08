@@ -7,7 +7,7 @@ from kolibri.auth.test.helpers import provision_device
 import hashlib
 import zipfile
 
-from ..models import File
+from ..models import LocalFile
 from ..utils.paths import get_content_storage_file_path
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
@@ -44,15 +44,15 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
 
-        self.zip_file_obj = File(checksum=self.hash, extension=self.extension, available=True)
+        self.zip_file_obj = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.zip_file_base_url = self.zip_file_obj.get_storage_url()
 
     def test_zip_file_url_reversal(self):
-        file = File(checksum=self.hash, extension=self.extension, available=True)
+        file = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.assertEqual(file.get_storage_url(), "/zipcontent/{}/".format(self.filename))
 
     def test_non_zip_file_url_reversal(self):
-        file = File(checksum=self.hash, extension="otherextension", available=True)
+        file = LocalFile(id=self.hash, extension="otherextension", available=True)
         filename = file.get_filename()
         self.assertEqual(file.get_storage_url(), "/content/storage/{}/{}/{}".format(filename[0], filename[1], filename))
 

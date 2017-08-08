@@ -136,7 +136,6 @@ class Language(models.Model):
         return self.lang_name
 
 
-@python_2_unicode_compatible
 class File(models.Model):
     """
     The second to bottom layer of the contentDB schema, defines the basic building brick for content.
@@ -234,7 +233,6 @@ class License(models.Model):
         return self.license_name
 
 
-@python_2_unicode_compatible
 class AssessmentMetaData(models.Model):
     """
     A model to describe additional metadata that characterizes assessment behaviour in Kolibri.

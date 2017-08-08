@@ -66,7 +66,8 @@ class ContentSummaryViewSet(viewsets.ModelViewSet):
     serializer_class = ContentSummarySerializer
 
     def get_queryset(self):
-        return ContentNode.objects.all().order_by('lft')
+        channel_id = self.kwargs['channel_id']
+        return ContentNode.objects.filter(channel_id=channel_id).order_by('lft')
 
 
 class UserSummaryViewSet(viewsets.ModelViewSet):

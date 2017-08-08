@@ -1,5 +1,4 @@
 import tempfile
-import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -11,8 +10,6 @@ from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 n_users = 2
 n_classes = 2
 n_facilities = 2
-
-the_channel_id = uuid.uuid4()
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()

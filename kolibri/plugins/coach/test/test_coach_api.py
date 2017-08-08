@@ -4,12 +4,10 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import datetime
 import tempfile
 from django.core.urlresolvers import reverse
-from django.db import connections
 from django.test.utils import override_settings
 from django.utils import timezone
 from kolibri.auth.constants import collection_kinds, role_kinds
 from kolibri.content import models as content
-from kolibri.content.content_db_router import set_active_content_database
 from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser, Role
 from kolibri.auth.test.helpers import provision_device
@@ -28,17 +26,10 @@ class ContentReportAPITestCase(APITestCase):
     Testcase for content API methods
     """
     fixtures = ['content_test.json']
-    multi_db = True
-    the_channel_id = '15137d33c49f489ebe08893bfa6b5414'
-    connections.databases[the_channel_id] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
         provision_device()
-        # set the active content database for the duration of the test
-        set_active_content_database(self.the_channel_id)
 
     def _reverse_channel_url(self, pattern_name, extra_kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
@@ -142,11 +133,3 @@ class ContentReportAPITestCase(APITestCase):
         }))
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['pk'], c2c3.pk)
-
-    def tearDown(self):
-        """
-        clean up files/folders created during the test
-        """
-        # set the active content database to None now that the test is over
-        set_active_content_database(None)
-        super(ContentReportAPITestCase, self).tearDown()

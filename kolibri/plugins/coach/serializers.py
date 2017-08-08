@@ -3,7 +3,6 @@ from functools import reduce
 from dateutil.parser import parse
 from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
 from kolibri.auth.models import FacilityUser
-from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from le_utils.constants import content_kinds
@@ -79,14 +78,8 @@ def get_progress_and_last_active(target_nodes, **kwargs):
     # Get a list of all content ids for all target nodes and their descendants
     content_ids = target_nodes.get_descendants(include_self=True).order_by().values_list("content_id", flat=True)
     # get all summary logs for the current user that correspond to the content nodes and descendant content nodes
-    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-        channel_alias = get_active_content_database()
-        SummaryLogManager = ContentSummaryLog.objects.using(channel_alias)
-    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-        SummaryLogManager = ContentSummaryLog.objects
-        content_ids = list(content_ids)
     # Filter by users and the content ids
-    progress_query = SummaryLogManager \
+    progress_query = ContentSummaryLog.objects\
         .filter(user__in=users, content_id__in=content_ids)
     # Conditionally filter by last active time
     if kwargs.get('last_active_time'):
