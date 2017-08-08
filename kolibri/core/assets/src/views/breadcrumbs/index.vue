@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="crumbs.length > 1">
+  <div v-show="crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
         <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
