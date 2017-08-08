@@ -23,4 +23,4 @@ rules:
   vue/html-quotes: [2, 'double']
   vue/order-in-components: 2
   # ignores the 'kolibri.*' imports
-  import/no-unresolved: [2, { ignore: ['kolibri\.'] }]
+  import/no-unresolved: [2, { ignore: ['kolibri[_.]'] }]
