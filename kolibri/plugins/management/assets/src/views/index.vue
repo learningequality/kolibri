@@ -29,7 +29,6 @@
     [PageNames.CONTENT_MGMT_PAGE]: 'manage-content-page',
     [PageNames.DATA_EXPORT_PAGE]: 'data-page',
     [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
-    [PageNames.SCRATCHPAD]: 'scratchpad-page',
     [PageNames.USER_MGMT_PAGE]: 'user-page',
   };
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -40,7 +39,6 @@
   import facilitiesConfigPage from './facilities-config-page';
   import manageClassPage from './manage-class-page';
   import manageContentPage from './manage-content-page';
-  import scratchpadPage from './scratchpad-page';
   import topNav from './top-nav';
   import userPage from './user-page';
   export default {
@@ -55,7 +53,6 @@
       facilitiesConfigPage,
       manageClassPage,
       manageContentPage,
-      scratchpadPage,
       topNav,
       userPage,
     },
