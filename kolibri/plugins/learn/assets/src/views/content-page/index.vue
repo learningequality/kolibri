@@ -83,16 +83,21 @@
       :header="recommendedText"
       :contents="recommended"/>
 
-    <content-points
-      v-if="progress >= 1 && wasIncomplete"
-      @close="closeModal"
-      :kind="content.next_content.kind"
-      :title="content.next_content.title">
+    <template v-if="progress >= 1 && wasIncomplete">
+      <points-popup
+        v-if="showPopup"
+        @close="markAsComplete"
+        :kind="content.next_content.kind"
+        :title="content.next_content.title">
+        <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right">
+          <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+        </icon-button>
+      </points-popup>
 
-      <icon-button slot="nextItemBtn" @click="nextContentClicked" class="next-btn" :text="$tr('nextContent')" alignment="right">
-        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
-      </icon-button>
-    </content-points>
+      <transition v-else name="slidein" appear>
+        <points-slidein @close="markAsComplete"/>
+      </transition>
+    </template>
 
   </div>
 
@@ -118,10 +123,12 @@
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import iconButton from 'kolibri.coreVue.components.iconButton';
   import assessmentWrapper from '../assessment-wrapper';
-  import contentPoints from '../content-points';
+  import pointsPopup from '../points-popup';
+  import pointsSlidein from '../points-slidein';
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     $trNameSpace: 'learnContent',
@@ -181,6 +188,13 @@
         }
         return false;
       },
+      showPopup() {
+        return (
+          this.content.kind === ContentNodeKinds.EXERCISE ||
+          this.content.kind === ContentNodeKinds.VIDEO ||
+          this.content.kind === ContentNodeKinds.AUDIO
+        );
+      },
     },
     components: {
       pageHeader,
@@ -189,7 +203,8 @@
       downloadButton,
       iconButton,
       assessmentWrapper,
-      contentPoints,
+      pointsPopup,
+      pointsSlidein,
       uiPopover,
       uiIcon,
     },
@@ -207,7 +222,7 @@
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
-      closeModal() {
+      markAsComplete() {
         this.wasIncomplete = false;
       },
       genRecLink(id, kind) {
