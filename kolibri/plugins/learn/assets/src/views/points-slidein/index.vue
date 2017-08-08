@@ -11,7 +11,7 @@
       color="default"
       size="small"
       icon="close"
-      :ariaLabel="$tr('dismiss')"
+      :ariaLabel="$tr('close')"
       @click="$emit('close')"
     />
     </div>
@@ -30,7 +30,7 @@
     $trNameSpace: 'pointsSlidein',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
-      dismiss: 'Dismiss',
+      close: 'Close',
     },
     components: {
       pointsIcon,

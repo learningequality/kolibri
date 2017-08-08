@@ -8,7 +8,7 @@
 
 
     <div class="points-wrapper">
-      <h2>{{ $tr('pointsForCompletion') }}</h2>
+      <!-- <h2>{{ $tr('pointsForCompletion') }}</h2> -->
       <div class="points">
         <points-icon class="points-icon" :active="true"/>
         <span class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</span>
@@ -46,7 +46,7 @@
     $trNameSpace: 'pointsPopup',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
-      niceWork: 'Great work!',
+      niceWork: 'Great work! Keep it up!',
       nextContent: 'Next Item',
       topic: 'Topic',
       exercise: 'Exercise',
@@ -55,7 +55,7 @@
       document: 'Document',
       html5: 'HTML5 app',
       item: 'Item',
-      close: 'Practice again',
+      close: 'Close',
       pointsForCompletion: 'Points for completion',
     },
     components: {
