@@ -21,6 +21,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+pip
 
 # Installer logs
 pip-log.txt
@@ -33,6 +34,7 @@ htmlcov/
 kolibrihome_test/
 
 # Translations
+*.mo
 kolibri/locale/en/
 
 # Mr Developer
@@ -98,3 +100,4 @@ Icon
 
 # ignore the VERSION file we use to track the version for whl files
 VERSION
+/docs/crowdin-cli.jar

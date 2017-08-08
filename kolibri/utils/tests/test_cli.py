@@ -6,12 +6,26 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
-import unittest
 
 import pytest
 from kolibri.utils import cli
 
 logger = logging.getLogger(__name__)
+
+
+LOG_LOGGER = []
+
+
+def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
+    """
+    Monkeypatching for logging.Logger._log to scoop up log messages if we wanna
+    test something specific was logged.
+    """
+    LOG_LOGGER.append(
+        (LEVEL, msg)
+    )
+    # Call the original function
+    logger_instance.__log(LEVEL, msg, args, **kwargs)
 
 
 @pytest.fixture
@@ -94,64 +108,81 @@ def test_plugin_with_no_plugin_class(conf):
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 
 
-class TestKolibriCLI(unittest.TestCase):
+@pytest.mark.django_db
+def test_kolibri_listen_port_env(monkeypatch):
+    """
+    Starts and stops the server, mocking the actual server.start()
+    Checks that the correct fallback port is used from the environment.
+    """
 
-    def test_cli(self):
-        logger.debug("This is a unit test in the main Kolibri app space")
-        # Test the -h
-        with self.assertRaises(SystemExit):
-            cli.main("-h")
-        with self.assertRaises(SystemExit):
-            cli.main("--version")
+    from kolibri.utils import server
 
-    def test_parsing(self):
-        test_patterns = (
-            (['start'], {'start': True}, []),
-            (['stop'], {'stop': True}, []),
-            (['shell'], {'shell': True}, []),
-            (['manage', 'shell'], {'manage': True, 'COMMAND': 'shell'}, []),
-            (['manage', 'help'], {'manage': True, 'COMMAND': 'help'}, []),
-            (['manage', 'blah'], {'manage': True, 'COMMAND': 'blah'}, []),
-            (
-                ['manage', 'blah', '--debug', '--', '--django-arg'],
-                {'manage': True, 'COMMAND': 'blah', '--debug': True},
-                ['--django-arg']
-            ),
-            (
-                ['manage', 'blah', '--django-arg'],
-                {'manage': True, 'COMMAND': 'blah'},
-                ['--django-arg']
-            ),
-        )
+    def start_mock(port, *args, **kwargs):
+        assert port == test_port
 
-        for p, docopt_expected, django_expected in test_patterns:
-            docopt, django = cli.parse_args(p)
+    monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
+    monkeypatch.setattr(logging.Logger, '_log', log_logger)
+    monkeypatch.setattr(server, 'start', start_mock)
 
-            for k, v in docopt_expected.items():
-                assert docopt[k] == v
+    test_port = 1234
+    # ENV VARS are always a string
+    os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
 
-            assert django == django_expected
+    server.start = start_mock
+    cli.start(daemon=False)
+    with pytest.raises(SystemExit, code=0):
+        cli.stop()
 
-    @pytest.mark.django_db
-    def test_kolibri_listen_port_env(self):
-        """
-        Starts and stops the server, mocking the actual server.start()
-        Checks that the correct fallback port is used from the environment.
-        """
-        test_port = 1234
-        # ENV VARS are always a string
-        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+    # Stop the server AGAIN, asserting that we can call the stop command
+    # on an already stopped server and will be gracefully informed about
+    # it.
+    with pytest.raises(SystemExit, code=0):
+        cli.stop()
+    assert "Already stopped" in LOG_LOGGER[-1][1]
 
-        def start_mock(port, *args, **kwargs):
-            assert port == test_port
+    def status_starting_up():
+        raise server.NotRunning(server.STATUS_STARTING_UP)
 
-        from kolibri.utils import server
+    # Ensure that if a server is reported to be 'starting up', it doesn't
+    # get killed while doing that.
+    monkeypatch.setattr(server, 'get_status', status_starting_up)
+    with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
+        cli.stop()
+    assert "Not stopped" in LOG_LOGGER[-1][1]
 
-        orig_start = server.start
 
-        try:
-            server.start = start_mock
-            cli.start(daemon=False)
-            cli.stop(sys_exit=False)
-        finally:
-            server.start = orig_start
+def test_cli_usage():
+    # Test the -h
+    with pytest.raises(SystemExit, code=0):
+        cli.main("-h")
+    with pytest.raises(SystemExit, code=0):
+        cli.main("--version")
+
+
+def test_cli_parsing():
+    test_patterns = (
+        (['start'], {'start': True}, []),
+        (['stop'], {'stop': True}, []),
+        (['shell'], {'shell': True}, []),
+        (['manage', 'shell'], {'manage': True, 'COMMAND': 'shell'}, []),
+        (['manage', 'help'], {'manage': True, 'COMMAND': 'help'}, []),
+        (['manage', 'blah'], {'manage': True, 'COMMAND': 'blah'}, []),
+        (
+            ['manage', 'blah', '--debug', '--', '--django-arg'],
+            {'manage': True, 'COMMAND': 'blah', '--debug': True},
+            ['--django-arg']
+        ),
+        (
+            ['manage', 'blah', '--django-arg'],
+            {'manage': True, 'COMMAND': 'blah'},
+            ['--django-arg']
+        ),
+    )
+
+    for p, docopt_expected, django_expected in test_patterns:
+        docopt, django = cli.parse_args(p)
+
+        for k, v in docopt_expected.items():
+            assert docopt[k] == v
+
+        assert django == django_expected

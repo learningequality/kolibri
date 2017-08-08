@@ -96,7 +96,7 @@ class RecentReportViewSet(viewsets.ModelViewSet):
         recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).filter(
             Q(progress__gt=0) | Q(masterylogs__in=attempted_mastery_logs),
             user__in=list(get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])),
-            end_timestamp__gte=datetime_cutoff).values_list('content_id')
+            end_timestamp__gte=datetime_cutoff).values_list('content_id', flat=True)
         # note from rtibbles:
         # As good as either I or jamalex could come up with to ensure that we only return
         # unique content_id'ed ContentNodes from the coach recent report endpoint.

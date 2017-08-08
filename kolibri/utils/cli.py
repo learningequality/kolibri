@@ -5,6 +5,7 @@ import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
+from distutils import util
 
 # Do this before importing anything else, we need to add bundled requirements
 # from the distributed version in case it exists before importing anything
@@ -14,6 +15,7 @@ import sys  # noqa
 
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
+
 sys.path = sys.path + [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
 ]
@@ -41,6 +43,7 @@ from .system import become_daemon  # noqa
 if sys.version[0] == '2':
     reload(sys)  # noqa
     sys.setdefaultencoding('utf8')
+
 
 USAGE = """
 Kolibri
@@ -111,6 +114,41 @@ Auto-generated usage instructions from ``kolibri -h``::
 """.format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
 
 logger = logging.getLogger(__name__)
+
+
+def get_cext_path(dist_path):
+    """
+    Get the directory of dist/cext.
+    """
+    # Python version of current platform
+    python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
+    dirname = os.path.join(dist_path, 'cext/' + python_version)
+
+    platform = util.get_platform()
+    # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
+    if 'linux' in platform and int(python_version[2:]) < 33:
+        dirname = os.path.join(dirname, 'linux')
+        # encode with ucs2
+        if sys.maxunicode == 65535:
+            dirname = os.path.join(dirname, python_version+'m')
+        # encode with ucs4
+        else:
+            dirname = os.path.join(dirname, python_version+'mu')
+
+    elif 'macosx' in platform:
+        platform = 'macosx'
+    dirname = os.path.join(dirname, platform)
+    sys.path = sys.path + [os.path.realpath(str(dirname))]
+
+
+# Add path for c extensions to sys.path
+get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+try:
+    import cryptography  # noqa
+except ImportError:
+    # Fallback
+    logging.warning('No C Extensions available for this platform.\n')
+    sys.path = sys.path[:-1]
 
 
 class PluginDoesNotExist(Exception):
@@ -205,6 +243,14 @@ def update():
 
     logger.info("Running update routines for new version...")
 
+    # Need to do this here, before we run any Django management commands that
+    # import settings. Otherwise the updated configuration will not be used
+    # during this runtime.
+
+    from kolibri.utils.conf import enable_default_plugins
+
+    enable_default_plugins()
+
     call_command("collectstatic", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
@@ -214,6 +260,9 @@ def update():
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
+
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
+    update_channel_metadata_cache()
 
 
 update.called = False
@@ -240,8 +289,23 @@ def start(port=None, daemon=True):
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
+
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
+
+    __, urls = server.get_urls(listen_port=port)
+    if not urls:
+        logger.error(
+            "Could not detect an IP address that Kolibri binds to, but try "
+            "opening up the following addresses:\n")
+        urls = [
+            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+        ]
+    else:
+        logger.info("Kolibri running on:\n")
+    for addr in urls:
+        sys.stderr.write("\t{}\n".format(addr))
+    sys.stderr.write("\n")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -260,7 +324,7 @@ def start(port=None, daemon=True):
     server.start(port=port)
 
 
-def stop(sys_exit=True):
+def stop():
     """
     Stops the server unless it isn't running
     """
@@ -294,9 +358,7 @@ def stop(sys_exit=True):
             stopped = True
 
     if stopped:
-        logger.info("Server stopped")
-        if sys_exit:
-            sys.exit(0)
+        sys.exit(0)
 
 
 def status():

@@ -5,8 +5,10 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey">
     <div class="search-box-row">
+      <label class="visuallyhidden" for="searchfield">{{ $tr('search') }}</label>
       <input
         v-model="searchQuery"
+        id="searchfield"
         type="search"
         class="search-input"
         ref="searchInput"
@@ -29,7 +31,7 @@
             color="white"
             class="search-submit-button"
             :icon="icon"
-            :ariaLabel="$tr('search')"
+            :ariaLabel="$tr('start')"
             @click="search"
           />
         </div>
@@ -48,8 +50,9 @@
   export default {
     name: 'searchBox',
     $trs: {
-      search: 'Search',
-      clear: 'Clear',
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
     },
     components: {
       uiIconButton,

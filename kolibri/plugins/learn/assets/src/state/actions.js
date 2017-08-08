@@ -463,14 +463,6 @@ function clearSearch(store) {
   });
 }
 
-function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'Scratchpad');
-}
-
 function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
   store.dispatch('SET_PAGE_STATE', {});
@@ -807,7 +799,6 @@ export {
   showExploreContent,
   showLearnChannel,
   showLearnContent,
-  showScratchpad,
   showContentUnavailable,
   triggerSearch,
   clearSearch,

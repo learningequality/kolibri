@@ -26,7 +26,7 @@ Install Environment Dependencies
 
 #. Install `Python <https://www.python.org/downloads/windows/>`_ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
 #. Install `pip <https://pypi.python.org/pypi/pip>`_ package installer.
-#. Install `Node <https://nodejs.org/en/>`_ (recommended version 4+).
+#. Install `Node <https://nodejs.org/en/>`_ (version 6 is required).
 #. Install Yarn according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`_.
 
    .. note::
@@ -162,6 +162,15 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
 
+.. tip::
+
+  If get an error similar to ``Node Sass could not find a binding for your current environment`` try running:
+
+  .. code-block:: bash
+
+    (kolibri)$ npm rebuild node-sass
+
+
 More advanced examples of the ``devserver`` command:
 
 .. code-block:: bash
@@ -204,6 +213,7 @@ The ``develop`` branch is reserved for active development. When we get close to 
 
 .. note::
   At a high level, we follow the 'Gitflow' model. Some helpful references:
+
   * http://nvie.com/posts/a-successful-git-branching-model/
   * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 

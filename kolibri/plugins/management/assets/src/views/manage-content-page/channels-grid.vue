@@ -110,8 +110,8 @@
       this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     watch: {
-      channelList(val, newVal) {
-        this.addChannelFileSummaries(map(newVal, 'id'));
+      channelList(val) {
+        this.addChannelFileSummaries(map(val, 'id'));
       },
     },
     methods: {

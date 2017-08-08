@@ -112,6 +112,9 @@
       toggleNav() {
         this.$emit('toggleSideNav');
       },
+      pageIsActive(pageName) {
+        return this.topLevelPageName === pageName;
+      },
     },
     computed: {
       closeStyle() {
@@ -147,26 +150,11 @@
       ariaLabel() {
         return this.$tr('navigationLabel');
       },
-      learnActive() {
-        return this.topLevelPageName === TopLevelPageNames.LEARN;
-      },
-      coachActive() {
-        return this.topLevelPageName === TopLevelPageNames.COACH;
-      },
-      manageActive() {
-        return this.topLevelPageName === TopLevelPageNames.MANAGE;
-      },
-      profileActive() {
-        return this.topLevelPageName === TopLevelPageNames.PROFILE;
-      },
-      aboutActive() {
-        return this.topLevelPageName === TopLevelPageNames.ABOUT;
-      },
       menuOptions() {
         const options = [
           {
             label: this.$tr('learn'),
-            active: this.learnActive,
+            active: this.pageIsActive(TopLevelPageNames.LEARN),
             icon: 'school',
             href: '/learn',
           },
@@ -174,7 +162,7 @@
         if (this.isAdmin || this.isSuperuser || this.isCoach) {
           options.push({
             label: this.$tr('coach'),
-            active: this.coachActive,
+            active: this.pageIsActive(TopLevelPageNames.COACH),
             icon: 'assessment',
             href: '/coach',
           });
@@ -182,7 +170,7 @@
         if (this.isAdmin || this.isSuperuser) {
           options.push({
             label: this.$tr('manage'),
-            active: this.manageActive,
+            active: this.pageIsActive(TopLevelPageNames.MANAGE),
             icon: 'people',
             href: '/management',
           });
@@ -191,7 +179,7 @@
         if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('profile'),
-            active: this.profileActive,
+            active: this.pageIsActive(TopLevelPageNames.USER),
             icon: 'account_circle',
             href: '/user',
           });

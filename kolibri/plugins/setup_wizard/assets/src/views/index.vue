@@ -99,11 +99,12 @@
 
 <script>
 
-  import { createDeviceOwnerAndFacility } from '../state/actions';
+  import { provisionDevice } from '../state/actions';
   import store from '../state/store';
   import coreTextbox from 'kolibri.coreVue.components.textbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { facilityPresetChoices } from '../state/constants';
   export default {
     name: 'setupWizard',
     $trs: {
@@ -139,6 +140,7 @@
         facility: '',
         facilityError: null,
         globalError: null,
+        preset: facilityPresetChoices[0],
       };
     },
     components: {
@@ -171,6 +173,9 @@
       firstFacilityFieldVisit() {
         return this.facilityError === null;
       },
+      presetValidityCheck() {
+        facilityPresetChoices.includes(this.preset);
+      },
       allFieldsPopulated() {
         return (
           this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated
@@ -190,12 +195,15 @@
         this.globalError = '';
 
         if (this.canSubmit) {
-          const deviceOwnerPayload = {
+          const superuser = {
             password: this.password,
             username: this.username,
           };
-          const facilityPayload = { name: this.facility };
-          this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
+          const facility = { name: this.facility };
+          // TODO (rtibbles - paging DXCanas): Actually set these!
+          const languageCode = 'en';
+          const preset = 'nonformal';
+          this.provisionDevice(superuser, facility, preset, languageCode);
         } else {
           if (this.firstUsernameFieldVisit) {
             this.visitUsername();
@@ -249,7 +257,7 @@
     },
     vuex: {
       actions: {
-        createDeviceOwnerAndFacility,
+        provisionDevice,
       },
       getters: {
         submitted: state => state.pageState.submitted,

@@ -1,10 +1,10 @@
 """
-Implements custom auth backends as described in the Django docs, for our custom user classes -- FacilityUser and
-DeviceOwner. The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
+Implements custom auth backends as described in the Django docs, for our custom user class -- FacilityUser.
+The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
 backends are checked in the order they're listed.
 """
 
-from kolibri.auth.models import DeviceOwner, FacilityUser
+from kolibri.auth.models import FacilityUser
 
 
 class FacilityUserBackend(object):
@@ -29,7 +29,7 @@ class FacilityUserBackend(object):
                 return user
             # Allow login without password for learners for facilities that allow this.
             # Must specify the facility, to prevent accidental logins
-            elif facility and user.dataset.learner_can_login_with_no_password and not user.roles.count():
+            elif facility and user.dataset.learner_can_login_with_no_password and not user.roles.count() and not user.is_superuser:
                 return user
         return None
 
@@ -43,39 +43,4 @@ class FacilityUserBackend(object):
         try:
             return FacilityUser.objects.get(pk=user_id)
         except FacilityUser.DoesNotExist:
-            return None
-
-
-class DeviceOwnerBackend(object):
-    """
-    A class that implements authentication for DeviceOwners.
-    """
-
-    def authenticate(self, username=None, password=None, **kwargs):
-        """
-        Authenticates the user if the credentials correspond to a DeviceOwner.
-
-        :param username: a string
-        :param password: a string
-        :return: A DeviceOwner instance if successful, or None if authentication failed.
-        """
-        try:
-            user = DeviceOwner.objects.get(username=username)
-            if user.check_password(password):
-                return user
-            else:
-                return None
-        except DeviceOwner.DoesNotExist:
-            return None
-
-    def get_user(self, user_id):
-        """
-        Gets a user. Auth backends are required to implement this.
-
-        :param user_id: A BaseUser pk
-        :return: A DeviceOwner instance if a BaseUser with that pk is found, else None.
-        """
-        try:
-            return DeviceOwner.objects.get(pk=user_id)
-        except DeviceOwner.DoesNotExist:
             return None

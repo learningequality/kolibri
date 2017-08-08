@@ -98,6 +98,7 @@ function _sessionState(data) {
     facility_id: data.facility_id,
     kind: data.kind,
     error: data.error,
+    can_manage_content: data.can_manage_content,
   };
   return state;
 }
@@ -428,6 +429,61 @@ function saveLogs(store) {
   }
 }
 
+function fetchPoints(store) {
+  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+    const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+    userProgressModel.fetch().then(progress => {
+      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+    });
+  }
+}
+
+/**
+ * Helper function to handle common functionality between updateProgress and updateExerciseProgress
+ * @param  {VuexStore} store        The currently active Vuex store
+ * @param  {Number} sessionProgress The progress made in this session
+ * @param  {[type]} summaryProgress The progress made on this content overall
+ * @param {boolean} forceSave       Force saving of logs?
+ */
+function _updateProgress(store, sessionProgress, summaryProgress, forceSave = false) {
+  /* Create aliases for logs */
+  const summaryLog = store.state.core.logging.summary;
+  const sessionLog = store.state.core.logging.session;
+
+  /* Store original value to check if 100% reached this iteration */
+  const originalProgress = summaryLog.progress;
+
+  /* Update the logging state with new progress information */
+  store.dispatch('SET_LOGGING_PROGRESS', sessionProgress, summaryProgress);
+
+  /* Mark completion time if 100% progress reached
+   * Also, increase totalProgress model to avoid a refetch from server
+   */
+  const completedContent = originalProgress < 1 && summaryProgress === 1;
+  if (completedContent) {
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
+    if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+      const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+      // Fetch first to ensure we never accidentally have an undefined progress
+      userProgressModel.fetch().then(progress => {
+        userProgressModel.set({
+          progress: progress.progress + 1,
+        });
+      });
+      fetchPoints(store);
+    }
+  }
+  /* Determine if progress threshold has been met */
+  const progressThresholdMet =
+    sessionProgress - sessionLog.progress_at_last_save >= progressThreshold;
+
+  /* Save models if needed */
+  if (forceSave || completedContent || progressThresholdMet) {
+    saveLogs(store);
+  }
+  return summaryProgress;
+}
+
 /**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
@@ -440,33 +496,14 @@ function updateProgress(store, progressPercent, forceSave = false) {
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
 
-  /* Store original value to check if 100% reached this iteration */
-  const originalProgress = summaryLog.progress;
-
   /* Calculate progress based on progressPercent */
+  // TODO rtibbles: Delegate this to the renderers?
   const sessionProgress = sessionLog.progress + progressPercent;
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;
 
-  /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', sessionProgress, summaryProgress);
-
-  /* Determine if progress threshold has been met */
-  const progressThresholdMet =
-    sessionProgress - sessionLog.progress_at_last_save >= progressThreshold;
-
-  /* Mark completion time if 100% progress reached */
-  const completedContent = originalProgress < 1 && summaryProgress === 1;
-  if (completedContent) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-  }
-
-  /* Save models if needed */
-  if (forceSave || completedContent || progressThresholdMet) {
-    saveLogs(store);
-  }
-  return summaryProgress;
+  return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
 }
 
 /**
@@ -474,17 +511,7 @@ summary and session log progress update for exercise
 **/
 function updateExerciseProgress(store, progressPercent, forceSave = false) {
   /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
-
-  /* Mark completion time if 100% progress reached */
-  if (progressPercent === 1) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-  }
-
-  /* Save models if needed */
-  if (forceSave || progressPercent === 1) {
-    saveLogs(store);
-  }
+  return _updateProgress(store, progressPercent, progressPercent, forceSave);
 }
 
 /**
@@ -700,15 +727,6 @@ function updateMasteryAttemptState(
     answerState,
     simpleAnswer,
   });
-}
-
-function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = UserProgressResource.getModel(store.state.core.session.user_id);
-    userProgressModel.fetch().then(progress => {
-      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
-    });
-  }
 }
 
 export {

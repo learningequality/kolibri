@@ -16,7 +16,8 @@ from le_utils.constants import content_kinds
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
-from kolibri.auth.models import DeviceOwner, Facility, FacilityUser
+from kolibri.auth.models import Facility, FacilityUser
+from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
@@ -40,8 +41,7 @@ class ContentNodeTestCase(TestCase):
 
     def setUp(self):
 
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        provision_device()
 
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
@@ -225,8 +225,7 @@ class ContentNodeAPITestCase(APITestCase):
     }
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        provision_device()
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
 

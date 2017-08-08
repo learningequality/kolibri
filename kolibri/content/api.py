@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database
+from kolibri.content.content_db_router import get_active_content_database, using_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -16,7 +16,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from six.moves.urllib.parse import parse_qs, urlparse
 
-from .permissions import OnlyDeviceOwnerCanDelete
+from .permissions import OnlySuperuserCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
@@ -27,7 +27,7 @@ def _join_with_logical_operator(lst, operator):
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlyDeviceOwnerCanDelete,)
+    permission_classes = (OnlySuperuserCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):
@@ -359,10 +359,11 @@ class FileViewset(viewsets.ModelViewSet):
 
 class ChannelFileSummaryViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
-        file_summary = models.File.objects.aggregate(
-            total_files=Count('pk'),
-            total_file_size=Sum('file_size')
-        )
-        file_summary['channel_id'] = get_active_content_database()
-        # Need to wrap in an array to be fetchable as a Collection on client
-        return Response([file_summary])
+        with using_content_database(kwargs['channel_id']):
+            file_summary = models.File.objects.aggregate(
+                total_files=Count('pk'),
+                total_file_size=Sum('file_size')
+            )
+            file_summary['channel_id'] = get_active_content_database()
+            # Need to wrap in an array to be fetchable as a Collection on client
+            return Response([file_summary])

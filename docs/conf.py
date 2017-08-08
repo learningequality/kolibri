@@ -214,11 +214,16 @@ html_logo = 'logo.png'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
-    ],
-}
+
+# This should be commented back in for wide tables
+# See: https://github.com/rtfd/readthedocs.org/issues/2116
+# and: https://github.com/rtfd/sphinx_rtd_theme/pull/432
+
+# html_context = {
+#     'css_files': [
+#         '_static/theme_overrides.css',  # override wide tables in RTD theme
+#     ],
+# }
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -341,7 +346,6 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
 
-# Use Django's LOCALE_PATHS config as the target destinations for built po files
 locale_dirs = [
-    os.path.join(django.conf.settings.KOLIBRI_MODULE_PATH, "locale", "docs"),
+    os.path.join(os.getcwd(), "locale", "docs"),
 ]

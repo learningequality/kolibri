@@ -1,0 +1,79 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-07-28 17:27-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Acholi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ach\n"
+"X-Crowdin-File: /release-v0.5.x/docs/en/LC_MESSAGES/authors.po\n"
+"Language: ach_UG\n"
+
+#: ../../../AUTHORS.rst:3
+msgid "Credits"
+msgstr "crwdns10422:0crwdne10422:0"
+
+#: ../../../AUTHORS.rst:6
+msgid "Development Lead and Copyright Holder"
+msgstr "crwdns10423:0crwdne10423:0"
+
+#: ../../../AUTHORS.rst:8
+msgid "Learning Equality – info@learningequality.org"
+msgstr "crwdns10424:0crwdne10424:0"
+
+#: ../../../AUTHORS.rst:11
+msgid "Community"
+msgstr "crwdns10425:0crwdne10425:0"
+
+#: ../../../AUTHORS.rst:13
+msgid "Please feel free to add your name on this list if you do a PR!"
+msgstr "crwdns10426:0crwdne10426:0"
+
+#: ../../../AUTHORS.rst:15
+msgid "Benjamin Bach (benjaoming)"
+msgstr "crwdns10427:0crwdne10427:0"
+
+#: ../../../AUTHORS.rst:16
+msgid "Michael Gallaspy (MCGallaspy)"
+msgstr "crwdns10428:0crwdne10428:0"
+
+#: ../../../AUTHORS.rst:17
+msgid "Richard Tibbles (rtibbles)"
+msgstr "crwdns10429:0crwdne10429:0"
+
+#: ../../../AUTHORS.rst:18
+msgid "Jamie Alexandre (jamalex)"
+msgstr "crwdns10430:0crwdne10430:0"
+
+#: ../../../AUTHORS.rst:19
+msgid "David Cañas (dxcanas)"
+msgstr "crwdns10431:0crwdne10431:0"
+
+#: ../../../AUTHORS.rst:20
+msgid "Eli Dai (66eli77)"
+msgstr "crwdns10432:0crwdne10432:0"
+
+#: ../../../AUTHORS.rst:21
+msgid "Devon Rueckner (indirectlylit)"
+msgstr "crwdns10433:0crwdne10433:0"
+
+#: ../../../AUTHORS.rst:22
+msgid "Rafael Aguayo (ralphiee22)"
+msgstr "crwdns10434:0crwdne10434:0"
+
+#: ../../../AUTHORS.rst:23
+msgid "Christian Memije (christianmemije)"
+msgstr "crwdns10435:0crwdne10435:0"
+
+#: ../../../AUTHORS.rst:24
+msgid "Radina Matic (radinamatic)"
+msgstr "crwdns10436:0crwdne10436:0"
+

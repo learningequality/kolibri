@@ -1,6 +1,21 @@
 import logging as logger
 
+import requests
+from barbequeue.common.classes import State
 from django.apps.registry import AppRegistryNotReady
+from django.core.management import call_command
+from django.db import connections
+from django.http import Http404
+from django.utils.translation import ugettext as _
+from kolibri.content.models import ChannelMetadataCache
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.content.utils.paths import get_content_database_file_url
+from rest_framework import serializers, viewsets
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+
+from .client import get_client
+from .permissions import CanManageContent, IsSuperuserOnly
 
 try:
     from django.apps import apps
@@ -11,20 +26,6 @@ except AppRegistryNotReady:
 
     django.setup()
 
-import requests
-from django.core.management import call_command
-from django.http import Http404
-from django.utils.translation import ugettext as _
-from kolibri.content.models import ChannelMetadataCache
-from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.paths import get_content_database_file_url
-from rest_framework import serializers, viewsets
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
-from barbequeue.common.classes import State
-
-from .permissions import IsDeviceOwnerOnly
-from .client import get_client
 
 logging = logger.getLogger(__name__)
 
@@ -33,7 +34,7 @@ TASKTYPE = "remoteimport"
 
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (IsDeviceOwnerOnly,)
+    permission_classes = (IsSuperuserOnly, CanManageContent)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
@@ -143,37 +144,53 @@ class TasksViewSet(viewsets.ViewSet):
 
 
 def _networkimport(channel_id, update_progress=None):
-    call_command("importchannel", "network", channel_id)
+    call_command(
+        "importchannel",
+        "network",
+        channel_id,
+        update_progress=update_progress)
     call_command(
         "importcontent",
         "network",
         channel_id,
         update_progress=update_progress)
-
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 def _localimport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
+    # copy channel's db file then copy all the content files from sorage dir
     for channel in drive.metadata["channels"]:
-        call_command("importchannel", "local", channel["id"], drive.datafolder)
+        call_command(
+            "importchannel",
+            "local",
+            channel["id"],
+            drive.datafolder,
+            update_progress=update_progress)
         call_command(
             "importcontent",
             "local",
             channel["id"],
             drive.datafolder,
             update_progress=update_progress)
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 
 def _localexport(drive_id, update_progress=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in ChannelMetadataCache.objects.all():
-        call_command("exportchannel", channel.id, drive.datafolder)
+        call_command(
+            "exportchannel",
+            channel.id,
+            drive.datafolder,
+            update_progress=update_progress)
         call_command(
             "exportcontent",
             channel.id,
             drive.datafolder,
             update_progress=update_progress)
+    connections.close_all()  # close all DB connections (FIX for #1818)
 
 
 def _job_to_response(job):

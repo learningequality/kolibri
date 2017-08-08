@@ -3,6 +3,7 @@ import logging
 import os
 
 import cherrypy
+import ifcfg
 import requests
 from django.conf import settings
 from kolibri.content.utils import paths
@@ -259,15 +260,20 @@ def get_status():  # noqa: max-complexity=16
     # raise NotRunning(STATUS_UNKNOW)
 
 
-def get_urls():
+def get_urls(listen_port=None):
     """
-    This is a stub, see: https://github.com/learningequality/kolibri/issues/1595
+    :param listen_port: if set, will not try to determine the listen port from
+                        other running instances.
     """
     try:
-        __, __, port = get_status()
+        if listen_port:
+            port = listen_port
+        else:
+            __, __, port = get_status()
         urls = []
-        for addr in [LISTEN_ADDRESS]:
-            urls.append("http://{}:{}/".format(addr, port))
+        interfaces = ifcfg.interfaces()
+        for interface in filter(lambda i: i['inet'], interfaces.values()):
+            urls.append("http://{}:{}/".format(interface['inet'], port))
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

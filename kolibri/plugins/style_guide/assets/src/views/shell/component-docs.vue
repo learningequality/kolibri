@@ -17,7 +17,7 @@
           <th>Description</th>
         </tr>
         <tr v-for="(prop, i) in api.props" :key="i">
-          <td>{{ prop.name }}</td>
+          <td><code>{{ prop.name }}</code></td>
           <td><code>{{ parsePropType(prop.value.type) }}</code></td>
           <td><code>{{ parsePropRequired(prop.value.required) }}</code></td>
           <td>
