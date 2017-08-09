@@ -65,7 +65,8 @@
       available: 'available',
       cancel: 'Cancel',
       export: 'Export',
-      exportPromptPrefix: 'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}}',
+      exportPromptPrefix:
+        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}}',
       notWritable: 'Not writable',
       refresh: 'Refresh',
       title: 'Export to where?',
@@ -86,7 +87,9 @@
         return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
       exportContentSize() {
-        const allChannelsHaveStats = this.allChannels.length === Object.keys(this.channelsWithStats).length;
+        const allChannelsHaveStats = this.allChannels.reduce((flag, channel) => {
+          return flag && Boolean(this.channelsWithStats[channel.id]);
+        }, true);
         if (allChannelsHaveStats) {
           const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
           return bytesForHumans(totalSize);
@@ -117,7 +120,7 @@
     },
     vuex: {
       getters: {
-        allChannels: (state) => state.core.channels.list,
+        allChannels: state => state.core.channels.list,
         channelsWithStats: state => state.pageState.channelFileSummaries,
         wizardState: state => state.pageState.wizardState,
       },
