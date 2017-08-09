@@ -1,56 +1,62 @@
 <template>
 
-  <dropdown-menu
-    :name="currentLanguageName"
-    :options="languageOptions"
-    :inAppBar="inAppBar"
-    :displayDisabledAsSelected="true"
-    :disabled="disabled"
-    type="primary"
-    color="primary"
-    icon="language"
-    @select="switchLanguage"
-  />
+  <core-modal :title="$tr('changeLanguageModalHeader')" @cancel="$emit('close')">
+    <p>{{ $tr('changeLanguageSubHeader') }}</p>
+    <p v-for="language in languageOptions" :class="selectedLanguage.code===language.code ? 'selected' : 'choice'" @click="selectedLanguage=language">
+      {{ language.name }}
+    </p>
+    <div class="footer">
+      <k-button :text="$tr('cancelButtonText')" :raised="false" :disabled="disabled" @click="$emit('close')"/>
+      <k-button :text="$tr('confirmButtonText')" :primary="true" :disabled="disabled" @click="switchLanguage"/>
+    </div>
+  </core-modal>
 
 </template>
 
 
 <script>
 
-  import orderBy from 'lodash/orderBy';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { httpClient } from 'kolibri.client';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   export default {
-    name: 'languageSwitcher',
-    components: { dropdownMenu },
+    name: 'languageSwitcherModalDialog',
+    components: { coreModal, kButton },
+    $trs: {
+      changeLanguageModalHeader: 'Change language',
+      changeLanguageSubHeader: 'Select the language you want to view Kolibri in',
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Confirm',
+    },
     computed: {
       languageOptions() {
-        return orderBy(availableLanguages, language => language.code, ['asc']).map(language => ({
-          id: language.code,
-          label: language.name,
-          disabled: language.code === currentLanguage,
-        }));
+        return Object.keys(availableLanguages)
+          .sort((a, b) => {
+            if (a === currentLanguage || a[0] > b[0]) {
+              return -1;
+            }
+            if (b === currentLanguage || b[0] > a[0]) {
+              return 1;
+            }
+            return 0;
+          })
+          .map(key => availableLanguages[key]);
       },
       currentLanguageName() {
         return availableLanguages[currentLanguage].name;
       },
     },
-    props: {
-      inAppBar: {
-        type: Boolean,
-        default: true,
-      },
-    },
     data: () => ({
       disabled: false,
+      selectedLanguage: availableLanguages[currentLanguage],
     }),
     methods: {
-      switchLanguage(language) {
+      switchLanguage() {
         this.disabled = true;
         const path = this.Kolibri.urls['kolibri:set_language']();
         const entity = {
-          language: language.id,
+          language: this.selectedLanguage.code,
         };
         httpClient({
           path,
@@ -65,4 +71,19 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  h1, p
+    color: black
+
+  .selected
+    font-weight: bold
+
+  .choice
+    color: $core-action-normal
+    text-decoration: underline $core-action-normal
+    cursor: pointer
+
+</style>

@@ -19,10 +19,13 @@
         ref="accountButton"
         class="username-text">
         <template v-if="windowSize.breakpoint > 2">
-          {{ username }}
-          <template v-if="isSuperuser">{{ $tr('superuser') }}</template>
-          <template v-if="isAdmin">{{ $tr('admin') }}</template>
-          <template v-if="isCoach">{{ $tr('coach') }}</template>
+          <template v-if="isUserLoggedIn">
+            {{ username }}
+            <template v-if="isSuperuser">{{ $tr('superuser') }}</template>
+            <template v-if="isAdmin">{{ $tr('admin') }}</template>
+            <template v-if="isCoach">{{ $tr('coach') }}</template>
+          </template>
+          <template v-else>{{ $tr('guest') }}</template>
         </template>
         <ui-menu
           slot="dropdown"
@@ -31,14 +34,7 @@
           @select="optionSelected"
         />
       </ui-button>
-      <a v-else href="/user">
-        <ui-button
-          type="primary"
-          color="primary"
-          :ariaLabel="$tr('signIn')">
-          {{ $tr('signIn') }}
-        </ui-button>
-      </a>
+      <language-switcher v-if="showLanguageModal" @close="showLanguageModal=false"/>
     </div>
   </ui-toolbar>
 
@@ -60,6 +56,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import uiButton from 'keen-ui/src/UiButton';
+  import { redirectBrowser } from '../../utils/browser';
+  import languageSwitcher from '../language-switcher';
   export default {
     mixins: [responsiveWindow],
     name: 'appBar',
@@ -71,6 +69,8 @@
       superuser: '(Device owner)',
       admin: '(Admin)',
       coach: '(Coach)',
+      guest: 'Guest',
+      languageSwitchMenuOption: 'Change language',
     },
     props: {
       title: {
@@ -86,23 +86,41 @@
         required: true,
       },
     },
+    data: () => ({
+      showLanguageModal: false,
+    }),
     components: {
       uiToolbar,
       uiIconButton,
       uiMenu,
       uiButton,
+      languageSwitcher,
     },
     computed: {
       accountMenuOptions() {
+        const changeLanguage = {
+          id: 'language',
+          label: this.$tr('languageSwitchMenuOption'),
+        };
+        if (this.isUserLoggedIn) {
+          return [
+            {
+              id: 'profile',
+              label: this.$tr('profile'),
+            },
+            changeLanguage,
+            {
+              id: 'signOut',
+              label: this.$tr('signOut'),
+            },
+          ];
+        }
         return [
           {
-            id: 'profile',
-            label: this.$tr('profile'),
+            id: 'signIn',
+            label: this.$tr('signIn'),
           },
-          {
-            id: 'signOut',
-            label: this.$tr('signOut'),
-          },
+          changeLanguage,
         ];
       },
     },
@@ -115,6 +133,10 @@
           case 'signOut':
             this.kolibriLogout();
             break;
+          case 'signIn':
+            redirectBrowser();
+          case 'language':
+            this.showLanguageModal = true;
           default:
             break;
         }

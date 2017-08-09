@@ -10,7 +10,6 @@
         :navShown="navShown"
         :height="headerHeight">
         <div slot="app-bar-actions" class="app-bar-actions">
-          <language-switcher/>
           <slot name="app-bar-actions"/>
         </div>
       </app-bar>
@@ -50,7 +49,6 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import languageSwitcher from './language-switcher';
   import Vue from 'kolibri.lib.vue';
 
   export default {
@@ -83,7 +81,6 @@
       sideNav,
       errorBox,
       loadingSpinner,
-      languageSwitcher,
     },
     vuex: {
       getters: {
