@@ -4,12 +4,11 @@
     ref="docViewer"
     class="doc-viewer"
     :style="minViewerHeight"
-    :class="{ 'container-mimic-fullscreen': mimicFullscreen }">
+    :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }">
 
     <icon-button
       class="doc-viewer-controls button-fullscreen"
       aria-controls="pdf-container"
-      v-if="supportsPDFs"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen"
       :primary="true">
@@ -23,21 +22,24 @@
       aria-controls="pdf-container"
       icon="add"
       size="large"
-      @click="zoomIn()"/>
-      <ui-icon-button
+      @click="zoomIn"/>
+    <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
-      @click="zoomOut()"/>
+      @click="zoomOut"/>
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
-      <section class="pdf-page-container" v-for="index in totalPages"
+      <section
+        class="pdf-page-container"
+        v-for="index in totalPages"
+        :key="index"
         :ref="pageRef(index)"
         :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-        <span class="pdf-page-loading"> {{$tr('pageNumber', {pageNumber: index})}} </span>
+        <span class="pdf-page-loading"> {{ $tr('pageNumber', {pageNumber: index}) }} </span>
       </section>
     </div>
   </div>
@@ -79,7 +81,6 @@
     },
     props: ['defaultFile'],
     data: () => ({
-      supportsPDFs: true,
       isFullscreen: false,
       progress: 0,
       scale: null,
@@ -202,7 +203,7 @@
             this.pdfPages[pageNum] = {};
           }
           if (
-            // Do not try to show the page if it is already renderered,
+            // Do not try to show the page if it is already rendered,
             // already loading, or already rendering.
             !this.pdfPages[pageNum].rendered &&
             !this.pdfPages[pageNum].loading &&
