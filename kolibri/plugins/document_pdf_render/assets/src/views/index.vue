@@ -42,8 +42,7 @@
         :defaultHeight="pageHeight"
         :defaultWidth="pageWidth"
         :scale="scale"
-        :pageNum="index + 1">
-      </page-component>
+        :pageNum="index + 1"/>
     </div>
   </div>
 
@@ -60,8 +59,8 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
-  import { debounce } from 'lodash';
-  import pageComponent from './pdfPage';
+  import { debounce, throttle } from 'lodash';
+  import pageComponent from './pageComponent';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF renderer's
@@ -74,6 +73,8 @@
   const renderDebounceTime = 300;
   // Minimum height of the PDF viewer in pixels
   const minViewerHeight = 400;
+
+  const scaleIncrement = 0.25;
 
   export default {
     name: 'documentPDFRender',
@@ -123,12 +124,12 @@
           this.isFullscreen = !this.isFullscreen;
         }
       },
-      zoomIn() {
-        this.scale += 0.1;
-      },
-      zoomOut() {
-        this.scale -= 0.1;
-      },
+      zoomIn: throttle(function() {
+        this.scale += scaleIncrement;
+      }, renderDebounceTime),
+      zoomOut: throttle(function() {
+        this.scale -= scaleIncrement;
+      }, renderDebounceTime),
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
       },

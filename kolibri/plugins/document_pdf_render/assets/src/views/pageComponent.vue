@@ -57,6 +57,13 @@
       },
     },
     methods: {
+      cancelRender() {
+        if (this.renderTask) {
+          this.renderTask.cancel();
+        }
+        delete this.renderTask;
+        this.rendered = false;
+      },
       clearPage() {
         const canvasContext = this.$refs.canvas.getContext('2d');
         // Clear canvas
@@ -67,19 +74,23 @@
         // Get viewport, which contains directions to be passed into render function
         return this.pdfPage.getViewport(this.scale);
       },
-      setPageDimensions(viewport) {
-        // Set height and width based on the viewport
-        this.height = viewport.height;
-        this.width = viewport.width;
+      setPageDimensions() {
+        // Set height and width based on the the pdfPage information and the scale
+        this.height = this.pdfPage.view[3] * this.scale;
+        this.width = this.pdfPage.view[2] * this.scale;
       },
-      renderPage() {
+      renderPage(newVal, oldVal) {
+        if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
+          // Change values are numeric, so we should assume it is a change in scale
+          this.cancelRender();
+        }
         if (this.pdfPage && this.active) {
           if (!this.renderTask && !this.rendered) {
             const canvasContext = this.$refs.canvas.getContext('2d');
 
             const viewport = this.getViewport();
 
-            this.setPageDimensions(viewport);
+            this.setPageDimensions();
 
             this.renderTask = this.pdfPage.render({
               canvasContext,
@@ -98,15 +109,12 @@
           }
         } else if (this.pdfPage && this.pdfPage.getViewport) {
           // We have a pdfPage, so use this opportunity to set the current page width and height
-          this.setPageDimensions(this.getViewport());
+          this.setPageDimensions();
         } else {
           // No pdfPage and not active, either we are not being asked to render a page yet, or it has been removed
           // so we should tear down any existing page
-          if (this.renderTask) {
-            this.renderTask.cancel();
-          } else {
-            this.clearPage();
-          }
+          this.cancelRender();
+          this.clearPage();
         }
       },
     },
