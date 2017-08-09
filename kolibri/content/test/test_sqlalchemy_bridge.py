@@ -5,7 +5,7 @@ from kolibri.content.utils.sqlalchemybridge import (
 )
 from sqlalchemy.engine import Engine
 
-from unittest.mock import patch, MagicMock, Mock, call
+from mock import patch, MagicMock, Mock, call
 
 class SQLAlchemyBridgeClassTestCase(TestCase):
     """

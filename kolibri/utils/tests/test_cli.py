@@ -6,10 +6,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
-from unittest.mock import patch
-
 import pytest
 from kolibri.utils import cli
+from mock import patch
 
 logger = logging.getLogger(__name__)
 
