@@ -157,7 +157,7 @@
         return this.topLevelPageName === TopLevelPageNames.MANAGE;
       },
       profileActive() {
-        return this.topLevelPageName === TopLevelPageNames.PROFILE;
+        return this.topLevelPageName === TopLevelPageNames.USER;
       },
       aboutActive() {
         return this.topLevelPageName === TopLevelPageNames.ABOUT;
