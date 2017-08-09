@@ -33,14 +33,17 @@
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
-      <section
+      <page-component
         class="pdf-page-container"
-        v-for="index in totalPages"
+        v-for="(page, index) in pdfPages"
         :key="index"
-        :ref="pageRef(index)"
-        :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-        <span class="pdf-page-loading"> {{ $tr('pageNumber', {pageNumber: index}) }} </span>
-      </section>
+        :ref="pageRef(index + 1)"
+        :pdfPage="page"
+        :defaultHeight="pageHeight"
+        :defaultWidth="pageWidth"
+        :scale="scale"
+        :pageNum="index + 1">
+      </page-component>
     </div>
   </div>
 
@@ -58,6 +61,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import { debounce } from 'lodash';
+  import pageComponent from './pdfPage';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF renderer's
@@ -78,6 +82,7 @@
       iconButton,
       progressBar,
       uiIconButton,
+      pageComponent,
     },
     props: ['defaultFile'],
     data: () => ({
@@ -88,6 +93,7 @@
       totalPages: null,
       pageHeight: null,
       pageWidth: null,
+      pdfPages: [],
     }),
     computed: {
       fullscreenAllowed() {
@@ -126,130 +132,30 @@
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
       },
-      startRender(pdfPage) {
-        // use a promise because this also calls render, allowing us to cancel
-        return new Promise((resolve, reject) => {
-          const pageNum = pdfPage.pageNumber;
-
-          // start the loading message
-          if (this.currentPageNum === pageNum) {
-            this.currentPageRendering = true;
-          }
-
-          if (this.pdfPages[pageNum]) {
-            this.pdfPages[pageNum].pdfPage = pdfPage;
-
-            // Get viewport, which contains directions to be passed into render function
-            const viewport = pdfPage.getViewport(this.scale);
-
-            // create the canvas element where page will be rendered
-            // we do this dynamically to avoid having many canvas elements simultaneously in the page
-            const canvas = this.pdfPages[pageNum].canvas || document.createElement('canvas');
-
-            // define canvas and dummy blank page dimensions
-            canvas.width = this.pageWidth = viewport.width;
-            canvas.height = this.pageHeight = viewport.height;
-            canvas.style.position = 'absolute';
-            canvas.style.top = 0;
-            canvas.style.left = 0;
-
-            const renderTask = pdfPage.render({
-              canvasContext: canvas.getContext('2d'),
-              viewport,
-            });
-
-            // Keep track of the canvas in case we need to manipulate it later
-            this.pdfPages[pageNum].canvas = canvas;
-            this.pdfPages[pageNum].renderTask = renderTask;
-            this.pdfPages[pageNum].rendering = true;
-            this.pdfPages[pageNum].loading = false;
-
-            // resolves here to indicate that the page has been set up for render.
-            // check flags for the stages of the render
-            resolve();
-
-            renderTask.then(
-              () => {
-                // If this has been removed since the rendering started, then we should not proceed
-                if (this.pdfPages[pageNum]) {
-                  if (this.pdfPages[pageNum].canvas) {
-                    // Canvas has not been deleted in the interim
-                    this.pdfPages[pageNum].rendered = true;
-                    this.$refs[this.pageRef(pageNum)][0].appendChild(this.pdfPages[pageNum].canvas);
-
-                    // end the loading message
-                    if (this.currentPageNum === pageNum) {
-                      this.currentPageRendering = false;
-                    }
-                  }
-                  // Rendering has completed
-                  this.pdfPages[pageNum].rendering = false;
-                }
-              },
-              // If the render task is cancelled, then it will reject the promise and end up here.
-              () => {
-                if (this.pdfPages[pageNum]) {
-                  this.pdfPages[pageNum].rendering = false;
-                }
-              }
-            );
-          }
-        });
-      },
       showPage(pageNum) {
         if (pageNum <= this.totalPages && pageNum > 0) {
-          // Only try to show pages that exist
-          if (!this.pdfPages[pageNum]) {
-            this.pdfPages[pageNum] = {};
-          }
-          if (
-            // Do not try to show the page if it is already rendered,
-            // already loading, or already rendering.
-            !this.pdfPages[pageNum].rendered &&
-            !this.pdfPages[pageNum].loading &&
-            !this.pdfPages[pageNum].rendering
-          ) {
-            this.pdfPages[pageNum].loading = true;
-            // If we already have a reference to the PDFJS page object, then use it,
-            // rather than refetching it.
-            if (!this.pdfPages[pageNum].pdfPage) {
-              this.pdfPages[pageNum].renderPromise = this.getPage(pageNum).then(this.startRender);
-            } else {
-              this.pdfPages[pageNum].renderPromise = this.startRender(this.pdfPages[pageNum].pdfPage);
-            }
+          const pageIndex = pageNum - 1;
+          if (!this.pdfPages[pageIndex]) {
+            // Only bother getting it if the pdfPage object is not already cached in the array
+            // Cache the getPage promise in the array to prevent multiple gets, then replace it with
+            // the page once it has been fetched
+            this.pdfPages.splice(
+              pageIndex,
+              1,
+              this.getPage(pageNum).then(pdfPage => {
+                this.pdfPages.splice(pageIndex, 1, pdfPage);
+                this.$refs[this.pageRef(pageNum)][0].active = true;
+              })
+            );
+          } else {
+            this.$refs[this.pageRef(pageNum)][0].active = true;
           }
         }
       },
       hidePage(pageNum) {
         if (pageNum <= this.totalPages && pageNum > 0) {
           // Only try to hide possibly existing pages.
-          if (!this.pdfPages[pageNum]) {
-            // No page to render, so do nothing
-            return;
-          }
-          const pdfPage = this.pdfPages[pageNum];
-          if (pdfPage.rendered) {
-            pdfPage.rendered = false;
-            // Already rendered, just remove canvas from DOM.
-            if (pdfPage.canvas) {
-              pdfPage.canvas.remove();
-            }
-          } else if (pdfPage.loading) {
-            // Otherwise, currently loading - let it finish the render promise,
-            // where the page is still being fetched
-            // then cancel the resulting renderTask.
-            const renderTask = pdfPage.renderTask;
-            pdfPage.renderPromise.then(() => {
-              renderTask && renderTask.cancel();
-            });
-          } else if (pdfPage.rendering) {
-            // Currently rendering, cancel the task directly
-            pdfPage.renderTask && pdfPage.renderTask.cancel();
-          }
-          // Clean everything up (destroys the pdf page object).
-          pdfPage.pdfPage && pdfPage.pdfPage.cleanup();
-          // Delete the reference so that this page is now a blank slate.
-          delete this.pdfPages[pageNum];
+          this.$refs[this.pageRef(pageNum)][0].active = false;
         }
       },
       pageRef(index) {
@@ -261,17 +167,44 @@
         const top = this.$refs.pdfContainer.scrollTop;
         const bottom = top + this.$refs.pdfContainer.clientHeight;
         // Then work out which pages are visible to the user as a consequence
-        const topPageNum = Math.ceil(top / this.pageHeight);
-        const bottomPageNum = Math.ceil(bottom / this.pageHeight);
-
         // Loop through all pages, show ones that are in the display window, hide ones that aren't
-        for (let i = 1; i <= this.totalPages; i++) {
-          // Hide pages that are less than 'pageDisplayWindow' lower than the top page number
-          // or the same amount higher than the bottom page number
-          if (i < topPageNum - pageDisplayWindow || i > bottomPageNum + pageDisplayWindow) {
-            this.hidePage(i);
-          } else {
+        let cumulativeHeight = 0;
+        const pagesToDisplay = [];
+        let i, display;
+        for (i = 1; i <= this.totalPages; i++) {
+          // If the current cumulativeHeight (which marks the beginning of this page)
+          // is higher than top and less than bottom, then this page
+          // should be displayed
+          display = false;
+          const pageHeight = this.$refs[this.pageRef(i)][0].pageHeight;
+          // Top of page is in the middle of the viewport
+          if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
+            display = true;
+          }
+          // Page top and bottom wrap the viewport
+          if (cumulativeHeight <= top && cumulativeHeight + pageHeight >= bottom) {
+            display = true;
+          }
+          cumulativeHeight += pageHeight;
+          // Bottom of page is in the middle of the viewport
+          if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
+            display = true;
+          }
+          pagesToDisplay.push(display);
+        }
+        for (i = 1; i <= this.totalPages; i++) {
+          // Render pages conditionally on pagesToDisplay, taking into account the display window
+          if (
+            pagesToDisplay
+              .slice(
+                Math.max(0, i - 1 - pageDisplayWindow),
+                Math.min(pagesToDisplay.length, i - 1 + pageDisplayWindow)
+              )
+              .some(trueOrFalse => trueOrFalse)
+          ) {
             this.showPage(i);
+          } else {
+            this.hidePage(i);
           }
         }
       }, renderDebounceTime),
@@ -311,7 +244,8 @@
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
         this.totalPages = pdfDocument.numPages;
-        this.pdfPages = {};
+        // Set pdfPages to an array of length total pages
+        this.pdfPages = Array(this.totalPages);
 
         return this.getPage(1).then(firstPage => {
           const pageMargin = 5;
@@ -332,7 +266,7 @@
           this.pageWidth = initialViewport.width;
           // Set the firstPage into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
-          this.pdfPages[1] = firstPage;
+          this.pdfPages.splice(0, 1, firstPage);
         });
       });
     },
@@ -361,7 +295,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-      pageNumber: '{pageNumber, number}',
     },
     vuex: {
       getters: {
@@ -379,6 +312,7 @@
 
   $keen-button-height = 48px
   $fullscreen-button-height = 36px
+  // Defined here and in pdfPage.vue
   $page-padding = 5px
 
   .doc-viewer
@@ -418,20 +352,6 @@
 
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding
-
-  .pdf-page
-    &-container
-      background: #FFFFFF
-      margin: $page-padding auto
-      position: relative
-      z-index: 2 // material spec - card (resting)
-    &-loading
-      position: absolute
-      top: 50%
-      left: 50%
-      transform: translate(-50%, -50%)
-      font-size: 2em
-      line-height: 100%
 
   .doc-viewer-controls
     z-index: 6 // material spec - snackbar and FAB
