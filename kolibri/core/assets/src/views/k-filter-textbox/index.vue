@@ -41,7 +41,7 @@
    * Used to filter items via text input
    */
   export default {
-    name: 'k-filter',
+    name: 'k-filter-textbox',
     $trs: {
       filter: 'filter',
       clear: 'clear',

@@ -22,7 +22,7 @@
     </div>
 
     <div class="toolbar">
-      <k-filter
+      <k-filter-textbox
         :placeholder="$tr('searchText')"
         v-model="searchFilter"
         class="searchbar"
@@ -121,7 +121,7 @@
   import roleSwitcher from './role-switcher';
   import userRemoveModal from './user-remove-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kFilter from 'kolibri.coreVue.components.kFilter';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userRole from '../user-role';
   export default {
     name: 'classEnrollPage',
@@ -144,7 +144,7 @@
       roleSwitcher,
       userRemoveModal,
       kButton,
-      kFilter,
+      kFilterTextbox,
       userRole,
     },
     data: () => ({

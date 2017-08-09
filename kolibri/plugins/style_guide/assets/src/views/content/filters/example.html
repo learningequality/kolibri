@@ -1,11 +1,11 @@
 <template>
 
   <div>
-    <k-filter
+    <k-filter-textbox
       v-model="filter"
       placeholder="Filter items"
     >
-    </k-filter>
+    </k-filter-textbox>
     <div v-for="item in filteredItems" :key="item">{{ item }}</div>
   </div>
 

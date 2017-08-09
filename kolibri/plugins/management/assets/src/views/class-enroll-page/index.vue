@@ -46,7 +46,7 @@
 
         <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
 
-          <k-filter
+          <k-filter-textbox
             :placeholder="$tr('searchForUser')"
             v-model.trim="filterInput"
             class="searchbar"
@@ -143,7 +143,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import kFilter from 'kolibri.coreVue.components.kFilter';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiSwitch from 'keen-ui/src/UiSwitch';
@@ -179,7 +179,7 @@
       kCheckbox,
       uiIconButton,
       uiIcon,
-      kFilter,
+      kFilterTextbox,
       userCreateModal,
       confirmEnrollmentModal,
       uiSwitch,

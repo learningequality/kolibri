@@ -18,7 +18,7 @@
         <option :value="LEARNER"> {{$tr('learners')}} </option>
       </select>
 
-      <k-filter
+      <k-filter-textbox
         :placeholder="$tr('searchText')"
         v-model="searchFilter"
         class="searchbar"
@@ -109,14 +109,14 @@
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kFilter from 'kolibri.coreVue.components.kFilter';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userRole from '../user-role';
   export default {
     components: {
       userCreateModal,
       userEditModal,
       kButton,
-      kFilter,
+      kFilterTextbox,
       userRole,
     },
     data: () => ({
