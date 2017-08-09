@@ -20,7 +20,11 @@ export function refreshChannelList() {
  * @returns {Promise}
  */
 export function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId).delete().then(refreshChannelList);
+  return ChannelResource.getModel(channelId).delete()
+    .then(() => {
+      store.dispatch(mutationTypes.REMOVE_CHANNEL_FILE_SUMMARY, channelId);
+    })
+    .then(refreshChannelList)
 }
 
 /**
@@ -54,6 +58,7 @@ export function addChannelFileSummary(store, channelId) {
  */
 export function addChannelFileSummaries(store, channelIds) {
   channelIds.forEach(channelId => {
+    if (store.state.pageState[channelId]) return;
     addChannelFileSummary(store, channelId);
   });
 }
