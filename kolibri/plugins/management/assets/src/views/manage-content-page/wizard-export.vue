@@ -10,6 +10,10 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
+          <p>
+            {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
+            ({{ exportContentSize }})
+          </p>
           <drive-list
             :value="selectedDrive"
             :drives="wizardState.driveList"
@@ -53,15 +57,19 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import driveList from './wizards/drive-list';
+  import sumBy from 'lodash/sumBy';
+
   export default {
     name: 'wizardExport',
     $trs: {
-      title: 'Export to a Local Drive',
-      available: 'Available Storage:',
-      notWritable: 'Not writable',
+      available: 'available',
       cancel: 'Cancel',
       export: 'Export',
+      exportPromptPrefix: 'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}}',
+      notWritable: 'Not writable',
       refresh: 'Refresh',
+      title: 'Export to where?',
+      waitForTotalSize: 'Calculating total size...',
     },
     components: {
       coreModal,
@@ -77,10 +85,18 @@
       canSubmit() {
         return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
+      exportContentSize() {
+        const allChannelsHaveStats = this.allChannels.length === Object.keys(this.channelsWithStats).length;
+        if (allChannelsHaveStats) {
+          const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
+          return bytesForHumans(totalSize);
+        }
+        return this.$tr('waitForTotalSize');
+      },
     },
     methods: {
       formatEnabledMsg(drive) {
-        return `${this.$tr('available')} ${bytesForHumans(drive.freespace)}`;
+        return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;
       },
       driveIsEnabled(drive) {
         return drive.writable;
@@ -100,7 +116,11 @@
       },
     },
     vuex: {
-      getters: { wizardState: state => state.pageState.wizardState },
+      getters: {
+        allChannels: (state) => state.core.channels.list,
+        channelsWithStats: state => state.pageState.channelFileSummaries,
+        wizardState: state => state.pageState.wizardState,
+      },
       actions: {
         transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
