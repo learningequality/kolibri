@@ -13,7 +13,7 @@
       <k-radio-button
         v-for="drive in enabledDrives"
         :key="drive.id"
-        :label="genEnabledDriveLabel(drive)"
+        :label="enabledDriveLabel(drive)"
         :radiovalue="drive.id"
         v-model="selectedDrive"
         @change="$emit('change', drive.id)"
@@ -21,7 +21,7 @@
       <k-radio-button
         v-for="drive in disabledDrives"
         :key="drive.id"
-        :label="genDisabledDriveLabel(drive)"
+        :label="disabledDriveLabel(drive)"
         :radiovalue="drive.id"
         :disabled="true"
         v-model="selectedDrive"
@@ -37,6 +37,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
+    name: 'wizardDriveList',
     components: { kRadioButton },
     props: {
       value: {
@@ -69,20 +70,19 @@
       },
     },
     methods: {
-      genEnabledDriveLabel(drive) {
+      enabledDriveLabel(drive) {
         let driveLabel = drive.name;
         if (this.enabledMsg) {
           driveLabel += ` (${this.enabledMsg(drive)})`;
         }
         return driveLabel;
       },
-      genDisabledDriveLabel(drive) {
+      disabledDriveLabel(drive) {
         return `${drive.name} (${this.disabledMsg})`;
       },
     },
-    name: 'wizardDriveList',
     $trs: {
-      drivesFound: 'Drives found:',
+      drivesFound: 'Drives found',
       noDrivesDetected: 'No drives were detected',
     },
   };
