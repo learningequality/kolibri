@@ -23,6 +23,7 @@ from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
+CONTENT_SCHEMA_VERSION = '0.6.0'
 
 class UUIDField(models.CharField):
     """

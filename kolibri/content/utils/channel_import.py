@@ -236,7 +236,8 @@ class NoVersionChannelImport(ChannelImport):
 
 
 mappings = {
-    NO_VERSION: NoVersionChannelImport
+    NO_VERSION: NoVersionChannelImport,
+    '0.6.0': ChannelImport,
 }
 
 
