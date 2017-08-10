@@ -90,6 +90,22 @@ var parseBundlePlugin = function(data, base_dir) {
     ],
   };
 
+  // Calculate these paths here, so that we can export __publicPath as a variable in the webpack define plugin
+  var publicPath, outputPath;
+
+  if (process.env.DEV_SERVER) {
+    var devServerConfig = require('./webpackdevserverconfig');
+    // If running webpack dev server point to that endpoint.
+    publicPath = devServerConfig.publicPath;
+    // Set output path to base dir, as no files will be written - all built files are cached in memory.
+    outputPath = devServerConfig.basePath
+      ? path.resolve(path.join(base_dir, devServerConfig.basePath))
+      : path.resolve(base_dir);
+  } else {
+    publicPath = path.join('/', data.static_url_root, data.name, '/');
+    outputPath = path.join(data.static_dir, data.name);
+  }
+
   bundle.plugins = bundle.plugins.concat([
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
@@ -106,26 +122,13 @@ var parseBundlePlugin = function(data, base_dir) {
       __events: JSON.stringify(data.events || {}),
       __once: JSON.stringify(data.once || {}),
       __version: JSON.stringify(data.version),
+      // This is necessary to allow modules that use service workers to fetch their service worker code
+      __publicPath: JSON.stringify(publicPath),
     }),
     new extract$trs(data.locale_data_folder, data.name),
   ]);
 
   bundle = merge.smart(bundle, local_config);
-
-  var publicPath, outputPath;
-
-  if (process.env.DEV_SERVER) {
-    var devServerConfig = require('./webpackdevserverconfig');
-    // If running webpack dev server point to that endpoint.
-    publicPath = devServerConfig.publicPath;
-    // Set output path to base dir, as no files will be written - all built files are cached in memory.
-    outputPath = devServerConfig.basePath
-      ? path.resolve(path.join(base_dir, devServerConfig.basePath))
-      : path.resolve(base_dir);
-  } else {
-    publicPath = path.join('/', data.static_url_root, data.name, '/');
-    outputPath = path.join(data.static_dir, data.name);
-  }
 
   bundle.core_name = data.core_name;
   bundle.name = data.name;
