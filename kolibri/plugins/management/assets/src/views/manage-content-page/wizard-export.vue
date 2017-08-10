@@ -11,8 +11,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <p>
-            {{ $tr('exportPromptPrefix', { numChannels: allChannels.length }) }}
-            ({{ exportContentSize }})
+            {{ $tr('exportPrompt', { numChannels: allChannels.length, exportSize }) }}
           </p>
           <drive-list
             :value="selectedDrive"
@@ -65,12 +64,12 @@
       available: 'available',
       cancel: 'Cancel',
       export: 'Export',
-      exportPromptPrefix:
-        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}}',
+      exportPrompt:
+        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}} ({exportSize})',
       notWritable: 'Not writable',
       refresh: 'Refresh',
       title: 'Export to where?',
-      waitForTotalSize: 'Calculating total size...',
+      waitForTotalSize: 'Calculating size...',
     },
     components: {
       coreModal,
@@ -86,7 +85,7 @@
       canSubmit() {
         return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
-      exportContentSize() {
+      exportSize() {
         const allChannelsHaveStats = this.allChannels.reduce((flag, channel) => {
           return flag && Boolean(this.channelsWithStats[channel.id]);
         }, true);
