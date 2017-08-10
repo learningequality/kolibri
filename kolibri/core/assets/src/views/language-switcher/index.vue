@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <div class="page-footer">
-      <div class="lang-container">
+    <div v-if="footer" class="page-footer">
+      <div class="lang-container" :style="isMobile ? { width: '40%' } : {}">
         <p class="prompt" v-if="!isMobile">{{ $tr('changeLanguagePrompt') }}</p>
         <p v-for="language in footerLanguageOptions" :class="selectedLanguage.code===language.code ? 'selected' : 'choice'" @click="setAndSwitchLanguage(language)">
           {{ language.name }}
@@ -156,7 +156,6 @@
     padding-bottom: 16px
     .lang-container
       display: inline-block
-      width: 40%
       p
         float: left
         padding-left: 10px
