@@ -4,30 +4,38 @@
     <page-header :title="$tr('pageHeader')">
       <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
-    <content-card-carousel
-      v-if="recommendations.resume.length"
+    <component
+      v-if="trimmedResume.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
-      :contents="recommendations.resume"
+      :contents="trimmedResume"
       :header="$tr('resumeSectionHeader')"
-      :subheader="$tr('resumeSectionSubHeader', {numOfItems: recommendations.resume.length})"/>
-    <content-card-carousel
-      v-if="recommendations.nextSteps.length"
+      :filter="false"
+      :subheader="$tr('resumeSectionSubHeader', {numOfItems: trimmedResume.length})"/>
+    <component
+      v-if="trimmedNextSteps.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
-      :contents="recommendations.nextSteps"
+      :contents="trimmedNextSteps"
       :header="$tr('suggestedNextStepsSectionHeader')"
-      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: recommendations.nextSteps.length})"/>
-    <content-card-carousel
-      v-if="recommendations.popular.length"
+      :filter="false"
+      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: trimmedNextSteps.length})"/>
+    <component
+      v-if="trimmedPopular.length"
+      :is="recommendationDisplay"
       :gen-link="genLink"
-      :contents="recommendations.popular"
+      :contents="trimmedPopular"
       :header="$tr('popularSectionHeader')"
-      :subheader="$tr('popularSectionSubHeader', {numOfItems: recommendations.popular.length})"/>
-    <content-card-carousel
-      v-if="all.content.length"
+      :filter="false"
+      :subheader="$tr('popularSectionSubHeader', {numOfItems: trimmedPopular.length})"/>
+    <component
+      v-if="trimmedOverview.length"
+      :is="recommendationDisplay"
       :showViewAll="true"
       :gen-link="genLink"
       :header="$tr('overviewSectionHeader')"
-      :contents="all.content" />
+      :filter="false"
+      :contents="trimmedOverview" />
   </div>
 
 </template>
@@ -39,8 +47,13 @@
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import pageHeader from '../page-header';
   import contentCardCarousel from '../content-card-carousel';
+  import contentCardGrid from '../content-card-grid';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
+  const mobileCardNumber = 3;
+
   export default {
-    $trNameSpace: 'learnPageIndex',
+    name: 'recommendedPage',
     $trs: {
       pageHeader: 'Recommended',
       popularSectionHeader: 'Most popular',
@@ -51,9 +64,46 @@
       resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
       overviewSectionHeader: 'Overview',
     },
+    mixins: [responsiveWindow],
     components: {
       pageHeader,
       contentCardCarousel,
+      contentCardGrid,
+    },
+    computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 2;
+      },
+      recommendationDisplay() {
+        if (this.isMobile) {
+          return contentCardGrid;
+        }
+        return contentCardCarousel;
+      },
+      trimmedResume() {
+        if (this.isMobile) {
+          return this.recommendations.resume.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.resume;
+      },
+      trimmedNextSteps() {
+        if (this.isMobile) {
+          return this.recommendations.nextSteps.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.nextSteps;
+      },
+      trimmedPopular() {
+        if (this.isMobile) {
+          return this.recommendations.popular.slice(0, mobileCardNumber);
+        }
+        return this.recommendations.popular;
+      },
+      trimmedOverview() {
+        if (this.isMobile) {
+          return this.all.content.slice(0, mobileCardNumber);
+        }
+        return this.all.content;
+      },
     },
     methods: {
       genLink(id, kind) {
