@@ -83,6 +83,7 @@
         if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
           // Change values are numeric, so we should assume it is a change in scale
           this.cancelRender();
+          this.setPageDimensions();
         }
         if (this.pdfPage && this.active) {
           if (!this.renderTask && !this.rendered) {
