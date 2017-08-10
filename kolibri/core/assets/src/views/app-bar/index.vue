@@ -34,7 +34,7 @@
           @select="optionSelected"
         />
       </ui-button>
-      <language-switcher v-if="showLanguageModal" @close="showLanguageModal=false"/>
+      <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
     </div>
   </ui-toolbar>
 
