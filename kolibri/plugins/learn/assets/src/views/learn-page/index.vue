@@ -84,7 +84,7 @@
         if (this.isMobile) {
           return this.recommendations.resume.slice(0, mobileCardNumber);
         }
-        return this.recommendations.resume.slice(0, mobileCardNumber);
+        return this.recommendations.resume;
       },
       trimmedNextSteps() {
         if (this.isMobile) {
