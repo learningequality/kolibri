@@ -82,8 +82,8 @@
   const gutterWidth = 20;
 
   export default {
-    mixins: [responsiveElement],
     name: 'contentCardCarousel',
+    mixins: [responsiveElement],
     $trs: { viewAllButtonLabel: 'View all' },
     props: {
       contents: {
