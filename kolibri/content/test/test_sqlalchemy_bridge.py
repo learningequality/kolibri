@@ -7,38 +7,67 @@ from sqlalchemy.engine import Engine
 
 from mock import patch, MagicMock, Mock, call
 
+@patch('kolibri.content.utils.sqlalchemybridge.get_base', return_value={})
+@patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
+@patch('kolibri.content.utils.sqlalchemybridge.sqlite_connection_string', return_value='test')
 class SQLAlchemyBridgeClassTestCase(TestCase):
     """
     Testcase for the bridge to SQL Alchemy for Django models
     """
 
-    @patch('kolibri.content.utils.sqlalchemybridge.get_base', return_value={})
-    @patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
-    @patch('kolibri.content.utils.sqlalchemybridge.sqlite_connection_string', return_value='test')
     def test_constructor_sqlite_file_path(self, connection_string_mock, make_session_mock, get_base_mock):
         Bridge(sqlite_file_path='test')
         connection_string_mock.assert_called_once_with('test')
 
-    @patch('kolibri.content.utils.sqlalchemybridge.get_base', return_value={})
-    @patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
     @patch('kolibri.content.utils.sqlalchemybridge.get_default_db_string', return_value='test')
-    def test_constructor_default_db_path(self, default_db_string_mock, make_session_mock, get_base_mock):
+    def test_constructor_default_db_path(self, default_db_string_mock, connection_string_mock, make_session_mock, get_base_mock):
         Bridge()
         default_db_string_mock.assert_called_once_with()
 
-    @patch('kolibri.content.utils.sqlalchemybridge.get_base', return_value={})
-    @patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
-    @patch('kolibri.content.utils.sqlalchemybridge.sqlite_connection_string', return_value='test')
     def test_constructor_make_session(self, connection_string_mock, make_session_mock, get_base_mock):
         Bridge(sqlite_file_path='test')
         make_session_mock.assert_called_once_with('test')
 
-    @patch('kolibri.content.utils.sqlalchemybridge.get_base', return_value={})
-    @patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
-    @patch('kolibri.content.utils.sqlalchemybridge.sqlite_connection_string', return_value='test')
     def test_constructor_get_base(self, connection_string_mock, make_session_mock, get_base_mock):
         Bridge(sqlite_file_path='test')
         get_base_mock.assert_called_once_with('test', 0, app_name=None)
+
+    @patch('kolibri.content.utils.sqlalchemybridge.get_class')
+    def test_instance_get_class(self, get_class_mock, connection_string_mock, make_session_mock, get_base_mock):
+        bridge = Bridge(sqlite_file_path='test')
+        model = MagicMock()
+        bridge.get_class(model)
+        get_class_mock.assert_called_once_with(model, bridge.Base)
+
+    @patch('kolibri.content.utils.sqlalchemybridge.get_class')
+    def test_instance_get_table(self, get_class_mock, connection_string_mock, make_session_mock, get_base_mock):
+        bridge = Bridge(sqlite_file_path='test')
+        model = MagicMock()
+        class_mock = MagicMock()
+        table = 'test_table'
+        class_mock.__table__ = table
+        get_class_mock.return_value = class_mock
+        self.assertEqual(bridge.get_table(model), table)
+
+    def test_instance_get_connection(self, connection_string_mock, make_session_mock, get_base_mock):
+        engine_mock = MagicMock()
+        make_session_mock.return_value = (0, engine_mock)
+        connection = 'connection'
+        engine_mock.connect.return_value = connection
+        bridge = Bridge(sqlite_file_path='test')
+        bridge.get_connection()
+        engine_mock.connect.assert_called_once_with()
+        self.assertIn(connection, bridge.connections)
+
+    def test_instance_end(self, connection_string_mock, make_session_mock, get_base_mock):
+        session_mock = MagicMock()
+        make_session_mock.return_value = (session_mock, 0)
+        connection = MagicMock()
+        bridge = Bridge(sqlite_file_path='test')
+        bridge.connections = [connection]
+        bridge.end()
+        session_mock.close.assert_called_once_with()
+        connection.close.assert_called_once_with()
 
 class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
 
