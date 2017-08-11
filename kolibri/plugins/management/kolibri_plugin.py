@@ -28,3 +28,12 @@ class ManagementInclusionHook(hooks.ManagementSyncHook):
 class ManagementNavItem(UserNavigationHook):
     label = _("Facility")
     url = '#'
+
+
+class DeviceManagementAsset(webpack_hooks.WebpackBundleHook):
+    unique_slug = "device_management_module"
+    src_file = "assets/src/deviceApp.js"
+
+
+class DeviceManagementInclusionHook(hooks.DeviceManagementSyncHook):
+    bundle_class = DeviceManagementAsset

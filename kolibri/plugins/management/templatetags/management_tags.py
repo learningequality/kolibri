@@ -35,4 +35,4 @@ def management_assets():
 
 @register.simple_tag()
 def device_management_assets():
-    return webpack_asset_render(hooks.ManagementSyncHook, async=False)
+    return webpack_asset_render(hooks.DeviceManagementSyncHook, async=False)
