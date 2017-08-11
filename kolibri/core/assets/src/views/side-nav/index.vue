@@ -69,7 +69,7 @@
     $trs: {
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
-      manage: 'Manage',
+      facility: 'Facility',
       coach: 'Coach',
       signIn: 'Sign in',
       profile: 'Profile',
@@ -169,9 +169,9 @@
         }
         if (this.isAdmin || this.isSuperuser) {
           options.push({
-            label: this.$tr('manage'),
+            label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            icon: 'people',
+            icon: 'settings_input_antenna',
             href: '/management',
           });
         }

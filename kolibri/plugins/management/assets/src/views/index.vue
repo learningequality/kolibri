@@ -1,6 +1,6 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('managementTitle')">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('facilityTitle')">
 
     <div v-if="isAdmin || isSuperuser">
       <div class="manage-content">
@@ -42,7 +42,7 @@
   import topNav from './top-nav';
   import userPage from './user-page';
   export default {
-    $trs: { managementTitle: 'Manage' },
+    $trs: { facilityTitle: 'Facility' },
     name: 'managementRoot',
     components: {
       authMessage,
