@@ -29,6 +29,16 @@ merge_models = [
 ]
 
 class ChannelImport(object):
+    """
+    The ChannelImport class has two functions:
+
+    1) it acts as the default import pattern for importing content databases that have naively compatible version
+    with the current version of Kolibri (i.e. no explicit mappings are required to bring data from the content db
+    into the main db, as there is a one to one correspondence in table names and column names within tables).
+
+    2) It is also the base class for any more complex import that requires explicit schema mappings from one version
+    to another.
+    """
 
     # Specific instructions and exceptions for importing table from previous versions of Kolibri
     # The value for a particular key can either be a function, which will be invoked on the context
@@ -38,14 +48,10 @@ class ChannelImport(object):
     # and 'per_table' mapping an entire table at a time. Both can be used simultaneously.
     schema_mapping = {}
 
-    def __init__(self, channel_id, source=None):
+    def __init__(self, channel_id):
         self.channel_id = channel_id
-        self.destination = Bridge()
-        # Reuse an existing source session and engine if possible
-        if not source:
-            source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
 
-        self.source = source
+        self.source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
 
         self.destination = Bridge(app_name=CONTENT_APP_NAME)
 
@@ -59,15 +65,20 @@ class ChannelImport(object):
         # Get the next available tree_id in our database
         self.tree_id = self.find_unique_tree_id()
 
-    def find_unique_tree_id(self):
+    def get_all_destination_tree_ids(self):
         ContentNodeRecord = self.destination.get_class(ContentNode)
-        tree_ids = sorted(map(lambda x: x[0], self.destination.session.query(
+        return sorted(map(lambda x: x[0], self.destination.session.query(
             ContentNodeRecord.tree_id).distinct().all()))
+
+    def find_unique_tree_id(self):
+        tree_ids = self.get_all_destination_tree_ids()
         # If there are no pre-existing tree_ids just escape here and return 1
         if not tree_ids:
             return 1
         if len(tree_ids) == 1:
-            return tree_ids[0] + 1
+            if tree_ids[0] == 1:
+                return 2
+            return 1
 
         # Do a binary search to find the lowest unused tree_id
         def find_hole_in_list(ids):
@@ -179,6 +190,11 @@ class ChannelImport(object):
 
 
 class NoVersionChannelImport(ChannelImport):
+    """
+    Class defining the schema mapping for importing old content databases (i.e. ones produced before the
+    ChannelImport machinery was implemented). The schema mapping below defines how to bring in information
+    from the old version of the Kolibri content databases into the database for the current version of Kolibri.
+    """
 
     schema_mapping = {
         ContentNode: {
