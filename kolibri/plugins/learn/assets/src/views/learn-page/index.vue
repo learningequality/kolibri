@@ -10,6 +10,7 @@
       <component
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
+        :filter="false"
         :contents="trimmedPopular"/>
     </template>
 
@@ -21,6 +22,7 @@
       <component
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
+        :filter="false"
         :contents="trimmedNextSteps"/>
     </template>
 
@@ -32,6 +34,7 @@
       <component
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
+        :filter="false"
         :contents="trimmedResume"/>
     </template>
 
@@ -39,11 +42,11 @@
       <content-card-group-header
         :header="$tr('overviewSectionHeader')"
         :view-more-page-link="overviewPageLink"
-        :show-view-more="true"/>
         :show-view-more="overview.length > trimmedOverview.length"/>
       <component
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
+        :filter="false"
         :contents="trimmedOverview"/>
     </template>
 
@@ -88,7 +91,7 @@
         return contentCardGroupCarousel;
       },
       carouselLimit() {
-        return this.mobile ? mobileCarouselLimit : desktopCarouselLimit;
+        return this.isMobile ? mobileCarouselLimit : desktopCarouselLimit;
       },
       popularPageLink() {
         return {

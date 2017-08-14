@@ -1,11 +1,13 @@
 <template>
 
-  <content-card-group-grid
-    :contents="recommendations"
-    :gen-content-link="genContentLink"
-    :header="header"
-    :subheader="$tr('pageSubheader', {numOfItems: recommendations.length})"/>
-    <!-- TODO make header dynamic -->
+  <div>
+    <content-card-group-header
+      :header="header"/>
+
+    <content-card-group-grid
+      :contents="recommendations"
+      :gen-content-link="genContentLink" />
+  </div>
 
 </template>
 
@@ -14,18 +16,19 @@
 
   import { PageNames } from '../../constants';
   import contentCardGroupGrid from '../content-card-group-grid';
+  import contentCardGroupHeader from '../content-card-group-header';
 
   export default {
     $trNameSpace: 'recommendedSubpage',
     $trs: {
-      popularPageHeader: 'Popular',
+      popularPageHeader: 'Most Popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
       overviewPageHeader: 'Overview',
-      pageSubheader: '{numOfItems, number} items',
     },
     components: {
       contentCardGroupGrid,
+      contentCardGroupHeader,
     },
     computed: {
       header() {
