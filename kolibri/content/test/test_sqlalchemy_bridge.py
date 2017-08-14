@@ -61,7 +61,8 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
 
     def test_instance_end(self, connection_string_mock, make_session_mock, get_base_mock):
         session_mock = MagicMock()
-        make_session_mock.return_value = (session_mock, 0)
+        engine_mock = MagicMock()
+        make_session_mock.return_value = (session_mock, engine_mock)
         connection = MagicMock()
         bridge = Bridge(sqlite_file_path='test')
         bridge.connections = [connection]

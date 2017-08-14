@@ -31,16 +31,6 @@ class SharingPool(NullPool):
     def _close_connection(self, connection):
         pass
 
-    def recreate(self):
-        return self.__class__(self._creator,
-                              recycle=self._recycle,
-                              echo=self.echo,
-                              logging_name=self._orig_logging_name,
-                              use_threadlocal=self._use_threadlocal,
-                              reset_on_return=False,
-                              _dispatch=self.dispatch,
-                              _dialect=self._dialect)
-
     def dispose(self):
         pass
 
