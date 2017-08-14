@@ -119,3 +119,8 @@ class Bridge(object):
         self.session.close()
         for connection in self.connections:
             connection.close()
+        self.engine.dispose()
+        for key, engine in ENGINES_CACHES.items():
+            if engine == self.engine:
+                ENGINES_CACHES.pop(key)
+                break

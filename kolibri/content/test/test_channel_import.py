@@ -402,6 +402,11 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         call_command('flush', interactive=False)
         super(NaiveImportTestCase, self).tearDown()
 
+    @classmethod
+    def tearDownClass(cls):
+        django_connection_engine().dispose()
+        super(NaiveImportTestCase, cls).tearDownClass()
+
 
 class NoVersionImportTestCase(NaiveImportTestCase):
     """
