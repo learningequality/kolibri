@@ -2,14 +2,11 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
-import os
-import shutil
 import tempfile
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from kolibri.content import models as content
-from django.conf import settings
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
@@ -19,38 +16,10 @@ from kolibri.logger.models import ContentSummaryLog
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
-class ContentNodeTestCase(TestCase):
+class ContentNodeTestBase(object):
     """
-    Testcase for content metadata methods
+    Basecase for content metadata methods
     """
-    fixtures = ['content_test.json']
-    the_channel_id = '6199dde695db4ee4ab392222d5af1e5c'
-
-    def setUp(self):
-
-        provision_device()
-
-        # Create a temporary directory
-        self.test_dir = tempfile.mkdtemp()
-        # Create files in the temporary directory
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'wb')
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'wb')
-        # Write something to it
-        self.temp_f_1.write(('The owls are not what they seem').encode('utf-8'))
-        self.temp_f_2.write(('The owl are not what they seem').encode('utf-8'))
-
-        # Reopen the file and check if what we read back is the same
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'))
-        self.assertEqual(self.temp_f_1.read(), 'The owls are not what they seem')
-        self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
-
-    """Tests for content API methods"""
-
     def test_get_prerequisites_for(self):
         """
         test the directional characteristic of prerequisite relationship
@@ -125,17 +94,29 @@ class ContentNodeTestCase(TestCase):
         p = content.ChannelMetadata.objects.get(name="testing")
         self.assertEqual(str(p), 'testing')
 
-    def tearDown(self):
-        """
-        clean up files/folders created during the test
-        """
-        try:
-            shutil.rmtree(settings.CONTENT_COPY_DIR)
-            shutil.rmtree(self.test_dir)
-        except:
-            pass
-        super(ContentNodeTestCase, self).tearDown()
+    def test_tags(self):
+        root_tag_count = content.ContentNode.objects.get(title='root').tags.count()
+        self.assertEqual(root_tag_count, 3)
 
+        c1_tag_count = content.ContentNode.objects.get(title='c1').tags.count()
+        self.assertEqual(c1_tag_count, 1)
+
+        c2_tag_count = content.ContentNode.objects.get(title='c2').tags.count()
+        self.assertEqual(c2_tag_count, 1)
+
+        c2c1_tag_count = content.ContentNode.objects.get(title='c2c1').tags.count()
+        self.assertEqual(c2c1_tag_count, 0)
+
+    def test_local_files(self):
+        self.assertTrue(content.LocalFile.objects.filter(id='9f9438fe6b0d42dd8e913d7d04cfb2b2').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='725257a0570044acbd59f8cf6a68b2be').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='e00699f859624e0f875ac6fe1e13d648').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='4c30dc7619f74f97ae2ccd4fffd09bf2').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='8ad3fffedf144cba9492e16daec1e39a').exists())
+
+
+class ContentNodeTestCase(ContentNodeTestBase, TestCase):
+    fixtures = ['content_test.json']
 
 @override_settings(
     CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,

@@ -1,8 +1,22 @@
-from django.test import TestCase
+import json
+import os
+import pickle
 
-from kolibri.content.utils.channel_import import ChannelImport
+from django.apps import apps
+from django.core.management import call_command
+from django.test import TestCase, TransactionTestCase
+
+from kolibri.content.utils.channel_import import ChannelImport, NO_VERSION, mappings
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string, clear_cache
 
 from mock import patch, MagicMock, Mock, call
+
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.pool import NullPool
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import sessionmaker
+
+from .test_content_app import ContentNodeTestBase
 
 @patch('kolibri.content.utils.channel_import.Bridge')
 @patch('kolibri.content.utils.channel_import.ChannelImport.find_unique_tree_id')
@@ -275,3 +289,167 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             call.session.query(class_mock),
             call.session.query().all()
         ])
+
+# get_conn and SharingPool code modified from:
+# http://nathansnoggin.blogspot.com/2013/11/integrating-sqlalchemy-into-django.html
+
+# custom connection factory, so we can share with django
+def get_conn(self):
+    from django.db import connections
+    conn = connections['default']
+    return conn.connection
+
+# custom connection pool that doesn't close connections, and uses our
+# custom connection factory
+class SharingPool(NullPool):
+    def __init__(self, get_connection, **kwargs):
+        kwargs['reset_on_return'] = False
+        super(SharingPool, self).__init__(get_conn, **kwargs)
+
+    def status(self):
+        return 'Sharing Pool'
+
+    def _do_return_conn(self, conn):
+        pass
+
+    def _do_get(self):
+        return self._create_connection()
+
+    def _close_connection(self, connection):
+        pass
+
+    def recreate(self):
+        return self.__class__(self._creator,
+                              recycle=self._recycle,
+                              echo=self.echo,
+                              logging_name=self._orig_logging_name,
+                              use_threadlocal=self._use_threadlocal,
+                              reset_on_return=False,
+                              _dispatch=self.dispatch,
+                              _dialect=self._dialect)
+
+    def dispose(self):
+        pass
+
+
+SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
+
+DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_data.json')
+
+class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
+    """
+    Integration test for naive import - this is run using a TransactionTestCase,
+    as by default, Django runs each test inside an atomic context in order to easily roll back
+    any changes to the DB. However, as we are setting things in the Django DB using SQLAlchemy
+    these changes are not caught by this atomic context, and data will persist across tests.
+    In order to deal with this, we call an explicit db flush at the end of every test case,
+    both this flush and the SQLAlchemy insertions can cause issues with the atomic context used
+    by Django.
+    """
+
+    content_fixture = 'content_test.json'
+
+    # When incrementing content schema versions, this should be incremented to the new version
+    # A new TestCase for importing for this old version should then be subclassed from this TestCase
+    # See 'NoVersionImportTestCase' below for an example
+    name = '0.6.0'
+
+    def setUp(self):
+        try:
+            self.set_content_fixture()
+        except (IOError, EOFError):
+            self.create_content_fixture()
+            self.set_content_fixture()
+
+        super(NaiveImportTestCase, self).setUp()
+
+    def return_django_connection_engine(self):
+        return create_engine(get_default_db_string(), poolclass=SharingPool, convert_unicode=True)
+
+    def create_content_fixture(self):
+
+        # This is a utility for creating the fixtures that we use in later testing.
+        # It should not get called during ordinary test runs, but will happen the first time
+        # a new schema version is created and run.
+        #
+        # When a new content schema version is created, this test suite must be run and the resulting
+        # fixtures committed to the codebase.
+
+        engine = self.return_django_connection_engine()
+
+        metadata = MetaData()
+
+        app_config = apps.get_app_config('content')
+        table_names = [model._meta.db_table for model in app_config.models.values()]
+        metadata.reflect(engine, only=table_names)
+        Base = automap_base(metadata=metadata)
+        # TODO map relationship backreferences using the django names
+        Base.prepare()
+        session = sessionmaker(bind=engine, autoflush=False)()
+
+        # Load fixture data into the test database with Django
+        call_command('loaddata', self.content_fixture, interactive=False)
+
+        def get_dict(item):
+            value = {key: value for key, value in item.__dict__.items() if key != '_sa_instance_state'}
+            return value
+
+        data = {}
+
+        for table_name, record in Base.classes.items():
+            data[table_name] = [get_dict(r) for r in session.query(record).all()]
+
+        with open(SCHEMA_PATH_TEMPLATE.format(name=self.name), 'wb') as f:
+            pickle.dump(metadata, f)
+
+        with open(DATA_PATH_TEMPLATE.format(name=self.name), 'w') as f:
+            json.dump(data, f)
+
+        call_command('flush', interactive=False)
+
+    def set_content_fixture(self):
+        self.content_engine = create_engine('sqlite:///:memory:', convert_unicode=True)
+
+        with open(SCHEMA_PATH_TEMPLATE.format(name=self.name), 'rb') as f:
+            metadata = pickle.load(f)
+
+        with open(DATA_PATH_TEMPLATE.format(name=self.name), 'r') as f:
+            data = json.load(f)
+
+        metadata.bind = self.content_engine
+
+        metadata.create_all()
+
+        conn = self.content_engine.connect()
+
+        # Write data for each fixture into the table
+        for table in metadata.sorted_tables:
+            conn.execute(table.insert(), data[table.name])
+
+        conn.close()
+
+        with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=self.get_engine):
+
+            channel_import = mappings[self.name]('6199dde695db4ee4ab392222d5af1e5c')
+
+            channel_import.import_channel_data()
+
+            channel_import.end()
+
+    def get_engine(self, connection_string):
+        if connection_string == get_default_db_string():
+            return self.return_django_connection_engine()
+        return self.content_engine
+
+    def tearDown(self):
+        clear_cache()
+        call_command('flush', interactive=False)
+        super(NaiveImportTestCase, self).tearDown()
+
+
+class NoVersionImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = NO_VERSION

@@ -9,6 +9,13 @@ from sqlalchemy.orm import sessionmaker
 ENGINES_CACHES = {}
 BASE_CLASSES_CACHE = {}
 
+def clear_cache():
+    global ENGINES_CACHES
+    global BASE_CLASSES_CACHE
+
+    ENGINES_CACHES = {}
+    BASE_CLASSES_CACHE = {}
+
 class ClassNotFoundError(Exception):
     pass
 
