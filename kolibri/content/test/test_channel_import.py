@@ -356,7 +356,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
             data[table_name] = [get_dict(r) for r in session.query(record).all()]
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=self.name), 'wb') as f:
-            pickle.dump(metadata, f)
+            pickle.dump(metadata, f, protocol=2)
 
         with open(DATA_PATH_TEMPLATE.format(name=self.name), 'w') as f:
             json.dump(data, f)
