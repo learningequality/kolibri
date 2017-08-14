@@ -1,38 +1,52 @@
 <template>
 
   <div>
-    <component
-      :is="recommendationDisplay"
-      v-if="popular.length"
-      :show-view-more="popular.length > trimmedPopular.length"
-      :view-more-page-link="popularPageLink"
-      :gen-content-link="genContentLink"
-      :contents="trimmedPopular"
-      :header="$tr('popularSectionHeader')"
-    <component
-      :is="recommendationDisplay"
-      v-if="nextSteps.length"
-      :show-view-more="nextSteps.length > trimmedNextSteps.length"
-      :view-more-page-link="nextStepsPageLink"
-      :gen-content-link="genContentLink"
-      :contents="trimmedNextSteps"
-      :header="$tr('suggestedNextStepsSectionHeader')"
-    <component
-      :is="recommendationDisplay"
-      v-if="resume.length"
-      :show-view-more="resume.length > trimmedResume.length"
-      :view-more-page-link="resumePageLink"
-      :gen-content-link="genContentLink"
-      :contents="trimmedResume"
-      :header="$tr('resumeSectionHeader')"
-    <component
-      :is="recommendationDisplay"
-      v-if="overview.length"
-      :show-view-more="overview.length > trimmedOverview.length"
-      :view-more-page-link="overviewPageLink"
-      :gen-content-link="genContentLink"
-      :header="$tr('overviewSectionHeader')"
-      :contents="trimmedOverview"
+
+    <template v-if="popular.length">
+      <content-card-group-header
+        :header="$tr('popularSectionHeader')"
+        :view-more-page-link="popularPageLink"
+        :show-view-more="popular.length > trimmedPopular.length"/>
+      <component
+        :is="recommendationDisplay"
+        :gen-content-link="genContentLink"
+        :contents="trimmedPopular"/>
+    </template>
+
+    <template v-if="nextSteps.length">
+      <content-card-group-header
+        :header="$tr('suggestedNextStepsSectionHeader')"
+        :view-more-page-link="nextStepsPageLink"
+        :show-view-more="nextSteps.length > trimmedNextSteps.length"/>
+      <component
+        :is="recommendationDisplay"
+        :gen-content-link="genContentLink"
+        :contents="trimmedNextSteps"/>
+    </template>
+
+    <template v-if="resume.length">
+      <content-card-group-header
+        :header="$tr('resumeSectionHeader')"
+        :view-more-page-link="resumePageLink"
+        :show-view-more="resume.length > trimmedResume.length"/>
+      <component
+        :is="recommendationDisplay"
+        :gen-content-link="genContentLink"
+        :contents="trimmedResume"/>
+    </template>
+
+    <template v-if="overview.length">
+      <content-card-group-header
+        :header="$tr('overviewSectionHeader')"
+        :view-more-page-link="overviewPageLink"
+        :show-view-more="true"/>
+        :show-view-more="overview.length > trimmedOverview.length"/>
+      <component
+        :is="recommendationDisplay"
+        :gen-content-link="genContentLink"
+        :contents="trimmedOverview"/>
+    </template>
+
   </div>
 
 </template>
@@ -41,8 +55,9 @@
 <script>
 
   import { PageNames } from '../../constants';
-  import contentCardCarousel from '../content-card-carousel';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
   import contentCardGroupGrid from '../content-card-group-grid';
+  import contentCardGroupHeader from '../content-card-group-header';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   const mobileCarouselLimit = 3;
@@ -58,8 +73,9 @@
     },
     mixins: [responsiveWindow],
     components: {
-      contentCardCarousel,
+      contentCardGroupCarousel,
       contentCardGroupGrid,
+      contentCardGroupHeader,
     },
     computed: {
       isMobile() {
@@ -69,7 +85,7 @@
         if (this.isMobile) {
           return contentCardGroupGrid;
         }
-        return contentCardCarousel;
+        return contentCardGroupCarousel;
       },
       carouselLimit() {
         return this.mobile ? mobileCarouselLimit : desktopCarouselLimit;
@@ -99,28 +115,16 @@
         };
       },
       trimmedPopular() {
-        if (this.needsTrim(this.popular.length)) {
-          return this.popular.slice(0, this.carouselLimit);
-        }
-        return this.popular;
+        return this.popular.slice(0, this.carouselLimit);
       },
       trimmedNextSteps() {
-        if (this.needsTrim(this.nextSteps.length)) {
-          return this.nextSteps.slice(0, this.carouselLimit);
-        }
-        return this.nextSteps;
+        return this.nextSteps.slice(0, this.carouselLimit);
       },
       trimmedResume() {
-        if (this.needsTrim(this.resume.length)) {
-          return this.resume.slice(0, this.carouselLimit);
-        }
-        return this.resume;
+        return this.resume.slice(0, this.carouselLimit);
       },
       trimmedOverview() {
-        if (this.needsTrim(this.overview.length)) {
-          return this.overview.slice(0, this.carouselLimit);
-        }
-        return this.overview;
+        return this.overview.slice(0, this.carouselLimit);
       },
     },
     methods: {

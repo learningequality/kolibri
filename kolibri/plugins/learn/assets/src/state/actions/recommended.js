@@ -146,7 +146,7 @@ function showResumePage(store, channelId) {
     setChannelInfo(store, channelId),
   ]).then(([resume]) => uniqBy(resume, 'content_id').map(contentState), error => error);
 
-  pagePrep(channelId, state).then(
+  pagePrep.then(
     resumeContent => {
       const resumePageState = {
         recommendations: resumeContent,

@@ -73,7 +73,7 @@
 
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
-    <content-card-carousel
+    <content-card-group-carousel
       v-if="showRecommended"
       :gen-content-link="genContentLink"
       :header="recommendedText"
@@ -112,7 +112,7 @@
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
-  import contentCardCarousel from '../content-card-carousel';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -182,7 +182,7 @@
     },
     components: {
       pageHeader,
-      contentCardCarousel,
+      contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
       kButton,

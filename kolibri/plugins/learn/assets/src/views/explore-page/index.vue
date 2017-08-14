@@ -47,8 +47,8 @@
       },
     },
     methods: {
-      genContentLink(node) {
-        if (node.kind === ContentNodeKinds.TOPIC) {
+      genContentLink(id, kind) {
+        if (kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: { channel_id: this.channelId, id },

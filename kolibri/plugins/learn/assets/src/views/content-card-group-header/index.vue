@@ -5,11 +5,9 @@
     <!-- linking the entire details section to a "view more" page -->
     <router-link v-if="showViewMore" :to="viewMorePageLink">
       <div class="card-group-details">
-        <header v-if="header" >
-          <h1 class="card-group-details-header">
-            {{ header }}
-          </h1>
-        </header>
+        <h2 v-if="header" class="card-group-details-header">
+          {{ header }}
+        </h2>
         <span class="card-group-details-view-more">
           {{ $tr('viewMoreFromSectionButton') }}
         </span>
@@ -17,15 +15,15 @@
     </router-link>
 
     <!-- relying on vue to not have to re-render all of this -->
-    <header class="card-group-details">
-      <h1 v-if="header" class="card-group-details-header">
+    <header v-else class="card-group-details">
+      <h2 v-if="header" class="card-group-details-header">
         {{header}}
-      </h1>
+      </h2>
     </header>
 
-  </template>
+  </div>
 
-</div>
+</template>
 
 
 <script>
@@ -33,9 +31,8 @@
   export default {
     name: 'contentCardGroupHeader',
     $trs: {
-      viewMoreFromSectionButton: 'View more'
-    }
-    components: { progressIcon },
+      viewMoreFromSectionButton: 'View more',
+    },
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },
@@ -48,37 +45,29 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
+  $header-size = 24px
+
   .card-group-details
-    // vertical-align: bottom
-    // text-align: justify
     width: 100%
-    clearfix()
-    position: relative
-    margin-bottom: 1em
+    vertical-align: bottom
+    margin-top: $header-size
+    margin-bottom: ($header-size / 2)
+
+    &-header, &-view-more
+      width: 50%
+      display: inline-block
 
     &-header
-      float: left
-      text-decoration: none
+      text-align: left
+      clear: none
       color: $core-text-default
+      font-size: $header-size
+      margin: 0
 
     &-view-more
-      position: absolute
-      right: 0
-      bottom: 0
-
-    &-link-icon
-      // puts drops the center angle of the arrow to about the level of text's midline
-      transform: translateY(30%)
-      display: inline
-
-      ../-header &
-        $header-size = 1.5em
-        height: $header-size
-        width: $header-size
-      ../-view-more &
-        $view-more-size = 1.3em
-        height: $view-more-size
-        width: $view-more-size
-
+      text-decoration: underline
+      text-align: right
 
 </style>
