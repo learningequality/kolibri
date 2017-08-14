@@ -2,19 +2,14 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
-import tempfile
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from kolibri.content import models as content
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
-
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
-CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 
 class ContentNodeTestBase(object):
     """
@@ -118,10 +113,6 @@ class ContentNodeTestBase(object):
 class ContentNodeTestCase(ContentNodeTestBase, TestCase):
     fixtures = ['content_test.json']
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
 class ContentNodeAPITestCase(APITestCase):
     """
     Testcase for content API methods

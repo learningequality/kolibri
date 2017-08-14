@@ -12,10 +12,10 @@ from kolibri.content.utils.sqlalchemybridge import get_default_db_string, clear_
 from mock import patch, MagicMock, Mock, call
 
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
+from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 
 @patch('kolibri.content.utils.channel_import.Bridge')
@@ -290,47 +290,6 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             call.session.query().all()
         ])
 
-# get_conn and SharingPool code modified from:
-# http://nathansnoggin.blogspot.com/2013/11/integrating-sqlalchemy-into-django.html
-
-# custom connection factory, so we can share with django
-def get_conn(self):
-    from django.db import connections
-    conn = connections['default']
-    return conn.connection
-
-# custom connection pool that doesn't close connections, and uses our
-# custom connection factory
-class SharingPool(NullPool):
-    def __init__(self, get_connection, **kwargs):
-        kwargs['reset_on_return'] = False
-        super(SharingPool, self).__init__(get_conn, **kwargs)
-
-    def status(self):
-        return 'Sharing Pool'
-
-    def _do_return_conn(self, conn):
-        pass
-
-    def _do_get(self):
-        return self._create_connection()
-
-    def _close_connection(self, connection):
-        pass
-
-    def recreate(self):
-        return self.__class__(self._creator,
-                              recycle=self._recycle,
-                              echo=self.echo,
-                              logging_name=self._orig_logging_name,
-                              use_threadlocal=self._use_threadlocal,
-                              reset_on_return=False,
-                              _dispatch=self.dispatch,
-                              _dialect=self._dialect)
-
-    def dispose(self):
-        pass
-
 
 SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
 
@@ -363,9 +322,6 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
         super(NaiveImportTestCase, self).setUp()
 
-    def return_django_connection_engine(self):
-        return create_engine(get_default_db_string(), poolclass=SharingPool, convert_unicode=True)
-
     def create_content_fixture(self):
 
         # This is a utility for creating the fixtures that we use in later testing.
@@ -375,7 +331,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         # When a new content schema version is created, this test suite must be run and the resulting
         # fixtures committed to the codebase.
 
-        engine = self.return_django_connection_engine()
+        engine = django_connection_engine()
 
         metadata = MetaData()
 
@@ -438,7 +394,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
     def get_engine(self, connection_string):
         if connection_string == get_default_db_string():
-            return self.return_django_connection_engine()
+            return django_connection_engine()
         return self.content_engine
 
     def tearDown(self):

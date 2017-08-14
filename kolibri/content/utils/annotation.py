@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
+from le_utils.constants import content_kinds
 from sqlalchemy import and_, select
 
 from .channels import get_channel_ids_for_content_database_dir
@@ -58,6 +59,10 @@ def set_leaf_node_availability_from_local_file_availability():
 
     connection.execute(ContentNodeTable.update().where(
         ContentNodeTable.c.id.in_(contentnode_statement)).values(available=True).execution_options(autocommit=True))
+
+    connection.execute(ContentNodeTable.update().where(
+        ContentNodeTable.c.id.notin_(contentnode_statement)).where(
+        ContentNodeTable.c.kind != content_kinds.TOPIC).values(available=False).execution_options(autocommit=True))
 
     bridge.end()
 
@@ -145,7 +150,14 @@ def recurse_availability_up_tree():
             )
         )
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
+        # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
-            ContentNodeTable.c.id.in_(select_parents_of_available)).values(available=True).execution_options(autocommit=True))
+            ContentNodeTable.c.id.in_(select_parents_of_available)).where(
+            ContentNodeTable.c.level == level - 1).where(
+            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=True).execution_options(autocommit=True))
+        connection.execute(ContentNodeTable.update().where(
+            ContentNodeTable.c.id.notin_(select_parents_of_available)).where(
+            ContentNodeTable.c.level == level - 1).where(
+            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=False).execution_options(autocommit=True))
 
     bridge.end()
