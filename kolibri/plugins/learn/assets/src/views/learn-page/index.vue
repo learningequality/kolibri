@@ -40,7 +40,7 @@
 
     <template v-if="featured.length">
       <content-card-group-header
-        :header="$tr('featuredSectionHeader')"
+        :header="$tr('featuredSectionHeader', { channelTitle })"
         :view-more-page-link="featuredPageLink"
         :show-view-more="featured.length > trimmedFeatured.length"/>
       <component
@@ -72,7 +72,7 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      featuredSectionHeader: 'Featured',
+      featuredSectionHeader: 'Featured in { channelTitle }',
     },
     mixins: [responsiveWindow],
     components: {
@@ -141,6 +141,7 @@
     vuex: {
       getters: {
         channelId: state => state.pageState.channelId,
+        channelTitle: state => state.pageState.channelTitle,
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,

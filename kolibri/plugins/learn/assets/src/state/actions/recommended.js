@@ -65,23 +65,8 @@ function _mapContentSet(contentSet) {
   return uniqBy(contentSet, 'content_id').map(contentState);
 }
 
-function _showRecommendedSubpage(store, channelId, getContentPromise, pageName) {
+function _showRecSubpage(store, channelId, getContentPromise, pageName, windowTitle) {
   const state = store.state;
-  const pageTitle = () => {
-    switch (pageName) {
-      case PageNames.RECOMMENDED_POPULAR:
-        return 'Popular';
-      case PageNames.RECOMMENDED_RESUME:
-        return 'Resume';
-      case PageNames.RECOMMENDED_NEXT_STEPS:
-        return 'Next Steps';
-      case PageNames.RECOMMENDED_FEATURED:
-        return 'Featured';
-      default:
-        return 'Recommended';
-    }
-  };
-
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(channelId, state),
@@ -93,16 +78,16 @@ function _showRecommendedSubpage(store, channelId, getContentPromise, pageName) 
     recommendations => {
       const currentChannel = getCurrentChannelObject(state);
       const channelTitle = currentChannel.title;
-      const pageState = {
+      const recPageState = {
         recommendations,
         channelTitle,
       };
-      store.dispatch('SET_PAGE_STATE', { recommendations });
+      store.dispatch('SET_PAGE_STATE', recPageState);
       store.dispatch('SET_PAGE_NAME', pageName);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
 
-      store.dispatch('CORE_SET_TITLE', `${pageTitle()} - ${channelTitle}`);
+      store.dispatch('CORE_SET_TITLE', `${windowTitle} - ${channelTitle}`);
     },
     error => handleApiError(error)
   );
@@ -137,11 +122,12 @@ function showLearnChannel(store, channelId, cursor) {
             // Hard to guarantee this uniqueness on the database side, so
             // do a uniqBy content_id here, to prevent confusing repeated
             // content items.
-            nextSteps: uniqBy(nextSteps, 'content_id').map(contentState),
-            popular: uniqBy(popular, 'content_id').map(contentState),
-            resume: uniqBy(resume, 'content_id').map(contentState),
-            featured: featured.map(contentState),
+            nextSteps: _mapContentSet(nextSteps),
+            popular: _mapContentSet(popular),
+            resume: _mapContentSet(resume),
+            featured: _mapContentSet(featured),
             channelId: currentChannel.id,
+            channelTitle: currentChannel.title,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -162,19 +148,19 @@ function showLearnChannel(store, channelId, cursor) {
 }
 
 function showPopularPage(store, channelId) {
-  _showRecommendedSubpage(store, channelId, _getPopular, PageNames.RECOMMENDED_POPULAR);
+  _showRecSubpage(store, channelId, _getPopular, PageNames.RECOMMENDED_POPULAR, 'Popular');
 }
 
 function showResumePage(store, channelId) {
-  _showRecommendedSubpage(store, channelId, _getResume, PageNames.RECOMMENDED_RESUME);
+  _showRecSubpage(store, channelId, _getResume, PageNames.RECOMMENDED_RESUME, 'Resume');
 }
 
 function showNextStepsPage(store, channelId) {
-  _showRecommendedSubpage(store, channelId, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS);
+  _showRecSubpage(store, channelId, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS, 'Next Steps');
 }
 
 function showFeaturedPage(store, channelId) {
-  _showRecommendedSubpage(store, channelId, _getFeatured, PageNames.RECOMMENDED_FEATURED);
+  _showRecSubpage(store, channelId, _getFeatured, PageNames.RECOMMENDED_FEATURED, 'Featured');
 }
 
 function showLearnContent(store, channelId, id) {

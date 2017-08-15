@@ -21,10 +21,10 @@
   export default {
     $trNameSpace: 'recommendedSubpage',
     $trs: {
-      popularPageHeader: 'Most Popular',
+      popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      featuredPageHeader: 'Featured',
+      featuredPageHeader: 'Featured in {channelTitle}',
     },
     components: {
       contentCardGroupGrid,
@@ -40,7 +40,7 @@
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
           case PageNames.RECOMMENDED_FEATURED:
-            return this.$tr('featuredPageHeader');
+            return this.$tr('featuredPageHeader', { channelTitle: this.channelTitle });
           default:
             return null;
         }
@@ -58,7 +58,7 @@
       getters: {
         pageName: state => state.pageName,
         recommendations: state => state.pageState.recommendations,
-        channelName: state => state.pageState.channelName,
+        channelTitle: state => state.pageState.channelTitle,
         channelId: state => state.core.channels.currentId,
       },
     },
