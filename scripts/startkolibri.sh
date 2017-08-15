@@ -11,8 +11,10 @@ export KOLIBRI_CMD=/usr/local/bin/kolibri
 $KOLIBRI_CMD language setdefault $KOLIBRI_LANG
 
 # simple mode
-# exec $KOLIBRI_CMD start --foreground --port=$KOLIBRI_PORT
+cd /kolibri
+yarn run build
+$KOLIBRI_CMD start --foreground --port=$KOLIBRI_PORT
 
 # dev mode
-cd /kolibri
-$KOLIBRI_CMD manage devserver --debug  --  0.0.0.0:$KOLIBRI_PORT --webpack
+#
+# $KOLIBRI_CMD manage devserver --debug  --  0.0.0.0:$KOLIBRI_PORT --webpack
