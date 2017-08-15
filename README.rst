@@ -1,4 +1,23 @@
 
+Wikimedia hackathon setup
+-------------------------
+
+Build image
+
+    docker build . --tag kolibri-dev
+
+
+Run
+
+    docker run -p 8009:8009  --name kolibri -ti kolibri-dev
+
+
+Debug shell
+
+    docker exec -ti kolibri /bin/bash
+
+
+
 Kolibri
 =======
 
