@@ -82,7 +82,7 @@
     },
     computed: {
       isMobile() {
-        return this.windowSize.breakpoint <= 2;
+        return this.windowSize.breakpoint <= 1;
       },
       recommendationDisplay() {
         if (this.isMobile) {
