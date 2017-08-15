@@ -26,12 +26,21 @@ import { contentState } from './main';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 
+// User-agnostic recommendations
+
 function _getPopular(channelId) {
   const channelPayload = { channel_id: channelId };
   const popularPayload = { popular: 'true' };
   return ContentNodeResource.getCollection(channelPayload, popularPayload).fetch();
 }
 
+function _getFeatured(channelId) {
+  const channelPayload = { channel_id: channelId };
+
+  return ContentNodeResource.getAllContentCollection(channelPayload).fetch();
+}
+
+// User-specific recommendations
 function _getNextSteps(channelId, state) {
   const nextStepsPayload = { next_steps: currentUserId(state) };
   const channelPayload = { channel_id: channelId };
@@ -46,17 +55,57 @@ function _getResume(channelId, state) {
   const resumePayload = { resume: currentUserId(state) };
   const channelPayload = { channel_id: channelId };
 
-  // all you really need is user_id. Should we check in parent?
   if (isFacilityUser(state)) {
     return ContentNodeResource.getCollection(channelPayload, resumePayload).fetch();
   }
   return Promise.resolve([]);
 }
 
-function _getFeatured(channelId, cursor) {
-  const channelPayload = { channel_id: channelId };
+function _mapContentSet(contentSet) {
+  return uniqBy(contentSet, 'content_id').map(contentState);
+}
 
-  return ContentNodeResource.getAllContentCollection(channelPayload, { cursor }).fetch();
+function _showRecommendedSubpage(store, channelId, getContentPromise, pageName) {
+  const state = store.state;
+  const pageTitle = () => {
+    switch (pageName) {
+      case PageNames.RECOMMENDED_POPULAR:
+        return 'Popular';
+      case PageNames.RECOMMENDED_RESUME:
+        return 'Resume';
+      case PageNames.RECOMMENDED_NEXT_STEPS:
+        return 'Next Steps';
+      case PageNames.RECOMMENDED_FEATURED:
+        return 'Featured';
+      default:
+        return 'Recommended';
+    }
+  };
+
+  // promise that resolves with content array, already mapped to state
+  const pagePrep = Promise.all([
+    getContentPromise(channelId, state),
+    setChannelInfo(store, channelId),
+    // resolves to mapped content set because then resolves to its function's return value
+  ]).then(([content]) => _mapContentSet(content), error => error);
+
+  pagePrep.then(
+    recommendations => {
+      const currentChannel = getCurrentChannelObject(state);
+      const channelTitle = currentChannel.title;
+      const pageState = {
+        recommendations,
+        channelTitle,
+      };
+      store.dispatch('SET_PAGE_STATE', { recommendations });
+      store.dispatch('SET_PAGE_NAME', pageName);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+
+      store.dispatch('CORE_SET_TITLE', `${pageTitle()} - ${channelTitle}`);
+    },
+    error => handleApiError(error)
+  );
 }
 
 function showLearnChannel(store, channelId, cursor) {
@@ -79,7 +128,7 @@ function showLearnChannel(store, channelId, cursor) {
         _getNextSteps(channelId, state),
         _getPopular(channelId),
         _getResume(channelId, state),
-        _getFeatured(channelId, cursor),
+        _getFeatured(channelId),
       ]).only(
         samePageCheckGenerator(store),
         ([nextSteps, popular, resume, featured]) => {
@@ -113,104 +162,19 @@ function showLearnChannel(store, channelId, cursor) {
 }
 
 function showPopularPage(store, channelId) {
-  const state = store.state;
-
-  const pagePrep = Promise.all([
-    _getPopular(channelId, state),
-    setChannelInfo(store, channelId),
-  ]).then(([popular]) => popular, error => error);
-
-  pagePrep.then(
-    popularContent => {
-      const popularPageState = {
-        recommendations: uniqBy(popularContent, 'content_id').map(contentState),
-      };
-      store.dispatch('SET_PAGE_STATE', popularPageState);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_POPULAR);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-
-      const currentChannel = getCurrentChannelObject(state);
-      store.dispatch('CORE_SET_TITLE', `Popular - ${currentChannel.title}`);
-    },
-    error => handleApiError(error)
-  );
+  _showRecommendedSubpage(store, channelId, _getPopular, PageNames.RECOMMENDED_POPULAR);
 }
 
 function showResumePage(store, channelId) {
-  const state = store.state;
-
-  const pagePrep = Promise.all([
-    _getResume(channelId, state),
-    setChannelInfo(store, channelId),
-  ]).then(([resume]) => uniqBy(resume, 'content_id').map(contentState), error => error);
-
-  pagePrep.then(
-    resumeContent => {
-      const resumePageState = {
-        recommendations: resumeContent,
-      };
-      store.dispatch('SET_PAGE_STATE', resumePageState);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_RESUME);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-
-      const currentChannel = getCurrentChannelObject(state);
-      store.dispatch('CORE_SET_TITLE', `Resume - ${currentChannel.title}`);
-    },
-    error => handleApiError(error)
-  );
+  _showRecommendedSubpage(store, channelId, _getResume, PageNames.RECOMMENDED_RESUME);
 }
 
 function showNextStepsPage(store, channelId) {
-  const state = store.state;
-
-  const pagePrep = Promise.all([
-    _getNextSteps(channelId, state),
-    setChannelInfo(store, channelId),
-  ]).then(([nextSteps]) => uniqBy(nextSteps, 'content_id').map(contentState), error => error);
-
-  pagePrep.then(
-    nextStepsContent => {
-      const nextStepsPageState = {
-        recommendations: nextStepsContent,
-      };
-      store.dispatch('SET_PAGE_STATE', nextStepsPageState);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_NEXT_STEPS);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-
-      const currentChannel = getCurrentChannelObject(state);
-      store.dispatch('CORE_SET_TITLE', `Next Steps - ${currentChannel.title}`);
-    },
-    error => handleApiError(error)
-  );
+  _showRecommendedSubpage(store, channelId, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS);
 }
 
 function showFeaturedPage(store, channelId) {
-  const state = store.state;
-
-  const pagePrep = Promise.all([_getFeatured(channelId), setChannelInfo(store, channelId)]).then(
-    ([featured]) => uniqBy(featured, 'content_id').map(contentState),
-    error => error
-  );
-
-  // avoided conditional promise using new promise
-  pagePrep.then(
-    featuredContent => {
-      const featuredPageState = {
-        recommendations: featuredContent,
-      };
-      store.dispatch('SET_PAGE_STATE', featuredPageState);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_FEATURED);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-
-      const currentChannel = getCurrentChannelObject(state);
-      store.dispatch('CORE_SET_TITLE', `Featured - ${currentChannel.title}`);
-    },
-    error => handleApiError(error)
-  );
+  _showRecommendedSubpage(store, channelId, _getFeatured, PageNames.RECOMMENDED_FEATURED);
 }
 
 function showLearnContent(store, channelId, id) {

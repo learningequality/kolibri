@@ -58,6 +58,7 @@
       getters: {
         pageName: state => state.pageName,
         recommendations: state => state.pageState.recommendations,
+        channelName: state => state.pageState.channelName,
         channelId: state => state.core.channels.currentId,
       },
     },
