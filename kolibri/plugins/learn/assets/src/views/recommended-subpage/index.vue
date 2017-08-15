@@ -24,7 +24,7 @@
       popularPageHeader: 'Most Popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      overviewPageHeader: 'Overview',
+      featuredPageHeader: 'Featured',
     },
     components: {
       contentCardGroupGrid,
@@ -39,8 +39,8 @@
             return this.$tr('resumePageHeader');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
-          case PageNames.RECOMMENDED_OVERVIEW:
-            return this.$tr('overviewPageHeader');
+          case PageNames.RECOMMENDED_FEATURED:
+            return this.$tr('featuredPageHeader');
           default:
             return null;
         }

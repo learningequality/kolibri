@@ -53,7 +53,7 @@ function _getResume(channelId, state) {
   return Promise.resolve([]);
 }
 
-function _getOverview(channelId, cursor) {
+function _getFeatured(channelId, cursor) {
   const channelPayload = { channel_id: channelId };
 
   return ContentNodeResource.getAllContentCollection(channelPayload, { cursor }).fetch();
@@ -79,10 +79,10 @@ function showLearnChannel(store, channelId, cursor) {
         _getNextSteps(channelId, state),
         _getPopular(channelId),
         _getResume(channelId, state),
-        _getOverview(channelId, cursor),
+        _getFeatured(channelId, cursor),
       ]).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume, overview]) => {
+        ([nextSteps, popular, resume, featured]) => {
           const currentChannel = getCurrentChannelObject(store.state);
           const pageState = {
             // Hard to guarantee this uniqueness on the database side, so
@@ -91,7 +91,7 @@ function showLearnChannel(store, channelId, cursor) {
             nextSteps: uniqBy(nextSteps, 'content_id').map(contentState),
             popular: uniqBy(popular, 'content_id').map(contentState),
             resume: uniqBy(resume, 'content_id').map(contentState),
-            overview: overview.map(contentState),
+            featured: featured.map(contentState),
             channelId: currentChannel.id,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -187,27 +187,27 @@ function showNextStepsPage(store, channelId) {
   );
 }
 
-function showOverviewPage(store, channelId) {
+function showFeaturedPage(store, channelId) {
   const state = store.state;
 
-  const pagePrep = Promise.all([_getOverview(channelId), setChannelInfo(store, channelId)]).then(
-    ([overview]) => uniqBy(overview, 'content_id').map(contentState),
+  const pagePrep = Promise.all([_getFeatured(channelId), setChannelInfo(store, channelId)]).then(
+    ([featured]) => uniqBy(featured, 'content_id').map(contentState),
     error => error
   );
 
   // avoided conditional promise using new promise
   pagePrep.then(
-    overviewContent => {
-      const overviewPageState = {
-        recommendations: overviewContent,
+    featuredContent => {
+      const featuredPageState = {
+        recommendations: featuredContent,
       };
-      store.dispatch('SET_PAGE_STATE', overviewPageState);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_OVERVIEW);
+      store.dispatch('SET_PAGE_STATE', featuredPageState);
+      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_FEATURED);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
 
       const currentChannel = getCurrentChannelObject(state);
-      store.dispatch('CORE_SET_TITLE', `Overview - ${currentChannel.title}`);
+      store.dispatch('CORE_SET_TITLE', `Featured - ${currentChannel.title}`);
     },
     error => handleApiError(error)
   );
@@ -267,6 +267,6 @@ export {
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-  showOverviewPage,
+  showFeaturedPage,
   showLearnContent,
 };

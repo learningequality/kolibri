@@ -38,16 +38,16 @@
         :contents="trimmedResume"/>
     </template>
 
-    <template v-if="overview.length">
+    <template v-if="featured.length">
       <content-card-group-header
-        :header="$tr('overviewSectionHeader')"
-        :view-more-page-link="overviewPageLink"
-        :show-view-more="overview.length > trimmedOverview.length"/>
+        :header="$tr('featuredSectionHeader')"
+        :view-more-page-link="featuredPageLink"
+        :show-view-more="featured.length > trimmedFeatured.length"/>
       <component
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimmedOverview"/>
+        :contents="trimmedFeatured"/>
     </template>
 
   </div>
@@ -72,7 +72,7 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      overviewSectionHeader: 'Overview',
+      featuredSectionHeader: 'Featured',
     },
     mixins: [responsiveWindow],
     components: {
@@ -111,9 +111,9 @@
           params: { channel_id: this.channelId },
         };
       },
-      overviewPageLink() {
+      featuredPageLink() {
         return {
-          name: PageNames.RECOMMENDED_OVERVIEW,
+          name: PageNames.RECOMMENDED_FEATURED,
           params: { channel_id: this.channelId },
         };
       },
@@ -126,8 +126,8 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
-      trimmedOverview() {
-        return this.overview.slice(0, this.carouselLimit);
+      trimmedFeatured() {
+        return this.featured.slice(0, this.carouselLimit);
       },
     },
     methods: {
@@ -144,7 +144,7 @@
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,
-        overview: state => state.pageState.overview,
+        featured: state => state.pageState.featured,
       },
     },
   };

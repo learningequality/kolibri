@@ -11,7 +11,7 @@ import {
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-  showOverviewPage,
+  showFeaturedPage,
   showLearnContent,
 } from './state/actions/recommended';
 import store from './state/store';
@@ -104,10 +104,10 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.RECOMMENDED_OVERVIEW,
-          path: '/:channel_id/recommended/overview',
+          name: PageNames.RECOMMENDED_FEATURED,
+          path: '/:channel_id/recommended/featured',
           handler: (toRoute, fromRoute) => {
-            showOverviewPage(store, toRoute.params.channel_id);
+            showFeaturedPage(store, toRoute.params.channel_id);
           },
         },
         {
