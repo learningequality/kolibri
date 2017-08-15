@@ -143,16 +143,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-      subHeader(carouselItems, allItems) {
-        if (this.needsTrim(allItems.length)) {
-          const trArgs = {
-            subset: carouselItems.length,
-            total: allItems.length,
-          };
-          return this.$tr('subsetSectionSubHeader', trArgs);
-        }
-        return this.$tr('sectionSubHeader', { numOfItems: carouselItems.length });
-      },
     },
     vuex: {
       getters: {
