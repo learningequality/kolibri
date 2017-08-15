@@ -257,8 +257,7 @@
     background: $core-bg-canvas
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
     background-size: cover
-    overflow-y: auto
-    overflow-x: hidden
+    overflow: hidden
 
   #login-container
     display: block
