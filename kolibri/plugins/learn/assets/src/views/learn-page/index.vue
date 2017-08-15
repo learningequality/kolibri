@@ -132,12 +132,6 @@
     },
     methods: {
       genContentLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
         return {
           name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
