@@ -4,8 +4,10 @@
     <core-base :navBarNeeded="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
       <component v-if="navBarNeeded" :is="currentPage"/>
     </core-base>
-    <component v-if="!navBarNeeded" :is="currentPage"/>
-    <language-switcher v-if="!navBarNeeded" :footer="true"/>
+    <div v-if="!navBarNeeded" class="full-page">
+      <component :is="currentPage"/>
+      <language-switcher :footer="true"/>
+    </div>
   </div>
 
 </template>
@@ -71,5 +73,11 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .full-page
+    position: absolute
+    top: 0
+    height: 100%
+    width: 100%
 
 </style>

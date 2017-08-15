@@ -2,13 +2,11 @@
 
   <div>
     <div v-if="footer" class="page-footer">
-      <div>
-        <ul class="language-list">
-          <li v-for="language in languageOptions" :class="selectedLanguage===language.code ? 'selected item' : 'choice item'" @click="setAndSwitchLanguage(language.code)">
-            {{ language.name }}
-          </li>
-        </ul>
-      </div>
+      <ul class="language-list">
+        <li v-for="language in languageOptions" :class="selectedLanguage===language.code ? 'selected item' : 'choice item'" @click="setAndSwitchLanguage(language.code)">
+          {{ language.name }}
+        </li>
+      </ul>
     </div>
     <core-modal
       v-if="showModal"
@@ -107,8 +105,10 @@
         });
       },
       setAndSwitchLanguage(languageCode) {
-        this.selectedLanguage = languageCode;
-        this.switchLanguage();
+        if (languageCode != this.selectedLanguage) {
+          this.selectedLanguage = languageCode;
+          this.switchLanguage();
+        }
       },
       closeModal() {
         this.internalModalOpen = false;
@@ -141,6 +141,7 @@
     padding-left: 32px
     padding-top: 16px
     padding-bottom: 16px
+    text-align: center
     button
       float: right
       position: absolute
@@ -152,10 +153,14 @@
     list-style: none
     margin: 0
     padding: 0
+    text-align: initial
+    display: inline-block
 
   .item
     display: inline-block
     padding-top: 6px
     padding-right: 20px
+    &.choice
+      cursor: pointer
 
 </style>
