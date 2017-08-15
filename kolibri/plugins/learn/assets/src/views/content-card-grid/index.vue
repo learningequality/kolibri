@@ -24,7 +24,7 @@
         :class="{'grid-item': true, 'mobile': isMobile}"
         :kind="content.kind"
         :progress="content.progress"
-        :link="genLink(content.id, content.kind)"/>
+        :link="genContentLink(content.id, content.kind)"/>
 
     </template>
 
@@ -73,7 +73,7 @@
         type: String,
         required: false,
       },
-      genLink: {
+      genContentLink: {
         type: Function,
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));

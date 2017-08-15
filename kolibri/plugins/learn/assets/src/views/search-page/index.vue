@@ -14,7 +14,7 @@
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-grid v-else :gen-link="genLink" :contents="contents" />
+      <content-card-grid v-else :gen-content-link="genContentLink" :contents="contents" />
 
     </template>
 
@@ -45,8 +45,8 @@
       searchBox,
     },
     methods: {
-      genLink(id, kind) {
-        if (kind === ContentNodeKinds.TOPIC) {
+      genContentLink(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: {

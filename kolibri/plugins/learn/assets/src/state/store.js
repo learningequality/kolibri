@@ -7,7 +7,7 @@ const initialState = {
   pageState: {
     topics: [],
     contents: [],
-    searchTerm: '',
+    searchTerm: '', // QUESTION does this belong here?
   },
   learnAppState: {
     memberships: [],

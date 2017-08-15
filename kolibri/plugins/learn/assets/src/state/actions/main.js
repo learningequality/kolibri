@@ -7,7 +7,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { PageNames } from '../constants';
+import { PageNames } from '../../constants';
 
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -19,8 +19,7 @@ import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
-import uniqBy from 'lodash/uniqBy';
-import prepareLearnApp from './prepareLearnApp';
+import prepareLearnApp from '../prepareLearnApp';
 
 /**
  * Vuex State Mappers
@@ -289,136 +288,6 @@ function showExploreContent(store, channelId, id) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-}
-
-function showLearnChannel(store, channelId, cursor) {
-  // Special case for when only the page number changes:
-  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
-  const state = store.state;
-  if (
-    state.pageName !== PageNames.LEARN_CHANNEL ||
-    coreGetters.getCurrentChannelId(state) !== channelId
-  ) {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
-  }
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
-
-  const sessionPromise = SessionResource.getModel('current').fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  ConditionalPromise.all([sessionPromise, channelsPromise]).only(
-    samePageCheckGenerator(store),
-    ([session]) => {
-      if (!coreGetters.getCurrentChannelObject(store.state)) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-      const isFacilityUser = coreGetters.isFacilityUser(store.state);
-      const nextStepsPayload = { next_steps: session.user_id };
-      const popularPayload = { popular: 'true' };
-      const resumePayload = { resume: session.user_id };
-      const channelPayload = { channel_id: channelId };
-      const nextStepsPromise = isFacilityUser
-        ? ContentNodeResource.getCollection(channelPayload, nextStepsPayload).fetch()
-        : Promise.resolve([]);
-      const resumePromise = isFacilityUser
-        ? ContentNodeResource.getCollection(channelPayload, resumePayload).fetch()
-        : Promise.resolve([]);
-      const popularPromise = ContentNodeResource.getCollection(
-        channelPayload,
-        popularPayload
-      ).fetch();
-      const allContentCollection = ContentNodeResource.getAllContentCollection(channelPayload, {
-        cursor,
-      });
-      const allContentPromise = allContentCollection.fetch();
-      ConditionalPromise.all([
-        nextStepsPromise,
-        popularPromise,
-        resumePromise,
-        allContentPromise,
-      ]).only(
-        samePageCheckGenerator(store),
-        ([nextSteps, popular, resume, allContent]) => {
-          const currentChannelTitle = coreGetters.getCurrentChannelObject(store.state).title;
-          const pageState = {
-            recommendations: {
-              // Hard to guarantee this uniqueness on the database side, so
-              // do a uniqBy content_id here, to prevent confusing repeated
-              // content items.
-              nextSteps: uniqBy(nextSteps, 'content_id').map(_contentState),
-              popular: uniqBy(popular, 'content_id').map(_contentState),
-              resume: uniqBy(resume, 'content_id').map(_contentState),
-            },
-            all: {
-              content: allContent.map(_contentState),
-              next: allContentCollection.next,
-              previous: allContentCollection.previous,
-            },
-            channelTitle: currentChannelTitle,
-          };
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannelTitle}`);
-        },
-        error => {
-          coreActions.handleApiError(store, error);
-        }
-      );
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-}
-
-function showLearnContent(store, channelId, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-  const channelPayload = { channel_id: channelId };
-  const contentPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
-  const recommendedPromise = ContentNodeResource.getCollection(channelPayload, {
-    recommendations_for: id,
-  }).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id, {
-    channel_id: channelId,
-  });
-  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
-    samePageCheckGenerator(store),
-    ([content, channels, nextContent]) => {
-      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (!currentChannel) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-      const pageState = {
-        content: _contentState(content, nextContent),
-        recommended: store.state.pageState.recommended,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-  recommendedPromise.only(
-    samePageCheckGenerator(store),
-    recommended => {
-      const pageState = {
-        content: store.state.pageState.content,
-        recommended: recommended.map(_contentState),
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_ERROR', null);
     },
     error => {
       coreActions.handleApiError(store, error);
@@ -792,13 +661,12 @@ function closeExam(store) {
 }
 
 export {
+  _contentState,
   redirectToExploreChannel,
   redirectToLearnChannel,
   showExploreChannel,
   showExploreTopic,
   showExploreContent,
-  showLearnChannel,
-  showLearnContent,
   showContentUnavailable,
   triggerSearch,
   clearSearch,

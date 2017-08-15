@@ -2,12 +2,41 @@
 
   <section class="content-carousel">
 
-    <div class="content-carousel-details">
-      <header v-if="header" class="content-carousel-details-header">
-        <h2> {{header}} </h2>
-        <span v-if="subheader"> {{subheader}} </span>
-      </header>
-    </div>
+    <!-- TEMP using a before route is set up -->
+    <router-link v-if="showViewMore" :to="viewMorePageLink">
+      <!-- linking the entire details section to a "view more" page -->
+      <div :style="widthOfCarousel" class="content-carousel-details">
+          <header v-if="header" class="content-carousel-details-header">
+              <h1>
+                {{header}}
+                <mat-svg
+                class="content-carousel-details-link-icon"
+                category="hardware"
+                name="keyboard_arrow_right" />
+              </h1>
+            <span v-if="subheader"> {{subheader}} </span>
+          </header>
+          <span class="content-carousel-details-view-more">
+            View more
+            <mat-svg
+              class="content-carousel-details-link-icon"
+              category="hardware"
+              name="keyboard_arrow_right" />
+          </span>
+      </div>
+    </router-link>
+
+    <template v-else>
+      <!-- relying on vue to not have to re-render all of this -->
+      <div class="content-carousel-details">
+          <header v-if="header" class="content-carousel-details-header">
+              <h1>
+                {{header}}
+              </h1>
+            <span v-if="subheader"> {{subheader}} </span>
+          </header>
+      </div>
+    </template>
 
     <div :style="widthOfCarousel" class="content-carousel-controls">
       <div class="previous" @click="previousSet">
@@ -59,7 +88,7 @@
             :thumbnail="content.thumbnail"
             :kind="content.kind"
             :progress="content.progress"
-            :link="genLink(content.id, content.kind)"/>
+            :link="genContentLink(content.id, content.kind)"/>
           </slot>
       </div>
 
@@ -74,7 +103,6 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
@@ -92,7 +120,17 @@
       },
       header: { type: String },
       subheader: { type: String },
-      genLink: {
+      viewMorePageLink: {
+        type: Object,
+        validator(pageLink) {
+          return validateLinkObject(pageLink);
+        },
+      },
+      showViewMore: {
+        // IDEA collapse into viewMorePageLink, making it the conditional
+        type: Boolean,
+      },
+      genContentLink: {
         type: Function,
         validator(value) {
           const dummyExercise = value(1, 'exercise');
@@ -102,7 +140,6 @@
       },
     },
     components: {
-      kButton,
       uiIconButton,
       contentCard,
     },
@@ -141,7 +178,8 @@
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
         this.leftToRight = removingCards;
-        if (this.isLastSet && addingCards) {
+
+        if (this.isLastSet && addingCards && !this.isFirstSet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
           this.leftToRight = true;
         }
@@ -235,25 +273,41 @@
   // width of card + gutter
   $card-height = 210px
 
+
   .content-carousel
     margin-top: 1em
-    margin-bottom: 1em
     clearfix()
 
     &-details
+      // vertical-align: bottom
+      // text-align: justify
       clearfix()
+      position: relative
+      margin-bottom: 1em
 
       &-header
         float: left
-        text-align: left
-        margin-bottom: 1em
-        h2
-          margin: 0
-      &-view-all
-        float: right
-        color: white
-        background-color: $core-action-normal
+        text-decoration: none
+        color: $core-text-default
 
+      &-view-more
+        position: absolute
+        right: 0
+        bottom: 0
+
+      &-link-icon
+        // puts drops the center angle of the arrow to about the level of text's midline
+        transform: translateY(30%)
+        display: inline
+
+        ../-header &
+          $header-size = 1.5em
+          height: $header-size
+          width: $header-size
+        ../-view-more &
+          $view-more-size = 1.3em
+          height: $view-more-size
+          width: $view-more-size
 
     &-controls
       $hit-height = 100px
@@ -262,13 +316,11 @@
       // set up the parent element that the buttons use for reference
       position: absolute
       width: 100%
-      clearfix()
 
       // styles that apply to both control buttons
       .next, .previous
         &:active
           z-index: 8 // material
-          // goes up one reference (Stylus partial reference)
 
         z-index: 2 // material
         position: absolute

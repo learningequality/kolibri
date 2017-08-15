@@ -56,6 +56,7 @@
   import explorePage from './explore-page';
   import contentPage from './content-page';
   import learnPage from './learn-page';
+  import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import channelSwitcher from './channel-switcher';
@@ -80,6 +81,7 @@
       explorePage,
       contentPage,
       learnPage,
+      recommendedSubpage,
       contentUnavailablePage,
       coreBase,
       channelSwitcher,
@@ -156,6 +158,14 @@
         }
         if (this.pageName === PageNames.EXAM) {
           return 'exam-page';
+        }
+        if (
+          this.pageName === PageNames.RECOMMENDED_POPULAR ||
+          this.pageName === PageNames.RECOMMENDED_NEXT_STEPS ||
+          this.pageName === PageNames.RECOMMENDED_RESUME ||
+          this.pageName === PageNames.RECOMMENDED_OVERVIEW
+        ) {
+          return 'recommended-subpage';
         }
         return null;
       },
