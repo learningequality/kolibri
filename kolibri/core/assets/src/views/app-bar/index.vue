@@ -10,7 +10,6 @@
     <div slot="actions">
       <slot name="app-bar-actions"/>
       <ui-button
-        v-if="isUserLoggedIn"
         icon="person"
         type="primary"
         color="primary"

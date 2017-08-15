@@ -2,22 +2,28 @@
 
   <div>
     <div v-if="footer" class="page-footer">
-      <div class="lang-container" :style="isMobile ? { width: '40%' } : {}">
-        <p class="prompt" v-if="!isMobile">{{ $tr('changeLanguagePrompt') }}</p>
-        <p v-for="language in footerLanguageOptions" :class="selectedLanguage.code===language.code ? 'selected' : 'choice'" @click="setAndSwitchLanguage(language)">
-          {{ language.name }}
-        </p>
+      <div>
+        <ul class="language-list">
+          <li v-for="language in languageOptions" :class="selectedLanguage===language.code ? 'selected item' : 'choice item'" @click="setAndSwitchLanguage(language.code)">
+            {{ language.name }}
+          </li>
+        </ul>
       </div>
-      <k-button style="margin-top: 0" :text="$tr('moreLanguageButtonText')" :raised="false" @click="setModalOpen"/>
     </div>
     <core-modal
       v-if="showModal"
       :title="$tr('changeLanguageModalHeader')"
       @cancel="closeModal">
       <p>{{ $tr('changeLanguageSubHeader') }}</p>
-      <p v-for="language in languageOptions" :class="selectedLanguage.code===language.code ? 'selected' : 'choice'" @click="selectedLanguage=language">
-        {{ language.name }}
-      </p>
+      <k-radio-button
+        v-for="language in languageOptions"
+        class="choice"
+        :key="language.code"
+        :radiovalue="language.code"
+        :value="selectedLanguage"
+        :label="language.name"
+        v-model="selectedLanguage"
+      />
       <div class="footer">
         <k-button :text="$tr('cancelButtonText')" :raised="false" :disabled="disabled" @click="closeModal"/>
         <k-button :text="$tr('confirmButtonText')" :primary="true" :disabled="disabled" @click="switchLanguage"/>
@@ -32,18 +38,15 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { httpClient } from 'kolibri.client';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   export default {
     name: 'languageSwitcherModalDialog',
-    mixins: [responsiveWindow],
-    components: { coreModal, kButton },
+    components: { coreModal, kButton, kRadioButton },
     $trs: {
       changeLanguageModalHeader: 'Change language',
       changeLanguageSubHeader: 'Select the language you want to view Kolibri in',
-      changeLanguagePrompt: 'Select language:',
-      moreLanguageButtonText: 'More languages',
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Confirm',
     },
@@ -67,21 +70,11 @@
           })
           .map(key => availableLanguages[key]);
       },
-      footerLanguageOptions() {
-        if (this.isMobile) {
-          return this.languageOptions.filter(lang => lang.code !== currentLanguage).slice(0, 3);
-        }
-        return this.languageOptions.slice(0, 6);
-      },
       currentLanguageName() {
         return availableLanguages[currentLanguage].name;
       },
       showModal() {
-        console.log(this.internalModalOpen);
         return this.modalOpen || this.internalModalOpen;
-      },
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
       },
     },
     props: {
@@ -96,7 +89,7 @@
     },
     data: () => ({
       disabled: false,
-      selectedLanguage: availableLanguages[currentLanguage],
+      selectedLanguage: currentLanguage,
       internalModalOpen: false,
     }),
     methods: {
@@ -104,7 +97,7 @@
         this.disabled = true;
         const path = this.Kolibri.urls['kolibri:set_language']();
         const entity = {
-          language: this.selectedLanguage.code,
+          language: this.selectedLanguage,
         };
         httpClient({
           path,
@@ -113,8 +106,8 @@
           global.location.reload(true);
         });
       },
-      setAndSwitchLanguage(language) {
-        this.selectedLanguage = language;
+      setAndSwitchLanguage(languageCode) {
+        this.selectedLanguage = languageCode;
         this.switchLanguage();
       },
       closeModal() {
@@ -138,33 +131,31 @@
   h1, p
     color: black
 
-  .more-button
-    float: left
+  .choice
+    color: $core-action-normal
 
   .selected
     font-weight: bold
-
-  .choice
-    color: $core-action-normal
-    text-decoration: underline $core-action-normal
-    cursor: pointer
-
 
   .page-footer
     padding-left: 32px
     padding-top: 16px
     padding-bottom: 16px
-    .lang-container
-      display: inline-block
-      p
-        float: left
-        padding-left: 10px
-        margin: 0
     button
       float: right
       position: absolute
 
   .prompt
     padding-right: 16px
+
+  .language-list
+    list-style: none
+    margin: 0
+    padding: 0
+
+  .item
+    display: inline-block
+    padding-top: 6px
+    padding-right: 20px
 
 </style>
