@@ -84,8 +84,8 @@
       },
       genContentLink: {
         type: Function,
-        validator(value) {
-          const dummyExercise = value(1, 'exercise');
+        validator(genContentLinkFunc) {
+          const dummyExercise = genContentLinkFunc(1, 'exercise');
           const isValidLinkGenerator = validateLinkObject(dummyExercise);
           return isValidLinkGenerator;
         },

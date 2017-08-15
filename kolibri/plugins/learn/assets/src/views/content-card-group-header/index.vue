@@ -47,7 +47,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  $header-size = 24px
+  $header-size = 21px
 
   .card-group-details
     width: 100%
