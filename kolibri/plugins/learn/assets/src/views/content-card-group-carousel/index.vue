@@ -82,18 +82,6 @@
         type: Array,
         required: true,
       },
-      header: { type: String },
-      subheader: { type: String },
-      viewMorePageLink: {
-        type: Object,
-        validator(pageLink) {
-          return validateLinkObject(pageLink);
-        },
-      },
-      showViewMore: {
-        // IDEA collapse into viewMorePageLink, making it the conditional
-        type: Boolean,
-      },
       genContentLink: {
         type: Function,
         validator(value) {

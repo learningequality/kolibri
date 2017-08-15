@@ -32,7 +32,6 @@
     },
     computed: {
       header() {
-        // IDEA encode this information in the route?
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('popularPageHeader');

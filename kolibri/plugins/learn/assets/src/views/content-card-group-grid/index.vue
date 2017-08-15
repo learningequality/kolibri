@@ -60,14 +60,6 @@
         type: Array,
         required: true,
       },
-      header: {
-        type: String,
-        required: false,
-      },
-      subheader: {
-        type: String,
-        required: false,
-      },
       genContentLink: {
         type: Function,
         validator(value) {

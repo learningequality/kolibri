@@ -115,7 +115,6 @@ function showLearnChannel(store, channelId, cursor) {
 function showPopularPage(store, channelId) {
   const state = store.state;
 
-  // IDEA make pages a class and prep with this so we don't have to keep rewriting?
   const pagePrep = Promise.all([
     _getPopular(channelId, state),
     setChannelInfo(store, channelId),
