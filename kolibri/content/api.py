@@ -19,7 +19,10 @@ from six.moves.urllib.parse import parse_qs, urlparse
 from .permissions import OnlyDeviceOwnerCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
+from .services import get_kiwix_search_results, parse_kiwix_search_results
 
+from django.conf import settings
+from django.http import Http404
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
@@ -367,3 +370,27 @@ class ChannelFileSummaryViewSet(viewsets.ViewSet):
             file_summary['channel_id'] = get_active_content_database()
             # Need to wrap in an array to be fetchable as a Collection on client
             return Response([file_summary])
+
+
+class KiwixSearchViewSet(viewsets.ViewSet):
+
+    def search(self, request, **kwargs):
+        if 'query' in request._request.GET:
+            query = request._request.GET['query']
+            print('query is:' + query)
+        else:
+            raise Http404('Error search query not provided')
+        # if KIWIX_PORT is defined
+        if 'KIWIX_PORT' in os.environ:
+            print('Kiwix server is installed...')
+            kiwix_port = os.environ['KIWIX_PORT']
+
+            # html = get_kiwix_search_results(query, kiwix_port)
+
+            # TMP mock from local file
+            html = open(os.path.join(settings.BASE_DIR, 'kolibri', 'content', 'sample.html')).read()
+            results = parse_kiwix_search_results(html, kiwix_port)
+            return Response(results)
+        else:
+            return Response({'results':None})
+

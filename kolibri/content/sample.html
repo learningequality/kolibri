@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><style>#kiwixtoolbar {
+    position: fixed;
+    padding: .5em;
+    left:0;
+    right:0;
+    top: 0;
+    z-index:100;
+}
+#kiwixtoolbar > a {
+    float: left;
+}
+.height_separator {
+    height: 3em;
+}
+#kiwixsearchbox {
+    width: 20em;
+}
+.kiwix .kiwix_centered {
+    max-width: 720px;
+    margin: 0 auto;
+}
+.kiwix .kiwix_button_wrapper {
+    float: left;
+}
+.kiwix .kiwix_searchform {
+    float: right;
+}
+.kiwix #kiwixtoolbar button,
+.kiwix #kiwixtoolbar input[type="submit"] {
+    box-sizing: border-box !important;
+    height: 26px !important;
+    line-height: 20px !important;
+    margin-right: 5px !important;
+    padding: 2px 6px !important;
+    border: 1px solid #999 !important;
+    border-radius: 3px !important;
+    background-color: #ededed !important;
+    font-weight: normal !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+}
+.kiwix #kiwixtoolbar a {
+    margin-bottom: 5px;
+}
+.kiwix #kiwixtoolbar #kiwixsearchform input[type='text'] {
+    box-sizing: border-box !important;
+    height: 26px !important;
+    line-height: 20px !important;
+    border: 1px solid #999 !important;
+    border-radius: 3px !important;
+    background-color: #fff !important;
+    padding: 2px 2px 2px 3px !important;
+    font-size: 16px !important;
+}
+/* Try to fix buggy stuff in jquery-ui autocomplete */
+#ui-id-1, .ui-autocomplete {
+    background: white !important;
+    border: solid 1px grey !important;
+}
+li.ui-state-focus {
+    font-weight: bold;
+}
+@media (max-width: 520px) {
+    .kiwixsearch {
+        margin-top: 5px;
+    }
+}
+@media (max-width: 645px) {
+    .kiwixsearch {
+        float: none;
+    }
+    #kiwixsearchbox {
+      width: 65%;
+    }
+    #kiwixsearchform input[type="submit"] {
+        width: 28%;
+    }
+    .height_separator {
+        height: 6em;
+    }
+}
+</style><script type="text/javascript" src="/skin/jquery-ui/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/skin/jquery-ui/jquery-ui.min.js"></script>
+<script>
+  var jk = jQuery.noConflict();
+  jk(function() {
+  jk( "#kiwixsearchbox" ).autocomplete({
+  source: "/suggest?content=",
+  dataType: "json",
+  cache: false,
+  select: function(event, ui) {
+  jk( "#kiwixsearchbox" ).val(ui.item.value);
+  jk( "#kiwixsearchform" ).submit();
+  },
+  });
+  });
+  /* cybook hack */
+  if (navigator.userAgent.indexOf("bookeen/cybook") != -1) {
+    jk("html").addClass("cybook");
+  }
+</script>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <style type="text/css">
+      body{
+      color: #00000;
+      font: small/normal Arial,Helvetica,Sans-Serif;
+      margin-top: 0.5em;
+      font-size: 90%;
+      }
+      a{
+      color: #04c;
+      }
+      a:visited {
+      color: #639
+      }
+      a:hover {
+      text-decoration: underline
+      }
+      .header {
+      font-size: 120%;
+      }
+      ul {
+      margin:0;
+      padding:0
+      }
+      .results {
+      font-size: 110%;
+      }
+      .results li {
+      list-style-type:none;
+      margin-top: 0.5em;
+      }
+      .results a {
+      font-size: 110%;
+      text-decoration: underline
+      }
+      cite {
+      font-style:normal;
+      word-wrap:break-word;
+      display: block;
+      font-size: 100%;
+      }
+      .informations {
+      color: #388222;
+      font-size: 100%;
+      }
+      .footer {
+      padding: 0;
+      margin-top: 1em;
+      width: 100%;
+      float: left
+      }
+      .footer a, .footer span {
+      display: block;
+      padding: .3em .7em;
+      margin: 0 .38em 0 0;
+      text-align:center;
+      text-decoration: none;
+      }
+      .footer a:hover {
+      background: #ededed;
+      }
+      .footer ul, .footer li {
+      list-style:none;
+      margin: 0;
+      padding: 0;
+      }
+      .footer li {
+      float: left;
+      }
+      .selected {
+      background: #ededed;
+      }
+    </style>
+    <title>Search: test</title>
+  </head>
+  <body bgcolor="white"><link type="text/css" href="/skin/jquery-ui/jquery-ui.min.css" rel="Stylesheet" />
+<link type="text/css" href="/skin/jquery-ui/jquery-ui.theme.min.css" rel="Stylesheet" />
+<span class="kiwix">
+  <span id="kiwixtoolbar" class="ui-widget-header">
+    <div class="kiwix_centered">
+      <div class="kiwix_searchform">
+        <form class="kiwixsearch" method="GET" action="/search" id="kiwixsearchform">
+          <input autocomplete="off" class="ui-autocomplete-input" id="kiwixsearchbox" name="pattern" type="text">
+          <input type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </span>
+</span>
+<div style="display: block; height: 5em;"></div>
+    <div class="header">
+      
+        Results
+        <b>
+          1-6
+        </b> of <b>
+          6
+        </b> for <b>
+          test
+        </b>
+      
+    </div>
+    <div class="results">
+      <ul>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/এলাৰ্জী.html">
+              এলাৰ্জী
+            </a>
+            <cite>
+              
+                ...11359624. Cox, L; Williams, B; Sicherer, S; Oppenheimer, J; Sher, L; Hamilton, R; Golden, D; American College of Allergy, Asthma and Immunology <b>Test</b> Task, Force; American Academy of Allergy, Asthma and Immunology Specific IgE <b>Test</b> Task, Force (2008 Dec). "Pearls and pitfalls of allergy diagnostic testing: report from the American College of Allergy, Asthma and Immunology/American Academy of Allergy, Asthma and Immunology Specific IgE <b>Test</b> Task Force.". Annals of allergy, asthma &amp; immunology......
+              
+            </cite>
+            
+              <div class="informations">409 words</div>
+            
+          </li>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/জণ্ডিছ.html">
+              জণ্ডিছ
+            </a>
+            <cite>
+              
+                ...সমূহ হ'ল- প্ৰসাবৰ পৰীক্ষা, তেজৰ তেজৰ ৰুটিন পৰীক্ষা ( TC,DLC,ESR, Hemoglobin), বিলিৰুবিন, SGOT, SGPT, Alkaline phosphatase, serum Electrolytes, এমাইলেজ, লাইপেজ , Card <b>test</b> for Hepatitis –B, Hepatitis –C; বুকুৰ এক্সৰে আৰু পেটৰ আলট্ৰচাউণ্ড কৰোৱাটো অতি লাগতিয়াল৷......
+              
+            </cite>
+            
+              <div class="informations">1,167 words</div>
+            
+          </li>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/ছোৱাইন_ফ্লু.html">
+              ছোৱাইন ফ্লু
+            </a>
+            <cite>
+              
+                ...হ’ব পাৰে। কিন্তু ৰোগ নিৰ্ণয়ৰ বাবে লেব’ৰেটৰী পৰীক্ষাৰ বিকল্প নাই। আক্ৰান্ত ব্যক্তিৰ নাকৰ শেঙুন অথবা ক’ফৰ ৰিয়েল টাইম পি চি আৰ (rRt-PCR Flu Panel diagnostic <b>test</b>)) পদ্ধতিৰে ইনফ্লুৱেঞ্জা-এ (H1N1) ভাইৰাছ চিনাক্ত কৰিব......
+              
+            </cite>
+            
+              <div class="informations">1,413 words</div>
+            
+          </li>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/এডৱাৰ্ড_জেনাৰ.html">
+              এডৱাৰ্ড জেনাৰ
+            </a>
+            <cite>
+              
+                ...smallpox. <b>Test</b>: If variolation after infection with cowpox fails to produce a smallpox infection, immunity to smallpox has been achieved. Consequence: Immunity to smallpox can be induced much more safely than by variolation. Donald Hopkins has written, "Jenner's unique contribution was not that he inoculated a few persons with cowpox, but that he then proved [by subsequent challenges] that they were immune to smallpox. Moreover, he demonstrated that the protective cowpox pus could be effectively......
+              
+            </cite>
+            
+              <div class="informations">3,740 words</div>
+            
+          </li>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/চিকিৎসা_বিজ্ঞান.html">
+              চিকিৎসা বিজ্ঞান
+            </a>
+            <cite>
+              
+                ...Laboratory <b>Test</b>) বা 'চিকিৎসা বিজ্ঞানীয় প্ৰতিচ্ছবি বিজ্ঞান'ৰ (Medical Imaging) সহায় লোৱা হয়। চিকিৎসাৰ সিদ্ধান্ত লওঁতে (Medical decision-making, MDM) ওপৰোক্ত সাক্ষাৎকাৰ আৰু পৰীক্ষাৰ পাছত ওলাই অহা তথ্যসমূহ বিশ্লেষন কৰি প্ৰথমে......
+              
+            </cite>
+            
+              <div class="informations">4,026 words</div>
+            
+          </li>
+        
+          <li>
+            <a href="/wikipedia_as_medicine_2017-08/A/মনো_ৰোগ_বিজ্ঞান.html">
+              মনো ৰোগ বিজ্ঞান
+            </a>
+            <cite>
+              
+                ...Psychoogical <b>test</b>) সহায় লোৱা হয়। এইদৰে ৰোগ চিনি উলিওৱাৰ পাছত তাৰ চিকিৎসাৰ বাবে বিভিন্ন পদ্ধতি যেনে ঔষধ, ব্যৱহাৰিক চিকিৎসা, মনোবৈজ্ঞানিক চিকিৎসা, বৈদ্যুতিক মৃগী সৃষ্টি (Electro Convulsive Therapy চমূকৈ ECT) ইত্যাদি......
+              
+            </cite>
+            
+              <div class="informations">4,658 words</div>
+            
+          </li>
+        
+      </ul>
+    </div>
+    <div class="footer">
+      <ul>
+        
+        
+        
+      </ul>
+    </div>
+  </body>
+</html>
+
