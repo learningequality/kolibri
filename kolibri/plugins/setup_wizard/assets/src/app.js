@@ -15,4 +15,4 @@ class SetupWizardModule extends KolibriModule {
 
 const setupWizardModule = new SetupWizardModule();
 
-export { setupWizardModule as default };
+export default setupWizardModule;

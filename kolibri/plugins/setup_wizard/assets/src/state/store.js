@@ -24,4 +24,4 @@ const store = new Vuex.Store({
   mutations,
 });
 
-export { store as default };
+export default store;
