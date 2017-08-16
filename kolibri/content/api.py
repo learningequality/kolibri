@@ -21,8 +21,8 @@ from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 from .services import get_kiwix_search_results, parse_kiwix_search_results
 
-from django.conf import settings
 from django.http import Http404
+
 
 def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
@@ -248,6 +248,7 @@ class AllContentCursorPagination(pagination.CursorPagination):
             ('results', data)
         ]))
 
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -385,7 +386,7 @@ class KiwixSearchViewSet(viewsets.ViewSet):
         if True:
             print('Kiwix server is installed...')
             # kiwix_port = os.environ['KIWIX_PORT']
-            kiwix_port = `8080`
+            kiwix_port = repr(8080)
             html = get_kiwix_search_results(query, kiwix_port)
             if html:
                 print(html[1000:1100])
@@ -395,8 +396,7 @@ class KiwixSearchViewSet(viewsets.ViewSet):
                 return Response(results)
             else:
                 # timeout when connecting to kiwix-serve
-                return Response({'results':None})
+                return Response({'results': None})
 
         else:
-            return Response({'results':None})
-
+            return Response({'results': None})

@@ -17,5 +17,5 @@ content_router.register(r'contentnodeprogress', ContentNodeProgressViewset, base
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^content/(?P<channel_id>[^/.]+)/', include(content_router.urls)),
-    url(r'^kiwixsearch', KiwixSearchViewSet.as_view({'get':'search'}), name='kiwixsearch')
+    url(r'^kiwixsearch', KiwixSearchViewSet.as_view({'get': 'search'}), name='kiwixsearch')
 ]
