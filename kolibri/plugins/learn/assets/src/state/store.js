@@ -8,6 +8,7 @@ const initialState = {
     topics: [],
     contents: [],
     searchTerm: '',
+    kiwixSearchResults: null,
   },
   learnAppState: {
     memberships: [],
@@ -47,6 +48,9 @@ const mutations = {
       const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
       topic.progress = progress.progress_fraction;
     });
+  },
+  SET_KIWIX_SEARCH_RESULTS(state, searchResults) {
+    state.pageState.kiwixSearchResults = searchResults;
   },
 };
 

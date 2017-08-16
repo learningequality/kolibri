@@ -16,6 +16,30 @@
 
       <content-card-grid v-else :gen-link="genLink" :contents="contents" />
 
+      <!--if web running and results, show cards-->
+      <div v-if="notAndroidAndKiwixResults">
+        <h3>Results from Kiwix</h3>
+        <ul>
+          <li
+            v-for="result in kiwixSearchResults"
+            :key="result.link"
+          >
+            <a  :href="result.link" target="_blank">{{ result.title }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!--if web running and no results, show no results text-->
+
+      <!--if web not running, show nothing-->
+
+      <!--if android and installed, show link-->
+      <div v-if="androidAndKiwixInstalled">
+        <a :href="`kiwix://search/${searchTerm}`" target="_blank">Search for "{{ searchTerm }}" within Kiwix</a>
+      </div>
+
+      <!--if android and not installed, show nothing-->
+
     </template>
 
   </div>
@@ -31,6 +55,10 @@
   import contentCard from '../content-card';
   import contentCardGrid from '../content-card-grid';
   import searchBox from '../search-box';
+  import { isAndroid } from 'kolibri.utils.sniffUserAgent';
+
+  const kiwixIsInstalled = true;
+
   export default {
     name: 'learnSearch',
     $trs: {
@@ -43,6 +71,14 @@
       contentCard,
       contentCardGrid,
       searchBox,
+    },
+    computed: {
+      notAndroidAndKiwixResults() {
+        return !isAndroid() && this.kiwixSearchResults;
+      },
+      androidAndKiwixInstalled() {
+        return isAndroid() && kiwixIsInstalled;
+      },
     },
     methods: {
       genLink(id, kind) {
@@ -70,6 +106,7 @@
         searchTerm: state => state.pageState.searchTerm,
         channelId: state => state.core.channels.currentId,
         channelName: state => getCurrentChannelObject(state).title,
+        kiwixSearchResults: state => state.pageState.kiwixSearchResults,
       },
     },
   };

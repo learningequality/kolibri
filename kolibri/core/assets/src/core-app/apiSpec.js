@@ -61,6 +61,7 @@ import * as resources from '../api-resources';
 import urls from './urls';
 import client from './client';
 import * as i18n from '../utils/i18n';
+import * as sniffUserAgent from '../utils/sniffUserAgent';
 
 export default {
   client,
@@ -125,5 +126,6 @@ export default {
     validateLinkObject,
     serverClock,
     i18n,
+    sniffUserAgent,
   },
 };
