@@ -380,17 +380,21 @@ class KiwixSearchViewSet(viewsets.ViewSet):
             print('query is:' + query)
         else:
             raise Http404('Error search query not provided')
-        # if KIWIX_PORT is defined
+
         if 'KIWIX_PORT' in os.environ:
             print('Kiwix server is installed...')
             kiwix_port = os.environ['KIWIX_PORT']
+            html = get_kiwix_search_results(query, kiwix_port)
+            if html:
+                print(html[1000:1100])
+                # TMP mock from local file
+                # html = open(os.path.join(settings.BASE_DIR, 'kolibri', 'content', 'sample.html')).read()
+                results = parse_kiwix_search_results(html, kiwix_port)
+                return Response(results)
+            else:
+                # timeout when connecting to kiwix-serve
+                return Response({'results':None})
 
-            # html = get_kiwix_search_results(query, kiwix_port)
-
-            # TMP mock from local file
-            html = open(os.path.join(settings.BASE_DIR, 'kolibri', 'content', 'sample.html')).read()
-            results = parse_kiwix_search_results(html, kiwix_port)
-            return Response(results)
         else:
             return Response({'results':None})
 
