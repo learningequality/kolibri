@@ -21,6 +21,8 @@ import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import uniqBy from 'lodash/uniqBy';
 import prepareLearnApp from './prepareLearnApp';
+import httpClient from 'kolibri.client';
+import urls from 'kolibri.urls';
 
 /**
  * Vuex State Mappers
@@ -426,6 +428,19 @@ function showLearnContent(store, channelId, id) {
   );
 }
 
+function getKiwixSearchResults(store, searchTerm) {
+  return new Promise(resolve => {
+    const path = urls['kiwixsearch']();
+    const params = { query: searchTerm };
+    httpClient({
+      path,
+      params,
+    }).then(response => {
+      resolve(response.entity);
+    });
+  });
+}
+
 function triggerSearch(store, channelId, searchTerm) {
   if (!searchTerm) {
     const searchState = {
@@ -442,12 +457,13 @@ function triggerSearch(store, channelId, searchTerm) {
     { search: searchTerm }
   );
   const searchResultsPromise = contentCollection.fetch();
-
-  searchResultsPromise
-    .then(results => {
+  const kiwixSearchResultsPromise = getKiwixSearchResults(store, searchTerm);
+  Promise.all([searchResultsPromise, kiwixSearchResultsPromise])
+    .then(([results, kiwixSearchResults]) => {
       const searchState = { searchTerm };
       searchState.contents = _collectionState(results);
       store.dispatch('SET_PAGE_STATE', searchState);
+      store.dispatch('SET_KIWIX_SEARCH_RESULTS', kiwixSearchResults);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {

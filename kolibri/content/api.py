@@ -381,9 +381,11 @@ class KiwixSearchViewSet(viewsets.ViewSet):
         else:
             raise Http404('Error search query not provided')
 
-        if 'KIWIX_PORT' in os.environ:
+        # if 'KIWIX_PORT' in os.environ:
+        if True:
             print('Kiwix server is installed...')
-            kiwix_port = os.environ['KIWIX_PORT']
+            # kiwix_port = os.environ['KIWIX_PORT']
+            kiwix_port = `8080`
             html = get_kiwix_search_results(query, kiwix_port)
             if html:
                 print(html[1000:1100])
