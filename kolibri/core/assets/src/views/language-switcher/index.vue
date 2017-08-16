@@ -10,12 +10,12 @@
     </div>
     <core-modal
       v-if="showModal"
+      class="core-text"
       :title="$tr('changeLanguageModalHeader')"
       @cancel="closeModal">
       <p>{{ $tr('changeLanguageSubHeader') }}</p>
       <k-radio-button
         v-for="language in languageOptions"
-        class="choice"
         :key="language.code"
         :radiovalue="language.code"
         :value="selectedLanguage"
@@ -128,8 +128,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  h1, p
-    color: black
+  .core-text
+    color: $core-text-default
 
   .choice
     color: $core-action-normal
