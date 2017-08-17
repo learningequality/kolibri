@@ -49,7 +49,7 @@
     methods: {
       genContentLink(id) {
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.LEARN_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
