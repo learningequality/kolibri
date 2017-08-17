@@ -245,7 +245,7 @@ def start(port=None, daemon=True):
             "Could not detect an IP address that Kolibri binds to, but try "
             "opening up the following addresses:\n")
         urls = [
-            "http://{}:{}".format(ip, port) for ip in ("0.0.0.0", "127.0.0.1")
+            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
         ]
     else:
         logger.info("Kolibri running on:\n")
