@@ -158,7 +158,7 @@ LANGUAGES = [
     ('hi-in', 'हिंदी'),
 ]
 
-LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
+LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
 TIME_ZONE = get_localzone().zone
 
