@@ -2,8 +2,8 @@
 
   <router-link :to="link" class="card">
 
-    <div class="card-thumbnail" :style="backgroundImg">
-      <content-icon v-if="!thumbnail" :kind="kind" class="card-thumbnail-backup"/>
+    <div class="card-thumbnail" :style="cardThumbnail">
+      <content-icon v-if="!thumbnail" :kind="kind" :style="iconSize" class="card-thumbnail-backup"/>
       <div v-show="progress > 0" class="card-progress-icon-wrapper">
         <progress-icon :progress="progress"/>
       </div>
@@ -34,13 +34,15 @@
 
 <script>
 
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
+
   export default {
+    mixins: [responsiveElement],
     props: {
       title: {
         type: String,
@@ -58,7 +60,7 @@
         type: String,
         required: true,
         validator(value) {
-          return values(CoreConstants.ContentNodeKinds).includes(value);
+          return values(ContentNodeKinds).includes(value);
         },
       },
       progress: {
@@ -83,14 +85,26 @@
       mastered() {
         return this.progress === 1;
       },
+      thumbnailHeight() {
+        return this.elSize.width * (9 / 16);
+      },
+      iconSize() {
+        // maintain the thumbnail 16:9 ratio
+        return {
+          'font-size': `${this.thumbnailHeight / 2}px`,
+        };
+      },
       inProgress() {
         return this.progress > 0 && this.progress < 1;
       },
-      backgroundImg() {
+      cardThumbnail() {
+        const thumbnailStyles = {
+          height: `${this.thumbnailHeight}px`,
+        };
         if (this.thumbnail) {
-          return { backgroundImage: `url('${this.thumbnail}')` };
+          thumbnailStyles.backgroundImage = `url('${this.thumbnail}')`;
         }
-        return {};
+        return thumbnailStyles;
       },
       backgroundClass() {
         if (this.kind === 'exercise') {
@@ -121,10 +135,8 @@
   @require '~kolibri.styles.definitions'
 
   $card-width = 210px
-  $card-height = $card-width
   $card-thumbnail-ratio = (9 / 16)
-  $card-thumbnail-height = $card-width * $card-thumbnail-ratio
-  $card-text-height = $card-height - $card-thumbnail-height
+  $card-text-height = $card-width - ($card-width * $card-thumbnail-ratio)
   $card-text-padding = ($card-width / (320 / 24))
   $card-elevation-resting = 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
   $card-elevation-raised = 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
@@ -136,7 +148,6 @@
   .card
     display: inline-block
     width: $card-width
-    height: $card-height
     border-radius: 2px
     background-color: $core-bg-light
     box-shadow: $card-elevation-resting
@@ -146,8 +157,7 @@
 
   .card-thumbnail
     position: relative
-    width: $card-width
-    height: $card-thumbnail-height
+    width: 100%
     background-size: cover
     background-position: center
     background-color: $core-grey
@@ -158,7 +168,6 @@
     left: 50%
     transform: translate(-50%, -50%)
     color: $core-text-annotation
-    font-size: ($card-thumbnail-height / 2)
 
   .card-progress-icon-wrapper
     position: absolute

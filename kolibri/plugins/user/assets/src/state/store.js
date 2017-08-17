@@ -1,13 +1,12 @@
 import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
-import * as constants from '../constants';
 
 /**
  ** pageState schemas
  **/
 
 const initialState = {
-  pageName: constants.PageNames.SCRATCHPAD,
+  pageName: undefined,
   pageState: {},
   facility: undefined,
 };

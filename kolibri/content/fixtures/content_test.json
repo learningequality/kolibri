@@ -159,7 +159,9 @@
   {
     "fields": {
       "lang_code": "en",
-      "lang_subcode": "01"
+      "lang_subcode": "01",
+      "lang_name": "English-Test",
+      "lang_direction": "ltr"
     },
     "pk": 1,
     "model": "content.language"
@@ -167,7 +169,9 @@
   {
     "fields": {
       "lang_code": "zh",
-      "lang_subcode": "02"
+      "lang_subcode": "02",
+      "lang_name": "Chinese-Test",
+      "lang_direction": "ltr"
     },
     "pk": 2,
     "model": "content.language"
@@ -175,7 +179,9 @@
   {
     "fields": {
       "lang_code": "es",
-      "lang_subcode": "03"
+      "lang_subcode": "03",
+      "lang_name": "Spanish-Test",
+      "lang_direction": "ltr"
     },
     "pk": 3,
     "model": "content.language"

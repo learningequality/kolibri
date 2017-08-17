@@ -79,14 +79,19 @@
       :header="recommendedText"
       :contents="recommended"/>
 
-    <content-points
-      v-if="progress >= 1 && wasIncomplete"
-      @close="closeModal"
-      :kind="content.next_content.kind"
-      :title="content.next_content.title">
+    <template v-if="progress >= 1 && wasIncomplete">
+      <points-popup
+        v-if="showPopup"
+        @close="markAsComplete"
+        :kind="content.next_content.kind"
+        :title="content.next_content.title">
+        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+      </points-popup>
 
-      <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
-    </content-points>
+      <transition v-else name="slidein" appear>
+        <points-slidein @close="markAsComplete"/>
+      </transition>
+    </template>
 
   </div>
 
@@ -112,10 +117,12 @@
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import assessmentWrapper from '../assessment-wrapper';
-  import contentPoints from '../content-points';
+  import pointsPopup from '../points-popup';
+  import pointsSlidein from '../points-slidein';
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -129,9 +136,42 @@
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
+      /**
+        * Detects whether an Android device is using WebView.
+        * Based on https://developer.chrome.com/multidevice/user-agent#webview_user_agent
+        */
+      isAndroidWebView() {
+        const ua = window.navigator.userAgent;
+        const isAndroid = /Android/.test(ua);
+
+        if (isAndroid) {
+          const androidVersion = parseFloat(ua.match(/Android\s([0-9\.]*)/)[1]);
+          const isChrome = /Chrome/.test(ua);
+
+          // WebView UA in Lollipop and Above
+          // Android >=5.0
+          if (androidVersion >= 5.0 && isChrome && /wv/.test(ua)) {
+            return true;
+          }
+
+          // WebView UA in KitKat to Lollipop
+          // Android >= 4.4
+          if (androidVersion >= 4.4 && androidVersion < 5.0 && isChrome && /Version\//.test(ua)) {
+            return true;
+          }
+
+          // Old WebView UA
+          // Android < 4.4
+          if (androidVersion < 4.4 && /Version\//.test(ua) && /\/534.30/.test(ua)) {
+            return true;
+          }
+        }
+
+        return false;
+      },
       canDownload() {
         if (this.content) {
-          return this.content.kind !== ContentNodeKinds.EXERCISE;
+          return this.content.kind !== ContentNodeKinds.EXERCISE && !this.isAndroidWebView;
         }
         return false;
       },
@@ -175,6 +215,13 @@
         }
         return false;
       },
+      showPopup() {
+        return (
+          this.content.kind === ContentNodeKinds.EXERCISE ||
+          this.content.kind === ContentNodeKinds.VIDEO ||
+          this.content.kind === ContentNodeKinds.AUDIO
+        );
+      },
     },
     components: {
       pageHeader,
@@ -183,7 +230,8 @@
       downloadButton,
       kButton,
       assessmentWrapper,
-      contentPoints,
+      pointsPopup,
+      pointsSlidein,
       uiPopover,
       uiIcon,
     },
@@ -201,7 +249,7 @@
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
-      closeModal() {
+      markAsComplete() {
         this.wasIncomplete = false;
       },
       genRecLink(id, kind) {

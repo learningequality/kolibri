@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    :title="$tr('title')"
+    :title="modalTitle"
     :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
@@ -72,6 +72,13 @@
       kButton,
     },
     computed: {
+      modalTitle() {
+        if (this.importSource === 'local') {
+          return this.$tr('localImportTitle');
+        } else {
+          return this.$tr('remoteImportTitle');
+        }
+      },
       localImportPrompt() {
         return this.$tr('localImportPrompt', {
           numChannels: this.channelList.length,
@@ -127,8 +134,7 @@
         'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
       localImportTitle: 'Import from local drive',
       remoteImportPrompt: 'You are about to import 1 channel',
-      remoteImporttitle: 'Import from internet',
-      title: 'Import from local drive',
+      remoteImportTitle: 'Import from internet',
     },
   };
 

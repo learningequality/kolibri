@@ -16,46 +16,40 @@
       </p>
     </template>
 
-    <template v-if="!canEditUsername">
+    <form @submit.prevent="submitEdits">
+
       <h3>{{ $tr('username') }}</h3>
-      <p>{{ session.username }}</p>
-    </template>
+      <k-textbox
+        v-if="canEditUsername"
+        :disabled="busy"
+        :invalid="error"
+        :invalidText="errorMessage"
+        v-model="username"
+        autocomplete="username"
+        type="text"
+        :label="$tr('username')"
+      />
+      <p v-else>{{ session.username }}</p>
 
-    <template v-if="!canEditName">
       <h3>{{ $tr('name') }}</h3>
-      <p>{{ session.full_name }}</p>
-    </template>
-
-    <form v-if="canEditUsername || canEditName" @submit.prevent="submitEdits">
-
-      <template v-if="canEditUsername">
-        <k-textbox
-          :disabled="busy"
-          :invalid="error"
-          :invalidText="errorMessage"
-          v-model="username"
-          autocomplete="username"
-          type="text"
-          :label="$tr('username')"
-        />
-      </template>
-
-      <template v-if="canEditName">
-        <k-textbox
-          :disabled="busy"
-          v-model="full_name"
-          autocomplete="name"
-          type="text"
-          :label="$tr('name')"
-        />
-      </template>
+      <k-textbox
+        v-if="canEditName"
+        :disabled="busy"
+        v-model="full_name"
+        autocomplete="name"
+        type="text"
+        :label="$tr('name')"
+      />
+      <p v-else>{{ session.full_name }}</p>
 
       <k-button
+        v-if="canEditUsername || canEditName"
         :disabled="busy"
         :primary="true"
         :text="$tr('updateProfile')"
         class="submit"
-        type="submit" />
+        type="submit"
+      />
     </form>
   </div>
 
@@ -67,7 +61,6 @@
   import * as actions from '../../state/actions';
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { totalPoints } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -159,7 +152,7 @@
         isAdmin: getters.isAdmin,
         isCoach: getters.isCoach,
         isLearner: getters.isLearner,
-        totalPoints,
+        totalPoints: getters.totalPoints,
       },
       actions: {
         editProfile: actions.editProfile,

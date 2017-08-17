@@ -14,18 +14,7 @@
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-grid v-else :contents="contents">
-        <template scope="content">
-          <content-card
-            :key="content.id"
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :progress="content.progress"
-            :kind="content.kind"
-            :link="genLink(content)"
-          />
-        </template>
-      </content-card-grid>
+      <content-card-grid v-else :gen-link="genLink" :contents="contents" />
 
     </template>
 
@@ -56,21 +45,21 @@
       searchBox,
     },
     methods: {
-      genLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC) {
+      genLink(id, kind) {
+        if (kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: {
+              id,
               channel_id: this.channelId,
-              id: content.id,
             },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
           params: {
+            id,
             channel_id: this.channelId,
-            id: content.id,
           },
         };
       },

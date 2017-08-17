@@ -13,19 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <content-card-grid :contents="contents" v-if="contents.length">
-
-      <template scope="content">
-        <content-card
-          :key="content.id"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :link="genLink(content)"/>
-      </template>
-
-    </content-card-grid>
+    <content-card-grid :contents="contents" :gen-link="genLink" v-if="contents.length" />
 
   </div>
 
@@ -59,16 +47,16 @@
       },
     },
     methods: {
-      genLink(node) {
-        if (node.kind === ContentNodeKinds.TOPIC) {
+      genLink(id, kind) {
+        if (kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id: node.id },
+            params: { channel_id: this.channelId, id },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id: node.id },
+          params: { channel_id: this.channelId, id },
         };
       },
     },
