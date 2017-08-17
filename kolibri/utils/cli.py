@@ -269,7 +269,7 @@ def start(port=None, daemon=True):
     server.start(port=port)
 
 
-def stop(sys_exit=True):
+def stop():
     """
     Stops the server unless it isn't running
     """
@@ -303,9 +303,7 @@ def stop(sys_exit=True):
             stopped = True
 
     if stopped:
-        logger.info("Server stopped")
-        if sys_exit:
-            sys.exit(0)
+        sys.exit(0)
 
 
 def status():

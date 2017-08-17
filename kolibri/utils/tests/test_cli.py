@@ -14,6 +14,21 @@ from kolibri.utils import cli
 logger = logging.getLogger(__name__)
 
 
+LOG_LOGGER = []
+
+
+def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
+    """
+    Monkeypatching for logging.Logger._log to scoop up log messages if we wanna
+    test something specific was logged.
+    """
+    LOG_LOGGER.append(
+        (LEVEL, msg)
+    )
+    # Call the original function
+    logger_instance.__log(LEVEL, msg, args, **kwargs)
+
+
 @pytest.fixture
 def conf():
     from kolibri.utils import conf
@@ -94,6 +109,63 @@ def test_plugin_with_no_plugin_class(conf):
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 
 
+@pytest.mark.django_db
+def test_kolibri_listen_port_env(monkeypatch):
+    """
+    Starts and stops the server, mocking the actual server.start()
+    Checks that the correct fallback port is used from the environment.
+    """
+
+    monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
+    monkeypatch.setattr(logging.Logger, '_log', log_logger)
+
+    from kolibri.utils import server
+
+    test_port = 1234
+    # ENV VARS are always a string
+    os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+
+    def start_mock(port, *args, **kwargs):
+        assert port == test_port
+
+    orig_start = server.start
+
+    try:
+        server.start = start_mock
+        cli.start(daemon=False)
+        try:
+            cli.stop()
+            raise AssertionError("No expected SystemExit")
+        except SystemExit as e:
+            assert e.code == 0
+
+        # Stop the server AGAIN, asserting that we can call the stop command
+        # on an already stopped server and will be gracefully informed about
+        # it.
+        try:
+            cli.stop()
+            raise AssertionError("No expected SystemExit")
+        except SystemExit as e:
+            assert "Already stopped" in LOG_LOGGER[-1][1]
+            assert e.code == 0
+
+        def status_starting_up():
+            raise server.NotRunning(server.STATUS_STARTING_UP)
+
+        # Ensure that if a server is reported to be 'starting up', it doesn't
+        # get killed while doing that.
+        try:
+            monkeypatch.setattr(server, 'get_status', status_starting_up)
+            cli.stop()
+            raise AssertionError("No expected SystemExit")
+        except SystemExit as e:
+            assert "Not stopped" in LOG_LOGGER[-1][1]
+            assert e.code == server.STATUS_STARTING_UP
+
+    finally:
+        server.start = orig_start
+
+
 class TestKolibriCLI(unittest.TestCase):
 
     def test_cli(self):
@@ -131,27 +203,3 @@ class TestKolibriCLI(unittest.TestCase):
                 assert docopt[k] == v
 
             assert django == django_expected
-
-    @pytest.mark.django_db
-    def test_kolibri_listen_port_env(self):
-        """
-        Starts and stops the server, mocking the actual server.start()
-        Checks that the correct fallback port is used from the environment.
-        """
-        test_port = 1234
-        # ENV VARS are always a string
-        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
-
-        def start_mock(port, *args, **kwargs):
-            assert port == test_port
-
-        from kolibri.utils import server
-
-        orig_start = server.start
-
-        try:
-            server.start = start_mock
-            cli.start(daemon=False)
-            cli.stop(sys_exit=False)
-        finally:
-            server.start = orig_start
