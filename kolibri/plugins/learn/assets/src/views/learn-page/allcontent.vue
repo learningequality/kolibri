@@ -1,6 +1,6 @@
 <template>
 
-  <content-card-grid :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
+  <content-card-group-grid :contents="contentToShow" :header="$tr('allContentPageHeader')" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -12,7 +12,7 @@
 
     </div>
 
-  </content-card-grid>
+  </content-card-group-grid>
 
 </template>
 
@@ -22,7 +22,7 @@
   import { PageNames } from '../../constants';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   export default {
     name: 'allContent',
     $trs: {
@@ -75,7 +75,7 @@
     },
     components: {
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
     },
     vuex: {
       getters: {

@@ -13,7 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <content-card-grid :contents="contents" :gen-link="genLink" v-if="contents.length" />
+    <content-card-group-grid :contents="contents" :gen-content-link="genContentLink" v-if="contents.length" />
 
   </div>
 
@@ -29,7 +29,7 @@
   import forEach from 'lodash/forEach';
   import pageHeader from '../page-header';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   export default {
     name: 'learnExplore',
     $trs: {
@@ -39,7 +39,7 @@
     components: {
       pageHeader,
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
     },
     computed: {
       title() {
@@ -47,7 +47,7 @@
       },
     },
     methods: {
-      genLink(id, kind) {
+      genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,

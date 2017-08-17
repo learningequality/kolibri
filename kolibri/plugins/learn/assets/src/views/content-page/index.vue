@@ -73,9 +73,9 @@
 
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
-    <content-card-carousel
+    <content-card-group-carousel
       v-if="showRecommended"
-      :gen-link="genRecLink"
+      :gen-content-link="genContentLink"
       :header="recommendedText"
       :contents="recommended"/>
 
@@ -110,9 +110,9 @@
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
-  import contentCardCarousel from '../content-card-carousel';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -194,18 +194,8 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        const nextContent = this.content.next_content;
-        if (nextContent) {
-          if (nextContent.kind === 'topic') {
-            return {
-              name: PageNames.EXPLORE_TOPIC,
-              params: { channel_id: this.channelId, id: nextContent.id },
-            };
-          }
-          return {
-            name: PageNames.EXPLORE_CONTENT,
-            params: { channel_id: this.channelId, id: nextContent.id },
-          };
+        if (this.content.next_content) {
+          return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
       },
@@ -225,7 +215,7 @@
     },
     components: {
       pageHeader,
-      contentCardCarousel,
+      contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
       kButton,
@@ -252,7 +242,7 @@
       markAsComplete() {
         this.wasIncomplete = false;
       },
-      genRecLink(id, kind) {
+      genContentLink(id, kind) {
         if (kind === 'topic') {
           return {
             name: PageNames.EXPLORE_TOPIC,

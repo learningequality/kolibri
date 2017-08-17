@@ -2,13 +2,6 @@
 
   <section class="content-carousel">
 
-    <div class="content-carousel-details">
-      <header v-if="header" class="content-carousel-details-header">
-        <h2> {{header}} </h2>
-        <span v-if="subheader"> {{subheader}} </span>
-      </header>
-    </div>
-
     <div :style="widthOfCarousel" class="content-carousel-controls">
       <div class="previous" @click="previousSet">
         <ui-icon-button
@@ -59,7 +52,7 @@
             :thumbnail="content.thumbnail"
             :kind="content.kind"
             :progress="content.progress"
-            :link="genLink(content.id, content.kind)"/>
+            :link="genContentLink(content.id, content.kind)"/>
           </slot>
       </div>
 
@@ -74,7 +67,6 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
@@ -90,19 +82,16 @@
         type: Array,
         required: true,
       },
-      header: { type: String },
-      subheader: { type: String },
-      genLink: {
+      genContentLink: {
         type: Function,
-        validator(value) {
-          const dummyExercise = value(1, 'exercise');
+        validator(genContentLinkFunc) {
+          const dummyExercise = genContentLinkFunc(1, 'exercise');
           const isValidLinkGenerator = validateLinkObject(dummyExercise);
           return isValidLinkGenerator;
         },
       },
     },
     components: {
-      kButton,
       uiIconButton,
       contentCard,
     },
@@ -141,7 +130,8 @@
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
         this.leftToRight = removingCards;
-        if (this.isLastSet && addingCards) {
+
+        if (this.isLastSet && addingCards && !this.isFirstSet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
           this.leftToRight = true;
         }
@@ -235,25 +225,10 @@
   // width of card + gutter
   $card-height = 210px
 
+
   .content-carousel
     margin-top: 1em
-    margin-bottom: 1em
     clearfix()
-
-    &-details
-      clearfix()
-
-      &-header
-        float: left
-        text-align: left
-        margin-bottom: 1em
-        h2
-          margin: 0
-      &-view-all
-        float: right
-        color: white
-        background-color: $core-action-normal
-
 
     &-controls
       $hit-height = 100px
@@ -262,13 +237,11 @@
       // set up the parent element that the buttons use for reference
       position: absolute
       width: 100%
-      clearfix()
 
       // styles that apply to both control buttons
       .next, .previous
         &:active
           z-index: 8 // material
-          // goes up one reference (Stylus partial reference)
 
         z-index: 2 // material
         position: absolute
