@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
     'kolibri.core.exams',
+    'kolibri.core.device',
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
