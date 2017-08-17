@@ -221,6 +221,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     is_superuser = False
     is_facility_user = False
 
+    can_manage_content = False
+
     def get_short_name(self):
         return self.full_name.split(' ', 1)[0]
 
@@ -478,12 +480,19 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         return self.facility.dataset
 
-    @property
-    def is_superuser(self):
+    def get_permission(self, permission):
         try:
-            return self.devicepermissions.is_superuser
+            return getattr(self.devicepermissions, 'is_superuser') or getattr(self.devicepermissions, permission)
         except ObjectDoesNotExist:
             return False
+
+    @property
+    def can_manage_content(self):
+        return self.get_permission('can_manage_content')
+
+    @property
+    def is_superuser(self):
+        return self.get_permission('is_superuser')
 
     @property
     def is_staff(self):

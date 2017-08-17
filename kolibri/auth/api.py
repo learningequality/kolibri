@@ -228,7 +228,8 @@ class SessionViewSet(viewsets.ViewSet):
         session = {'id': 'current',
                    'username': user.username,
                    'full_name': user.full_name,
-                   'user_id': user.id}
+                   'user_id': user.id,
+                   'can_manage_content': user.can_manage_content}
         roles = Role.objects.filter(user_id=user.id)
         if len(roles) is not 0 or user.is_superuser:
             session.update({'facility_id': user.facility_id,
