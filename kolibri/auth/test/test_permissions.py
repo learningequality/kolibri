@@ -475,12 +475,12 @@ class FacilityUserPermissionsTestCase(TestCase):
         self.assertFalse(self.member.can_update(orphan))
         self.assertFalse(self.anon_user.can_update(orphan))
 
-    def test_facility_user_can_delete_self(self):
-        """ A FacilityUser can delete its own FacilityUser model """
-        self.assertTrue(self.member.can_delete(self.member))
-        self.assertTrue(self.own_classroom_coach.can_delete(self.own_classroom_coach))
-        self.assertTrue(self.own_classroom_admin.can_delete(self.own_classroom_admin))
-        self.assertTrue(self.data["facility_admin"].can_delete(self.data["facility_admin"]))
+    def test_facility_user_cannot_delete_self(self):
+        """ A FacilityUser cannot delete its own FacilityUser model """
+        self.assertFalse(self.member.can_delete(self.member))
+        self.assertFalse(self.own_classroom_coach.can_delete(self.own_classroom_coach))
+        self.assertFalse(self.own_classroom_admin.can_delete(self.own_classroom_admin))
+        self.assertFalse(self.data["facility_admin"].can_delete(self.data["facility_admin"]))
 
     def test_only_facility_admins_can_delete_facility_user(self):
         """ The only FacilityUsers who can delete a FacilityUser are admins for the Facility """
