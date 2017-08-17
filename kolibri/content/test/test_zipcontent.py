@@ -3,7 +3,7 @@ import tempfile
 from django.test import TestCase
 from django.test import Client
 from django.test.utils import override_settings
-from kolibri.auth.models import DeviceOwner
+from kolibri.core.device.test.helpers import provision_device
 import hashlib
 import zipfile
 
@@ -29,8 +29,7 @@ class ZipContentTestCase(TestCase):
 
         self.client = Client()
 
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        provision_device()
 
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
         self.extension = "zip"

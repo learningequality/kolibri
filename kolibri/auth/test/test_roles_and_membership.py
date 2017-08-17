@@ -7,8 +7,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from ..constants import role_kinds
-from ..models import DeviceOwner, KolibriAnonymousUser, FacilityUser, Facility, Classroom, LearnerGroup
-from .helpers import create_dummy_facility_data
+from ..models import KolibriAnonymousUser, FacilityUser, Facility, Classroom, LearnerGroup
+from .helpers import create_dummy_facility_data, create_superuser
 
 
 def flatten(lst):
@@ -114,14 +114,16 @@ class RolesAcrossFacilitiesTestCase(TestCase):
         users2 = self.data2["all_users"]
         for user1 in users1:
             for user2 in users2:
-                self.assertEqual(len(user1.get_roles_for(user2)), 0)
+                if not user1.is_superuser:
+                    self.assertEqual(len(user1.get_roles_for(user2)), 0)
 
     def test_no_roles_for_collections_across_facilities(self):
         users1 = self.data1["classroom_coaches"] + [self.data1["facility_admin"]] + list(self.data1["facility"].get_members())
         collections2 = [self.data2["facility"]] + self.data2["classrooms"] + flatten(self.data2["learnergroups"])
         for user1 in users1:
             for collection2 in collections2:
-                self.assertEqual(len(user1.get_roles_for(collection2)), 0)
+                if not user1.is_superuser:
+                    self.assertEqual(len(user1.get_roles_for(collection2)), 0)
 
 
 class MembershipWithinFacilityTestCase(TestCase):
@@ -134,7 +136,7 @@ class MembershipWithinFacilityTestCase(TestCase):
         actual_members = flatten(self.data["learners_one_group"] + [self.data["learner_all_groups"]] +
                                  self.data["unattached_users"] + [self.data["facility_admin"]] +
                                  [self.data["facility_coach"]] + self.data["classroom_admins"] +
-                                 self.data["classroom_coaches"])
+                                 self.data["classroom_coaches"] + [self.data["superuser"]])
         returned_members = self.data["facility"].get_members()
         self.assertSetEqual(set(actual_members), set(returned_members))
         for user in actual_members:
@@ -188,37 +190,32 @@ class MembershipAcrossFacilitiesTestCase(TestCase):
             self.assertFalse(user.is_member_of(self.data2["learnergroups"][0][0]))
 
 
-class DeviceOwnerRolesTestCase(TestCase):
+class SuperuserRolesTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
-        self.device_owner2 = DeviceOwner.objects.create(username="blaah", password="#")
+        self.superuser = self.data["superuser"]
+        self.superuser2 = create_superuser(self.data["facility"], username="superuser2")
 
-    def test_device_owner_has_admin_role_for_everyone(self):
+    def test_superuser_has_admin_role_for_everyone(self):
         for user in self.data["all_users"]:
-            self.assertTrue(self.device_owner.has_role_for(role_kinds.ADMIN, user))
+            self.assertTrue(self.superuser.has_role_for(role_kinds.ADMIN, user))
 
-    def test_device_owner_has_admin_role_for_all_collections(self):
+    def test_superuser_has_admin_role_for_all_collections(self):
         for coll in self.data["all_collections"]:
-            self.assertTrue(self.device_owner.has_role_for(role_kinds.ADMIN, coll))
+            self.assertTrue(self.superuser.has_role_for(role_kinds.ADMIN, coll))
 
-    def test_nobody_has_roles_to_device_owner(self):
-        for user in self.data["all_users"]:
-            self.assertEqual(len(user.get_roles_for(self.device_owner)), 0)
+    def test_superuser_has_admin_role_for_itself(self):
+        self.assertTrue(self.superuser.has_role_for(role_kinds.ADMIN, self.superuser))
 
-    def test_device_owner_has_admin_role_for_itself(self):
-        self.assertTrue(self.device_owner.has_role_for(role_kinds.ADMIN, self.device_owner))
-
-    def test_device_owner_has_admin_role_for_other_device_owner(self):
-        self.assertTrue(self.device_owner.has_role_for(role_kinds.ADMIN, self.device_owner2))
+    def test_superuser_has_admin_role_for_other_superuser(self):
+        self.assertTrue(self.superuser.has_role_for(role_kinds.ADMIN, self.superuser2))
 
 
 class AnonymousUserRolesTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
         self.anon_user = KolibriAnonymousUser()
 
     def test_anon_user_has_no_admin_role_for_anyone(self):
@@ -231,6 +228,7 @@ class AnonymousUserRolesTestCase(TestCase):
             self.assertFalse(self.anon_user.has_role_for(role_kinds.ADMIN, coll))
             self.assertEqual(len(self.anon_user.get_roles_for(coll)), 0)
 
-    def test_nobody_has_roles_for_anon_user(self):
+    def test_nobody_but_superuser_has_roles_for_anon_user(self):
         for user in self.data["all_users"]:
-            self.assertEqual(len(user.get_roles_for(self.anon_user)), 0)
+            if not user.is_superuser:
+                self.assertEqual(len(user.get_roles_for(self.anon_user)), 0)
