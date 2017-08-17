@@ -2,24 +2,19 @@
 
   <div>
 
-    <!-- linking the entire details section to a "view more" page -->
-    <router-link v-if="showViewMore" :to="viewMorePageLink">
       <div class="card-group-details">
+
         <h2 v-if="header" class="card-group-details-header">
           {{ header }}
         </h2>
-        <span class="card-group-details-view-more">
-          {{ $tr('viewMoreFromSectionButton') }}
-        </span>
-      </div>
-    </router-link>
 
-    <!-- relying on vue to not have to re-render all of this -->
-    <header v-else class="card-group-details">
-      <h2 v-if="header" class="card-group-details-header">
-        {{header}}
-      </h2>
-    </header>
+        <span v-if="showViewMore" class="card-group-details-view-more">
+          <router-link to="viewMorePageLink">
+            {{ $tr('viewMoreFromSectionButton') }}
+          </router-link>
+        </span>
+
+      </div>
 
   </div>
 
