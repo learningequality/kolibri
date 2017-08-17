@@ -256,9 +256,9 @@ LOGGING = {
 # Customizing Django auth system
 # https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
 
-AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
+AUTH_USER_MODEL = 'kolibriauth.FacilityUser'
 
-AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
+AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.FacilityUserBackend']
 
 
 # Django REST Framework

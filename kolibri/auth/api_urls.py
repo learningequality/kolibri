@@ -1,8 +1,8 @@
 from rest_framework import routers
 
 from .api import (
-    ClassroomViewSet, CurrentFacilityViewSet, DeviceOwnerViewSet, FacilityDatasetViewSet, FacilityUsernameViewSet, FacilityUserViewSet, FacilityViewSet,
-    LearnerGroupViewSet, MembershipViewSet, RoleViewSet, SessionViewSet, SignUpViewSet
+    ClassroomViewSet, CurrentFacilityViewSet, FacilityDatasetViewSet, FacilityUsernameViewSet, FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet,
+    MembershipViewSet, RoleViewSet, SessionViewSet, SignUpViewSet
 )
 
 router = routers.SimpleRouter()
@@ -10,7 +10,6 @@ router = routers.SimpleRouter()
 router.register(r'facilitydataset', FacilityDatasetViewSet, base_name='facilitydataset')
 router.register(r'facilityuser', FacilityUserViewSet, base_name='facilityuser')
 router.register(r'facilityusername', FacilityUsernameViewSet, base_name='facilityusername')
-router.register(r'deviceowner', DeviceOwnerViewSet, base_name='deviceowner')
 router.register(r'membership', MembershipViewSet, base_name='membership')
 router.register(r'role', RoleViewSet, base_name='role')
 router.register(r'facility', FacilityViewSet, base_name='facility')
