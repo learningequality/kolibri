@@ -43,8 +43,7 @@ What happens after you file a report?
 -------------------------------------
 
 You will receive an email from the Code of Conduct committee
-acknowledging receipt immediately. We promise to acknowledge receipt
-within 24 hours (and will aim for much quicker than that).
+acknowledging receipt within 48 hours (we aim to be quicker than that).
 
 The committee will immediately meet to review the incident and
 determine:
@@ -116,8 +115,7 @@ How the committee will respond to reports
 -----------------------------------------
 
 When a report is sent to the committee they will immediately reply to
-the report to confirm receipt. This reply must be sent within 24 hours,
-and the committee should strive to respond much quicker than that.
+the report to confirm receipt.
 
 See the reporting guidelines for details of what reports should contain.
 If a report doesn't contain enough information, the committee will

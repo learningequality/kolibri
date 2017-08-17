@@ -31,7 +31,7 @@ power that exist in society.
 
 If you see someone who is making an extra effort to ensure our community
 is welcoming, friendly, and encourages all participants to contribute to
-the fullest extent, we want to know.
+the fullest extent, we also want to know!
 
 3. Expected Behavior
 --------------------
