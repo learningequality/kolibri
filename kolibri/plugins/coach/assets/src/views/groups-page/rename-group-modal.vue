@@ -4,13 +4,12 @@
     @cancel="close">
     <div>
       <form @submit.prevent="callRenameGroup">
-        <textbox type="text"
+        <k-textbox type="text"
           :label="$tr('learnerGroupName')"
-          :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
           :required="true"
           :invalid="duplicateName"
-          :error="$tr('duplicateName')"
+          :invalidText="$tr('duplicateName')"
           v-model.trim="groupNameInput" />
         <k-button :text="$tr('cancel')"
           :raised="false"
@@ -30,7 +29,7 @@
 
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'renameGroupModal',
@@ -49,7 +48,7 @@
     },
     components: {
       coreModal,
-      textbox,
+      kTextbox,
       kButton,
     },
     props: {

@@ -19,24 +19,26 @@
     <form @submit.prevent="submitEdits">
 
       <h3>{{ $tr('username') }}</h3>
-      <core-textbox
+      <k-textbox
         v-if="canEditUsername"
         :disabled="busy"
         :invalid="error"
-        :error="errorMessage"
+        :invalidText="errorMessage"
         v-model="username"
         autocomplete="username"
         type="text"
+        :label="$tr('username')"
       />
       <p v-else>{{ session.username }}</p>
 
       <h3>{{ $tr('name') }}</h3>
-      <core-textbox
+      <k-textbox
         v-if="canEditName"
         :disabled="busy"
         v-model="full_name"
         autocomplete="name"
         type="text"
+        :label="$tr('name')"
       />
       <p v-else>{{ session.full_name }}</p>
 
@@ -61,7 +63,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiAlert from 'keen-ui/src/UiAlert';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   export default {
@@ -81,7 +83,7 @@
     },
     components: {
       kButton,
-      coreTextbox,
+      kTextbox,
       uiAlert,
       pointsIcon,
     },

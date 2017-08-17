@@ -6,14 +6,13 @@
   >
     <div>
       <form @submit.prevent="createNewClass">
-        <core-textbox
+        <k-textbox
           :label="$tr('classname')"
-          :aria-label="$tr('classname')"
           v-model.trim="name"
           :autofocus="true"
           :required="true"
           :invalid="duplicateName"
-          :error="$tr('duplicateName')"
+          :invalidText="$tr('duplicateName')"
           type="text"
         />
 
@@ -43,7 +42,7 @@
   import * as actions from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'classCreateModal',
     $trs: {
@@ -56,7 +55,7 @@
     components: {
       kButton,
       coreModal,
-      coreTextbox,
+      kTextbox,
     },
     props: {
       classes: {

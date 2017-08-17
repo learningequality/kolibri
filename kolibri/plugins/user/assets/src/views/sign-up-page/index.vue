@@ -23,9 +23,8 @@
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <core-textbox
+      <k-textbox
         :label="$tr('name')"
-        :aria-label="$tr('name')"
         :maxlength="120"
         v-model="name"
         autocomplete="name"
@@ -34,12 +33,11 @@
         id="name"
         type="text" />
 
-      <core-textbox
+      <k-textbox
         :label="$tr('username')"
-        :aria-label="$tr('username')"
         :maxlength="30"
         :invalid="!usernameIsValid"
-        :error="usernameIsInvalidError"
+        :invalidText="usernameIsInvalidError"
         @input="resetSignUpState"
         v-model="username"
         autocomplete="username"
@@ -47,22 +45,20 @@
         id="username"
         type="text" />
 
-      <core-textbox
+      <k-textbox
         id="password"
         type="password"
-        :aria-label="$tr('password')"
         :label="$tr('password')"
         v-model="password"
         autocomplete="new-password"
         required />
 
-      <core-textbox
+      <k-textbox
         id="confirmed-password"
         type="password"
-        :aria-label="$tr('reEnterPassword')"
         :label="$tr('reEnterPassword')"
         :invalid="!passwordsMatch"
-        :error="passwordError "
+        :invalidText="passwordError "
         v-model="confirmed_password"
         autocomplete="new-password"
         required />
@@ -93,7 +89,7 @@
   import { PageNames } from '../../constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
@@ -119,7 +115,7 @@
     components: {
       kButton,
       uiAlert,
-      coreTextbox,
+      kTextbox,
       uiToolbar,
       logo,
       uiIcon,

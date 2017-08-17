@@ -16,29 +16,28 @@
           </legend>
           <p class="description">{{ $tr('deviceOwnerDescription') }}</p>
 
-          <core-textbox
+          <k-textbox
             @focus="firstUsernameFieldVisit || visitUsername()"
             @blur="validateUsername()"
             :invalid="!!usernameError"
-            :error="usernameError"
+            :invalidText="usernameError"
             :required="true"
             :label="$tr('usernameInputLabel')"
             :maxlength="30"
-            :enforceMaxlength="true"
             v-model="username"
           />
 
-          <core-textbox
+          <k-textbox
             @focus="firstPasswordFieldsVisit || visitPassword()"
             :invalid="!!passwordError"
-            :error="passwordError"
+            :invalidText="passwordError"
             :required="true"
             :label="$tr('passwordInputLabel')"
             type="password"
             v-model="password"
           />
 
-          <core-textbox
+          <k-textbox
             @blur="validatePassword()"
             :invalid="!!passwordError"
             :required="true"
@@ -55,15 +54,14 @@
           </legend>
           <p class="description">{{ $tr('facilityDescription') }}</p>
 
-          <core-textbox
+          <k-textbox
             @focus="firstFacilityFieldVisit || visitFacility()"
             @blur="validateFacility"
             :invalid="!!facilityError"
-            :error="facilityError"
+            :invalidText="facilityError"
             :required="true"
             :label="$tr('facilityInputLabel')"
             :maxlength="100"
-            :enforceMaxlength="true"
             v-model="facility"
           />
         </fieldset>
@@ -101,7 +99,7 @@
 
   import { createDeviceOwnerAndFacility } from '../state/actions';
   import store from '../state/store';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
@@ -142,7 +140,7 @@
       };
     },
     components: {
-      coreTextbox,
+      kTextbox,
       kButton,
       uiAlert,
     },

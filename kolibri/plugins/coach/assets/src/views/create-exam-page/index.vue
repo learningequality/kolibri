@@ -4,25 +4,21 @@
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <div class="pure-g">
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
+        <k-textbox
           :label="$tr('title')"
-          :ariaLabel="$tr('title')"
-          :placeholder="$tr('enterTitle')"
           :autofocus="true"
           :invalid="titleInvalid"
-          :error="titleInvalidMsg"
+          :invalidText="titleInvalidMsg"
           v-model.trim="inputTitle"
           @blur="validateTitle = true"
           @input="validateTitle = true"
         />
       </div>
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
+        <k-textbox
           :label="$tr('numQuestions')"
-          :ariaLabel="$tr('numQuestions')"
-          :placeholder="$tr('enterNum')"
           :invalid="numQuestionsInvalid"
-          :error="numQuestionsInvalidMsg"
+          :invalidText="numQuestionsInvalidMsg"
           type="number"
           v-model.trim.number="inputNumQuestions"
           @blur="validateNumQuestMax = true"
@@ -32,9 +28,7 @@
     </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
-    <!--<textbox-->
-      <!--:ariaLabel="$tr('searchContent')"-->
-      <!--:placeholder="$tr('searchContent')"-->
+    <!--<k-textbox-->
       <!--v-model.trim="searchInput"-->
     <!--/>-->
     <!--<div v-if="searchInput">-->
@@ -138,7 +132,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import topicRow from './topic-row';
   import exerciseRow from './exercise-row';
   import previewNewExamModal from './preview-new-exam-modal';
@@ -150,9 +144,7 @@
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
       title: 'Exam title',
-      enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
-      enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
       numQuestionsExceed:
@@ -188,7 +180,7 @@
       uiSnackbarContainer,
       uiProgressLinear,
       kButton,
-      textbox,
+      kTextbox,
       topicRow,
       exerciseRow,
       previewNewExamModal,

@@ -34,7 +34,7 @@ import coreBase from '../views/core-base';
 import coreModal from '../views/core-modal';
 import sideNav from '../views/side-nav';
 import kButton from '../views/k-button';
-import textbox from '../views/textbox';
+import kTextbox from '../views/k-textbox';
 import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
 import kNavbarButton from '../views/k-navbar/button';
@@ -92,7 +92,7 @@ export default {
       coreModal,
       sideNav,
       kButton,
-      textbox,
+      kTextbox,
       dropdownMenu,
       kNavbar,
       kNavbarButton,

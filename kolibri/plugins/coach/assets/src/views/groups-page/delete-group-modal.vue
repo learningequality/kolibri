@@ -19,7 +19,7 @@
 
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'deleteGroupModal',
@@ -33,7 +33,7 @@
     },
     components: {
       coreModal,
-      textbox,
+      kTextbox,
       kButton,
     },
     props: {

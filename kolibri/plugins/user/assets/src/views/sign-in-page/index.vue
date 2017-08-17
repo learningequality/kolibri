@@ -6,11 +6,9 @@
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
         <transition name="textbox">
-          <core-textbox
+          <k-textbox
             :label="$tr('username')"
             id="username"
-            :placeholder="$tr('enterUsername')"
-            :aria-label="$tr('username')"
             v-model="username"
             required
             autofocus
@@ -30,19 +28,17 @@
           </ul>
         </transition>
         <transition name="textbox">
-          <core-textbox
+          <k-textbox
             :label="$tr('password')"
             v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
             id="password"
             type="password"
-            :placeholder="$tr('enterPassword')"
-            :aria-label="$tr('password')"
             v-model="password"
             autocomplete="current-password"
             :autofocus="simpleLogin"
             :required="!simpleLogin"
             :invalid="passwordMissing"
-            :error="passwordMissing ? $tr('enterPassword') : ''"/>
+            :invalidText="passwordMissing ? $tr('enterPassword') : ''"/>
         </transition>
         <k-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
 
@@ -74,7 +70,7 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   export default {
@@ -83,7 +79,6 @@
       kolibri: 'Kolibri',
       signIn: 'Sign in',
       username: 'Username',
-      enterUsername: 'Enter username',
       password: 'Password',
       enterPassword: 'Enter password',
       noAccount: `Don't have an account?`,
@@ -94,7 +89,7 @@
     },
     components: {
       kButton,
-      coreTextbox,
+      kTextbox,
       logo,
       uiAutocompleteSuggestion,
     },
