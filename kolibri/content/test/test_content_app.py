@@ -17,7 +17,7 @@ from ..content_db_router import set_active_content_database, using_content_datab
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
-from kolibri.core.device.test.helpers import provision_device
+from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()

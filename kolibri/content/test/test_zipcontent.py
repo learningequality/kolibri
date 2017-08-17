@@ -3,7 +3,7 @@ import tempfile
 from django.test import TestCase
 from django.test import Client
 from django.test.utils import override_settings
-from kolibri.core.device.test.helpers import provision_device
+from kolibri.auth.test.helpers import provision_device
 import hashlib
 import zipfile
 

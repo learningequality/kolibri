@@ -6,7 +6,7 @@ from django.test import TestCase, Client
 from django.test.utils import override_settings
 from kolibri.content.models import File, ContentNode
 from kolibri.content.utils.paths import get_content_storage_file_path
-from kolibri.core.device.test.helpers import provision_device
+from kolibri.auth.test.helpers import provision_device
 from le_utils.constants import file_formats, format_presets
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
