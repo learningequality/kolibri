@@ -37,7 +37,7 @@
       <div v-if="androidAndKiwixInstalled">
         <a :href="`kiwix://search/${searchTerm}`" target="_blank">Search for "{{ searchTerm }}" within Kiwix</a>
       </div>
-
+    <a :href="`kiwix://search/${searchTerm}`" target="_blank">Search for "{{ searchTerm }}" within Kiwix</a>
       <!--if android and not installed, show nothing-->
 
     </template>
