@@ -16,7 +16,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from six.moves.urllib.parse import parse_qs, urlparse
 
-from .permissions import OnlyDeviceOwnerCanDelete
+from .permissions import OnlySuperuserCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
@@ -27,7 +27,7 @@ def _join_with_logical_operator(lst, operator):
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlyDeviceOwnerCanDelete,)
+    permission_classes = (OnlySuperuserCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):

@@ -97,7 +97,7 @@
 
 <script>
 
-  import { createDeviceOwnerAndFacility } from '../state/actions';
+  import { provisionDevice } from '../state/actions';
   import store from '../state/store';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -188,12 +188,24 @@
         this.globalError = '';
 
         if (this.canSubmit) {
-          const deviceOwnerPayload = {
+          const superuser = {
             password: this.password,
             username: this.username,
           };
-          const facilityPayload = { name: this.facility };
-          this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
+          const facility = { name: this.facility };
+          // TODO (rtibbles - paging DXCanas): Actually set these!
+          const languageCode = 'en';
+          const dataset = {
+            description: '',
+            location: 'Somewhere over the rainbow',
+            learner_can_edit_username: true,
+            learner_can_edit_name: true,
+            learner_can_edit_password: true,
+            learner_can_sign_up: true,
+            learner_can_delete_account: true,
+            learner_can_login_with_no_password: false,
+          };
+          this.provisionDevice(superuser, facility, dataset, languageCode);
         } else {
           if (this.firstUsernameFieldVisit) {
             this.visitUsername();
@@ -247,7 +259,7 @@
     },
     vuex: {
       actions: {
-        createDeviceOwnerAndFacility,
+        provisionDevice,
       },
       getters: {
         submitted: state => state.pageState.submitted,

@@ -48,26 +48,6 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
 
 
-class AnybodyCanCreateIfNoDeviceOwner(DenyAll):
-    """
-    Permissions class that allows anyone to create a DeviceOwner if one does not already exist.
-    """
-
-    def user_can_create_object(self, user, obj):
-        from ..models import DeviceOwner
-        return DeviceOwner.objects.count() < 1
-
-
-class AnybodyCanCreateIfNoFacility(DenyAll):
-    """
-    Permissions class that allows anyone to create a Facility if one does not already exist.
-    """
-
-    def user_can_create_object(self, user, obj):
-        from ..models import Facility
-        return Facility.objects.count() < 1
-
-
 class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
     """
     Permissions class that allows reading the object if user is anonymous and facility settings allows learner sign ups.

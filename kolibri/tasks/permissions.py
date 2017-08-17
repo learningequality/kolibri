@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 
-class IsDeviceOwnerOnly(BasePermission):
+class IsSuperuserOnly(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.is_superuser

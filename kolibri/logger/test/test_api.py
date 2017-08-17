@@ -10,7 +10,6 @@ import uuid
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from kolibri.auth.models import DeviceOwner
 
 from .factory_logger import (
     FacilityUserFactory, ContentSessionLogFactory,
@@ -20,14 +19,16 @@ from .factory_logger import (
 
 from ..models import ContentSessionLog, ContentSummaryLog, UserSessionLog
 from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer
-from kolibri.auth.test.test_api import DeviceOwnerFactory, FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
+from kolibri.auth.test.test_api import FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
+from kolibri.auth.test.helpers import create_superuser, provision_device
 
 class ContentSessionLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -90,7 +91,7 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -118,9 +119,10 @@ class ContentSessionLogAPITestCase(APITestCase):
 class ContentSummaryLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -183,7 +185,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -211,9 +213,10 @@ class ContentSummaryLogAPITestCase(APITestCase):
 class UserSessionLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -268,7 +271,7 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -296,9 +299,9 @@ class UserSessionLogAPITestCase(APITestCase):
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
@@ -317,9 +320,9 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 class ContentSessionLogCSVExportTestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.interaction_logs = [ContentSessionLogFactory.create(user=self.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]

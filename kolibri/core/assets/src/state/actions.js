@@ -98,6 +98,7 @@ function _sessionState(data) {
     facility_id: data.facility_id,
     kind: data.kind,
     error: data.error,
+    can_manage_content: data.can_manage_content,
   };
   return state;
 }

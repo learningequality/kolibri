@@ -10,6 +10,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
 from django.contrib.sessions.models import Session
 
+from .helpers import create_superuser, provision_device
+
 from .. import models
 
 DUMMY_PASSWORD = "password"
@@ -59,25 +61,17 @@ class FacilityUserFactory(factory.DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', DUMMY_PASSWORD)
 
 
-class DeviceOwnerFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = models.DeviceOwner
-
-    username = factory.Sequence(lambda n: 'deviceowner%d' % n)
-    password = factory.PostGenerationMethodCall('set_password', DUMMY_PASSWORD)
-
-
 class LearnerGroupAPITestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         self.classrooms = [ClassroomFactory.create(parent=self.facility) for _ in range(3)]
         self.learner_groups = []
         for classroom in self.classrooms:
             self.learner_groups += [LearnerGroupFactory.create(parent=classroom) for _ in range(5)]
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_learnergroup_list(self):
         response = self.client.get(reverse('learnergroup-list'), format='json')
@@ -123,11 +117,12 @@ class LearnerGroupAPITestCase(APITestCase):
 class ClassroomAPITestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         self.classrooms = [ClassroomFactory.create(parent=self.facility) for _ in range(10)]
         self.learner_group = LearnerGroupFactory.create(parent=self.classrooms[0])
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_classroom_list(self):
         response = self.client.get(reverse('classroom-list'), format='json')
@@ -157,8 +152,9 @@ class ClassroomAPITestCase(APITestCase):
 class FacilityAPITestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility1 = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility1)
         self.facility2 = FacilityFactory.create()
         self.user1 = FacilityUserFactory.create(facility=self.facility1)
         self.user2 = FacilityUserFactory.create(facility=self.facility2)
@@ -177,7 +173,7 @@ class FacilityAPITestCase(APITestCase):
 
     def test_device_admin_can_create_facility(self):
         new_facility_name = "New Facility"
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
         response = self.client.post(reverse('facility-list'), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -201,14 +197,14 @@ class FacilityAPITestCase(APITestCase):
     def test_device_admin_can_update_facility(self):
         old_facility_name = self.facility1.name
         new_facility_name = "Renamed Facility"
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.get(id=self.facility1.id).name, old_facility_name)
         response = self.client.put(reverse('facility-detail', kwargs={"pk": self.facility1.id}), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(models.Facility.objects.get(id=self.facility1.id).name, new_facility_name)
 
     def test_device_admin_can_delete_facility(self):
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.filter(id=self.facility1.id).count(), 1)
         response = self.client.delete(reverse('facility-detail', kwargs={"pk": self.facility1.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -218,18 +214,10 @@ class FacilityAPITestCase(APITestCase):
 class UserCreationTestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
-
-    def test_creating_device_owner_via_api_sets_password_correctly(self):
-        new_username = "goliath"
-        new_password = "davidsucks"
-        bad_password = "ilovedavid"
-        response = self.client.post(reverse('deviceowner-list'), {"username": new_username, "password": new_password}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(models.DeviceOwner.objects.get(username=new_username).check_password(new_password))
-        self.assertFalse(models.DeviceOwner.objects.get(username=new_username).check_password(bad_password))
+        self.superuser = create_superuser(self.facility)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_creating_facility_user_via_api_sets_password_correctly(self):
         new_username = "goliath"
@@ -250,23 +238,15 @@ class UserCreationTestCase(APITestCase):
         response = self.client.post(reverse('facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_creating_same_device_owner_throws_400_error(self):
-        new_username = "goliath"
-        new_password = "davidsucks"
-        data = {"username": new_username, "password": new_password}
-        response = self.client.post(reverse('deviceowner-list'), data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post(reverse('deviceowner-list'), data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
 
 class UserUpdateTestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_user_update_info(self):
         self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), {'username': 'foo'}, format="json")
@@ -280,32 +260,21 @@ class UserUpdateTestCase(APITestCase):
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
 
-    def test_device_owner_update_info(self):
-        self.client.patch(reverse('deviceowner-detail', kwargs={'pk': self.device_owner.pk}), {'username': 'foo'}, format="json")
-        self.device_owner.refresh_from_db()
-        self.assertEqual(self.device_owner.username, "foo")
-
-    def test_device_owner_update_password(self):
-        new_password = 'baz'
-        self.client.patch(reverse('deviceowner-detail', kwargs={'pk': self.device_owner.pk}), {'password': new_password}, format="json")
-        self.client.logout()
-        response = self.client.login(username=self.device_owner.username, password=new_password)
-        self.assertTrue(response)
-
 
 class LoginLogoutTestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.admin = FacilityUserFactory.create(facility=self.facility, password="bar")
         self.facility.add_admin(self.admin)
         self.cr = ClassroomFactory.create(parent=self.facility)
         self.cr.add_coach(self.admin)
 
-    def test_login_and_logout_device_owner(self):
-        self.client.post(reverse('session-list'), data={"username": self.device_owner.username, "password": DUMMY_PASSWORD})
+    def test_login_and_logout_superuser(self):
+        self.client.post(reverse('session-list'), data={"username": self.superuser.username, "password": DUMMY_PASSWORD})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 1)
         self.client.delete(reverse('session-detail', kwargs={'pk': 'current'}))
@@ -337,8 +306,8 @@ class LoginLogoutTestCase(APITestCase):
 class AnonSignUpTestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        provision_device()
 
     def test_anon_sign_up_creates_user(self):
         response = self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
@@ -371,8 +340,9 @@ class AnonSignUpTestCase(APITestCase):
 class FacilityDatasetAPITestCase(APITestCase):
 
     def setUp(self):
-        self.device_owner = DeviceOwnerFactory.create()
+        provision_device()
         self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(self.admin)
@@ -383,8 +353,8 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
         self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
 
-    def test_return_all_datasets_for_device_owner(self):
-        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+    def test_return_all_datasets_for_superuser(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 

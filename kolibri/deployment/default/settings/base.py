@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
     'kolibri.core.exams',
+    'kolibri.core.device',
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
@@ -157,7 +158,7 @@ LANGUAGES = [
     ('hi-in', 'हिंदी'),
 ]
 
-LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
+LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
 TIME_ZONE = get_localzone().zone
 
@@ -256,9 +257,9 @@ LOGGING = {
 # Customizing Django auth system
 # https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
 
-AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
+AUTH_USER_MODEL = 'kolibriauth.FacilityUser'
 
-AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
+AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.FacilityUserBackend']
 
 
 # Django REST Framework
