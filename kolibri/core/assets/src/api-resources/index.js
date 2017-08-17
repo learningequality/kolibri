@@ -24,6 +24,7 @@ import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
 import FileSummaryResource from './fileSummary';
 import DeviceProvisionResource from './deviceProvision';
+import DevicePermissionsResource from './devicePermissions';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -51,6 +52,7 @@ const userProgressResource = new UserProgressResource();
 const contentNodeProgressResource = new ContentNodeProgressResource();
 const fileSummaryResource = new FileSummaryResource();
 const deviceProvisionResource = new DeviceProvisionResource();
+const devicePermissionsResource = new DevicePermissionsResource();
 
 export {
   classroomResource as ClassroomResource,
@@ -79,4 +81,5 @@ export {
   contentNodeProgressResource as ContentNodeProgressResource,
   fileSummaryResource as FileSummaryResource,
   deviceProvisionResource as DeviceProvisionResource,
+  devicePermissionsResource as DevicePermissionsResource,
 };
