@@ -31,15 +31,22 @@ except AppRegistryNotReady:
 
 logging = logger.getLogger(__name__)
 
-# all tasks are marked as remote imports for nwo
-TASKTYPE = "remoteimport"
+REMOTE_IMPORT = 'remoteimport'
+LOCAL_IMPORT = 'localimport'
+LOCAL_EXPORT = 'localexport'
 
+id_tasktype = {}
 
 class TasksViewSet(viewsets.ViewSet):
     permission_classes = (IsDeviceOwnerOnly,)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
+        ids = [job["id"] for job in jobs_response]
+        # Clean up old job tasktypes
+        for key in id_tasktype.keys():
+            if key not in ids:
+                id_tasktype.pop(key)
         get_client().clear(force=False)
         return Response(jobs_response)
 
@@ -79,6 +86,8 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = get_client().schedule(
             _networkimport, channel_id, track_progress=True, cancellable=True)
 
+        id_tasktype[task_id] = REMOTE_IMPORT
+
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
 
@@ -95,11 +104,13 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'drive_id' field is required.")
 
-        job_id = get_client().schedule(
+        task_id = get_client().schedule(
             _localimport, request.data['drive_id'], track_progress=True, cancellable=True)
 
+        id_tasktype[task_id] = LOCAL_IMPORT
+
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_client().status(task_id))
 
         return Response(resp)
 
@@ -114,11 +125,13 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'drive_id' field is required.")
 
-        job_id = get_client().schedule(
+        task_id = get_client().schedule(
             _localexport, request.data['drive_id'], track_progress=True, cancellable=True)
 
+        id_tasktype[task_id] = LOCAL_EXPORT
+
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_client().status(task_id))
 
         return Response(resp)
 
@@ -243,15 +256,15 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
 def _job_to_response(job):
     if not job:
         return {
-            "type": TASKTYPE,
+            "type": None,
             "status": State.SCHEDULED,
             "percentage": 0,
             "progress": [],
-            "id": job.job_id,
+            "id": None,
         }
     else:
         return {
-            "type": TASKTYPE,
+            "type": id_tasktype[job.job_id],
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
