@@ -11,9 +11,8 @@ class DeviceProvisionTestCase(APITestCase):
 
     superuser_data = {"username": "superuser", "password": "password"}
     facility_data = {"name": "Wilson Elementary"}
+    preset_data = "nonformal"
     dataset_data = {
-        "description": "",
-        "location": "Somewhere over the rainbow",
         "learner_can_edit_username": True,
         "learner_can_edit_name": True,
         "learner_can_edit_password": True,
@@ -29,7 +28,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
-            "dataset": self.dataset_data,
+            "preset": self.preset_data,
             "language_code": self.language_code,
         }
         response = self.client.post(reverse('deviceprovision'), data, format="json")
@@ -39,7 +38,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
-            "dataset": self.dataset_data,
+            "preset": self.preset_data,
             "language_code": self.language_code,
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
@@ -49,7 +48,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
-            "dataset": self.dataset_data,
+            "preset": self.preset_data,
             "language_code": self.language_code,
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
@@ -59,7 +58,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
-            "dataset": self.dataset_data,
+            "preset": self.preset_data,
             "language_code": self.language_code,
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
@@ -69,8 +68,13 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
-            "dataset": self.dataset_data,
+            "preset": self.preset_data,
             "language_code": self.language_code,
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
-        self.assertEqual(FacilityDataset.objects.get().location, self.dataset_data["location"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_edit_username, self.dataset_data["learner_can_edit_username"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_edit_name, self.dataset_data["learner_can_edit_name"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_edit_password, self.dataset_data["learner_can_edit_password"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_sign_up, self.dataset_data["learner_can_sign_up"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_delete_account, self.dataset_data["learner_can_delete_account"])
+        self.assertEqual(FacilityDataset.objects.get().learner_can_login_with_no_password, self.dataset_data["learner_can_login_with_no_password"])
