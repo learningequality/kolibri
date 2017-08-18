@@ -5,9 +5,19 @@ import {
 } from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
-  pageState: {
+  const initialState = {
+    onboardingData: {
+      language: '',
+      facilityName: '',
+      suName: '',
+      suUsername: '',
+      suPassword: '',
+      facilityPermissionOption: '',
+    },
     submitted: false,
-  },
+    error: false,
+    onboardingStep: 1,
+  };
 };
 const mutations = {
   SET_SUBMITTED_STATE(state, submittedFlag) {
