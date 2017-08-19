@@ -13,19 +13,25 @@ def device_owner_to_super_user(apps, schema_editor):
     default_facility = Facility.objects.all().first()
     DevicePermissions = apps.get_model('device', 'DevicePermissions')
     DeviceSettings = apps.get_model('device', 'DeviceSettings')
+    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility
+    real_default_facility = RealFacility.get_default_facility()
     # Can't do much if no facilities exist, as no facility to FK the users onto
     if default_facility:
         for device_owner in DeviceOwner.objects.all():
+            uuid = RealFacilityUser(username=device_owner.username, facility=real_default_facility).calculate_uuid()
+            dataset_id = real_default_facility.dataset_id
             superuser = FacilityUser.objects.create(
                 username=device_owner.username,
                 password=device_owner.password,
                 facility=default_facility,
                 full_name=device_owner.full_name,
                 date_joined=device_owner.date_joined,
+                id=uuid,
+                dataset_id=dataset_id,
             )
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
         # Finally, set the is_provisioned flag
-        settings, created = DeviceSettings.get_or_create(is_provisioned=True)
+        settings, created = DeviceSettings.objects.get_or_create(is_provisioned=True)
 
 
 class Migration(migrations.Migration):

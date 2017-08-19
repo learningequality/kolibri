@@ -41,7 +41,7 @@ from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
 from mptt.models import TreeForeignKey
 
-from .constants import collection_kinds, role_kinds
+from .constants import collection_kinds, facility_presets, role_kinds
 from .errors import (
     InvalidRoleKind, UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsMemberOnlyIndirectlyThroughHierarchyError,
     UserIsNotFacilityUser, UserIsNotMemberError
@@ -88,6 +88,8 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
+
+    preset = models.CharField(max_length=50, choices=facility_presets.choices, default=facility_presets.default)
 
     # Facility specific configuration settings
     learner_can_edit_username = models.BooleanField(default=True)

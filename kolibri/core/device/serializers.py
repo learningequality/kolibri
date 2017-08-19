@@ -1,7 +1,8 @@
 from django.db import transaction
 from django.utils.translation import check_for_language, ugettext_lazy as _
+from kolibri.auth.constants.facility_presets import choices, mappings
 from kolibri.auth.models import Facility, FacilityUser
-from kolibri.auth.serializers import FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer
+from kolibri.auth.serializers import FacilitySerializer, FacilityUserSerializer
 from rest_framework import serializers
 
 from .models import DevicePermissions, DeviceSettings
@@ -24,7 +25,7 @@ class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
 
 class DeviceProvisionSerializer(serializers.Serializer):
     facility = FacilitySerializer()
-    dataset = FacilityDatasetSerializer()
+    preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
     language_code = serializers.CharField(max_length=15)
 
@@ -50,7 +51,8 @@ class DeviceProvisionSerializer(serializers.Serializer):
         """
         with transaction.atomic():
             facility = Facility.objects.create(**validated_data.pop('facility'))
-            dataset_data = validated_data.pop('dataset')
+            preset = validated_data.pop('preset')
+            dataset_data = mappings[preset]
             for key, value in dataset_data.items():
                 setattr(facility.dataset, key, value)
             facility.dataset.save()
@@ -65,7 +67,7 @@ class DeviceProvisionSerializer(serializers.Serializer):
             device_settings.save()
             return {
                 "facility": facility,
-                "dataset": facility.dataset,
+                "preset": preset,
                 "superuser": superuser,
                 "language_code": language_code
             }

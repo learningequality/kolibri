@@ -102,6 +102,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { facilityPresetChoices } from '../state/constants';
   export default {
     name: 'setupWizard',
     $trs: {
@@ -137,6 +138,7 @@
         facility: '',
         facilityError: null,
         globalError: null,
+        preset: facilityPresetChoices[0],
       };
     },
     components: {
@@ -169,6 +171,9 @@
       firstFacilityFieldVisit() {
         return this.facilityError === null;
       },
+      presetValidityCheck() {
+        facilityPresetChoices.includes(this.preset);
+      },
       allFieldsPopulated() {
         return (
           this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated
@@ -195,17 +200,8 @@
           const facility = { name: this.facility };
           // TODO (rtibbles - paging DXCanas): Actually set these!
           const languageCode = 'en';
-          const dataset = {
-            description: '',
-            location: 'Somewhere over the rainbow',
-            learner_can_edit_username: true,
-            learner_can_edit_name: true,
-            learner_can_edit_password: true,
-            learner_can_sign_up: true,
-            learner_can_delete_account: true,
-            learner_can_login_with_no_password: false,
-          };
-          this.provisionDevice(superuser, facility, dataset, languageCode);
+          const preset = 'nonformal';
+          this.provisionDevice(superuser, facility, preset, languageCode);
         } else {
           if (this.firstUsernameFieldVisit) {
             this.visitUsername();
