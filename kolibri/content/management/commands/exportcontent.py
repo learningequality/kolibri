@@ -45,7 +45,9 @@ class Command(AsyncCommand):
                         overall_progress_update(f.file_size)
                         continue
 
-                    with transfer.FileCopy(srcpath, dest) as copy:
+                    copy = transfer.FileCopy(srcpath, dest)
+
+                    with copy:
 
                         with self.start_progress(total=copy.total_size) as file_cp_progress_update:
 
