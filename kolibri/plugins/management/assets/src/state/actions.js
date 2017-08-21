@@ -514,37 +514,6 @@ function showUserPage(store) {
 // ================================
 // CONTENT IMPORT/EXPORT ACTIONS
 
-function showContentPage(store) {
-  preparePage(store.dispatch, {
-    name: PageNames.CONTENT_MGMT_PAGE,
-    title: _managePageTitle('Content'),
-  });
-
-  if (!getters.isSuperuser(store.state)) {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return;
-  }
-
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
-    samePageCheckGenerator(store),
-    taskList => {
-      const pageState = {
-        taskList: taskList.map(_taskState),
-        wizardState: { shown: false },
-        channelFileSummaries: {},
-      };
-      coreActions.setChannelInfo(store).then(() => {
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-}
-
 function updateWizardLocalDriveList(store) {
   const localDrivesPromise = TaskResource.localDrives();
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
@@ -697,7 +666,6 @@ export {
   showUserPage,
   addCoachRoleAction as addCoachRole,
   removeCoachRoleAction as removeCoachRole,
-  showContentPage,
   pollTasksAndChannels,
   clearTask,
   startImportWizard,

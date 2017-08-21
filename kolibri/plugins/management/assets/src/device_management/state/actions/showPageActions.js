@@ -1,5 +1,5 @@
 import * as getters from 'kolibri.coreVue.vuex.getters';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { fetchCurrentTasks } from './taskActions';
 
 export function showContentPage(store) {
@@ -8,7 +8,7 @@ export function showContentPage(store) {
     return;
   }
 
-  return fetchCurrentTasks()
+  return fetchCurrentTasks(store)
   .then(function onSuccess(taskList) {
     store.dispatch('SET_CONTENT_PAGE_STATE', {
       taskList,
@@ -18,7 +18,7 @@ export function showContentPage(store) {
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
   .catch(function onFailure(error) {
-     coreActions.handleApiError(store, error);
+     handleApiError(store, error);
   });
 }
 
