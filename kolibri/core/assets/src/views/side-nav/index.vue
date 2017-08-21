@@ -71,6 +71,7 @@
       learn: 'Learn',
       facility: 'Facility',
       coach: 'Coach',
+      device: 'Device',
       signIn: 'Sign in',
       profile: 'Profile',
       signOut: 'Sign out',
@@ -173,6 +174,14 @@
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
             icon: 'settings_input_antenna',
             href: '/management',
+          });
+        }
+        if (this.isAdmin || this.isSuperuser) {
+          options.push({
+            label: this.$tr('device'),
+            active: this.pageIsActive(TopLevelPageNames.DEVICE),
+            icon: 'tablet_mac',
+            href: '/management/device',
           });
         }
         options.push({ type: 'divider' });
