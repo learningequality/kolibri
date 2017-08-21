@@ -69,6 +69,7 @@ class Command(AsyncCommand):
             with self.start_progress(total=filetransfer.total_size) as progress_update:
 
                 for chunk in filetransfer:
+
                     if self.is_cancelled():
                         filetransfer.cancel()
                         break
