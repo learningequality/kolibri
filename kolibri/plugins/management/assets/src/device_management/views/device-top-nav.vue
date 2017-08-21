@@ -10,7 +10,7 @@
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('permissionsLabel')"
-      icon="lock_outline"
+      icon="https"
       :link="linkify(PageNames.DEVICE_PERMISSIONS_MGMT_PAGE)"
     />
   </k-navbar>

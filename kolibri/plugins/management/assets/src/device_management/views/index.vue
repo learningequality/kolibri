@@ -2,7 +2,12 @@
 
   <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
     <div>
-      <top-nav />
+      <div class="manage-content">
+        <top-navigation />
+        <div class="page">
+          {{ pageName }}
+        </div>
+      </div>
     </div>
   </core-base>
 
@@ -11,22 +16,17 @@
 
 <script>
 
-  import Vuex from 'kolibri.lib.vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
-  import topNav from './device-top-nav';
-
-  // store
-  import * as coreStore from 'kolibri.coreVue.vuex.store';
-  const store = new Vuex.Store({
-    state: Object.assign({}, coreStore.initialState),
-  });
+  import topNavigation from './device-top-nav';
+  import store from '../state/store';
+  import get from 'lodash/fp/get';
 
   export default {
     name: 'deviceManagementRoot',
     components: {
       coreBase,
-      topNav,
+      topNavigation,
     },
     computed: {
       DEVICE: () => TopLevelPageNames.DEVICE,
@@ -37,7 +37,7 @@
     store,
     vuex: {
       getters: {
-
+        pageName: get('pageName'),
       },
       actions: {
 
@@ -52,5 +52,7 @@
 
 
 <style lang="stylus" scoped>
+
+  @require '../../management-styles.styl'
 
 </style>

@@ -77,20 +77,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .manage-content
-    width: 100%
-    @media screen and (max-width: $medium-breakpoint)
-        width: 90%
-        margin-left: auto
-        margin-right: auto
-
-  .page
-    padding: 1em 2em
-    padding-bottom: 3em
-    background-color: $core-bg-light
-    margin-top: 1em
-    border-radius: $radius
+  @require '../management-styles.styl'
 
 </style>
