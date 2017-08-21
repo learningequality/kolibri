@@ -125,7 +125,7 @@
       },
       emitKeydown(e) {
         /**
-         * Emits keydown event with event
+         * Emits keydown event
          */
         this.$emit('keydown', e);
       },
