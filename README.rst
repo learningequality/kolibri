@@ -63,6 +63,7 @@ How can I contribute?
   *Please start by:*
 
 * Reading our `Developer Documentation <http://kolibri.readthedocs.io/en/develop/dev/getting_started.html>`_ available online, and in the ``docs/`` directory.
-* Contacting us on the Mailing list: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
+* Get support in our `Support Community <http://community.learningequality.org/>`_.
+* Sign up to receive developer announcements: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
 * or via IRC: #kolibri on Freenode.
 
