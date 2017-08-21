@@ -2,9 +2,9 @@ import KolibriModule from 'kolibri_module';
 import { getCurrentSession } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
-import RootVue from './device_management/views';
+import RootVue from './views';
 import store from './state/store';
-import { PageNames } from './device_management/constants';
+import { PageNames } from './constants';
 
 const routes = [
   {

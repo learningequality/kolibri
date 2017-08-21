@@ -32,7 +32,7 @@ class ManagementNavItem(UserNavigationHook):
 
 class DeviceManagementAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "device_management_module"
-    src_file = "assets/src/deviceApp.js"
+    src_file = "assets/src/device_management/deviceApp.js"
 
 
 class DeviceManagementInclusionHook(hooks.DeviceManagementSyncHook):
