@@ -114,8 +114,8 @@ establish this committee, comprised of at least three members.
 How the committee will respond to reports
 -----------------------------------------
 
-When a report is sent to the committee they will immediately reply to
-the report to confirm receipt.
+When a report is sent to the committee, a member will reply with a receipt
+to confirm that a process of reading your report has started.
 
 See the reporting guidelines for details of what reports should contain.
 If a report doesn't contain enough information, the committee will
