@@ -5,6 +5,8 @@ import Vue from 'kolibri.lib.vue';
 import RootVue from './views';
 import store from './state/store';
 import { PageNames } from './constants';
+import preparePage from '../state/preparePage';
+import actions from './state/actions';
 
 const routes = [
   {
@@ -14,17 +16,25 @@ const routes = [
   {
     name: PageNames.DEVICE_CONTENT_MGMT_PAGE,
     path: '/content',
-    handler: (toRoute) => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      return store.dispatch('SET_PAGE_NAME', 'yoyo');
+    handler: () => {
+      preparePage(store.dispatch, {
+        name: PageNames.DEVICE_CONTENT_MGMT_PAGE,
+        title: 'Manage Content',
+        isAsync: false,
+      });
+      actions.showContentPage(store);
     },
   },
   {
     name: PageNames.DEVICE_PERMISSIONS_MGMT_PAGE,
     path: '/permissions',
-    handler: (toRoute) => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      return store.dispatch('SET_PAGE_NAME', 'yoyo');
+    handler: () => {
+      preparePage(store.dispatch, {
+        name: PageNames.DEVICE_PERMISSIONS_MGMT_PAGE,
+        title: 'Mange User Permissions',
+        isAsync: false,
+      });
+      actions.showPermissionsPage(store);
     },
   }
 ];
