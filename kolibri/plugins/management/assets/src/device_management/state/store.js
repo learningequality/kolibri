@@ -1,6 +1,6 @@
   import Vuex from 'kolibri.lib.vuex';
   import * as coreStore from 'kolibri.coreVue.vuex.store';
-  import mutations from './mutations';
+  import * as mutations from './mutations';
 
   const initialState = {
     pageName: 'yo',

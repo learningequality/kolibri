@@ -1,16 +1,6 @@
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import { TaskResource } from 'kolibri.resources';
-
-function _taskState(data) {
-  return {
-    id: data.id,
-    type: data.type,
-    status: data.status,
-    metadata: data.metadata,
-    percentage: data.percentage,
-  };
-}
+import { fetchCurrentTasks } from './taskActions';
 
 export function showContentPage(store) {
   if (!getters.isSuperuser(store.state)) {
@@ -18,24 +8,18 @@ export function showContentPage(store) {
     return;
   }
 
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
-    coreActions.samePageCheckGenerator(store),
-    taskList => {
-      const pageState = {
-        taskList: taskList.map(_taskState),
-        wizardState: { shown: false },
-        channelFileSummaries: {},
-      };
-      coreActions.setChannelInfo(store).then(() => {
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
+  return fetchCurrentTasks()
+  .then(function onSuccess(taskList) {
+    store.dispatch('SET_CONTENT_PAGE_STATE', {
+      taskList,
+      wizardState: { shown: false },
+      channelFileSummaries: {},
+    });
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  })
+  .catch(function onFailure(error) {
+     coreActions.handleApiError(store, error);
+  });
 }
 
 export function showPermissionsPage(store) {

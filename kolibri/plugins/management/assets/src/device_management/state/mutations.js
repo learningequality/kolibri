@@ -1,12 +1,15 @@
-function SET_PAGE_NAME(state, name) {
+import { PageNames } from '../constants';
+
+export function SET_PAGE_NAME(state, name) {
   state.pageName = name;
 }
 
-function SET_PAGE_STATE(state, pageState) {
+export function SET_PAGE_STATE(state, pageState) {
   state.pageState = pageState;
 }
 
-export default {
-  SET_PAGE_NAME,
-  SET_PAGE_STATE,
+export function SET_CONTENT_PAGE_STATE(state, pageState) {
+  if (state.pageName === PageNames.DEVICE_CONTENT_MGMT_PAGE) {
+    SET_PAGE_STATE(state, pageState);
+  }
 }
