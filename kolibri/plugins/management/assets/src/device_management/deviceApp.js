@@ -20,7 +20,6 @@ const routes = [
       preparePage(store.dispatch, {
         name: PageNames.DEVICE_CONTENT_MGMT_PAGE,
         title: 'Manage Content',
-        isAsync: false,
       });
       actions.showContentPage(store);
     },
