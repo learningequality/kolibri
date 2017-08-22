@@ -23,7 +23,6 @@ import {
 
 import preparePage from './preparePage';
 
-
 /**
  * Vuex State Mappers
  *

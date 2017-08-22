@@ -21,7 +21,7 @@
   import store from '../state/store';
   import get from 'lodash/fp/get';
   import manageContentPage from '../../views/manage-content-page';
-  import managePermissionsPage from './manage-permissions-page'
+  import managePermissionsPage from './manage-permissions-page';
 
   const pageNameComponentMap = {
     [PageNames.DEVICE_CONTENT_MGMT_PAGE]: 'manageContentPage',
@@ -42,22 +42,18 @@
         return pageNameComponentMap[this.pageName];
       },
     },
-    methods: {
-
-    },
+    methods: {},
     store,
     vuex: {
       getters: {
         pageName: get('pageName'),
       },
-      actions: {
-
-      },
+      actions: {},
     },
     $trs: {
       deviceManagementTitle: 'Device',
     },
-  }
+  };
 
 </script>
 

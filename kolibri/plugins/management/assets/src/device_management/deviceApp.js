@@ -35,13 +35,12 @@ const routes = [
       });
       actions.showPermissionsPage(store);
     },
-  }
+  },
 ];
 
 class ManagementModule extends KolibriModule {
   ready() {
-    getCurrentSession(store)
-    .then(() => {
+    getCurrentSession(store).then(() => {
       this.rootvue = new Vue({
         el: 'rootvue',
         render: createElement => createElement(RootVue),

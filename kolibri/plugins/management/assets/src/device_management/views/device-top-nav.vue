@@ -36,21 +36,17 @@
     methods: {
       linkify(name) {
         return { name };
-      }
+      },
     },
     vuex: {
-      getters: {
-
-      },
-      actions: {
-
-      },
+      getters: {},
+      actions: {},
     },
     $trs: {
       contentLabel: 'Content',
       permissionsLabel: 'Permissions',
-    }
-  }
+    },
+  };
 
 </script>
 

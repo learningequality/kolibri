@@ -34,7 +34,7 @@
 
 <script>
 
-  import * as contentWizardActions from '../../../state/actions/contentWizardActions'
+  import * as contentWizardActions from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';

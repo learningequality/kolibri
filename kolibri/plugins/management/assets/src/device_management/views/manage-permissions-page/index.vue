@@ -8,24 +8,14 @@
 <script>
 
   export default {
-    components: {
-
-    },
-    computed: {
-
-    },
-    methods: {
-
-    },
+    components: {},
+    computed: {},
+    methods: {},
     vuex: {
-      getters: {
-
-      },
-      actions: {
-
-      },
+      getters: {},
+      actions: {},
     },
-  }
+  };
 
 </script>
 

@@ -53,11 +53,6 @@
     methods: {
       linkify: name => ({ name }),
     },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-      },
-    },
   };
 
 </script>

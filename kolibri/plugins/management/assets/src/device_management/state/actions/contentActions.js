@@ -18,23 +18,23 @@ export function showContentPage(store) {
   }
 
   return fetchCurrentTasks(store)
-  .then(function onSuccess(taskList) {
-    store.dispatch('SET_CONTENT_PAGE_STATE', {
-      taskList,
-      wizardState: { shown: false },
-      channelFileSummaries: {},
+    .then(function onSuccess(taskList) {
+      store.dispatch('SET_CONTENT_PAGE_STATE', {
+        taskList,
+        wizardState: { shown: false },
+        channelFileSummaries: {},
+      });
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(function onFailure(error) {
+      handleApiError(store, error);
     });
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  })
-  .catch(function onFailure(error) {
-     handleApiError(store, error);
-  });
 }
 
 export function showPermissionsPage(store) {
   store.dispatch('SET_PAGE_STATE', {
     permissionsJunk: true,
-  })
+  });
 }
 
 /**

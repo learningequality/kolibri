@@ -1,14 +1,17 @@
 /* eslint-env node */
 import { TaskResource } from 'kolibri.resources';
-import { handleApiError, samePageCheckGenerator, setChannelInfo } from 'kolibri.coreVue.vuex.actions';
+import {
+  handleApiError,
+  samePageCheckGenerator,
+  setChannelInfo,
+} from 'kolibri.coreVue.vuex.actions';
 import logger from 'kolibri.lib.logging';
 import { closeImportExportWizard } from './contentWizardActions';
 
 const logging = logger.getLogger(__filename);
 
 export function fetchCurrentTasks() {
-  return TaskResource.getCollection().fetch()
-  .then(function onSuccess(tasks) {
+  return TaskResource.getCollection().fetch().then(function onSuccess(tasks) {
     return tasks.map(task => ({
       id: task.id,
       type: task.type,
@@ -21,23 +24,25 @@ export function fetchCurrentTasks() {
 
 export function clearTask(store, taskId) {
   return TaskResource.clearTask(taskId)
-  .then(function onSuccess() {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-  })
-  .catch(function onFailure(error) {
-    handleApiError(store, error);
-  });
+    .then(function onSuccess() {
+      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+    })
+    .catch(function onFailure(error) {
+      handleApiError(store, error);
+    });
 }
 
 function updateTasks(store, tasks) {
-  store.dispatch('SET_CONTENT_PAGE_TASKS',
-  tasks.map((task) => ({
-    id: task.id,
-    type: task.type,
-    status: task.status,
-    metadata: task.metadata,
-    percentage: task.percentage,
-  })));
+  store.dispatch(
+    'SET_CONTENT_PAGE_TASKS',
+    tasks.map(task => ({
+      id: task.id,
+      type: task.type,
+      status: task.status,
+      metadata: task.metadata,
+      percentage: task.percentage,
+    }))
+  );
   return closeImportExportWizard(store);
 }
 
@@ -55,8 +60,10 @@ function handleTaskError(store, error) {
 function triggerTask(store, taskPromise) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   return taskPromise
-  .then(function onSuccess(task) { updateTasks([task]) })
-  .catch(handleTaskError);
+    .then(function onSuccess(task) {
+      updateTasks([task]);
+    })
+    .catch(handleTaskError);
 }
 
 export function triggerLocalContentImportTask(store, driveId) {
