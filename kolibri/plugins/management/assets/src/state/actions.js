@@ -11,7 +11,7 @@ import {
 
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { PageNames, ContentWizardPages } from '../constants';
+import { PageNames } from '../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
@@ -512,130 +512,6 @@ function showUserPage(store) {
 }
 
 // ================================
-// CONTENT IMPORT/EXPORT ACTIONS
-
-function updateWizardLocalDriveList(store) {
-  const localDrivesPromise = TaskResource.localDrives();
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  localDrivesPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function showWizardPage(store, pageName, meta = {}) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: Boolean(pageName),
-    page: pageName || null,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-    meta,
-  });
-}
-
-function startImportWizard(store) {
-  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-}
-
-function startExportWizard(store) {
-  showWizardPage(store, ContentWizardPages.EXPORT);
-  updateWizardLocalDriveList(store);
-}
-
-function closeImportExportWizard(store) {
-  showWizardPage(store, false);
-}
-
-// called from a timer to continually update UI
-function pollTasksAndChannels(store) {
-  const samePageCheck = samePageCheckGenerator(store);
-  TaskResource.getCollection().fetch({}, true).only(
-    // don't handle response if we've switched pages or if we're in the middle of another operation
-    () => samePageCheck() && !store.state.pageState.wizardState.busy,
-    taskList => {
-      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
-      // I.e. channel list always reflects the current state of ongoing task(s).
-      coreActions.setChannelInfo(store).only(samePageCheckGenerator(store), () => {
-        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-        // Close the wizard if there's an outstanding task.
-        // (this can be removed when we support more than one
-        // concurrent task.)
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          closeImportExportWizard(store);
-        }
-      });
-    },
-    error => {
-      logging.error(`poll error: ${error}`);
-    }
-  );
-}
-
-function clearTask(store, taskId) {
-  const clearTaskPromise = TaskResource.clearTask(taskId);
-  clearTaskPromise
-    .then(() => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-    })
-    .catch(error => {
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function triggerLocalContentImportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localImportPromise = TaskResource.localImportContent(driveId);
-  localImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerLocalContentExportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localExportPromise = TaskResource.localExportContent(driveId);
-  localExportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerRemoteContentImportTask(store, channelId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  return remoteImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      if (error.status.code === 404) {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
-      } else {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      }
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-// ================================
 // OTHER ACTIONS
 
 function showDataPage(store) {
@@ -666,15 +542,5 @@ export {
   showUserPage,
   addCoachRoleAction as addCoachRole,
   removeCoachRoleAction as removeCoachRole,
-  pollTasksAndChannels,
-  clearTask,
-  startImportWizard,
-  startExportWizard,
-  showWizardPage,
-  closeImportExportWizard,
-  triggerLocalContentExportTask,
-  triggerLocalContentImportTask,
-  triggerRemoteContentImportTask,
-  updateWizardLocalDriveList,
   showDataPage,
 };

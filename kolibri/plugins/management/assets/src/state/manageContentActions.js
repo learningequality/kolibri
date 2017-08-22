@@ -1,6 +1,7 @@
 import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../constants';
-import * as actions from './actions';
+import * as contentWizardActions from '../device_management/state/actions/contentWizardActions';
+import * as taskActions from '../device_management/state/actions/taskActions';
 import { mutationTypes } from './manageContentMutations';
 import find from 'lodash/find';
 
@@ -79,7 +80,7 @@ export function transitionWizardPage(store, transition, params) {
   const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
-  const showPage = actions.showWizardPage.bind(null, store);
+  const showPage = contentWizardActions.showWizardPage.bind(null, store);
 
   if (transition === CANCEL) {
     return showPage(false);
@@ -125,7 +126,7 @@ export function transitionWizardPage(store, transition, params) {
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
     if (transition === FORWARD) {
-      return actions.triggerLocalContentExportTask(store, params.driveId);
+      return taskActions.triggerLocalContentExportTask(store, params.driveId);
     }
   }
 
@@ -135,7 +136,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD) {
-      return actions.triggerLocalContentImportTask(store, params.sourceId);
+      return taskActions.triggerLocalContentImportTask(store, params.sourceId);
     }
   }
 
@@ -145,7 +146,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_NETWORK);
     }
     if (transition === FORWARD) {
-      return actions.triggerRemoteContentImportTask(store, params.sourceId);
+      return taskActions.triggerRemoteContentImportTask(store, params.sourceId);
     }
   }
 

@@ -15,7 +15,7 @@ export function updateWizardLocalDriveList(store) {
     });
 }
 
-function showWizardPage(store, pageName, meta = {}) {
+export function showWizardPage(store, pageName, meta = {}) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: Boolean(pageName),
     page: pageName || null,
