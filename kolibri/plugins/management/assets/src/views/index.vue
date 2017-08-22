@@ -26,7 +26,6 @@
     [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
     [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'class-enroll-page',
     [PageNames.CLASS_MGMT_PAGE]: 'manage-class-page',
-    [PageNames.CONTENT_MGMT_PAGE]: 'manage-content-page',
     [PageNames.DATA_EXPORT_PAGE]: 'data-page',
     [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
     [PageNames.USER_MGMT_PAGE]: 'user-page',
@@ -38,7 +37,6 @@
   import dataPage from './data-page';
   import facilitiesConfigPage from './facilities-config-page';
   import manageClassPage from './manage-class-page';
-  import manageContentPage from './manage-content-page';
   import topNav from './top-nav';
   import userPage from './user-page';
   export default {
@@ -52,7 +50,6 @@
       dataPage,
       facilitiesConfigPage,
       manageClassPage,
-      manageContentPage,
       topNav,
       userPage,
     },
