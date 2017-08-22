@@ -10,22 +10,24 @@ import { closeImportExportWizard } from './contentWizardActions';
 
 const logging = logger.getLogger(__filename);
 
+function transformTasks(tasks) {
+  return tasks.map(task => ({
+    id: task.id,
+    type: task.type,
+    status: task.status,
+    metadata: task.metadata,
+    percentage: task.percentage,
+  }));
+}
+
 export function fetchCurrentTasks() {
-  return TaskResource.getCollection().fetch().then(function onSuccess(tasks) {
-    return tasks.map(task => ({
-      id: task.id,
-      type: task.type,
-      status: task.status,
-      metadata: task.metadata,
-      percentage: task.percentage,
-    }));
-  });
+  return TaskResource.getCollection().fetch().then(transformTasks);
 }
 
 export function clearTask(store, taskId) {
   return TaskResource.clearTask(taskId)
     .then(function onSuccess() {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+      updateTasks(store, []);
     })
     .catch(function onFailure(error) {
       handleApiError(store, error);
@@ -33,27 +35,7 @@ export function clearTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  store.dispatch(
-    'SET_CONTENT_PAGE_TASKS',
-    tasks.map(task => ({
-      id: task.id,
-      type: task.type,
-      status: task.status,
-      metadata: task.metadata,
-      percentage: task.percentage,
-    }))
-  );
-}
-
-function handleTaskError(store, error) {
-  let errorText;
-  if (error.status.code === 404) {
-    errorText = 'That ID was not found on our server.';
-  } else {
-    errorText = error.status.text;
-  }
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  store.dispatch('SET_CONTENT_PAGE_TASKS', transformTasks(tasks));
 }
 
 function triggerTask(store, taskPromise) {
@@ -64,7 +46,14 @@ function triggerTask(store, taskPromise) {
       closeImportExportWizard(store);
     })
     .catch(function onFailure(error) {
-      handleTaskError(store, error);
+      let errorText;
+      if (error.status.code === 404) {
+        errorText = 'That ID was not found on our server.';
+      } else {
+        errorText = error.status.text;
+      }
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
     });
 }
 

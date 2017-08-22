@@ -6,7 +6,8 @@ import RootVue from './views';
 import store from './state/store';
 import { PageNames } from './constants';
 import preparePage from '../state/preparePage';
-import actions from './state/actions';
+import { showPermissionsPage } from './state/actions/permissionsActions';
+import { showContentPage } from './state/actions/contentActions';
 
 const routes = [
   {
@@ -21,7 +22,7 @@ const routes = [
         name: PageNames.DEVICE_CONTENT_MGMT_PAGE,
         title: 'Manage Content',
       });
-      actions.showContentPage(store);
+      showContentPage(store);
     },
   },
   {
@@ -33,7 +34,7 @@ const routes = [
         title: 'Mange User Permissions',
         isAsync: false,
       });
-      actions.showPermissionsPage(store);
+      showPermissionsPage(store);
     },
   },
 ];

@@ -49,11 +49,4 @@ const notificationTypes = {
   CHANNEL_IMPORT_SUCCESS: 'CHANNEL_IMPORT_SUCCESS',
 };
 
-export {
-  PageNames,
-  Modals,
-  TaskTypes,
-  TaskStatuses,
-  defaultFacilityConfig,
-  notificationTypes,
-};
+export { PageNames, Modals, TaskTypes, TaskStatuses, defaultFacilityConfig, notificationTypes };
