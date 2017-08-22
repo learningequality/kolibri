@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>{{ $tr('fullName') }}</th>
@@ -11,28 +11,19 @@
       </thead>
 
       <tbody>
-        <tr v-for="user in facilityUsers" :key="user.id">
+        <tr v-for="user in facilityUsers" :key="user.id" class="table-row">
           <td>
             {{ user.full_name }}
           </td>
           <td>
             {{ user.username }}
           </td>
-          <td>
+          <td class="align-right">
             <k-button
               @click="goToUserPermissionsPage(user.id)"
               :raised="false"
               :text="permissionsButtonText(user.username)"
             />
-
-            <router-link :to="`/permissions/${user.id}`">
-              <span v-if="isCurrentUser(user.username)">
-                {{ $tr('viewPermissions' )}}
-              </span>
-              <span v-else>
-                {{ $tr('editPermissions' )}}
-              </span>
-            </router-link>
           </td>
         </tr>
       </tbody>
@@ -89,5 +80,18 @@
 
 
 <style lang="stylus" scoped>
+
+  .table
+    text-align: left
+    width: 100%
+
+  .align-right
+    text-align: right
+
+  .table-row, thead tr
+    border-bottom: 1px solid #D6D6D6
+
+  .table-row:last-child
+    border-bottom: none
 
 </style>
