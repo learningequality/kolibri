@@ -214,11 +214,16 @@ html_logo = 'logo.png'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
-    ],
-}
+
+# This should be commented back in for wide tables
+# See: https://github.com/rtfd/readthedocs.org/issues/2116
+# and: https://github.com/rtfd/sphinx_rtd_theme/pull/432
+
+# html_context = {
+#     'css_files': [
+#         '_static/theme_overrides.css',  # override wide tables in RTD theme
+#     ],
+# }
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
