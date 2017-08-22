@@ -2,16 +2,6 @@ import { TaskResource } from 'kolibri.resources';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { closeImportExportWizard } from './contentWizardActions';
 
-function _taskState(data) {
-  return {
-    id: data.id,
-    type: data.type,
-    status: data.status,
-    metadata: data.metadata,
-    percentage: data.percentage,
-  };
-}
-
 export function fetchCurrentTasks() {
   return TaskResource.getCollection().fetch()
   .then(function onSuccess(tasks) {
@@ -27,53 +17,51 @@ export function fetchCurrentTasks() {
 
 export function clearTask(store, taskId) {
   return TaskResource.clearTask(taskId)
-    .then(() => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-    })
-    .catch(error => {
-      handleApiError(store, error);
-    });
+  .then(function onSuccess() {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+  })
+  .catch(function onFailure(error) {
+    handleApiError(store, error);
+  });
+}
+
+function updateTaskState(store, taskData) {
+  store.dispatch('SET_CONTENT_PAGE_TASKS', [{
+    id: taskData.id,
+    type: taskData.type,
+    status: taskData.status,
+    metadata: taskData.metadata,
+    percentage: taskData.percentage,
+  }]);
+  return closeImportExportWizard(store);
+}
+
+function handleTaskError(store, error) {
+  let errorText;
+  if (error.status.code === 404) {
+    errorText = 'That ID was not found on our server.';
+  } else {
+    errorText = error.status.text;
+  }
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+}
+
+function triggerTask(store, taskPromise) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  return taskPromise
+  .then(updateTaskState)
+  .catch(handleTaskError);
 }
 
 export function triggerLocalContentImportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  return TaskResource.localImportContent(driveId)
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
+  return triggerTask(store, TaskResource.localImportContent(driveId));
 }
 
 export function triggerLocalContentExportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  TaskResource.localExportContent(driveId)
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
+  return triggerTask(store, TaskResource.localExportContent(driveId));
 }
 
 export function triggerRemoteContentImportTask(store, channelId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  return TaskResource.remoteImportContent(channelId)
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      if (error.status.code === 404) {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
-      } else {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      }
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
+  return triggerTask(store, TaskResource.remoteImportContent(channelId));
 }
