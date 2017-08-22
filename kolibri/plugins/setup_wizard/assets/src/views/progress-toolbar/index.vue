@@ -18,6 +18,8 @@
 <script>
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import { goToPreviousStep } from '../../state/actions';
 
   export default {
     name: 'progressToolbar',
@@ -35,8 +37,10 @@
         required: true,
       },
     },
-    methods: {
-      goToPreviousStep() {},
+    vuex: {
+      actions: {
+        goToPreviousStep,
+      },
     },
   };
 

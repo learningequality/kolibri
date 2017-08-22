@@ -1,7 +1,7 @@
 import { DeviceProvisionResource } from 'kolibri.resources';
 import { kolibriLogin, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
-export function provisionDevice(store, superuser, facility, preset, language_code) {
+function provisionDevice(store, superuser, facility, preset, language_code) {
   const DeviceProvisionModel = DeviceProvisionResource.createModel({
     superuser,
     facility,
@@ -10,7 +10,7 @@ export function provisionDevice(store, superuser, facility, preset, language_cod
   });
   const deviceProvisionPromise = DeviceProvisionModel.save();
 
-  store.dispatch('SET_SUBMITTED_STATE', true);
+  store.dispatch('SET_SUBMITTED', true);
 
   deviceProvisionPromise.then(
     response => {
@@ -18,8 +18,18 @@ export function provisionDevice(store, superuser, facility, preset, language_cod
       kolibriLogin(store, superuser, true);
     },
     error => {
-      store.dispatch('SET_SUBMITTED_STATE', false);
+      store.dispatch('SET_SUBMITTED', false);
       handleApiError(store, error);
     }
   );
 }
+
+function goToNextStep(store) {
+  store.dispatch('INCREMENT_ONBOARDING_STEP');
+}
+
+function goToPreviousStep(store) {
+  store.dispatch('DECREMENT_ONBOARDING_STEP');
+}
+
+export { provisionDevice, goToNextStep, goToPreviousStep };
