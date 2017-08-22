@@ -4,7 +4,7 @@
     class="progress-toolbar"
     navIcon="arrow_back"
     :removeNavIcon="currentStep <= 1"
-    @nav-icon-click="goToPreviousStep"
+    @nav-icon-click="$emit('backButtonClicked')"
     type="colored"
     textColor="white">
 
@@ -17,7 +17,6 @@
 
 <script>
 
-  import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import { goToPreviousStep } from '../../state/actions';
 
@@ -35,11 +34,6 @@
       totalSteps: {
         type: Number,
         required: true,
-      },
-    },
-    vuex: {
-      actions: {
-        goToPreviousStep,
       },
     },
   };

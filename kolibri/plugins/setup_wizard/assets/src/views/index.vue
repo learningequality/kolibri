@@ -2,6 +2,7 @@
 
   <div class="onboarding">
     <progress-toolbar
+      @backButtonClicked="goToPreviousStep"
       :currentStep="onboardingStep"
       :totalSteps="totalOnboardingSteps"/>
 
@@ -14,7 +15,7 @@
 
 <script>
 
-  import { provisionDevice } from '../state/actions';
+  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions';
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './setup-forms/default-language-form';
   import facilityNameForm from './setup-forms/facility-name-form';
@@ -49,6 +50,9 @@
     vuex: {
       getters: {
         onboardingStep: state => state.onboardingStep,
+      },
+      actions: {
+        goToPreviousStep,
       },
     },
   };
