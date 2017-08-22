@@ -1,7 +1,9 @@
 <template>
 
   <div class="onboarding">
-    <progress-toolbar />
+    <progress-toolbar
+      :currentStep="onboardingStep"
+      :totalSteps="totalOnboardingSteps"/>
 
     <default-language-form />
 
@@ -19,6 +21,16 @@
   export default {
     name: 'Onboarding',
     components: { progressToolbar, defaultLanguageForm },
+    data() {
+      return {
+        totalOnboardingSteps: 4,
+      };
+    },
+    vuex: {
+      getters: {
+        onboardingStep: state => state.onboardingStep,
+      },
+    },
   };
 
 </script>
