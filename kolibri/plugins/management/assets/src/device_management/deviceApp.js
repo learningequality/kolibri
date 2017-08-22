@@ -22,7 +22,9 @@ const routes = [
         name: PageNames.DEVICE_CONTENT_MGMT_PAGE,
         title: 'Manage Content',
       });
-      showContentPage(store);
+      showContentPage(store).then(function onSuccess() {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
     },
   },
   {
@@ -32,9 +34,10 @@ const routes = [
       preparePage(store.dispatch, {
         name: PageNames.DEVICE_PERMISSIONS_MGMT_PAGE,
         title: 'Mange User Permissions',
-        isAsync: false,
       });
-      showPermissionsPage(store);
+      showPermissionsPage(store).then(function onSuccess() {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
     },
   },
 ];

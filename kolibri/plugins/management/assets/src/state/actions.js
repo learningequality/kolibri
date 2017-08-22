@@ -87,17 +87,6 @@ function _userState(apiUserData) {
   };
 }
 
-function _taskState(data) {
-  const state = {
-    id: data.id,
-    type: data.type,
-    status: data.status,
-    metadata: data.metadata,
-    percentage: data.percentage,
-  };
-  return state;
-}
-
 /**
  * Title Helper
  */
