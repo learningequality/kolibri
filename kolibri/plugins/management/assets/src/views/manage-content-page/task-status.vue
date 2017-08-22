@@ -15,8 +15,8 @@
 
   /* eslint-env node */
 
-  import * as manageContentActions from '../../state/manageContentActions';
-  import * as actions from '../../state/actions';
+  import * as manageContentActions from '../../device_management/state/actions/contentActions';
+  import * as taskActions from '../../device_management/state/actions/taskActions';
   import * as constants from '../../constants';
   import logger from 'kolibri.lib.logging';
   const logging = logger.getLogger(__filename);
@@ -102,7 +102,7 @@
     },
     vuex: {
       actions: {
-        clearTask: actions.clearTask,
+        clearTask: taskActions.clearTask,
         refreshChannelList: manageContentActions.refreshChannelList,
       },
     },

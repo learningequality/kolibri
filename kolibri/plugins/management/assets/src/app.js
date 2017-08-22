@@ -8,6 +8,7 @@ import RootVue from './views';
 import * as actions from './state/actions';
 import store from './state/store';
 import { PageNames } from './constants';
+import { showContentPage } from './device_management/state/actions/contentActions';
 
 class ManagementModule extends KolibriModule {
   ready() {
@@ -45,7 +46,7 @@ class ManagementModule extends KolibriModule {
           name: PageNames.CONTENT_MGMT_PAGE,
           path: '/content',
           handler: (toRoute, fromRoute) => {
-            actions.showContentPage(store);
+            showContentPage(store);
           },
         },
         {

@@ -1,11 +1,9 @@
 /* eslint-env node */
-import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import {
   ClassroomResource,
   MembershipResource,
   FacilityUserResource,
-  TaskResource,
   RoleResource,
 } from 'kolibri.resources';
 
@@ -25,7 +23,6 @@ import {
 
 import preparePage from './preparePage';
 
-const logging = logger.getLogger(__filename);
 
 /**
  * Vuex State Mappers

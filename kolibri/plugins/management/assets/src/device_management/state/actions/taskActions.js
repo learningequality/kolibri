@@ -80,7 +80,7 @@ export function pollTasksAndChannels(store) {
       // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
       // I.e. channel list always reflects the current state of ongoing task(s).
       setChannelInfo(store).only(samePageCheckGenerator(store), () => {
-        updateTasks(taskList);
+        updateTasks(store, taskList);
         // Close the wizard if there's an outstanding task.
         // (this can be removed when we support more than one
         // concurrent task.)

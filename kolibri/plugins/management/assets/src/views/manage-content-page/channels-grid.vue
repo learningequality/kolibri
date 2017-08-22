@@ -72,7 +72,7 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import * as manageContentActions from '../../state/manageContentActions';
+  import * as manageContentActions from '../../device_management/state/actions/contentActions';
   import map from 'lodash/map';
   import orderBy from 'lodash/orderBy';
   import find from 'lodash/find';

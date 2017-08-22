@@ -36,7 +36,10 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
-
+  SET_CONTENT_PAGE_STATE(state, pageState) {
+    state.pageName = 'CONTENT_MGMT_PAGE';
+    state.pageState = pageState;
+  },
   // modal mutations
   SET_MODAL(state, modalName) {
     state.pageState.modalShown = modalName;

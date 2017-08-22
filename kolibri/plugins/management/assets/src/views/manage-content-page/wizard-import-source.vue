@@ -22,7 +22,7 @@
 
 <script>
 
-  import * as manageContentActions from '../../state/manageContentActions';
+  import * as contentWizardActions from '../../device_management/state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
@@ -46,7 +46,7 @@
       kButton,
     },
     vuex: {
-      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
+      actions: { transitionWizardPage: contentWizardActions.transitionWizardPage },
     },
   };
 

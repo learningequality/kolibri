@@ -1,5 +1,7 @@
 import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
-import { mutationTypes } from '../../../state/manageContentMutations';
+import * as getters from 'kolibri.coreVue.vuex.getters';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { fetchCurrentTasks } from './taskActions';
 
 /**
  * Force-refresh the ChannelResource Collection
@@ -7,6 +9,32 @@ import { mutationTypes } from '../../../state/manageContentMutations';
  */
 export function refreshChannelList() {
   return ChannelResource.getCollection().fetch({}, true);
+}
+
+export function showContentPage(store) {
+  if (!getters.isSuperuser(store.state)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return;
+  }
+
+  return fetchCurrentTasks(store)
+  .then(function onSuccess(taskList) {
+    store.dispatch('SET_CONTENT_PAGE_STATE', {
+      taskList,
+      wizardState: { shown: false },
+      channelFileSummaries: {},
+    });
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  })
+  .catch(function onFailure(error) {
+     handleApiError(store, error);
+  });
+}
+
+export function showPermissionsPage(store) {
+  store.dispatch('SET_PAGE_STATE', {
+    permissionsJunk: true,
+  })
 }
 
 /**
@@ -20,7 +48,7 @@ export function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId)
     .delete()
     .then(() => {
-      store.dispatch(mutationTypes.REMOVE_CHANNEL_FILE_SUMMARY, channelId);
+      store.dispatch('REMOVE_CHANNEL_FILE_SUMMARY', channelId);
     })
     .then(refreshChannelList);
 }
@@ -38,7 +66,7 @@ export function addChannelFileSummary(store, channelId) {
       .fetch()
       // FileSummary response is wrapped in an array as workaround on server side
       .then(function onSuccess([data]) {
-        store.dispatch(mutationTypes.ADD_CHANNEL_FILE_SUMMARY, data);
+        store.dispatch('ADD_CHANNEL_FILE_SUMMARY', data);
       })
       .catch(function onFailure(err) {
         console.error(err); // eslint-disable-line

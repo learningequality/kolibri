@@ -54,7 +54,8 @@
 <script>
 
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import * as actions from '../../state/actions';
+  import * as taskActions from '../../device_management/state/actions/taskActions';
+  import * as contentWizardActions from '../../device_management/state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
@@ -137,9 +138,9 @@
         pageState: state => state.pageState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        startExportWizard: actions.startExportWizard,
-        pollTasksAndChannels: actions.pollTasksAndChannels,
+        startImportWizard: contentWizardActions.startImportWizard,
+        startExportWizard: contentWizardActions.startExportWizard,
+        pollTasksAndChannels: taskActions.pollTasksAndChannels,
       },
     },
   };
