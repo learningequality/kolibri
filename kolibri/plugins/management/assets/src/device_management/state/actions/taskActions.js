@@ -43,7 +43,6 @@ function updateTasks(store, tasks) {
       percentage: task.percentage,
     }))
   );
-  return closeImportExportWizard(store);
 }
 
 function handleTaskError(store, error) {
@@ -62,8 +61,11 @@ function triggerTask(store, taskPromise) {
   return taskPromise
     .then(function onSuccess(task) {
       updateTasks([task]);
+      closeImportExportWizard(store);
     })
-    .catch(handleTaskError);
+    .catch(function onFailure(error) {
+      handleTaskError(store, error);
+    });
 }
 
 export function triggerLocalContentImportTask(store, driveId) {

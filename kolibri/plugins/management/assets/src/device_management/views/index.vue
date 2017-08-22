@@ -20,7 +20,7 @@
   import topNavigation from './device-top-nav';
   import store from '../state/store';
   import get from 'lodash/fp/get';
-  import manageContentPage from '../../views/manage-content-page';
+  import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
 
   const pageNameComponentMap = {
