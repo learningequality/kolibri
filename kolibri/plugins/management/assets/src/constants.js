@@ -4,7 +4,6 @@ const PageNames = {
   CLASS_EDIT_MGMT_PAGE: 'CLASS_EDIT_MGMT_PAGE',
   CLASS_ENROLL_MGMT_PAGE: 'CLASS_ENROLL_MGMT_PAGE',
   USER_MGMT_PAGE: 'USER_MGMT_PAGE',
-  CONTENT_MGMT_PAGE: 'CONTENT_MGMT_PAGE',
   DATA_EXPORT_PAGE: 'DATA_EXPORT_PAGE',
   FACILITY_CONFIG_PAGE: 'FACILITY_CONFIG_PAGE',
 };
@@ -18,16 +17,6 @@ const Modals = {
   CONFIRM_ENROLLMENT: 'CONFIRM_ENROLLMENT',
   CREATE_USER: 'CREATE_USER',
   EDIT_USER: 'EDIT_USER',
-};
-
-// content import/export wizard pages
-const ContentWizardPages = {
-  CHOOSE_IMPORT_SOURCE: 'CHOOSE_IMPORT_SOURCE',
-  IMPORT_NETWORK: 'IMPORT_NETWORK',
-  IMPORT_LOCAL: 'IMPORT_LOCAL',
-  EXPORT: 'EXPORT',
-  LOCAL_IMPORT_PREVIEW: 'LOCAL_IMPORT_PREVIEW',
-  REMOTE_IMPORT_PREVIEW: 'REMOTE_IMPORT_PREVIEW',
 };
 
 const TaskTypes = {
@@ -63,7 +52,6 @@ const notificationTypes = {
 export {
   PageNames,
   Modals,
-  ContentWizardPages,
   TaskTypes,
   TaskStatuses,
   defaultFacilityConfig,

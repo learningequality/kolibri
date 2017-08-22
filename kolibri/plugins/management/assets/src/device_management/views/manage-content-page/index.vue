@@ -56,7 +56,7 @@
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import * as taskActions from '../../state/actions/taskActions';
   import * as contentWizardActions from '../../state/actions/contentWizardActions';
-  import { ContentWizardPages, notificationTypes } from '../../../constants';
+  import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';

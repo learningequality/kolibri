@@ -1,5 +1,5 @@
 import { TaskResource } from 'kolibri.resources';
-import { ContentWizardPages } from '../../../constants';
+import { ContentWizardPages } from '../../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import * as taskActions from './taskActions';
 import find from 'lodash/find';
