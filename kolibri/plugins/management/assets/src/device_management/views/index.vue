@@ -4,7 +4,7 @@
     <div>
       <div class="manage-content">
         <top-navigation />
-        <component class="page" :is="currentPage" />
+        <component :is="currentPage" />
       </div>
     </div>
   </core-base>
@@ -22,10 +22,12 @@
   import get from 'lodash/fp/get';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
+  import userPermissionsPage from './user-permissions-page';
 
   const pageNameComponentMap = {
     [PageNames.DEVICE_CONTENT_MGMT_PAGE]: 'manageContentPage',
     [PageNames.DEVICE_PERMISSIONS_MGMT_PAGE]: 'managePermissionsPage',
+    [PageNames.USER_PERMISSIONS_MGMT_PAGE]: 'userPermissionsPage'
   };
 
   export default {
@@ -35,6 +37,7 @@
       manageContentPage,
       managePermissionsPage,
       topNavigation,
+      userPermissionsPage,
     },
     computed: {
       DEVICE: () => TopLevelPageNames.DEVICE,
