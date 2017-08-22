@@ -9,17 +9,7 @@
       <search-bar v-model="searchFilterText" />
     </div>
 
-    <div>
-      <p>User Grid</p>
-      <p>Filter: {{ searchFilterText }}</p>
-      <p v-for="user in facilityUsers" :key="user.id">
-        {{ user.full_name }}
-        {{ user.username }}
-        {{ user.id }}
-        <router-link :to="`/permissions/${user.id}`">Edit Permissions</router-link>
-      </p>
-    </div>
-
+    <user-grid />
   </div>
 
 </template>
@@ -28,11 +18,13 @@
 <script>
 
   import searchBar from './search-bar';
+  import userGrid from './user-grid';
 
   export default {
     name: 'DeviceManagementPage',
     components: {
       searchBar,
+      userGrid,
     },
     data() {
       return {
@@ -48,8 +40,6 @@
       actions: {},
     },
     $trs: {
-      searchFilterLabel: 'Search for a user',
-      searchFilterPlaceholder: 'Search for a user...',
     },
   };
 

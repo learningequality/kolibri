@@ -1,11 +1,10 @@
 import { PageNames } from '../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import { isUserLoggedIn, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 import {
   SignUpResource,
   FacilityUserResource,
-  DeviceOwnerResource,
   FacilityResource,
 } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -41,9 +40,6 @@ function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
-    if (isSuperuser(store.state)) {
-      return DeviceOwnerResource.getModel(session.user_id);
-    }
     return FacilityUserResource.getModel(session.user_id);
   }
   const savedUserModel = getUserModel();
