@@ -72,7 +72,7 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import * as manageContentActions from '../../device_management/state/actions/contentActions';
+  import * as manageContentActions from '../../state/actions/contentActions';
   import map from 'lodash/map';
   import orderBy from 'lodash/orderBy';
   import find from 'lodash/find';
@@ -81,6 +81,13 @@
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
+    name: 'channelsGrid',
+    components: {
+      uiProgressCircular,
+      deleteChannelModal,
+      elapsedTime,
+      kButton,
+    },
     data: () => ({
       selectedChannelId: null,
       notification: null,
@@ -100,19 +107,13 @@
         return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
       },
     },
-    components: {
-      uiProgressCircular,
-      deleteChannelModal,
-      elapsedTime,
-      kButton,
-    },
-    mounted() {
-      this.addChannelFileSummaries(map(this.channelList, 'id'));
-    },
     watch: {
       channelList(val) {
         this.addChannelFileSummaries(map(val, 'id'));
       },
+    },
+    mounted() {
+      this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     methods: {
       handleDeleteChannel() {
@@ -150,7 +151,6 @@
         addChannelFileSummaries: manageContentActions.addChannelFileSummaries,
       },
     },
-    name: 'channelsGrid',
     $trs: {
       emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',

@@ -54,18 +54,18 @@
 <script>
 
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import * as taskActions from '../../device_management/state/actions/taskActions';
-  import * as contentWizardActions from '../../device_management/state/actions/contentWizardActions';
-  import { ContentWizardPages, notificationTypes } from '../../constants';
+  import * as taskActions from '../../state/actions/taskActions';
+  import * as contentWizardActions from '../../state/actions/contentWizardActions';
+  import { ContentWizardPages, notificationTypes } from '../../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';
   import notifications from './manage-content-notifications';
   import taskStatus from './task-status';
-  import wizardImportSource from './wizard-import-source';
-  import wizardImportNetwork from './wizard-import-network';
-  import wizardImportLocal from './wizard-import-local';
-  import wizardExport from './wizard-export';
+  import wizardImportSource from './wizards/wizard-import-source';
+  import wizardImportNetwork from './wizards/wizard-import-network';
+  import wizardImportLocal from './wizards/wizard-import-local';
+  import wizardExport from './wizards/wizard-export';
   import importPreview from './wizards/import-preview';
 
   export default {
@@ -93,25 +93,6 @@
       intervalId: undefined,
       notification: null,
     }),
-    mounted() {
-      if (this.isSuperuser) {
-        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
-      }
-    },
-    destroyed() {
-      if (this.isSuperuser) {
-        clearInterval(this.intervalId);
-      }
-    },
-    methods: {
-      openWizard(action) {
-        this.notification = null;
-        if (action === 'import') {
-          return this.startImportWizard();
-        }
-        return this.startExportWizard();
-      },
-    },
     computed: {
       notificationTypes: () => notificationTypes,
       wizardComponent() {
@@ -130,6 +111,25 @@
           default:
             return undefined;
         }
+      },
+    },
+    mounted() {
+      if (this.isSuperuser) {
+        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      }
+    },
+    destroyed() {
+      if (this.isSuperuser) {
+        clearInterval(this.intervalId);
+      }
+    },
+    methods: {
+      openWizard(action) {
+        this.notification = null;
+        if (action === 'import') {
+          return this.startImportWizard();
+        }
+        return this.startExportWizard();
       },
     },
     vuex: {

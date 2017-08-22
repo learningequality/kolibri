@@ -15,9 +15,9 @@
 
   /* eslint-env node */
 
-  import * as manageContentActions from '../../device_management/state/actions/contentActions';
-  import * as taskActions from '../../device_management/state/actions/taskActions';
-  import * as constants from '../../constants';
+  import * as manageContentActions from '../../state/actions/contentActions';
+  import * as taskActions from '../../state/actions/taskActions';
+  import * as constants from '../../../constants';
   import logger from 'kolibri.lib.logging';
   const logging = logger.getLogger(__filename);
   const TaskTypes = constants.TaskTypes;
@@ -25,6 +25,25 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'contentPage',
+    components: { kButton },
+    props: {
+      type: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: true,
+      },
+      percentage: {
+        type: Number,
+        required: true,
+      },
+      id: {
+        type: String,
+        required: true,
+      },
+    },
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
@@ -37,7 +56,6 @@
       localImport: 'Importing from local drive',
       localExport: 'Exporting to local drive',
     },
-    components: { kButton },
     computed: {
       buttonMessage() {
         if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
@@ -80,24 +98,6 @@
           this.refreshChannelList();
         }
         this.clearTask(this.id);
-      },
-    },
-    props: {
-      type: {
-        type: String,
-        required: true,
-      },
-      status: {
-        type: String,
-        required: true,
-      },
-      percentage: {
-        type: Number,
-        required: true,
-      },
-      id: {
-        type: String,
-        required: true,
       },
     },
     vuex: {

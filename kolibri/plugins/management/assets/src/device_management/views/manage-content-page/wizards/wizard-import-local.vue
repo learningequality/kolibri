@@ -2,28 +2,30 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error ? true : false"
+    :error="wizardState.error"
     :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
+    @back="goBack"
   >
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <p>
-            {{ $tr('exportPrompt', { numChannels: allChannels.length, exportSize }) }}
-          </p>
           <drive-list
             :value="selectedDrive"
             :drives="wizardState.driveList"
             :enabledDrivePred="driveIsEnabled"
-            :disabledMsg="$tr('notWritable')"
-            :enabledMsg="formatEnabledMsg"
+            :disabledMsg="$tr('incompatible')"
             @change="(driveId) => selectedDrive = driveId"
           />
         </div>
         <div class="refresh-btn-wrapper">
-          <k-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')"/>
+          <k-button
+            :text="$tr('refresh')"
+            @click="updateWizardLocalDriveList"
+            :disabled="wizardState.busy"
+          />
         </div>
       </template>
       <loading-spinner v-else :delay="500" class="spinner"/>
@@ -37,7 +39,7 @@
         :raised="false"
         :text="$tr('cancel')"/>
       <k-button
-        :text="$tr('export')"
+        :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
         :primary="true"/>
@@ -49,26 +51,19 @@
 
 <script>
 
-  import * as contentWizardActions from '../../device_management/state/actions/contentWizardActions';
-  import bytesForHumans from './bytesForHumans';
+  import * as contentWizardActions from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import driveList from './wizards/drive-list';
-  import sumBy from 'lodash/sumBy';
-
+  import driveList from './drive-list';
   export default {
-    name: 'wizardExport',
+    name: 'wizardLocalImport',
     $trs: {
-      available: 'available',
-      cancel: 'Cancel',
-      export: 'Export',
-      exportPrompt:
-        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}} ({exportSize})',
-      notWritable: 'Not writable',
+      title: 'Import from a Local Drive',
+      incompatible: 'No content available',
       refresh: 'Refresh',
-      title: 'Export to where?',
-      waitForTotalSize: 'Calculating size...',
+      cancel: 'Cancel',
+      import: 'Import',
     },
     components: {
       coreModal,
@@ -82,46 +77,28 @@
         return this.wizardState.driveList === null;
       },
       canSubmit() {
-        return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
-      },
-      exportSize() {
-        const allChannelsHaveStats = this.allChannels.reduce((flag, channel) => {
-          return flag && Boolean(this.channelsWithStats[channel.id]);
-        }, true);
-        if (allChannelsHaveStats) {
-          const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
-          return bytesForHumans(totalSize);
-        }
-        return this.$tr('waitForTotalSize');
+        return !this.drivesLoading && this.selectedDrive !== '' && !this.wizardState.busy;
       },
     },
+    mounted() {
+      this.updateWizardLocalDriveList();
+    },
     methods: {
-      formatEnabledMsg(drive) {
-        return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;
-      },
-      driveIsEnabled(drive) {
-        return drive.writable;
+      driveIsEnabled: drive => drive.metadata.channels.length > 0,
+      goBack() {
+        this.transitionWizardPage('backward');
       },
       submit() {
-        if (this.canSubmit) {
-          this.transitionWizardPage('forward', { driveId: this.selectedDrive });
-        }
+        this.transitionWizardPage('forward', { driveId: this.selectedDrive });
       },
       cancel() {
         if (!this.wizardState.busy) {
           this.transitionWizardPage('cancel');
         }
       },
-      selectDriveByID(driveID) {
-        this.selectedDrive = driveID;
-      },
     },
     vuex: {
-      getters: {
-        allChannels: state => state.core.channels.list,
-        channelsWithStats: state => state.pageState.channelFileSummaries,
-        wizardState: state => state.pageState.wizardState,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
       actions: {
         transitionWizardPage: contentWizardActions.transitionWizardPage,
         updateWizardLocalDriveList: contentWizardActions.updateWizardLocalDriveList,
@@ -161,5 +138,8 @@
 
   .spinner
     height: $min-height
+
+  .core-text-alert
+    text-align: center
 
 </style>

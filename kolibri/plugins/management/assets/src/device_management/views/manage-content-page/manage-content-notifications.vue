@@ -31,23 +31,23 @@
 
 <script>
 
-  import { notificationTypes } from '../../constants';
+  import { notificationTypes } from '../../../constants';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
+    name: 'manageContentPageNotifications',
+    components: { uiAlert },
     props: {
       notification: {
         type: String,
         required: false,
       },
     },
-    components: { uiAlert },
     computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
       },
     },
-    name: 'manageContentPageNotifications',
     $trs: {
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',

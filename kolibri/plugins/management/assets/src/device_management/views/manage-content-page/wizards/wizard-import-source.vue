@@ -22,7 +22,7 @@
 
 <script>
 
-  import * as contentWizardActions from '../../device_management/state/actions/contentWizardActions';
+  import * as contentWizardActions from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
@@ -33,6 +33,10 @@
       localDrives: 'Local Drives',
       cancel: 'Cancel',
     },
+    components: {
+      coreModal,
+      kButton,
+    },
     methods: {
       goForward(source) {
         return this.transitionWizardPage('forward', { source });
@@ -40,10 +44,6 @@
       cancel() {
         return this.transitionWizardPage('cancel');
       },
-    },
-    components: {
-      coreModal,
-      kButton,
     },
     vuex: {
       actions: { transitionWizardPage: contentWizardActions.transitionWizardPage },
