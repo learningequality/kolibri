@@ -40,6 +40,18 @@ const routes = [
       });
     },
   },
+  {
+    name: PageNames.USER_PERMISSIONS_MGMT_PAGE,
+    path: '/permissions/:userid',
+    handler: (toRoute) => {
+      preparePage(store.dispatch, {
+        name: PageNames.USER_PERMISSIONS_MGMT_PAGE,
+        title: 'Manage User Device Permissions',
+        isAsync: false,
+      });
+      console.log(toRoute);
+    },
+  }
 ];
 
 class ManagementModule extends KolibriModule {

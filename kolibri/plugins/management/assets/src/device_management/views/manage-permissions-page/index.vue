@@ -12,6 +12,12 @@
     <div>
       <p>User Grid</p>
       <p>Filter: {{ searchFilterText }}</p>
+      <p v-for="user in facilityUsers" :key="user.id">
+        {{ user.full_name }}
+        {{ user.username }}
+        {{ user.id }}
+        <router-link :to="`/permissions/${user.id}`">Edit Permissions</router-link>
+      </p>
     </div>
 
   </div>
@@ -36,7 +42,9 @@
     computed: {},
     methods: {},
     vuex: {
-      getters: {},
+      getters: {
+        facilityUsers: state => state.pageState.facilityUsers,
+      },
       actions: {},
     },
     $trs: {
