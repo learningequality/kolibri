@@ -2,6 +2,7 @@
 
   <form>
     Select default language
+    <button> hey </button>
   </form>
 
 </template>
@@ -10,7 +11,7 @@
 <script>
 
   export default {
-    name: 'defaultLanguage',
+    name: 'defaultLanguageForm',
   };
 
 </script>

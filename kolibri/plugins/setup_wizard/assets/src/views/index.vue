@@ -6,7 +6,12 @@
       :currentStep="onboardingStep"
       :totalSteps="totalOnboardingSteps"/>
 
-    <component :is="currentOnboardingForm" class="onboarding-form"/>
+    <component
+      :is="currentOnboardingForm"
+      :is-last-step="isLastStep"
+      @submit.native="goToNextStep"
+      class="onboarding-form"
+      />
 
   </div>
 
@@ -41,10 +46,13 @@
           case 3:
             return superuserCredentialsForm;
           case 4:
-            return facilityPermissionForm;
+            return facilityPermissionsForm;
           default:
             return null; // this is where we could do loading or error states?
         }
+      },
+      isLastStep() {
+        return this.onboardingStep === this.totalOnboardingSteps;
       },
     },
     vuex: {
@@ -52,6 +60,7 @@
         onboardingStep: state => state.onboardingStep,
       },
       actions: {
+        goToNextStep,
         goToPreviousStep,
       },
     },

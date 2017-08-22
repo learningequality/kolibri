@@ -1,7 +1,8 @@
 <template>
 
-  <form>
+  <form @submit="$emit('submit')">
     Select permissions preset
+    <button> hey </button>
   </form>
 
 </template>
