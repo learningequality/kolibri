@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="containerClasses">
+  <div class="no-padding" :class="containerClasses">
     <slot />
   </div>
 
@@ -38,5 +38,8 @@
 
 
 <style lang="stylus" scoped>
+
+  .no-padding
+    padding: 0
 
 </style>

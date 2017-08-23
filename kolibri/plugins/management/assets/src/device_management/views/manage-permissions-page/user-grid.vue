@@ -13,7 +13,7 @@
       <tbody>
         <tr v-for="user in facilityUsers" :key="user.id" class="table-row">
           <td>
-            {{ user.full_name }}
+            <user-full-name-cell :user="user" />
           </td>
           <td>
             {{ user.username }}
@@ -36,11 +36,13 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
+  import userFullNameCell from './user-full-name-cell';
 
   export default {
-    name: 'UserGrid',
+    name: 'userGrid',
     components: {
       kButton,
+      userFullNameCell
     },
     computed: {
 

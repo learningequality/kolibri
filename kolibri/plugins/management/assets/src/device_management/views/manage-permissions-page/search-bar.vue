@@ -17,7 +17,7 @@
 <script>
 
   export default {
-    name: 'SearchBar',
+    name: 'searchBar',
     props: {
       value: {
         type: String,
