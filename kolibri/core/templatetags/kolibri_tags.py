@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
 from django.utils.timezone import now
-from django.utils.translation import get_language, get_language_bidi
+from django.utils.translation import get_language, get_language_bidi, get_language_info
 from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
 from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
@@ -35,7 +35,12 @@ def kolibri_language_globals(context):
     """.format(
         lang_code=get_language(),
         lang_dir=lang_dir,
-        languages=json.dumps({code: {'code': code, 'name': name} for code, name in settings.LANGUAGES}),
+        languages=json.dumps({code: {
+            # Format to match the schema of the content Language model
+            'id': code,
+            'lang_name': name,
+            'lang_direction': get_language_info(code)['bidi']
+        } for code, name in settings.LANGUAGES}),
     )
     return mark_safe(js)
 

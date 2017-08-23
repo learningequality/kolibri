@@ -28,19 +28,25 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   return formatter(message, args);
 }
 
-const defaultLocale = 'en';
-
 export const languageDirections = {
   LTR: 'ltr',
   RTL: 'rtl',
 };
 
+const defaultLocale = 'en';
+
+export const defaultLanguage = {
+  id: 'en',
+  lang_name: 'English',
+  lang_direction: languageDirections.LTR,
+};
+
+export const languageValidator = language => {
+  return ['id', 'lang_name', 'lang_direction'].reduce((valid, key) => valid && language[key], true);
+};
+
 export const availableLanguages = {
-  en: {
-    code: 'en',
-    name: 'English',
-    langDir: languageDirections.LTR,
-  },
+  en: defaultLanguage,
 };
 
 export let currentLanguage = defaultLocale;
@@ -48,12 +54,16 @@ export let currentLanguage = defaultLocale;
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
 
-export const getLangDir = lang_code => {
-  return (availableLanguages[lang_code] || {}).langDir || languageDirections.LTR;
+export const getContentLangDir = language => {
+  return (language || {}).lang_direction || languageDirections.LTR;
 };
 
-export const isRtl = lang_code => {
-  return getLangDir(lang_code) === languageDirections.RTL;
+export const getLangDir = id => {
+  return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
+};
+
+export const isRtl = id => {
+  return getLangDir(id) === languageDirections.RTL;
 };
 
 export const languageDensities = {
@@ -89,10 +99,14 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function setLanguageDensity(lang_code) {
-  const shortCode = lang_code.split('-')[0].toLowerCase();
+function languageIdToCode(id) {
+  return id.split('-')[0].toLowerCase();
+}
+
+function setLanguageDensity(id) {
+  const langCode = languageIdToCode(id);
   // Set the exported languageDensity in JS
-  languageDensity = languageDensityMapping[shortCode] || languageDensities.englishLike;
+  languageDensity = languageDensityMapping[langCode] || languageDensities.englishLike;
   // Set the body class for global typography
   global.document.body.classList.add(`language-${languageDensity}`);
 }

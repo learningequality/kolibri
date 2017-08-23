@@ -23,6 +23,7 @@
         :supplementaryFiles="supplementaryFiles"
         :thumbnailFiles="thumbnailFiles"
         :interactive="interactive"
+        :lang="lang"
         ref="contentView"
         />
       </div>
@@ -42,6 +43,7 @@
   const logging = logger.getLogger(__filename);
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
   export default {
     name: 'contentRender',
     $trs: {
@@ -92,6 +94,11 @@
       interactive: {
         type: Boolean,
         default: true,
+      },
+      lang: {
+        type: Object,
+        default: () => defaultLanguage,
+        validator: languageValidator,
       },
     },
     components: {

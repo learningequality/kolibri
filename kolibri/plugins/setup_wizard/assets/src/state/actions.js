@@ -1,12 +1,12 @@
 import { DeviceProvisionResource } from 'kolibri.resources';
 import { kolibriLogin, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
-export function provisionDevice(store, superuser, facility, preset, language_code) {
+export function provisionDevice(store, superuser, facility, preset, language_id) {
   const DeviceProvisionModel = DeviceProvisionResource.createModel({
     superuser,
     facility,
     preset,
-    language_code,
+    language_id,
   });
   const deviceProvisionPromise = DeviceProvisionModel.save();
 
