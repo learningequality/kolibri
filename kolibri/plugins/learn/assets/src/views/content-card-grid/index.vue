@@ -14,19 +14,17 @@
       class="filter"
     />
 
-    <template
+    <content-card
       v-for="content in contents"
-      v-if="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
-
-      <content-card
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :class="{'grid-item': true, 'mobile': isMobile}"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genLink(content.id, content.kind)"/>
-
-    </template>
+      v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
+      :key="content.id"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :class="{'grid-item': true, 'mobile': isMobile}"
+      :kind="content.kind"
+      :progress="content.progress"
+      :link="genLink(content.id, content.kind)"
+    />
 
   </div>
 
