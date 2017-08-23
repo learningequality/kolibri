@@ -146,6 +146,7 @@ class TasksViewSet(viewsets.ViewSet):
                 "The 'task_id' field is required.")
 
         get_client().cancel(request.data['task_id'])
+        get_client().clear(force=True)
         return Response({})
 
     @list_route(methods=['post'])
@@ -189,7 +190,7 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
         except OSError:
             pass
         ChannelMetadataCache.objects.filter(id=channel_id).delete()
-        raise UserCancelledError
+        raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 def _localimport(drive_id, update_progress=None, check_for_cancel=None):
@@ -222,7 +223,7 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
                 pass
             ChannelMetadataCache.objects.filter(id=channel_id).delete()
         connections.close_all()  # close all DB connections (FIX for #1818)s
-        raise UserCancelledError
+        raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 
@@ -249,7 +250,7 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
             except OSError:
                 pass
             connections.close_all()  # close all DB connections (FIX for #1818)
-            raise UserCancelledError
+            raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 
@@ -264,7 +265,7 @@ def _job_to_response(job):
         }
     else:
         return {
-            "type": id_tasktype[job.job_id],
+            "type": id_tasktype.get(job.job_id),
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
