@@ -189,7 +189,7 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
         except OSError:
             pass
         ChannelMetadataCache.objects.filter(id=channel_id).delete()
-        raise UserCancelledError
+        raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 def _localimport(drive_id, update_progress=None, check_for_cancel=None):
@@ -222,7 +222,7 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
                 pass
             ChannelMetadataCache.objects.filter(id=channel_id).delete()
         connections.close_all()  # close all DB connections (FIX for #1818)s
-        raise UserCancelledError
+        raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 
@@ -249,7 +249,7 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
             except OSError:
                 pass
             connections.close_all()  # close all DB connections (FIX for #1818)
-            raise UserCancelledError
+            raise
     connections.close_all()  # close all DB connections (FIX for #1818)
 
 
