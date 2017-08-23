@@ -14,7 +14,7 @@
         <tr v-for="user in facilityUsers" :key="user.id" class="table-row">
           <td>
             <user-full-name-cell :user="user" />
-            <span v-if="isCurrentUser(user.username)">(You)</span>
+            <span v-if="isCurrentUser(user.username)"> (You)</span>
           </td>
           <td>
             {{ user.username }}
