@@ -200,6 +200,14 @@ def update():
 
     logger.info("Running update routines for new version...")
 
+    # Need to do this here, before we run any Django management commands that
+    # import settings. Otherwise the updated configuration will not be used
+    # during this runtime.
+
+    from kolibri.utils.conf import enable_default_plugins
+
+    enable_default_plugins()
+
     call_command("collectstatic", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
@@ -209,10 +217,6 @@ def update():
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
-
-    from kolibri.utils.conf import enable_default_plugins
-
-    enable_default_plugins()
 
 
 update.called = False
