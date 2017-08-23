@@ -17,6 +17,24 @@ function fetchDevicePermissions() {
     });
 }
 
+function fetchUserPermissions(userId) {
+  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch()._promise;
+  const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
+  return permissionsPromise
+    .then(function onSuccess(permissions) {
+      return userPromise.then(function userSuccess(user) {
+        return { permissions, user };
+      });
+    })
+    .catch(function onFailure(error) {
+      if (error.status.code === 404) {
+        return userPromise.then(function userSuccess(user) {
+          return { permissions: {}, user };
+        });
+      }
+    });
+}
+
 export function showPermissionsPage(store) {
   const promises = Promise.all([fetchFacilityUsers(), fetchDevicePermissions()]);
   return promises
@@ -28,5 +46,15 @@ export function showPermissionsPage(store) {
     })
     .catch(function onFailure(error) {
       handleApiError(store, error);
+    });
+}
+
+export function showUserPermissionsPage(store, userId) {
+  return fetchUserPermissions(userId)
+    .then(function onSuccess(data) {
+      return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
+    })
+    .catch(function onFailure(error) {
+      return handleApiError(store, error);
     });
 }

@@ -6,7 +6,7 @@ import RootVue from './views';
 import store from './state/store';
 import { PageNames } from './constants';
 import preparePage from '../state/preparePage';
-import { showPermissionsPage } from './state/actions/permissionsActions';
+import { showPermissionsPage, showUserPermissionsPage } from './state/actions/permissionsActions';
 import { showContentPage } from './state/actions/contentActions';
 
 const routes = [
@@ -47,9 +47,10 @@ const routes = [
       preparePage(store.dispatch, {
         name: PageNames.USER_PERMISSIONS_MGMT_PAGE,
         title: 'Manage User Device Permissions',
-        isAsync: false,
       });
-      console.log(toRoute);
+      showUserPermissionsPage(store, toRoute.params.userid).then(function onSuccess() {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
     },
   },
 ];
