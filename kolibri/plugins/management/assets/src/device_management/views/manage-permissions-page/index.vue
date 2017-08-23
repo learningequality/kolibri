@@ -1,15 +1,19 @@
 <template>
 
   <subpage-container>
-    <div>
-      <div class="header">
-        <h1>Device Permissions</h1>
-        <p>Make changes to what users can manage on your device</p>
-      </div>
-      <search-bar v-model="searchFilterText" />
+
+    <div class="pure-g">
+      <responsive b3="pure-u-1-2" default="pure-u-1-1">
+        <h1>{{ $tr('devicePermissionsHeader') }}</h1>
+        <p>{{ $tr('devicePermissionsDescription') }}</p>
+      </responsive>
+      <responsive b3="pure-u-1-2" default="pure-u-1-1">
+        <search-bar v-model="searchFilterText" />
+      </responsive>
     </div>
 
     <user-grid />
+
   </subpage-container>
 
 </template>
@@ -20,10 +24,12 @@
   import searchBar from './search-bar';
   import userGrid from './user-grid';
   import subpageContainer from '../containers/subpage-container';
+  import responsive from '../containers/responsive-container';
 
   export default {
     name: 'DeviceManagementPage',
     components: {
+      responsive,
       searchBar,
       subpageContainer,
       userGrid,
@@ -42,6 +48,8 @@
       actions: {},
     },
     $trs: {
+      devicePermissionsHeader: 'Device Permissions',
+      devicePermissionsDescription: 'Make changes to what users can manage on your device',
     },
   };
 
