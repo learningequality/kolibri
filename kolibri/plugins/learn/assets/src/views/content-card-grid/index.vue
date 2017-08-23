@@ -16,7 +16,7 @@
 
     <template
       v-for="content in contents"
-      v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
+      v-if="selectedFilter.value === 'all' || selectedFilter.value === content.kind">
 
       <content-card
         :title="content.title"
