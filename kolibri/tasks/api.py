@@ -265,7 +265,7 @@ def _job_to_response(job):
         }
     else:
         return {
-            "type": id_tasktype[job.job_id],
+            "type": id_tasktype.get(job.job_id),
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
