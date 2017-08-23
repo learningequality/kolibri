@@ -109,12 +109,9 @@ def autoremove_unavailable_plugins():
                 ).format(mod=module_path)
             )
             changed = True
-
     if changed:
         save()
 
-
-autoremove_unavailable_plugins()
 
 def enable_default_plugins():
     """

@@ -14,11 +14,7 @@ def module_exists(module_path):
     if sys.version_info >= (3, 4):
         from importlib.util import find_spec
         try:
-            if "." in module_path:
-                find_spec(module_path)
-                return True
-            else:
-                return find_spec(module_path) is not None
+            return find_spec(module_path) is not None
         except ImportError:
             return False
     elif sys.version_info < (3,):
