@@ -39,7 +39,7 @@ from .system import become_daemon  # noqa
 # ...we need to (re)move it /benjaoming
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
-    reload(sys)
+    reload(sys)  # noqa
     sys.setdefaultencoding('utf8')
 
 USAGE = """
@@ -209,6 +209,10 @@ def update():
 
     with open(VERSION_FILE, "w") as f:
         f.write(kolibri.__version__)
+
+    from kolibri.utils.conf import enable_default_plugins
+
+    enable_default_plugins()
 
 
 update.called = False
