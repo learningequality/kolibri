@@ -46,6 +46,7 @@
   export default {
     mixins: [responsiveWindow],
     name: 'contentCardGrid',
+    $trNameSpace: 'contentCardGrid',
     $trs: {
       display: 'Display',
       all: 'All content ({ num, number })',

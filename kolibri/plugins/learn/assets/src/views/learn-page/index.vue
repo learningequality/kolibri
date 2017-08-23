@@ -54,6 +54,7 @@
 
   export default {
     name: 'recommendedPage',
+    $trNameSpace: 'recommendedPage',
     $trs: {
       pageHeader: 'Recommended',
       popularSectionHeader: 'Most popular',
