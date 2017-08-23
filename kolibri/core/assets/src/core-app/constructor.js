@@ -5,7 +5,6 @@
 
 import vue from 'vue';
 import vuex from 'vuex';
-import VueIntl from 'vue-intl';
 import router from 'vue-router';
 import Mediator from './mediator';
 import constructorExport from './constructorExport';
@@ -70,6 +69,9 @@ export default class CoreApp {
       /**
        * Use the vue-intl plugin.
        **/
+
+      const VueIntl = require('vue-intl');
+
       vue.use(VueIntl, { defaultLocale: 'en-us' });
 
       function $trWrapper(formatter, messageId, args) {
