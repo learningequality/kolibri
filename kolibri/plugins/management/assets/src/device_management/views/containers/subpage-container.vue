@@ -14,9 +14,9 @@
       withSideMargin: {
         type: Boolean,
         default: false,
-      }
+      },
     },
-  }
+  };
 
 </script>
 

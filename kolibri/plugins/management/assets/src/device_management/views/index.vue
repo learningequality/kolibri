@@ -27,7 +27,7 @@
   const pageNameComponentMap = {
     [PageNames.DEVICE_CONTENT_MGMT_PAGE]: 'manageContentPage',
     [PageNames.DEVICE_PERMISSIONS_MGMT_PAGE]: 'managePermissionsPage',
-    [PageNames.USER_PERMISSIONS_MGMT_PAGE]: 'userPermissionsPage'
+    [PageNames.USER_PERMISSIONS_MGMT_PAGE]: 'userPermissionsPage',
   };
 
   export default {

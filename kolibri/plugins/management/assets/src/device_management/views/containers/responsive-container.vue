@@ -12,7 +12,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import forEach from 'lodash/forEach';
 
-  const breakpoints = ['b1',' b2', 'b3', 'b4', 'b5', 'b6', 'b7'];
+  const breakpoints = ['b1', ' b2', 'b3', 'b4', 'b5', 'b6', 'b7'];
 
   export default {
     mixins: [responsiveWindow],
@@ -30,9 +30,9 @@
           return this['default'];
         }
         return classes;
-      }
+      },
     },
-  }
+  };
 
 </script>
 

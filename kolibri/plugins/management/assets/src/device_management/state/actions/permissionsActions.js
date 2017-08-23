@@ -9,18 +9,16 @@ function fetchFacilityUsers() {
 }
 
 function fetchDevicePermissions() {
-  return DevicePermissionsResource.getCollection().fetch({}, true)._promise
-    .then(function transform(permissions) {
+  return DevicePermissionsResource.getCollection()
+    .fetch({}, true)
+    ._promise.then(function transform(permissions) {
       // returns object, where userid is the key
-      return mapValues(groupBy(permissions, 'user'), head) ;
+      return mapValues(groupBy(permissions, 'user'), head);
     });
 }
 
 export function showPermissionsPage(store) {
-  const promises = Promise.all([
-    fetchFacilityUsers(),
-    fetchDevicePermissions(),
-  ]);
+  const promises = Promise.all([fetchFacilityUsers(), fetchDevicePermissions()]);
   return promises
     .then(function onSuccess([users, permissions]) {
       store.dispatch('SET_PERMISSIONS_PAGE_STATE', {

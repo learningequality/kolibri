@@ -53,21 +53,13 @@
       immersiveFullScreen,
       subpageContainer,
     },
-    computed: {
-
-    },
-    methods: {
-
-    },
+    computed: {},
+    methods: {},
     vuex: {
-      getters: {
-
-      },
-      actions: {
-
-      },
+      getters: {},
+      actions: {},
     },
-  }
+  };
 
 </script>
 

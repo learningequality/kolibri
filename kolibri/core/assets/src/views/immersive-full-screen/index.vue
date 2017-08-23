@@ -38,7 +38,7 @@
       },
       topBarColorHex: {
         type: String,
-      }
+      },
     },
     computed: {
       pageBodyStyles() {
@@ -54,8 +54,8 @@
             backgroundColor: this.topBarColorHex,
           };
         }
-      }
-    }
+      },
+    },
   };
 
 </script>

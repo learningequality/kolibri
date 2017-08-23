@@ -43,33 +43,28 @@
     name: 'userGrid',
     components: {
       kButton,
-      userFullNameCell
+      userFullNameCell,
     },
-    computed: {
-
-    },
+    computed: {},
     methods: {
       permissionsButtonText(username) {
         if (this.isCurrentUser(username)) {
-          return this.$tr('viewPermissions' );
+          return this.$tr('viewPermissions');
         }
-        return this.$tr('editPermissions' );
+        return this.$tr('editPermissions');
       },
       goToUserPermissionsPage(userId) {
         this.$router.push({
-          path: `/permissions/${userId}`
+          path: `/permissions/${userId}`,
         });
-      }
-
+      },
     },
     vuex: {
       getters: {
         isCurrentUser: ({ core }) => username => core.session.username === username,
         facilityUsers: ({ pageState }) => pageState.facilityUsers,
       },
-      actions: {
-
-      },
+      actions: {},
     },
     $trs: {
       viewPermissions: 'View Permissions',
@@ -77,7 +72,7 @@
       fullName: 'Full Name',
       username: 'Username',
     },
-  }
+  };
 
 </script>
 

@@ -44,7 +44,7 @@
     props: ['user'],
     computed: {
       permissionType() {
-        const permissions = this.userPermissions(this.user.id) ;
+        const permissions = this.userPermissions(this.user.id);
         if (!permissions) {
           return 'NO_PERMISSIONS';
         } else if (permissions.is_superuser) {
@@ -64,25 +64,21 @@
           default:
             return 'No Permissions';
         }
-      }
+      },
     },
-    methods: {
-
-    },
+    methods: {},
     vuex: {
       getters: {
         userPermissions: state => userid => state.pageState.permissions[userid],
       },
-      actions: {
-
-      },
+      actions: {},
     },
     $trs: {
       noPermissionsTooltip: 'No permissions',
       somePermissionstooltip: 'Has permissions',
       superuserTooltip: 'Superuser',
     },
-  }
+  };
 
 </script>
 
