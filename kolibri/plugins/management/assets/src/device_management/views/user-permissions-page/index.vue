@@ -3,8 +3,10 @@
   <immersive-full-screen
     :backPageLink="{ name: 'DEVICE_PERMISSIONS_MGMT_PAGE' }"
     backPageText="David Hu"
+    bodyColorHex="#F9F9F9"
+    topBarColorHex="#724870"
   >
-    <div class="manage-content">
+    <subpage-container withSideMargin>
       <div>
         <h1>Full Name</h1>
         <h2>Username</h2>
@@ -34,7 +36,7 @@
           Cancel
         </button>
       </div>
-    </div>
+    </subpage-container>
 
   </immersive-full-screen>
 
@@ -44,10 +46,12 @@
 <script>
 
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import subpageContainer from '../containers/subpage-container';
 
   export default {
     components: {
       immersiveFullScreen,
+      subpageContainer,
     },
     computed: {
 

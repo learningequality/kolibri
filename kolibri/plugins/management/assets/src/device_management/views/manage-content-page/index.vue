@@ -5,22 +5,22 @@
     <template v-if="isSuperuser">
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
-      <div v-if="pageState.taskList.length" class="main alert-bg">
-        <task-status
-          :type="pageState.taskList[0].type"
-          :status="pageState.taskList[0].status"
-          :percentage="pageState.taskList[0].percentage"
-          :id="pageState.taskList[0].id"
-          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
+      <subpage-container>
+        <div v-if="pageState.taskList.length" class="alert-bg">
+          <task-status
+            :type="pageState.taskList[0].type"
+            :status="pageState.taskList[0].status"
+            :percentage="pageState.taskList[0].percentage"
+            :id="pageState.taskList[0].id"
+            @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
+          />
+        </div>
+
+        <notifications
+          v-bind="{notification}"
+          @dismiss="notification=null"
         />
-      </div>
 
-      <notifications
-        v-bind="{notification}"
-        @dismiss="notification=null"
-      />
-
-      <div class="main light-bg">
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
           <div class="button-wrapper" v-if="!pageState.taskList.length">
@@ -42,7 +42,7 @@
           @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
           @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
         />
-      </div>
+      </subpage-container>
     </template>
     <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
 
@@ -67,6 +67,7 @@
   import wizardImportLocal from './wizards/wizard-import-local';
   import wizardExport from './wizards/wizard-export';
   import importPreview from './wizards/import-preview';
+  import subpageContainer from '../containers/subpage-container';
 
   export default {
     name: 'manageContentState',
@@ -83,6 +84,7 @@
       kButton,
       notifications,
       importPreview,
+      subpageContainer,
       taskStatus,
       wizardImportSource,
       wizardImportNetwork,
@@ -156,16 +158,6 @@
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
-
-  .main
-    padding: 1em 2em
-    padding-bottom: 3em
-    margin-top: 2em
-    width: 100%
-    border-radius: 4px
-
-  .light-bg
-    background-color: $core-bg-light
 
   .alert-bg
     background-color: $core-bg-warning

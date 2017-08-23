@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <subpage-container>
     <div>
       <div class="header">
         <h1>Device Permissions</h1>
@@ -10,7 +10,7 @@
     </div>
 
     <user-grid />
-  </div>
+  </subpage-container>
 
 </template>
 
@@ -19,11 +19,13 @@
 
   import searchBar from './search-bar';
   import userGrid from './user-grid';
+  import subpageContainer from '../containers/subpage-container';
 
   export default {
     name: 'DeviceManagementPage',
     components: {
       searchBar,
+      subpageContainer,
       userGrid,
     },
     data() {
