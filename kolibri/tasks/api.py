@@ -146,6 +146,7 @@ class TasksViewSet(viewsets.ViewSet):
                 "The 'task_id' field is required.")
 
         get_client().cancel(request.data['task_id'])
+        get_client().clear(force=True)
         return Response({})
 
     @list_route(methods=['post'])
