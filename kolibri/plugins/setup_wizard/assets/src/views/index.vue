@@ -8,7 +8,7 @@
 
     <component
       :is="currentOnboardingForm"
-      :is-last-step="isLastStep"
+      submitText="Continue"
       @submit.native="goToNextStep"
       class="onboarding-form"
       />

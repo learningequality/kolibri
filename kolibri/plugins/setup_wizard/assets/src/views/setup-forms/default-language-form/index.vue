@@ -1,25 +1,35 @@
 <template>
 
-  <form>
+  <form class="language-form">
     <fieldset>
       <legend>
-        <h1>
+        <h1 class="language-form-header">
           Select default language
         </h1>
       </legend>
 
       <label>
-        <span> Selected: </span>
-        <span> {{ currentLanguage }} </span>
+        <span class="language-form-selected-label"> Selected: </span>
+        <span class="language-form-selected"> {{ currentLanguage }} </span>
       </label>
 
-      <k-button v-for="language in buttonLanguages" :raised="false" :text="language.name"/>
-      <select>
-        <option v-for="language in selectorLanguages" value="language.code">
-          {{ language.name }}
-        </option>
-      </select>
+      <k-button
+        v-for="language in buttonLanguages"
+        class="language-form-language-button"
+        :raised="false"
+        :text="language.name"/>
 
+      <label>
+        <span class="visuallyhidden">More Languages</span>
+        <select>
+          <option disabled selected> MORE </option>
+          <option v-for="language in selectorLanguages" value="language.code">
+            {{ language.name }}
+          </option>
+        </select>
+      </label>
+
+      <k-button type="submit" :text="submitText" />
     </fieldset>
   </form>
 
@@ -34,6 +44,7 @@
 
   const numberOfLanguageButtons = 4;
 
+  // Leaving outside for now. Doesn't really need to be reactive.
   const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
   remainingLanguages.sort((lang1, lang2) => {
     // puts words with foreign characters first in the array
@@ -46,6 +57,12 @@
   export default {
     name: 'defaultLanguageForm',
     components: { kButton },
+    props: {
+      submitText: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         selectedLanguage: currentLanguage,
@@ -63,4 +80,13 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .language-form
+    &-selected
+      &-label
+        display: block
+
+</style>
