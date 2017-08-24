@@ -45,12 +45,12 @@
       searchBox,
     },
     methods: {
-      genContentLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC) {
+      genContentLink(contentId, contentKind) {
+        if (contentKind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: {
-              id,
+              id: contentId,
               channel_id: this.channelId,
             },
           };
@@ -58,7 +58,7 @@
         return {
           name: PageNames.EXPLORE_CONTENT,
           params: {
-            id,
+            id: contentId,
             channel_id: this.channelId,
           },
         };
