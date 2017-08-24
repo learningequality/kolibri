@@ -36,6 +36,13 @@
 <script>
 
   import uiTooltip from 'keen-ui/src/UiTooltip';
+  import every from 'lodash/every';
+  import omit from 'lodash/omit';
+
+  function hasNoPermissions(ps) {
+    if (!ps) return true;
+    return every(omit(ps, ['user']), p => !p)
+  }
 
   export default {
     components: {
@@ -45,7 +52,7 @@
     computed: {
       permissionType() {
         const permissions = this.userPermissions(this.user.id);
-        if (!permissions) {
+        if (hasNoPermissions(permissions)) {
           return 'NO_PERMISSIONS';
         } else if (permissions.is_superuser) {
           return 'SUPERUSER';

@@ -34,13 +34,19 @@
 
       <div class="buttons">
         <k-button
+          :disabled="uiBlocked"
           :text="$tr('saveButton')"
           class="no-margin"
           :primary="true"
           :raised="true"
           @click="save()"
         />
-        <k-button :text="$tr('cancelButton')" :primary="false" :raised="false" />
+        <k-button
+          :disabled="uiBlocked"
+          :text="$tr('cancelButton')"
+          :primary="false"
+          :raised="false"
+        />
       </div>
     </subpage-container>
 
@@ -69,6 +75,7 @@
       return {
         superuserChecked: undefined,
         devicePermissionsChecked: undefined,
+        uiBlocked: false,
       }
     },
     computed: {},
@@ -78,12 +85,16 @@
     },
     methods: {
       save() {
+        const router = this.$router;
+        this.uiBlocked = true;
         this.addOrUpdateUserPermissions({
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })
         .then(function onSuccess() {
-          console.log('yay');
+          router.push({
+            path: '/permissions',
+          });
         });
       },
     },
