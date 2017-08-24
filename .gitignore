@@ -98,3 +98,4 @@ Icon
 
 # ignore the VERSION file we use to track the version for whl files
 VERSION
+/docs/crowdin-cli.jar

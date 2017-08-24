@@ -5,7 +5,7 @@
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
-    <k-button @click="clearTaskHandler" :text="buttonMessage"/>
+    <k-button @click="cancelTaskHandler" :text="buttonMessage"/>
   </div>
 
 </template>
@@ -92,12 +92,12 @@
       },
     },
     methods: {
-      clearTaskHandler() {
+      cancelTaskHandler() {
         if (this.statusSuccess) {
           this.$emit('importsuccess');
           this.refreshChannelList();
         }
-        this.clearTask(this.id);
+        this.cancelTask(this.id);
       },
     },
     vuex: {

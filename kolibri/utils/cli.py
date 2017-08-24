@@ -136,17 +136,28 @@ def initialize(debug=False):
     :param: debug: Tells initialization to setup logging etc.
     """
 
-    # TODO: We'll move this to a more deliberate location whereby we can
-    # ensure that some parts of kolibri can run without the whole django stack
-    django.setup()
-
-    setup_logging(debug=debug)
-
     if not os.path.isfile(version_file()):
+        django.setup()
+
+        setup_logging(debug=debug)
+
         _first_run()
     else:
+        # Do this here so that we can fix any issues with our configuration file before
+        # we attempt to setup django.
+        from kolibri.utils.conf import autoremove_unavailable_plugins, enable_default_plugins
+        autoremove_unavailable_plugins()
+
         version = open(version_file(), "r").read()
-        if kolibri.__version__ != version.strip():
+        change_version = kolibri.__version__ != version.strip()
+        if change_version:
+            enable_default_plugins()
+
+        django.setup()
+
+        setup_logging(debug=debug)
+
+        if change_version:
             logger.info(
                 "Version was {old}, new version: {new}".format(
                     old=version,
@@ -205,6 +216,10 @@ def update():
 
     logger.info("Running update routines for new version...")
 
+    # Need to do this here, before we run any Django management commands that
+    # import settings. Otherwise the updated configuration will not be used
+    # during this runtime.
+
     call_command("collectstatic", interactive=False)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
@@ -240,8 +255,23 @@ def start(port=None, daemon=True):
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
+
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
+
+    __, urls = server.get_urls(listen_port=port)
+    if not urls:
+        logger.error(
+            "Could not detect an IP address that Kolibri binds to, but try "
+            "opening up the following addresses:\n")
+        urls = [
+            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+        ]
+    else:
+        logger.info("Kolibri running on:\n")
+    for addr in urls:
+        sys.stderr.write("\t{}\n".format(addr))
+    sys.stderr.write("\n")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -260,7 +290,7 @@ def start(port=None, daemon=True):
     server.start(port=port)
 
 
-def stop(sys_exit=True):
+def stop():
     """
     Stops the server unless it isn't running
     """
@@ -294,9 +324,7 @@ def stop(sys_exit=True):
             stopped = True
 
     if stopped:
-        logger.info("Server stopped")
-        if sys_exit:
-            sys.exit(0)
+        sys.exit(0)
 
 
 def status():

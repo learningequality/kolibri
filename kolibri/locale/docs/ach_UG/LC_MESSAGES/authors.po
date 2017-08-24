@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-07-28 17:27-0400\n"
+"PO-Revision-Date: 2017-08-23 18:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Acholi\n"
 "MIME-Version: 1.0\n"
@@ -19,61 +19,61 @@ msgstr ""
 
 #: ../../../AUTHORS.rst:3
 msgid "Credits"
-msgstr "crwdns10422:0crwdne10422:0"
+msgstr "crwdns14732:0crwdne14732:0"
 
 #: ../../../AUTHORS.rst:6
 msgid "Development Lead and Copyright Holder"
-msgstr "crwdns10423:0crwdne10423:0"
+msgstr "crwdns14733:0crwdne14733:0"
 
 #: ../../../AUTHORS.rst:8
 msgid "Learning Equality – info@learningequality.org"
-msgstr "crwdns10424:0crwdne10424:0"
+msgstr "crwdns14734:0crwdne14734:0"
 
 #: ../../../AUTHORS.rst:11
 msgid "Community"
-msgstr "crwdns10425:0crwdne10425:0"
+msgstr "crwdns14735:0crwdne14735:0"
 
 #: ../../../AUTHORS.rst:13
 msgid "Please feel free to add your name on this list if you do a PR!"
-msgstr "crwdns10426:0crwdne10426:0"
+msgstr "crwdns14736:0crwdne14736:0"
 
 #: ../../../AUTHORS.rst:15
 msgid "Benjamin Bach (benjaoming)"
-msgstr "crwdns10427:0crwdne10427:0"
+msgstr "crwdns14737:0crwdne14737:0"
 
 #: ../../../AUTHORS.rst:16
 msgid "Michael Gallaspy (MCGallaspy)"
-msgstr "crwdns10428:0crwdne10428:0"
+msgstr "crwdns14738:0crwdne14738:0"
 
 #: ../../../AUTHORS.rst:17
 msgid "Richard Tibbles (rtibbles)"
-msgstr "crwdns10429:0crwdne10429:0"
+msgstr "crwdns14739:0crwdne14739:0"
 
 #: ../../../AUTHORS.rst:18
 msgid "Jamie Alexandre (jamalex)"
-msgstr "crwdns10430:0crwdne10430:0"
+msgstr "crwdns14740:0crwdne14740:0"
 
 #: ../../../AUTHORS.rst:19
 msgid "David Cañas (dxcanas)"
-msgstr "crwdns10431:0crwdne10431:0"
+msgstr "crwdns14741:0crwdne14741:0"
 
 #: ../../../AUTHORS.rst:20
 msgid "Eli Dai (66eli77)"
-msgstr "crwdns10432:0crwdne10432:0"
+msgstr "crwdns14742:0crwdne14742:0"
 
 #: ../../../AUTHORS.rst:21
 msgid "Devon Rueckner (indirectlylit)"
-msgstr "crwdns10433:0crwdne10433:0"
+msgstr "crwdns14743:0crwdne14743:0"
 
 #: ../../../AUTHORS.rst:22
 msgid "Rafael Aguayo (ralphiee22)"
-msgstr "crwdns10434:0crwdne10434:0"
+msgstr "crwdns14744:0crwdne14744:0"
 
 #: ../../../AUTHORS.rst:23
 msgid "Christian Memije (christianmemije)"
-msgstr "crwdns10435:0crwdne10435:0"
+msgstr "crwdns14745:0crwdne14745:0"
 
 #: ../../../AUTHORS.rst:24
 msgid "Radina Matic (radinamatic)"
-msgstr "crwdns10436:0crwdne10436:0"
+msgstr "crwdns14746:0crwdne14746:0"
 
