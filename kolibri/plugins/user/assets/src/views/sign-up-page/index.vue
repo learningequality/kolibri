@@ -29,7 +29,7 @@
         v-model="name"
         autocomplete="name"
         :autofocus="true"
-        required
+        :required="true"
         id="name"
         type="text" />
 
@@ -41,7 +41,7 @@
         @input="resetSignUpState"
         v-model="username"
         autocomplete="username"
-        required
+        :required="true"
         id="username"
         type="text" />
 
@@ -51,7 +51,7 @@
         :label="$tr('password')"
         v-model="password"
         autocomplete="new-password"
-        required />
+        :required="true" />
 
       <k-textbox
         id="confirmed-password"
@@ -61,7 +61,7 @@
         :invalidText="passwordError "
         v-model="confirmed_password"
         autocomplete="new-password"
-        required />
+        :required="true" />
 
       <ui-select
         :name="$tr('selectFacility')"

@@ -10,36 +10,44 @@
     <form @submit.prevent="createNewUser">
       <section>
         <k-textbox
+          type="text"
+          class="user-field"
           :label="$tr('name')"
           :autofocus="true"
-          :required="true"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
           :maxlength="120"
+          @blur="validateName = true"
+          v-model.trim="fullName"
+        />
+        <k-textbox
           type="text"
           class="user-field"
-          v-model.trim="fullName"/>
-        <k-textbox
           :label="$tr('username')"
-          :required="true"
           :maxlength="30"
-          :invalid="usernameInvalid"
-          :invalidText="usernameInvalidMsg"
-          type="text"
-          class="user-field"
-          v-model="username"/>
+          :invalid="usernameIsInvalid"
+          :invalidText="usernameIsInvalidText"
+          @blur="validateUsername = true"
+          v-model="username"
+        />
         <k-textbox
+          type="password"
+          class="user-field"
           :label="$tr('password')"
-          :required="true"
-          type="password"
-          class="user-field"
-          v-model="password"/>
+          :invalid="passwordIsInvalid"
+          :invalidText="passwordIsInvalidText"
+          @blur="validatePassword = true"
+          v-model="password"
+        />
         <k-textbox
-          :label="$tr('reEnterPassword')"
-          :required="true"
-          :invalid="passwordConfirmInvalid"
-          :invalidText="$tr('pwMismatchError')"
           type="password"
           class="user-field"
-          v-model="passwordConfirm"/>
+          :label="$tr('reEnterPassword')"
+          :invalid="confirmedPasswordIsInvalid"
+          :invalidText="confirmedPasswordIsInvalidText"
+          @blur="validateConfirmedPassword = true"
+          v-model="confirmedPassword"
+        />
 
         <ui-select
           :name="$tr('typeOfUser')"
@@ -52,7 +60,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading" type="submit"/>
+        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading" type="submit" :disabled="!formIsValid"/>
       </section>
     </form>
   </core-modal>
@@ -87,6 +95,7 @@
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
+      required: 'This field is required',
     },
     components: {
       kButton,
@@ -100,10 +109,15 @@
         fullName: '',
         username: '',
         password: '',
-        passwordConfirm: '',
+        confirmedPassword: '',
         kind: {},
         errorMessage: '',
         loading: false,
+        validateName: false,
+        validateUsername: false,
+        validatePassword: false,
+        validateConfirmedPassword: false,
+        validateForm: false,
       };
     },
     mounted() {
@@ -114,28 +128,74 @@
       };
     },
     computed: {
-      usernameAlreadyExists() {
-        return this.users.findIndex(user => user.username === this.username) !== -1;
+      nameIsInvalidText() {
+        if (this.validateName || this.validateForm) {
+          if (this.fullName === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
       },
       usernameIsAlphaNumUnderscore() {
         return /^\w+$/g.test(this.username);
       },
-      usernameInvalid() {
-        return (
-          this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNumUnderscore)
-        );
+      usernameAlreadyExists() {
+        return this.users.findIndex(user => user.username === this.username) !== -1;
       },
-      usernameInvalidMsg() {
-        if (this.usernameAlreadyExists) {
-          return this.$tr('usernameAlreadyExists');
-        } else if (!this.usernameIsAlphaNumUnderscore) {
-          return this.$tr('usernameNotAlphaNumUnderscore');
+      usernameIsInvalidText() {
+        if (this.validateUsername || this.validateForm) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!this.usernameIsAlphaNumUnderscore) {
+            return this.$tr('usernameNotAlphaNumUnderscore');
+          }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
+          }
         }
         return '';
       },
-      passwordConfirmInvalid() {
-        return this.passwordConfirm !== '' && this.password !== this.passwordConfirm;
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
       },
+      passwordIsInvalidText() {
+        if (this.validatePassword || this.validateForm) {
+          if (this.password === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      passwordIsInvalid() {
+        return !!this.passwordIsInvalidText;
+      },
+      confirmedPasswordIsInvalidText() {
+        if (this.validateConfirmedPassword || this.validateForm) {
+          if (this.confirmedPassword === '') {
+            return this.$tr('required');
+          }
+          if (this.confirmedPassword !== this.password) {
+            return this.$tr('pwMismatchError');
+          }
+        }
+        return '';
+      },
+      confirmedPasswordIsInvalid() {
+        return !!this.confirmedPasswordIsInvalidText;
+      },
+      formIsValid() {
+        return (
+          !this.nameIsInvalid &&
+          !this.usernameIsInvalid &&
+          !this.passwordIsInvalid &&
+          !this.confirmedPasswordIsInvalid
+        );
+      },
+
       userKinds() {
         return [
           {
@@ -156,7 +216,8 @@
     methods: {
       createNewUser() {
         this.errorMessage = '';
-        if (!this.usernameInvalid && !this.passwordConfirmInvalid) {
+        this.validateForm = true;
+        if (this.formIsValid) {
           this.loading = true;
           const newUser = {
             username: this.username,

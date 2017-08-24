@@ -5,7 +5,6 @@
     v-model.trim="currentText"
     :label="label"
     :disabled="disabled"
-    :required="required"
     :invalid="invalid"
     :error="invalidText"
     :autofocus="autofocus"
@@ -51,13 +50,6 @@
        * Whether or not disabled
        */
       disabled: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Whether or not required
-       */
-      required: {
         type: Boolean,
         default: false,
       },

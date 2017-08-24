@@ -7,13 +7,13 @@
     <div>
       <form @submit.prevent="updateName">
         <k-textbox
-          :label="$tr('classname')"
-          v-model.trim="name"
-          :autofocus="true"
-          :required="true"
-          :invalid="duplicateName"
-          :invalidText="$tr('duplicateName')"
           type="text"
+          :label="$tr('classname')"
+          :autofocus="true"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          v-model.trim="name"
+          @blur="validateName = true"
         />
 
         <section class="footer">
@@ -28,6 +28,7 @@
             type="submit"
             :text="$tr('update')"
             :primary="true"
+            :disabled="!formIsValid"
           />
         </section>
       </form>
@@ -51,6 +52,7 @@
       cancel: 'Cancel',
       update: 'Update',
       duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
     components: {
       kButton,
@@ -72,7 +74,11 @@
       },
     },
     data() {
-      return { name: this.classname };
+      return {
+        name: this.classname,
+        validateName: false,
+        validateForm: false,
+      };
     },
     computed: {
       duplicateName() {
@@ -87,10 +93,28 @@
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.validateName || this.validateForm) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateName) {
+            return this.$tr('duplicateName');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.nameIsInvalid;
+      },
     },
     methods: {
       updateName() {
-        if (!this.duplicateName) {
+        this.validateForm = true;
+        if (!this.nameIsInvalid) {
           this.updateClass(this.classid, { name: this.name });
         }
       },

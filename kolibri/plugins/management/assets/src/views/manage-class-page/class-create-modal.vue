@@ -7,13 +7,13 @@
     <div>
       <form @submit.prevent="createNewClass">
         <k-textbox
-          :label="$tr('classname')"
-          v-model.trim="name"
-          :autofocus="true"
-          :required="true"
-          :invalid="duplicateName"
-          :invalidText="$tr('duplicateName')"
           type="text"
+          :label="$tr('classname')"
+          :autofocus="true"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          v-model.trim="name"
+          @blur="validateName = true"
         />
 
         <section class="footer">
@@ -28,6 +28,7 @@
             type="submit"
             :text="$tr('create')"
             :primary="true"
+            :disabled="!formIsValid"
           />
         </section>
       </form>
@@ -51,6 +52,7 @@
       cancel: 'Cancel',
       create: 'Create',
       duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
     components: {
       kButton,
@@ -64,7 +66,11 @@
       },
     },
     data() {
-      return { name: '' };
+      return {
+        name: '',
+        validateName: false,
+        validateForm: false,
+      };
     },
     computed: {
       duplicateName() {
@@ -76,10 +82,28 @@
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.validateName || this.validateForm) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateName) {
+            return this.$tr('duplicateName');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.nameIsInvalid;
+      },
     },
     methods: {
       createNewClass() {
-        if (!this.duplicateName) {
+        this.validateForm = true;
+        if (!this.nameIsInvalid) {
           this.createClass(this.name);
         }
       },

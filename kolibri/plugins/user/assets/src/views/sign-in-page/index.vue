@@ -10,7 +10,7 @@
             :label="$tr('username')"
             id="username"
             v-model="username"
-            required
+            :required="true"
             autofocus
             @focus="showDropdown = true"
             @blur="showDropdown = false"
