@@ -6,7 +6,12 @@
     bodyColorHex="#F9F9F9"
     topBarColorHex="#724870"
   >
-    <subpage-container withSideMargin>
+    <auth-message
+      v-if="!isSuperuser"
+      authorizedRole="superuser"
+      :header="$tr('noAccess')"
+    />
+    <subpage-container v-else withSideMargin>
       <div>
         <h1>{{ user.full_name }}</h1>
         <h3>{{ user.username }}</h3>
@@ -70,11 +75,14 @@
   import subpageContainer from '../containers/subpage-container';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { addOrUpdateUserPermissions } from '../../state/actions/permissionsActions';
 
   export default {
     name: 'userPermissionsPage',
     components: {
+      authMessage,
       immersiveFullScreen,
       kButton,
       kCheckbox,
@@ -151,21 +159,23 @@
         user: ({ pageState }) => pageState.user,
         permissions: ({ pageState }) => pageState.permissions,
         isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
+        isSuperuser,
       },
       actions: {
         addOrUpdateUserPermissions,
       },
     },
     $trs: {
-      makeSuperuser: 'Make Superuser',
-      makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
+      cancelButton: 'Cancel',
       devicePermissions: 'Device Permissions',
       devicePermissionsDetails: 'Can import and export content channels',
+      makeSuperuser: 'Make Superuser',
+      makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
+      noAccess: 'You are not allowed to view this page',
       saveButton: 'Save Changes',
-      cancelButton: 'Cancel',
+      saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
-      saveFailureNotification: 'There was a problem saving these changes.'
     }
   };
 
