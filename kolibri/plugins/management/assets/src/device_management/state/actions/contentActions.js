@@ -14,7 +14,7 @@ export function refreshChannelList() {
 export function showContentPage(store) {
   if (!getters.isSuperuser(store.state)) {
     store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return;
+    return Promise.resolve();
   }
 
   return fetchCurrentTasks(store)

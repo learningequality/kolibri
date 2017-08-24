@@ -2,7 +2,7 @@
 
   <immersive-full-screen
     :backPageLink="{ name: 'DEVICE_PERMISSIONS_MGMT_PAGE' }"
-    :backPageText="user ? user.full_name : $tr('invalidUser')"
+    :backPageText="backPageText"
     bodyColorHex="#F9F9F9"
     topBarColorHex="#724870"
   >
@@ -119,6 +119,10 @@
           default:
             return '';
         }
+      },
+      backPageText() {
+        if (!this.isSuperuser) return this.$tr('goBack');
+        return this.user ? this.user.full_name : this.$tr('invalidUser');
       }
     },
     watch: {
@@ -173,6 +177,7 @@
       cancelButton: 'Cancel',
       devicePermissions: 'Device Permissions',
       devicePermissionsDetails: 'Can import and export content channels',
+      goBack: 'Go Back',
       invalidUser: 'Invalid User ID',
       makeSuperuser: 'Make Superuser',
       makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
