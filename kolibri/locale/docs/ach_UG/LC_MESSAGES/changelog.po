@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-07-28 17:27-0400\n"
+"PO-Revision-Date: 2017-08-23 18:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Acholi\n"
 "MIME-Version: 1.0\n"
@@ -19,97 +19,97 @@ msgstr ""
 
 #: ../../../CHANGELOG.rst:4
 msgid "Release Notes"
-msgstr "crwdns10437:0crwdne10437:0"
+msgstr "crwdns14747:0crwdne14747:0"
 
 #: ../../../CHANGELOG.rst:6
 msgid "All notable changes to this project will be documented in this file. This project adheres to `Semantic Versioning <http://semver.org/>`_."
-msgstr "crwdns10438:0crwdne10438:0"
+msgstr "crwdns14748:0crwdne14748:0"
 
 #: ../../../CHANGELOG.rst:9
 msgid "*Don’t let your friends dump git logs into CHANGELOGs™*"
-msgstr "crwdns10439:0crwdne10439:0"
+msgstr "crwdns14749:0crwdne14749:0"
 
 #: ../../../CHANGELOG.rst:11
 msgid "`http://keepachangelog.com/ <http://keepachangelog.com/>`_"
-msgstr "crwdns10440:0crwdne10440:0"
+msgstr "crwdns14750:0crwdne14750:0"
 
 #: ../../../CHANGELOG.rst:14
 msgid "[0.0.1] - UNRELEASED"
-msgstr "crwdns10441:0[0.0.1]crwdne10441:0"
+msgstr "crwdns14751:0[0.0.1]crwdne14751:0"
 
 #: ../../../CHANGELOG.rst:17
 msgid "Please add new stuff chronologically, we should try chunking up the list into components at some point"
-msgstr "crwdns10442:0crwdne10442:0"
+msgstr "crwdns14752:0crwdne14752:0"
 
 #: ../../../CHANGELOG.rst:21
 msgid "Added"
-msgstr "crwdns10443:0crwdne10443:0"
+msgstr "crwdns14753:0crwdne14753:0"
 
 #: ../../../CHANGELOG.rst:23
 msgid "Begin development of core auth app."
-msgstr "crwdns10444:0crwdne10444:0"
+msgstr "crwdns14754:0crwdne14754:0"
 
 #: ../../../CHANGELOG.rst:24
 msgid "Add core user types (BaseUser, FacilityUser, DeviceOwner)"
-msgstr "crwdns10445:0crwdne10445:0"
+msgstr "crwdns14755:0crwdne14755:0"
 
 #: ../../../CHANGELOG.rst:25
 msgid "Add Collections and Roles, implemented using a special tree structure for efficient querying"
-msgstr "crwdns10446:0crwdne10446:0"
+msgstr "crwdns14756:0crwdne14756:0"
 
 #: ../../../CHANGELOG.rst:26
 msgid "Add authentication & authorization backends"
-msgstr "crwdns10447:0crwdne10447:0"
+msgstr "crwdns14757:0crwdne14757:0"
 
 #: ../../../CHANGELOG.rst:27
 msgid "Implement permissions for FacilityUsers by checking hierarchy relationships"
-msgstr "crwdns10448:0crwdne10448:0"
+msgstr "crwdns14758:0crwdne14758:0"
 
 #: ../../../CHANGELOG.rst:28
 msgid "Adds pipelining and integration for building frontend assets with webpack and dynamically serving them in Django."
-msgstr "crwdns10449:0crwdne10449:0"
+msgstr "crwdns14759:0crwdne14759:0"
 
 #: ../../../CHANGELOG.rst:29
 msgid "Updates to  - Users, Collections, and Roles, mostly to account for multiple facilities in one database"
-msgstr "crwdns10450:0crwdne10450:0"
+msgstr "crwdns14760:0crwdne14760:0"
 
 #: ../../../CHANGELOG.rst:30
 msgid "Plugin API with hooks, documented and implemented"
-msgstr "crwdns10451:0crwdne10451:0"
+msgstr "crwdns14761:0crwdne14761:0"
 
 #: ../../../CHANGELOG.rst:31
 msgid "Adds Django JS Reverse and loads into kolibriGlobal object"
-msgstr "crwdns10452:0crwdne10452:0"
+msgstr "crwdns14762:0crwdne14762:0"
 
 #: ../../../CHANGELOG.rst:32
 msgid "Creates kolibri.auth API endpoint filtering"
-msgstr "crwdns10453:0crwdne10453:0"
+msgstr "crwdns14763:0crwdne14763:0"
 
 #: ../../../CHANGELOG.rst:33
 msgid "Adds management plugin for managing learners, classrooms, and groups"
-msgstr "crwdns10454:0crwdne10454:0"
+msgstr "crwdns14764:0crwdne14764:0"
 
 #: ../../../CHANGELOG.rst:34
 msgid "Automatic inclusion of requirements in a static build"
-msgstr "crwdns10455:0crwdne10455:0"
+msgstr "crwdns14765:0crwdne14765:0"
 
 #: ../../../CHANGELOG.rst:35
 msgid "Linting of client-side assets during webpack build process"
-msgstr "crwdns10456:0crwdne10456:0"
+msgstr "crwdns14766:0crwdne14766:0"
 
 #: ../../../CHANGELOG.rst:38
 msgid "Changed"
-msgstr "crwdns10457:0crwdne10457:0"
+msgstr "crwdns14767:0crwdne14767:0"
 
 #: ../../../CHANGELOG.rst:40
 msgid "Webpack build process now compatible with plugins housed outside the kolibri directory."
-msgstr "crwdns10458:0crwdne10458:0"
+msgstr "crwdns14768:0crwdne14768:0"
 
 #: ../../../CHANGELOG.rst:41
 msgid "ES2015 transpilation now uses Bublé instead of Babel."
-msgstr "crwdns10459:0crwdne10459:0"
+msgstr "crwdns14769:0crwdne14769:0"
 
 #: ../../../CHANGELOG.rst:42
 msgid "Content Renderers now use explicit API different to standard asynchronous loading."
-msgstr "crwdns10460:0crwdne10460:0"
+msgstr "crwdns14770:0crwdne14770:0"
 
