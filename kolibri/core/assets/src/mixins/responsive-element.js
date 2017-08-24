@@ -40,6 +40,9 @@ export default {
     this._updateEl();
     this.$options._resizeSensor = new ResizeSensor(this.$el, this._updateEl);
   },
+  updated() {
+    this._updateEl();
+  },
   beforeDestroy() {
     this.$options._resizeSensor.detach(this.$el, this._updateEl);
   },
