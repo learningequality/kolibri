@@ -2,15 +2,19 @@
 
   <immersive-full-screen
     :backPageLink="{ name: 'DEVICE_PERMISSIONS_MGMT_PAGE' }"
-    :backPageText="user.full_name"
+    :backPageText="user ? user.full_name : $tr('invalidUser')"
     bodyColorHex="#F9F9F9"
     topBarColorHex="#724870"
   >
     <auth-message
       v-if="!isSuperuser"
       authorizedRole="superuser"
-      :header="$tr('noAccess')"
     />
+
+    <subpage-container v-else-if="user===null" withSideMargin>
+      <h1>This user does not exist.</h1>
+    </subpage-container>
+
     <subpage-container v-else withSideMargin>
       <div>
         <h1>{{ user.full_name }}</h1>
@@ -169,9 +173,9 @@
       cancelButton: 'Cancel',
       devicePermissions: 'Device Permissions',
       devicePermissionsDetails: 'Can import and export content channels',
+      invalidUser: 'Invalid User ID',
       makeSuperuser: 'Make Superuser',
       makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
-      noAccess: 'You are not allowed to view this page',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',

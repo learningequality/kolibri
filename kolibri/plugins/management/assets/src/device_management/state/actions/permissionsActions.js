@@ -56,6 +56,12 @@ export function showUserPermissionsPage(store, userId) {
       return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onFailure(error) {
+      if (error.status.code === 404) {
+        return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', {
+          user: null,
+          permissions: {},
+        });
+      }
       return handleApiError(store, error);
     });
 }
