@@ -45,7 +45,4 @@
 
   @require '~kolibri.styles.definitions'
 
-  .progress-toolbar
-    // background-color: red
-
 </style>
