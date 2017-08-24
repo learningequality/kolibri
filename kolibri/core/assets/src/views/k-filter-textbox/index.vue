@@ -1,35 +1,30 @@
 <template>
 
-  <div class="ib">
-    <div class="k-filter">
+  <div class="k-filter">
+    <ui-icon
+      icon="search"
+      class="k-filter-icon"
+      :ariaLabel="$tr('filter')"
+    />
 
-      <div class="tr">
-        <ui-icon
-          icon="search"
-          class="k-filter-icon"
-          :ariaLabel="$tr('filter')"
-        />
+    <input
+      v-model.trim="model"
+      type="search"
+      class="k-filter-input"
+      :placeholder="placeholder"
+      :aria-label="placeholder"
+      :autofocus="autofocus"
+    >
 
-        <input
-          v-model.trim="model"
-          type="search"
-          class="k-filter-input"
-          :placeholder="placeholder"
-          :aria-label="placeholder"
-          :autofocus="autofocus"
-        >
-
-        <ui-icon-button
-          icon="clear"
-          color="black"
-          size="small"
-          class="k-filter-clear-button"
-          :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-          :ariaLabel="$tr('clear')"
-          @click="model = ''"
-        />
-      </div>
-    </div>
+    <ui-icon-button
+      icon="clear"
+      color="black"
+      size="small"
+      class="k-filter-clear-button"
+      :class="model === '' ? '' : 'k-filter-clear-button-visible'"
+      :ariaLabel="$tr('clear')"
+      @click="model = ''"
+    />
   </div>
 
 </template>
@@ -96,35 +91,29 @@
 
   @require '~kolibri.styles.definitions'
 
-  .ib
-    display: inline-block
-    vertical-align: middle
-
   .k-filter
-    display: table
-    background-color: white
-    border: 1px solid $core-grey-300
-    border-radius: 2px
-
-  .tr
-    display: table-row
+    display: inline-block
+    position: relative
+    width: 100%
+    max-width: 540px
 
   .k-filter-icon
-    display: table-cell
+    position: absolute
+    top: 6px
+    left: 0
+    margin-left: 4px
     font-size: 24px
-    vertical-align: middle
-    padding-right: 8px
-    padding-left: 8px
 
   .k-filter-input
-    display: table-cell
-    vertical-align: middle
-    max-width: 300px
-    width: calc(100% - 33px)
-    height: 36px
     margin: 0
-    padding: 0
-    border: none
+    padding-top: 0
+    padding-right: 32px
+    padding-bottom: 0
+    padding-left: 32px
+    width: calc(100% - 64px)
+    height: 36px
+    border: 1px solid $core-grey-300
+    border-radius: 2px
     background-color: white
     color: $core-text-default
 
@@ -132,12 +121,13 @@
       color: $core-text-annotation
 
   .k-filter-clear-button
-    display: table-cell
-    vertical-align: middle
-    visibility: hidden
+    position: absolute
+    top: 6px
+    right: 0
+    margin-right: 4px
     width: 24px
     height: 24px
-    margin-right: 8px
+    visibility: hidden
     color: $core-text-default
 
   .k-filter-clear-button-visible
