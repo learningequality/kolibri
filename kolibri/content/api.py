@@ -16,7 +16,6 @@ from rest_framework.response import Response
 from six.moves.urllib.parse import parse_qs, urlparse
 
 from .permissions import OnlySuperuserCanDelete
-from .utils.channel_import import delete_content_tree_and_files
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
@@ -38,9 +37,10 @@ class ChannelMetadataViewSet(viewsets.ModelViewSet):
         Destroys the ChannelMetadata object and its associated sqlite3 file on
         the filesystem.
         """
-        super(ChannelMetadataViewSet, self).destroy(request)
 
-        delete_content_tree_and_files(pk)
+        self.get_object(pk).delete_content_tree_and_files()
+
+        super(ChannelMetadataViewSet, self).destroy(request)
 
         if self.delete_content_db_file(pk):
             response_msg = 'Channel {} removed from device'.format(pk)
