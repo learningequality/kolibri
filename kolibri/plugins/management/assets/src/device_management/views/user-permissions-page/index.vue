@@ -105,7 +105,7 @@
         return this.uiBlocked || this.isCurrentUser;
       },
       saveDisabled() {
-        return this.uiBlocked || this.isCurrentUser;
+        return this.uiBlocked || this.isCurrentUser || this.permissionsAreUnchanged;
       },
       devicePermissionsDisabled() {
         return this.uiBlocked || this.superuserChecked;
@@ -123,6 +123,13 @@
       backPageText() {
         if (!this.isSuperuser) return this.$tr('goBack');
         return this.user ? this.user.full_name : this.$tr('invalidUser');
+      },
+      // "dirty check" of permissions
+      permissionsAreUnchanged() {
+        return (
+          this.permissions.is_superuser === this.superuserChecked &&
+          this.permissions.can_manage_content === this.devicePermissionsChecked
+        );
       }
     },
     watch: {
