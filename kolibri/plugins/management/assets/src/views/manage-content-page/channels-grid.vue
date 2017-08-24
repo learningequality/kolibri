@@ -18,7 +18,7 @@
       </thead>
 
       <tbody class="table-body">
-        <tr v-for="(channel, idx) in sortedChannels">
+        <tr v-for="channel in sortedChannels" :key="channel.id">
           <td class="table-cell-title">
             {{ channel.title }}
           </td>
@@ -110,8 +110,8 @@
       this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     watch: {
-      channelList(val, newVal) {
-        this.addChannelFileSummaries(map(newVal, 'id'));
+      channelList(val) {
+        this.addChannelFileSummaries(map(val, 'id'));
       },
     },
     methods: {

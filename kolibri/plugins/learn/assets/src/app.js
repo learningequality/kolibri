@@ -5,7 +5,15 @@ import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
 
 import RootVue from './views';
-import * as actions from './state/actions';
+import * as actions from './state/actions/main';
+import {
+  showLearnChannel,
+  showPopularPage,
+  showNextStepsPage,
+  showResumePage,
+  showFeaturedPage,
+  showLearnContent,
+} from './state/actions/recommended';
 import store from './state/store';
 import { PageNames } from './constants';
 
@@ -36,13 +44,6 @@ class LearnModule extends KolibriModule {
           path: '/search',
           handler: (toRoute, fromRoute) => {
             actions.redirectToChannelSearch(store);
-          },
-        },
-        {
-          name: PageNames.SCRATCHPAD,
-          path: '/scratchpad',
-          handler: (toRoute, fromRoute) => {
-            actions.showScratchpad(store);
           },
         },
         {
@@ -78,14 +79,42 @@ class LearnModule extends KolibriModule {
           path: '/:channel_id/recommended',
           handler: (toRoute, fromRoute) => {
             const cursor = toRoute.query.cursor;
-            actions.showLearnChannel(store, toRoute.params.channel_id, cursor);
+            showLearnChannel(store, toRoute.params.channel_id, cursor);
+          },
+        },
+        {
+          name: PageNames.RECOMMENDED_POPULAR,
+          path: '/:channel_id/recommended/popular',
+          handler: (toRoute, fromRoute) => {
+            showPopularPage(store, toRoute.params.channel_id);
+          },
+        },
+        {
+          name: PageNames.RECOMMENDED_RESUME,
+          path: '/:channel_id/recommended/resume',
+          handler: (toRoute, fromRoute) => {
+            showResumePage(store, toRoute.params.channel_id);
+          },
+        },
+        {
+          name: PageNames.RECOMMENDED_NEXT_STEPS,
+          path: '/:channel_id/recommended/nextsteps',
+          handler: (toRoute, fromRoute) => {
+            showNextStepsPage(store, toRoute.params.channel_id);
+          },
+        },
+        {
+          name: PageNames.RECOMMENDED_FEATURED,
+          path: '/:channel_id/recommended/featured',
+          handler: (toRoute, fromRoute) => {
+            showFeaturedPage(store, toRoute.params.channel_id);
           },
         },
         {
           name: PageNames.LEARN_CONTENT,
           path: '/:channel_id/recommended/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
+            showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
@@ -124,7 +153,6 @@ class LearnModule extends KolibriModule {
           redirect: '/',
         },
       ];
-
       this.rootvue = new Vue({
         el: 'rootvue',
         render: createElement => createElement(RootVue),

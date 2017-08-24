@@ -14,18 +14,7 @@
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-grid v-else :contents="contents">
-        <template scope="content">
-          <content-card
-            :key="content.id"
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :progress="content.progress"
-            :kind="content.kind"
-            :link="genLink(content)"
-          />
-        </template>
-      </content-card-grid>
+      <content-card-group-grid v-else :gen-content-link="genContentLink" :contents="contents" />
 
     </template>
 
@@ -40,7 +29,7 @@
   import { PageNames } from '../../constants';
   import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   import searchBox from '../search-box';
   export default {
     name: 'learnSearch',
@@ -52,25 +41,25 @@
     },
     components: {
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
       searchBox,
     },
     methods: {
-      genLink(content) {
+      genContentLink(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
             params: {
+              id,
               channel_id: this.channelId,
-              id: content.id,
             },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
           params: {
+            id,
             channel_id: this.channelId,
-            id: content.id,
           },
         };
       },

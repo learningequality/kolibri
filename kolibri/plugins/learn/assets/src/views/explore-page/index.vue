@@ -13,19 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <content-card-grid :contents="contents" v-if="contents.length">
-
-      <template scope="content">
-        <content-card
-          :key="content.id"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :link="genLink(content)"/>
-      </template>
-
-    </content-card-grid>
+    <content-card-group-grid :contents="contents" :gen-content-link="genContentLink" v-if="contents.length" />
 
   </div>
 
@@ -41,7 +29,7 @@
   import forEach from 'lodash/forEach';
   import pageHeader from '../page-header';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   export default {
     name: 'learnExplore',
     $trs: {
@@ -51,7 +39,7 @@
     components: {
       pageHeader,
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
     },
     computed: {
       title() {
@@ -59,16 +47,16 @@
       },
     },
     methods: {
-      genLink(node) {
-        if (node.kind === ContentNodeKinds.TOPIC) {
+      genContentLink(id, kind) {
+        if (kind === ContentNodeKinds.TOPIC) {
           return {
             name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id: node.id },
+            params: { channel_id: this.channelId, id },
           };
         }
         return {
           name: PageNames.EXPLORE_CONTENT,
-          params: { channel_id: this.channelId, id: node.id },
+          params: { channel_id: this.channelId, id },
         };
       },
     },

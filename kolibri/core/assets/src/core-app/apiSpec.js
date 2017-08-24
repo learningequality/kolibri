@@ -40,6 +40,7 @@ import kNavbar from '../views/k-navbar';
 import kNavbarButton from '../views/k-navbar/button';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
+import languageSwitcher from '../views/language-switcher';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
@@ -106,6 +107,7 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      languageSwitcher,
     },
     router,
     mixins: {

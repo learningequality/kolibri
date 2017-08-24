@@ -84,7 +84,7 @@ oriented data synchronization.
   import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -217,10 +217,17 @@ oriented data synchronization.
             simpleAnswer,
             firstAttempt: true,
           });
+          // Save attempt log on first attempt
+          this.saveAttemptLogMasterLog();
         } else {
-          this.updateAttemptLogMasteryLog({ complete: this.complete });
+          this.updateAttemptLogMasteryLog({
+            complete: this.complete,
+          });
+          if (this.complete) {
+            // Otherwise only save if the attempt is now complete
+            this.saveAttemptLogMasterLog();
+          }
         }
-        this.saveAttemptLogMasterLog();
       },
       hintTaken({ answerState }) {
         this.updateAttemptLogInteractionHistoryAction({
@@ -238,8 +245,9 @@ oriented data synchronization.
           });
           this.firstAttempt = false;
           this.onlyHinted = true;
+          // Only save if this was the first attempt to capture this
+          this.saveAttemptLogMasterLog();
         }
-        this.saveAttemptLogMasterLog();
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
@@ -309,6 +317,10 @@ oriented data synchronization.
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
+    },
+    beforeDestroy() {
+      // Make sure any unsaved data is captured before tear down.
+      this.saveAttemptLogMasterLog();
     },
     computed: {
       canLogInteractions() {

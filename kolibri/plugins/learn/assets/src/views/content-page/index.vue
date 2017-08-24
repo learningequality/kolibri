@@ -73,20 +73,25 @@
 
     <download-button v-if="canDownload" :files="content.files" class="download-button"/>
 
-    <content-card-carousel
+    <content-card-group-carousel
       v-if="showRecommended"
-      :gen-link="genRecLink"
+      :gen-content-link="genContentLink"
       :header="recommendedText"
       :contents="recommended"/>
 
-    <content-points
-      v-if="progress >= 1 && wasIncomplete"
-      @close="closeModal"
-      :kind="content.next_content.kind"
-      :title="content.next_content.title">
+    <template v-if="progress >= 1 && wasIncomplete">
+      <points-popup
+        v-if="showPopup"
+        @close="markAsComplete"
+        :kind="content.next_content.kind"
+        :title="content.next_content.title">
+        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+      </points-popup>
 
-      <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
-    </content-points>
+      <transition v-else name="slidein" appear>
+        <points-slidein @close="markAsComplete"/>
+      </transition>
+    </template>
 
   </div>
 
@@ -105,17 +110,19 @@
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
-  import contentCardCarousel from '../content-card-carousel';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import assessmentWrapper from '../assessment-wrapper';
-  import contentPoints from '../content-points';
+  import pointsPopup from '../points-popup';
+  import pointsSlidein from '../points-slidein';
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -129,9 +136,42 @@
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
+      /**
+        * Detects whether an Android device is using WebView.
+        * Based on https://developer.chrome.com/multidevice/user-agent#webview_user_agent
+        */
+      isAndroidWebView() {
+        const ua = window.navigator.userAgent;
+        const isAndroid = /Android/.test(ua);
+
+        if (isAndroid) {
+          const androidVersion = parseFloat(ua.match(/Android\s([0-9\.]*)/)[1]);
+          const isChrome = /Chrome/.test(ua);
+
+          // WebView UA in Lollipop and Above
+          // Android >=5.0
+          if (androidVersion >= 5.0 && isChrome && /wv/.test(ua)) {
+            return true;
+          }
+
+          // WebView UA in KitKat to Lollipop
+          // Android >= 4.4
+          if (androidVersion >= 4.4 && androidVersion < 5.0 && isChrome && /Version\//.test(ua)) {
+            return true;
+          }
+
+          // Old WebView UA
+          // Android < 4.4
+          if (androidVersion < 4.4 && /Version\//.test(ua) && /\/534.30/.test(ua)) {
+            return true;
+          }
+        }
+
+        return false;
+      },
       canDownload() {
         if (this.content) {
-          return this.content.kind !== ContentNodeKinds.EXERCISE;
+          return this.content.kind !== ContentNodeKinds.EXERCISE && !this.isAndroidWebView;
         }
         return false;
       },
@@ -154,18 +194,8 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        const nextContent = this.content.next_content;
-        if (nextContent) {
-          if (nextContent.kind === 'topic') {
-            return {
-              name: PageNames.EXPLORE_TOPIC,
-              params: { channel_id: this.channelId, id: nextContent.id },
-            };
-          }
-          return {
-            name: PageNames.EXPLORE_CONTENT,
-            params: { channel_id: this.channelId, id: nextContent.id },
-          };
+        if (this.content.next_content) {
+          return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
       },
@@ -175,15 +205,23 @@
         }
         return false;
       },
+      showPopup() {
+        return (
+          this.content.kind === ContentNodeKinds.EXERCISE ||
+          this.content.kind === ContentNodeKinds.VIDEO ||
+          this.content.kind === ContentNodeKinds.AUDIO
+        );
+      },
     },
     components: {
       pageHeader,
-      contentCardCarousel,
+      contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
       kButton,
       assessmentWrapper,
-      contentPoints,
+      pointsPopup,
+      pointsSlidein,
       uiPopover,
       uiIcon,
     },
@@ -201,10 +239,10 @@
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
-      closeModal() {
+      markAsComplete() {
         this.wasIncomplete = false;
       },
-      genRecLink(id, kind) {
+      genContentLink(id, kind) {
         if (kind === 'topic') {
           return {
             name: PageNames.EXPLORE_TOPIC,

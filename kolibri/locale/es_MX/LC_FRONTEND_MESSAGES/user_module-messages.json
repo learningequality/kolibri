@@ -1,6 +1,6 @@
 {
   "userRoot.userProfileTitle":"Perfíl",
-  "profilePage.genericError":"Algo fallo",
+  "profilePage.genericError":"Algo ha fallado",
   "profilePage.success":"¡Datos de perfil actualizados!",
   "profilePage.username":"Nombre de usuario",
   "profilePage.name":"Nombre completo",
@@ -31,10 +31,10 @@
   "signUpPage.enterPassword":"Ingresa contraseña",
   "signUpPage.confirmPassword":"Confirma contraseña",
   "signUpPage.passwordMatchError":"Las contraseñas no coinciden",
-  "signUpPage.genericError":"¡Algo fallo durante el registro!",
+  "signUpPage.genericError":"¡Algo salió mal durante el registro!",
   "signUpPage.logIn":"Iniciar sesión",
   "signUpPage.kolibri":"Kolibri",
   "signUpPage.finish":"Finalizar",
-  "signUpPage.facility":"Centro educativo",
+  "signUpPage.facility":"Centro Educativo",
   "signUpPage.selectFacility":"Selecciona centro educativo"
 }

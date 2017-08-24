@@ -3,7 +3,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 # from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import DeviceOwner, Facility, FacilityUser
+from .helpers import create_superuser
+
+from ..models import Facility, FacilityUser
 
 
 class UserSanityTestCase(TestCase):
@@ -18,10 +20,7 @@ class UserSanityTestCase(TestCase):
             password="###",
             facility=self.facility,
         )
-        self.do = DeviceOwner.objects.create(
-            username="bar",
-            password="###",
-        )
+        self.do = create_superuser(self.facility)
 
     def test_facility_user(self):
         self.assertFalse(self.user.is_superuser)

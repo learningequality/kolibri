@@ -161,15 +161,23 @@
         });
       },
       setSuggestionTerm(newVal, oldVal) {
-        if (newVal.length < 3) {
-          this.suggestionTerm = '';
-          this.usernameSuggestions = [];
-        } else if (
-          (!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length) ||
-          !this.suggestionTerm.length
-        ) {
-          this.suggestionTerm = newVal;
-          this.setSuggestions();
+        if (newVal !== null && typeof newVal !== 'undefined') {
+          // Only check if defined or not null
+          if (newVal.length < 3) {
+            // Don't search for suggestions if less than 3 characters entered
+            this.suggestionTerm = '';
+            this.usernameSuggestions = [];
+          } else if (
+            (!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length) ||
+            !this.suggestionTerm.length
+          ) {
+            // We have already set a suggestion search term
+            // The currently set suggestion term does not match the current username
+            // Or we do not currently have a suggestion term set
+            // Set it to the new term and fetch new suggestions
+            this.suggestionTerm = newVal;
+            this.setSuggestions();
+          }
         }
       },
       setSuggestions() {
@@ -187,8 +195,11 @@
           });
       },
       fillUsername(username) {
-        this.username = username;
-        this.showDropdown = false;
+        // Only do this if we have been passed a non-null value
+        if (username !== null && typeof username !== 'undefined') {
+          this.username = username;
+          this.showDropdown = false;
+        }
       },
     },
     vuex: {
@@ -241,8 +252,7 @@
     background: $core-bg-canvas
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
     background-size: cover
-    overflow-y: auto
-    overflow-x: hidden
+    overflow: hidden
 
   #login-container
     display: block

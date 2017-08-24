@@ -3,7 +3,7 @@ import logger from 'kolibri.lib.logging';
 const logging = logger.getLogger(__filename);
 
 export default class HeartBeat {
-  constructor(kolibri, delay = 60000) {
+  constructor(kolibri, delay = 150000) {
     if (!kolibri) {
       throw new ReferenceError('A kolibri instance must be passed into the constructor');
     }

@@ -73,6 +73,10 @@ function contentPoints(state) {
   return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
 }
 
+function sessionTimeSpent(state) {
+  return state.core.logging.session.time_spent;
+}
+
 export {
   isUserLoggedIn,
   isSuperuser,
@@ -88,4 +92,5 @@ export {
   contentPoints,
   currentUserId,
   facilityConfig,
+  sessionTimeSpent,
 };

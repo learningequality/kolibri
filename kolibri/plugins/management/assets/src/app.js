@@ -63,13 +63,6 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.SCRATCHPAD,
-          path: '/scratchpad',
-          handler: (toRoute, fromRoute) => {
-            actions.showScratchpad(store);
-          },
-        },
-        {
           path: '/',
           redirect: '/classes',
         },

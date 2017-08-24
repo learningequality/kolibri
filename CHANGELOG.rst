@@ -10,6 +10,7 @@ Changes are ordered reverse-chronologically.
 
  - Add support for RTL languages
  - Add support for frontend translation outside of Vue components
+ - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
 
 
 0.5
@@ -39,16 +40,16 @@ Changes are ordered reverse-chronologically.
 
 
 0.4.2
------  
+-----
 
- - Fixes for morango database migrations 
+ - Fixes for morango database migrations
 
 
 0.4.1
 -----
 
- - Makes usernames for login case insensitive #1733 
- - Fixes various issues with exercise rendering #1757 
+ - Makes usernames for login case insensitive #1733
+ - Fixes various issues with exercise rendering #1757
  - Removes wrong CLI usage instructions #1742
 
 

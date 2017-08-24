@@ -47,16 +47,16 @@
 
 <script>
 
-  import * as getters from '../state/getters';
+  import { pageMode } from '../state/getters';
   import store from '../state/store';
-  import { PageNames, PageModes } from '../constants';
+  import { PageNames, PageModes, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import explorePage from './explore-page';
   import contentPage from './content-page';
   import learnPage from './learn-page';
-  import scratchpadPage from './scratchpad-page';
+  import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import channelSwitcher from './channel-switcher';
@@ -81,7 +81,7 @@
       explorePage,
       contentPage,
       learnPage,
-      scratchpadPage,
+      recommendedSubpage,
       contentUnavailablePage,
       coreBase,
       channelSwitcher,
@@ -147,9 +147,6 @@
         if (this.pageName === PageNames.LEARN_CHANNEL) {
           return 'learn-page';
         }
-        if (this.pageName === PageNames.SCRATCHPAD) {
-          return 'scratchpad-page';
-        }
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
           return 'content-unavailable-page';
         }
@@ -161,6 +158,9 @@
         }
         if (this.pageName === PageNames.EXAM) {
           return 'exam-page';
+        }
+        if (RecommendedPages.includes(this.pageName)) {
+          return 'recommended-subpage';
         }
         return null;
       },
@@ -196,11 +196,11 @@
     vuex: {
       getters: {
         memberships: state => state.learnAppState.memberships,
-        pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
-        isUserLoggedIn,
         channelId: state => state.core.channels.currentId,
+        pageMode,
+        isUserLoggedIn,
       },
     },
     store,

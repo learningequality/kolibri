@@ -3,7 +3,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 from mock import Mock
 
-from ..models import FacilityUser, DeviceOwner, Facility, KolibriAnonymousUser
+from .helpers import create_superuser
+
+from ..models import FacilityUser, Facility, KolibriAnonymousUser
 from ..api import KolibriAuthPermissions
 from ..permissions.base import BasePermissions
 from ..permissions.general import AllowAll, DenyAll
@@ -14,7 +16,7 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
         self.facility = Facility.objects.create()
         self.object = object()  # shouldn't matter what the object is, for these tests
         self.facility_user = FacilityUser.objects.create(username="qqq", facility=self.facility)
-        self.device_owner = DeviceOwner.objects.create(username="zzz")
+        self.superuser = create_superuser(self.facility)
         self.anon_user = KolibriAnonymousUser()
         self.permissions = BasePermissions()
 
@@ -22,7 +24,7 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_create_object(self.facility_user, self.object))
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_create_object(self.device_owner, self.object))
+            self.assertFalse(self.permissions.user_can_create_object(self.superuser, self.object))
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_create_object(self.anon_user, self.object))
 
@@ -30,7 +32,7 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_read_object(self.facility_user, self.object))
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_read_object(self.device_owner, self.object))
+            self.assertFalse(self.permissions.user_can_read_object(self.superuser, self.object))
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_read_object(self.anon_user, self.object))
 
@@ -38,7 +40,7 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_update_object(self.facility_user, self.object))
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_update_object(self.device_owner, self.object))
+            self.assertFalse(self.permissions.user_can_update_object(self.superuser, self.object))
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_update_object(self.anon_user, self.object))
 
@@ -46,7 +48,7 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_delete_object(self.facility_user, self.object))
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_delete_object(self.device_owner, self.object))
+            self.assertFalse(self.permissions.user_can_delete_object(self.superuser, self.object))
         with self.assertRaises(NotImplementedError):
             self.assertFalse(self.permissions.user_can_delete_object(self.anon_user, self.object))
 
