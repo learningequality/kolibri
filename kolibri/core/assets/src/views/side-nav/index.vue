@@ -64,8 +64,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
   export default {
-    mixins: [responsiveWindow, responsiveElement],
     name: 'navbar',
+    mixins: [responsiveWindow, responsiveElement],
     $trs: {
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
@@ -176,7 +176,7 @@
             href: '/management',
           });
         }
-        if (this.isAdmin || this.isSuperuser) {
+        if (this.isAdmin || this.isSuperuser || this.canManageContent) {
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
@@ -221,6 +221,7 @@
         isSuperuser: getters.isSuperuser,
         isAdmin: getters.isAdmin,
         isCoach: getters.isCoach,
+        canManageContent: getters.canManageContent,
       },
     },
   };

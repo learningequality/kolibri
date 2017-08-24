@@ -25,6 +25,10 @@ function isLearner(state) {
   return state.core.session.kind[0] === UserKinds.LEARNER;
 }
 
+function canManageContent(state) {
+  return state.core.session.can_manage_content;
+}
+
 function currentFacilityId(state) {
   return state.core.session.facility_id;
 }
@@ -93,4 +97,5 @@ export {
   currentUserId,
   facilityConfig,
   sessionTimeSpent,
+  canManageContent,
 };

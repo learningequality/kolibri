@@ -12,7 +12,7 @@
     />
 
     <subpage-container v-else-if="user===null" withSideMargin>
-      <h1>This user does not exist.</h1>
+      <h1>{{ $tr('userDoesNotExist') }}</h1>
     </subpage-container>
 
     <subpage-container v-else withSideMargin>
@@ -134,7 +134,7 @@
     },
     watch: {
       superuserChecked(newVal) {
-        // sets all device permissions to true
+        // when superuser is checked, sets all device permissions to true
         // does not set them all to false if unchecked
         if (newVal) {
           this.devicePermissionsChecked = true;
@@ -186,12 +186,13 @@
       devicePermissionsDetails: 'Can import and export content channels',
       goBack: 'Go Back',
       invalidUser: 'Invalid User ID',
-      makeSuperuser: 'Make Superuser',
+      makeSuperuser: 'Make superuser',
       makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
+      userDoesNotExist: 'User does not exist',
     }
   };
 

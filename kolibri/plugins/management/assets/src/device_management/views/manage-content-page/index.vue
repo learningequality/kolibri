@@ -2,7 +2,7 @@
 
   <div>
 
-    <template v-if="isSuperuser">
+    <template v-if="isSuperuser || canManageContent">
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
@@ -53,7 +53,7 @@
 
 <script>
 
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { isSuperuser, canManageContent } from 'kolibri.coreVue.vuex.getters';
   import * as taskActions from '../../state/actions/taskActions';
   import * as contentWizardActions from '../../state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
@@ -75,8 +75,8 @@
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      notAdminHeader: 'You need to sign in as the Device Owner to manage content',
-      notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
+      notAdminHeader: 'You do not have access to this page',
+      notAdminDetails: 'You must be a Superuser or have Content Management permissions to view this page',
     },
     components: {
       authMessage,
@@ -137,6 +137,7 @@
     vuex: {
       getters: {
         isSuperuser,
+        canManageContent,
         pageState: state => state.pageState,
       },
       actions: {
