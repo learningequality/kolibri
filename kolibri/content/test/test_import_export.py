@@ -10,7 +10,7 @@ from mock import call, patch
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_STORAGE_SOURCE_DIR = tempfile.mkdtemp()
 
-@patch('kolibri.content.management.commands.importchannel.annotation.update_channel_metadata_cache')
+@patch('kolibri.content.management.commands.importchannel.annotation.update_channel_metadata')
 @override_settings(
     CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
 )

@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
+
 import pytest
 from kolibri.utils import cli
 from mock import patch
@@ -114,7 +115,7 @@ def test_kolibri_listen_port_env(monkeypatch):
     Starts and stops the server, mocking the actual server.start()
     Checks that the correct fallback port is used from the environment.
     """
-    with patch('kolibri.content.utils.annotation.update_channel_metadata_cache'):
+    with patch('kolibri.content.utils.annotation.update_channel_metadata'):
         from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):

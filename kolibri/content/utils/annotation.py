@@ -1,12 +1,11 @@
 import logging as logger
-import math
 import os
 
 from django.conf import settings
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from le_utils.constants import content_kinds
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 
 from .channels import get_channel_ids_for_content_database_dir
 from .paths import get_content_file_name, get_content_storage_file_path
@@ -16,12 +15,13 @@ logging = logger.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
 
-def update_channel_metadata_cache():
+CHUNKSIZE = 10000
+
+def update_channel_metadata():
     """
     If we are potentially moving from a version of Kolibri that did not import its content data,
     scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
-    and pull the data from each database's ChannelMetadata object to update the ChannelMetadataCache
-    object in the default database to ensure they are in sync.
+    and pull the data from each database if we have not already imported it.
     """
     from .channel_import import import_channel_from_local_db
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
@@ -39,9 +39,7 @@ def set_leaf_node_availability_from_local_file_availability():
     connection = bridge.get_connection()
 
     file_statement = select([LocalFileTable.c.available]).where(
-        and_(
-            FileTable.c.local_file_id == LocalFileTable.c.id,
-        )
+        FileTable.c.local_file_id == LocalFileTable.c.id,
     ).limit(1)
 
     logging.info('Setting availability of File objects based on LocalFile availability')
@@ -66,7 +64,7 @@ def set_leaf_node_availability_from_local_file_availability():
 
     bridge.end()
 
-def set_local_file_availability(checksums):
+def mark_local_files_as_available(checksums):
     """
     Shortcut method to update database if we are sure that the files are available.
     Can be used after successful downloads to flag availability without having to do expensive disk reads.
@@ -77,11 +75,11 @@ def set_local_file_availability(checksums):
 
     logging.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
 
-    for i in range(1, int(math.ceil(len(checksums)/10000.0)) + 1):
+    for i in range(0, len(checksums), CHUNKSIZE):
         bridge.session.bulk_update_mappings(LocalFileClass, ({
             'id': checksum,
             'available': True
-        } for checksum in checksums[0:i*10000]))
+        } for checksum in checksums[i:i+CHUNKSIZE]))
         bridge.session.flush()
 
     bridge.session.commit()
@@ -103,27 +101,13 @@ def set_local_file_availability_from_disk(checksums=None):
         logging.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
-    rows_unflushed = 0
-    files_to_update = []
-    for file in files:
-        if os.path.exists(get_content_storage_file_path(get_content_file_name(file))):
-            files_to_update.append({
-                'id': file.id,
-                'available': True,
-            })
-            rows_unflushed += 1
-        if rows_unflushed == 10000:
-            bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
-            bridge.session.flush()
-            files_to_update = []
-            rows_unflushed = 0
-
-    if files_to_update:
-        bridge.session.bulk_update_mappings(LocalFileClass, files_to_update)
-
-    bridge.session.commit()
+    checksums_to_update = [
+        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file)))
+    ]
 
     bridge.end()
+
+    mark_local_files_as_available(checksums_to_update)
 
 def recurse_availability_up_tree():
     bridge = Bridge(app_name=CONTENT_APP_NAME)
@@ -134,15 +118,12 @@ def recurse_availability_up_tree():
 
     connection = bridge.get_connection()
 
-    node_levels = bridge.session.query(ContentNodeClass.level).distinct().all()
+    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
-    # We can ignore the top level, as we annotate based on the level below
-    levels = sorted([level[0] for level in node_levels])[1:]
-
-    logging.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=len(levels)))
+    logging.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=node_depth))
 
     # Go from the deepest level to the shallowest
-    for level in reversed(levels):
+    for level in range(node_depth, 0, -1):
         select_parents_of_available = select([ContentNodeTable.c.parent_id]).where(
             and_(
                 ContentNodeTable.c.available == True,  # noqa

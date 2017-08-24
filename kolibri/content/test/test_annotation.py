@@ -5,7 +5,7 @@ from django.test import TransactionTestCase
 
 from kolibri.content.models import ContentNode, File, LocalFile
 from kolibri.content.utils.annotation import (
-    set_local_file_availability, set_local_file_availability_from_disk,
+    mark_local_files_as_available, set_local_file_availability_from_disk,
     set_leaf_node_availability_from_local_file_availability, recurse_availability_up_tree
 )
 
@@ -95,7 +95,7 @@ class LocalFileByChecksum(TransactionTestCase):
         LocalFile.objects.all().update(available=False)
         file_id = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
         with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=get_engine):
-            set_local_file_availability([file_id])
+            mark_local_files_as_available([file_id])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertTrue(LocalFile.objects.get(id=file_id).available)
 
@@ -104,7 +104,7 @@ class LocalFileByChecksum(TransactionTestCase):
         file_id_1 = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
         file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
         with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=get_engine):
-            set_local_file_availability([file_id_1, file_id_2])
+            mark_local_files_as_available([file_id_1, file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
         self.assertTrue(LocalFile.objects.get(id=file_id_1).available)
         self.assertTrue(LocalFile.objects.get(id=file_id_2).available)
