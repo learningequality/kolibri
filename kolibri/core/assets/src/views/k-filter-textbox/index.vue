@@ -1,32 +1,34 @@
 <template>
 
-  <div class="k-filter">
+  <div class="ib">
+    <div class="k-filter">
 
-    <div class="tr">
-      <ui-icon
-        icon="search"
-        class="k-filter-icon"
-        :ariaLabel="$tr('filter')"
-      />
+      <div class="tr">
+        <ui-icon
+          icon="search"
+          class="k-filter-icon"
+          :ariaLabel="$tr('filter')"
+        />
 
-      <input
-        v-model.trim="model"
-        type="search"
-        class="k-filter-input"
-        :placeholder="placeholder"
-        :aria-label="placeholder"
-        :autofocus="autofocus"
-      >
+        <input
+          v-model.trim="model"
+          type="search"
+          class="k-filter-input"
+          :placeholder="placeholder"
+          :aria-label="placeholder"
+          :autofocus="autofocus"
+        >
 
-      <ui-icon-button
-        icon="clear"
-        color="black"
-        size="small"
-        class="k-filter-clear-button"
-        :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-        :ariaLabel="$tr('clear')"
-        @click="model = ''"
-      />
+        <ui-icon-button
+          icon="clear"
+          color="black"
+          size="small"
+          class="k-filter-clear-button"
+          :class="model === '' ? '' : 'k-filter-clear-button-visible'"
+          :ariaLabel="$tr('clear')"
+          @click="model = ''"
+        />
+      </div>
     </div>
   </div>
 
@@ -94,10 +96,15 @@
 
   @require '~kolibri.styles.definitions'
 
+  .ib
+    display: inline-block
+    vertical-align: middle
+
   .k-filter
     display: table
     background-color: white
     border: 1px solid $core-grey-300
+    border-radius: 2px
 
   .tr
     display: table-row

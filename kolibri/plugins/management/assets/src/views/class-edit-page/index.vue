@@ -22,12 +22,6 @@
     </div>
 
     <div class="toolbar">
-      <k-filter-textbox
-        :placeholder="$tr('searchText')"
-        v-model="searchFilter"
-        class="searchbar"
-      />
-
       <div class="enroll">
         <router-link :to="classEnrollLink">
           <k-button
@@ -35,6 +29,12 @@
             :primary="true"/>
         </router-link>
       </div>
+      <k-filter-textbox
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
+
 
     </div>
 
@@ -317,9 +317,6 @@
     vertical-align: middle
     white-space: nowrap
 
-  .searchbar
-    float: left
-
   .table-name
     $line-height = 1em
     line-height: $line-height
@@ -340,10 +337,7 @@
     .create
       margin-top: -78px
     .searchbar
-      font-size: 0.9em
-      width: 100%
       margin-top: 5px
-      float: right
     .table-username
       display: none
     .table-name

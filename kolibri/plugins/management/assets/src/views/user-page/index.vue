@@ -10,6 +10,13 @@
     </div>
 
     <div class="toolbar">
+      <div class="create">
+        <k-button
+          @click="openCreateUserModal"
+          :text="$tr('addNew')"
+          :primary="true"/>
+      </div>
+
       <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
         <option value="all"> {{$tr('allUsers')}} </option>
@@ -23,13 +30,6 @@
         v-model="searchFilter"
         class="searchbar"
       />
-
-      <div class="create">
-        <k-button
-          @click="openCreateUserModal"
-          :text="$tr('addNew')"
-          :primary="true"/>
-      </div>
 
     </div>
 
@@ -211,7 +211,7 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
+  $toolbar-height = 38px
 
   .toolbar:after
     content: ''
@@ -223,11 +223,14 @@
     float: right
 
   #type-filter
-    float: left
     background-color: $core-bg-light
     border-color: $core-action-light
     height: $toolbar-height
     cursor: pointer
+    margin-right: 8px
+
+  #type-filter, .searchbar
+    margin-bottom: 8px
 
   .header h1
     display: inline-block
@@ -259,10 +262,6 @@
     padding-bottom: $row-padding
     color: $core-text-default
 
-  .searchbar
-    float: left
-    margin-left: 5px
-
   .table-name
     $line-height = 1em
     line-height: $line-height
@@ -283,14 +282,6 @@
   @media screen and (max-width: 840px)
     .create, #type-filter
       box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
     .table-username
       display: none
     .table-name

@@ -49,7 +49,6 @@
           <k-filter-textbox
             :placeholder="$tr('searchForUser')"
             v-model.trim="filterInput"
-            class="searchbar"
             @input="pageNum = 1"
           />
         </div>
