@@ -27,7 +27,7 @@
   import responsive from '../containers/responsive-container';
 
   export default {
-    name: 'DeviceManagementPage',
+    name: 'deviceManagementPage',
     components: {
       responsive,
       searchBar,

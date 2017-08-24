@@ -45,6 +45,7 @@
   }
 
   export default {
+    name: 'userFullNameCell',
     components: {
       uiTooltip,
     },

@@ -67,6 +67,7 @@
   import find from 'lodash/find';
 
   export default {
+    name: 'previewImportWizard',
     components: {
       coreModal,
       kButton,
@@ -125,7 +126,6 @@
         transitionWizardPage,
       },
     },
-    $trNameSpace: 'previewImportWizard',
     $trs: {
       cancelButtonLabel: 'Cancel',
       channelAlreadyInstalled: 'Already installed',

@@ -33,7 +33,7 @@ const routes = [
     handler: () => {
       preparePage(store.dispatch, {
         name: PageNames.DEVICE_PERMISSIONS_MGMT_PAGE,
-        title: 'Mange User Permissions',
+        title: 'Manage User Permissions',
       });
       showPermissionsPage(store).then(function onSuccess() {
         store.dispatch('CORE_SET_PAGE_LOADING', false);
