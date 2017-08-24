@@ -74,7 +74,7 @@ export function addOrUpdateUserPermissions(store, payload) {
 
   // if pageState.permissions is empty, then need to do a POST
   if (isEmpty(store.state.pageState.permissions)) {
-    return NewDevicePermissionsResource.createModel(permissions).save();
+    return NewDevicePermissionsResource.createModel(permissions).save()._promise;
   }
-  return DevicePermissionsResource.getModel(userId).save(permissions);
+  return DevicePermissionsResource.getModel(userId).save(permissions)._promise;
 }

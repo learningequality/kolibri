@@ -14,6 +14,7 @@
 
       <div class="superuser-section">
         <k-checkbox
+          :disabled="superuserDisabled"
           :label="$tr('makeSuperuser')"
           :checked="superuserChecked"
           @change="superuserChecked=$event"
@@ -26,6 +27,7 @@
       <div class="device-permissions-section">
         <h2>{{ $tr('devicePermissions') }}</h2>
         <k-checkbox
+          :disabled="uiBlocked"
           :label="$tr('devicePermissionsDetails')"
           :checked="devicePermissionsChecked"
           @change="devicePermissionsChecked=$event"
@@ -46,7 +48,14 @@
           :text="$tr('cancelButton')"
           :primary="false"
           :raised="false"
+          @click="goBack()"
         />
+      </div>
+      <div v-show="uiBlocked">
+        {{ progressNotification }}
+      </div>
+      <div v-show="saveProgress==='FAILURE'">
+        {{ $tr('saveFailureNotification') }}
       </div>
     </subpage-container>
 
@@ -73,35 +82,59 @@
     },
     data() {
       return {
-        superuserChecked: undefined,
         devicePermissionsChecked: undefined,
+        saveProgress: undefined,
+        superuserChecked: undefined,
         uiBlocked: false,
       }
     },
-    computed: {},
+    computed: {
+      superuserDisabled() {
+        return this.uiBlocked || this.isCurrentUser;
+      },
+      progressNotification() {
+        switch (this.saveProgress) {
+          case 'IN_PROGRESS':
+            return this.$tr('saveInProgressNotification');
+          case 'SUCCESS':
+            return this.$tr('saveSuccessfulNotification');
+          default:
+            return '';
+        }
+      }
+    },
     beforeMount() {
       this.superuserChecked = this.permissions.is_superuser || false;
       this.devicePermissionsChecked = this.permissions.can_manage_content || false;
     },
     methods: {
       save() {
-        const router = this.$router;
         this.uiBlocked = true;
+        this.saveProgress = 'IN_PROGRESS';
         this.addOrUpdateUserPermissions({
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })
         .then(function onSuccess() {
-          router.push({
-            path: '/permissions',
-          });
-        });
+          this.saveProgress = 'SUCCESS';
+          this.goBack();
+        }.bind(this))
+        .catch(function onFailure() {
+          this.uiBlocked = false;
+          this.saveProgress = 'FAILURE';
+        }.bind(this));
       },
+      goBack() {
+        this.$router.push({
+          path: '/permissions',
+        });
+      }
     },
     vuex: {
       getters: {
         user: ({ pageState }) => pageState.user,
         permissions: ({ pageState }) => pageState.permissions,
+        isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
       },
       actions: {
         addOrUpdateUserPermissions,
@@ -114,6 +147,9 @@
       devicePermissionsDetails: 'Can import and export content channels',
       saveButton: 'Save Changes',
       cancelButton: 'Cancel',
+      saveInProgressNotification: 'Saving...',
+      saveSuccessfulNotification: 'Changes saved!',
+      saveFailureNotification: 'There was a problem saving these changes.'
     }
   };
 
