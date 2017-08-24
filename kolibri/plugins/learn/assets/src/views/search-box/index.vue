@@ -50,9 +50,9 @@
   export default {
     name: 'searchBox',
     $trs: {
-      search: 'Search',
-      clear: 'Clear',
-      start: 'Start search',
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
     },
     components: {
       uiIconButton,
