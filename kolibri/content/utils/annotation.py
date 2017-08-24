@@ -5,7 +5,7 @@ from django.conf import settings
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from le_utils.constants import content_kinds
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, exists, func, select
 
 from .channels import get_channel_ids_for_content_database_dir
 from .paths import get_content_file_name, get_content_storage_file_path
@@ -51,16 +51,12 @@ def set_leaf_node_availability_from_local_file_availability():
             FileTable.c.available == True,  # noqa
             FileTable.c.supplementary == False
         )
-    )
+    ).where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
 
     logging.info('Setting availability of non-topic ContentNode objects based on File availability')
 
     connection.execute(ContentNodeTable.update().where(
-        ContentNodeTable.c.id.in_(contentnode_statement)).values(available=True).execution_options(autocommit=True))
-
-    connection.execute(ContentNodeTable.update().where(
-        ContentNodeTable.c.id.notin_(contentnode_statement)).where(
-        ContentNodeTable.c.kind != content_kinds.TOPIC).values(available=False).execution_options(autocommit=True))
+        ContentNodeTable.c.kind != content_kinds.TOPIC).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
 
     bridge.end()
 
@@ -122,23 +118,22 @@ def recurse_availability_up_tree():
 
     logging.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=node_depth))
 
+    child = ContentNodeTable.alias()
+
     # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
-        select_parents_of_available = select([ContentNodeTable.c.parent_id]).where(
+
+        available_nodes = select([child.c.available]).where(
             and_(
-                ContentNodeTable.c.available == True,  # noqa
-                ContentNodeTable.c.level == level,
+                child.c.available == True,  # noqa
+                child.c.level == level,
             )
-        )
+        ).where(ContentNodeTable.c.id == child.c.parent_id)
+
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
-            ContentNodeTable.c.id.in_(select_parents_of_available)).where(
             ContentNodeTable.c.level == level - 1).where(
-            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=True).execution_options(autocommit=True))
-        connection.execute(ContentNodeTable.update().where(
-            ContentNodeTable.c.id.notin_(select_parents_of_available)).where(
-            ContentNodeTable.c.level == level - 1).where(
-            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=False).execution_options(autocommit=True))
+            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=exists(available_nodes)).execution_options(autocommit=True))
 
     bridge.end()
