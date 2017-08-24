@@ -12,7 +12,7 @@
       </responsive>
     </div>
 
-    <user-grid />
+    <user-grid class="user-grid" />
 
   </subpage-container>
 
@@ -57,5 +57,8 @@
 
 
 <style lang="stylus" scoped>
+
+  .user-grid
+    margin-top: 2em
 
 </style>

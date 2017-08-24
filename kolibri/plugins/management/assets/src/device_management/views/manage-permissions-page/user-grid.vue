@@ -2,7 +2,7 @@
 
   <div>
     <table class="table">
-      <thead>
+      <thead class="table-header">
         <tr>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
@@ -91,5 +91,10 @@
 
   .table-row:last-child
     border-bottom: none
+
+  .table-header th
+    padding: 1em 0
+    font-weight: normal
+    font-size: 0.8em
 
 </style>

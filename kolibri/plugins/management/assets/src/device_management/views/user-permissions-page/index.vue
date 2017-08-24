@@ -12,7 +12,7 @@
         <h3>{{ user.username }}</h3>
       </div>
 
-      <div class="superuser-section">
+      <div class="section">
         <k-checkbox
           :disabled="superuserDisabled"
           :label="$tr('makeSuperuser')"
@@ -24,7 +24,7 @@
 
       <hr />
 
-      <div class="device-permissions-section">
+      <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>
         <k-checkbox
           :disabled="devicePermissionsDisabled"
@@ -174,9 +174,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '../../../management-styles.styl'
-
   .no-margin
     margin-left: 0
+
+  .section
+    padding: 1em 0
 
 </style>
