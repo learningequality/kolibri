@@ -609,9 +609,9 @@ function pollTasksAndChannels(store) {
   );
 }
 
-function clearTask(store, taskId) {
-  const clearTaskPromise = TaskResource.clearTask(taskId);
-  clearTaskPromise
+function cancelTask(store, taskId) {
+  const cancelTaskPromise = TaskResource.cancelTask(taskId);
+  cancelTaskPromise
     .then(() => {
       store.dispatch('SET_CONTENT_PAGE_TASKS', []);
     })
@@ -699,7 +699,7 @@ export {
   removeCoachRoleAction as removeCoachRole,
   showContentPage,
   pollTasksAndChannels,
-  clearTask,
+  cancelTask,
   startImportWizard,
   startExportWizard,
   showWizardPage,

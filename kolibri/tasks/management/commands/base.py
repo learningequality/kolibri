@@ -1,6 +1,7 @@
 import abc
 from collections import namedtuple
 
+from barbequeue.exceptions import UserCancelledError
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
@@ -93,6 +94,7 @@ class AsyncCommand(BaseCommand):
 
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_progress", None)
+        self.check_for_cancel = options.pop("check_for_cancel", None)
         return self.handle_async(*args, **options)
 
     def start_progress(self, total=100):
@@ -100,6 +102,16 @@ class AsyncCommand(BaseCommand):
         tracker = ProgressTracker(total=total, level=level, update_callback=self._update_all_progress)
         self.progresstrackers.append(tracker)
         return tracker
+
+    def is_cancelled(self, last_stage="CANCELLING"):
+        try:
+            self.check_for_cancel(last_stage)
+            return False
+        except UserCancelledError:
+            return True
+
+    def cancel(self, last_stage="CANCELLED"):
+        self.check_for_cancel(last_stage)
 
     @abc.abstractmethod
     def handle_async(self, *args, **options):

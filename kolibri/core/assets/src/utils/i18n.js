@@ -1,4 +1,3 @@
-import VueIntl from 'vue-intl';
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
 import importIntlLocale from './import-intl-locale';
@@ -138,6 +137,8 @@ function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
+  const VueIntl = require('vue-intl');
+
   vue.use(VueIntl, { defaultLocale });
 
   vue.prototype.isRtl = global.languageDir === 'rtl';

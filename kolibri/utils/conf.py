@@ -20,6 +20,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import json
 import logging
 import os
+
 from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
@@ -38,8 +39,7 @@ if not os.path.exists(KOLIBRI_HOME):
 #: Set defaults before updating the dict
 config = {}
 
-#: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-config['INSTALLED_APPS'] = [
+DEFAULT_PLUGINS = [
     # Note from Devon -
     # Temporarily adding these here to get things working for most devs.
     # It's not clear to me where the correct place to add them is.
@@ -54,6 +54,9 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.style_guide",  # TODO - remove before merging in to a release branch
     "kolibri_exercise_perseus_plugin"
 ]
+
+#: Everything in this list is added to django.conf.settings.INSTALLED_APPS
+config['INSTALLED_APPS'] = DEFAULT_PLUGINS
 
 #: Well-known plugin names that are automatically searched for and enabled on
 #: first-run.
@@ -97,7 +100,8 @@ def autoremove_unavailable_plugins():
     """
     global config
     changed = False
-    for module_path in config['INSTALLED_APPS']:
+    # Iterate over a copy of the list so that it is not modified during the loop
+    for module_path in config['INSTALLED_APPS'][:]:
         if not module_exists(module_path):
             config['INSTALLED_APPS'].remove(module_path)
             logger.error(
@@ -107,9 +111,30 @@ def autoremove_unavailable_plugins():
                 ).format(mod=module_path)
             )
             changed = True
-
     if changed:
         save()
 
 
-autoremove_unavailable_plugins()
+def enable_default_plugins():
+    """
+    Enable new plugins that have been added between versions
+    This will have the undesired side effect of reactivating
+    default plugins that have been explicitly disabled by a user.
+    However, until we add disabled plugins to a blacklist, this is
+    unavoidable.
+    """
+    global config
+    changed = False
+    for module_path in DEFAULT_PLUGINS:
+        if module_path not in config['INSTALLED_APPS']:
+            config['INSTALLED_APPS'].append(module_path)
+            logger.warning(
+                (
+                    "Default plugin {mod} not found in configuration. To re-disable it, run:\n"
+                    "   $ kolibri plugin {mod} disable"
+                ).format(mod=module_path)
+            )
+            changed = True
+
+    if changed:
+        save()
