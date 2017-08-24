@@ -1,4 +1,4 @@
-import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
+import { DevicePermissionsResource, NewDevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
@@ -74,7 +74,7 @@ export function addOrUpdateUserPermissions(store, payload) {
 
   // if pageState.permissions is empty, then need to do a POST
   if (isEmpty(store.state.pageState.permissions)) {
-    return DevicePermissionsResource.createModel(permissions).save();
+    return NewDevicePermissionsResource.createModel(permissions).save();
   }
   return DevicePermissionsResource.getModel(userId).save(permissions);
 }

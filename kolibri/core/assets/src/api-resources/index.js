@@ -25,6 +25,8 @@ import ContentNodeProgressResource from './contentNodeProgress';
 import FileSummaryResource from './fileSummary';
 import DeviceProvisionResource from './deviceProvision';
 import DevicePermissionsResource from './devicePermissions';
+import { NewDevicePermissionsResource } from './devicePermissions';
+
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -53,6 +55,7 @@ const contentNodeProgressResource = new ContentNodeProgressResource();
 const fileSummaryResource = new FileSummaryResource();
 const deviceProvisionResource = new DeviceProvisionResource();
 const devicePermissionsResource = new DevicePermissionsResource();
+const newDevicePermissionsResource = new NewDevicePermissionsResource();
 
 export {
   classroomResource as ClassroomResource,
@@ -82,4 +85,5 @@ export {
   fileSummaryResource as FileSummaryResource,
   deviceProvisionResource as DeviceProvisionResource,
   devicePermissionsResource as DevicePermissionsResource,
+  newDevicePermissionsResource as NewDevicePermissionsResource,
 };
