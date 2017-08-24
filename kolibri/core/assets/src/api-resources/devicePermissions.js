@@ -4,7 +4,7 @@ export default class DevicePermissionsResource extends Resource {
   static resourceName() {
     return 'devicepermissions';
   }
-  static idKey() {
-    return 'user';
-  }
+  // static idKey() {
+  //   return 'user';
+  // }
 }

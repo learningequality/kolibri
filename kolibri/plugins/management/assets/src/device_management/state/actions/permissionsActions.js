@@ -3,6 +3,7 @@ import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
+import isEmpty from 'lodash/isEmpty';
 
 function fetchFacilityUsers() {
   return FacilityUserResource.getCollection().fetch();
@@ -18,7 +19,7 @@ function fetchDevicePermissions() {
 }
 
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch()._promise;
+  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}. true)._promise;
   const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
   return permissionsPromise
     .then(function onSuccess(permissions) {
@@ -57,4 +58,23 @@ export function showUserPermissionsPage(store, userId) {
     .catch(function onFailure(error) {
       return handleApiError(store, error);
     });
+}
+
+/**
+ * @param {boolean} payload.is_superuser
+ * @param {boolean} payload.can_manage_content
+ */
+export function addOrUpdateUserPermissions(store, payload) {
+  const userId = store.state.pageState.user.id;
+  const permissions = {
+    user: userId,
+    is_superuser: payload.is_superuser,
+    can_manage_content: payload.can_manage_content,
+  };
+
+  // if pageState.permissions is empty, then need to do a POST
+  if (isEmpty(store.state.pageState.permissions)) {
+    return DevicePermissionsResource.createModel(permissions).save();
+  }
+  return DevicePermissionsResource.getModel(userId).save(permissions);
 }

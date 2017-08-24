@@ -15,7 +15,8 @@
       <div class="superuser-section">
         <k-checkbox
           :label="$tr('makeSuperuser')"
-          :checked="true"
+          :checked="superuserChecked"
+          @change="superuserChecked=$event"
         />
         <p>{{ $tr('makeSuperuserDetails') }}</p>
       </div>
@@ -26,12 +27,19 @@
         <h2>{{ $tr('devicePermissions') }}</h2>
         <k-checkbox
           :label="$tr('devicePermissionsDetails')"
-          :checked="true"
+          :checked="devicePermissionsChecked"
+          @change="devicePermissionsChecked=$event"
         />
       </div>
 
       <div class="buttons">
-        <k-button :text="$tr('saveButton')" class="no-margin" :primary="true" :raised="true" />
+        <k-button
+          :text="$tr('saveButton')"
+          class="no-margin"
+          :primary="true"
+          :raised="true"
+          @click="save()"
+        />
         <k-button :text="$tr('cancelButton')" :primary="false" :raised="false" />
       </div>
     </subpage-container>
@@ -47,21 +55,46 @@
   import subpageContainer from '../containers/subpage-container';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import { addOrUpdateUserPermissions } from '../../state/actions/permissionsActions';
 
   export default {
+    name: 'userPermissionsPage',
     components: {
       immersiveFullScreen,
       kButton,
       kCheckbox,
       subpageContainer,
     },
+    data() {
+      return {
+        superuserChecked: undefined,
+        devicePermissionsChecked: undefined,
+      }
+    },
     computed: {},
-    methods: {},
+    beforeMount() {
+      this.superuserChecked = this.permissions.is_superuser || false;
+      this.devicePermissionsChecked = this.permissions.can_manage_content || false;
+    },
+    methods: {
+      save() {
+        this.addOrUpdateUserPermissions({
+          is_superuser: this.superuserChecked,
+          can_manage_content: this.devicePermissionsChecked,
+        })
+        .then(function onSuccess() {
+          console.log('yay');
+        });
+      },
+    },
     vuex: {
       getters: {
         user: ({ pageState }) => pageState.user,
+        permissions: ({ pageState }) => pageState.permissions,
       },
-      actions: {},
+      actions: {
+        addOrUpdateUserPermissions,
+      },
     },
     $trs: {
       makeSuperuser: 'Make Superuser',
