@@ -27,7 +27,7 @@
       <div class="device-permissions-section">
         <h2>{{ $tr('devicePermissions') }}</h2>
         <k-checkbox
-          :disabled="uiBlocked"
+          :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
           :checked="devicePermissionsChecked"
           @change="devicePermissionsChecked=$event"
@@ -36,7 +36,7 @@
 
       <div class="buttons">
         <k-button
-          :disabled="uiBlocked"
+          :disabled="saveDisabled"
           :text="$tr('saveButton')"
           class="no-margin"
           :primary="true"
@@ -92,6 +92,12 @@
       superuserDisabled() {
         return this.uiBlocked || this.isCurrentUser;
       },
+      saveDisabled() {
+        return this.uiBlocked || this.isCurrentUser;
+      },
+      devicePermissionsDisabled() {
+        return this.uiBlocked || this.superuserChecked;
+      },
       progressNotification() {
         switch (this.saveProgress) {
           case 'IN_PROGRESS':
@@ -103,8 +109,18 @@
         }
       }
     },
+    watch: {
+      superuserChecked(newVal) {
+        // sets all device permissions to true
+        // does not set them all to false if unchecked
+        if (newVal) {
+          this.devicePermissionsChecked = true;
+        }
+      }
+    },
     beforeMount() {
       this.superuserChecked = this.permissions.is_superuser || false;
+      // currently only one device permission
       this.devicePermissionsChecked = this.permissions.can_manage_content || false;
     },
     methods: {
