@@ -23,7 +23,7 @@ from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
-CONTENT_SCHEMA_VERSION = '0.6.0'
+CONTENT_SCHEMA_VERSION = '1'
 
 class UUIDField(models.CharField):
     """
@@ -197,7 +197,7 @@ class LocalFile(models.Model):
     The bottom layer of the contentDB schema, defines the local state of files on the device storage.
     """
     # ID should be the checksum of the file
-    id = UUIDField(primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True)
     extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
@@ -279,3 +279,7 @@ class ChannelMetadata(models.Model):
 
     def __str__(self):
         return self.name
+
+    def delete_content_tree_and_files(self):
+        # Use Django ORM to ensure cascading delete:
+        self.root.delete()

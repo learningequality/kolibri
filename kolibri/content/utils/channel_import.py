@@ -2,7 +2,7 @@ import logging as logger
 
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
+from kolibri.content.models import CONTENT_SCHEMA_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
 from kolibri.utils.time import local_now
 
 from .annotation import set_leaf_node_availability_from_local_file_availability
@@ -11,11 +11,6 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge, ClassNotFoundError
 
 logging = logger.getLogger(__name__)
-
-def delete_content_tree_and_files(channel_id):
-    # Use Django ORM to ensure cascading delete:
-    ContentNode.objects.filter(channel_id=channel_id).delete()
-
 
 NO_VERSION = 'unversioned'
 
@@ -41,11 +36,14 @@ class ChannelImport(object):
     """
 
     # Specific instructions and exceptions for importing table from previous versions of Kolibri
-    # The value for a particular key can either be a function, which will be invoked on the context
-    # Or, as a shortcut, a string can be used that will be used to get a different attribute from the
-    # source object
-    # Mappings can be 'per_row', specifying mappings for an entire row
-    # and 'per_table' mapping an entire table at a time. Both can be used simultaneously.
+    # Mappings can be:
+    # 1) 'per_row', specifying mappings for an entire row, string can either be an attribute
+    #    or a method name on the import class
+    # 2) 'per_table' mapping an entire table at a time. Only a method name can be used for 'per_table' mappings.
+    #
+    # Both can be used simultaneously.
+    #
+    # See NoVersionChannelImport for an annotated example.
     schema_mapping = {}
 
     def __init__(self, channel_id):
@@ -103,32 +101,49 @@ class ChannelImport(object):
         return find_hole_in_list(tree_ids)
 
     def generate_row_mapper(self, mappings=None):
+        # If no mappings, just use an empty object
         if mappings is None:
             mappings = {}
 
         def mapper(record, column):
+            """
+            A mapper function for the mappings object
+            """
             if column in mappings:
-                col_map = mappings.get(column)
+                # If the column name is in our defined mappings object,
+                # then we need to try to find an alternate value
+                col_map = mappings.get(column)  # Get the string value for the mapping
                 if hasattr(record, col_map):
+                    # Is this mapping value another column of the table?
+                    # If so, return it straight away
                     return getattr(record, col_map)
                 elif hasattr(self, col_map):
+                    # Otherwise, check to see if the import class has an attribute with this name
+                    # We assume that if it is, then it is a callable method that accepts the row
+                    # data as its only argument, if so, return the result of calling that method
+                    # on the row data
                     return getattr(self, col_map)(record)
                 else:
+                    # If neither of these true, we specified a column mapping that is invalid
                     raise AttributeError('Column mapping specified but no valid column name or method found')
             else:
+                # Otherwise, we can just get the value directly from the record
                 return getattr(record, column, None)
+        # Return the mapper function for repeated use
         return mapper
 
     def base_table_mapper(self, SourceRecord):
-        for record in self.source.session.query(SourceRecord).all():
-            yield record
+        return self.source.session.query(SourceRecord).all()
 
-    def generate_table_mapper(self, mapping=None):
-        if mapping is None:
+    def generate_table_mapper(self, table_map=None):
+        if table_map is None:
+            # If no table mapping specified, just use the default
             return self.base_table_mapper
         # Can only be a method on the Import object
-        if hasattr(self, mapping):
-            return getattr(self, mapping)
+        if hasattr(self, table_map):
+            # If it is a method of the import class return that method for later use
+            return getattr(self, table_map)
+        # If we got here, there is an invalid table mapping
         raise AttributeError('Table mapping specified but no valid method found')
 
     def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
@@ -181,9 +196,6 @@ class ChannelImport(object):
             unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
         self.destination.session.commit()
 
-    def delete_content_tree_and_files(self):
-        delete_content_tree_and_files(self.channel_id)
-
     def end(self):
         self.source.end()
         self.destination.end()
@@ -197,26 +209,40 @@ class NoVersionChannelImport(ChannelImport):
     """
 
     schema_mapping = {
+        # The top level keys of the schema_mapping are the Content Django Models that are to be imported
         ContentNode: {
+            # For each model's mappings, can defined both 'per_row' and 'per_table' mappings.
             'per_row': {
+                # The key of the 'per_row' mapping object is the table column that we are populating
+                # In the case of Django ForeignKey fields, this will be the field name plus _id
+                # The value is a string that refers either to a table column on the source data
+                # or a method on this import class that will be passed the row data and should return
+                # the mapped value.
                 'channel_id': 'infer_channel_id_from_source',
                 'tree_id': 'get_tree_id',
-                'available': 'none',
+                'available': 'get_none',
             },
         },
         File: {
             'per_row': {
+                # If we didn't want to encode the Django _id convention here, we could reference the field
+                # attname in order to set it.
                 File._meta.get_field('local_file').attname: 'checksum',
-                'available': 'none',
+                'available': 'get_none',
             },
         },
         LocalFile: {
+            # Because LocalFile does not exist on old content databases, we have to override the table that
+            # we are drawing from, the generate_local_file_from_file method overrides the default mapping behaviour
+            # and instead reads from the File model table
+            # It then uses per_row mappers to get the require model fields from the File model to populate our
+            # new LocalFiles.
             'per_table': 'generate_local_file_from_file',
             'per_row': {
                 'id': 'checksum',
                 'extension': 'extension',
                 'file_size': 'file_size',
-                'available': 'none',
+                'available': 'get_none',
             },
         },
         ChannelMetadata: {
@@ -227,7 +253,7 @@ class NoVersionChannelImport(ChannelImport):
         },
     }
 
-    def none(self, source_object):
+    def get_none(self, source_object):
         return None
 
     def infer_channel_id_from_source(self, source_object):
@@ -253,7 +279,7 @@ class NoVersionChannelImport(ChannelImport):
 
 mappings = {
     NO_VERSION: NoVersionChannelImport,
-    '0.6.0': ChannelImport,
+    CONTENT_SCHEMA_VERSION: ChannelImport,
 }
 
 
@@ -274,7 +300,7 @@ def import_channel_from_local_db(channel_id):
     if ChannelMetadata.objects.filter(id=channel_id).exists():
         # We have already imported this channel in some way, so let's clean up first.
         logging.info('Channel {channel_id} already exists in database, cleaning up ContentNodes'.format(channel_id=channel_id))
-        import_manager.delete_content_tree_and_files()
+        ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
 
     import_manager.import_channel_data()
 

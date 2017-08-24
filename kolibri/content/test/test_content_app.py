@@ -109,6 +109,12 @@ class ContentNodeTestBase(object):
         self.assertTrue(content.LocalFile.objects.filter(id='4c30dc7619f74f97ae2ccd4fffd09bf2').exists())
         self.assertTrue(content.LocalFile.objects.filter(id='8ad3fffedf144cba9492e16daec1e39a').exists())
 
+    def test_delete_tree(self):
+        channel = content.ChannelMetadata.objects.first()
+        channel.delete_content_tree_and_files()
+        self.assertFalse(content.ContentNode.objects.all().exists())
+        self.assertFalse(content.File.objects.all().exists())
+
 
 class ContentNodeTestCase(ContentNodeTestBase, TestCase):
     fixtures = ['content_test.json']

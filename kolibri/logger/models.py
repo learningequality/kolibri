@@ -43,8 +43,6 @@ class BaseLogQuerySet(SyncableModelQuerySet):
         """
         Filter a set of logs by content_id, using content_ids from the provided list or queryset.
         """
-
-        # perform the query using an efficient cross-database join
         return self.filter(**{content_id_lookup + "__in": content_ids})
 
 

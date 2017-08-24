@@ -259,12 +259,6 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import.table_import.assert_called_once()
             channel_import.destination.session.commit.assert_called_once_with()
 
-    def test_delete_content_tree(self, apps_mock, tree_id_mock, BridgeMock):
-        channel_import = ChannelImport('test')
-        with patch('kolibri.content.utils.channel_import.delete_content_tree_and_files') as delete_mock:
-            channel_import.delete_content_tree_and_files()
-            delete_mock.assert_called_once_with('test')
-
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
         channel_import.end()

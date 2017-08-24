@@ -70,7 +70,6 @@ def get_summary_logs(content_ids, user):
     if not content_ids:
         return ContentSummaryLog.objects.none()
     # get all summary logs for the current user that correspond to the descendant content nodes
-    # do a direct join between the content and default databases
     return ContentSummaryLog.objects.filter(user=user, content_id__in=content_ids)
 
 
