@@ -5,14 +5,14 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey">
     <div class="search-box-row">
-      <label class="visuallyhidden" for="searchfield">{{ $tr('search') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
         v-model="searchQuery"
         id="searchfield"
         type="search"
         class="search-input"
         ref="searchInput"
-        :placeholder="$tr('search')"
+        :placeholder="$tr('searchBoxLabel')"
       >
       <div class="search-buttons-wrapper">
         <ui-icon-button
@@ -21,7 +21,7 @@
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-          :ariaLabel="$tr('clear')"
+          :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
         />
 
@@ -31,7 +31,7 @@
             color="white"
             class="search-submit-button"
             :icon="icon"
-            :ariaLabel="$tr('start')"
+            :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
           />
         </div>
