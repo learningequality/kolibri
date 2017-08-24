@@ -99,7 +99,8 @@ def autoremove_unavailable_plugins():
     """
     global config
     changed = False
-    for module_path in config['INSTALLED_APPS']:
+    # Iterate over a copy of the list so that it is not modified during the loop
+    for module_path in config['INSTALLED_APPS'][:]:
         if not module_exists(module_path):
             config['INSTALLED_APPS'].remove(module_path)
             logger.error(
