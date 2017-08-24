@@ -90,7 +90,7 @@ def get_progress_and_last_active(target_nodes, **kwargs):
         .filter(user__in=users, content_id__in=content_ids)
     # Conditionally filter by last active time
     if kwargs.get('last_active_time'):
-        progress_query.filter(end_timestamp__gte=parse(kwargs.get('last_active_time')))
+        progress_query = progress_query.filter(end_timestamp__gte=parse(kwargs.get('last_active_time')))
     # Get an annotated list of dicts of type:
     # {
     #   'content_id': <content_id>,
