@@ -2,7 +2,7 @@
 
   <ui-textbox
     ref="textbox"
-    v-model="currentText"
+    v-model.trim="currentText"
     :label="label"
     :disabled="disabled"
     :required="required"
