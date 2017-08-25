@@ -9,6 +9,10 @@ import preparePage from '../state/preparePage';
 import { showManagePermissionsPage, showUserPermissionsPage } from './state/actions/permissionsActions';
 import { showManageContentPage } from './state/actions/contentActions';
 
+function hideLoadingScreen() {
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
 const routes = [
   {
     path: '/',
@@ -17,45 +21,39 @@ const routes = [
   {
     name: PageNames.MANAGE_CONTENT_PAGE,
     path: '/content',
-    handler: () => {
+    handler: ({ name }) => {
       preparePage(store.dispatch, {
-        name: PageNames.MANAGE_CONTENT_PAGE,
+        name,
         title: 'Manage Content',
       });
-      showManageContentPage(store).then(function onSuccess() {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
+      showManageContentPage(store).then(hideLoadingScreen);
     },
   },
   {
     name: PageNames.MANAGE_PERMISSIONS_PAGE,
     path: '/permissions',
-    handler: () => {
+    handler: ({ name }) => {
       preparePage(store.dispatch, {
-        name: PageNames.MANAGE_PERMISSIONS_PAGE,
+        name,
         title: 'Manage User Permissions',
       });
-      showManagePermissionsPage(store).then(function onSuccess() {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
+      showManagePermissionsPage(store).then(hideLoadingScreen);
     },
   },
   {
     name: PageNames.USER_PERMISSIONS_PAGE,
     path: '/permissions/:userid',
-    handler: toRoute => {
+    handler: ({ params, name }) => {
       preparePage(store.dispatch, {
-        name: PageNames.USER_PERMISSIONS_PAGE,
+        name,
         title: 'Manage User Device Permissions',
       });
-      showUserPermissionsPage(store, toRoute.params.userid).then(function onSuccess() {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
+      showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
     },
   },
 ];
 
-class ManagementModule extends KolibriModule {
+class DeviceManagementModule extends KolibriModule {
   ready() {
     getCurrentSession(store).then(() => {
       this.rootvue = new Vue({
@@ -67,4 +65,4 @@ class ManagementModule extends KolibriModule {
   }
 }
 
-export default new ManagementModule();
+export default new DeviceManagementModule();
