@@ -247,7 +247,7 @@ class NoVersionChannelImport(ChannelImport):
         },
         ChannelMetadata: {
             'per_row': {
-                ChannelMetadata._meta.get_field('min_kolibri_version').attname: 'set_version_to_no_version',
+                ChannelMetadata._meta.get_field('min_schema_version').attname: 'set_version_to_no_version',
                 'root_id': 'root_pk',
             },
         },
@@ -287,7 +287,7 @@ def initialize_import_manager(channel_id):
 
     channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
 
-    min_version = getattr(channel_metadata, 'min_kolibri_version', NO_VERSION)
+    min_version = getattr(channel_metadata, 'min_schema_version', NO_VERSION)
 
     ImportClass = mappings.get(min_version)
 

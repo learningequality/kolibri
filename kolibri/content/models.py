@@ -271,7 +271,7 @@ class ChannelMetadata(models.Model):
     thumbnail = models.TextField(blank=True)
     last_updated = DateTimeTzField(null=True)
     # Minimum version of Kolibri that this content database is compatible with
-    min_kolibri_version = models.CharField(max_length=50)
+    min_schema_version = models.CharField(max_length=50)
     root = models.ForeignKey(ContentNode)
 
     class Admin:

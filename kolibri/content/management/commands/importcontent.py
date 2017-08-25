@@ -72,9 +72,7 @@ class Command(AsyncCommand):
         downloaded_files = []
         file_checksums_to_annotate = []
 
-        progress_for_annotation = total_bytes_to_transfer*0.1 if total_bytes_to_transfer else 100
-
-        with self.start_progress(total=total_bytes_to_transfer + progress_for_annotation) as overall_progress_update:
+        with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
             for f in files_to_download:
 
@@ -131,8 +129,6 @@ class Command(AsyncCommand):
                 annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
 
                 annotation.recurse_availability_up_tree(channel_id)
-
-                overall_progress_update(progress_for_annotation)
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

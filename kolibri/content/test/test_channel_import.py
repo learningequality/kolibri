@@ -305,7 +305,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
     # When incrementing content schema versions, this should be incremented to the new version
     # A new TestCase for importing for this old version should then be subclassed from this TestCase
     # See 'NoVersionImportTestCase' below for an example
-    name = '0.6.0'
+    name = '1'
 
     def setUp(self):
         try:
