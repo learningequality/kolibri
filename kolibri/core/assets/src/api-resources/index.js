@@ -27,7 +27,6 @@ import DeviceProvisionResource from './deviceProvision';
 import DevicePermissionsResource from './devicePermissions';
 import { NewDevicePermissionsResource } from './devicePermissions';
 
-
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
 const facilityUserResource = new FacilityUserResource();

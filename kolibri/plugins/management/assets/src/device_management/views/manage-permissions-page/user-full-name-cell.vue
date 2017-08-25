@@ -41,7 +41,7 @@
 
   function hasNoPermissions(ps) {
     if (!ps) return true;
-    return every(omit(ps, ['user']), p => !p)
+    return every(omit(ps, ['user']), p => !p);
   }
 
   export default {

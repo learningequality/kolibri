@@ -1,4 +1,8 @@
-import { DevicePermissionsResource, NewDevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
+import {
+  DevicePermissionsResource,
+  NewDevicePermissionsResource,
+  FacilityUserResource,
+} from 'kolibri.resources';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
@@ -19,7 +23,7 @@ function fetchDevicePermissions() {
 }
 
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}. true)._promise;
+  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}.true)._promise;
   const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
   return permissionsPromise
     .then(function onSuccess(permissions) {

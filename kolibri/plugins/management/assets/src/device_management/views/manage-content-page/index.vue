@@ -93,7 +93,8 @@
       import: 'Import',
       export: 'Export',
       noAccessHeader: 'You do not have access to this page',
-      noAccessDetails: 'You must be a Superuser or have Content Management permissions to view this page',
+      noAccessDetails:
+        'You must be a Superuser or have Content Management permissions to view this page',
     },
     components: {
       authMessage,

@@ -14,7 +14,14 @@
 
 <script>
 
-  const userRoles = ['admin', 'adminOrCoach', 'deviceOwner', 'learner', 'registeredUser', 'superuser'];
+  const userRoles = [
+    'admin',
+    'adminOrCoach',
+    'deviceOwner',
+    'learner',
+    'registeredUser',
+    'superuser',
+  ];
 
   export default {
     name: 'authMessage',

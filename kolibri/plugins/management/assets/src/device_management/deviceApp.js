@@ -6,7 +6,10 @@ import RootVue from './views';
 import store from './state/store';
 import { PageNames } from './constants';
 import preparePage from '../state/preparePage';
-import { showManagePermissionsPage, showUserPermissionsPage } from './state/actions/permissionsActions';
+import {
+  showManagePermissionsPage,
+  showUserPermissionsPage,
+} from './state/actions/permissionsActions';
 import { showManageContentPage } from './state/actions/contentActions';
 
 function hideLoadingScreen() {
@@ -24,7 +27,7 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage Content',
+        title: 'Manage Device Content',
       });
       showManageContentPage(store).then(hideLoadingScreen);
     },

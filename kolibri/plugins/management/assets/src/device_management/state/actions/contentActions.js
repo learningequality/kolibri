@@ -32,7 +32,6 @@ export function showManageContentPage(store) {
   }
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   return Promise.resolve();
-
 }
 
 /**

@@ -5,10 +5,7 @@
     bodyColorHex="#F9F9F9"
     topBarColorHex="#724870"
   >
-    <auth-message
-      v-if="!isSuperuser"
-      authorizedRole="superuser"
-    />
+    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
     <subpage-container v-else-if="user===null" withSideMargin>
       <h1>{{ $tr('userDoesNotExist') }}</h1>
@@ -98,7 +95,7 @@
         saveProgress: undefined,
         superuserChecked: undefined,
         uiBlocked: false,
-      }
+      };
     },
     computed: {
       superuserDisabled() {
@@ -131,7 +128,7 @@
           this.permissions.is_superuser === this.superuserChecked &&
           this.permissions.can_manage_content === this.devicePermissionsChecked
         );
-      }
+      },
     },
     watch: {
       superuserChecked(newVal) {
@@ -140,7 +137,7 @@
         if (newVal) {
           this.devicePermissionsChecked = true;
         }
-      }
+      },
     },
     beforeMount() {
       this.superuserChecked = this.permissions.is_superuser || false;
@@ -155,18 +152,22 @@
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })
-        .then(function onSuccess() {
-          this.saveProgress = 'SUCCESS';
-          this.goBack();
-        }.bind(this))
-        .catch(function onFailure() {
-          this.uiBlocked = false;
-          this.saveProgress = 'FAILURE';
-        }.bind(this));
+          .then(
+            function onSuccess() {
+              this.saveProgress = 'SUCCESS';
+              this.goBack();
+            }.bind(this)
+          )
+          .catch(
+            function onFailure() {
+              this.uiBlocked = false;
+              this.saveProgress = 'FAILURE';
+            }.bind(this)
+          );
       },
       goBack() {
         this.$router.push({ path: '/permissions' });
-      }
+      },
     },
     vuex: {
       getters: {
@@ -186,13 +187,14 @@
       goBack: 'Go Back',
       invalidUser: 'Invalid User ID',
       makeSuperuser: 'Make superuser',
-      makeSuperuserDetails: 'A superuser has all device permissions and is able to manage permissions of other users',
+      makeSuperuserDetails:
+        'A superuser has all device permissions and is able to manage permissions of other users',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
-    }
+    },
   };
 
 </script>
