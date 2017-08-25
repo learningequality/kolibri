@@ -142,7 +142,10 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        return filterAndSortUsers(this.users, user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user));
+        return filterAndSortUsers(
+          this.users,
+          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
+        );
       },
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;

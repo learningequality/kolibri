@@ -33,7 +33,7 @@
     },
     data() {
       return {
-        searchTerm: ''
+        searchTerm: '',
       };
     },
     methods: {
@@ -43,7 +43,7 @@
       },
       clearSearchTerm() {
         this.updateSearchTerm('');
-      }
+      },
     },
     $trs: {
       searchLabel: 'Search for a user',

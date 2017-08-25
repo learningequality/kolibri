@@ -57,7 +57,9 @@
     },
     computed: {
       visibleUsers() {
-        return filterAndSortUsers(this.facilityUsers, user => userMatchesFilter(user, this.searchFilter));
+        return filterAndSortUsers(this.facilityUsers, user =>
+          userMatchesFilter(user, this.searchFilter)
+        );
       },
     },
     methods: {
