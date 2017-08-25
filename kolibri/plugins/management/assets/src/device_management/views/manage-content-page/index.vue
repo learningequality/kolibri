@@ -36,7 +36,8 @@
               @click="openWizard('export')"/>
           </div>
         </div>
-        <hr>
+
+        <hr />
 
         <channels-grid
           @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
@@ -119,9 +120,7 @@
       this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
     destroyed() {
-      if (this.isSuperuser) {
-        clearInterval(this.intervalId);
-      }
+      clearInterval(this.intervalId);
     },
     methods: {
       openWizard(action) {
@@ -136,7 +135,7 @@
       getters: {
         isSuperuser,
         canManageContent,
-        pageState: state => state.pageState,
+        pageState: ({ pageState }) => pageState,
       },
       actions: {
         startImportWizard: contentWizardActions.startImportWizard,
@@ -176,46 +175,10 @@
   .button-wrapper
     float: right
 
-  table
-    width: 100%
-
   hr
     background-color: $core-text-annotation
     height: 1px
     border: none
-
-  tr
-    text-align: left
-
-  .roster
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: inherit
-
-  .col-header
-    padding-bottom: (1.2 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
-
-  .col-channel
-    width: 90%
-
-  .col-export
-    width: 10%
-
-  .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
-    color: $core-text-default
-
-  .channel-name
-    font-weight: 700
-
-  .table-export
-    padding-left: 0.6em
 
   @media screen and (max-width: 620px)
     .page-title
