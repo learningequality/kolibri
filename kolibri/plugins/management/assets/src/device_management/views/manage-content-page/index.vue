@@ -2,7 +2,7 @@
 
   <div>
 
-    <template v-if="isSuperuser || canManageContent">
+    <template v-if="canManageContent">
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
@@ -59,7 +59,7 @@
 
 <script>
 
-  import { isSuperuser, canManageContent } from 'kolibri.coreVue.vuex.getters';
+  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import * as taskActions from '../../state/actions/taskActions';
   import * as contentWizardActions from '../../state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
@@ -133,7 +133,6 @@
     },
     vuex: {
       getters: {
-        isSuperuser,
         canManageContent,
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],

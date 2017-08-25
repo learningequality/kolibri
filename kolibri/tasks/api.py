@@ -38,7 +38,7 @@ LOCAL_EXPORT = 'localexport'
 id_tasktype = {}
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (IsSuperuserOnly, CanManageContent)
+    permission_classes = (CanManageContent,)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
