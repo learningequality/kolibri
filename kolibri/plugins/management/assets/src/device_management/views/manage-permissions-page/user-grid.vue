@@ -11,7 +11,7 @@
       </thead>
 
       <tbody>
-        <tr v-for="user in facilityUsers" :key="user.id" class="table-row">
+        <tr v-for="user in visibleUsers" :key="user.id" class="table-row">
           <td>
             <user-full-name-cell :user="user" />
             <span v-if="isCurrentUser(user.username)"> (You)</span>
@@ -38,6 +38,7 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import userFullNameCell from './user-full-name-cell';
+  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
   export default {
     name: 'userGrid',
@@ -45,7 +46,16 @@
       kButton,
       userFullNameCell,
     },
-    computed: {},
+    props: {
+      searchFilter: {
+        type: String,
+      },
+    },
+    computed: {
+      visibleUsers() {
+        return filterAndSortUsers(this.facilityUsers, user => userMatchesFilter(user, this.searchFilter));
+      },
+    },
     methods: {
       permissionsButtonText(username) {
         if (this.isCurrentUser(username)) {

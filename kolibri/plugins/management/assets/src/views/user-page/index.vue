@@ -109,12 +109,11 @@
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import orderBy from 'lodash/orderBy';
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import userRole from '../user-role';
-  import { userMatchesFilter } from '../../userSearchUtils';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
     name: 'userPage',
@@ -143,8 +142,7 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        const filteredUsers = this.users.filter(user => this.userMatchesFilter(user) && this.userMatchesRole(user));
-        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
+        return filterAndSortUsers(this.users, user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user));
       },
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;
@@ -154,9 +152,6 @@
       },
     },
     methods: {
-      userMatchesFilter(user) {
-        return userMatchesFilter(user, this.searchFilter);
-      },
       userMatchesRole(user) {
         return this.roleFilter === 'all' || user.kind === this.roleFilter;
       },

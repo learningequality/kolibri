@@ -15,7 +15,7 @@
           </div>
         </div>
 
-        <user-grid class="user-grid" />
+        <user-grid class="user-grid" :searchFilter="searchFilterText" />
       </div>
 
   </subpage-container>
