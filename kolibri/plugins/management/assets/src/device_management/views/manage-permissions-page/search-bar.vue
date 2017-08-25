@@ -2,6 +2,13 @@
 
   <div class="searchbar" role="search">
     <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
+    <mat-svg
+      class="clearicon"
+      category="content"
+      name="clear"
+      aria-hidden="true"
+      @click="clearSearchTerm()"
+    />
     <input
       :aria-label="$tr('searchLabel')"
       :placeholder="$tr('searchPlaceholder')"
@@ -25,13 +32,18 @@
       },
     },
     data() {
-      return { searchTerm: '' };
+      return {
+        searchTerm: ''
+      };
     },
     methods: {
       updateSearchTerm(text) {
         this.searchTerm = text;
         this.$emit('input', text);
       },
+      clearSearchTerm() {
+        this.updateSearchTerm('');
+      }
     },
     $trs: {
       searchLabel: 'Search for a user',
@@ -67,11 +79,20 @@
     left: 5px
     top: 5px
 
+  .clearicon
+    display: inline-block
+    float: right
+    position: relative
+    fill: $core-text-annotation
+    top: 5px
+    right: 5px
+    cursor: pointer
+
   .searchbar
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 300px
+    width: 450px
     height: 2.5em
     margin-left: 5px
 
