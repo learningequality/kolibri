@@ -11,8 +11,8 @@ export function refreshChannelList() {
   return ChannelResource.getCollection().fetch({}, true);
 }
 
-export function showContentPage(store) {
-  if (getters.isSuperuser(store.state) || getters.canManageContent(store.state)) {
+export function showManageContentPage(store) {
+  if (getters.canManageContent(store.state)) {
     store.dispatch('SET_CONTENT_PAGE_STATE', {
       taskList: [],
       wizardState: { shown: false },

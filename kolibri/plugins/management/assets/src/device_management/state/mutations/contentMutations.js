@@ -2,7 +2,7 @@ import Vue from 'kolibri.lib.vue';
 import { PageNames } from '../../constants';
 
 function isManageContentPage(state) {
-  return state.pageName === PageNames.DEVICE_CONTENT_MGMT_PAGE;
+  return state.pageName === PageNames.MANAGE_CONTENT_PAGE;
 }
 
 export function SET_CONTENT_PAGE_STATE(state, newPageState) {

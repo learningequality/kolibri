@@ -1,8 +1,7 @@
 <template>
 
   <immersive-full-screen
-    :backPageLink="{ name: 'DEVICE_PERMISSIONS_MGMT_PAGE' }"
-    :backPageText="backPageText"
+    v-bind="{ backPageLink, backPageText }"
     bodyColorHex="#F9F9F9"
     topBarColorHex="#724870"
   >
@@ -82,6 +81,7 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { addOrUpdateUserPermissions } from '../../state/actions/permissionsActions';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'userPermissionsPage',
@@ -120,6 +120,7 @@
             return '';
         }
       },
+      backPageLink: () => ({ name: PageNames.MANAGE_PERMISSIONS_PAGE }),
       backPageText() {
         if (!this.isSuperuser) return this.$tr('goBack');
         return this.user ? this.user.full_name : this.$tr('invalidUser');
@@ -164,9 +165,7 @@
         }.bind(this));
       },
       goBack() {
-        this.$router.push({
-          path: '/permissions',
-        });
+        this.$router.push({ path: '/permissions' });
       }
     },
     vuex: {

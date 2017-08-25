@@ -25,9 +25,9 @@
   import userPermissionsPage from './user-permissions-page';
 
   const pageNameComponentMap = {
-    [PageNames.DEVICE_CONTENT_MGMT_PAGE]: 'manageContentPage',
-    [PageNames.DEVICE_PERMISSIONS_MGMT_PAGE]: 'managePermissionsPage',
-    [PageNames.USER_PERMISSIONS_MGMT_PAGE]: 'userPermissionsPage',
+    [PageNames.MANAGE_CONTENT_PAGE]: 'manageContentPage',
+    [PageNames.MANAGE_PERMISSIONS_PAGE]: 'managePermissionsPage',
+    [PageNames.USER_PERMISSIONS_PAGE]: 'userPermissionsPage',
   };
 
   export default {

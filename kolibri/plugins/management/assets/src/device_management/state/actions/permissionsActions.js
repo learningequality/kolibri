@@ -36,7 +36,7 @@ function fetchUserPermissions(userId) {
     });
 }
 
-export function showPermissionsPage(store) {
+export function showManagePermissionsPage(store) {
   const promises = Promise.all([fetchFacilityUsers(), fetchDevicePermissions()]);
   return promises
     .then(function onSuccess([users, permissions]) {
