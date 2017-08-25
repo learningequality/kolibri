@@ -6,12 +6,12 @@
 
       <div v-else>
         <div>
-          <div>
+          <div class="one-half">
             <h1>{{ $tr('devicePermissionsHeader') }}</h1>
             <p>{{ $tr('devicePermissionsDescription') }}</p>
           </div>
-          <div>
-            <search-bar v-model="searchFilterText" />
+          <div class="one-half">
+            <search-bar class="search" v-model="searchFilterText" />
           </div>
         </div>
 
@@ -66,5 +66,12 @@
 
   .user-grid
     margin-top: 2em
+
+  .one-half
+    display: inline-block
+    width: 50%
+
+  .search
+    float: right
 
 </style>

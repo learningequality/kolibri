@@ -1,7 +1,11 @@
 <template>
 
   <div>
-    <table class="table">
+
+    <div v-if="visibleUsers.length === 0">
+      No users matching "{{ searchFilter }}"
+    </div>
+    <table v-else class="table">
       <thead class="table-header">
         <tr>
           <th>{{ $tr('fullName') }}</th>

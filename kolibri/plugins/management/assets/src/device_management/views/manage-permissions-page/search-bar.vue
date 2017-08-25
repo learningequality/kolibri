@@ -72,15 +72,13 @@
     padding: inherit
     border: 1px solid #c0c0c0
     width: 300px
-    height: $toolbar-height
-    float: left
+    height: 2.5em
     margin-left: 5px
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 0.9em
       min-width: 170px
-      width: 45%
     #search-field
       width: 80%
 
@@ -89,6 +87,5 @@
       font-size: 0.9em
       width: 100%
       margin-top: 5px
-      float: right
 
 </style>
