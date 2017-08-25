@@ -5,14 +5,14 @@
       <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
       <div v-else>
-        <div class="pure-g">
-          <responsive b3="pure-u-1-2" default="pure-u-1-1">
+        <div>
+          <div>
             <h1>{{ $tr('devicePermissionsHeader') }}</h1>
             <p>{{ $tr('devicePermissionsDescription') }}</p>
-          </responsive>
-          <responsive b3="pure-u-1-2" default="pure-u-1-1">
+          </div>
+          <div>
             <search-bar v-model="searchFilterText" />
-          </responsive>
+          </div>
         </div>
 
         <user-grid class="user-grid" />
@@ -30,13 +30,11 @@
   import searchBar from './search-bar';
   import userGrid from './user-grid';
   import subpageContainer from '../containers/subpage-container';
-  import responsive from '../containers/responsive-container';
 
   export default {
     name: 'deviceManagementPage',
     components: {
       authMessage,
-      responsive,
       searchBar,
       subpageContainer,
       userGrid,
