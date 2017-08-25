@@ -6,12 +6,12 @@
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
-        <div v-if="pageState.taskList.length" class="alert-bg">
+        <div v-if="tasksInQueue" class="alert-bg">
           <task-status
-            :type="pageState.taskList[0].type"
-            :status="pageState.taskList[0].status"
-            :percentage="pageState.taskList[0].percentage"
-            :id="pageState.taskList[0].id"
+            :type="firstTask.type"
+            :status="firstTask.status"
+            :percentage="firstTask.percentage"
+            :id="firstTask.id"
             @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
           />
         </div>
@@ -23,7 +23,7 @@
 
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
-          <div class="button-wrapper" v-if="!pageState.taskList.length">
+          <div class="button-wrapper" v-if="!tasksInQueue">
             <k-button
               :text="$tr('import')"
               class="button"
@@ -45,7 +45,12 @@
         />
       </subpage-container>
     </template>
-    <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
+
+    <auth-message
+      v-else
+      :header="$tr('noAccessHeader')"
+      :details="$tr('noAccessDetails')"
+    />
 
   </div>
 
@@ -70,14 +75,23 @@
   import importPreview from './wizards/import-preview';
   import subpageContainer from '../containers/subpage-container';
 
+  const pageNameComponentMap = {
+    [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-source',
+    [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
+    [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
+    [ContentWizardPages.EXPORT]: 'wizard-export',
+    [ContentWizardPages.LOCAL_IMPORT_PREVIEW]: 'import-preview',
+    [ContentWizardPages.REMOTE_IMPORT_PREVIEW]: 'import-preview',
+  };
+
   export default {
     name: 'manageContentState',
     $trs: {
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      notAdminHeader: 'You do not have access to this page',
-      notAdminDetails: 'You must be a Superuser or have Content Management permissions to view this page',
+      noAccessHeader: 'You do not have access to this page',
+      noAccessDetails: 'You must be a Superuser or have Content Management permissions to view this page',
     },
     components: {
       authMessage,
@@ -99,21 +113,7 @@
     computed: {
       notificationTypes: () => notificationTypes,
       wizardComponent() {
-        switch (this.pageState.wizardState.page) {
-          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
-            return 'wizard-import-source';
-          case ContentWizardPages.IMPORT_NETWORK:
-            return 'wizard-import-network';
-          case ContentWizardPages.IMPORT_LOCAL:
-            return 'wizard-import-local';
-          case ContentWizardPages.EXPORT:
-            return 'wizard-export';
-          case ContentWizardPages.LOCAL_IMPORT_PREVIEW:
-          case ContentWizardPages.REMOTE_IMPORT_PREVIEW:
-            return 'import-preview';
-          default:
-            return undefined;
-        }
+        return pageNameComponentMap[this.pageState.wizardState.page];
       },
     },
     mounted() {
@@ -136,6 +136,8 @@
         isSuperuser,
         canManageContent,
         pageState: ({ pageState }) => pageState,
+        firstTask: ({ pageState }) => pageState.taskList[0],
+        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
       },
       actions: {
         startImportWizard: contentWizardActions.startImportWizard,
@@ -162,11 +164,10 @@
 
   .table-title
     margin-top: 1em
-
-  .table-title:after
-    content: ''
-    display: table
-    clear: both
+    &:after
+      content: ''
+      display: table
+      clear: both
 
   .page-title
     float: left
@@ -188,7 +189,7 @@
     .button-wrapper
       float: none
 
-      .button
-        margin: 5px
+    .button
+      margin: 5px
 
 </style>
