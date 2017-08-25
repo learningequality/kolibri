@@ -24,8 +24,8 @@ export function fetchCurrentTasks() {
   return TaskResource.getCollection().fetch().then(transformTasks);
 }
 
-export function clearTask(store, taskId) {
-  return TaskResource.clearTask(taskId)
+export function cancelTask(store, taskId) {
+  return TaskResource.cancelTask(taskId)
     .then(function onSuccess() {
       updateTasks(store, []);
     })
@@ -42,7 +42,7 @@ function triggerTask(store, taskPromise) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   return taskPromise
     .then(function onSuccess(task) {
-      updateTasks([task]);
+      updateTasks(store, [task]);
       closeImportExportWizard(store);
     })
     .catch(function onFailure(error) {

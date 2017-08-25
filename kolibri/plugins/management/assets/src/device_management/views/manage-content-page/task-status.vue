@@ -102,7 +102,7 @@
     },
     vuex: {
       actions: {
-        clearTask: taskActions.clearTask,
+        cancelTask: taskActions.cancelTask,
         refreshChannelList: manageContentActions.refreshChannelList,
       },
     },
