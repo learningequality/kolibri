@@ -12,11 +12,11 @@
     </subpage-container>
 
     <subpage-container v-else withSideMargin>
-      <div>
+      <div class="section">
         <h1>
           {{ user.full_name }}
           <span v-if="isCurrentUser">
-            (You)
+            ({{ $tr('you') }})
           </span>
         </h1>
         <h3>{{ user.username }}</h3>
@@ -29,7 +29,12 @@
           :checked="superuserChecked"
           @change="superuserChecked=$event"
         />
-        <p>{{ $tr('makeSuperuserDetails') }}</p>
+        <p>
+          <mat-svg category="toggle" name="star" :style="{ fill: '#FBBF2E' }" />
+          <span class="align">
+            {{ $tr('makeSuperuserDetails') }}
+          </span>
+        </p>
       </div>
 
       <hr />
@@ -199,6 +204,7 @@
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
+      you: 'You',
     },
   };
 
@@ -212,5 +218,8 @@
 
   .section
     padding: 1em 0
+
+  .align
+    vertical-align: super
 
 </style>
