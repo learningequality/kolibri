@@ -2,7 +2,7 @@
 
   <span>
 
-    <span ref="icon">
+    <span class="icon" ref="icon">
       <mat-svg
         v-if="permissionType==='SUPERUSER'"
         category="toggle"
@@ -26,7 +26,7 @@
       </ui-tooltip>
     </span>
 
-    <span>{{ user.full_name }}</span>
+    <span class="align">{{ user.full_name }}</span>
 
   </span>
 
@@ -92,5 +92,11 @@
 
 
 <style lang="stylus" scoped>
+
+  .align
+    vertical-align: super
+
+  .icon
+    margin-right: 0.5em
 
 </style>

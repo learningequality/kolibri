@@ -57,6 +57,7 @@ export function showManagePermissionsPage(store) {
 export function showUserPermissionsPage(store, userId) {
   return fetchUserPermissions(userId)
     .then(function onSuccess(data) {
+      store.dispatch('CORE_SET_TITLE', `${data.user.full_name}'s Device Permissions`);
       return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onFailure(error) {

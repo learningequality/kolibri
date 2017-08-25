@@ -18,7 +18,7 @@
         <tr v-for="user in visibleUsers" :key="user.id" class="table-row">
           <td>
             <user-full-name-cell :user="user" />
-            <span v-if="isCurrentUser(user.username)"> (You)</span>
+            <span v-if="isCurrentUser(user.username)" class="align"> (You)</span>
           </td>
           <td>
             {{ user.username }}
@@ -110,5 +110,8 @@
     padding: 1em 0
     font-weight: normal
     font-size: 0.8em
+
+  .align
+    vertical-align: super
 
 </style>

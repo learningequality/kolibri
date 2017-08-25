@@ -38,7 +38,7 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage User Permissions',
+        title: 'Manage Device Permissions',
       });
       showManagePermissionsPage(store).then(hideLoadingScreen);
     },
@@ -49,7 +49,7 @@ const routes = [
     handler: ({ params, name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage User Device Permissions',
+        title: 'Manage User Permissions',
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
     },

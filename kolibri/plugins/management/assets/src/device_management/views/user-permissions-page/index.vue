@@ -13,7 +13,12 @@
 
     <subpage-container v-else withSideMargin>
       <div>
-        <h1>{{ user.full_name }}</h1>
+        <h1>
+          {{ user.full_name }}
+          <span v-if="isCurrentUser">
+            (You)
+          </span>
+        </h1>
         <h3>{{ user.username }}</h3>
       </div>
 
