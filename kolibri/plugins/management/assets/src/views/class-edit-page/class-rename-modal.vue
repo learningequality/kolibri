@@ -12,8 +12,8 @@
           :autofocus="true"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
-          v-model.trim="name"
           @blur="validateName = true"
+          v-model.trim="name"
         />
 
         <section class="footer">
@@ -28,7 +28,7 @@
             type="submit"
             :text="$tr('update')"
             :primary="true"
-            :disabled="!formIsValid"
+            :disabled="!formIsValid || submitting"
           />
         </section>
       </form>
@@ -78,6 +78,7 @@
         name: this.classname,
         validateName: false,
         validateForm: false,
+        submitting: false,
       };
     },
     computed: {
@@ -115,6 +116,7 @@
       updateName() {
         this.validateForm = true;
         if (!this.nameIsInvalid) {
+          this.submitting = true;
           this.updateClass(this.classid, { name: this.name });
         }
       },

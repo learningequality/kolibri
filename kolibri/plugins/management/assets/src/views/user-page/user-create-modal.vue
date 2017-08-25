@@ -14,9 +14,9 @@
           class="user-field"
           :label="$tr('name')"
           :autofocus="true"
+          :maxlength="120"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
-          :maxlength="120"
           @blur="validateName = true"
           v-model.trim="fullName"
         />
@@ -60,7 +60,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading" type="submit" :disabled="!formIsValid"/>
+        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="!formIsValid || submitting"/>
       </section>
     </form>
   </core-modal>
@@ -112,7 +112,7 @@
         confirmedPassword: '',
         kind: {},
         errorMessage: '',
-        loading: false,
+        submitting: false,
         validateName: false,
         validateUsername: false,
         validatePassword: false,
@@ -195,7 +195,6 @@
           !this.confirmedPasswordIsInvalid
         );
       },
-
       userKinds() {
         return [
           {
@@ -218,7 +217,7 @@
         this.errorMessage = '';
         this.validateForm = true;
         if (this.formIsValid) {
-          this.loading = true;
+          this.submitting = true;
           const newUser = {
             username: this.username,
             full_name: this.fullName,
@@ -230,7 +229,7 @@
               this.close();
             },
             error => {
-              this.loading = false;
+              this.submitting = false;
               if (error.status.code === 400) {
                 this.errorMessage = Object.values(error.entity)[0][0];
               } else if (error.status.code === 403) {
