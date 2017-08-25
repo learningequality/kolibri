@@ -23,17 +23,19 @@
 
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
-          <div class="button-wrapper" v-if="!tasksInQueue">
+          <div class="buttons" v-if="!tasksInQueue">
             <k-button
               :text="$tr('import')"
               class="button"
               @click="openWizard('import')"
-              :primary="true"/>
+              :primary="true"
+            />
             <k-button
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="openWizard('export')"/>
+              @click="openWizard('export')"
+            />
           </div>
         </div>
 
@@ -172,7 +174,7 @@
     float: left
     margin: 0.2em
 
-  .button-wrapper
+  .buttons
     float: right
 
   hr
@@ -185,7 +187,7 @@
       float: none
       margin: 0.4em 0
 
-    .button-wrapper
+    .buttons
       float: none
 
     .button
