@@ -6,7 +6,7 @@
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
-        <div v-if="tasksInQueue" class="alert-bg">
+        <div v-if="tasksInQueue" class="main alert-bg">
           <task-status
             :type="firstTask.type"
             :status="firstTask.status"
@@ -177,6 +177,13 @@
 
   .buttons
     float: right
+
+  .main
+    padding: 1em 2em
+    padding-bottom: 3em
+    margin-top: 2em
+    width: 100%
+    border-radius: 4px
 
   hr
     background-color: $core-text-annotation
