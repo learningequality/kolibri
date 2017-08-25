@@ -3,7 +3,7 @@ import * as coreStore from 'kolibri.coreVue.vuex.store';
 import mutations from './mutations';
 
 const initialState = {
-  pageName: 'yo',
+  pageName: '',
   pageState: {},
 };
 
