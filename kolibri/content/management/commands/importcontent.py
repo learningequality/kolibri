@@ -126,9 +126,9 @@ class Command(AsyncCommand):
             else:
                 annotation.mark_local_files_as_available(file_checksums_to_annotate)
 
-                annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
+                annotation.set_leaf_node_availability_from_local_file_availability()
 
-                annotation.recurse_availability_up_tree(channel_id)
+                annotation.recurse_availability_up_tree()
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

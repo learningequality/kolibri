@@ -162,17 +162,17 @@ class BaseChannelImportClassGenTableMapperTestCase(TestCase):
 
     def test_method_mapping(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
-        mapping = 'test_map_method'
+        table_map = 'test_map_method'
         test_map_method = Mock()
         channel_import.test_map_method = test_map_method
-        mapper = channel_import.generate_table_mapper(mapping=mapping)
+        mapper = channel_import.generate_table_mapper(table_map=table_map)
         self.assertEqual(mapper, test_map_method)
 
     def test_no_column_mapping(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
-        mapping = 'test_map_method'
+        table_map = 'test_map_method'
         with self.assertRaises(AttributeError):
-            channel_import.generate_table_mapper(mapping=mapping)
+            channel_import.generate_table_mapper(table_map=table_map)
 
 
 @patch('kolibri.content.utils.channel_import.Bridge')
