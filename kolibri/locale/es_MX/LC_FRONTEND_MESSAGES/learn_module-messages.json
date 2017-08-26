@@ -68,7 +68,7 @@
   "pointsPopup.html5":"Aplicación HTML5",
   "pointsPopup.item":"Actividad",
   "pointsPopup.close":"Cerrar",
-  "pointsPopup.pointsForCompletion":"Points for completion",
+  "pointsPopup.pointsForCompletion":"Puntos por tener completado",
   "pointsSlidein.plusPoints":"+ { maxPoints, number } puntos",
   "pointsSlidein.close":"Cerrar",
   "searchBox.search":"Buscar",
