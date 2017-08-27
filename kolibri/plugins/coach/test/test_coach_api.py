@@ -90,7 +90,7 @@ class ContentReportAPITestCase(APITestCase):
             [{'log_count_complete': 0, 'log_count_total': 1, 'total_progress': 0.5}]
         ])
 
-    def test_contentreport_time_filtering(self):
+    def test_recentreport_time_filtering(self):
 
         # set up data for testing time filtering on content node endpoint
         facility = Facility.objects.create(name="MyFac")
@@ -133,3 +133,53 @@ class ContentReportAPITestCase(APITestCase):
         }))
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['pk'], c2c3.pk)
+
+    def test_recentreport_unique_filtering(self):
+
+        # set up data for testing time filtering on content node endpoint
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="learner", facility=facility)
+        user.set_password("pass")
+        user.save()
+
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password("pass")
+        admin.save()
+
+        Role.objects.create(user=admin, collection=facility, kind=role_kinds.ADMIN)
+        root = content.ContentNode.objects.get(title="root")
+        c2c1 = content.ContentNode.objects.get(title="c2c1")
+        new_id = c2c1.id[:-1] + '1'
+        content.ContentNode.objects.create(
+            id=new_id,
+            content_id=c2c1.content_id,
+            kind=c2c1.kind,
+            channel_id=c2c1.channel_id,
+            parent=root,
+            available=True,
+            title=c2c1.title,
+
+        )
+
+        start_date = datetime.datetime(2000, 1, 1)
+
+        date = timezone.now() - datetime.timedelta(6)
+
+        ContentSummaryLog.objects.create(
+            user=user,
+            content_id=c2c1.content_id,
+            progress=1.0,
+            kind=c2c1.kind,
+            channel_id=self.the_channel_id,
+            start_timestamp=start_date,
+            end_timestamp=date,
+        )
+
+        # check that only the log less than 7 days ago returns from recent report
+        self.client.login(username="admin", password="pass", facility=facility)
+        response = self.client.get(self._reverse_channel_url("kolibri:coach:recentreport-list", {
+            'content_node_id': root.id,
+            'collection_kind': collection_kinds.FACILITY,
+            'collection_id': facility.id,
+        }))
+        self.assertEqual(len(response.data), 1)
