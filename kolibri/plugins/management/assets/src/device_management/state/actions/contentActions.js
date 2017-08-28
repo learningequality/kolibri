@@ -1,5 +1,5 @@
 import { ChannelResource, FileSummaryResource } from 'kolibri.resources';
-import * as getters from 'kolibri.coreVue.vuex.getters';
+import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 import { handleApiError, setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import { fetchCurrentTasks } from './taskActions';
 
@@ -12,7 +12,7 @@ export function refreshChannelList() {
 }
 
 export function showManageContentPage(store) {
-  if (getters.canManageContent(store.state)) {
+  if (canManageContent(store.state)) {
     store.dispatch('SET_CONTENT_PAGE_STATE', {
       taskList: [],
       wizardState: { shown: false },
@@ -81,7 +81,7 @@ export function addChannelFileSummary(store, channelId) {
  */
 export function addChannelFileSummaries(store, channelIds) {
   channelIds.forEach(channelId => {
-    if (store.state.pageState[channelId]) return;
+    if (store.state.pageState.channelFileSummaries[channelId]) return;
     addChannelFileSummary(store, channelId);
   });
 }

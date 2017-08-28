@@ -24,7 +24,7 @@
   const TaskStatuses = constants.TaskStatuses;
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    name: 'contentPage',
+    name: 'taskStatus',
     components: { kButton },
     props: {
       type: {

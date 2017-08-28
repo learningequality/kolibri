@@ -42,7 +42,7 @@ function triggerTask(store, taskPromise) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   return taskPromise
     .then(function onSuccess(task) {
-      updateTasks(store, [task]);
+      updateTasks(store, [task.entity]);
       closeImportExportWizard(store);
     })
     .catch(function onFailure(error) {
