@@ -3,7 +3,7 @@
   <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
     <div>
       <div class="manage-content">
-        <top-navigation />
+        <top-navigation v-if="canManageContent" />
         <component :is="currentPage" />
       </div>
     </div>
@@ -16,10 +16,10 @@
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
+  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import topNavigation from './device-top-nav';
   import store from '../state/store';
-  import get from 'lodash/fp/get';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
   import userPermissionsPage from './user-permissions-page';
@@ -49,7 +49,8 @@
     store,
     vuex: {
       getters: {
-        pageName: get('pageName'),
+        pageName: ({ pageName }) => pageName,
+        canManageContent,
       },
       actions: {},
     },

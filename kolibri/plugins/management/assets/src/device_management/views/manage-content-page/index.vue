@@ -48,11 +48,7 @@
       </subpage-container>
     </template>
 
-    <auth-message
-      v-else
-      :header="$tr('noAccessHeader')"
-      :details="$tr('noAccessDetails')"
-    />
+    <auth-message v-else :details="$tr('noAccessDetails')" />
 
   </div>
 
@@ -62,8 +58,8 @@
 <script>
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-  import * as taskActions from '../../state/actions/taskActions';
-  import * as contentWizardActions from '../../state/actions/contentWizardActions';
+  import { pollTasksAndChannels } from '../../state/actions/taskActions';
+  import { startImportWizard, startExportWizard } from  '../../state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
@@ -92,9 +88,8 @@
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      noAccessHeader: 'You do not have access to this page',
       noAccessDetails:
-        'You must be a Superuser or have Content Management permissions to view this page',
+        'You must be a signed in as a Superuser or have Content Management permissions to view this page',
     },
     components: {
       authMessage,
@@ -120,7 +115,9 @@
       },
     },
     mounted() {
-      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      if (this.canManageContent) {
+        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      }
     },
     destroyed() {
       clearInterval(this.intervalId);
@@ -142,9 +139,9 @@
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
       },
       actions: {
-        startImportWizard: contentWizardActions.startImportWizard,
-        startExportWizard: contentWizardActions.startExportWizard,
-        pollTasksAndChannels: taskActions.pollTasksAndChannels,
+        startImportWizard,
+        startExportWizard,
+        pollTasksAndChannels,
       },
     },
   };
