@@ -172,13 +172,12 @@ function signUp(store, signUpCreds) {
   const signUpModel = SignUpResource.createModel(signUpCreds);
   const signUpPromise = signUpModel.save(signUpCreds);
 
-  store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
+  store.dispatch('SET_SIGN_UP_BUSY', true);
 
   signUpPromise
     .then(() => {
       store.dispatch('SET_SIGN_UP_ERROR', null, '');
-      store.dispatch('SET_SIGN_UP_BUSY', false);
       // TODO: Better solution?
       redirectToHome();
     })
