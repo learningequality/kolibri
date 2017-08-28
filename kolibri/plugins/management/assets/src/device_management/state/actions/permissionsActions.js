@@ -26,14 +26,14 @@ function fetchUserPermissions(userId) {
   const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}.true)._promise;
   const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
   return permissionsPromise
-    .then(function onSuccess(permissions) {
-      return userPromise.then(function userSuccess(user) {
+    .then(function onPermissionsSuccess(permissions) {
+      return userPromise.then(function onUserSuccess(user) {
         return { permissions, user };
       });
     })
-    .catch(function onFailure(error) {
+    .catch(function onPermissionsFailure(error) {
       if (error.status.code === 404) {
-        return userPromise.then(function userSuccess(user) {
+        return userPromise.then(function onUserSuccess(user) {
           return { permissions: {}, user };
         });
       }
@@ -56,11 +56,11 @@ export function showManagePermissionsPage(store) {
 
 export function showUserPermissionsPage(store, userId) {
   return fetchUserPermissions(userId)
-    .then(function onSuccess(data) {
+    .then(function onUserSuccess(data) {
       store.dispatch('CORE_SET_TITLE', `${data.user.full_name}'s Device Permissions`);
       return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
-    .catch(function onFailure(error) {
+    .catch(function onUserFailure(error) {
       if (error.status.code === 404) {
         return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', {
           user: null,
