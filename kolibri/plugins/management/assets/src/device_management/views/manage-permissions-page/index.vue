@@ -44,14 +44,11 @@
         searchFilterText: '',
       };
     },
-    computed: {},
-    methods: {},
     vuex: {
       getters: {
         facilityUsers: state => state.pageState.facilityUsers,
         isSuperuser,
       },
-      actions: {},
     },
     $trs: {
       devicePermissionsHeader: 'Device Permissions',

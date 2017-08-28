@@ -3,7 +3,7 @@
   <div>
 
     <div v-if="visibleUsers.length === 0">
-      No users matching "{{ searchFilter }}"
+      {{ $tr('noUsersMatching', { searchFilter }) }}
     </div>
     <table v-else class="table">
       <thead class="table-header">
@@ -18,7 +18,7 @@
         <tr v-for="user in visibleUsers" :key="user.id" class="table-row">
           <td>
             <user-full-name-cell :user="user" />
-            <span v-if="isCurrentUser(user.username)" class="align"> (You)</span>
+            <span v-if="isCurrentUser(user.username)" class="align"> ({{ $tr('you') }})</span>
           </td>
           <td>
             {{ user.username }}
@@ -87,6 +87,8 @@
       editPermissions: 'Edit Permissions',
       fullName: 'Full Name',
       username: 'Username',
+      noUsersMatching: 'No users matching "{searchFilter}"',
+      you: 'You',
     },
   };
 

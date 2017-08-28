@@ -56,7 +56,7 @@
     },
     computed: {
       buttonMessage() {
-        if (this.taskFailed ||  this.taskSucceeded) {
+        if (this.taskFailed || this.taskSucceeded) {
           return this.$tr('buttonClose');
         }
         return this.$tr('buttonCancel');

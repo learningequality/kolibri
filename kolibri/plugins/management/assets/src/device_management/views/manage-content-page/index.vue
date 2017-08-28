@@ -53,7 +53,7 @@
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import { pollTasksAndChannels } from '../../state/actions/taskActions';
-  import { startImportWizard, startExportWizard } from  '../../state/actions/contentWizardActions';
+  import { startImportWizard, startExportWizard } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';

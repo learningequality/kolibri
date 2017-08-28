@@ -44,7 +44,6 @@
       getters: {
         isSuperuser,
       },
-      actions: {},
     },
     $trs: {
       contentLabel: 'Content',

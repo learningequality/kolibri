@@ -74,12 +74,10 @@
         }
       },
     },
-    methods: {},
     vuex: {
       getters: {
         userPermissions: state => userid => state.pageState.permissions[userid],
       },
-      actions: {},
     },
     $trs: {
       noPermissionsTooltip: 'No permissions',
