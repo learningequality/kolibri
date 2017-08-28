@@ -6,20 +6,14 @@
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
-        <div v-if="tasksInQueue" class="main alert-bg">
-          <task-status
-            :type="firstTask.type"
-            :status="firstTask.status"
-            :percentage="firstTask.percentage"
-            :id="firstTask.id"
-            @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
-          />
-        </div>
-
-        <notifications
-          v-bind="{notification}"
-          @dismiss="notification=null"
+        <task-status
+          class="main alert-bg"
+          v-if="tasksInQueue"
+          v-bind="firstTask"
+          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
         />
+
+        <notifications v-bind="{notification}" @dismiss="clearNotification()" />
 
         <div class="table-title">
           <h1 class="page-title">{{$tr('title')}}</h1>
@@ -124,11 +118,14 @@
     },
     methods: {
       openWizard(action) {
-        this.notification = null;
+        this.clearNotification();
         if (action === 'import') {
           return this.startImportWizard();
         }
         return this.startExportWizard();
+      },
+      clearNotification() {
+        this.notification = null;
       },
     },
     vuex: {
