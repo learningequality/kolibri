@@ -125,7 +125,7 @@
         transitionWizardPage,
       },
     },
-    $trNameSpace: 'previewImportWizard',
+    name: 'previewImportWizard',
     $trs: {
       cancelButtonLabel: 'Cancel',
       channelAlreadyInstalled: 'Already installed',

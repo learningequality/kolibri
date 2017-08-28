@@ -19,7 +19,7 @@
   import contentCardGroupHeader from '../content-card-group-header';
 
   export default {
-    $trNameSpace: 'recommendedSubpage',
+    name: 'recommendedSubpage',
     $trs: {
       popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
