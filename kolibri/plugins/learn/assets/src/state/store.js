@@ -21,7 +21,8 @@ const mutations = {
     state.pageName = name;
   },
   SET_PAGE_STATE(state, pageState) {
-    state.pageState = pageState;
+    const oldPageState = state.pageState;
+    state.pageState = Object.assign(oldPageState, pageState);
   },
   SET_EXAM_LOG(state, examLog) {
     state.examLog = examLog;
