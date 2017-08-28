@@ -15,13 +15,11 @@
 
   /* eslint-env node */
 
-  import * as manageContentActions from '../../state/actions/contentActions';
-  import * as taskActions from '../../state/actions/taskActions';
-  import * as constants from '../../../constants';
+  import { refreshChannelList } from '../../state/actions/contentActions';
+  import { cancelTask } from '../../state/actions/taskActions';
+  import { TaskTypes, TaskStatuses } from '../../../constants';
   import logger from 'kolibri.lib.logging';
   const logging = logger.getLogger(__filename);
-  const TaskTypes = constants.TaskTypes;
-  const TaskStatuses = constants.TaskStatuses;
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'taskStatus',
@@ -102,8 +100,8 @@
     },
     vuex: {
       actions: {
-        cancelTask: taskActions.cancelTask,
-        refreshChannelList: manageContentActions.refreshChannelList,
+        cancelTask,
+        refreshChannelList,
       },
     },
   };
