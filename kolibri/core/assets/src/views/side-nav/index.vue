@@ -176,7 +176,7 @@
             href: '/management',
           });
         }
-        if (this.isAdmin || this.isSuperuser || this.canManageContent) {
+        if (this.isSuperuser || this.canManageContent) {
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
