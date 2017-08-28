@@ -12,14 +12,6 @@
 
     <h2>Guidelines</h2>
 
-    <h3>Scope</h3>
-    <p>
-      This is meant to cover 90% of buttons. There will always be edge cases,
-      and common sense always trumps rote rules. Maintain consistency as much as
-      possible, but don’t make significant sacrifices in the UX for the sake of
-      consistency.
-    </p>
-
     <h3>Types of buttons</h3>
     <p>
       There are 3 main types of buttons, each to map to a different level of
