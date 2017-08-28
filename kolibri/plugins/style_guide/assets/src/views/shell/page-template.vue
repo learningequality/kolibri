@@ -1,8 +1,8 @@
 <template>
 
-  <div>
-    <h1>{{ title }}</h1>
-    <p v-if="!completed">(In progress)</p>
+  <div class="template-wrapper">
+    <p v-if="!completed" class="in-progress">IN PROGRESS</p>
+    <h1 v-if="title">{{ title }}</h1>
     <slot />
   </div>
 
@@ -15,11 +15,11 @@
     props: {
       title: {
         type: String,
-        required: true,
+        required: false,
       },
       completed: {
         type: Boolean,
-        required: true,
+        default: false,
       },
     },
   };
@@ -27,4 +27,15 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .template-wrapper
+    margin-right: 24px
+    margin-bottom: 24px
+
+  .in-progress
+    text-align: right
+    color: red
+    font-weight: bold
+
+</style>

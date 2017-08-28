@@ -1,6 +1,8 @@
 <template>
 
-  <page-template title="Buttons" :completed="false">
+  <page-template :completed="false">
+
+    <h1>Buttons</h1>
 
     <h2><code>{{ kButtonApi.name }}</code> API</h2>
     <component-docs :api="kButtonApi" />
