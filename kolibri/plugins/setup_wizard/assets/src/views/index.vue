@@ -20,7 +20,7 @@
 
 <script>
 
-  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions';
+  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './setup-forms/default-language-form';
   import facilityNameForm from './setup-forms/facility-name-form';

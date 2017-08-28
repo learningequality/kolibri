@@ -18,7 +18,7 @@
 <script>
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import { goToPreviousStep } from '../../state/actions';
+  import { goToPreviousStep } from '../../state/actions/main';
 
   export default {
     name: 'progressToolbar',
