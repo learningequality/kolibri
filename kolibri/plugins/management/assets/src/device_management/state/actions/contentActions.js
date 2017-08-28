@@ -24,13 +24,11 @@ export function showManageContentPage(store) {
     return fetchCurrentTasks(store)
       .then(function onSuccess(taskList) {
         store.dispatch('SET_CONTENT_PAGE_TASKS', taskList);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
       })
       .catch(function onFailure(error) {
         handleApiError(store, error);
       });
   }
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
   return Promise.resolve();
 }
 
@@ -65,8 +63,8 @@ export function addChannelFileSummary(store, channelId) {
       .then(function onSuccess([data]) {
         store.dispatch('ADD_CHANNEL_FILE_SUMMARY', data);
       })
-      .catch(function onFailure(err) {
-        console.error(err); // eslint-disable-line
+      .catch(function onFailure(error) {
+        console.error(error); // eslint-disable-line
       })
   );
 }
