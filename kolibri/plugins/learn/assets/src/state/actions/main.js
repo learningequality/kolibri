@@ -20,6 +20,21 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import prepareLearnApp from '../prepareLearnApp';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'topicTreeExplorationPageTitles';
+
+const messages = {
+  topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
+  currentTopicForChannelPageTitle: '{ currentTopicTitle } - { currentChannelTitle }',
+  currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
+  contentUnavailablePageTitle: 'Content Unavailable',
+  searchPageTitle: 'Search',
+  examsForChannelPageTitle: 'Exams - { currentChannelTitle }',
+  currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
+};
+
+const translator = createTranslator(name, messages);
 
 /**
  * Vuex State Mappers
@@ -229,9 +244,18 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
-        store.dispatch('CORE_SET_TITLE', `Topics - ${currentChannel.title}`);
+        store.dispatch(
+          'CORE_SET_TITLE',
+          translator.$tr('topicsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
+        );
       } else {
-        store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
+        store.dispatch(
+          'CORE_SET_TITLE',
+          translator.$tr('currentTopicForChannelPageTitle', {
+            currentTopicTitle: pageState.topic.title,
+            currentChannelTitle: currentChannel.title,
+          })
+        );
       }
     },
     error => {
@@ -287,7 +311,13 @@ function showExploreContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('currentContentForChannelPageTitle', {
+          currentContentTitle: pageState.content.title,
+          currentChannelTitle: currentChannel.title,
+        })
+      );
     },
     error => {
       handleApiError(store, error);
@@ -337,7 +367,7 @@ function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
 }
 
 function redirectToChannelSearch(store) {
@@ -345,7 +375,7 @@ function redirectToChannelSearch(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'Search');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
   setChannelInfo(store).then(
     () => {
@@ -366,7 +396,7 @@ function showSearch(store, channelId, searchTerm) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'Search');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
   setChannelInfo(store, channelId).then(() => {
     if (searchTerm) {
@@ -402,7 +432,10 @@ function showExamList(store, channelId) {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
+        store.dispatch(
+          'CORE_SET_TITLE',
+          translator.$tr('examsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
+        );
       },
       error => {
         handleApiError(store, error);
@@ -579,7 +612,10 @@ function showExam(store, channelId, id, questionNumber) {
                 store.dispatch('CORE_SET_ERROR', null);
                 store.dispatch(
                   'CORE_SET_TITLE',
-                  `${pageState.exam.title} - ${currentChannel.title}`
+                  translator.$tr('currentExamPageTitle', {
+                    currentExamTitle: pageState.exam.title,
+                    currentChannelTitle: currentChannel.title,
+                  })
                 );
               }
             },

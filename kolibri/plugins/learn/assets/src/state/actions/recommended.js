@@ -25,6 +25,19 @@ import { contentState } from './main';
 
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'learnerRecommendationPageTitles';
+
+const messages = {
+  popularPageTitle: 'Popular - { currentChannel }',
+  resumePageTitle: 'Resume - { currentChannel }',
+  nextStepsPageTitle: 'Next Steps - { currentChannel }',
+  FeaturedInChannelPageTitle: 'Featured - { currentChannel }',
+  learnContentPageTitle: '{ currentContent } - { currentChannel }',
+};
+
+const translator = createTranslator(name, messages);
 
 // User-agnostic recommendations
 
@@ -65,7 +78,7 @@ function _mapContentSet(contentSet) {
   return uniqBy(contentSet, 'content_id').map(contentState);
 }
 
-function _showRecSubpage(store, channelId, getContentPromise, pageName, windowTitle) {
+function _showRecSubpage(store, channelId, getContentPromise, pageName, windowTitleId) {
   const state = store.state;
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
@@ -87,7 +100,7 @@ function _showRecSubpage(store, channelId, getContentPromise, pageName, windowTi
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
 
-      store.dispatch('CORE_SET_TITLE', `${windowTitle} - ${channelTitle}`);
+      store.dispatch('CORE_SET_TITLE', translator.$tr(windowTitleId, { channelTitle }));
     },
     error => handleApiError(error)
   );
@@ -148,19 +161,31 @@ function showLearnChannel(store, channelId, cursor) {
 }
 
 function showPopularPage(store, channelId) {
-  _showRecSubpage(store, channelId, _getPopular, PageNames.RECOMMENDED_POPULAR, 'Popular');
+  _showRecSubpage(store, channelId, _getPopular, PageNames.RECOMMENDED_POPULAR, 'popularPageTitle');
 }
 
 function showResumePage(store, channelId) {
-  _showRecSubpage(store, channelId, _getResume, PageNames.RECOMMENDED_RESUME, 'Resume');
+  _showRecSubpage(store, channelId, _getResume, PageNames.RECOMMENDED_RESUME, 'resumePageTitle');
 }
 
 function showNextStepsPage(store, channelId) {
-  _showRecSubpage(store, channelId, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS, 'Next Steps');
+  _showRecSubpage(
+    store,
+    channelId,
+    _getNextSteps,
+    PageNames.RECOMMENDED_NEXT_STEPS,
+    'nextStepsPageTitle'
+  );
 }
 
 function showFeaturedPage(store, channelId) {
-  _showRecSubpage(store, channelId, _getFeatured, PageNames.RECOMMENDED_FEATURED, 'Featured');
+  _showRecSubpage(
+    store,
+    channelId,
+    _getFeatured,
+    PageNames.RECOMMENDED_FEATURED,
+    'featuredInChannelPageTitle'
+  );
 }
 
 function showLearnContent(store, channelId, id) {
@@ -190,7 +215,13 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('learnContentPageTitle', {
+          currentContent: pageState.content.title,
+          currentChannel: currentChannel.title,
+        })
+      );
     },
     error => {
       handleApiError(store, error);

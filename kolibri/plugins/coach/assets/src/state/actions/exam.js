@@ -17,6 +17,18 @@ import * as Constants from '../../constants';
 import { setClassState } from './main';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'coachExamPageTitles';
+
+const messages = {
+  coachExamListPageTitle: 'Exams',
+  coachExamCreationPageTitle: 'Create new exam',
+  coachExamReportPageTitle: 'Exam Report',
+  coachExamReportDetailPageTitle: 'Exam Report Detail',
+};
+
+const translator = createTranslator(name, messages);
 
 const pickIdAndName = pick(['id', 'name']);
 
@@ -148,7 +160,7 @@ function showExamsPage(store, classId) {
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', Constants.PageTitles.EXAMS);
+      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => CoreActions.handleError(store, error)
@@ -358,7 +370,7 @@ function fetchContent(store, channelId, topicId) {
 function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
-  store.dispatch('CORE_SET_TITLE', Constants.PageTitles.CREATE_EXAM);
+  store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
 
   const channelPromise = ChannelResource.getCollection().fetch();
   const examsPromise = ExamResource.getCollection({
@@ -481,7 +493,7 @@ function showExamReportPage(store, classId, channelId, examId) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Exam Report');
+      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
@@ -603,7 +615,7 @@ function showExamReportDetailPage(
 
             store.dispatch('SET_PAGE_STATE', pageState);
             store.dispatch('CORE_SET_ERROR', null);
-            store.dispatch('CORE_SET_TITLE', 'Exam Report Detail');
+            store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
             store.dispatch('CORE_SET_PAGE_LOADING', false);
           },
           error => CoreActions.handleApiError(store, error)
