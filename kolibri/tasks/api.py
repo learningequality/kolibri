@@ -17,7 +17,8 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .client import get_client
-from .permissions import CanManageContent, IsSuperuserOnly
+from kolibri.content.permissions import CanManageContent
+
 
 try:
     from django.apps import apps
