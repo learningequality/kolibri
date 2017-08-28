@@ -28,7 +28,7 @@
             type="submit"
             :text="$tr('update')"
             :primary="true"
-            :disabled="validateForm &&(!formIsValid || submitting)"
+            :disabled="!formIsValid || submitting"
           />
         </section>
       </form>

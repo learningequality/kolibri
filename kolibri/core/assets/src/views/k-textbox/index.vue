@@ -16,7 +16,7 @@
     @input="updateText"
     @keydown="emitKeydown"
     @focus="$emit('focus')"
-    @blur="$emit('blur')"
+    @blur="emitBlur"
   />
 
 </template>
@@ -104,6 +104,9 @@
         this.currentText = val;
       },
     },
+    beforeDestroy() {
+      window.clearTimeout(this.blurTimeout);
+    },
     methods: {
       updateText() {
         // v-model is just a :value + @input
@@ -120,6 +123,9 @@
          * Emits keydown event
          */
         this.$emit('keydown', e);
+      },
+      emitBlur() {
+        this.blurTimeout = window.setTimeout(() => this.$emit('blur'), 100);
       },
     },
   };

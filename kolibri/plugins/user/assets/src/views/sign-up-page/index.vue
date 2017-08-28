@@ -83,7 +83,7 @@
         @input="updateSelection"
       />
 
-      <k-button :disabled="validateForm && (!formIsValid || busy)" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button :disabled="!formIsValid || busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
