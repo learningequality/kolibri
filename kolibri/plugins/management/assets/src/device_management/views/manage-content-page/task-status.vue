@@ -4,7 +4,7 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
-    <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
+    <p v-if="taskFailed">{{ $tr('failedMsg') }}</p>
     <k-button @click="cancelTaskHandler" :text="buttonMessage"/>
   </div>
 
@@ -58,15 +58,15 @@
     },
     computed: {
       buttonMessage() {
-        if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
+        if (this.taskFailed ||  this.taskSucceeded) {
           return this.$tr('buttonClose');
         }
         return this.$tr('buttonCancel');
       },
-      statusFailed() {
+      taskFailed() {
         return this.status === TaskStatuses.FAILED;
       },
-      statusSuccess() {
+      taskSucceeded() {
         return this.status === TaskStatuses.SUCCESS;
       },
       title() {
@@ -83,9 +83,9 @@
         }
       },
       subTitle() {
-        if (this.statusFailed) {
+        if (this.taskFailed) {
           return this.$tr('failed');
-        } else if (this.statusSuccess) {
+        } else if (this.taskSucceeded) {
           return this.$tr('completed');
         }
         return this.$tr('loading');
@@ -93,7 +93,7 @@
     },
     methods: {
       cancelTaskHandler() {
-        if (this.statusSuccess) {
+        if (this.taskSucceeded) {
           this.$emit('importsuccess');
           this.refreshChannelList();
         }
