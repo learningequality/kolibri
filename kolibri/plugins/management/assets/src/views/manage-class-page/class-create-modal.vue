@@ -28,7 +28,7 @@
             type="submit"
             :text="$tr('create')"
             :primary="true"
-            :disabled="!formIsValid || submitting"
+            :disabled="validateForm && (!formIsValid || submitting)"
           />
         </section>
       </form>

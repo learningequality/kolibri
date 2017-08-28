@@ -192,7 +192,7 @@
             return this.$tr('usernameAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {
-            return this.$tr('usernameAlreadyExists');
+            return this.$tr('usernameAlreadyExistsError');
           }
         }
         return '';
