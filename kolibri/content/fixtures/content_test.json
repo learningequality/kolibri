@@ -36,11 +36,12 @@
       "tree_id": 1,
       "rght": 12,
       "description": "balbla1",
-      "available": false,
+      "available": true,
       "lft": 1,
       "sort_order": null,
       "level": 0,
-      "author": ""
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "da7ecc42e62553eebc8121242746e88a",
     "model": "content.contentnode"
@@ -59,13 +60,14 @@
       "tree_id": 1,
       "rght": 3,
       "description": "balbla2",
-      "available": false,
+      "available": true,
       "lft": 2,
       "sort_order": null,
       "level": 1,
       "author": "",
       "related": ["2e8bac07947855369fe2d77642dfc870"],
-      "has_prerequisite": ["da7ecc42e62553eebc8121242746e88a"]
+      "has_prerequisite": ["da7ecc42e62553eebc8121242746e88a"],
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "32a941fb77c2576e8f6b294cde4c3b0c",
     "model": "content.contentnode"
@@ -84,11 +86,12 @@
       "tree_id": 1,
       "rght": 11,
       "description": "balbla3",
-      "available": false,
+      "available": true,
       "lft": 4,
       "sort_order": null,
       "level": 1,
-      "author": ""
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "2e8bac07947855369fe2d77642dfc870",
     "model": "content.contentnode"
@@ -105,11 +108,12 @@
       "tree_id": 1,
       "rght": 6,
       "description": "balbla4",
-      "available": false,
+      "available": true,
       "lft": 5,
       "sort_order": null,
       "level": 2,
-      "author": ""
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "2b6926ed22025518a8b9da91745b51d3",
     "model": "content.contentnode"
@@ -126,11 +130,12 @@
       "tree_id": 1,
       "rght": 8,
       "description": "balbla5",
-      "available": false,
+      "available": true,
       "lft": 7,
       "sort_order": null,
       "level": 2,
-      "author": ""
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "4d0c890de9b65d6880ccfa527800e0f4",
     "model": "content.contentnode"
@@ -147,11 +152,12 @@
       "tree_id": 1,
       "rght": 10,
       "description": "balbla5",
-      "available": false,
+      "available": true,
       "lft": 9,
       "sort_order": null,
       "level": 2,
-      "author": ""
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "b391bfeec8a458f89f013cf1ca9cf33a",
     "model": "content.contentnode"
@@ -189,12 +195,10 @@
   {
     "fields": {
       "lang": 1,
-      "checksum": "",
+      "local_file": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
       "thumbnail": false,
-      "file_size": null,
-      "available": false,
+      "available": true,
       "preset": "high_res_video",
-      "extension": "mp4",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
@@ -204,12 +208,10 @@
   {
     "fields": {
       "lang": 1,
-      "checksum": "",
+      "local_file": "725257a0570044acbd59f8cf6a68b2be",
       "thumbnail": false,
-      "file_size": null,
-      "available": false,
+      "available": true,
       "preset": "low_res_video",
-      "extension": "mp4",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
@@ -219,12 +221,10 @@
   {
     "fields": {
       "lang": 3,
-      "checksum": "",
+      "local_file": "e00699f859624e0f875ac6fe1e13d648",
       "thumbnail": false,
-      "file_size": null,
-      "available": false,
+      "available": true,
       "preset": "vector_video",
-      "extension": "",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
     },
@@ -234,12 +234,10 @@
   {
     "fields": {
       "lang": null,
-      "checksum": "",
+      "local_file": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "thumbnail": false,
-      "file_size": null,
-      "available": false,
+      "available": true,
       "preset": "low_res_video",
-      "extension": "mp3",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
     },
@@ -249,17 +247,60 @@
   {
     "fields": {
       "lang": null,
-      "checksum": "",
+      "local_file": "8ad3fffedf144cba9492e16daec1e39a",
       "thumbnail": false,
-      "file_size": null,
-      "available": false,
+      "available": true,
       "preset": "caption",
-      "extension": "vtt",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": true
     },
     "pk": "8ad3fffedf144cba9492e16daec1e39b",
     "model": "content.file"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": "mp4"
+    },
+    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
+    "model": "content.localfile"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": "mp4"
+    },
+    "pk": "725257a0570044acbd59f8cf6a68b2be",
+    "model": "content.localfile"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": ""
+    },
+    "pk": "e00699f859624e0f875ac6fe1e13d648",
+    "model": "content.localfile"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": "mp3"
+    },
+    "pk": "4c30dc7619f74f97ae2ccd4fffd09bf2",
+    "model": "content.localfile"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": "vtt"
+    },
+    "pk": "8ad3fffedf144cba9492e16daec1e39a",
+    "model": "content.localfile"
   },
   {
     "fields": {
@@ -296,7 +337,8 @@
       "thumbnail": "",
       "author": "eli",
       "version": 0,
-      "root_pk": "da7ecc42e62553eebc8121242746e88a"
+      "min_schema_version": "1",
+      "root": "da7ecc42e62553eebc8121242746e88a"
     },
     "pk": "6199dde695db4ee4ab392222d5af1e5c",
     "model": "content.channelmetadata"

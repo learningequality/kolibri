@@ -2,7 +2,6 @@ import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
 import * as constants from '../constants';
 import otherMutations from './mutations';
-import manageContentMutations from './manageContentMutations';
 
 /**
  pageState schemas
@@ -26,7 +25,13 @@ import manageContentMutations from './manageContentMutations';
 
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
-  pageState: {},
+  pageState: {
+    channelList: [],
+    wizardState: {},
+    classes: [],
+    users: [],
+    taskList: [],
+  },
 };
 
 const mutations = {
@@ -34,7 +39,7 @@ const mutations = {
     state.pageName = name;
   },
   SET_PAGE_STATE(state, pageState) {
-    state.pageState = pageState;
+    Object.assign(state.pageState, pageState);
   },
 
   // modal mutations
@@ -120,7 +125,7 @@ const mutations = {
 
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, otherMutations, coreStore.mutations, manageContentMutations);
+Object.assign(mutations, otherMutations, coreStore.mutations);
 
 const store = new Vuex.Store({
   state: initialState,

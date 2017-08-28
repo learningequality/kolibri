@@ -22,7 +22,6 @@ import ExamAttemptLogResource from './examAttemptLog';
 import FacilityDatasetResource from './facilityDataset';
 import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
-import FileSummaryResource from './fileSummary';
 import DeviceProvisionResource from './deviceProvision';
 import DevicePermissionsResource from './devicePermissions';
 
@@ -50,7 +49,6 @@ const examAttemptLogResource = new ExamAttemptLogResource();
 const facilityDatasetResource = new FacilityDatasetResource();
 const userProgressResource = new UserProgressResource();
 const contentNodeProgressResource = new ContentNodeProgressResource();
-const fileSummaryResource = new FileSummaryResource();
 const deviceProvisionResource = new DeviceProvisionResource();
 const devicePermissionsResource = new DevicePermissionsResource();
 
@@ -79,7 +77,6 @@ export {
   facilityDatasetResource as FacilityDatasetResource,
   userProgressResource as UserProgressResource,
   contentNodeProgressResource as ContentNodeProgressResource,
-  fileSummaryResource as FileSummaryResource,
   deviceProvisionResource as DeviceProvisionResource,
   devicePermissionsResource as DevicePermissionsResource,
 };

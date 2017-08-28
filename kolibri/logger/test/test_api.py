@@ -298,13 +298,19 @@ class UserSessionLogAPITestCase(APITestCase):
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
+    fixtures = ['content_test.json']
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        self.summary_logs = [ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c"
+        ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):
@@ -319,13 +325,19 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
 
+    fixtures = ['content_test.json']
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        self.interaction_logs = [ContentSessionLogFactory.create(
+            user=self.user,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c"
+        ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):

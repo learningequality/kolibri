@@ -1,21 +1,15 @@
 import tempfile
-import uuid
 
 from django.core.management import call_command
-from django.db import connections
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from kolibri.auth.models import Classroom, Facility, FacilityUser
-from kolibri.content.content_db_router import set_active_content_database
-from kolibri.content.models import ChannelMetadataCache
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 
 n_users = 2
 n_classes = 2
 n_facilities = 2
-
-the_channel_id = uuid.uuid4()
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
@@ -27,21 +21,12 @@ CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 class GenerateUserDataTest(TestCase):
 
     fixtures = ['content_test.json']
-    multi_db = True
-    connections.databases[str(the_channel_id).replace('-', '')] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
 
     @classmethod
     def setUpTestData(cls):
-        ChannelMetadataCache.objects.create(id=the_channel_id, name='test', root_pk=uuid.uuid4())
-        # set the active content database for generation
-        set_active_content_database(the_channel_id)
         # To save testing time, only run the management command once
         # Then make assertions in separate tests to isolate failures
         call_command('generateuserdata', users=n_users, classes=n_classes, facilities=n_facilities)
-        set_active_content_database(None)
 
     def test_facilities_created(self):
         self.assertEqual(Facility.objects.count(), n_facilities)

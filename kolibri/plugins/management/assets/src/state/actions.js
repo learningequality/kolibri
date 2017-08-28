@@ -529,15 +529,9 @@ function showContentPage(store) {
   taskCollectionPromise.only(
     samePageCheckGenerator(store),
     taskList => {
-      const pageState = {
-        taskList: taskList.map(_taskState),
-        wizardState: { shown: false },
-        channelFileSummaries: {},
-      };
-      coreActions.setChannelInfo(store).then(() => {
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', { shown: false });
+      store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
       coreActions.handleApiError(store, error);
@@ -585,23 +579,19 @@ function closeImportExportWizard(store) {
 }
 
 // called from a timer to continually update UI
-function pollTasksAndChannels(store) {
+function pollTasks(store) {
   const samePageCheck = samePageCheckGenerator(store);
   TaskResource.getCollection().fetch({}, true).only(
     // don't handle response if we've switched pages or if we're in the middle of another operation
     () => samePageCheck() && !store.state.pageState.wizardState.busy,
     taskList => {
-      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
-      // I.e. channel list always reflects the current state of ongoing task(s).
-      coreActions.setChannelInfo(store).only(samePageCheckGenerator(store), () => {
-        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-        // Close the wizard if there's an outstanding task.
-        // (this can be removed when we support more than one
-        // concurrent task.)
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          closeImportExportWizard(store);
-        }
-      });
+      store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+      // Close the wizard if there's an outstanding task.
+      // (this can be removed when we support more than one
+      // concurrent task.)
+      if (taskList.length && store.state.pageState.wizardState.shown) {
+        closeImportExportWizard(store);
+      }
     },
     error => {
       logging.error(`poll error: ${error}`);
@@ -698,7 +688,7 @@ export {
   addCoachRoleAction as addCoachRole,
   removeCoachRoleAction as removeCoachRole,
   showContentPage,
-  pollTasksAndChannels,
+  pollTasks,
   cancelTask,
   startImportWizard,
   startExportWizard,

@@ -54,7 +54,7 @@
 <script>
 
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import * as actions from '../../state/actions';
+  import { startImportWizard, startExportWizard, pollTasks } from '../../state/actions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
@@ -94,7 +94,7 @@
     }),
     mounted() {
       if (this.isSuperuser) {
-        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+        this.intervalId = setInterval(this.pollTasks, 1000);
       }
     },
     destroyed() {
@@ -137,9 +137,9 @@
         pageState: state => state.pageState,
       },
       actions: {
-        startImportWizard: actions.startImportWizard,
-        startExportWizard: actions.startExportWizard,
-        pollTasksAndChannels: actions.pollTasksAndChannels,
+        startImportWizard,
+        startExportWizard,
+        pollTasks,
       },
     },
   };

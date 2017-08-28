@@ -24,7 +24,7 @@ function _channelState(channel) {
   return {
     id: channel.id,
     name: channel.name,
-    rootPk: channel.root_pk,
+    rootPk: channel.root,
   };
 }
 
@@ -302,17 +302,16 @@ function getAllExercisesWithinTopic(store, channelId, topicId) {
 }
 
 // fetches topic, it's children subtopics, and children exercises
-function fetchContent(store, channelId, topicId) {
+function fetchContent(store, topicId) {
   return new Promise((resolve, reject) => {
-    const channelPayload = { channel_id: channelId };
-    const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
-    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId, channelPayload);
-    const subtopicsPromise = ContentNodeResource.getCollection(channelPayload, {
+    const topicPromise = ContentNodeResource.getModel(topicId).fetch();
+    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
+    const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
       fields: ['pk', 'title', 'ancestors'],
     }).fetch();
-    const exercisesPromise = ContentNodeResource.getCollection(channelPayload, {
+    const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
       fields: ['pk', 'title', 'assessmentmetadata'],
@@ -331,7 +330,7 @@ function fetchContent(store, channelId, topicId) {
         let subtopics = _topicsState(subtopicsCollection);
 
         const subtopicsExercisesPromises = subtopics.map(subtopic =>
-          getAllExercisesWithinTopic(store, channelId, subtopic.id)
+          getAllExercisesWithinTopic(store, subtopic.id)
         );
 
         ConditionalPromise.all(subtopicsExercisesPromises).only(
@@ -372,7 +371,7 @@ function showCreateExamPage(store, classId, channelId) {
         channelsCollection.find(channel => channel.id === channelId)
       );
 
-      const fetchContentPromise = fetchContent(store, channelId, currentChannel.rootPk);
+      const fetchContentPromise = fetchContent(store, currentChannel.rootPk);
       ConditionalPromise.all([fetchContentPromise]).only(
         CoreActions.samePageCheckGenerator(store),
         ([content]) => {

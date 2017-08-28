@@ -9,6 +9,7 @@ import os
 
 import pytest
 from kolibri.utils import cli
+from mock import patch
 
 logger = logging.getLogger(__name__)
 
@@ -114,41 +115,41 @@ def test_kolibri_listen_port_env(monkeypatch):
     Starts and stops the server, mocking the actual server.start()
     Checks that the correct fallback port is used from the environment.
     """
+    with patch('kolibri.content.utils.annotation.update_channel_metadata'):
+        from kolibri.utils import server
 
-    from kolibri.utils import server
+        def start_mock(port, *args, **kwargs):
+            assert port == test_port
 
-    def start_mock(port, *args, **kwargs):
-        assert port == test_port
+        monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
+        monkeypatch.setattr(logging.Logger, '_log', log_logger)
+        monkeypatch.setattr(server, 'start', start_mock)
 
-    monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
-    monkeypatch.setattr(logging.Logger, '_log', log_logger)
-    monkeypatch.setattr(server, 'start', start_mock)
+        test_port = 1234
+        # ENV VARS are always a string
+        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
 
-    test_port = 1234
-    # ENV VARS are always a string
-    os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+        server.start = start_mock
+        cli.start(daemon=False)
+        with pytest.raises(SystemExit, code=0):
+            cli.stop()
 
-    server.start = start_mock
-    cli.start(daemon=False)
-    with pytest.raises(SystemExit, code=0):
-        cli.stop()
+        # Stop the server AGAIN, asserting that we can call the stop command
+        # on an already stopped server and will be gracefully informed about
+        # it.
+        with pytest.raises(SystemExit, code=0):
+            cli.stop()
+        assert "Already stopped" in LOG_LOGGER[-1][1]
 
-    # Stop the server AGAIN, asserting that we can call the stop command
-    # on an already stopped server and will be gracefully informed about
-    # it.
-    with pytest.raises(SystemExit, code=0):
-        cli.stop()
-    assert "Already stopped" in LOG_LOGGER[-1][1]
+        def status_starting_up():
+            raise server.NotRunning(server.STATUS_STARTING_UP)
 
-    def status_starting_up():
-        raise server.NotRunning(server.STATUS_STARTING_UP)
-
-    # Ensure that if a server is reported to be 'starting up', it doesn't
-    # get killed while doing that.
-    monkeypatch.setattr(server, 'get_status', status_starting_up)
-    with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
-        cli.stop()
-    assert "Not stopped" in LOG_LOGGER[-1][1]
+        # Ensure that if a server is reported to be 'starting up', it doesn't
+        # get killed while doing that.
+        monkeypatch.setattr(server, 'get_status', status_starting_up)
+        with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
+            cli.stop()
+        assert "Not stopped" in LOG_LOGGER[-1][1]
 
 
 def test_cli_usage():
