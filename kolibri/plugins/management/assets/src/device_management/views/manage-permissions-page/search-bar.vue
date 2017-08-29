@@ -66,7 +66,7 @@
     top: 0
     left: 10px
     height: 100%
-    width: 85%
+    width: calc(100% - 50px)
     border-color: transparent
     background-color: transparent
     clear: both
@@ -92,16 +92,13 @@
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 450px
-    height: 2.5em
     margin-left: 5px
+    width: 100%
+    height: 2.5em
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 0.9em
-      min-width: 170px
-    #search-field
-      width: 80%
 
   @media screen and (max-width: 840px)
     .searchbar
