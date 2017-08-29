@@ -6,6 +6,7 @@ The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
+import os
 import uuid
 from gettext import gettext as _
 
@@ -191,6 +192,19 @@ class File(models.Model):
         return reverse('downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
 
 
+class LocalFileManager(models.Manager):
+    def delete_orphan_files(self):
+        for file in self.filter(files__isnull=True):
+            os.remove(paths.get_content_storage_file_path(file.get_filename()))
+
+    def delete_orphan_file_objects(self):
+        self.filter(files__isnull=True).delete()
+
+    def delete_orphans(self):
+        self.delete_orphan_files()
+        self.delete_orphan_file_objects()
+
+
 @python_2_unicode_compatible
 class LocalFile(models.Model):
     """
@@ -201,6 +215,8 @@ class LocalFile(models.Model):
     extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
+
+    objects = LocalFileManager()
 
     class Admin:
         pass
