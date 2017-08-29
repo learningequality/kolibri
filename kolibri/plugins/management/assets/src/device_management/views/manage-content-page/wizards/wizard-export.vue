@@ -49,7 +49,10 @@
 
 <script>
 
-  import * as contentWizardActions from '../../../state/actions/contentWizardActions';
+  import {
+    transitionWizardPage,
+    updateWizardLocalDriveList,
+  } from '../../../state/actions/contentWizardActions';
   import bytesForHumans from '../bytesForHumans';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -115,8 +118,8 @@
         wizardState: state => state.pageState.wizardState,
       },
       actions: {
-        transitionWizardPage: contentWizardActions.transitionWizardPage,
-        updateWizardLocalDriveList: contentWizardActions.updateWizardLocalDriveList,
+        transitionWizardPage,
+        updateWizardLocalDriveList,
       },
     },
   };

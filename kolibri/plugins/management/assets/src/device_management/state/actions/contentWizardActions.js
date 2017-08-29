@@ -1,7 +1,11 @@
 import { TaskResource } from 'kolibri.resources';
 import { ContentWizardPages } from '../../constants';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import * as taskActions from './taskActions';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import {
+  triggerLocalContentExportTask,
+  triggerLocalContentImportTask,
+  triggerRemoteContentImportTask,
+} from './taskActions';
 import find from 'lodash/find';
 
 export function updateWizardLocalDriveList(store) {
@@ -13,7 +17,7 @@ export function updateWizardLocalDriveList(store) {
     })
     .catch(error => {
       store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     });
 }
 
@@ -103,7 +107,7 @@ export function transitionWizardPage(store, transition, params) {
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
     if (transition === FORWARD) {
-      return taskActions.triggerLocalContentExportTask(store, params.driveId);
+      return triggerLocalContentExportTask(store, params.driveId);
     }
   }
 
@@ -113,7 +117,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD) {
-      return taskActions.triggerLocalContentImportTask(store, params.sourceId);
+      return triggerLocalContentImportTask(store, params.sourceId);
     }
   }
 
@@ -123,7 +127,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_NETWORK);
     }
     if (transition === FORWARD) {
-      return taskActions.triggerRemoteContentImportTask(store, params.sourceId);
+      return triggerRemoteContentImportTask(store, params.sourceId);
     }
   }
 

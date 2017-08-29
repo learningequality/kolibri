@@ -51,7 +51,10 @@
 
 <script>
 
-  import * as contentWizardActions from '../../../state/actions/contentWizardActions';
+  import {
+    transitionWizardPage,
+    updateWizardLocalDriveList,
+  } from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
@@ -100,8 +103,8 @@
     vuex: {
       getters: { wizardState: state => state.pageState.wizardState },
       actions: {
-        transitionWizardPage: contentWizardActions.transitionWizardPage,
-        updateWizardLocalDriveList: contentWizardActions.updateWizardLocalDriveList,
+        transitionWizardPage,
+        updateWizardLocalDriveList,
       },
     },
   };
