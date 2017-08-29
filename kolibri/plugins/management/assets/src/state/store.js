@@ -31,6 +31,7 @@ const initialState = {
     classes: [],
     users: [],
     taskList: [],
+    modalShown: false,
   },
 };
 
@@ -39,7 +40,7 @@ const mutations = {
     state.pageName = name;
   },
   SET_PAGE_STATE(state, pageState) {
-    Object.assign(state.pageState, pageState);
+    state.pageState = pageState;
   },
 
   // modal mutations
