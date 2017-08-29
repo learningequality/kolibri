@@ -16,41 +16,41 @@
 <script>
 
   /**
-   * Used to initiate actions
+   * The k-button component is used to trigger actions
    */
   export default {
     name: 'k-button',
     props: {
       /**
-       * Text within button
+       * Label text
        */
       text: {
         type: String,
         required: true,
       },
       /**
-       * Primary or secondary button
+       * Specifies 'primary' or 'secondary' style
        */
       primary: {
         type: Boolean,
         default: false,
       },
       /**
-       * Raised or flat button
+       * Specifies 'raised' or 'flat' style
        */
       raised: {
         type: Boolean,
         default: true,
       },
       /**
-       * Disabled state
+       * Whether or not button is disabled
        */
       disabled: {
         type: Boolean,
         default: false,
       },
       /**
-       * HTML5 button type
+       * HTML button type
        */
       type: {
         type: String,
@@ -73,7 +73,7 @@
     methods: {
       handleClick(event) {
         /**
-         * Emits click event
+         * Emitted when the button is triggered
          */
         this.$emit('click', event);
         this.$refs.button.blur();
