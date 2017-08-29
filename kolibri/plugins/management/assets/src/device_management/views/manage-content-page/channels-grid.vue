@@ -89,8 +89,7 @@
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.channelList.find(channel => channel.id === this.selectedChannelId)
-            .name;
+          return this.channelList.find(channel => channel.id === this.selectedChannelId).name;
         }
         return '';
       },

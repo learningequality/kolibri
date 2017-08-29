@@ -8,9 +8,9 @@ import { fetchCurrentTasks } from './taskActions';
  *
  */
 export function refreshChannelList(store) {
- return ChannelResource.getCollection().fetch({ file_sizes: true }, true).then(channels => {
-   store.dispatch('SET_CONTENT_PAGE_CHANNELS', channels);
- });
+  return ChannelResource.getCollection().fetch({ file_sizes: true }, true).then(channels => {
+    store.dispatch('SET_CONTENT_PAGE_CHANNELS', channels);
+  });
 }
 
 export function showManageContentPage(store) {
@@ -44,7 +44,5 @@ export function showManageContentPage(store) {
  * @returns {Promise}
  */
 export function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId)
-    .delete()
-    .then(() => refreshChannelList(store));
+  return ChannelResource.getModel(channelId).delete().then(() => refreshChannelList(store));
 }
