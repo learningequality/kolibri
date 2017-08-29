@@ -69,7 +69,7 @@ export function triggerRemoteContentImportTask(store, channelId) {
   return triggerTask(store, TaskResource.remoteImportContent(channelId));
 }
 
-export function pollTasksAndChannels(store) {
+export function pollTasks(store) {
   const samePageCheck = samePageCheckGenerator(store);
   TaskResource.getCollection().fetch({}, true).only(
     // don't handle response if we've switched pages or if we're in the middle of another operation

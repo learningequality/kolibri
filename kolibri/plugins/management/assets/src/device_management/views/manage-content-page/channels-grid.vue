@@ -61,7 +61,6 @@
 
   import bytesForHumans from './bytesForHumans';
   import { deleteChannel, refreshChannelList } from '../../state/actions/contentActions';
-  import map from 'lodash/map';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
@@ -90,22 +89,14 @@
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.pageState.channelList.find(channel => channel.id === this.selectedChannelId)
+          return this.channelList.find(channel => channel.id === this.selectedChannelId)
             .name;
         }
         return '';
       },
       sortedChannels() {
-        return this.pageState.channelList.sort(channel => channel.name);
+        return this.channelList.sort(channel => channel.name);
       },
-    },
-    watch: {
-      channelList(val) {
-        this.addChannelFileSummaries(map(val, 'id'));
-      },
-    },
-    mounted() {
-      this.addChannelFileSummaries(map(this.channelList, 'id'));
     },
     methods: {
       handleDeleteChannel() {

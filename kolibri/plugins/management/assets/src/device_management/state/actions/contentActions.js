@@ -17,8 +17,10 @@ export function showManageContentPage(store) {
   if (canManageContent(store.state)) {
     store.dispatch('SET_CONTENT_PAGE_STATE', {
       taskList: [],
-      wizardState: { shown: false },
-      channelFileSummaries: {},
+      channelList: [],
+      wizardState: {
+        shown: false,
+      },
     });
 
     setChannelInfo(store);
