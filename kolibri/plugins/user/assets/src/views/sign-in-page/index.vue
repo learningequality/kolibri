@@ -30,7 +30,7 @@
         </transition>
         <transition name="list">
           <ul
-            v-if="simpleLogin && suggestions.length"
+            v-if="simpleSignIn && suggestions.length"
             v-show="showDropdown"
             class="suggestions"
           >
@@ -45,12 +45,12 @@
         </transition>
         <transition name="textbox">
           <k-textbox
-            v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
+            v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
             id="password"
             type="password"
             autocomplete="current-password"
             :label="$tr('password')"
-            :autofocus="simpleLogin"
+            :autofocus="simpleSignIn"
             :invalid="passwordIsInvalid"
             :invalidText="passwordIsInvalidText"
             @blur="validatePassword = true"
@@ -69,7 +69,7 @@
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUp">
+        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
           <k-button :text="$tr('createAccount')" :primary="false"/>
         </router-link>
         <a class="group-btn" href="/learn">
@@ -85,9 +85,9 @@
 
 <script>
 
-  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -131,7 +131,7 @@
       validateForm: false,
     }),
     computed: {
-      simpleLogin() {
+      simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
       suggestions() {
@@ -161,7 +161,7 @@
       },
       passwordIsInvalidText() {
         if (this.validatePassword || this.validateForm) {
-          if (this.simpleLogin && this.password === '') {
+          if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
             return this.$tr('required');
@@ -173,7 +173,7 @@
         return !!this.passwordIsInvalidText;
       },
       formIsValid() {
-        if (this.simpleLogin) {
+        if (this.simpleSignIn) {
           return !this.usernameIsInvalid;
         }
         return !this.usernameIsInvalid && !this.passwordIsInvalid;
@@ -181,7 +181,7 @@
       canSignUp() {
         return this.facilityConfig.learnerCanSignUp;
       },
-      signUp() {
+      signUpPage() {
         return { name: PageNames.SIGN_UP };
       },
       versionMsg() {
@@ -281,13 +281,13 @@
     },
     vuex: {
       getters: {
-        facilityConfig: getters.facilityConfig,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        facility: currentFacilityId,
+        facilityConfig,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        facility: getters.currentFacilityId,
+        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
       },
-      actions: { kolibriLogin: actions.kolibriLogin },
+      actions: { kolibriLogin },
     },
   };
 
