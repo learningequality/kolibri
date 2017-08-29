@@ -1,6 +1,10 @@
 import { ChannelResource } from 'kolibri.resources';
 import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-import { handleApiError, setChannelInfo } from 'kolibri.coreVue.vuex.actions';
+import {
+  handleApiError,
+  setChannelInfo,
+  samePageCheckGenerator,
+} from 'kolibri.coreVue.vuex.actions';
 import { fetchCurrentTasks } from './taskActions';
 
 /**
@@ -26,7 +30,8 @@ export function showManageContentPage(store) {
     setChannelInfo(store);
 
     return fetchCurrentTasks(store)
-      .then(function onSuccess(taskList) {
+      .only(samePageCheckGenerator(store))
+      ._promise.then(function onSuccess(taskList) {
         store.dispatch('SET_CONTENT_PAGE_TASKS', taskList);
       })
       .catch(function onFailure(error) {

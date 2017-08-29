@@ -3,7 +3,8 @@ import {
   NewDevicePermissionsResource,
   FacilityUserResource,
 } from 'kolibri.resources';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
@@ -54,7 +55,9 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showManagePermissionsPage(store) {
-  const promises = Promise.all([fetchFacilityUsers(), fetchDevicePermissions()]);
+  const promises = ConditionalPromise.all([fetchFacilityUsers(), fetchDevicePermissions()]).only(
+    samePageCheckGenerator(store)
+  )._promise;
   return promises
     .then(function onSuccess([users, permissions]) {
       store.dispatch('SET_PERMISSIONS_PAGE_STATE', {
@@ -75,8 +78,11 @@ export function showManagePermissionsPage(store) {
  * @returns Promise<void>
  */
 export function showUserPermissionsPage(store, userId) {
-  return fetchUserPermissions(userId)
-    .then(function onUserSuccess(data) {
+  const promise = ConditionalPromise.all([fetchUserPermissions(userId)]).only(
+    samePageCheckGenerator(store)
+  )._promise;
+  return promise
+    .then(function onUserSuccess([data]) {
       store.dispatch('CORE_SET_TITLE', `${data.user.full_name}'s Device Permissions`);
       return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
