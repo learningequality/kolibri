@@ -38,9 +38,7 @@ class ChannelMetadataViewSet(viewsets.ModelViewSet):
         the filesystem.
         """
 
-        self.get_object(pk).delete_content_tree_and_files()
-
-        super(ChannelMetadataViewSet, self).destroy(request)
+        self.get_object().delete_content_tree_and_files()
 
         if self.delete_content_db_file(pk):
             response_msg = 'Channel {} removed from device'.format(pk)
