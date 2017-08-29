@@ -34,18 +34,16 @@ class ChannelMetadataViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         """
-        Destroys the ChannelMetadata object and its associated sqlite3 file on
-        the filesystem.
+        Destroys the ChannelMetadata object all of its metadata, any orphaned files as a result of its deletion
+        and its associated sqlite3 file on the filesystem.
         """
 
-        self.get_object(pk).delete_content_tree_and_files()
+        self.get_object().delete_content_tree_and_files()
 
-        super(ChannelMetadataViewSet, self).destroy(request)
+        models.LocalFile.objects.delete_orphans()
 
-        if self.delete_content_db_file(pk):
-            response_msg = 'Channel {} removed from device'.format(pk)
-        else:
-            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+        self.delete_content_db_file(pk)
+        response_msg = 'Channel {} removed from device'.format(pk)
 
         return Response(response_msg)
 
