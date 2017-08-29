@@ -22,6 +22,13 @@ function fetchDevicePermissions() {
     });
 }
 
+/**
+ * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
+ * it is from the request for FacilityUser.
+ *
+ * @param {string} userId
+ * @returns Promise<{ permissions, user }, FacilityUserError>
+ */
 function fetchUserPermissions(userId) {
   const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}.true)._promise;
   const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
@@ -40,6 +47,12 @@ function fetchUserPermissions(userId) {
     });
 }
 
+/**
+ * Action to hydrate manage-permissions-page.
+ *
+ * @param {Store} store
+ * @returns Promise<void>
+ */
 export function showManagePermissionsPage(store) {
   const promises = Promise.all([fetchFacilityUsers(), fetchDevicePermissions()]);
   return promises
@@ -54,6 +67,13 @@ export function showManagePermissionsPage(store) {
     });
 }
 
+/**
+ * Action to hydrate user-permissions-page.
+ *
+ * @param {Store} store
+ * @param {string} userId
+ * @returns Promise<void>
+ */
 export function showUserPermissionsPage(store, userId) {
   return fetchUserPermissions(userId)
     .then(function onUserSuccess(data) {
@@ -72,8 +92,13 @@ export function showUserPermissionsPage(store, userId) {
 }
 
 /**
+ * Adds or modifies a DevicePermissions model. If pageState.permissions was not hydrated
+ * with a Permissions model, then it is assumed one does not exist and the
+ * action creates one.
+ *
  * @param {boolean} payload.is_superuser
  * @param {boolean} payload.can_manage_content
+ * @returns Promise<DevicePermissions>
  */
 export function addOrUpdateUserPermissions(store, payload) {
   const userId = store.state.pageState.user.id;
@@ -83,7 +108,7 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  // if pageState.permissions is empty, then need to do a POST
+  // If pageState.permissions is empty, then need to do a POST
   if (isEmpty(store.state.pageState.permissions)) {
     return NewDevicePermissionsResource.createModel(permissions).save()._promise;
   }
