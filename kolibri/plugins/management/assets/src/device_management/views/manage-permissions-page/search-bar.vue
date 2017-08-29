@@ -15,7 +15,7 @@
       :value="value"
       @input="updateSearchTerm($event.target.value)"
       type="search"
-    >
+    />
   </div>
 
 </template>
