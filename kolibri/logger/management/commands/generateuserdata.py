@@ -12,8 +12,7 @@ from django.db.models.query import F
 from django.utils import timezone
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom, Facility, FacilityUser
-from kolibri.content.content_db_router import set_active_content_database
-from kolibri.content.models import ChannelMetadataCache, ContentNode
+from kolibri.content.models import ChannelMetadata, ContentNode
 from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, MasteryLog
 from le_utils.constants import content_kinds
 
@@ -127,10 +126,9 @@ class Command(BaseCommand):
 
                     # Loop over all local channels to generate data for each channel
 
-                    for channel in ChannelMetadataCache.objects.all():
+                    for channel in ChannelMetadata.objects.all():
                         channel_id = channel.id
-                        set_active_content_database(channel_id)
-                        default_channel_content = ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+                        default_channel_content = ContentNode.objects.exclude(kind=content_kinds.TOPIC).filter(channel_id=channel_id)
 
                         self.stdout.write('Generating {i} user interaction(s) for user: {user} for channel: {channel}'.format(
                             i=number_of_content_items,

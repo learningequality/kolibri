@@ -136,7 +136,7 @@ function _channelListState(data) {
     id: channel.id,
     title: channel.name,
     description: channel.description,
-    root_id: channel.root_pk,
+    root_id: channel.root,
     last_updated: channel.last_updated,
   }));
 }

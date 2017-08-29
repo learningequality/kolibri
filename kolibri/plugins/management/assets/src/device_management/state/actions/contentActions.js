@@ -7,8 +7,10 @@ import { fetchCurrentTasks } from './taskActions';
  * Force-refresh the ChannelResource Collection
  *
  */
-export function refreshChannelList() {
-  return ChannelResource.getCollection().fetch({}, true);
+export function refreshChannelList(store) {
+ return ChannelResource.getCollection().fetch({ file_sizes: true }, true).then(channels => {
+   store.dispatch('SET_CONTENT_PAGE_CHANNELS', channels);
+ });
 }
 
 export function showManageContentPage(store) {
@@ -42,10 +44,7 @@ export function showManageContentPage(store) {
 export function deleteChannel(store, channelId) {
   return ChannelResource.getModel(channelId)
     .delete()
-    .then(() => {
-      store.dispatch('REMOVE_CHANNEL_FILE_SUMMARY', channelId);
-    })
-    .then(refreshChannelList);
+    .then(() => refreshChannelList(store));
 }
 
 /**

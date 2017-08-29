@@ -1,9 +1,11 @@
 <template>
 
   <div>
-    <p class="core-text-alert" v-if="sortedChannels.length===0">
+    <p class="core-text-alert" v-if="sortedChannels.length===0 && !this.channelsLoading">
       {{ $tr('emptyChannelListMessage') }}
     </p>
+
+    <ui-progress-circular v-else-if="this.channelsLoading" :size="16" color="primary"/>
 
     <table v-else class="table">
 
@@ -20,28 +22,14 @@
       <tbody class="table-body">
         <tr v-for="channel in sortedChannels" :key="channel.id">
           <td class="table-cell-title">
-            {{ channel.title }}
+            {{ channel.name }}
           </td>
 
           <td>
-            <transition mode="out-in">
-              <ui-progress-circular
-                v-if="!numberOfFilesInChannel(channel.id)"
-                :size="16"
-                color="primary"
-              />
-              <span v-else>{{ numberOfFilesInChannel(channel.id) }}</span>
-            </transition>
+            <span>{{ channel.total_files }}</span>
           </td>
           <td>
-            <transition mode="out-in">
-                <ui-progress-circular
-                  v-if="!totalSizeOfFilesInChannel(channel.id)"
-                  :size="16"
-                  color="primary"
-                />
-                <span v-else>{{ totalSizeOfFilesInChannel(channel.id) }}</span>
-              </transition>
+            <span>{{ bytesForHumans(channel.total_file_size) }}</span>
           </td>
           <td>
             <elapsed-time :date="channel.last_updated" />
@@ -72,10 +60,8 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import * as manageContentActions from '../../state/actions/contentActions';
+  import { deleteChannel, refreshChannelList } from '../../state/actions/contentActions';
   import map from 'lodash/map';
-  import orderBy from 'lodash/orderBy';
-  import find from 'lodash/find';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
@@ -91,20 +77,26 @@
     data: () => ({
       selectedChannelId: null,
       notification: null,
+      channelsLoading: true,
     }),
+    created() {
+      this.refreshChannelList().then(() => {
+        this.channelsLoading = false;
+      });
+    },
     computed: {
       channelIsSelected() {
         return this.selectedChannelId !== null;
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          const channel = find(this.channelList, { id: this.selectedChannelId });
-          return channel.title;
+          return this.pageState.channelList.find(channel => channel.id === this.selectedChannelId)
+            .name;
         }
         return '';
       },
       sortedChannels() {
-        return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
+        return this.pageState.channelList.sort(channel => channel.name);
       },
     },
     watch: {
@@ -129,26 +121,18 @@
             });
         }
       },
-      numberOfFilesInChannel(channelId) {
-        const channel = this.channelFileSummaries[channelId];
-        return channel ? channel.numberOfFiles : '';
-      },
-      totalSizeOfFilesInChannel(channelId) {
-        const channel = this.channelFileSummaries[channelId];
-        return this.channelFileSummaries[channelId]
-          ? bytesForHumans(channel.totalFileSizeInBytes)
-          : '';
+      bytesForHumans(size) {
+        return size ? bytesForHumans(size) : '';
       },
     },
     vuex: {
       getters: {
-        channelFileSummaries: state => state.pageState.channelFileSummaries,
-        channelList: state => state.core.channels.list,
+        channelList: state => state.pageState.channelList,
         pageState: state => state.pageState,
       },
       actions: {
-        deleteChannel: manageContentActions.deleteChannel,
-        addChannelFileSummaries: manageContentActions.addChannelFileSummaries,
+        deleteChannel,
+        refreshChannelList,
       },
     },
     $trs: {

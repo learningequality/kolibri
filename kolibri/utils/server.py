@@ -65,8 +65,8 @@ def start(port=8080):
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
     # ~/.kolibri, or deleting a channel DB on disk
-    from kolibri.content.utils.annotation import update_channel_metadata_cache
-    update_channel_metadata_cache()
+    from kolibri.content.utils.annotation import update_channel_metadata
+    update_channel_metadata()
 
     def rm_pid_file():
         os.unlink(PID_FILE)

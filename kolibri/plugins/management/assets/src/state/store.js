@@ -25,7 +25,13 @@ import otherMutations from './mutations';
 
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
-  pageState: {},
+  pageState: {
+    channelList: [],
+    wizardState: {},
+    classes: [],
+    users: [],
+    taskList: [],
+  },
 };
 
 const mutations = {
@@ -33,7 +39,7 @@ const mutations = {
     state.pageName = name;
   },
   SET_PAGE_STATE(state, pageState) {
-    state.pageState = pageState;
+    Object.assign(state.pageState, pageState);
   },
   SET_CONTENT_PAGE_STATE(state, pageState) {
     state.pageName = 'CONTENT_MGMT_PAGE';

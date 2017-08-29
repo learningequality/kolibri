@@ -52,7 +52,7 @@
 <script>
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-  import { pollTasksAndChannels } from '../../state/actions/taskActions';
+  import { pollTasks } from '../../state/actions/taskActions';
   import { startImportWizard, startExportWizard } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages, notificationTypes } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -110,7 +110,7 @@
     },
     mounted() {
       if (this.canManageContent) {
-        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+        this.intervalId = setInterval(this.pollTasks, 1000);
       }
     },
     destroyed() {
@@ -138,7 +138,7 @@
       actions: {
         startImportWizard,
         startExportWizard,
-        pollTasksAndChannels,
+        pollTasks,
       },
     },
   };

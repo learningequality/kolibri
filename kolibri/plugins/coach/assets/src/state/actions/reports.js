@@ -311,7 +311,7 @@ function _showExerciseDetailView(
   attemptLogIndex,
   interactionIndex
 ) {
-  ContentNodeResource.getModel(contentId, { channel_id: channelId }).fetch().then(
+  ContentNodeResource.getModel(contentId).fetch().then(
     exercise => {
       Promise.all([
         AttemptLogResource.getCollection({
@@ -323,9 +323,7 @@ function _showExerciseDetailView(
           content_id: exercise.content_id,
         }).fetch(),
         FacilityUserResource.getModel(userId).fetch(),
-        ContentNodeResource.fetchAncestors(contentId, {
-          channel_id: channelId,
-        }),
+        ContentNodeResource.fetchAncestors(contentId),
         setClassState(store, classId),
       ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
         attemptLogs.sort(
@@ -394,7 +392,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
       const reportPayload = {
         channel_id: channelId,
-        content_node_id: channelData.root_pk,
+        content_node_id: channelData.root,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
         last_active_time: threshold,
@@ -490,7 +488,7 @@ function showTopicChannelRoot(store, classId, channelId) {
         classId,
         channelId,
         contentScope: ReportConstants.ContentScopes.ROOT,
-        contentScopeId: channelData.root_pk,
+        contentScopeId: channelData.root,
         userScope: ReportConstants.UserScopes.CLASSROOM,
         userScopeId: classId,
         showRecentOnly: false,
@@ -611,7 +609,7 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
         classId,
         channelId,
         contentScope: ReportConstants.ContentScopes.ROOT,
-        contentScopeId: channelData.root_pk,
+        contentScopeId: channelData.root,
         userScope: ReportConstants.UserScopes.USER,
         userScopeId: userId,
         showRecentOnly: false,
