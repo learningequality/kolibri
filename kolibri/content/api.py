@@ -34,8 +34,8 @@ class ChannelMetadataViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         """
-        Destroys the ChannelMetadata object and its associated sqlite3 file on
-        the filesystem.
+        Destroys the ChannelMetadata object all of its metadata, any orphaned files as a result of its deletion
+        and its associated sqlite3 file on the filesystem.
         """
 
         self.get_object().delete_content_tree_and_files()
