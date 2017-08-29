@@ -90,6 +90,10 @@
   import { addOrUpdateUserPermissions } from '../../state/actions/permissionsActions';
   import { PageNames } from '../../constants';
 
+  const SUCCESS = 'SUCCESS';
+  const IN_PROGRESS = 'IN_PROGRESS';
+  const FAILURE = 'FAILURE';
+
   export default {
     name: 'userPermissionsPage',
     components: {
@@ -119,15 +123,20 @@
       },
       progressNotification() {
         switch (this.saveProgress) {
-          case 'IN_PROGRESS':
+          case IN_PROGRESS:
             return this.$tr('saveInProgressNotification');
-          case 'SUCCESS':
+          case SUCCESS:
             return this.$tr('saveSuccessfulNotification');
           default:
             return '';
         }
       },
-      backPageLink: () => ({ name: PageNames.MANAGE_PERMISSIONS_PAGE }),
+      backPageLink() {
+        if (this.isSuperuser) {
+          return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
+        }
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       backPageText() {
         if (!this.isSuperuser) return this.$tr('goBack');
         return this.user ? this.user.full_name : this.$tr('invalidUser');
@@ -157,21 +166,21 @@
     methods: {
       save() {
         this.uiBlocked = true;
-        this.saveProgress = 'IN_PROGRESS';
+        this.saveProgress = IN_PROGRESS;
         this.addOrUpdateUserPermissions({
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(
             function onSuccess() {
-              this.saveProgress = 'SUCCESS';
+              this.saveProgress = SUCCESS;
               this.goBack();
             }.bind(this)
           )
           .catch(
             function onFailure() {
               this.uiBlocked = false;
-              this.saveProgress = 'FAILURE';
+              this.saveProgress = FAILURE;
             }.bind(this)
           );
       },
