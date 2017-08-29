@@ -297,9 +297,7 @@ function triggerSearch(store, channelId, searchTerm) {
     return;
   }
 
-  const contentCollection = ContentNodeResource.getPagedCollection(
-    { search: searchTerm }
-  );
+  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise
@@ -496,9 +494,9 @@ function showExam(store, channelId, id, questionNumber) {
           // Illegal question number!
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
-          const contentPromise = ContentNodeResource.getCollection(
-            { ids: questionSources.map(item => item.exercise_id) }
-          ).fetch();
+          const contentPromise = ContentNodeResource.getCollection({
+            ids: questionSources.map(item => item.exercise_id),
+          }).fetch();
 
           contentPromise.only(
             samePageCheckGenerator(store),
