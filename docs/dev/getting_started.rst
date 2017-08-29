@@ -204,6 +204,7 @@ The ``develop`` branch is reserved for active development. When we get close to 
 
 .. note::
   At a high level, we follow the 'Gitflow' model. Some helpful references:
+
   * http://nvie.com/posts/a-successful-git-branching-model/
   * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 
