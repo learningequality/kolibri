@@ -162,6 +162,15 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
 
+.. tip::
+
+  If get an error similar to ``Node Sass could not find a binding for your current environment`` try running:
+
+  .. code-block:: bash
+
+    (kolibri)$ npm rebuild node-sass
+
+
 More advanced examples of the ``devserver`` command:
 
 .. code-block:: bash
