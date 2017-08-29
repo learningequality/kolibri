@@ -36,7 +36,6 @@
   import modal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    name: 'deleteChannelModal',
     components: {
       modal,
       kButton,
@@ -55,6 +54,7 @@
         this.$emit('confirm');
       },
     },
+    name: 'deleteChannelModal',
     $trs: {
       deleteActionDescription: 'This channel will be deleted',
       confirmationQuestion: 'Are you sure you want to do this?',

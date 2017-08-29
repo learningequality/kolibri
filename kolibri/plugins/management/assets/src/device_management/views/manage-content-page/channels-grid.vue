@@ -66,13 +66,6 @@
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
-    name: 'channelsGrid',
-    components: {
-      uiProgressCircular,
-      deleteChannelModal,
-      elapsedTime,
-      kButton,
-    },
     data: () => ({
       selectedChannelId: null,
       notification: null,
@@ -96,6 +89,12 @@
       sortedChannels() {
         return this.channelList.sort(channel => channel.name);
       },
+    },
+    components: {
+      uiProgressCircular,
+      deleteChannelModal,
+      elapsedTime,
+      kButton,
     },
     methods: {
       handleDeleteChannel() {
@@ -125,6 +124,7 @@
         refreshChannelList,
       },
     },
+    name: 'channelsGrid',
     $trs: {
       emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',

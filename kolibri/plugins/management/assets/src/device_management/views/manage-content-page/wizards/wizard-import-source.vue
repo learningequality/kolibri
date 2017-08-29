@@ -33,10 +33,6 @@
       localDrives: 'Local Drives',
       cancel: 'Cancel',
     },
-    components: {
-      coreModal,
-      kButton,
-    },
     methods: {
       goForward(source) {
         return this.transitionWizardPage('forward', { source });
@@ -44,6 +40,10 @@
       cancel() {
         return this.transitionWizardPage('cancel');
       },
+    },
+    components: {
+      coreModal,
+      kButton,
     },
     vuex: {
       actions: { transitionWizardPage },

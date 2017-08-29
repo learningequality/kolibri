@@ -31,10 +31,6 @@
       inProgress: 'In progress',
       completed: 'Completed',
     },
-    components: {
-      uiIcon,
-      uiTooltip,
-    },
     props: {
       progress: {
         type: Number,
@@ -51,6 +47,10 @@
       isCompleted() {
         return this.progress >= 1;
       },
+    },
+    components: {
+      uiIcon,
+      uiTooltip,
     },
   };
 

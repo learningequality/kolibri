@@ -23,25 +23,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'taskStatus',
-    components: { kButton },
-    props: {
-      type: {
-        type: String,
-        required: true,
-      },
-      status: {
-        type: String,
-        required: true,
-      },
-      percentage: {
-        type: Number,
-        required: true,
-      },
-      id: {
-        type: String,
-        required: true,
-      },
-    },
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
@@ -54,6 +35,7 @@
       localImport: 'Importing from local drive',
       localExport: 'Exporting to local drive',
     },
+    components: { kButton },
     computed: {
       buttonMessage() {
         if (this.taskFailed || this.taskSucceeded) {
@@ -96,6 +78,24 @@
           this.refreshChannelList();
         }
         this.cancelTask(this.id);
+      },
+    },
+    props: {
+      type: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: true,
+      },
+      percentage: {
+        type: Number,
+        required: true,
+      },
+      id: {
+        type: String,
+        required: true,
       },
     },
     vuex: {
