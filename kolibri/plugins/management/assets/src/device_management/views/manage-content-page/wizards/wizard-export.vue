@@ -11,7 +11,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <p>
-            {{ $tr('exportPrompt', { numChannels: allChannels.length, exportSize }) }}
+            {{ $tr('exportPrompt', { numChannels: channelList.length, exportSize }) }}
           </p>
           <drive-list
             :value="selectedDrive"
@@ -85,14 +85,7 @@
         return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
       exportSize() {
-        const allChannelsHaveStats = this.allChannels.reduce((flag, channel) => {
-          return flag && Boolean(this.channelsWithStats[channel.id]);
-        }, true);
-        if (allChannelsHaveStats) {
-          const totalSize = sumBy(Object.values(this.channelsWithStats), 'totalFileSizeInBytes');
-          return bytesForHumans(totalSize);
-        }
-        return this.$tr('waitForTotalSize');
+        return bytesForHumans(sumBy(this.channelList, 'total_file_size'));
       },
     },
     methods: {
@@ -118,8 +111,7 @@
     },
     vuex: {
       getters: {
-        allChannels: state => state.core.channels.list,
-        channelsWithStats: state => state.pageState.channelFileSummaries,
+        channelList: state => state.pageState.channelList,
         wizardState: state => state.pageState.wizardState,
       },
       actions: {
