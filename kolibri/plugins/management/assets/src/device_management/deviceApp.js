@@ -9,8 +9,8 @@ import preparePage from '../state/preparePage';
 import {
   showManagePermissionsPage,
   showUserPermissionsPage,
-} from './state/actions/permissionsActions';
-import { showManageContentPage } from './state/actions/contentActions';
+} from './state/actions/managePermissionsActions';
+import { showManageContentPage } from './state/actions/manageContentActions';
 
 function hideLoadingScreen() {
   store.dispatch('CORE_SET_PAGE_LOADING', false);

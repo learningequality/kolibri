@@ -15,7 +15,7 @@
 
   /* eslint-env node */
 
-  import { refreshChannelList } from '../../state/actions/contentActions';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
   import { TaskTypes, TaskStatuses } from '../../../constants';
   import logger from 'kolibri.lib.logging';

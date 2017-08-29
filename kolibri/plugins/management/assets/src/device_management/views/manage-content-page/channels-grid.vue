@@ -60,7 +60,7 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import { deleteChannel, refreshChannelList } from '../../state/actions/contentActions';
+  import { deleteChannel, refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';

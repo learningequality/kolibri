@@ -87,7 +87,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { addOrUpdateUserPermissions } from '../../state/actions/permissionsActions';
+  import { addOrUpdateUserPermissions } from '../../state/actions/managePermissionsActions';
   import { PageNames } from '../../constants';
 
   const SUCCESS = 'SUCCESS';
