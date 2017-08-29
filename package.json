@@ -124,7 +124,7 @@
     "fsevents": "*"
   },
   "engines": {
-    "node": "^6",
+    "node": "6.x",
     "npm": ">= 4"
   }
 }
