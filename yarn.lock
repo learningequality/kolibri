@@ -1417,6 +1417,12 @@ encodeurl@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.1.tgz#79e3d58655346909fe6f0f45a5de68103b294d20"
 
+engine-strict@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/engine-strict/-/engine-strict-1.0.0.tgz#67a6a502b36e8b8f6e1d80a042a8d37e4e4f9455"
+  dependencies:
+    semver "^5.3.0"
+
 engine.io-client@1.8.3:
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/engine.io-client/-/engine.io-client-1.8.3.tgz#1798ed93451246453d4c6f635d7a201fe940d5ab"
