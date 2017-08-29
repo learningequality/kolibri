@@ -2,7 +2,7 @@
 
   <page-template :completed="true">
 
-    <h1>Buttons</h1>
+    <h1>Buttons and links</h1>
 
     <h2>Button hierarchy</h2>
     <p>
@@ -51,10 +51,13 @@
       <li>Global actions related to tables should be put above the table and right-aligned</li>
     </ul>
 
-    <h2>API</h2>
+    <h2>Button API</h2>
     <component-docs :api="kButtonApi" />
+    <p>
+      Note that hyperlinks are not created using the <code>&lt;k-button&gt;</code> component. Instead, they are created using a standard HTML <code>&lt;a href&gt;</code> tag, or a Vue.js <code>&lt;router-link&gt;</code> component (see <a href="https://router.vuejs.org/en/api/router-link.html">documentation</a>).
+    </p>
 
-    <h2>Code example</h2>
+    <h2>Interactive code example</h2>
     <vue-example :code="example" />
 
     <h2>Known exceptions</h2>

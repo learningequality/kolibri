@@ -28,7 +28,7 @@ const navMenu = [
     sectionName: 'Components',
     sectionItems: sortSectionItems([
       {
-        itemName: 'Buttons',
+        itemName: 'Buttons and links',
         itemRoute: {
           path: `/components/buttons`,
           component: buttonsPage,
