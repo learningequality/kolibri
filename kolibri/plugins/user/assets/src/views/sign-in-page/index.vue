@@ -62,7 +62,7 @@
           type="submit"
           :text="$tr('signIn')"
           :primary="true"
-          :disabled="busy"
+          :disabled="busy || !formIsValid"
         />
       </form>
       <div id="divid-line"></div>
@@ -172,6 +172,12 @@
       passwordIsInvalid() {
         return !!this.passwordIsInvalidText;
       },
+      formIsValid() {
+        if (this.simpleLogin) {
+          return !this.usernameIsInvalid;
+        }
+        return !this.usernameIsInvalid && !this.passwordIsInvalid;
+      },
       canSignUp() {
         return this.facilityConfig.learnerCanSignUp;
       },
@@ -264,11 +270,13 @@
       },
       signIn() {
         this.validateForm = true;
-        this.kolibriLogin({
-          username: this.username,
-          password: this.password,
-          facility: this.facility,
-        });
+        if (this.formIsValid) {
+          this.kolibriLogin({
+            username: this.username,
+            password: this.password,
+            facility: this.facility,
+          });
+        }
       },
     },
     vuex: {
