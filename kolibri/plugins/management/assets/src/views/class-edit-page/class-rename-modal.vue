@@ -40,7 +40,7 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { updateClass, displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -115,7 +115,7 @@
     methods: {
       updateName() {
         this.validateForm = true;
-        if (!this.nameIsInvalid) {
+        if (this.formIsValid) {
           this.submitting = true;
           this.updateClass(this.classid, { name: this.name });
         }
@@ -126,8 +126,8 @@
     },
     vuex: {
       actions: {
-        updateClass: actions.updateClass,
-        displayModal: actions.displayModal,
+        updateClass,
+        displayModal,
       },
     },
   };

@@ -40,7 +40,7 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { createClass, displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -104,7 +104,7 @@
     methods: {
       createNewClass() {
         this.validateForm = true;
-        if (!this.nameIsInvalid) {
+        if (this.formIsValid) {
           this.submitting = true;
           this.createClass(this.name);
         }
@@ -115,8 +115,8 @@
     },
     vuex: {
       actions: {
-        createClass: actions.createClass,
-        displayModal: actions.displayModal,
+        createClass,
+        displayModal,
       },
     },
   };
