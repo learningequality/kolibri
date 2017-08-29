@@ -6,7 +6,7 @@ import navbarPage from '../content/navbar';
 import checkboxesPage from '../content/checkboxes';
 import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
-import homePage from '../content/style-guide-home';
+import home from '../content/_home';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -15,7 +15,7 @@ function sortSectionItems(items) {
 const homeRoute = [
   {
     path: `/`,
-    component: homePage,
+    component: home,
   },
 ];
 
@@ -28,7 +28,7 @@ const navMenu = [
     sectionName: 'Components',
     sectionItems: sortSectionItems([
       {
-        itemName: 'Buttons',
+        itemName: 'Buttons and links',
         itemRoute: {
           path: `/components/buttons`,
           component: buttonsPage,
