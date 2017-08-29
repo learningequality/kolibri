@@ -10,9 +10,9 @@
       visual hierarchy:
     </p>
     <ul>
-      <li>Raised buttons: more prominent actions</li>
-      <li>Flat buttons: less prominent actions, or actions that repeat in a list</li>
-      <li>Hyperlinks: very deemphasized actions, or actions inline within text</li>
+      <li><strong>Raised buttons:</strong> more prominent actions</li>
+      <li><strong>Flat buttons:</strong> less prominent actions, or actions that repeat in a list</li>
+      <li><strong>Hyperlinks:</strong> very deemphasized actions, or actions inline within text</li>
     </ul>
 
     <show>
@@ -22,7 +22,7 @@
     </show>
 
     <p>
-      Buttons can also be primary or secondary. There should only be one primary button visible at a time, and it should be a common or default action.
+      Buttons can also be <strong>primary</strong> or <strong>secondary</strong>. There should only be one primary button visible at a time, and it should be a common or default action.
     </p>
 
     <show>
