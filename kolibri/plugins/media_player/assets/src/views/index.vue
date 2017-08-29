@@ -290,7 +290,6 @@
       window.addEventListener('resize', this.throttledResizePlayer);
     },
     beforeDestroy() {
-      this.recordProgress();
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
       this.player.dispose();
