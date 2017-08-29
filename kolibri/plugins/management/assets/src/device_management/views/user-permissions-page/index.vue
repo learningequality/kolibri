@@ -30,7 +30,7 @@
           @change="superuserChecked=$event"
         />
         <p>
-          <mat-svg category="toggle" name="star" :style="{ fill: '#FBBF2E' }" />
+          <mat-svg category="toggle" name="star" class="superuser" />
           <span class="align">
             {{ $tr('makeSuperuserDetails') }}
           </span>
@@ -222,6 +222,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .no-margin
     margin-left: 0
 
@@ -230,5 +232,8 @@
 
   .align
     vertical-align: super
+
+  svg.superuser
+    fill: $core-status-mastered
 
 </style>

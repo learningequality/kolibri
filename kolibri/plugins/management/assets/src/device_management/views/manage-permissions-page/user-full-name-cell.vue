@@ -7,19 +7,19 @@
         v-if="permissionType==='SUPERUSER'"
         category="toggle"
         name="star"
-        :style="{ fill: '#FBBF2E' }"
+        class="superuser"
       />
       <mat-svg
         v-if="permissionType==='SOME_PERMISSIONS'"
         category="toggle"
         name="star"
-        :style="{ fill: '#996189' }"
+        class="some-permissions"
       />
       <mat-svg
         v-if="permissionType==='NO_PERMISSIONS'"
         category="social"
         name="person"
-        :style="{ fill: '#686868' }"
+        class="no-permissions"
       />
       <ui-tooltip trigger="icon">
         {{ tooltipText }}
@@ -91,10 +91,18 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .align
     vertical-align: super
 
   .icon
     margin-right: 0.5em
+    .no-permissions
+      fill: $core-text-annotation
+    .superuser
+      fill: $core-status-mastered
+    .some-permissions
+      fill: $core-action-normal
 
 </style>
