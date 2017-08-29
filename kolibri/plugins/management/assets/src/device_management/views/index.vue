@@ -45,14 +45,12 @@
         return pageNameComponentMap[this.pageName];
       },
     },
-    methods: {},
     store,
     vuex: {
       getters: {
         pageName: ({ pageName }) => pageName,
         canManageContent,
       },
-      actions: {},
     },
     $trs: {
       deviceManagementTitle: 'Device',
