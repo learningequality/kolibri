@@ -45,7 +45,7 @@
         type: String,
         required: true,
       },
-      exerciseNumAssesments: {
+      exerciseNumAssessments: {
         type: Number,
         required: true,
       },
@@ -70,13 +70,13 @@
           this.$emit('removeExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments,
+            numAssessments: this.exerciseNumAssessments,
           });
         } else {
           this.$emit('addExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments,
+            numAssessments: this.exerciseNumAssessments,
           });
         }
       },
