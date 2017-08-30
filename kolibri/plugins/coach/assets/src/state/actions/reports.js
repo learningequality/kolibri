@@ -38,7 +38,7 @@ const messages = {
   topicsLearnerDetailReportPageTitle: 'Topics - Learner Details',
   learnersReportPageTitle: 'Learners',
   learnersReportAllChannelsPageTitle: 'Learners - All channels',
-  learnersReportForChannelPageTitlle: 'Learners - Channel',
+  learnersReportForChannelPageTitle: 'Learners - Channel',
   learnersReportForContentItemsPageTitle: 'Learners - Items',
   learnersItemDetailsReportPageTitle: 'Learners - Item Details',
 };
@@ -622,7 +622,7 @@ function showLearnerChannels(store, classId, userId) {
 
 function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitlle'));
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const channelPromise = ChannelResource.getModel(channelId).fetch();
