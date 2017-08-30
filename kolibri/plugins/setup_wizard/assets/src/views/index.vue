@@ -129,7 +129,7 @@
         validatePassword: false,
         validateConfirmedPassword: false,
         validateFacility: false,
-        validateForm: false,
+        formSubmitted: false,
       };
     },
     computed: {
@@ -137,7 +137,7 @@
         return /^\w+$/g.test(this.username);
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.validateForm) {
+        if (this.validateUsername || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('usernameFieldEmptyErrorMessage');
           }
@@ -151,7 +151,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.validateForm) {
+        if (this.validatePassword || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('passwordFieldEmptyErrorMessage');
           }
@@ -162,7 +162,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.validateForm) {
+        if (this.validateConfirmedPassword || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('passwordFieldEmptyErrorMessage');
           }
@@ -176,7 +176,7 @@
         return !!this.confirmedPasswordIsInvalidText;
       },
       facilityIsInvalidText() {
-        if (this.validateFacility || this.validateForm) {
+        if (this.validateFacility || this.formSubmitted) {
           if (this.facility === '') {
             return this.$tr('facilityFieldEmptyErrorMessage');
           }
@@ -197,7 +197,7 @@
     },
     methods: {
       submitSetupForm() {
-        this.validateForm = true;
+        this.formSubmitted = true;
 
         if (this.formIsValid) {
           const superuser = {

@@ -63,7 +63,7 @@
       return {
         name: '',
         validateName: false,
-        validateForm: false,
+        formSubmitted: false,
         submitting: false,
       };
     },
@@ -78,7 +78,7 @@
         return true;
       },
       nameIsInvalidText() {
-        if (this.validateName || this.validateForm) {
+        if (this.validateName || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
           }
@@ -97,7 +97,7 @@
     },
     methods: {
       callCreateGroup() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
           this.createGroup(this.name);

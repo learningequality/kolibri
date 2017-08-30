@@ -63,7 +63,7 @@
       return {
         newExamTitle: this.examTitle,
         validateTitle: false,
-        validateForm: false,
+        formSubmitted: false,
         submitting: false,
       };
     },
@@ -81,7 +81,7 @@
         return true;
       },
       titleIsInvalidText() {
-        if (this.validateTitle || this.validateForm) {
+        if (this.validateTitle || this.formSubmitted) {
           if (this.newExamTitle === '') {
             return this.$tr('required');
           }
@@ -100,7 +100,7 @@
     },
     methods: {
       callRenameExam() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
           this.renameExam(this.examId, this.newExamTitle);

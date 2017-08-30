@@ -128,7 +128,7 @@
       highlightedIndex: -1,
       validateUsername: false,
       validatePassword: false,
-      validateForm: false,
+      formSubmitted: false,
     }),
     computed: {
       simpleSignIn() {
@@ -149,7 +149,7 @@
         );
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.validateForm) {
+        if (this.validateUsername || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -160,7 +160,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.validateForm) {
+        if (this.validatePassword || this.formSubmitted) {
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
@@ -269,7 +269,7 @@
         this.showDropdown = false;
       },
       signIn() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         if (this.formIsValid) {
           this.kolibriLogin({
             username: this.username,

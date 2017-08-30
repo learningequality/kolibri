@@ -142,7 +142,7 @@
       validatePassword: false,
       validateConfirmedPassword: false,
       validateFacility: false,
-      validateForm: false,
+      formSubmitted: false,
     }),
     computed: {
       signInPage() {
@@ -161,7 +161,7 @@
         return this.selection;
       },
       nameIsInvalidText() {
-        if (this.validateName || this.validateForm) {
+        if (this.validateName || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
           }
@@ -184,7 +184,7 @@
         return true;
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.validateForm) {
+        if (this.validateUsername || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -201,7 +201,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.validateForm) {
+        if (this.validatePassword || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('required');
           }
@@ -212,7 +212,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.validateForm) {
+        if (this.validateConfirmedPassword || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('required');
           }
@@ -229,7 +229,7 @@
         return !this.selectedFacility.id;
       },
       facilityIsInvalidText() {
-        if (this.validateFacility || this.validateForm) {
+        if (this.validateFacility || this.formSubmitted) {
           if (this.noFacilitySelected) {
             return this.$tr('required');
           }
@@ -260,7 +260,7 @@
     },
     methods: {
       signUp() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
           this.signUpAction({

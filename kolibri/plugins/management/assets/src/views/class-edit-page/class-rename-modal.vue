@@ -77,7 +77,7 @@
       return {
         name: this.classname,
         validateName: false,
-        validateForm: false,
+        formSubmitted: false,
         submitting: false,
       };
     },
@@ -95,7 +95,7 @@
         return true;
       },
       nameIsInvalidText() {
-        if (this.validateName || this.validateForm) {
+        if (this.validateName || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
           }
@@ -114,7 +114,7 @@
     },
     methods: {
       updateName() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
           this.updateClass(this.classid, { name: this.name });

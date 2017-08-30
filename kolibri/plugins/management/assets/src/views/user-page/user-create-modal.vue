@@ -117,7 +117,7 @@
         validateUsername: false,
         validatePassword: false,
         validateConfirmedPassword: false,
-        validateForm: false,
+        formSubmitted: false,
       };
     },
     mounted() {
@@ -129,7 +129,7 @@
     },
     computed: {
       nameIsInvalidText() {
-        if (this.validateName || this.validateForm) {
+        if (this.validateName || this.formSubmitted) {
           if (this.fullName === '') {
             return this.$tr('required');
           }
@@ -146,7 +146,7 @@
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.validateForm) {
+        if (this.validateUsername || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -163,7 +163,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.validateForm) {
+        if (this.validatePassword || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('required');
           }
@@ -174,7 +174,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.validateForm) {
+        if (this.validateConfirmedPassword || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('required');
           }
@@ -215,7 +215,7 @@
     methods: {
       createNewUser() {
         this.errorMessage = '';
-        this.validateForm = true;
+        this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
           const newUser = {
