@@ -111,7 +111,7 @@
     "vue-loader": "https://github.com/vuejs/vue-loader/",
     "vue-style-loader": "1.0.0",
     "vue-template-compiler": "^2.3.3",
-    "webpack": "2.2.1",
+    "webpack": "^3.5.5",
     "webpack-bundle-size-analyzer": "2.0.2",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
     "webpack-dev-middleware": "^1.9.0",
