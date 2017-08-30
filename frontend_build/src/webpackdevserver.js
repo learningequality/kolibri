@@ -38,6 +38,7 @@ var server = new WebpackDevServer(compiler, {
     colors: true,
     chunks: false,
     errorDetails: true,
+    modules: false,
   },
   headers: {
     'Access-Control-Allow-Origin': '*',
