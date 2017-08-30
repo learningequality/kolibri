@@ -18,6 +18,15 @@ import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
 import { redirectBrowser } from '../utils/browser';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'coreTitles';
+
+const messages = {
+  errorPageTitle: 'Error',
+};
+
+const translator = createTranslator(name, messages);
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -150,7 +159,7 @@ function _channelListState(data) {
 function handleError(store, errorString) {
   store.dispatch('CORE_SET_ERROR', errorString);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_TITLE', 'Error');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
 function handleApiError(store, errorObject) {

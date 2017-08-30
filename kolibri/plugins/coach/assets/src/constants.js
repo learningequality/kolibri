@@ -26,11 +26,6 @@ const PageNames = {
   GROUPS: 'GROUPS',
 };
 
-const PageTitles = {
-  EXAMS: 'Exams',
-  CREATE_EXAM: 'Create new exam',
-};
-
 const RecentReports = [
   PageNames.RECENT_CHANNELS,
   PageNames.RECENT_ITEMS_FOR_CHANNEL,
@@ -69,12 +64,4 @@ const GroupModals = {
   MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
 
-export {
-  PageNames,
-  PageTitles,
-  RecentReports,
-  TopicReports,
-  ExamPages,
-  LearnerReports,
-  GroupModals,
-};
+export { PageNames, RecentReports, TopicReports, ExamPages, LearnerReports, GroupModals };

@@ -171,93 +171,98 @@ extract$trs.prototype.apply = function(compiler) {
             function getVarScope(name) {
               return scopeChain.find(scope => typeof scope[name] !== 'undefined');
             }
-            if (
-              node.type === esprima.Syntax.FunctionDeclaration ||
-              node.type === esprima.Syntax.FunctionExpression ||
-              node.type === esprima.Syntax.Program
-            ) {
-              // These node types create a new scope
-              scopeChain.unshift({});
-            }
-            var localScope = scopeChain[0];
-            // New declarations only affect the local scope
-            if (node.type === esprima.Syntax.VariableDeclaration) {
-              node.declarations.forEach(dec => {
-                localScope[dec.id.name] = dec.init;
-              });
-            }
-            // Check if is an expression
-            if (
-              node.type === esprima.Syntax.ExpressionStatement &&
-              // That assigns a value
-              node.expression.type === esprima.Syntax.AssignmentExpression &&
-              // To a variable
-              node.expression.left.type === esprima.Syntax.Identifier &&
-              // But only handle equality, because other kinds are difficult to track
-              node.expression.operator === '='
-            ) {
-              // Find the relevant scope where the variable being assigned to is defined
-              var varScope = getVarScope(node.expression.left.name);
-              varScope[node.expression.left.name] = node.expression.right;
-            }
-            if (
-              node.type === esprima.Syntax.CallExpression &&
-              node.callee.name === createTranslateFn
-            ) {
-              var messageNameSpace, messages;
-              var firstArg = node.arguments[0];
-              if (firstArg.type === esprima.Syntax.Literal) {
-                // First argument is a string, get its value directly
-                messageNameSpace = firstArg.value;
-              } else if (firstArg.type === esprima.Syntax.Identifier) {
-                // First argument is a variable, lookup in the appropriate scope
-                var varScope = getVarScope(firstArg.name);
-                if (varScope) {
-                  messageNameSpace = varScope[firstArg.name].value;
-                } else {
-                  logging.warn(
-                    `Translator object called with undefined name space argument in ${module.resource}`
-                  );
-                }
+            if (node) {
+              if (
+                node.type === esprima.Syntax.FunctionDeclaration ||
+                node.type === esprima.Syntax.FunctionExpression ||
+                node.type === esprima.Syntax.Program
+              ) {
+                // These node types create a new scope
+                scopeChain.unshift({});
               }
-              var secondArg = node.arguments[1];
-              if (secondArg.type === esprima.Syntax.ObjectExpression) {
-                // Second argument is an object, parse this chunk of the AST to get an object back
-                messages = generateMessagesObject(secondArg);
-              } else if (secondArg.type === esprima.Syntax.Identifier) {
-                // Second argument is a variable, lookup in the appropriate scope
-                var varScope = getVarScope(secondArg.name);
-                if (varScope) {
-                  messages = generateMessagesObject(varScope[secondArg.name]);
-                } else {
-                  logging.warn(
-                    `Translator object called with undefined messages argument in ${module.resource}`
-                  );
-                }
+              var localScope = scopeChain[0];
+              // New declarations only affect the local scope
+              if (node.type === esprima.Syntax.VariableDeclaration) {
+                node.declarations.forEach(dec => {
+                  localScope[dec.id.name] = dec.init;
+                });
               }
-              registerFoundMessages(messageNameSpace, messages, module);
-            }
-            for (var key in node) {
-              if (node.hasOwnProperty(key)) {
-                var child = node[key];
-                if (typeof child === 'object' && child !== null) {
-                  if (Array.isArray(child)) {
-                    child.forEach(function(node) {
-                      traverseTree(node, scopeChain);
-                    });
+              // Check if is an expression
+              if (
+                node.type === esprima.Syntax.ExpressionStatement &&
+                // That assigns a value
+                node.expression.type === esprima.Syntax.AssignmentExpression &&
+                // To a variable
+                node.expression.left.type === esprima.Syntax.Identifier &&
+                // But only handle equality, because other kinds are difficult to track
+                node.expression.operator === '='
+              ) {
+                // Find the relevant scope where the variable being assigned to is defined
+                // If no scope matches, either it is an undeclared variable, or is an ES6
+                // style default function parameter, either way, assign to localScope for
+                // safety.
+                var varScope = getVarScope(node.expression.left.name) || localScope;
+                varScope[node.expression.left.name] = node.expression.right;
+              }
+              if (
+                node.type === esprima.Syntax.CallExpression &&
+                node.callee.name === createTranslateFn
+              ) {
+                var messageNameSpace, messages;
+                var firstArg = node.arguments[0];
+                if (firstArg.type === esprima.Syntax.Literal) {
+                  // First argument is a string, get its value directly
+                  messageNameSpace = firstArg.value;
+                } else if (firstArg.type === esprima.Syntax.Identifier) {
+                  // First argument is a variable, lookup in the appropriate scope
+                  var varScope = getVarScope(firstArg.name);
+                  if (varScope) {
+                    messageNameSpace = varScope[firstArg.name].value;
                   } else {
-                    traverseTree(child, scopeChain);
+                    logging.warn(
+                      `Translator object called with undefined name space argument in ${module.resource}`
+                    );
+                  }
+                }
+                var secondArg = node.arguments[1];
+                if (secondArg.type === esprima.Syntax.ObjectExpression) {
+                  // Second argument is an object, parse this chunk of the AST to get an object back
+                  messages = generateMessagesObject(secondArg);
+                } else if (secondArg.type === esprima.Syntax.Identifier) {
+                  // Second argument is a variable, lookup in the appropriate scope
+                  var varScope = getVarScope(secondArg.name);
+                  if (varScope) {
+                    messages = generateMessagesObject(varScope[secondArg.name]);
+                  } else {
+                    logging.warn(
+                      `Translator object called with undefined messages argument in ${module.resource}`
+                    );
+                  }
+                }
+                registerFoundMessages(messageNameSpace, messages, module);
+              }
+              for (var key in node) {
+                if (node.hasOwnProperty(key)) {
+                  var child = node[key];
+                  if (typeof child === 'object' && child !== null) {
+                    if (Array.isArray(child)) {
+                      child.forEach(function(node) {
+                        traverseTree(node, scopeChain);
+                      });
+                    } else {
+                      traverseTree(child, scopeChain);
+                    }
                   }
                 }
               }
-            }
-            if (
-              node.type === esprima.Syntax.FunctionDeclaration ||
-              node.type === esprima.Syntax.FunctionExpression ||
-              node.type === esprima.Syntax.Program
-            ) {
-              // Leaving this scope now!
-              scopeChain.shift();
+              if (
+                node.type === esprima.Syntax.FunctionDeclaration ||
+                node.type === esprima.Syntax.FunctionExpression ||
+                node.type === esprima.Syntax.Program
+              ) {
+                // Leaving this scope now!
+                scopeChain.shift();
+              }
             }
           }
           if (createTranslateFn) {

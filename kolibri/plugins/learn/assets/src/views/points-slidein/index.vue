@@ -27,7 +27,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    $trNameSpace: 'pointsSlidein',
+    name: 'pointsSlidein',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       close: 'Close',
