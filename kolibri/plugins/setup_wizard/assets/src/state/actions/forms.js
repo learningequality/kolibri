@@ -12,3 +12,10 @@ function submitSuperuserCredentials(store, superUserCredentials) {
 function submitFacilityPermissions(store, facilityPreset) {
   store.dispatch('SET_FACILITY_PRESET', facilityPreset);
 }
+
+export {
+  submitDefaultLanguage,
+  submitFacilityName,
+  submitSuperuserCredentials,
+  submitFacilityPermissions,
+};

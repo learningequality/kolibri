@@ -1,6 +1,6 @@
 <template>
 
-  <form class="language-form">
+  <form @submit="submitDefaultLanguage(selectedLanguage)" class="language-form">
     <fieldset>
       <legend>
         <h1 class="language-form-header">
@@ -39,6 +39,7 @@
 <script>
 
   import { availableLanguages as allLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import { submitDefaultLanguage } from '../../../state/actions/forms';
   import kButton from 'kolibri.coreVue.components.kButton';
   import omit from 'lodash/omit';
 
@@ -73,6 +74,11 @@
     computed: {
       currentLanguage() {
         return allLanguages[currentLanguage].name;
+      },
+    },
+    vuex: {
+      actions: {
+        submitDefaultLanguage,
       },
     },
   };
