@@ -77,15 +77,6 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <!-- <user-role :role="user.kind" :omitLearner="true" /> -->
-            <!--
-            <role-switcher
-              class="user-role-switcher"
-              :currentRole="user.kind"
-              @click-add-coach="addCoachRoleToUser(user)"
-              @click-remove-coach="removeCoachRoleFromUser(user)"
-            />
-            -->
           </td>
 
           <!-- Full Name field -->
@@ -122,10 +113,8 @@
   import * as actions from '../../state/actions';
   import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
-  import roleSwitcher from './role-switcher';
   import userRemoveModal from './user-remove-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import userRole from '../user-role';
   export default {
     name: 'classEnrollPage',
     $trs: {
@@ -144,10 +133,8 @@
     },
     components: {
       classRenameModal,
-      roleSwitcher,
       userRemoveModal,
       kButton,
-      userRole,
     },
     data: () => ({
       searchFilter: '',
@@ -190,18 +177,6 @@
       },
     },
     methods: {
-      addCoachRoleToUser(user) {
-        return this.addCoachRole({
-          userId: user.id,
-          classId: this.currClass.id,
-        });
-      },
-      removeCoachRoleFromUser(user) {
-        return this.removeCoachRole({
-          userId: user.id,
-          classId: this.currClass.id,
-        });
-      },
       openEditNameModal() {
         this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },
@@ -219,8 +194,6 @@
       },
       actions: {
         displayModal: actions.displayModal,
-        addCoachRole: actions.addCoachRole,
-        removeCoachRole: actions.removeCoachRole,
       },
     },
   };
@@ -323,13 +296,6 @@
 
   .table-cell
     color: $core-text-default
-
-  .user-role-switcher
-    display: table-cell
-    height: 1.5rem
-    margin: 5px 0
-    vertical-align: middle
-    white-space: nowrap
 
   .searchbar .icon
     display: inline-block
