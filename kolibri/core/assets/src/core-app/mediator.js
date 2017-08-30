@@ -452,22 +452,35 @@ export default class Mediator {
         // resolve the promise when it has been loaded.
         const urls = this._contentRendererUrls[kolibriModuleName].filter(
           url =>
+            // By default we load CSS for the particular direction that the user interface is set to
+            // so we filter CSS files that do not match the current language direction.
+            // LTR CSS files are just end with .css, whereas RTL files end with .rtl.css
             (languageDirection === languageDirections.RTL &&
               url.includes(languageDirections.RTL)) ||
-            !url.includes('css')
+            !url.endsWith('css')
         );
         Promise.all(urls.map(this.scriptLoader))
+          // Load all the urls that we just filtered (all the javascript
+          // and css files that we think we want by default).
           .then(scriptsArray => {
+            // If we want to dynamically switch css, e.g. we loaded RTL css and later decide we need
+            // LTR, we need to keep track of the script/link tags that we instantiated when we loaded
+            // the css so that we can remove them from the DOM, and prevent a styling collision
+            // from the two conflicting style sheets
             const storeTags = module => {
+              // Function to keep track of the <link>/<script> tags for each URL.
               module.urlTags = {};
               urls.forEach((url, index) => {
+                // Key by URL and then track the DOM node returned from the scriptLoader
                 module.urlTags[url] = scriptsArray[index];
               });
             };
+            // Either store them immediately on the module, if it is loaded
             if (this._kolibriModuleRegistry[kolibriModuleName]) {
               storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
               resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
             } else {
+              // Or wait until the module has been registered
               this.on('kolibri_register', moduleName => {
                 if (moduleName === kolibriModuleName) {
                   storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
@@ -483,34 +496,45 @@ export default class Mediator {
       }
     });
   }
+  /*
+   * Method to load the direction specific CSS for a particular content renderer
+   * @param {ContentRendererModule} contentRendererModule The content renderer module to load the css for
+   * @param {String} direction Must be one of languageDirections.RTL or LTR
+   * @return {Promise} Promise that resolves when new CSS has loaded
+   */
   loadDirectionalCSS(contentRendererModule, direction) {
     return new Promise((resolve, reject) => {
       if (!contentRendererModule.urlTags) {
         reject(`${contentRendererModule.name} has not already loaded - improper method call`);
       }
       const urls = this._contentRendererUrls[contentRendererModule.name];
+      // Find the URL for the specified direction
+      // Note that this will only work if we have one CSS file per module - which is currently the case
       const cssUrl = urls.find(
         url =>
           (direction === languageDirections.RTL && url.includes(languageDirections.RTL)) ||
           (direction === languageDirections.LTR &&
             !url.includes(languageDirections.RTL) &&
-            url.includes('css'))
+            url.endsWith('css'))
       );
+      // Find the URL for the direction not specified
       const otherCssUrl = urls.find(
         url =>
           (direction !== languageDirections.RTL && url.includes(languageDirections.RTL)) ||
           (direction !== languageDirections.LTR &&
             !url.includes(languageDirections.RTL) &&
-            url.includes('css'))
+            url.endsWith('css'))
       );
       if (contentRendererModule.urlTags[cssUrl]) {
         // This css file is already loaded and in the DOM, nothing to do.
         resolve();
       } else {
+        // First unload the other direction CSS from the DOM
         if (contentRendererModule.urlTags[otherCssUrl]) {
           contentRendererModule.urlTags[otherCssUrl].remove();
           delete contentRendererModule.urlTags[otherCssUrl];
         }
+        // Now load the new CSS and keep track of it for future unloading.
         this.scriptLoader(cssUrl).then(tag => {
           contentRendererModule.urlTags[cssUrl] = tag;
           resolve();
