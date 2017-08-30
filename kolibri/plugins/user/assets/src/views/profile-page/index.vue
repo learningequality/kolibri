@@ -33,6 +33,7 @@
         v-if="canEditUsername"
         type="text"
         autocomplete="username"
+        :autofocus="true"
         :label="$tr('username')"
         :disabled="busy"
         :invalid="usernameIsInvalid"
@@ -47,6 +48,7 @@
         v-if="canEditName"
         type="text"
         autocomplete="name"
+        :autofocus="canEditUsername ? false : true"
         :label="$tr('name')"
         :disabled="busy"
         v-model="full_name"
@@ -100,6 +102,7 @@
       points: 'Points',
       role: 'Role',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
     },
     components: {
       kButton,
