@@ -127,7 +127,6 @@
       genericPageError: 'Something went wrong',
       setupProgressFeedback: 'Setting up your device...',
     },
-    name: 'setupWizard',
     data() {
       return {
         username: '',
@@ -154,7 +153,8 @@
         return !!this.username;
       },
       usernameValidityCheck() {
-        return /^\w+$/g.test(this.username);
+        const hasPuncRe = /[\s`~!@#$%^&*()-+={}\[\]\|\\\/:;"'<>,\.\?]/; // eslint-disable-line
+        return !hasPuncRe.test(this.username);
       },
       firstPasswordFieldsVisit() {
         return this.passwordError === null;
