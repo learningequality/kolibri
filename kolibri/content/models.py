@@ -195,7 +195,10 @@ class File(models.Model):
 class LocalFileManager(models.Manager):
     def delete_orphan_files(self):
         for file in self.filter(files__isnull=True):
-            os.remove(paths.get_content_storage_file_path(file.get_filename()))
+            try:
+                os.remove(paths.get_content_storage_file_path(file.get_filename()))
+            except IOError:
+                pass
 
     def delete_orphan_file_objects(self):
         self.filter(files__isnull=True).delete()
