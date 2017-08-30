@@ -74,7 +74,7 @@ function editProfile(store, edits, session) {
       coreActions.getCurrentSession(store, true);
       store.dispatch('SET_PROFILE_SUCCESS', true);
       store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_EROR', false, '');
+      store.dispatch('SET_PROFILE_ERROR', false, '');
 
       // error handling
     },
@@ -91,7 +91,7 @@ function editProfile(store, edits, session) {
 
       // copying logic from user-create-modal
       store.dispatch('SET_PROFILE_SUCCESS', false);
-      store.dispatch('SET_PROFILE_EROR', true, _errorMessageHandler(error));
+      store.dispatch('SET_PROFILE_ERROR', true, _errorMessageHandler(error));
       store.dispatch('SET_PROFILE_BUSY', false);
     }
   );
