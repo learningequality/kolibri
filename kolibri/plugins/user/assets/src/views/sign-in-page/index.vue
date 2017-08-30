@@ -53,7 +53,7 @@
             :autofocus="simpleSignIn"
             :invalid="passwordIsInvalid"
             :invalidText="passwordIsInvalidText"
-            @blur="validatePassword = true"
+            @blur="passwordBlurred = true"
             v-model="password"
           />
         </transition>
@@ -126,8 +126,8 @@
       suggestionTerm: '',
       showDropdown: true,
       highlightedIndex: -1,
-      validateUsername: false,
-      validatePassword: false,
+      usernameBlurred: false,
+      passwordBlurred: false,
       formSubmitted: false,
     }),
     computed: {
@@ -149,7 +149,7 @@
         );
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.formSubmitted) {
+        if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -160,7 +160,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.formSubmitted) {
+        if (this.passwordBlurred || this.formSubmitted) {
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
@@ -265,7 +265,7 @@
         }
       },
       handleUsernameBlur() {
-        this.validateUsername = true;
+        this.usernameBlurred = true;
         this.showDropdown = false;
       },
       signIn() {

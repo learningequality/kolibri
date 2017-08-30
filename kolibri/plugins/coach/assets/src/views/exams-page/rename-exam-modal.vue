@@ -7,7 +7,7 @@
         :autofocus="true"
         :invalid="titleIsInvalid"
         :invalidText="titleIsInvalidText"
-        @blur="validateTitle = true"
+        @blur="titleBlurred = true"
         v-model.trim="newExamTitle"
       />
       <div class="footer">
@@ -62,7 +62,7 @@
     data() {
       return {
         newExamTitle: this.examTitle,
-        validateTitle: false,
+        titleBlurred: false,
         formSubmitted: false,
         submitting: false,
       };
@@ -81,7 +81,7 @@
         return true;
       },
       titleIsInvalidText() {
-        if (this.validateTitle || this.formSubmitted) {
+        if (this.titleBlurred || this.formSubmitted) {
           if (this.newExamTitle === '') {
             return this.$tr('required');
           }

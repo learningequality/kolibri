@@ -22,7 +22,7 @@
             :autofocus="true"
             :invalid="usernameIsInvalid"
             :invalidText="usernameIsInvalidText"
-            @blur="validateUsername = true"
+            @blur="usernameBlurred = true"
             v-model="username"
           />
 
@@ -31,7 +31,7 @@
             :label="$tr('passwordInputLabel')"
             :invalid="passwordIsInvalid"
             :invalidText="passwordIsInvalidText"
-            @blur="validatePassword = true"
+            @blur="passwordBlurred = true"
             v-model="password"
           />
 
@@ -40,7 +40,7 @@
             :label="$tr('reEnterPasswordInputLabel')"
             :invalid="confirmedPasswordIsInvalid"
             :invalidText="confirmedPasswordIsInvalidText"
-            @blur="validateConfirmedPassword = true"
+            @blur="confirmedPasswordBlurred = true"
             v-model="confirmedPassword"
           />
 
@@ -57,7 +57,7 @@
             :maxlength="100"
             :invalid="facilityIsInvalid"
             :invalidText="facilityIsInvalidText"
-            @blur="validateFacility = true"
+            @blur="facilityBlurred = true"
             v-model="facility"
           />
         </fieldset>
@@ -125,10 +125,10 @@
         confirmedPassword: '',
         facility: '',
         preset: facilityPresetChoices[0],
-        validateUsername: false,
-        validatePassword: false,
-        validateConfirmedPassword: false,
-        validateFacility: false,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        confirmedPasswordBlurred: false,
+        facilityBlurred: false,
         formSubmitted: false,
       };
     },
@@ -137,7 +137,7 @@
         return /^\w+$/g.test(this.username);
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.formSubmitted) {
+        if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('usernameFieldEmptyErrorMessage');
           }
@@ -151,7 +151,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.formSubmitted) {
+        if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('passwordFieldEmptyErrorMessage');
           }
@@ -162,7 +162,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.formSubmitted) {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('passwordFieldEmptyErrorMessage');
           }
@@ -176,7 +176,7 @@
         return !!this.confirmedPasswordIsInvalidText;
       },
       facilityIsInvalidText() {
-        if (this.validateFacility || this.formSubmitted) {
+        if (this.facilityBlurred || this.formSubmitted) {
           if (this.facility === '') {
             return this.$tr('facilityFieldEmptyErrorMessage');
           }

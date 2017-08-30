@@ -37,7 +37,7 @@
         :disabled="busy"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
-        @blur="validateUsername = true"
+        @blur="usernameBlurred = true"
         v-model="username"
       />
       <p v-else>{{ session.username }}</p>
@@ -112,7 +112,7 @@
       return {
         username: this.session.username,
         full_name: this.session.full_name,
-        validateUsername: false,
+        usernameBlurred: false,
         validateForm: false,
       };
     },
@@ -145,7 +145,7 @@
         return /^\w+$/g.test(this.username);
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.validateForm) {
+        if (this.usernameBlurred || this.validateForm) {
           if (this.username === '') {
             return this.$tr('required');
           }

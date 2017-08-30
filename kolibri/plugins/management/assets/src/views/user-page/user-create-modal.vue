@@ -17,7 +17,7 @@
           :maxlength="120"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
-          @blur="validateName = true"
+          @blur="nameBlurred = true"
           v-model.trim="fullName"
         />
         <k-textbox
@@ -27,7 +27,7 @@
           :maxlength="30"
           :invalid="usernameIsInvalid"
           :invalidText="usernameIsInvalidText"
-          @blur="validateUsername = true"
+          @blur="usernameBlurred = true"
           v-model="username"
         />
         <k-textbox
@@ -36,7 +36,7 @@
           :label="$tr('password')"
           :invalid="passwordIsInvalid"
           :invalidText="passwordIsInvalidText"
-          @blur="validatePassword = true"
+          @blur="passwordBlurred = true"
           v-model="password"
         />
         <k-textbox
@@ -45,7 +45,7 @@
           :label="$tr('reEnterPassword')"
           :invalid="confirmedPasswordIsInvalid"
           :invalidText="confirmedPasswordIsInvalidText"
-          @blur="validateConfirmedPassword = true"
+          @blur="confirmedPasswordBlurred = true"
           v-model="confirmedPassword"
         />
 
@@ -113,10 +113,10 @@
         kind: {},
         errorMessage: '',
         submitting: false,
-        validateName: false,
-        validateUsername: false,
-        validatePassword: false,
-        validateConfirmedPassword: false,
+        nameBlurred: false,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        confirmedPasswordBlurred: false,
         formSubmitted: false,
       };
     },
@@ -129,7 +129,7 @@
     },
     computed: {
       nameIsInvalidText() {
-        if (this.validateName || this.formSubmitted) {
+        if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
             return this.$tr('required');
           }
@@ -146,7 +146,7 @@
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.formSubmitted) {
+        if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -163,7 +163,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.formSubmitted) {
+        if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('required');
           }
@@ -174,7 +174,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.formSubmitted) {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('required');
           }

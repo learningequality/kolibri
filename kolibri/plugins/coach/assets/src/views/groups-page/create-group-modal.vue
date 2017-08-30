@@ -10,7 +10,7 @@
           :autofocus="true"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
-          @blur="validateName = true"
+          @blur="nameBlurred = true"
           v-model.trim="name"
         />
         <k-button
@@ -62,7 +62,7 @@
     data() {
       return {
         name: '',
-        validateName: false,
+        nameBlurred: false,
         formSubmitted: false,
         submitting: false,
       };
@@ -78,7 +78,7 @@
         return true;
       },
       nameIsInvalidText() {
-        if (this.validateName || this.formSubmitted) {
+        if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
           }

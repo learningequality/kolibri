@@ -32,7 +32,7 @@
         :autofocus="true"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
-        @blur="validateName = true"
+        @blur="nameBlurred = true"
         v-model="name"
       />
 
@@ -44,7 +44,7 @@
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
-        @blur="validateUsername = true"
+        @blur="usernameBlurred = true"
         @input="resetSignUpState"
         v-model="username"
       />
@@ -56,7 +56,7 @@
         :label="$tr('password')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
-        @blur="validatePassword = true"
+        @blur="passwordBlurred = true"
         v-model="password"
       />
 
@@ -67,7 +67,7 @@
         :label="$tr('reEnterPassword')"
         :invalid="confirmedPasswordIsInvalid"
         :invalidText="confirmedPasswordIsInvalidText"
-        @blur="validateConfirmedPassword = true"
+        @blur="confirmedPasswordBlurred = true"
         v-model="confirmedPassword"
       />
 
@@ -79,7 +79,7 @@
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :error="facilityIsInvalidText"
-        @blur="validateFacility = true"
+        @blur="facilityBlurred = true"
         @input="updateSelection"
       />
 
@@ -137,11 +137,11 @@
       password: '',
       confirmedPassword: '',
       selection: {},
-      validateName: false,
-      validateUsername: false,
-      validatePassword: false,
-      validateConfirmedPassword: false,
-      validateFacility: false,
+      nameBlurred: false,
+      usernameBlurred: false,
+      passwordBlurred: false,
+      confirmedPasswordBlurred: false,
+      facilityBlurred: false,
       formSubmitted: false,
     }),
     computed: {
@@ -161,7 +161,7 @@
         return this.selection;
       },
       nameIsInvalidText() {
-        if (this.validateName || this.formSubmitted) {
+        if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
           }
@@ -184,7 +184,7 @@
         return true;
       },
       usernameIsInvalidText() {
-        if (this.validateUsername || this.formSubmitted) {
+        if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -201,7 +201,7 @@
         return !!this.usernameIsInvalidText;
       },
       passwordIsInvalidText() {
-        if (this.validatePassword || this.formSubmitted) {
+        if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
             return this.$tr('required');
           }
@@ -212,7 +212,7 @@
         return !!this.passwordIsInvalidText;
       },
       confirmedPasswordIsInvalidText() {
-        if (this.validateConfirmedPassword || this.formSubmitted) {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
             return this.$tr('required');
           }
@@ -229,7 +229,7 @@
         return !this.selectedFacility.id;
       },
       facilityIsInvalidText() {
-        if (this.validateFacility || this.formSubmitted) {
+        if (this.facilityBlurred || this.formSubmitted) {
           if (this.noFacilitySelected) {
             return this.$tr('required');
           }
