@@ -24,6 +24,7 @@
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
       <k-textbox
+        ref="name"
         id="name"
         type="text"
         autocomplete="name"
@@ -37,6 +38,7 @@
       />
 
       <k-textbox
+        ref="username"
         id="username"
         type="text"
         autocomplete="username"
@@ -50,6 +52,7 @@
       />
 
       <k-textbox
+        ref="password"
         id="password"
         type="password"
         autocomplete="new-password"
@@ -61,6 +64,7 @@
       />
 
       <k-textbox
+        ref="confirmedPassword"
         id="confirmed-password"
         type="password"
         autocomplete="new-password"
@@ -83,7 +87,7 @@
         @input="updateSelection"
       />
 
-      <k-button :disabled="!formIsValid || busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -259,6 +263,9 @@
       },
     },
     methods: {
+      updateSelection(selection) {
+        this.selection = selection;
+      },
       signUp() {
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
@@ -269,10 +276,20 @@
             username: this.username,
             password: this.password,
           });
+        } else {
+          this.focusOnInvalidField();
         }
       },
-      updateSelection(selection) {
-        this.selection = selection;
+      focusOnInvalidField() {
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        }
       },
     },
     vuex: {

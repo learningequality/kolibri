@@ -30,6 +30,7 @@
 
       <h3>{{ $tr('username') }}</h3>
       <k-textbox
+        ref="username"
         v-if="canEditUsername"
         type="text"
         autocomplete="username"
@@ -61,7 +62,7 @@
         class="submit"
         :text="$tr('updateProfile')"
         :primary="true"
-        :disabled="busy || !formIsValid"
+        :disabled="busy"
       />
     </form>
   </div>
@@ -178,6 +179,8 @@
             full_name: this.full_name,
           };
           this.editProfile(edits, this.session);
+        } else {
+          this.$refs.username.focus();
         }
       },
     },

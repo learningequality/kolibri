@@ -5,6 +5,7 @@
     <div>
       <form @submit.prevent="callRenameGroup">
         <k-textbox
+          ref="name"
           type="text"
           :label="$tr('learnerGroupName')"
           :autofocus="true"
@@ -23,7 +24,7 @@
           type="submit"
           :text="$tr('save')"
           :primary="true"
-          :disabled="!formIsValid || submitting"
+          :disabled="submitting"
         />
       </form>
     </div>
@@ -112,6 +113,8 @@
         if (this.formIsValid) {
           this.submitting = true;
           this.renameGroup(this.groupId, this.name);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {

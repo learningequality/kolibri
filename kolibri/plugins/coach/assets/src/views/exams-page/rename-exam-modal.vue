@@ -3,6 +3,7 @@
   <core-modal :title="$tr('renameExam')" @cancel="close">
     <form @submit.prevent="callRenameExam">
       <k-textbox
+        ref="name"
         :label="$tr('examName')"
         :autofocus="true"
         :invalid="titleIsInvalid"
@@ -12,7 +13,7 @@
       />
       <div class="footer">
         <k-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>
-        <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="!formIsValid || submitting"/>
+        <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="submitting"/>
       </div>
     </form>
   </core-modal>
@@ -104,6 +105,8 @@
         if (this.formIsValid) {
           this.submitting = true;
           this.renameExam(this.examId, this.newExamTitle);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {

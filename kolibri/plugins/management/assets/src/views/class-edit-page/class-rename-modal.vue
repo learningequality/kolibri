@@ -7,6 +7,7 @@
     <div>
       <form @submit.prevent="updateName">
         <k-textbox
+          ref="name"
           type="text"
           :label="$tr('classname')"
           :autofocus="true"
@@ -28,7 +29,7 @@
             type="submit"
             :text="$tr('update')"
             :primary="true"
-            :disabled="!formIsValid || submitting"
+            :disabled="submitting"
           />
         </section>
       </form>
@@ -118,6 +119,8 @@
         if (this.formIsValid) {
           this.submitting = true;
           this.updateClass(this.classid, { name: this.name });
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {

@@ -23,7 +23,7 @@
             :invalid="usernameIsInvalid"
             :invalidText="usernameIsInvalidText"
             @blur="handleUsernameBlur"
-            @focus="showDropdown = true"
+            @input="showDropdown = true"
             @keydown="handleKeyboardNav"
             v-model="username"
           />
@@ -46,6 +46,7 @@
         <transition name="textbox">
           <k-textbox
             v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+            ref="password"
             id="password"
             type="password"
             autocomplete="current-password"
@@ -62,7 +63,7 @@
           type="submit"
           :text="$tr('signIn')"
           :primary="true"
-          :disabled="busy || !formIsValid"
+          :disabled="busy"
         />
       </form>
       <div id="divid-line"></div>
@@ -276,6 +277,15 @@
             password: this.password,
             facility: this.facility,
           });
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
         }
       },
     },

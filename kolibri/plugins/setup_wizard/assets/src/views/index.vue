@@ -17,6 +17,7 @@
           <p class="description">{{ $tr('deviceOwnerDescription') }}</p>
 
           <k-textbox
+            ref="username"
             :label="$tr('usernameInputLabel')"
             :maxlength="30"
             :autofocus="true"
@@ -27,6 +28,7 @@
           />
 
           <k-textbox
+            ref="password"
             type="password"
             :label="$tr('passwordInputLabel')"
             :invalid="passwordIsInvalid"
@@ -36,6 +38,7 @@
           />
 
           <k-textbox
+            ref="confirmedPassword"
             type="password"
             :label="$tr('reEnterPasswordInputLabel')"
             :invalid="confirmedPasswordIsInvalid"
@@ -53,6 +56,7 @@
           <p class="description">{{ $tr('facilityDescription') }}</p>
 
           <k-textbox
+            ref="facility"
             :label="$tr('facilityInputLabel')"
             :maxlength="100"
             :invalid="facilityIsInvalid"
@@ -73,7 +77,7 @@
             {{ $tr('setupProgressFeedback') }}
           </ui-alert>
 
-          <k-button :disabled="!formIsValid || submitted" :primary="true" :text="$tr('formSubmissionButton')" type="submit"/>
+          <k-button :disabled="submitted" :primary="true" :text="$tr('formSubmissionButton')" type="submit"/>
         </div>
       </form>
 
@@ -209,6 +213,19 @@
           const languageCode = 'en';
           const preset = 'nonformal';
           this.provisionDevice(superuser, facility, preset, languageCode);
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        } else if (this.facilityIsInvalid) {
+          this.$refs.facility.focus();
         }
       },
     },

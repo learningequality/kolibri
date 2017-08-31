@@ -5,6 +5,7 @@
     <div class="pure-g">
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
         <k-textbox
+          ref="title"
           :label="$tr('title')"
           :autofocus="true"
           :invalid="titleIsInvalid"
@@ -15,6 +16,7 @@
       </div>
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
         <k-textbox
+          ref="numQuest"
           type="number"
           :label="$tr('numQuestions')"
           :invalid="numQuestIsInvalid"
@@ -101,10 +103,10 @@
         {{ formIsInvalidText }}
       </ui-alert>
 
-      <k-button :text="$tr('preview')" @click="preview" :disabled="formIsInvalid"/>
+      <k-button :text="$tr('preview')" @click="preview"/>
 
       <br>
-      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="formIsInvalid || submitting"/>
+      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting"/>
     </div>
 
     <preview-new-exam-modal
@@ -401,13 +403,17 @@
       },
       preview() {
         this.previewOrSubmissionAttempt = true;
-        if (!this.formIsInvalid) {
+        if (this.formIsInvalid) {
+          this.focusOnInvalidField();
+        } else {
           this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
         this.previewOrSubmissionAttempt = true;
-        if (!this.formIsInvalid) {
+        if (this.formIsInvalid) {
+          this.focusOnInvalidField();
+        } else {
           this.submitting = true;
           const classCollection = {
             id: this.classId,
@@ -423,6 +429,13 @@
             seed: this.seed,
           };
           this.createExam(classCollection, examObj);
+        }
+      },
+      focusOnInvalidField() {
+        if (this.titleIsInvalid) {
+          this.$refs.title.focus();
+        } else if (this.numQuestIsInvalid) {
+          this.$refs.numQuest.focus();
         }
       },
       notLastBreadcrumb(index) {

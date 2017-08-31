@@ -7,6 +7,7 @@
     <div>
       <form @submit.prevent="createNewClass">
         <k-textbox
+          ref="name"
           type="text"
           :label="$tr('classname')"
           :autofocus="true"
@@ -28,7 +29,7 @@
             type="submit"
             :text="$tr('create')"
             :primary="true"
-            :disabled="!formIsValid || submitting"
+            :disabled="submitting"
           />
         </section>
       </form>
@@ -107,6 +108,8 @@
         if (this.formIsValid) {
           this.submitting = true;
           this.createClass(this.name);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {

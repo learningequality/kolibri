@@ -10,6 +10,7 @@
     <form @submit.prevent="createNewUser">
       <section>
         <k-textbox
+          ref="name"
           type="text"
           class="user-field"
           :label="$tr('name')"
@@ -21,6 +22,7 @@
           v-model.trim="fullName"
         />
         <k-textbox
+          ref="username"
           type="text"
           class="user-field"
           :label="$tr('username')"
@@ -31,6 +33,7 @@
           v-model="username"
         />
         <k-textbox
+          ref="password"
           type="password"
           class="user-field"
           :label="$tr('password')"
@@ -40,6 +43,7 @@
           v-model="password"
         />
         <k-textbox
+          ref="confirmedPassword"
           type="password"
           class="user-field"
           :label="$tr('reEnterPassword')"
@@ -60,7 +64,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="!formIsValid || submitting"/>
+        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting"/>
       </section>
     </form>
   </core-modal>
@@ -118,13 +122,6 @@
         passwordBlurred: false,
         confirmedPasswordBlurred: false,
         formSubmitted: false,
-      };
-    },
-    mounted() {
-      Object.assign(this.$data, this.$options.data());
-      this.kind = {
-        label: this.$tr('learner'),
-        value: UserKinds.LEARNER,
       };
     },
     computed: {
@@ -212,6 +209,13 @@
         ];
       },
     },
+    mounted() {
+      Object.assign(this.$data, this.$options.data());
+      this.kind = {
+        label: this.$tr('learner'),
+        value: UserKinds.LEARNER,
+      };
+    },
     methods: {
       createNewUser() {
         this.errorMessage = '';
@@ -239,6 +243,19 @@
               }
             }
           );
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
         }
       },
       close() {
