@@ -99,19 +99,21 @@
 
   .k-filter-icon
     position: absolute
-    top: 6px
+    top: 9px
     left: 0
-    margin-left: 4px
+    margin-left: 8px
+    margin-right: 8px
     font-size: 24px
+    color: $core-text-annotation
 
   .k-filter-input
     margin: 0
     padding-top: 0
-    padding-right: 32px
+    padding-right: 40px
     padding-bottom: 0
-    padding-left: 32px
-    width: calc(100% - 64px)
-    height: 36px
+    padding-left: 40px
+    width: calc(100% - 80px)
+    height: 40px
     border: 1px solid $core-grey-300
     border-radius: 2px
     background-color: white
@@ -122,9 +124,10 @@
 
   .k-filter-clear-button
     position: absolute
-    top: 6px
+    top: 9px
     right: 0
-    margin-right: 4px
+    margin-left: 8px
+    margin-right: 8px
     width: 24px
     height: 24px
     visibility: hidden
