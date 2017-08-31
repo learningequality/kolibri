@@ -42,19 +42,19 @@
 
     <div v-else>
 
-      <div class="actions-header pure-g">
+      <div class="actions-header">
 
-        <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
-
-          <k-filter-textbox
-            :placeholder="$tr('searchForUser')"
-            v-model.trim="filterInput"
-            @input="pageNum = 1"
-          />
-        </div>
-        <div :class="[windowSize.breakpoint > 3 ? 'pure-u-1-4' : 'pure-u-1-1', filterInput === '' ? '' : 'invisible']">
+        <k-filter-textbox
+          class="filter"
+          :class="{ 'invisible' : showSelectedUsers }"
+          :placeholder="$tr('searchForUser')"
+          v-model.trim="filterInput"
+          @input="pageNum = 1"
+        />
+        <div class="inline-block">
           <ui-switch
             name="showSelectedUsers"
+            :class="{ 'invisible' : filterInput }"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
             v-model="showSelectedUsers"
             class="switch"
@@ -409,5 +409,8 @@
   .row-enter, .row-leave-active
     opacity: 0
     transform: scale3d(1, 0.5, 1)
+
+  .filter
+    margin-right: 16px
 
 </style>

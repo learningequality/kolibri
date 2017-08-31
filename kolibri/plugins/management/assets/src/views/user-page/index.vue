@@ -230,7 +230,7 @@
     margin-right: 8px
 
   #type-filter, .searchbar
-    margin-bottom: 8px
+    margin-top: 5px
 
   .header h1
     display: inline-block

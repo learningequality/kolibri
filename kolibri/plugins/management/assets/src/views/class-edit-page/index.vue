@@ -208,6 +208,9 @@
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
 
+  .searchbar
+    margin-top: 5px
+
   #name-edit-box
     display: inline-block
     cursor: pointer
