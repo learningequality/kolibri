@@ -18,6 +18,24 @@ var coreExternals = require('./apiSpecExportTools').coreExternals;
 
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
+function setNodePaths(nodePaths) {
+  /*
+   * This is a filthy hack. Do as I say, not as I do.
+   * Taken from: https://gist.github.com/branneman/8048520#6-the-hack
+   * This forces the NODE_PATH environment variable to include the main
+   * kolibri node_modules folder, so that even plugins being built outside
+   * of the kolibri folder will have access to all installed loaders, etc.
+   * Doing it here, rather than at command invocation, allows us to do this
+   * in a cross platform way, and also to avoid having to prepend it to all
+   * our commands that end up invoking webpack.
+   */
+  nodePaths.forEach(nodePath => {
+    var delimiter = process.platform === 'win32' ? ';' : ':';
+    process.env.NODE_PATH = process.env.NODE_PATH + delimiter + nodePath;
+  });
+  require('module').Module._initPaths();
+}
+
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
  * using a Python script to import the relevant plugins and then run methods against them to retrieve the config data.
@@ -98,7 +116,7 @@ var readBundlePlugins = function(base_dir) {
   var core_externals = core_bundle ? coreExternals(core_bundle.output.library) : {};
 
   bundles.forEach(function(bundle) {
-    bundle.resolve.alias = coreAliases(coreAPISpec);
+    Object.assign(bundle.resolve.alias, coreAliases(coreAPISpec));
     if (bundle.core_name === null || typeof bundle.core_name === 'undefined') {
       // If this is not the core bundle, then we need to add the external library mappings.
       bundle.externals = _.extend({}, externals, core_externals);
@@ -124,11 +142,26 @@ var readBundlePlugins = function(base_dir) {
 
   mkdirp.sync(locale_dir);
 
+  var nodePaths = [];
+
   // We add some custom configuration options to the bundles that webpack 2 dislikes, clean them up here.
   bundles.forEach(function(bundle) {
     delete bundle.core_name;
     delete bundle.coreAPISpec;
+    if (bundle.nodePaths) {
+      if (!Array.isArray(bundle.nodePaths)) {
+        nodePaths.push(bundle.nodePaths);
+      } else {
+        nodePaths = nodePaths.concat(bundle.nodePaths);
+      }
+    }
+    delete bundle.nodePaths;
   });
+
+  // Allow individual plugins to set extra node paths - this is potentially dangerous,
+  // because different node modules might have the same module in them, and we can't
+  // predict which one will get resolved first. Caveat emptor.
+  setNodePaths(nodePaths);
 
   return bundles;
 };

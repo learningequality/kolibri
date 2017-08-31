@@ -14,9 +14,6 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames, ContentWizardPages } from '../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-// because these modules use ES6 module syntax, need to access exports.default in CommonJS context
-import addCoachRoleAction from './addCoachRoleAction';
-import removeCoachRoleAction from './removeCoachRoleAction';
 import {
   showFacilityConfigPage,
   resetFacilityConfig,
@@ -685,8 +682,6 @@ export {
   updateUser,
   deleteUser,
   showUserPage,
-  addCoachRoleAction as addCoachRole,
-  removeCoachRoleAction as removeCoachRole,
   showContentPage,
   pollTasks,
   cancelTask,

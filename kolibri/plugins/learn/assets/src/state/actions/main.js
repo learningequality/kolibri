@@ -96,6 +96,7 @@ function contentState(data, nextContent, ancestors = []) {
     license_description: data.license_description,
     license_owner: data.license_owner,
     parent: data.parent,
+    lang: data.lang,
   };
   Object.assign(state, assessmentMetaDataState(data));
   return state;
@@ -327,9 +328,7 @@ function triggerSearch(store, channelId, searchTerm) {
     return;
   }
 
-  const contentCollection = ContentNodeResource.getPagedCollection(
-    { search: searchTerm }
-  );
+  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise
@@ -529,9 +528,9 @@ function showExam(store, channelId, id, questionNumber) {
           // Illegal question number!
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
-          const contentPromise = ContentNodeResource.getCollection(
-            { ids: questionSources.map(item => item.exercise_id) }
-          ).fetch();
+          const contentPromise = ContentNodeResource.getCollection({
+            ids: questionSources.map(item => item.exercise_id),
+          }).fetch();
 
           contentPromise.only(
             samePageCheckGenerator(store),

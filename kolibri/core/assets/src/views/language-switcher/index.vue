@@ -3,8 +3,8 @@
   <div>
     <div v-if="footer" class="page-footer">
       <ul class="language-list">
-        <li v-for="language in languageOptions" :class="selectedLanguage===language.code ? 'selected item' : 'choice item'" @click="setAndSwitchLanguage(language.code)">
-          {{ language.name }}
+        <li v-for="language in languageOptions" :class="selectedLanguage===language.id ? 'selected item' : 'choice item'" @click="setAndSwitchLanguage(language.id)">
+          {{ language.lang_name }}
         </li>
       </ul>
     </div>
@@ -16,10 +16,10 @@
       <p>{{ $tr('changeLanguageSubHeader') }}</p>
       <k-radio-button
         v-for="language in languageOptions"
-        :key="language.code"
-        :radiovalue="language.code"
+        :key="language.id"
+        :radiovalue="language.id"
         :value="selectedLanguage"
-        :label="language.name"
+        :label="language.lang_name"
         v-model="selectedLanguage"
       />
       <div class="footer">
@@ -69,7 +69,7 @@
           .map(key => availableLanguages[key]);
       },
       currentLanguageName() {
-        return availableLanguages[currentLanguage].name;
+        return availableLanguages[currentLanguage].lang_name;
       },
       showModal() {
         return this.modalOpen || this.internalModalOpen;

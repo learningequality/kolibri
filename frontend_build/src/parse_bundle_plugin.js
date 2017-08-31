@@ -140,6 +140,9 @@ var parseBundlePlugin = function(data, base_dir) {
   bundle.output = {
     path: outputPath,
     filename: '[name]-' + data.version + '.js',
+    // Need to define this in order for chunks to be named
+    // Without this chunks from different bundles will likely have colliding names
+    chunkFilename: '[name]-' + data.version + '.js',
     publicPath: publicPath,
     library: library,
   };

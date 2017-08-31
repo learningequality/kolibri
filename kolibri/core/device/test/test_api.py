@@ -1,5 +1,6 @@
+from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.test.helpers import provision_device
-from kolibri.auth.models import Facility, FacilityDataset, FacilityUser
+from kolibri.auth.models import Facility, FacilityDataset, FacilityUser, Role
 from kolibri.core.device.models import DevicePermissions
 
 from django.core.urlresolvers import reverse
@@ -63,6 +64,26 @@ class DeviceProvisionTestCase(APITestCase):
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
         self.assertEqual(Facility.objects.get().name, self.facility_data["name"])
+
+    def test_admin_role_created(self):
+        data = {
+            "superuser": self.superuser_data,
+            "facility": self.facility_data,
+            "preset": self.preset_data,
+            "language_code": self.language_code,
+        }
+        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.assertEqual(Role.objects.get().kind, ADMIN)
+
+    def test_facility_role_created(self):
+        data = {
+            "superuser": self.superuser_data,
+            "facility": self.facility_data,
+            "preset": self.preset_data,
+            "language_code": self.language_code,
+        }
+        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.assertEqual(Role.objects.get().collection.name, self.facility_data["name"])
 
     def test_dataset_set_created(self):
         data = {
