@@ -1,6 +1,6 @@
 <template>
 
-  <form>
+  <form @submit="setSuperuserCredentials">
     <fieldset>
       <legend>
         <h1>
@@ -25,9 +25,10 @@
 
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { submitSuperuserCredentials } from '../../../state/actions/forms';
 
   export default {
-    name: 'superUserCredentialsForm',
+    name: 'superuserCredentialsForm',
     props: {
       submitText: {
         type: String,
@@ -45,6 +46,17 @@
         password: '',
         passwordConfirm: '',
       };
+    },
+    methods: {
+      setSuperuserCredentials() {
+        this.submitSuperuserCredentials(this.name, this.username, this.password);
+        this.$emit('submit');
+      },
+    },
+    vuex: {
+      actions: {
+        submitSuperuserCredentials,
+      },
     },
   };
 

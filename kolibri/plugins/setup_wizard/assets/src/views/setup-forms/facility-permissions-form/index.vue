@@ -1,6 +1,6 @@
 <template>
 
-  <form>
+  <form @submit="setPermissions">
     <fieldset>
       <legend>
         <h1>
@@ -23,9 +23,13 @@
 <script>
 
   import { facilityPresetChoices } from '../../../state/constants';
+  import { submitFacilityPermissions } from '../../../state/actions/forms';
+
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+
+  // TODO add modal and link to open it
 
   export default {
     name: 'selectPermissionsForm',
@@ -44,6 +48,17 @@
       return {
         permissionPreset: '',
       };
+    },
+    methods: {
+      setPermissions() {
+        this.submitFacilityPermissions(this.permissionPreset);
+        this.$emit('submit');
+      },
+    },
+    vuex: {
+      actions: {
+        submitFacilityPermissions,
+      },
     },
   };
 

@@ -9,7 +9,7 @@
     <component
       :is="currentOnboardingForm"
       :submitText="submitText"
-      @submit.native="goToNextStep"
+      @submit="continueOnboarding"
       class="onboarding-form"
       />
 
@@ -58,13 +58,20 @@
         return this.isLastStep ? 'Submit' : 'Continue';
       },
     },
+    methods: {
+      continueOnboarding() {
+        this.isLastStep ? this.provisionDevice(this.onboardingData) : this.goToNextStep();
+      },
+    },
     vuex: {
       getters: {
         onboardingStep: state => state.onboardingStep,
+        onboardingData: state => state.onboardingData,
       },
       actions: {
         goToNextStep,
         goToPreviousStep,
+        provisionDevice,
       },
     },
   };

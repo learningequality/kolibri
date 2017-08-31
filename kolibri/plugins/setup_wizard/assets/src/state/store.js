@@ -6,12 +6,14 @@ import {
 
 const initialState = {
   onboardingData: {
-    language: '',
-    facilityName: '',
-    suName: '',
-    suUsername: '',
-    suPassword: '',
-    facilityPreset: '',
+    language_code: '',
+    facility: '',
+    superuser: {
+      name: '',
+      username: '',
+      password: '',
+    },
+    preset: '',
   },
   submitted: false,
   error: false,
@@ -19,23 +21,23 @@ const initialState = {
 };
 
 const mutations = {
-  SET_LANGUAGE(state, language) {
-    state.onboardingData.language = language;
+  SET_LANGUAGE(state, language_code) {
+    state.onboardingData.language_code = language_code;
   },
   SET_FACILITY_NAME(state, facilityName) {
-    state.onboardingData.facilityName = facilityName;
+    state.onboardingData.facility = facilityName;
   },
   SET_SU_NAME(state, name) {
-    state.onboardingData.suName = name;
+    state.onboardingData.superuser.name = name;
   },
   SET_SU_USERNAME(state, userName) {
-    state.onboardingData.suUsername = userName;
+    state.onboardingData.superuser.username = userName;
   },
   SET_SU_PASSWORD(state, password) {
-    state.onboardingData.suPassword = password;
+    state.onboardingData.superuser.password = password;
   },
   SET_FACILITY_PRESET(state, preset) {
-    state.onboardingData.facilityPreset = preset;
+    state.onboardingData.preset = preset;
   },
   SET_SUBMITTED(state, submittedFlag) {
     state.submitted = submittedFlag;

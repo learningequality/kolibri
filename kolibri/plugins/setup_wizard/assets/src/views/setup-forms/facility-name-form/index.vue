@@ -1,6 +1,6 @@
 <template>
 
-  <form>
+  <form @submit="setFacilityName">
     <fieldset>
       <legend>
         <h1>
@@ -22,6 +22,7 @@
 
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { submitFacilityName } from '../../../state/actions/forms';
 
   export default {
     name: 'facilityNameForm',
@@ -39,6 +40,17 @@
       return {
         facilityName: '',
       };
+    },
+    methods: {
+      setFacilityName() {
+        this.submitFacilityName(this.facilityName);
+        this.$emit('submit');
+      },
+    },
+    vuex: {
+      actions: {
+        submitFacilityName,
+      },
     },
   };
 

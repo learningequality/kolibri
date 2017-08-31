@@ -1,13 +1,8 @@
 import { DeviceProvisionResource } from 'kolibri.resources';
 import { kolibriLogin, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
-function provisionDevice(store, superuser, facility, preset, language_code) {
-  const DeviceProvisionModel = DeviceProvisionResource.createModel({
-    superuser,
-    facility,
-    preset,
-    language_code,
-  });
+function provisionDevice(store, onboardingData) {
+  const DeviceProvisionModel = DeviceProvisionResource.createModel(onboardingData);
   const deviceProvisionPromise = DeviceProvisionModel.save();
 
   store.dispatch('SET_SUBMITTED', true);
@@ -18,7 +13,7 @@ function provisionDevice(store, superuser, facility, preset, language_code) {
       kolibriLogin(store, superuser, true);
     },
     error => {
-      store.dispatch('SET_SUBMITTED', false);
+      store.dispatch('SET_ERROR', true);
       handleApiError(store, error);
     }
   );

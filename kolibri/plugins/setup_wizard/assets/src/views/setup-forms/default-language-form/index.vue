@@ -1,6 +1,6 @@
 <template>
 
-  <form @submit="submitDefaultLanguage(selectedLanguage)" class="language-form">
+  <form @submit="setLanguage" class="language-form">
     <fieldset>
       <legend>
         <h1 class="language-form-header">
@@ -55,6 +55,8 @@
   const buttonLanguages = remainingLanguages.slice(0, numberOfLanguageButtons);
   const selectorLanguages = remainingLanguages.slice(numberOfLanguageButtons);
 
+  // TODO add language switching logic
+
   export default {
     name: 'defaultLanguageForm',
     components: { kButton },
@@ -74,6 +76,12 @@
     computed: {
       currentLanguage() {
         return allLanguages[currentLanguage].name;
+      },
+    },
+    methods: {
+      setLanguage() {
+        this.submitDefaultLanguage(this.selectedLanguage);
+        this.$emit('submit');
       },
     },
     vuex: {
