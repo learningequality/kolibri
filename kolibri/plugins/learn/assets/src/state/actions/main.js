@@ -96,6 +96,7 @@ function contentState(data, nextContent, ancestors = []) {
     license_description: data.license_description,
     license_owner: data.license_owner,
     parent: data.parent,
+    lang: data.lang,
   };
   Object.assign(state, assessmentMetaDataState(data));
   return state;

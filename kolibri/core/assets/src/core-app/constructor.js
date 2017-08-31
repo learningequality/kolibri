@@ -30,6 +30,8 @@ const publicMethods = [
   'registerLanguageAssets',
   'registerContentRenderer',
   'retrieveContentRenderer',
+  'loadDirectionalCSS',
+  'scriptLoader',
 ];
 
 /**
