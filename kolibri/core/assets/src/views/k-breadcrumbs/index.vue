@@ -142,6 +142,9 @@
       this.detachSensors();
     },
     methods: {
+      /**
+       * @private
+       */
       attachSensors() {
         this.$nextTick(() => {
           const crumbRefs = filter(this.$refs, (value, key) => startsWith(key, 'crumb'));
@@ -154,11 +157,17 @@
           this.updateCrumbs();
         });
       },
+      /**
+       * @private
+       */
       detachSensors() {
         this.crumbs.forEach(crumb => {
           crumb.sensor.detach(this.throttleUpdateCrumbs);
         });
       },
+      /**
+       * @private
+       */
       updateCrumbs() {
         const tempCrumbs = Array.from(this.crumbs);
         let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
@@ -195,6 +204,9 @@
           trackingIndex -= 1;
         }
       },
+      /**
+       * @private
+       */
       throttleUpdateCrumbs: throttle(function updateCrumbs() {
         this.updateCrumbs();
       }, 100),

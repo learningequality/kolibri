@@ -125,6 +125,9 @@
       this.isCurrentlyIndeterminate = this.indeterminate;
     },
     methods: {
+      /**
+       * @private
+       */
       toggleCheck(event) {
         if (!this.disabled) {
           this.isCurrentlyChecked = !this.isCurrentlyChecked;

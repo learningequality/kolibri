@@ -105,6 +105,9 @@
       },
     },
     methods: {
+      /**
+       * @private
+       */
       updateText() {
         // v-model is just a :value + @input
         /**
@@ -112,14 +115,26 @@
          */
         this.$emit('input', this.currentText);
       },
+      /**
+       * @private
+       */
       reset() {
         this.$refs.textbox.reset();
       },
+      /**
+       * @private
+       */
       emitKeydown(e) {
         /**
          * Emits keydown event
          */
         this.$emit('keydown', e);
+      },
+      /**
+       * Focuses on the textbox
+       */
+      focus() {
+        this.$refs.textbox.$el.querySelector('input').focus();
       },
     },
   };
