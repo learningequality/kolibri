@@ -29,7 +29,6 @@
 
   export default {
     name: 'elapsedTime',
-    name: 'elapsedTime',
     $trs: {
       secondsAgo: '{n, number, integer} {n, plural, one {second} other {seconds} } ago',
       minutesAgo: '{n, number, integer} {n, plural, one {minute} other {minutes} } ago',
