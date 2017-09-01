@@ -53,18 +53,18 @@
 
 <script>
 
-  const values = require('lodash/values');
-  const getters = require('kolibri.coreVue.vuex.getters');
-  const actions = require('kolibri.coreVue.vuex.actions');
-  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
-
-  module.exports = {
-    mixins: [
-      responsiveWindow,
-      responsiveElement,
-    ],
+  import values from 'lodash/values';
+  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import uiMenu from './keen-menu-port';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import logo from 'kolibri.coreVue.components.logo';
+  export default {
+    mixins: [responsiveWindow, responsiveElement],
     $trNameSpace: 'navbar',
     $trs: {
       navigationLabel: 'Main user navigation',
@@ -83,7 +83,7 @@
         type: String,
         validator(value) {
           if (!value) {
-            return true; // Okay if it's undefined
+            return true;
           }
           return values(TopLevelPageNames).includes(value);
         },
@@ -119,16 +119,16 @@
           fontSize: `${this.headerHeight / 2}px`,
           marginLeft: `${this.width / 20}px`,
           marginRight: `${this.width / 20}px`,
-
         };
       },
       wrapperStyle() {
+        // Calculate min-height property by taking the number of options (minus the divider)
+        // multipying by 50 for each option, adding 173 for the divider and the footer,
+        // and finally adding this.width/2.5 for the non-mobile logo if needed.
         return {
-          // Calculate min-height property by taking the number of options (minus the divider)
-          // multipying by 50 for each option, adding 173 for the divider and the footer,
-          // and finally adding this.width/2.5 for the non-mobile logo if needed.
-          minHeight: `${((this.menuOptions.length - 1) * 50) + 173 +
-          (!this.mobile ? this.width / 2.5 : 0)}px`,
+          minHeight: `${(this.menuOptions.length - 1) * 50 +
+            173 +
+            (!this.mobile ? this.width / 2.5 : 0)}px`,
           width: `${this.width}px`,
         };
       },
@@ -136,10 +136,10 @@
         return this.windowSize.breakpoint < 2;
       },
       tablet() {
-        return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
+        return this.windowSize.breakpoint > 1 && this.windowSize.breakpoint < 5;
       },
       footerMsg() {
-        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
+        return this.$tr('poweredBy', { version: __version });
       },
       closeNav() {
         return this.$tr('closeNav');
@@ -148,7 +148,7 @@
         return this.$tr('navigationLabel');
       },
       learnActive() {
-        return (this.topLevelPageName === TopLevelPageNames.LEARN);
+        return this.topLevelPageName === TopLevelPageNames.LEARN;
       },
       coachActive() {
         return this.topLevelPageName === TopLevelPageNames.COACH;
@@ -187,9 +187,7 @@
             href: '/management',
           });
         }
-        options.push({
-          type: 'divider',
-        });
+        options.push({ type: 'divider' });
         if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('profile'),
@@ -213,15 +211,13 @@
       },
     },
     components: {
-      'ui-menu': require('./keen-menu-port'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'logo': require('kolibri.coreVue.components.logo'),
+      uiMenu,
+      uiIcon,
+      uiIconButton,
+      logo,
     },
     vuex: {
-      actions: {
-        signOut: actions.kolibriLogout,
-      },
+      actions: { signOut: actions.kolibriLogout },
       getters: {
         session: state => state.core.session,
         isUserLoggedIn: getters.isUserLoggedIn,

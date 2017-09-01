@@ -17,7 +17,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'error',
     $trs: {
       errorHeader: 'Error',
@@ -73,6 +73,6 @@
     font-size: 10px
     border: 1px solid black
     background-color: white
-    color: black
+    color: $core-text-default
 
 </style>

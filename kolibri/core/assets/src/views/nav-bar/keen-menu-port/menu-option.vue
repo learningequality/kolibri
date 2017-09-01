@@ -56,16 +56,16 @@
         type: Object,
         default() {
           return {};
-        }
+        },
       },
       secondaryText: String,
       disableRipple: {
         type: Boolean,
-        default: config.data.disableRipple
+        default: config.data.disableRipple,
       },
       disabled: {
         type: Boolean,
-        default: false
+        default: false,
       },
       active: {
         type: Boolean,
@@ -78,19 +78,19 @@
         return {
           'is-divider': this.isDivider,
           'is-disabled': this.disabled,
-          'is-active': this.active
+          'is-active': this.active,
         };
       },
 
       isDivider() {
         return this.type === 'divider';
-      }
+      },
     },
 
     components: {
       UiIcon,
-      UiRippleInk
-    }
+      UiRippleInk,
+    },
   };
 
 </script>

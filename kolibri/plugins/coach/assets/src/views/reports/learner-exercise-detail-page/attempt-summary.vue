@@ -44,7 +44,10 @@
 
 <script>
 
-  module.exports = {
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  export default {
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
       statusMastered: 'Completed',
@@ -54,9 +57,9 @@
       notStarted: 'Not started',
     },
     components: {
-      'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      contentIcon,
+      progressIcon,
+      elapsedTime,
     },
     props: {
       userName: {
@@ -111,7 +114,6 @@
         try {
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
           // TODO might be more types?
-          // if (requirements.type === 'm_of_n') {
           return this.$tr('requirementsMOfN', {
             m: requirements.m,
             n: requirements.n,
@@ -151,7 +153,7 @@
     margin-top: 10px
 
   .in-progress
-    color: #ADADAD
+    color: $core-grey
 
   .svg-item
     display: inline-block

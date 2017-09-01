@@ -1,17 +1,23 @@
+import os
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database
+from kolibri.content.content_db_router import get_active_content_database, using_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from six.moves.urllib.parse import parse_qs, urlparse
 
+from .permissions import OnlyDeviceOwnerCanDelete
+from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
 
@@ -19,21 +25,53 @@ def _join_with_logical_operator(lst, operator):
     op = ") {operator} (".format(operator=operator)
     return "(({items}))".format(items=op.join(lst))
 
+
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
+    permission_classes = (OnlyDeviceOwnerCanDelete,)
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
     def get_queryset(self):
         return models.ChannelMetadataCache.objects.all()
 
+    def destroy(self, request, pk=None):
+        """
+        Destroys the ChannelMetadata object and its associated sqlite3 file on
+        the filesystem.
+        """
+        super(ChannelMetadataCacheViewSet, self).destroy(request)
 
-class ContentNodeFilter(filters.FilterSet):
+        if self.delete_content_db_file(pk):
+            response_msg = 'Channel {} removed from device'.format(pk)
+        else:
+            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
+
+        return Response(response_msg)
+
+    def delete_content_db_file(self, channel_id):
+        try:
+            os.remove(get_content_database_file_path(channel_id))
+            return True
+        except OSError:
+            return False
+
+
+class IdFilter(filters.FilterSet):
+    ids = filters.django_filters.MethodFilter()
+
+    def filter_ids(self, queryset, value):
+        return queryset.filter(pk__in=value.split(','))
+
+    class Meta:
+        fields = ['ids', ]
+
+
+class ContentNodeFilter(IdFilter):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
     kind = filters.django_filters.MethodFilter()
-    ids = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -163,9 +201,6 @@ class ContentNodeFilter(filters.FilterSet):
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
 
-    def filter_ids(self, queryset, value):
-        return queryset.filter(pk__in=value.split(','))
-
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
@@ -177,18 +212,87 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class AllContentCursorPagination(pagination.CursorPagination):
+    page_size = 10
+    ordering = 'lft'
+    cursor_query_param = 'cursor'
+
+    def get_paginated_response(self, data):
+        """
+        By default the get_paginated_response method of the CursorPagination class returns the url link
+        to the next and previous queries of they exist.
+        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
+        directly querying passed in URLs.
+        Instead, return the cursor value that points to the next and previous items, so that they can be put
+        in a GET parameter in future queries.
+        """
+        if self.has_next:
+            # The CursorPagination class has no internal methods to just return the cursor value, only
+            # the url of the next and previous, so we have to generate the URL, parse it, and then
+            # extract the cursor parameter from it to return in the Response.
+            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
+        else:
+            next_item = None
+        if self.has_previous:
+            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
+            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
+        else:
+            prev_item = None
+
+        return Response(OrderedDict([
+            ('next', next_item),
+            ('previous', prev_item),
+            ('results', data)
+        ]))
+
 class ContentNodeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
 
-    def get_queryset(self):
-        return models.ContentNode.objects.all()
+    def prefetch_related(self, queryset):
+        return queryset.prefetch_related(
+            'assessmentmetadata',
+            'files',
+        ).select_related('license')
+
+    def get_queryset(self, prefetch=True):
+        queryset = models.ContentNode.objects.all()
+        if prefetch:
+            return self.prefetch_related(queryset)
+        return queryset
+
+    def get_object(self, prefetch=True):
+        """
+        Returns the object the view is displaying.
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
     @detail_route(methods=['get'])
     def descendants(self, request, **kwargs):
-        node = self.get_object()
+        node = self.get_object(prefetch=False)
         kind = self.request.query_params.get('descendant_kind', None)
         descendants = node.get_descendants()
         if kind:
@@ -204,7 +308,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(self.get_object().get_ancestors().values('pk', 'title'))
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
@@ -219,6 +323,31 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
+    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    def all_content(self, request, **kwargs):
+        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ContentNodeProgressFilter(IdFilter):
+    class Meta:
+        model = models.ContentNode
+
+
+class ContentNodeProgressViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ContentNodeProgressSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ContentNodeProgressFilter
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
@@ -226,3 +355,15 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ChannelFileSummaryViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        with using_content_database(kwargs['channel_id']):
+            file_summary = models.File.objects.aggregate(
+                total_files=Count('pk'),
+                total_file_size=Sum('file_size')
+            )
+            file_summary['channel_id'] = get_active_content_database()
+            # Need to wrap in an array to be fetchable as a Collection on client
+            return Response([file_summary])

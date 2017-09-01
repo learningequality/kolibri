@@ -1,6 +1,6 @@
-const Vuex = require('kolibri.lib.vuex');
-const Vue = require('kolibri.lib.vue');
-const coreStore = require('kolibri.coreVue.vuex.store');
+import Vuex from 'kolibri.lib.vuex';
+import Vue from 'kolibri.lib.vue';
+import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
   pageName: '',
@@ -10,7 +10,6 @@ const initialState = {
 };
 
 const mutations = {
-
   // coach-wide
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
@@ -85,7 +84,9 @@ const mutations = {
 Object.assign(initialState, coreStore.initialState);
 Object.assign(mutations, coreStore.mutations);
 
-module.exports = new Vuex.Store({
+const store = new Vuex.Store({
   state: initialState,
   mutations,
 });
+
+export { store as default };

@@ -1,15 +1,17 @@
 /* eslint-disable no-use-before-define */
-const cloneArray = (array) => array.map(item => cloneDeep(item));
+const cloneArray = array => array.map(item => cloneDeep(item));
 
-const cloneObject = (object) => {
+const cloneObject = object => {
   const clone = {};
-  Object.keys(object).forEach(key => { clone[key] = cloneDeep(object[key]); });
+  Object.keys(object).forEach(key => {
+    clone[key] = cloneDeep(object[key]);
+  });
   return clone;
 };
 
 /* eslint-enable no-use-before-define */
 
-const cloneDeep = (object) => {
+const cloneDeep = object => {
   if (Array.isArray(object)) {
     // is an array
     return cloneArray(object);
@@ -21,4 +23,4 @@ const cloneDeep = (object) => {
   return object;
 };
 
-module.exports = cloneDeep;
+export { cloneDeep as default };

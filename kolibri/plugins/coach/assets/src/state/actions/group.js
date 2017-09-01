@@ -1,13 +1,9 @@
-const coreApp = require('kolibri');
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const Constants = require('../../constants');
-const { setClassState } = require('./main');
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import * as Constants from '../../constants';
+import { setClassState } from './main';
 
-const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
-const MembershipResource = coreApp.resources.MembershipResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-
+import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 
 function _userState(user) {
   return {
@@ -33,7 +29,6 @@ function _groupsState(groups) {
   return groups.map(group => _groupState(group));
 }
 
-
 function displayModal(store, modalName) {
   store.dispatch('SET_GROUP_MODAL', modalName);
 }
@@ -43,21 +38,25 @@ function showGroupsPage(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.GROUPS);
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
-  const classUsersPromise =
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
-  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch({}, true);
+  const classUsersPromise = FacilityUserResource.getCollection({
+    member_of: classId,
+  }).fetch({}, true);
+  const groupPromise = LearnerGroupResource.getCollection({
+    parent: classId,
+  }).fetch({}, true);
 
   ConditionalPromise.all([
     facilityPromise,
     classUsersPromise,
     groupPromise,
-    setClassState(store, classId)
+    setClassState(store, classId),
   ]).only(
     coreActions.samePageCheckGenerator(store),
     ([facility, classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
-        FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true));
+        FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true)
+      );
 
       ConditionalPromise.all(groupUsersPromises).only(
         coreActions.samePageCheckGenerator(store),
@@ -168,10 +167,7 @@ function _addMultipleUsersToGroup(store, groupId, userIds) {
   const addPromises = userIds.map(userId => _addUserToGroup(store, groupId, userId));
 
   return new Promise((resolve, reject) => {
-    Promise.all(addPromises).then(
-      () => resolve(),
-      error => reject(error)
-    );
+    Promise.all(addPromises).then(() => resolve(), error => reject(error));
   });
 }
 
@@ -181,25 +177,23 @@ function _removeUserfromGroup(store, groupId, userId) {
     user_id: userId,
   };
   return new Promise((resolve, reject) => {
-    MembershipResource.getCollection(membershipPayload).fetch().then(
-      membership => {
-        const membershipId = membership[0].id; // will always only have one item in the array.
-        MembershipResource.getModel(membershipId).delete().then(
-          () => {
-            const groups = store.state.pageState.groups;
-            const groupIndex = groups.findIndex(group => group.id === groupId);
-            groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
+    MembershipResource.getCollection(membershipPayload).fetch().then(membership => {
+      const membershipId = membership[0].id; // will always only have one item in the array.
+      MembershipResource.getModel(membershipId).delete().then(
+        () => {
+          const groups = store.state.pageState.groups;
+          const groupIndex = groups.findIndex(group => group.id === groupId);
+          groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
 
-            // Clear cache for future fetches
-            LearnerGroupResource.clearCache();
+          // Clear cache for future fetches
+          LearnerGroupResource.clearCache();
 
-            store.dispatch('SET_GROUPS', groups);
-            resolve();
-          },
-          error => reject(error)
-        );
-      }
-    );
+          store.dispatch('SET_GROUPS', groups);
+          resolve();
+        },
+        error => reject(error)
+      );
+    });
   });
 }
 
@@ -207,10 +201,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
   const removePromises = userIds.map(userId => _removeUserfromGroup(store, groupId, userId));
 
   return new Promise((resolve, reject) => {
-    Promise.all(removePromises).then(
-      () => resolve(),
-      error => reject(error)
-    );
+    Promise.all(removePromises).then(() => resolve(), error => reject(error));
   });
 }
 
@@ -249,8 +240,7 @@ function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
   );
 }
 
-
-module.exports = {
+export {
   displayModal,
   showGroupsPage,
   createGroup,

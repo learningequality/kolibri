@@ -1,8 +1,7 @@
 <template>
 
   <div>
-    <router-link :to="classListPage"><h1>{{ $tr('allClasses') }}</h1></router-link>
-    <span class="seperator">&#62;</span>
+    <h1 class="classes-link"><router-link :to="classListPage">{{ $tr('allClasses') }}</router-link></h1>
     <ui-select
       :name="$tr('selectClass')"
       :value="currentClass"
@@ -17,19 +16,19 @@
 
 <script>
 
-  const orderBy = require('lodash/orderBy');
-  const PageNames = require('../../constants').PageNames;
-
-
-  module.exports = {
+  import orderBy from 'lodash/orderBy';
+  import { PageNames } from '../../constants';
+  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     $trNameSpace: 'classSelector',
     $trs: {
       allClasses: 'All classes',
       selectClass: 'Class',
     },
     components: {
-      'ui-select': require('keen-ui/src/UiSelect'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
+      uiSelect,
+      uiIcon,
     },
     props: {
       classes: {
@@ -43,14 +42,13 @@
     },
     computed: {
       sortedClasses() {
-        return orderBy(
-          this.classes,
-          [classroom => classroom.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       classOptions() {
-        return this.sortedClasses.map(classroom => ({ label: classroom.name, id: classroom.id }));
+        return this.sortedClasses.map(classroom => ({
+          label: classroom.name,
+          id: classroom.id,
+        }));
       },
       currentClass() {
         return this.classOptions.find(classroom => classroom.id === this.currentClassId);
@@ -85,12 +83,13 @@
     display: inline-flex
     vertical-align: bottom
 
-  .seperator
+  .classes-link
     display: inline-block
-    vertical-align: bottom
-    padding-right: 0.25em
-    padding-left: 0.25em
-    padding-bottom: 23px
+    &:after
+      content: '\203A'
+      margin-right: 8px
+      margin-left: 8px
+      vertical-align: top
 
   a
     display: inline-block

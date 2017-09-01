@@ -1,31 +1,30 @@
-const coreApp = require('kolibri');
-const logging = require('kolibri.lib.logging');
-const getters = require('kolibri.coreVue.vuex.getters');
+import logger from 'kolibri.lib.logging';
+import * as getters from 'kolibri.coreVue.vuex.getters';
+import {
+  ClassroomResource,
+  MembershipResource,
+  FacilityUserResource,
+  TaskResource,
+  RoleResource,
+} from 'kolibri.resources';
 
-const ClassroomResource = coreApp.resources.ClassroomResource;
-const MembershipResource = coreApp.resources.MembershipResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
-const TaskResource = coreApp.resources.TaskResource;
-const RoleResource = coreApp.resources.RoleResource;
-
-const coreActions = require('kolibri.coreVue.vuex.actions');
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const constants = require('../constants');
-const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-
-const PageNames = constants.PageNames;
-const ContentWizardPages = constants.ContentWizardPages;
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { PageNames, ContentWizardPages } from '../constants';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
-const addCoachRoleAction = require('./addCoachRoleAction').default;
-const removeCoachRoleAction = require('./removeCoachRoleAction').default;
-const {
+import addCoachRoleAction from './addCoachRoleAction';
+import removeCoachRoleAction from './removeCoachRoleAction';
+import {
   showFacilityConfigPage,
   resetFacilityConfig,
   saveFacilityConfig,
-} = require('./facilityConfigPageActions');
+} from './facilityConfigPageActions';
 
-const preparePage = require('./preparePage');
+import preparePage from './preparePage';
+
+const logging = logger.getLogger(__filename);
 
 /**
  * Vuex State Mappers
@@ -44,18 +43,17 @@ function _classState(data) {
   };
 }
 
-
 /*
  * This mostly duplicates _userState below, but searches Roles array for an exact match
  * on the classId, and not for any Role object.
  */
 function _userStateForClassEditPage(facilityId, classId, apiUserData) {
-  const matchingRole = apiUserData.roles.find((r) => (
+  const matchingRole = apiUserData.roles.find(
+    r =>
       String(r.collection) === String(classId) ||
       String(r.collection) === String(facilityId) ||
       r.kind === UserKinds.ADMIN ||
       r.kind === UserKinds.SUPERUSER
-    )
   );
 
   return {
@@ -73,7 +71,7 @@ function _userState(apiUserData) {
   function calcUserKind() {
     if (apiUserData.roles) {
       // array of strings, where each string represents a role object
-      const roleKinds = apiUserData.roles.map((roleObj) => roleObj.kind);
+      const roleKinds = apiUserData.roles.map(roleObj => roleObj.kind);
       if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
         return UserKinds.ADMIN;
       } else if (roleKinds.includes(UserKinds.COACH)) {
@@ -91,7 +89,6 @@ function _userState(apiUserData) {
     kind: calcUserKind(apiUserData.roles),
   };
 }
-
 
 function _taskState(data) {
   const state = {
@@ -112,18 +109,15 @@ function _managePageTitle(title) {
   return `Manage ${title}`;
 }
 
-
 /**
  * Actions
  *
  * These methods are used to update client-side state
  */
 
-
 function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
 }
-
 
 // ================================
 // CLASSES MANAGEMENT ACTIONS
@@ -144,7 +138,9 @@ function createClass(store, name) {
       store.dispatch('ADD_CLASS', _classState(classModel));
       displayModal(store, false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
@@ -162,7 +158,9 @@ function deleteClass(store, id) {
       store.dispatch('DELETE_CLASS', id);
       displayModal(store, false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
@@ -183,7 +181,9 @@ function updateClass(store, id, updateData) {
       store.dispatch('UPDATE_CLASS', id, response);
       displayModal(store, false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
@@ -198,22 +198,25 @@ function removeClassUser(store, classId, userId) {
     collection_id: classId,
   });
 
-  MembershipCollection.fetch().then(
-    (membership) => {
-      const membershipId = membership[0].id; // will always only have one item in the array.
-      MembershipResource.getModel(membershipId).delete().then(
-        response => {
-          store.dispatch('DELETE_CLASS_USER', userId);
-          displayModal(store, false);
-        },
-        error => { coreActions.handleApiError(store, error); }
-      );
-    }
-  );
+  MembershipCollection.fetch().then(membership => {
+    const membershipId = membership[0].id; // will always only have one item in the array.
+    MembershipResource.getModel(membershipId).delete().then(
+      response => {
+        store.dispatch('DELETE_CLASS_USER', userId);
+        displayModal(store, false);
+      },
+      error => {
+        coreActions.handleApiError(store, error);
+      }
+    );
+  });
 }
 
 function showClassesPage(store) {
-  preparePage(store.dispatch, { name: PageNames.CLASS_MGMT_PAGE, title: 'Classes' });
+  preparePage(store.dispatch, {
+    name: PageNames.CLASS_MGMT_PAGE,
+    title: 'Classes',
+  });
   const classCollection = ClassroomResource.getCollection();
   const classPromise = classCollection.fetch({}, true);
   const promises = [classPromise];
@@ -228,12 +231,17 @@ function showClassesPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
 function showClassEditPage(store, classId) {
-  preparePage(store.dispatch, { name: PageNames.CLASS_EDIT_MGMT_PAGE, title: 'Edit Class' });
+  preparePage(store.dispatch, {
+    name: PageNames.CLASS_EDIT_MGMT_PAGE,
+    title: 'Edit Class',
+  });
 
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
@@ -252,25 +260,30 @@ function showClassEditPage(store, classId) {
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    (results) => {
+    results => {
       store.dispatch('SET_PAGE_STATE', transformResults(results));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
-
 function showClassEnrollPage(store, classId) {
-  preparePage(store.dispatch, { name: PageNames.CLASS_ENROLL_MGMT_PAGE, title: 'Classes' });
+  preparePage(store.dispatch, {
+    name: PageNames.CLASS_ENROLL_MGMT_PAGE,
+    title: 'Classes',
+  });
 
   // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch({}, true);
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch();
   // users in current class
-  const classUsersPromise =
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
+  const classUsersPromise = FacilityUserResource.getCollection({
+    member_of: classId,
+  }).fetch({}, true);
 
   ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
@@ -291,18 +304,20 @@ function showClassEnrollPage(store, classId) {
   );
 }
 
-
 function enrollUsersInClass(store, classId, users) {
   // TODO no error handling
   return Promise.all(
-    users.map((userId) =>
-      MembershipResource.createModel({ collection: classId, user: userId }).save())
+    users.map(userId =>
+      MembershipResource.createModel({
+        collection: classId,
+        user: userId,
+      }).save()
+    )
   );
 }
 
 // ================================
 // USERS MANAGEMENT ACTIONS
-
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -346,7 +361,7 @@ function createUser(store, stateUserData) {
 
   return new Promise((resolve, reject) => {
     FacilityUserResource.createModel(userData).save().then(
-      (userModel) => {
+      userModel => {
         // only runs if there's a role to be assigned
         if (stateUserData.kind !== UserKinds.LEARNER) {
           assignUserRole(userModel, stateUserData.kind).then(
@@ -358,7 +373,7 @@ function createUser(store, stateUserData) {
           resolve(userModel);
         }
       },
-      (error) => reject(error)
+      error => reject(error)
     );
   }).then(
     // dispatch newly created user
@@ -434,7 +449,8 @@ function updateUser(store, stateUser) {
             resolve(savedUser);
           }
         },
-        error => reject(error));
+        error => reject(error)
+      );
     });
   }
 
@@ -457,15 +473,21 @@ function deleteUser(store, id) {
     return;
   }
   FacilityUserResource.getModel(id).delete().then(
-    user => { store.dispatch('DELETE_USER', id); },
-    error => { coreActions.handleApiError(store, error); }
+    user => {
+      store.dispatch('DELETE_USER', id);
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
-
 // An action for setting up the initial state of the app by fetching data from the server
 function showUserPage(store) {
-  preparePage(store.dispatch, { name: PageNames.USER_MGMT_PAGE, title: _managePageTitle('Users') });
+  preparePage(store.dispatch, {
+    name: PageNames.USER_MGMT_PAGE,
+    title: _managePageTitle('Users'),
+  });
 
   const userCollection = FacilityUserResource.getCollection();
   const userPromise = userCollection.fetch({}, true);
@@ -482,17 +504,20 @@ function showUserPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
-
 
 // ================================
 // CONTENT IMPORT/EXPORT ACTIONS
 
-
 function showContentPage(store) {
-  preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
+  preparePage(store.dispatch, {
+    name: PageNames.CONTENT_MGMT_PAGE,
+    title: _managePageTitle('Content'),
+  });
 
   if (!getters.isSuperuser(store.state)) {
     store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -502,31 +527,35 @@ function showContentPage(store) {
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.only(
     samePageCheckGenerator(store),
-    (taskList) => {
+    taskList => {
       const pageState = {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
+        channelFileSummaries: {},
       };
       coreActions.setChannelInfo(store).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       });
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleApiError(store, error);
+    }
   );
 }
 
 function updateWizardLocalDriveList(store) {
   const localDrivesPromise = TaskResource.localDrives();
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  localDrivesPromise.then((response) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
-  })
-  .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    coreActions.handleApiError(store, error);
-  });
+  localDrivesPromise
+    .then(response => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+    })
+    .catch(error => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+      coreActions.handleApiError(store, error);
+    });
 }
 
 function startImportWizard(store) {
@@ -591,81 +620,84 @@ function pollTasksAndChannels(store) {
   TaskResource.getCollection().fetch({}, true).only(
     // don't handle response if we've switched pages or if we're in the middle of another operation
     () => samePageCheck() && !store.state.pageState.wizardState.busy,
-    (taskList) => {
+    taskList => {
       // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
       // I.e. channel list always reflects the current state of ongoing task(s).
-      coreActions.setChannelInfo(store).only(
-        samePageCheckGenerator(store),
-        () => {
-          store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-          // Close the wizard if there's an outstanding task.
-          // (this can be removed when we support more than one
-          // concurrent task.)
-          if (taskList.length && store.state.pageState.wizardState.shown) {
-            cancelImportExportWizard(store);
-          }
+      coreActions.setChannelInfo(store).only(samePageCheckGenerator(store), () => {
+        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+        // Close the wizard if there's an outstanding task.
+        // (this can be removed when we support more than one
+        // concurrent task.)
+        if (taskList.length && store.state.pageState.wizardState.shown) {
+          cancelImportExportWizard(store);
         }
-      );
+      });
     },
-    error => { logging.error(`poll error: ${error}`); }
+    error => {
+      logging.error(`poll error: ${error}`);
+    }
   );
 }
 
-function clearTask(store, taskId) {
-  const clearTaskPromise = TaskResource.clearTask(taskId);
-  clearTaskPromise.then(() => {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-  })
-  .catch(error => { coreActions.handleApiError(store, error); });
+function cancelTask(store, taskId) {
+  const cancelTaskPromise = TaskResource.cancelTask(taskId);
+  cancelTaskPromise
+    .then(() => {
+      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+    })
+    .catch(error => {
+      coreActions.handleApiError(store, error);
+    });
 }
 
 function triggerLocalContentImportTask(store, driveId) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const localImportPromise = TaskResource.localImportContent(driveId);
-  localImportPromise.then((response) => {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-    cancelImportExportWizard(store);
-  })
-  .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-  });
+  localImportPromise
+    .then(response => {
+      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+      cancelImportExportWizard(store);
+    })
+    .catch(error => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    });
 }
 
 function triggerLocalContentExportTask(store, driveId) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const localExportPromise = TaskResource.localExportContent(driveId);
-  localExportPromise.then((response) => {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-    cancelImportExportWizard(store);
-  })
-  .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-  });
+  localExportPromise
+    .then(response => {
+      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+      cancelImportExportWizard(store);
+    })
+    .catch(error => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    });
 }
 
 function triggerRemoteContentImportTask(store, channelId) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  remoteImportPromise.then((response) => {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-    cancelImportExportWizard(store);
-  })
-  .catch((error) => {
-    if (error.status.code === 404) {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
-    } else {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-    }
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-  });
+  remoteImportPromise
+    .then(response => {
+      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+      cancelImportExportWizard(store);
+    })
+    .catch(error => {
+      if (error.status.code === 404) {
+        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
+      } else {
+        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+      }
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    });
 }
-
 
 // ================================
 // OTHER ACTIONS
-
 
 function showDataPage(store) {
   preparePage(store.dispatch, {
@@ -685,10 +717,8 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
-
-module.exports = {
+export {
   displayModal,
-
   createClass,
   deleteClass,
   updateClass,
@@ -698,20 +728,17 @@ module.exports = {
   showClassEnrollPage,
   showFacilityConfigPage,
   enrollUsersInClass,
-
   saveFacilityConfig,
   resetFacilityConfig,
-
   createUser,
   updateUser,
   deleteUser,
   showUserPage,
-  addCoachRole: addCoachRoleAction,
-  removeCoachRole: removeCoachRoleAction,
-
+  addCoachRoleAction as addCoachRole,
+  removeCoachRoleAction as removeCoachRole,
   showContentPage,
   pollTasksAndChannels,
-  clearTask,
+  cancelTask,
   startImportWizard,
   startExportWizard,
   showImportNetworkWizard,
@@ -721,7 +748,6 @@ module.exports = {
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
   updateWizardLocalDriveList,
-
   showDataPage,
   showScratchpad,
 };

@@ -26,56 +26,35 @@
 
 <script>
 
-  module.exports = {
+  import uiTextbox from 'keen-ui/src/UiTextbox';
+  export default {
     name: 'KolibriTextBox',
     props: {
-      disabled: {
-        type: Boolean,
-      },
-      autofocus: {
-        type: Boolean,
-      },
-      required: {
-        type: Boolean,
-      },
-      invalid: {
-        type: Boolean,
-      },
+      disabled: { type: Boolean },
+      autofocus: { type: Boolean },
+      required: { type: Boolean },
+      invalid: { type: Boolean },
       value: {
         type: [String, Number],
       },
-      error: {
-        type: String,
-      },
-      placeholder: {
-        type: String,
-      },
-      label: {
-        type: String,
-      },
+      error: { type: String },
+      placeholder: { type: String },
+      label: { type: String },
       ariaLabel: {
         type: String,
         // enforcing accessibility
         required: !!this.label,
       },
-      autocomplete: {
-        type: String,
-      },
-      type: {
-        type: String,
-      },
-      maxlength: {
-        type: Number,
-      },
+      autocomplete: { type: String },
+      type: { type: String },
+      maxlength: { type: Number },
       enforceMaxlength: {
         type: Boolean,
         default: true,
       },
     },
     data() {
-      return {
-        currentText: this.value,
-      };
+      return { currentText: this.value };
     },
     methods: {
       updateText(text) {
@@ -87,16 +66,14 @@
       },
       emitKeydown(e) {
         this.$emit('keydown', e);
-      }
+      },
     },
     watch: {
       value(val) {
         this.currentText = val;
       },
     },
-    components: {
-      'ui-textbox': require('keen-ui/src/UiTextbox'),
-    },
+    components: { uiTextbox },
   };
 
 </script>

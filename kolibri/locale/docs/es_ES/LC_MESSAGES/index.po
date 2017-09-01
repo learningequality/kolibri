@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-02 23:01+0000\n"
-"PO-Revision-Date: 2017-03-31 03:03-0400\n"
+"PO-Revision-Date: 2017-07-28 17:27-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /release/docs/en/LC_MESSAGES/index.po\n"
+"X-Crowdin-File: /release-v0.5.x/docs/en/LC_MESSAGES/index.po\n"
 "Language: es_ES\n"
 
 #: ../../index.rst:2
@@ -31,11 +31,11 @@ msgstr "¿Qué es Kolibri?"
 
 #: ../../../README.rst:18
 msgid "Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of learners and teachers in contexts with limited infrastructure. A user can install Kolibri and serve the app on a local network, without an internet connection. Kolibri installations can be linked to one another, so that user data and content can be shared. Users can create content for Kolibri and share it when there is network access to another Kolibri installation or the internet."
-msgstr "Kolibri es un Sistema de Gestión de Aprendizaje / Aplicación de Aprendizaje, desarrollada para funcionar en dispositivos con bajas especificaciones, apuntando a las necesidades de alumnos y maestros en contextos de infraestructura limitada. Un usuario puede instalar Kolibri y distribuir la aplicación en una red de área local, sin una conexión a internet. Las instalaciones de Kolibri pueden enlazarse a otras, para que los datos de usuarios y contenidos puedan ser compartidos. Los usuarios pueden crear contenido para Kolibri y compartirlo cuando haya acceso de red a otra instalación de Kolibri."
+msgstr "Kolibri es un Sistema de Gestión de Aprendizaje / Aplicación de Aprendizaje desarrollada para funcionar en dispositivos con bajas especificaciones, apuntando a las necesidades de alumnos y maestros en contextos de infraestructura limitada. Un usuario puede instalar Kolibri y distribuir la aplicación en una red de área local, sin una conexión a internet. Las instalaciones de Kolibri pueden enlazarse a otras, para que los datos de usuarios y contenidos puedan ser compartidos. Los usuarios pueden crear contenido para Kolibri y compartirlo cuando haya acceso de red a otra instalación de Kolibri."
 
 #: ../../../README.rst:24
 msgid "At its core, Kolibri is about serving educational content. A typical user (called a Learner) will log in to Kolibri to consume educational content (videos, documents, other multimedia) and test their understanding of the content by completing exercises and quizzes, with immediate feedback. A user’s activity will be tracked to offer individualized insight (like \"next lesson\" recommendations), and to allow user data to be synced across different installations -- thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different devices at a school."
-msgstr "En esencia, Kolibri trata sobre distribuir contenido educativo. Un usuario típico (llamado Alumno) iniciará sesión para consumir ese contenido (videos, documentos, medios) y realizará pruebas sobre su aprendizaje del contenido al completar ejercicios y cuestionarios, con resultados inmediatos. La actividad del usuario puede ser monitoreada para ofrecer análisis individuales (como las recomendaciones de \"siguiente lección\"), y para que los datos del usuario se sincronicen a través de diferentes instalaciones -- por lo tanto, un alumno de Kolibri puede usar sus credenciales en cualquier instalación enlazada, por ejemplo, en diferentes dispositivos de una escuela."
+msgstr "En esencia, Kolibri trata sobre distribuir contenido educativo. Un usuario típico (llamado Alumno) iniciará sesión para consumir ese contenido (videos, documentos, medios) y realizará pruebas sobre su comprensión del contenido al completar ejercicios y cuestionarios, con resultados inmediatos. La actividad del usuario puede ser monitoreada para ofrecer análisis individuales (como las recomendaciones de \"siguiente lección\"), y para que los datos del usuario se sincronicen a través de diferentes instalaciones -- por lo tanto, un alumno de Kolibri puede usar sus credenciales en cualquier instalación enlazada, por ejemplo, en diferentes dispositivos de una escuela."
 
 #: ../../../README.rst:31
 msgid "See https://learningequality.org/kolibri/ for more info."

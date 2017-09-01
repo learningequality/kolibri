@@ -28,11 +28,11 @@
 
 <script>
 
-  const reportGetters = require('../../../state/getters/reports');
-  const reportConstants = require('../../../reportConstants');
-  const reportActions = require('../../../state/actions/reports');
+  import * as reportGetters from '../../../state/getters/reports';
+  import * as reportConstants from '../../../reportConstants';
+  import * as reportActions from '../../../state/actions/reports';
 
-  module.exports = {
+  export default {
     $trNameSpace: 'headerCell',
     $trs: {
       ascending: '(sorted ascending)',
@@ -56,8 +56,10 @@
     },
     computed: {
       sorted() {
-        return this.column === this.sortColumn &&
-          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE);
+        return (
+          this.column === this.sortColumn &&
+          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE)
+        );
       },
       sortedDescending() {
         return this.sorted && this.sortOrder === reportConstants.SortOrders.DESCENDING;

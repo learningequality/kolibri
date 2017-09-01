@@ -47,35 +47,35 @@
         type: Array,
         default() {
           return [];
-        }
+        },
       },
       hasIcons: {
         type: Boolean,
-        default: false
+        default: false,
       },
       iconProps: Object,
       hasSecondaryText: {
         type: Boolean,
-        default: false
+        default: false,
       },
       containFocus: {
         type: Boolean,
-        default: false
+        default: false,
       },
       keys: {
         type: Object,
         default() {
           return config.data.UiMenu.keys;
-        }
+        },
       },
       disableRipple: {
         type: Boolean,
-        default: config.data.disableRipple
+        default: config.data.disableRipple,
       },
       raised: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
     },
 
     computed: {
@@ -105,7 +105,7 @@
       redirectFocus(e) {
         e.stopPropagation();
         this.$el.querySelector('.ui-menu-option').focus();
-      }
+      },
     },
 
     components: {

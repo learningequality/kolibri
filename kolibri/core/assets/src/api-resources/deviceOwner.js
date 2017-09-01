@@ -1,9 +1,7 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class DeviceOwnerResource extends Resource {
+export default class DeviceOwnerResource extends Resource {
   static resourceName() {
     return 'deviceowner';
   }
 }
-
-module.exports = DeviceOwnerResource;
