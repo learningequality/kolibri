@@ -71,9 +71,6 @@
       },
     },
     methods: {
-      /**
-       * @private
-       */
       handleClick(event) {
         /**
          * Emits click event

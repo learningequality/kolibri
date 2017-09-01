@@ -103,9 +103,6 @@
     },
 
     methods: {
-      /**
-       * @private
-       */
       select() {
         if (!this.disabled) {
           this.$refs.kRadioInput.focus();
@@ -113,9 +110,6 @@
           this.emitChange();
         }
       },
-      /**
-       * @private
-       */
       emitChange(event) {
         if (this.model !== this.radiovalue) {
           /**
