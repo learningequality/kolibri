@@ -1,10 +1,20 @@
 <template>
 
   <div class="content">
-    <ui-alert type="success" @dismiss="resetProfileState" v-if="success">
+    <ui-alert
+      v-if="success"
+      type="success"
+      :dismissible="false"
+    >
       {{ $tr('success') }}
     </ui-alert>
-
+    <ui-alert
+      v-if="error"
+      type="error"
+      :dismissible="false"
+    >
+      {{ errorMessage || $tr('genericError') }}
+    </ui-alert>
     <h3>{{ $tr('role') }}</h3>
     <p>{{ role }}</p>
 
@@ -20,35 +30,39 @@
 
       <h3>{{ $tr('username') }}</h3>
       <k-textbox
+        ref="username"
         v-if="canEditUsername"
-        :disabled="busy"
-        :invalid="error"
-        :invalidText="errorMessage"
-        v-model="username"
-        autocomplete="username"
         type="text"
+        autocomplete="username"
+        :autofocus="true"
         :label="$tr('username')"
+        :disabled="busy"
+        :invalid="usernameIsInvalid"
+        :invalidText="usernameIsInvalidText"
+        @blur="usernameBlurred = true"
+        v-model="username"
       />
       <p v-else>{{ session.username }}</p>
 
       <h3>{{ $tr('name') }}</h3>
       <k-textbox
         v-if="canEditName"
+        type="text"
+        autocomplete="name"
+        :autofocus="canEditUsername ? false : true"
+        :label="$tr('name')"
         :disabled="busy"
         v-model="full_name"
-        autocomplete="name"
-        type="text"
-        :label="$tr('name')"
       />
       <p v-else>{{ session.full_name }}</p>
 
       <k-button
         v-if="canEditUsername || canEditName"
-        :disabled="busy"
-        :primary="true"
-        :text="$tr('updateProfile')"
-        class="submit"
         type="submit"
+        class="submit"
+        :text="$tr('updateProfile')"
+        :primary="true"
+        :disabled="busy"
       />
     </form>
   </div>
@@ -58,14 +72,22 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { editProfile, resetProfileState } from '../../state/actions';
+  import {
+    facilityConfig,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    isLearner,
+    totalPoints,
+  } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiAlert from 'keen-ui/src/UiAlert';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import uiAlert from 'keen-ui/src/UiAlert';
+
   export default {
     name: 'profilePage',
     $trs: {
@@ -80,6 +102,8 @@
       isSuperuser: 'Device Owner',
       points: 'Points',
       role: 'Role',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
     },
     components: {
       kButton,
@@ -87,22 +111,25 @@
       uiAlert,
       pointsIcon,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         username: this.session.username,
         full_name: this.session.full_name,
+        usernameBlurred: false,
+        validateForm: false,
       };
     },
-    created() {
-      this.fetchPoints();
-    },
     computed: {
-      errorMessage() {
-        if (this.error) {
-          if (this.backendErrorMessage) {
-            return this.backendErrorMessage;
-          }
-          return this.$tr('genericError');
+      role() {
+        if (this.isSuperuser) {
+          return this.$tr('isSuperuser');
+        } else if (this.isAdmin) {
+          return this.$tr('isAdmin');
+        } else if (this.isCoach) {
+          return this.$tr('isCoach');
+        } else if (this.isLearner) {
+          return this.$tr('isLearner');
         }
         return '';
       },
@@ -118,49 +145,65 @@
         }
         return true;
       },
-      role() {
-        if (this.isSuperuser) {
-          return this.$tr('isSuperuser');
-        } else if (this.isAdmin) {
-          return this.$tr('isAdmin');
-        } else if (this.isCoach) {
-          return this.$tr('isCoach');
-        } else if (this.isLearner) {
-          return this.$tr('isLearner');
+      usernameIsAlphaNumUnderscore() {
+        return /^\w+$/g.test(this.username);
+      },
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.validateForm) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!this.usernameIsAlphaNumUnderscore) {
+            return this.$tr('usernameNotAlphaNumUnderscore');
+          }
         }
         return '';
       },
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.usernameIsInvalid;
+      },
+    },
+    created() {
+      this.fetchPoints();
     },
     methods: {
       submitEdits() {
-        const edits = {
-          username: this.username,
-          full_name: this.full_name,
-        };
-        this.editProfile(edits, this.session);
+        this.validateForm = true;
+        this.resetProfileState();
+        if (this.formIsValid) {
+          const edits = {
+            username: this.username,
+            full_name: this.full_name,
+          };
+          this.editProfile(edits, this.session);
+        } else {
+          this.$refs.username.focus();
+        }
       },
     },
     vuex: {
       getters: {
-        facilityConfig: getters.facilityConfig,
+        facilityConfig,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isLearner,
+        totalPoints,
         session: state => state.core.session,
-        error: state => state.pageState.error,
-        success: state => state.pageState.success,
         busy: state => state.pageState.busy,
-        backendErrorMessage: state => state.pageState.errorMessage,
-        isSuperuser: getters.isSuperuser,
-        isAdmin: getters.isAdmin,
-        isCoach: getters.isCoach,
-        isLearner: getters.isLearner,
-        totalPoints: getters.totalPoints,
+        error: state => state.pageState.error,
+        errorMessage: state => state.pageState.errorMessage,
+        success: state => state.pageState.success,
       },
       actions: {
-        editProfile: actions.editProfile,
-        resetProfileState: actions.resetProfileState,
+        editProfile,
+        resetProfileState,
         fetchPoints,
       },
     },
-    mixins: [responsiveWindow],
   };
 
 </script>

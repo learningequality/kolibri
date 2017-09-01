@@ -174,6 +174,7 @@ function handleApiError(store, errorObject) {
  * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
  */
 function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
+  store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise
@@ -191,6 +192,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       }
     })
     .catch(error => {
+      store.dispatch('CORE_SET_SIGN_IN_BUSY', false);
       if (error.status.code === 401) {
         store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
       } else if (error.status.code === 400 && error.entity.missing_field === 'password') {

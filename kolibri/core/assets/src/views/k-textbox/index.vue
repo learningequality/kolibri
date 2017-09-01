@@ -2,10 +2,9 @@
 
   <ui-textbox
     ref="textbox"
-    v-model="currentText"
+    v-model.trim="currentText"
     :label="label"
     :disabled="disabled"
-    :required="required"
     :invalid="invalid"
     :error="invalidText"
     :autofocus="autofocus"
@@ -51,13 +50,6 @@
        * Whether or not disabled
        */
       disabled: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Whether or not required
-       */
-      required: {
         type: Boolean,
         default: false,
       },
@@ -125,9 +117,16 @@
       },
       emitKeydown(e) {
         /**
-         * Emits keydown event with event
+         * Emits keydown event
          */
         this.$emit('keydown', e);
+      },
+      /**
+       * @public
+       * Focuses on the textbox
+       */
+      focus() {
+        this.$refs.textbox.$el.querySelector('input').focus();
       },
     },
   };

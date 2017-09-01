@@ -26,6 +26,7 @@ const initialState = {
     pageSessionId: 0,
     session: baseSessionState,
     loginError: null,
+    signInBusy: false,
     logging: baseLoggingState,
     totalProgress: null,
     channels: {
@@ -50,6 +51,9 @@ const mutations = {
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
     state.core.loginError = value;
+  },
+  CORE_SET_SIGN_IN_BUSY(state, isBusy) {
+    state.core.signInBusy = isBusy;
   },
   CORE_CLEAR_SESSION(state) {
     Object.assign(state.core.session, baseSessionState);
