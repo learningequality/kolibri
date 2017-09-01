@@ -13,7 +13,7 @@
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="isDefaultTrack(track.lang)">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang.lang_code" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.lang_code)">
         </template>
       </video>
 
@@ -32,7 +32,6 @@
 
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
-  import LangLookup from './languagelookup';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
@@ -69,7 +68,7 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
-      videoLang: GlobalLangCode,
+      videoLangCode: GlobalLangCode,
       mimicFullscreen: false,
     }),
 
@@ -106,15 +105,9 @@
       },
     },
     methods: {
-      getLangName(langCode) {
-        if (LangLookup[langCode]) {
-          return LangLookup[langCode].native_name;
-        }
-        return langCode;
-      },
       isDefaultTrack(langCode) {
         const shortLangCode = langCode.split('-')[0];
-        const shortGlobalLangCode = this.videoLang.split('-')[0];
+        const shortGlobalLangCode = this.videoLangCode.split('-')[0];
         if (shortLangCode === shortGlobalLangCode) {
           return true;
         }
@@ -215,7 +208,7 @@
           track => track.mode === 'showing'
         );
         if (currentTrack) {
-          Lockr.set('videoLang', currentTrack.language);
+          Lockr.set('videoLangCode', currentTrack.language);
         }
       },
 
@@ -283,7 +276,7 @@
       ForwardButton.prototype.controlText_ = this.$tr('forward');
       videojs.registerComponent('ReplayButton', ReplayButton);
       videojs.registerComponent('ForwardButton', ForwardButton);
-      this.videoLang = Lockr.get('videoLang') || this.videoLang;
+      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
     },
     mounted() {
       this.initPlayer();
