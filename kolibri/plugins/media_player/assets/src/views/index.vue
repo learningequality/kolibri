@@ -13,7 +13,7 @@
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang.lang_code" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.lang_code)">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang.id" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.id)">
         </template>
       </video>
 
@@ -38,6 +38,7 @@
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import ScreenFull from 'screenfull';
+  import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
 
@@ -73,15 +74,17 @@
     }),
 
     computed: {
-      posterSource() {
+      posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
-        const posterArray = this.thumbnailFiles.filter(file =>
+        return this.thumbnailFiles.filter(file =>
           posterFileExtensions.some(ext => ext === file.extension)
         );
-        if (posterArray.length === 0) {
-          return '';
+      },
+      audioPoster() {
+        if (this.posterSources.length) {
+          return this.posterSources[0].storage_url;
         }
-        return posterArray[0].storage_url;
+        return audioIconPoster;
       },
       videoSources() {
         const videoFileExtensions = ['mp4', 'webm', 'ogg'];
@@ -143,7 +146,7 @@
         };
 
         if (!this.isVideo) {
-          videojsConfig.poster = this.posterSource;
+          videojsConfig.poster = this.audioPoster;
         }
 
         // Add appropriate fullscreen button
