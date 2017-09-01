@@ -118,6 +118,7 @@
     border-radius: 2px
     background-color: white
     color: $core-text-default
+    font-size: 14px
 
     &::placeholder
       color: $core-text-annotation
