@@ -2,6 +2,7 @@
 
   <ui-textbox
     ref="textbox"
+    class="textbox"
     v-model.trim="currentText"
     :label="label"
     :disabled="disabled"
@@ -134,4 +135,9 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  .textbox
+    max-width: 400px
+
+</style>
