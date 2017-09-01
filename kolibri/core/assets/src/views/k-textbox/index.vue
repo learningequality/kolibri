@@ -135,7 +135,7 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   .textbox
     max-width: 400px
