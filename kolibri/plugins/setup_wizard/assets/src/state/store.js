@@ -7,9 +7,11 @@ import {
 const initialState = {
   onboardingData: {
     language_code: '',
-    facility: '',
-    superuser: {
+    facility: {
       name: '',
+    },
+    superuser: {
+      full_name: '',
       username: '',
       password: '',
     },
@@ -24,11 +26,11 @@ const mutations = {
   SET_LANGUAGE(state, language_code) {
     state.onboardingData.language_code = language_code;
   },
-  SET_FACILITY_NAME(state, facilityName) {
-    state.onboardingData.facility = facilityName;
+  SET_FACILITY_NAME(state, name) {
+    state.onboardingData.facility.name = name;
   },
   SET_SU_NAME(state, name) {
-    state.onboardingData.superuser.name = name;
+    state.onboardingData.superuser.full_name = name;
   },
   SET_SU_USERNAME(state, userName) {
     state.onboardingData.superuser.username = userName;

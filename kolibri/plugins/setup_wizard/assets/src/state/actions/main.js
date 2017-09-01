@@ -5,6 +5,8 @@ function provisionDevice(store, onboardingData) {
   const DeviceProvisionModel = DeviceProvisionResource.createModel(onboardingData);
   const deviceProvisionPromise = DeviceProvisionModel.save();
 
+  const { superuser } = onboardingData;
+
   store.dispatch('SET_SUBMITTED', true);
 
   deviceProvisionPromise.then(
