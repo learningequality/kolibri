@@ -8,9 +8,11 @@
         </h1>
       </legend>
 
-      <k-radio-button />
-      <k-radio-button />
-      <k-radio-button />
+      <k-radio-button
+        v-for="(preset, value) in permissionPresets"
+        v-model="selectedPermissionPreset"
+        :radiovalue="value"
+        :label="preset.name"/>
 
       <k-button type="submit" :text="submitText" />
 
@@ -22,7 +24,7 @@
 
 <script>
 
-  import { facilityPresetChoices } from '../../../state/constants';
+  import { permissionPresets } from '../../../state/constants';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
 
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -46,12 +48,13 @@
     },
     data() {
       return {
-        permissionPreset: '',
+        selectedPermissionPreset: '',
+        permissionPresets,
       };
     },
     methods: {
       setPermissions() {
-        this.submitFacilityPermissions(this.permissionPreset);
+        this.submitFacilityPermissions(this.selectedPermissionPreset);
         this.$emit('submit');
       },
     },
