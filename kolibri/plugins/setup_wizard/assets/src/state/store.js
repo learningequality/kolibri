@@ -1,4 +1,6 @@
 import Vuex from 'kolibri.lib.vuex';
+import { findKey } from 'lodash';
+import { permissionPresets } from './constants';
 import {
   initialState as coreInitialState,
   mutations as coreMutations,
@@ -15,7 +17,7 @@ const initialState = {
       username: '',
       password: '',
     },
-    preset: '',
+    preset: findKey(permissionPresets, preset => preset.default) || '',
   },
   submitted: false,
   error: false,
