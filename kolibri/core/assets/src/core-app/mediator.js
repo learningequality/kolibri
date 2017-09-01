@@ -457,6 +457,8 @@ export default class Mediator {
             // LTR CSS files are just end with .css, whereas RTL files end with .rtl.css
             (languageDirection === languageDirections.RTL &&
               url.includes(languageDirections.RTL)) ||
+            (languageDirection === languageDirections.LTR &&
+              !url.includes(languageDirections.RTL)) ||
             !url.endsWith('css')
         );
         Promise.all(urls.map(this.scriptLoader))
