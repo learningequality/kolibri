@@ -31,6 +31,10 @@
         type: String,
         required: true,
       },
+      onboardingData: {
+        type: Object,
+        required: true,
+      },
     },
     components: {
       kTextbox,
@@ -38,7 +42,7 @@
     },
     data() {
       return {
-        facilityName: '',
+        facilityName: this.onboardingData.facility.name,
       };
     },
     methods: {

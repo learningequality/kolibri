@@ -45,7 +45,7 @@
 
   const numberOfLanguageButtons = 4;
 
-  // Leaving outside for now. Doesn't really need to be reactive.
+  // TODO move back into component for responsiveness
   const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
   remainingLanguages.sort((lang1, lang2) => {
     // puts words with foreign characters first in the array

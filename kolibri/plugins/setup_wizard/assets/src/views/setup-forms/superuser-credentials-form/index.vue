@@ -34,6 +34,10 @@
         type: String,
         required: true,
       },
+      onboardingData: {
+        type: Object,
+        required: true,
+      },
     },
     components: {
       kTextbox,
@@ -41,10 +45,10 @@
     },
     data() {
       return {
-        name: '',
-        username: '',
-        password: '',
-        passwordConfirm: '',
+        name: this.onboardingData.superuser.full_name,
+        username: this.onboardingData.superuser.username,
+        password: this.onboardingData.superuser.password,
+        passwordConfirm: this.onboardingData.superuser.password,
       };
     },
     methods: {

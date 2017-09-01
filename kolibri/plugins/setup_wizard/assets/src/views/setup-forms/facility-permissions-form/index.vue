@@ -40,6 +40,10 @@
         type: String,
         required: true,
       },
+      onboardingData: {
+        type: Object,
+        required: true,
+      },
     },
     components: {
       kTextbox,
@@ -48,7 +52,7 @@
     },
     data() {
       return {
-        selectedPermissionPreset: '',
+        selectedPermissionPreset: this.onboardingData.preset,
         permissionPresets,
       };
     },

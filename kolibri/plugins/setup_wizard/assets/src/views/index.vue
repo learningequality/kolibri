@@ -9,6 +9,7 @@
     <component
       :is="currentOnboardingForm"
       :submitText="submitText"
+      :onboardingData="onboardingData"
       @submit="continueOnboarding"
       class="onboarding-form"
       />
