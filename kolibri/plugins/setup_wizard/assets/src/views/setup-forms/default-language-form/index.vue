@@ -45,16 +45,6 @@
 
   const numberOfLanguageButtons = 4;
 
-  // TODO move back into component for responsiveness
-  const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
-  remainingLanguages.sort((lang1, lang2) => {
-    // puts words with foreign characters first in the array
-    return lang2.name.localeCompare(lang1.name);
-  });
-
-  const buttonLanguages = remainingLanguages.slice(0, numberOfLanguageButtons);
-  const selectorLanguages = remainingLanguages.slice(numberOfLanguageButtons);
-
   // TODO add language switching logic
 
   export default {
@@ -69,13 +59,26 @@
     data() {
       return {
         selectedLanguage: currentLanguage,
-        buttonLanguages,
-        selectorLanguages,
       };
     },
     computed: {
       currentLanguage() {
         return allLanguages[currentLanguage].name;
+      },
+      remainingLanguages() {
+        const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
+        remainingLanguages.sort((lang1, lang2) => {
+          // puts words with foreign characters first in the array
+          return lang2.name.localeCompare(lang1.name);
+        });
+
+        return remainingLanguages;
+      },
+      buttonLanguages() {
+        return this.remainingLanguages.slice(0, numberOfLanguageButtons);
+      },
+      selectorLanguages() {
+        return this.remainingLanguages.slice(numberOfLanguageButtons);
       },
     },
     methods: {
