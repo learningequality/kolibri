@@ -1,7 +1,7 @@
 <template>
 
   <form @submit="setSuperuserCredentials">
-    <fieldset>
+    <fieldset class="superuser-credentials-form">
       <legend>
         <h1>
           Set user credentials
@@ -13,7 +13,7 @@
       <k-textbox v-model="password" label="Password"/>
       <k-textbox v-model="passwordConfirm" label="Confirm Password"/>
 
-      <k-button type="submit" :text="submitText" />
+      <k-button :primary="true" type="submit" :text="submitText" />
 
     </fieldset>
   </form>
@@ -67,4 +67,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '../onboarding-form.styl'
+
+  .superuser-credentials-form
+    onboardingForm()
+
+</style>

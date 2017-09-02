@@ -1,7 +1,7 @@
 <template>
 
   <form @submit="setFacilityName">
-    <fieldset>
+    <fieldset class="facility-name-form">
       <legend>
         <h1>
           Set facility name
@@ -10,7 +10,7 @@
 
       <k-textbox v-model="facilityName" label="Facility name"/>
 
-      <k-button type="submit" :text="submitText" />
+      <k-button :primary="true" type="submit" :text="submitText" />
 
     </fieldset>
   </form>
@@ -61,4 +61,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '../onboarding-form.styl'
+
+  .facility-name-form
+    onboardingForm()
+
+</style>

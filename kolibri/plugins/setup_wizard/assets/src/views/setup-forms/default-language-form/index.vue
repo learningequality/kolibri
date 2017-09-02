@@ -1,35 +1,35 @@
 <template>
 
-  <form @submit="setLanguage" class="language-form">
-    <fieldset>
+  <form @submit="setLanguage">
+    <fieldset class="default-language-form">
       <legend>
-        <h1 class="language-form-header">
-          Select default language
+        <h1 class="default-language-form-header">
+          {{ $tr('languageFormHeader') }}
         </h1>
       </legend>
 
-      <label>
-        <span class="language-form-selected-label"> Selected: </span>
-        <span class="language-form-selected"> {{ currentLanguage }} </span>
+      <label class="default-language-form-selected">
+        <span class="default-language-form-selected-label"> {{ $tr('selectedLanguageLabel') }} </span>
+        <span> {{ currentLanguage }} </span>
       </label>
 
       <k-button
         v-for="language in buttonLanguages"
-        class="language-form-language-button"
+        class="default-language-form-language-button"
         :raised="false"
         :text="language.name"/>
 
       <label>
         <span class="visuallyhidden">More Languages</span>
-        <select>
-          <option disabled selected> MORE </option>
+        <select class="default-language-form-language-dropdown">
+          <option disabled selected> {{ $tr('showMoreLanguagesSelector') }} </option>
           <option v-for="language in selectorLanguages" value="language.code">
             {{ language.name }}
           </option>
         </select>
       </label>
 
-      <k-button type="submit" :text="submitText" />
+      <k-button :primary="true" type="submit" :text="submitText" />
     </fieldset>
   </form>
 
@@ -49,6 +49,11 @@
 
   export default {
     name: 'defaultLanguageForm',
+    $trs: {
+      languageFormHeader: 'Please select the default language for Kolibri',
+      showMoreLanguagesSelector: 'MORE',
+      selectedLanguageLabel: 'Selected',
+    },
     components: { kButton },
     props: {
       submitText: {
@@ -100,10 +105,20 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+  @require '../onboarding-form.styl'
 
-  .language-form
+  .default-language-form
+    onboardingForm()
+
+    &-header
+      plainOnboardingHeader()
+
     &-selected
+      display: inline-block
+
       &-label
         display: block
+        font-size: 10px
+        margin-bottom: 8px
 
 </style>

@@ -1,7 +1,7 @@
 <template>
 
   <form @submit="setPermissions">
-    <fieldset>
+    <fieldset class="facility-permissions-form">
       <legend>
         <h1>
           Select permissions
@@ -14,7 +14,7 @@
         :radiovalue="value"
         :label="preset.name"/>
 
-      <k-button type="submit" :text="submitText" />
+      <k-button :primary="true" type="submit" :text="submitText" />
 
     </fieldset>
   </form>
@@ -72,4 +72,11 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  @require '../onboarding-form.styl'
+
+  .facility-permissions-form
+    onboardingForm()
+
+</style>
