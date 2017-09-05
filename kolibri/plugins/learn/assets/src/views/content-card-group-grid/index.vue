@@ -28,7 +28,8 @@
       :class="{'grid-item': true, 'mobile': isMobile}"
       :kind="content.kind"
       :progress="content.progress"
-      :link="genContentLink(content.id, content.kind)"/>
+      :link="genContentLink(content.id, content.kind)"
+    />
 
   </div>
 
@@ -91,24 +92,6 @@
     computed: {
       isMobile() {
         return this.windowSize.breakpoint <= 1;
-      },
-      topics() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
-      },
-      exercises() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
-      },
-      videos() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.VIDEO);
-      },
-      audio() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.AUDIO);
-      },
-      documents() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.DOCUMENT);
-      },
-      html5() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.HTML5);
       },
       contentKindFilterOptions() {
         return [
