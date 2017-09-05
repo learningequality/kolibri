@@ -11,7 +11,10 @@
             <p>{{ $tr('devicePermissionsDescription') }}</p>
           </div>
           <div class="one-half">
-            <search-bar class="search" v-model="searchFilterText" />
+            <k-filter-textbox
+              v-model="searchFilterText"
+              :placeholder="$tr('searchPlaceholder')"
+            />
           </div>
         </div>
 
@@ -27,7 +30,7 @@
 
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import searchBar from './search-bar';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userGrid from './user-grid';
   import subpageContainer from '../containers/subpage-container';
 
@@ -35,7 +38,7 @@
     name: 'deviceManagementPage',
     components: {
       authMessage,
-      searchBar,
+      kFilterTextbox,
       subpageContainer,
       userGrid,
     },
@@ -53,6 +56,7 @@
     $trs: {
       devicePermissionsHeader: 'Device Permissions',
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
+      searchPlaceholder: 'Search for a user...',
     },
   };
 
