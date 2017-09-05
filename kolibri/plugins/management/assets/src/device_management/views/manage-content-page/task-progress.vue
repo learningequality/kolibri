@@ -1,6 +1,21 @@
 <template>
 
   <div class="task-progress">
+    <div class="progress-icon dtc">
+      <mat-svg
+        v-if="!taskHasFailed"
+        category="action"
+        name="autorenew"
+        class="inprogress"
+      />
+      <mat-svg
+        v-else
+        category="alert"
+        name="error"
+        class="error"
+      />
+    </div>
+
     <div class="progress-bar dtc">
       <div class="task-stage">
         {{ stageText }}
@@ -59,18 +74,24 @@
               return '';
           }
         }
-        if (this.taskIsCompleted) {
+        if (this.taskHasFailed) {
+          return this.$tr('taskHasFailed');
+        }
+        if (this.taskHasCompleted) {
           return this.$tr('finished');
         }
-        if (this.isIndeterminateStatus) {
-          return this.$tr('gettingReady');
+        if (this.taskIsPreparing) {
+          return this.$tr('preparingTask');
         }
       },
-      taskIsCompleted() {
+      taskHasFailed() {
+        return this.status === 'FAILED';
+      },
+      taskHasCompleted() {
         return this.status === 'COMPLETED';
       },
       // statuses used before transfer actually begins
-      isIndeterminateStatus() {
+      taskIsPreparing() {
         return this.status === 'QUEUED' || this.status === 'SCHEDULED';
       },
       formattedPercentage() {
@@ -83,12 +104,12 @@
         return '';
       },
       progressBarType() {
-        return this.isIndeterminateStatus ? 'indeterminate' : 'determinate';
+        return this.taskIsPreparing ? 'indeterminate' : 'determinate';
       },
     },
     methods: {
       cancelTaskHandler() {
-        if (this.taskIsCompleted) {
+        if (this.taskHasCompleted) {
           this.$emit('importsuccess');
           this.refreshChannelList();
         }
@@ -102,12 +123,13 @@
       },
     },
     $trs: {
-      importingContent: 'Importing content...',
-      exportingContent: 'Exporting content...',
+      importingContent: 'Importing content\u2026',
+      exportingContent: 'Exporting content\u2026',
       finished: 'Finished!',
-      gettingReady: 'Getting ready...',
+      preparingTask: 'Preparing\u2026',
       close: 'Close',
       cancel: 'Cancel',
+      taskHasFailed: 'Transfer failed. Please try again.',
     },
   };
 
@@ -115,6 +137,15 @@
 
 
 <style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .progress-icon
+    text-align: center
+    .inprogress
+      fill: $core-status-progress
+    .error
+      fill: $core-text-error
 
   .task-progress
     display: table
