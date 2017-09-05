@@ -46,6 +46,7 @@
     name: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
+      // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: 'Go forward 10 seconds',
       play: 'Play',
       pause: 'Pause',
@@ -56,8 +57,8 @@
       progressBar: 'Progress bar',
       fullscreen: 'Fullscreen',
       nonFullscreen: 'Non-fullscreen',
-      mute: 'mute',
-      unmute: 'unmute',
+      mute: 'Mute',
+      unmute: 'Unmute',
       playbackRate: 'Playback rate',
       captions: 'Captions',
       captionsOff: 'Captions off',
