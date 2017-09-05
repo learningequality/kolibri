@@ -147,7 +147,7 @@ LANGUAGES = [
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
     ('es-mx', 'Español (México)'),
-    ('fr-fr', 'Français, langue française'),
+    ('fr-fr', 'Français'),
     ('pt-pt', 'Português'),
     ('hi-in', 'हिंदी'),
 ]
