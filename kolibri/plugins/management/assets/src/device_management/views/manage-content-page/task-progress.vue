@@ -156,6 +156,7 @@
 
   .progress-icon
     text-align: center
+    width: 5%
     .inprogress
       fill: $core-status-progress
     .error
