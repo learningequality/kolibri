@@ -19,19 +19,6 @@ const Modals = {
   EDIT_USER: 'EDIT_USER',
 };
 
-const TaskTypes = {
-  REMOTE_IMPORT: 'remoteimport',
-  LOCAL_IMPORT: 'localimport',
-  LOCAL_EXPORT: 'localexport',
-};
-
-const TaskStatuses = {
-  IN_PROGRESS: 'INPROGRESS',
-  SUCCESS: 'COMPLETED',
-  FAILED: 'FAILED',
-  PENDING: 'PENDING',
-};
-
 const defaultFacilityConfig = {
   learnerCanEditUsername: true,
   learnerCanEditName: true,
@@ -46,4 +33,4 @@ const notificationTypes = {
   SAVE_SUCCESS: 'SAVE_SUCCESS',
 };
 
-export { PageNames, Modals, TaskTypes, TaskStatuses, defaultFacilityConfig, notificationTypes };
+export { PageNames, Modals, defaultFacilityConfig, notificationTypes };

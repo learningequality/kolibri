@@ -34,7 +34,7 @@
 
     <div class="buttons dtc">
       <k-button
-        :text="status==='COMPLETED' ? $tr('close') : $tr('cancel')"
+        :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="false"
         :raised="false"
         @click="cancelTaskHandler()"
@@ -53,6 +53,7 @@
   import round from 'lodash/round';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
+  import { TaskTypes, TaskStatuses } from '../../constants';
 
   export default {
     name: 'taskProgress',
@@ -62,13 +63,14 @@
     },
     props: ['percentage', 'status', 'type', 'id'],
     computed: {
+      TaskStatuses: () => TaskStatuses,
       stageText() {
-        if (this.status === 'RUNNING') {
+        if (this.status === TaskStatuses.RUNNING) {
           switch (this.type) {
-            case 'remoteimport':
-            case 'localimport':
+            case TaskTypes.REMOTE_IMPORT:
+            case TaskTypes.LOCAL_IMPORT:
               return this.$tr('importingContent');
-            case 'localexport':
+            case TaskTypes.LOCAL_EXPORT:
               return this.$tr('exportingContent');
             default:
               return '';
@@ -85,14 +87,14 @@
         }
       },
       taskHasFailed() {
-        return this.status === 'FAILED';
+        return this.status === TaskStatuses.FAILED;
       },
       taskHasCompleted() {
-        return this.status === 'COMPLETED';
+        return this.status === TaskStatuses.COMPLETED;
       },
       // statuses used before transfer actually begins
       taskIsPreparing() {
-        return this.status === 'QUEUED' || this.status === 'SCHEDULED';
+        return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
       formattedPercentage() {
         return round(this.percentage * 100, 2);
