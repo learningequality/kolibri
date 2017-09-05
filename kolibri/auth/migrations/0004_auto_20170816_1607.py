@@ -8,15 +8,16 @@ from kolibri.auth.constants.role_kinds import ADMIN
 
 
 def device_owner_to_super_user(apps, schema_editor):
+    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
+    real_default_facility = RealFacility.get_default_facility()
+
     DeviceOwner = apps.get_model('kolibriauth', 'DeviceOwner')
     FacilityUser = apps.get_model('kolibriauth', 'FacilityUser')
     Facility = apps.get_model('kolibriauth', 'Facility')
-    default_facility = Facility.objects.all().first()
+    default_facility = Facility.objects.get(pk=real_default_facility.id)
     DevicePermissions = apps.get_model('device', 'DevicePermissions')
     DeviceSettings = apps.get_model('device', 'DeviceSettings')
     Role = apps.get_model('kolibriauth', 'Role')
-    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
-    real_default_facility = RealFacility.get_default_facility()
     # Can't do much if no facilities exist, as no facility to FK the users onto
     if default_facility:
         for device_owner in DeviceOwner.objects.all():
