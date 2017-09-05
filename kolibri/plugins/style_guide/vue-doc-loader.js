@@ -13,7 +13,7 @@ module.exports = function(content) {
 
   var options = {
     filecontent: content,
-    methodsDefaultPrivate: true,
+    defaultMethodVisibility: 'private'
   }
 
   var json;

@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@vuedoc/parser@https://github.com/learningequality/vuedoc-parser":
+"@vuedoc/parser@https://github.com/vuedoc/parser":
   version "0.3.4"
-  resolved "https://github.com/learningequality/vuedoc-parser#daf693f5da83acc29cfdd6aafe405eb54a4ef6c6"
+  resolved "https://github.com/vuedoc/parser#01d6c49bb5519fbc1ae77874488302eec04b7a9f"
   dependencies:
     cheerio "^0.22.0"
     espree "^3.4.2"
@@ -21,8 +21,8 @@ acorn@^3.0.4:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
 
 acorn@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.1.1.tgz#53fe161111f912ab999ee887a90a0bc52822fd75"
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.1.2.tgz#911cb53e036807cf0fa778dc5d370fbd864246d7"
 
 amdefine@>=0.0.4:
   version "1.0.1"
