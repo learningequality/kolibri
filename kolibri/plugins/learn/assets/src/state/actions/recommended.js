@@ -7,12 +7,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import {
-  currentUserId,
-  isFacilityUser,
-  getChannels,
-  getChannelObject,
-} from 'kolibri.coreVue.vuex.getters';
+import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 
 import {
   samePageCheckGenerator,
@@ -55,7 +50,7 @@ function _getFeatured(state, channelId) {
 function _getNextSteps(state) {
   const nextStepsPayload = { next_steps: currentUserId(state) };
 
-  if (isFacilityUser(state)) {
+  if (isUserLoggedIn(state)) {
     return ContentNodeResource.getCollection(nextStepsPayload).fetch();
   }
   return Promise.resolve([]);
@@ -64,7 +59,7 @@ function _getNextSteps(state) {
 function _getResume(state) {
   const resumePayload = { resume: currentUserId(state) };
 
-  if (isFacilityUser(state)) {
+  if (isUserLoggedIn(state)) {
     return ContentNodeResource.getCollection(resumePayload).fetch();
   }
   return Promise.resolve([]);
