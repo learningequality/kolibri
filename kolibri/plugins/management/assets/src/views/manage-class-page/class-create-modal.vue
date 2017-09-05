@@ -41,9 +41,11 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'classCreateModal',
     $trs: {
       addNewClassTitle: 'Add New Class',
@@ -53,9 +55,9 @@
       duplicateName: 'A class with that name already exists',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      iconButton,
+      coreModal,
+      coreTextbox,
     },
     props: {
       classes: {
@@ -64,14 +66,13 @@
       },
     },
     data() {
-      return {
-        name: '',
-      };
+      return { name: '' };
     },
     computed: {
       duplicateName() {
         const index = this.classes.findIndex(
-          classroom => classroom.name.toUpperCase() === this.name.toUpperCase());
+          classroom => classroom.name.toUpperCase() === this.name.toUpperCase()
+        );
         if (index === -1) {
           return false;
         }

@@ -23,7 +23,8 @@
 
 <script>
 
-  module.exports = {
+  import answerIcon from './answer-icon';
+  export default {
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
@@ -49,9 +50,7 @@
         },
       },
     },
-    components: {
-      'answer-icon': require('./answer-icon'),
-    },
+    components: { answerIcon },
     computed: {
       numItemsToRender() {
         if (this.waitingForAttempt) {
@@ -63,14 +62,17 @@
       itemsToRender() {
         // save the original index of the item in the log and slice of the end
         return this.log
-          .map((answer, originalIndex) => ({ answer, originalIndex }))
+          .map((answer, originalIndex) => ({
+            answer,
+            originalIndex,
+          }))
           .slice(-1 * this.numItemsToRender)
           .reverse();
       },
     },
     methods: {
       styleForIndex(visualIndex, originalIndex) {
-        const ANSWER_WIDTH = 4 + 30 + 4;  // margin + width + margin
+        const ANSWER_WIDTH = 4 + 30 + 4;
         let xPos = ANSWER_WIDTH * (this.log.length - 1 - originalIndex);
         if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;

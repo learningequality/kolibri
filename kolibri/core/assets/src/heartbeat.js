@@ -1,6 +1,8 @@
-const logging = require('kolibri.lib.logging').getLogger(__filename);
+import logger from 'kolibri.lib.logging';
 
-class HeartBeat {
+const logging = logger.getLogger(__filename);
+
+export default class HeartBeat {
   constructor(kolibri, delay = 150000) {
     if (!kolibri) {
       throw new ReferenceError('A kolibri instance must be passed into the constructor');
@@ -23,12 +25,12 @@ class HeartBeat {
     this.beat();
   }
   setActivityListeners() {
-    this.events.forEach((event) => {
+    this.events.forEach(event => {
       document.addEventListener(event, this.setActive, true);
     });
   }
   clearActivityListeners() {
-    this.events.forEach((event) => {
+    this.events.forEach(event => {
       document.removeEventListener(event, this.setActive, true);
     });
   }
@@ -42,7 +44,7 @@ class HeartBeat {
   beat() {
     if (this.active) {
       logging.debug('There was activity, polling session endpoint!');
-      this.kolibri.resources.SessionResource.getModel('current').fetch({}, true).catch((error) => {
+      this.kolibri.resources.SessionResource.getModel('current').fetch({}, true).catch(error => {
         logging.error('Periodic server polling failed, with error: ', error);
       });
       this.setActivityListeners();
@@ -63,5 +65,3 @@ class HeartBeat {
     ];
   }
 }
-
-module.exports = HeartBeat;

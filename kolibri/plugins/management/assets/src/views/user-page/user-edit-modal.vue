@@ -99,27 +99,26 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-  const coreActions = require('kolibri.coreVue.vuex.actions');
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as coreActions from 'kolibri.coreVue.vuex.actions';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  export default {
     $trNameSpace: 'userEditModal',
     $trs: {
       editTitle: 'Edit account info',
       passwordTitle: 'Reset account password',
       deleteTitle: 'Delete account',
-      // input labels
       fullName: 'Full name',
       username: 'Username',
       userKind: 'User kind',
       enterNewPw: 'Enter new password',
       confirmNewPw: 'Confirm new password',
-      // kind select
       learner: 'Learner',
       admin: 'Admin',
       coach: 'Coach',
-      // buttons and links
       resetPw: 'Reset password',
       deleteUsr: 'Delete user',
       save: 'Save',
@@ -128,21 +127,18 @@
       no: 'No',
       confirm: 'Confirm',
       cancel: 'Cancel',
-      // confirmation messages
-      // this one is going to get a little complicated
       deleteConfirmation: 'Are you sure you want to delete {user}?',
-      // errors
       pwMismatch: 'Passwords must match',
       noNewPw: 'Please enter a new password',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'core-textbox': require('kolibri.coreVue.components.textbox'),
+      iconButton,
+      coreModal,
+      coreTextbox,
     },
     props: {
       userid: {
-        type: String, // string is type returned from server
+        type: String,
         required: true,
       },
       fullname: {
@@ -215,7 +211,6 @@
         this.kind = this.userkind;
       },
       submit() {
-        // mirrors logic of how the 'confirm' buttons are displayed
         if (this.pw_reset) {
           this.changePasswordHandler();
         } else if (this.usr_delete) {
@@ -232,20 +227,17 @@
           kind: this.kind_new,
         };
         this.updateUser(payload);
-        // if logged in admin updates role to learner, redirect to learn page
-        // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
-        // to have the same id as a regular user, as they are different models.
-        if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
-          (Number(this.userid) === this.session_user_id)) {
+        if (
+          this.session_user_kind !== UserKinds.SUPERUSER &&
+          Number(this.userid) === this.session_user_id
+        ) {
           if (this.kind_new === UserKinds.LEARNER) {
             window.location.href = window.location.origin;
           }
         }
-        // close the modal after successful submission
         this.close();
       },
       deleteUserHandler() {
-        // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
           this.logout();
         }
@@ -253,19 +245,18 @@
         this.close();
       },
       changePasswordHandler() {
-        // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
           if (this.password_new === this.password_new_confirm) {
-            // make sure passwords match
-            this.updateUser({ id: this.userid, password: this.password_new });
+            this.updateUser({
+              id: this.userid,
+              password: this.password_new,
+            });
             this.close();
           } else {
-            // passwords don't match
             this.error_message = this.$tr('pwMismatch');
           }
         } else {
-          // if user didn't populate the password fields
           this.error_message = this.$tr('noNewPw');
         }
       },
@@ -339,6 +330,6 @@
     word-break: keep-all
 
   .error
-    color: red
+    color: $core-text-error
 
 </style>

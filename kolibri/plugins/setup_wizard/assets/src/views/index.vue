@@ -1,33 +1,96 @@
 <template>
 
-  <div class="device-owner-creation">
+  <div class="setup">
     <div class="wrapper" role="main">
       <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
-      <div class="container">
-        <h1>{{ $tr('header') }}</h1>
-        <h2 class="title">{{ $tr('deviceOwner') }}</h2>
-        <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
-        <div class="creation-form">
-          <p class="error-message" role="alert" aria-atomic="true">{{ errormessage }}</p>
-          <label for="nameinput" class="inputlabel">{{ $tr('username') }}:</label>
-          <input id="nameinput" :class="{ 'input-error': username_error }" type="text" v-model="username">
-          <label for="passwordinput" class="inputlabel">{{ $tr('password') }}:</label>
-          <input id="passwordinput" :class="{ 'input-error': password_error }" type="password" v-model="password">
-          <label for="confirminput" class="inputlabel">{{ $tr('confirmPassword') }}:</label>
-          <input id="confirminput" :class="{ 'input-error': password_error }" type="password" v-model="confirm_password">
+
+
+      <form @submit.prevent="submitSetupForm" novalidate class="container">
+        <h1>{{ $tr('formHeader') }}</h1>
+
+
+        <fieldset :disabled="submitted" class="setup-owner">
+
+          <legend class="title">
+            {{ $tr('deviceOwnerSectionHeader') }}
+          </legend>
+          <p class="description">{{ $tr('deviceOwnerDescription') }}</p>
+
+          <core-textbox
+            @focus="firstUsernameFieldVisit || visitUsername()"
+            @blur="validateUsername()"
+            :invalid="!!usernameError"
+            :error="usernameError"
+            :required="true"
+            :label="$tr('usernameInputLabel')"
+            :maxlength="30"
+            :enforceMaxlength="true"
+            v-model="username"
+          />
+
+          <core-textbox
+            @focus="firstPasswordFieldsVisit || visitPassword()"
+            :invalid="!!passwordError"
+            :error="passwordError"
+            :required="true"
+            :label="$tr('passwordInputLabel')"
+            type="password"
+            v-model="password"
+          />
+
+          <core-textbox
+            @blur="validatePassword()"
+            :invalid="!!passwordError"
+            :required="true"
+            :label="$tr('confirmPasswordInputLabel')"
+            type="password"
+            v-model="passwordConfirm"
+          />
+
+        </fieldset>
+        <fieldset :disabled="submitted" class="setup-facility">
+
+          <legend class="title">
+            {{ $tr('facilitySectionHeader') }}
+          </legend>
+          <p class="description">{{ $tr('facilityDescription') }}</p>
+
+          <core-textbox
+            @focus="firstFacilityFieldVisit || visitFacility()"
+            @blur="validateFacility"
+            :invalid="!!facilityError"
+            :error="facilityError"
+            :required="true"
+            :label="$tr('facilityInputLabel')"
+            :maxlength="100"
+            :enforceMaxlength="true"
+            v-model="facility"
+          />
+        </fieldset>
+
+
+        <div class="setup-submission">
+          <ui-alert
+            class="setup-submission-alert"
+            type="error"
+            @dismiss="clearGlobalError()"
+            v-if="globalError">
+            {{ globalError }}
+          </ui-alert>
+
+          <ui-alert
+            class="setup-submission-alert"
+            type="info"
+            :dismissible="false"
+            :remove-icon="true"
+            v-if="submitted">
+            {{ $tr('setupProgressFeedback') }}
+          </ui-alert>
+
+          <icon-button :disabled="submitted" :text="$tr('formSubmissionButton')" type="submit"/>
         </div>
-        <h2 class="title">{{ $tr('facility') }}</h2>
-        <div class="description">{{ $tr('facilityDescription') }}</div>
-        <label for="facilityinput" class="inputlabel">{{ $tr('facilityName') }}:</label>
-        <input id="facilityinput" :class="{ 'input-error': facility_error }" type="text" v-model="facility">
-        <br>
-        <br>
-        <br>
-        <div class="btn-wrapper">
-          <button class="create-btn" type="button" @click="createBoth">{{ $tr('getStarted') }}</button>
-        </div>
-      </div>
-      <br>
+      </form>
+
     </div>
   </div>
 
@@ -36,69 +99,163 @@
 
 <script>
 
-  const actions = require('../state/actions');
-  const store = require('../state/store');
-
-  module.exports = {
+  import { createDeviceOwnerAndFacility } from '../state/actions';
+  import store from '../state/store';
+  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'setupWizard',
     $trs: {
-      header: 'Create device owner and facility',
-      deviceOwner: 'Device Owner',
-      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
-      username: 'Username',
-      password: 'Password',
-      confirmPassword: 'Confirm password',
-      facility: 'Facility',
-      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location',
-      facilityName: 'Facility name',
-      getStarted: 'Create and get started',
+      formHeader: 'Create device owner and facility',
+      deviceOwnerSectionHeader: 'Device Owner',
+      facilitySectionHeader: 'Facility',
+      usernameInputLabel: 'Username',
+      passwordInputLabel: 'Password',
+      confirmPasswordInputLabel: 'Confirm password',
+      facilityInputLabel: 'Facility name',
+      deviceOwnerDescription:
+        'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
+      facilityDescription:
+        'You also need to create a Facility. This represents your school, training center, or other installation location',
+      formSubmissionButton: 'Create and get started',
+      usernameFieldEmptyErrorMessage: 'Username cannot be empty',
+      usernameCharacterErrorMessage: 'Username can only contain letters and digits',
+      passwordFieldEmptyErrorMessage: 'Password cannot be empty',
+      passwordsMismatchErrorMessage: 'Passwords do not match',
+      facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
+      cannotSubmitPageError: 'Please resolve all of the errors shown',
+      genericPageError: 'Something went wrong',
+      setupProgressFeedback: 'Setting up your device...',
     },
+    name: 'setupWizard',
     data() {
       return {
         username: '',
-        username_error: false,
+        usernameError: null,
         password: '',
-        confirm_password: '',
-        password_error: false,
+        passwordConfirm: '',
+        passwordError: null,
         facility: '',
-        facility_error: false,
-        errormessage: '',
+        facilityError: null,
+        globalError: null,
       };
     },
+    components: {
+      coreTextbox,
+      iconButton,
+      uiAlert,
+    },
+    computed: {
+      firstUsernameFieldVisit() {
+        return this.usernameError === null;
+      },
+      usernameFieldPopulated() {
+        return !!this.username;
+      },
+      usernameValidityCheck() {
+        return /^\w+$/g.test(this.username);
+      },
+      firstPasswordFieldsVisit() {
+        return this.passwordError === null;
+      },
+      passwordFieldsMatch() {
+        return this.password === this.passwordConfirm;
+      },
+      passwordFieldsPopulated() {
+        return !!(this.password && this.passwordConfirm);
+      },
+      facilityFieldPopulated() {
+        return !!this.facility;
+      },
+      firstFacilityFieldVisit() {
+        return this.facilityError === null;
+      },
+      allFieldsPopulated() {
+        return (
+          this.passwordFieldsPopulated && this.usernameFieldPopulated && this.facilityFieldPopulated
+        );
+      },
+      canSubmit() {
+        return (
+          !this.submitted &&
+          this.passwordFieldsMatch &&
+          this.usernameValidityCheck &&
+          this.allFieldsPopulated
+        );
+      },
+    },
     methods: {
-      createBoth() {
-        if (this.username && this.password && this.facility
-          && this.password === this.confirm_password) {
+      submitSetupForm() {
+        this.globalError = '';
+
+        if (this.canSubmit) {
           const deviceOwnerPayload = {
             password: this.password,
             username: this.username,
           };
-          const facilityPayload = {
-            name: this.facility,
-          };
+          const facilityPayload = { name: this.facility };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
-          this.username_error = !this.username;
-          this.facility_error = !this.facility;
-          if (!this.password && !this.confirm_password) {
-            this.password_error = true;
-            this.errormessage = 'Password cannot be empty!';
-          } else if (this.password !== this.confirm_password) {
-            this.password_error = true;
-            this.errormessage = 'Password does not match the confirm password!';
-          } else {
-            this.errormessage = '';
-            this.password_error = false;
+          if (this.firstUsernameFieldVisit) {
+            this.visitUsername();
+            this.validateUsername();
           }
+
+          if (this.firstPasswordFieldsVisit) {
+            this.visitPassword();
+            this.validatePassword();
+          }
+
+          if (this.firstFacilityFieldVisit) {
+            this.visitFacility();
+            this.validateFacility();
+          }
+
+          this.globalError = this.$tr('cannotSubmitPageError');
+        }
+      },
+      clearGlobalError() {
+        this.globalError = '';
+      },
+      visitUsername() {
+        this.usernameError = '';
+      },
+      visitPassword() {
+        this.passwordError = '';
+      },
+      visitFacility() {
+        this.facilityError = '';
+      },
+      validateUsername() {
+        if (!this.usernameFieldPopulated) {
+          this.usernameError = this.$tr('usernameFieldEmptyErrorMessage');
+        } else if (!this.usernameValidityCheck) {
+          this.usernameError = this.$tr('usernameCharacterErrorMessage');
+        }
+      },
+      validatePassword() {
+        if (!this.passwordFieldsMatch) {
+          this.passwordError = this.$tr('passwordsMismatchErrorMessage');
+        } else if (!this.passwordFieldsPopulated) {
+          this.passwordError = this.$tr('passwordFieldEmptyErrorMessage');
+        }
+      },
+      validateFacility() {
+        if (!this.facilityFieldPopulated) {
+          this.facilityError = this.$tr('facilityFieldEmptyErrorMessage');
         }
       },
     },
     vuex: {
       actions: {
-        createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
+        createDeviceOwnerAndFacility,
+      },
+      getters: {
+        submitted: state => state.pageState.submitted,
       },
     },
-    store, // make this and all child components aware of the store
+    store,
   };
 
 </script>
@@ -108,11 +265,22 @@
 
   @require '~kolibri.styles.definitions'
 
-  .device-owner-creation
+  .setup
     position: absolute
     overflow-y: scroll
     width: 100%
     height: 100%
+
+    &-owner, &-facility
+      // fighting pureCSS
+      border: none
+      margin: 0
+      padding: 0
+
+    &-submission
+      margin-top: 16px
+      text-align: center
+
   .wrapper
     position: absolute
     max-height: 100%
@@ -129,40 +297,12 @@
     padding: 20px 30px
   h1
     font-size: 18px
-  h2.title
+  .title
     font-size: 14px
     font-weight: bold
-  .inputlabel
-    font-size: 14px
-    color: $core-action-normal
-    margin-top: 8px
-    margin-bottom: 4px
-    display: inline-block
   .description
     font-size: 12px
     color: $core-text-annotation
-  .btn-wrapper
-    width: 100%
-    text-align: center
-  .create-btn
-    background-color: $core-action-normal
-    color: white
-  input
-    width: 100%
-    border-width: 2px
-    border-style: solid
-    border-radius: $radius
-    padding: 6px
-    background-color: $core-bg-canvas
-    border-color: $core-action-light
-  input:focus
-    background-color: #DAEFE5
-  .input-error
-    border-width: 2px
-    border-color: $core-text-error
-    background-color: $core-bg-error
-  .error-message
-    color: $core-text-error
   .logo
     height: 40%
     width: 40%

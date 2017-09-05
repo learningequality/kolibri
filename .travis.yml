@@ -2,10 +2,13 @@
 
 language: python
 
+dist: trusty
+
+addons:
+  chrome: stable
+
 services:
   - postgresql
-
-sudo: false
 
 cache:
   yarn: true
@@ -39,7 +42,7 @@ matrix:
       env:
         - TOX_ENV=py2.7
         - TRAVIS_NODE_VERSION="6"
-    - python: "2.7"
+    - python: "3.5"
       env:
         - TOX_ENV=docs
         - TRAVIS_NODE_VERSION="6"
@@ -59,7 +62,7 @@ matrix:
       env:
         - TOX_ENV=node6.x
         - TRAVIS_NODE_VERSION="6"
-    - python: "2.7"
+    - python: "3.5"
       env:
         - TOX_ENV=postgres
         - TRAVIS_NODE_VERSION="6"
@@ -86,6 +89,7 @@ script:
   - tox -e $TOX_ENV
 
 after_success:
+  - coverage combine
   - codecov
 
 notifications:

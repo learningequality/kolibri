@@ -1,0 +1,20 @@
+{
+  "setupWizard.formHeader":"crwdns10349:0crwdne10349:0",
+  "setupWizard.deviceOwnerSectionHeader":"crwdns10350:0crwdne10350:0",
+  "setupWizard.facilitySectionHeader":"crwdns10351:0crwdne10351:0",
+  "setupWizard.usernameInputLabel":"crwdns10352:0crwdne10352:0",
+  "setupWizard.passwordInputLabel":"crwdns10353:0crwdne10353:0",
+  "setupWizard.confirmPasswordInputLabel":"crwdns10354:0crwdne10354:0",
+  "setupWizard.facilityInputLabel":"crwdns10355:0crwdne10355:0",
+  "setupWizard.deviceOwnerDescription":"crwdns10356:0crwdne10356:0",
+  "setupWizard.facilityDescription":"crwdns10357:0crwdne10357:0",
+  "setupWizard.formSubmissionButton":"crwdns10358:0crwdne10358:0",
+  "setupWizard.usernameFieldEmptyErrorMessage":"crwdns10359:0crwdne10359:0",
+  "setupWizard.usernameCharacterErrorMessage":"crwdns10360:0crwdne10360:0",
+  "setupWizard.passwordFieldEmptyErrorMessage":"crwdns10361:0crwdne10361:0",
+  "setupWizard.passwordsMismatchErrorMessage":"crwdns10362:0crwdne10362:0",
+  "setupWizard.facilityFieldEmptyErrorMessage":"crwdns10363:0crwdne10363:0",
+  "setupWizard.cannotSubmitPageError":"crwdns10364:0crwdne10364:0",
+  "setupWizard.genericPageError":"crwdns10365:0crwdne10365:0",
+  "setupWizard.setupProgressFeedback":"crwdns10366:0crwdne10366:0"
+}

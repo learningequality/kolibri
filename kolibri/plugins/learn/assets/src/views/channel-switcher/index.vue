@@ -7,7 +7,7 @@
     :displayDisabledAsSelected="true"
     type="primary"
     color="primary"
-    icon="view_module"
+    icon="apps"
     @select="emitSelection"
   />
 
@@ -16,23 +16,15 @@
 
 <script>
 
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import orderBy from 'lodash/orderBy';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  export default {
     $trNameSpace: 'channelSwitcher',
-    $trs: {
-      switchChannels: 'Switch channels',
-    },
-    components: {
-      'dropdown-menu': require('kolibri.coreVue.components.dropdownMenu'),
-    },
+    $trs: { switchChannels: 'Switch channels' },
+    components: { dropdownMenu },
     computed: {
       sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.channelList, [channel => channel.title.toUpperCase()], ['asc']);
       },
       channelOptions() {
         return this.sortedChannels.map(channel => {
@@ -46,8 +38,9 @@
         });
       },
       currentChannelName() {
-        const channelName = Object(this.sortedChannels.find(
-            channel => channel.id === this.globalCurrentChannel)).title;
+        const channelName = Object(
+          this.sortedChannels.find(channel => channel.id === this.globalCurrentChannel)
+        ).title;
         if (channelName) {
           return channelName;
         }

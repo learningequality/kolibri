@@ -11,8 +11,14 @@
           :status="pageState.taskList[0].status"
           :percentage="pageState.taskList[0].percentage"
           :id="pageState.taskList[0].id"
+          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
         />
       </div>
+
+      <notifications
+        v-bind="{notification}"
+        @dismiss="notification=null"
+      />
 
       <div class="main light-bg">
         <div class="table-title">
@@ -21,7 +27,7 @@
             <icon-button
               :text="$tr('import')"
               class="button"
-              @click="startImportWizard"
+              @click="openWizard('import')"
               :primary="true">
               <mat-svg category="content" name="add"/>
             </icon-button>
@@ -29,30 +35,20 @@
               :text="$tr('export')"
               class="button"
               :primary="true"
-              @click="startExportWizard">
+              @click="openWizard('export')">
               <ion-svg name="ios-upload-outline"/>
             </icon-button>
           </div>
         </div>
         <hr>
-        <p class="core-text-alert" v-if="!sortedChannels.length">{{$tr('noChannels')}}</p>
-        <table>
-          <tbody>
-            <tr v-for="channel in sortedChannels">
-              <th scope="row" class="table-cell" width="70%">
-                <span class="channel-name">
-                  {{ channel.title }}
-                </span>
-              </th>
-            </tr>
-          </tbody>
-        </table>
+
+        <channels-grid
+          @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
+          @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
+        />
       </div>
     </template>
-    <template v-else>
-      {{ $tr('notAdmin') }}
-    </template>
-
+    <auth-message v-else :header="$tr('notAdminHeader')" :details="$tr('notAdminDetails')" />
 
   </div>
 
@@ -61,30 +57,41 @@
 
 <script>
 
-  const isSuperuser = require('kolibri.coreVue.vuex.getters').isSuperuser;
-  const actions = require('../../state/actions');
-  const ContentWizardPages = require('../../constants').ContentWizardPages;
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import * as actions from '../../state/actions';
+  import { ContentWizardPages, notificationTypes } from '../../constants';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import channelsGrid from './channels-grid';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import notifications from './manage-content-notifications';
+  import taskStatus from './task-status';
+  import wizardImportSource from './wizard-import-source';
+  import wizardImportNetwork from './wizard-import-network';
+  import wizardImportLocal from './wizard-import-local';
+  import wizardExport from './wizard-export';
+  export default {
     $trNameSpace: 'manageContentState',
     $trs: {
       title: 'My channels',
       import: 'Import',
       export: 'Export',
-      noChannels: 'No channels installed',
-      notAdmin: 'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
+      notAdminHeader: 'You need to sign in as the Device Owner to manage content',
+      notAdminDetails: 'The Device Owner is the account originally created in the Setup Wizard',
     },
     components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'task-status': require('./task-status'),
-      'wizard-import-source': require('./wizard-import-source'),
-      'wizard-import-network': require('./wizard-import-network'),
-      'wizard-import-local': require('./wizard-import-local'),
-      'wizard-export': require('./wizard-export'),
+      authMessage,
+      channelsGrid,
+      iconButton,
+      notifications,
+      taskStatus,
+      wizardImportSource,
+      wizardImportNetwork,
+      wizardImportLocal,
+      wizardExport,
     },
     data: () => ({
       intervalId: undefined,
+      notification: null,
     }),
     mounted() {
       if (this.isSuperuser) {
@@ -96,14 +103,17 @@
         clearInterval(this.intervalId);
       }
     },
-    computed: {
-      sortedChannels() {
-        return orderBy(
-          this.channelList,
-          [channel => channel.title.toUpperCase()],
-          ['asc']
-        );
+    methods: {
+      openWizard(action) {
+        this.notification = null;
+        if (action === 'import') {
+          return this.startImportWizard();
+        }
+        return this.startExportWizard();
       },
+    },
+    computed: {
+      notificationTypes: () => notificationTypes,
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
@@ -122,7 +132,6 @@
     vuex: {
       getters: {
         isSuperuser,
-        channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
       actions: {

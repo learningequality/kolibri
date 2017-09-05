@@ -12,14 +12,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# Determines which platform kolibri is running on
-import platform
 
 # import kolibri, so we can get the path to the module.
 import kolibri
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
+from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -58,7 +57,6 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
-    'django_q',
     'kolibri.core.webpack',
     'kolibri.core.exams',
     'kolibri.core.discovery',
@@ -87,6 +85,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -121,17 +121,12 @@ DATABASES = {
             'timeout': 100,
         }
     },
-    'ormq': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(KOLIBRI_HOME, 'ormq.sqlite3'),
-    }
 }
 
 # Enable dynamic routing for content databases
-DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
-                    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
-                    'kolibri.content.content_db_router.ContentDBRouter']
-
+DATABASE_ROUTERS = [
+    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
+    'kolibri.content.content_db_router.ContentDBRouter']
 
 # Content directories and URLs for channel metadata and content files
 
@@ -163,41 +158,13 @@ LANGUAGES = [
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = get_localzone().zone
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
-
-Q_CLUSTER = {
-    # name of the queue for this project. Since each kolibri installation's queue is self
-    # contained (since we use an isolated sqlite file), this doesn't really matter.
-    "name": "kolibriqueue",
-
-    # 3 concurrent worker processes, so 3 concurrent jobs at once
-    "workers": 1,
-
-    # 50 jobs before a worker gets reset, releasing its memory
-    "recycle": 50,
-
-    # seconds before a task is terminated. None means wait indefinitely for a task.
-    "timeout": None,
-
-    # number of successful tasks we save to the DB. 0 means save all. All failed tasks are saved.
-    "save_limit": 0,
-
-    # catch_up, when True, makes the workers catch up to all scheduled tasks that elapsed while it was down.
-    "catch_up": False,
-
-    # # DB name to use for the task queue. Should be separate from the default DB.
-    # "orm": "task_queue",
-    "orm": "ormq",
-
-    # If this is true, make tasks synchronous (Windows can't handle multiprocessing very well)
-    "sync": platform.system() == "Windows",
-}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -312,9 +279,7 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'urls'
-
-JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
+JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 

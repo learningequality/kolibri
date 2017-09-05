@@ -4,8 +4,8 @@
     <ui-icon>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.CHANNEL)"
-        category="action"
-        name="view_module"
+        category="navigation"
+        name="apps"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.TOPIC)"
@@ -22,14 +22,15 @@
         category="image"
         name="audiotrack"
         :class="[colorClass]"/>
-      <ion-svg
+      <mat-svg
         v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
-        name="document"
+        category="action"
+        name="book"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-        category="toggle"
-        name="star"
+        category="action"
+        name="assignment"
         :class="[colorClass]"/>
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.HTML5)"
@@ -49,10 +50,10 @@
 
 <script>
 
-  const Constants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash/values');
-
-  module.exports = {
+  import * as Constants from 'kolibri.coreVue.vuex.constants';
+  import values from 'lodash/values';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  export default {
     props: {
       kind: {
         type: String,
@@ -76,9 +77,7 @@
         return `color-${this.colorStyle}`;
       },
     },
-    components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
-    },
+    components: { uiIcon },
     methods: {
       is(kind) {
         return this.kind === kind;

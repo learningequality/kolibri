@@ -59,7 +59,11 @@
 
 <script>
 
-  module.exports = {
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import uiMenu from 'keen-ui/src/UiMenu';
+  export default {
     $trNameSpace: 'examRow',
     $trs: {
       change: 'Change',
@@ -74,10 +78,10 @@
       nobody: 'Nobody',
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon': require('keen-ui/src/UiIcon'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      uiButton,
+      uiIcon,
+      uiIconButton,
+      uiMenu,
     },
     props: {
       examId: {
@@ -163,7 +167,7 @@
     color: $core-action-normal
 
   .icon-inactive
-    color: #9e9e9e
+    color: $core-text-annotation
 
   .col-visibility, .col-action
     text-align: right
@@ -175,6 +179,6 @@
     height: 10px
     width: 10px
     border-radius: 50%
-    background-color: #4caf50
+    background-color: $core-status-correct
 
 </style>

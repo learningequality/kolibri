@@ -2,8 +2,8 @@
 Manual Testing & QA
 ===================
 
-Accessibility (A11Y) Testing
----------------------
+Accessibility (A11y) Testing
+----------------------------
 
 Inclusive design benefits all users, and we strive to make Kolibri accessible for all. Testing for accessibility can be challenging, but there are a few features you should check for before submitting your PR:
 
@@ -16,18 +16,18 @@ Inclusive design benefits all users, and we strive to make Kolibri accessible fo
 
 Here are a few tools that we use in testing for accessibility:
 
-* `WAVE Evaluation Tool <http://wave.webaim.org/extension/>`_ - Chrome extension.
+* WAVE Evaluation Tool - `Firefox Add-on <https://addons.mozilla.org/en-US/firefox/addon/wave-accessibility-tool/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/wave-evaluation-tool/jbbplnpkjmmeebjpijfedlgcdilocofh>`_.
 * `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome.
 * `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_ - Chrome extension.
-* aXe Accessibility Engine - `Firefox Addon <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
+* aXe Accessibility Engine - `Firefox Add-on <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
 
-There is a much longer list of tools (specially for color contrast checking) on our `KA Lite Wiki page <https://github.com/learningequality/ka-lite/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
+There is a much longer list on our `Kolibri Accessibility Tools Wiki page <https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
 
 
 Cross-browser and OS Testing
 ----------------------------
 
-It's vital to ensure that our app works across a wide range of browsers and operating systems, particularly older versions of Windows and Android that are common on older and cheaper devices.
+It's vital to ensure that our app works across a wide range of browsers and operating systems, particularly older versions of Windows and Android that are common on old and cheap devices.
 
 In particular, we want to ensure that Kolibri runs on major browsers that match any of `the following criteria <http://browserl.ist/?q=%3E+1%25%2C+last+2+versions%2C+ie+%3E%3D+9%2C+Firefox+ESR>`_:
 
@@ -88,3 +88,15 @@ To use this, ensure that you have development dependencies installed, and instal
   DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.debug_panel
 
 This will activate the debug panel, and will display in the Dev tools panel of Chrome. This panel will track all page loads and API requests. However, all data bootstrapping into the template will be disabled, as our data bootstrapping prevents the page load request from being profiled, and also does not profile the bootstrapped API requests.
+
+
+Generating User Data
+--------------------
+
+For manual testing, it is sometimes helpful to have generated user data, particularly for Coach and Admin facing functionality.
+
+In order to do this, a management command is available::
+
+  kolibri manage generateuserdata
+
+This will generate user data for the each currently existing channel on the system. Use the `--help` flag for options.

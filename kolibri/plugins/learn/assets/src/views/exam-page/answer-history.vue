@@ -21,7 +21,7 @@
 
 <script>
 
-  module.exports = {
+  export default {
     $trNameSpace: 'examAnswerHistory',
     $trs: {
       question: 'Question { num }',
@@ -94,6 +94,6 @@
     cursor: pointer
 
   .selected
-    background-color: #EDEDED
+    background-color: $core-grey
 
 </style>

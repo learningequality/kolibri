@@ -14,6 +14,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
+from kolibri.core.fields import DateTimeTzField
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.querysets import TreeQuerySet
@@ -126,7 +127,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     objects = ContentQuerySet.as_manager()
 
     class Meta:
-        ordering = ('sort_order',)
+        ordering = ('lft',)
 
     def __str__(self):
         return self.title
@@ -269,6 +270,7 @@ class AssessmentMetaData(ContentDatabaseModel):
     # and use in summative and formative tests?
     is_manipulable = models.BooleanField(default=False)
 
+
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """
@@ -301,6 +303,8 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
     """
     This class stores the channel metadata cached/denormed into the primary database.
     """
+
+    last_updated = DateTimeTzField(null=True)
 
     class Admin:
         pass

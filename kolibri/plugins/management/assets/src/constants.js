@@ -37,8 +37,8 @@ const TaskTypes = {
 };
 
 const TaskStatuses = {
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
+  IN_PROGRESS: 'INPROGRESS',
+  SUCCESS: 'COMPLETED',
   FAILED: 'FAILED',
   PENDING: 'PENDING',
 };
@@ -52,12 +52,15 @@ const defaultFacilityConfig = {
 };
 
 const notificationTypes = {
-  PAGELOAD_FAILURE: 'pageload_failure',
-  SAVE_FAILURE: 'save_failure',
-  SAVE_SUCCESS: 'save_success',
+  PAGELOAD_FAILURE: 'PAGELOAD_FAILURE',
+  SAVE_FAILURE: 'SAVE_FAILURE',
+  SAVE_SUCCESS: 'SAVE_SUCCESS',
+  CHANNEL_DELETE_SUCCESS: 'CHANNEL_DELETE_SUCCESS',
+  CHANNEL_DELETE_FAILURE: 'CHANNEL_DELETE_FAILURE',
+  CHANNEL_IMPORT_SUCCESS: 'CHANNEL_IMPORT_SUCCESS',
 };
 
-module.exports = {
+export {
   PageNames,
   Modals,
   ContentWizardPages,

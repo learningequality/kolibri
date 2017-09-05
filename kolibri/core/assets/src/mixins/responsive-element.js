@@ -1,4 +1,3 @@
-
 /*
   Apply this mixin to your vue components to get reactive information
   about the component's size.
@@ -7,7 +6,7 @@
 
     <script>
 
-      const responsiveElement = require('./responsive-element-mixin.js')
+      import responsiveElement from './responsive-element-mixin.js';
 
       export default {
         mixins: [responsiveElement],
@@ -22,10 +21,9 @@
     },
 */
 
+import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 
-const ResizeSensor = require('css-element-queries/src/ResizeSensor');
-
-module.exports = {
+export default {
   data() {
     return {
       // becomes available for use
@@ -42,8 +40,10 @@ module.exports = {
     this._updateEl();
     this.$options._resizeSensor = new ResizeSensor(this.$el, this._updateEl);
   },
+  updated() {
+    this._updateEl();
+  },
   beforeDestroy() {
     this.$options._resizeSensor.detach(this.$el, this._updateEl);
   },
 };
-

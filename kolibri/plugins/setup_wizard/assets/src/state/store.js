@@ -1,16 +1,27 @@
+import Vuex from 'kolibri.lib.vuex';
+import {
+  initialState as coreInitialState,
+  mutations as coreMutations,
+} from 'kolibri.coreVue.vuex.store';
 
-const Vuex = require('kolibri.lib.vuex');
-const coreStore = require('kolibri.coreVue.vuex.store');
-
-const initialState = {};
-const mutations = {};
+const initialState = {
+  pageState: {
+    submitted: false,
+  },
+};
+const mutations = {
+  SET_SUBMITTED_STATE(state, submittedFlag) {
+    state.pageState.submitted = submittedFlag;
+  },
+};
 
 // assigns core state and mutations
-Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, coreStore.mutations);
+Object.assign(initialState, coreInitialState);
+Object.assign(mutations, coreMutations);
 
-
-module.exports = new Vuex.Store({
+const store = new Vuex.Store({
   state: initialState,
   mutations,
 });
+
+export { store as default };

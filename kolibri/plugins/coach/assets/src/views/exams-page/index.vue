@@ -103,13 +103,22 @@
 
 <script>
 
-  const className = require('../../state/getters/main').className;
-  const ExamActions = require('../../state/actions/exam');
-  const ExamModals = require('../../examConstants').Modals;
-  const PageNames = require('../../constants').PageNames;
-  const orderBy = require('lodash/orderBy');
-
-  module.exports = {
+  import { className } from '../../state/getters/main';
+  import * as ExamActions from '../../state/actions/exam';
+  import { Modals as ExamModals } from '../../examConstants';
+  import { PageNames } from '../../constants';
+  import orderBy from 'lodash/orderBy';
+  import uiButton from 'keen-ui/src/UiButton';
+  import uiRadioGroup from 'keen-ui/src/UiRadioGroup';
+  import examRow from './exam-row';
+  import createExamModal from './create-exam-modal';
+  import activateExamModal from './activate-exam-modal';
+  import deactivateExamModal from './deactivate-exam-modal';
+  import changeExamVisibilityModal from './change-exam-visibility-modal';
+  import previewExamModal from './preview-exam-modal';
+  import renameExamModal from './rename-exam-modal';
+  import deleteExamModal from './delete-exam-modal';
+  export default {
     $trNameSpace: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
@@ -125,46 +134,53 @@
       noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
-      'ui-button': require('keen-ui/src/UiButton'),
-      'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
-      'exam-row': require('./exam-row'),
-      'create-exam-modal': require('./create-exam-modal'),
-      'activate-exam-modal': require('./activate-exam-modal'),
-      'deactivate-exam-modal': require('./deactivate-exam-modal'),
-      'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
-      'preview-exam-modal': require('./preview-exam-modal'),
-      'rename-exam-modal': require('./rename-exam-modal'),
-      'delete-exam-modal': require('./delete-exam-modal'),
+      uiButton,
+      uiRadioGroup,
+      examRow,
+      createExamModal,
+      activateExamModal,
+      deactivateExamModal,
+      changeExamVisibilityModal,
+      previewExamModal,
+      renameExamModal,
+      deleteExamModal,
     },
     data() {
       return {
         filterSelected: this.$tr('all'),
-        selectedExam: { title: '', id: '', visibility: { class: null, groups: [] } },
+        selectedExam: {
+          title: '',
+          id: '',
+          visibility: {
+            class: null,
+            groups: [],
+          },
+        },
       };
     },
     computed: {
       sortedExams() {
-        return orderBy(
-          this.exams,
-          [exam => exam.title.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.exams, [exam => exam.title.toUpperCase()], ['asc']);
       },
       sortedChannels() {
-        return orderBy(
-          this.channels,
-          [channel => channel.name.toUpperCase()],
-          ['asc']
-        );
+        return orderBy(this.channels, [channel => channel.name.toUpperCase()], ['asc']);
       },
       filterOptions() {
         return [
-          { label: this.$tr('all'), value: this.$tr('all') },
-          { label: this.$tr('active'), value: this.$tr('active') },
-          { label: this.$tr('inactive'), value: this.$tr('inactive') }
+          {
+            label: this.$tr('all'),
+            value: this.$tr('all'),
+          },
+          {
+            label: this.$tr('active'),
+            value: this.$tr('active'),
+          },
+          {
+            label: this.$tr('inactive'),
+            value: this.$tr('inactive'),
+          },
         ];
       },
-
       activeExams() {
         return this.sortedExams.filter(exam => exam.active === true);
       },
@@ -228,7 +244,11 @@
       routeToExamReport({ id, channelId }) {
         this.$router.push({
           name: PageNames.EXAM_REPORT,
-          params: { classId: this.classId, examId: id, channelId }
+          params: {
+            classId: this.classId,
+            examId: id,
+            channelId,
+          },
         });
       },
       openRenameExamModal(examId) {
@@ -241,9 +261,7 @@
       },
     },
     vuex: {
-      actions: {
-        displayExamModal: ExamActions.displayExamModal,
-      },
+      actions: { displayExamModal: ExamActions.displayExamModal },
       getters: {
         classId: state => state.classId,
         className,

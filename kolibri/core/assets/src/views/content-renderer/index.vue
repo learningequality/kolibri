@@ -37,9 +37,11 @@
 
 <script>
 
-  const logging = require('kolibri.lib.logging').getLogger(__filename);
-
-  module.exports = {
+  import logger from 'kolibri.lib.logging';
+  const logging = logger.getLogger(__filename);
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
@@ -74,12 +76,8 @@
         type: Boolean,
         default: false,
       },
-      itemId: {
-        default: null,
-      },
-      answerState: {
-        default: null,
-      },
+      itemId: { default: null },
+      answerState: { default: null },
       allowHints: {
         type: Boolean,
         default: true,
@@ -90,8 +88,8 @@
       },
     },
     components: {
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      loadingSpinner,
+      uiAlert,
     },
     computed: {
       extension() {
@@ -101,13 +99,10 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(
-          (file) => !file.thumbnail && !file.supplementary && file.available
-        );
+        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles &&
-          this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
       supplementaryFiles() {
         return this.files.filter(file => file.supplementary && file.available);
@@ -126,8 +121,7 @@
       noRendererAvailable: false,
     }),
     methods: {
-      /**
-       * Check the Kolibri core app for a content renderer module that is able to
+      /* Check the Kolibri core app for a content renderer module that is able to
        * handle the rendering of the current content node. This is the entrance point for changes
        * in the props,so any change in the props will trigger this function first.
        */
@@ -139,15 +133,17 @@
         if (this.available && this.kind && this.extension) {
           return Promise.all([
             this.initSession(),
-            this.Kolibri.retrieveContentRenderer(this.kind, this.extension)
-          ]).then(([session, component]) => {
-            this.$emit('sessionInitialized');
-            this.currentViewClass = component;
-            return this.currentViewClass;
-          }).catch((error) => {
-            logging.error(error);
-            this.noRendererAvailable = true;
-          });
+            this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
+          ])
+            .then(([session, component]) => {
+              this.$emit('sessionInitialized');
+              this.currentViewClass = component;
+              return this.currentViewClass;
+            })
+            .catch(error => {
+              logging.error(error);
+              this.noRendererAvailable = true;
+            });
         }
         return Promise.resolve(null);
       },

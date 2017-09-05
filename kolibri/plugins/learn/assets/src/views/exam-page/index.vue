@@ -8,7 +8,7 @@
     <template>
       <div class="container">
         <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
@@ -64,37 +64,46 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
-  const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
-  const actions = require('../../state/actions');
-  const isEqual = require('lodash/isEqual');
-  const { now } = require('kolibri.utils.serverClock');
-  const throttle = require('lodash/throttle');
-
-  module.exports = {
+  import { PageNames } from '../../constants';
+  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
+  import * as actions from '../../state/actions';
+  import isEqual from 'lodash/isEqual';
+  import { now } from 'kolibri.utils.serverClock';
+  import throttle from 'lodash/throttle';
+  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import answerHistory from './answer-history';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  export default {
     $trNameSpace: 'examPage',
     $trs: {
       submitExam: 'Submit exam',
       backToExamList: 'Back to exam list',
-      questionsAnswered: '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+      questionsAnswered:
+        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
       cancel: 'Cancel',
       areYouSure: 'Are you sure you want to submit your exam?',
-      unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      unanswered:
+        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
     },
     components: {
-      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'answer-history': require('./answer-history'),
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'ui-alert': require('keen-ui/src/UiAlert'),
+      immersiveFullScreen,
+      contentRenderer,
+      iconButton,
+      answerHistory,
+      coreModal,
+      uiAlert,
     },
-    data: () => ({
-      submitModalOpen: false,
-    }),
+    data() {
+      return {
+        submitModalOpen: false,
+      };
+    },
     vuex: {
       getters: {
         exam: state => state.pageState.exam,
@@ -112,7 +121,9 @@
       },
     },
     created() {
-      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, { leading: false });
+      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
+        leading: false,
+      });
     },
     methods: {
       checkAnswer() {
@@ -153,7 +164,11 @@
         this.saveAnswer().then(() => {
           this.$router.push({
             name: PageNames.EXAM,
-            params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
+            params: {
+              channel_id: this.channelId,
+              id: this.exam.id,
+              questionNumber,
+            },
           });
         });
       },

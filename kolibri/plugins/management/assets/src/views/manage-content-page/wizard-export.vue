@@ -10,44 +10,14 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="noDrives">
-            <mat-svg class="error-svg" category="alert" name="error_outline"/>
-            {{$tr('noDrivesDetected')}}
-          </h2>
-          <template v-else>
-            <h2>{{$tr('drivesFound')}}</h2>
-            <div class="drive-list">
-              <div class="enabled drive-names" v-for="(drive, index) in writableDrives"
-                @click="selectDriveByID(drive.id)">
-                <input
-                  type="radio"
-                  :id="'drive-'+index"
-                  :value="drive.id"
-                  v-model="selectedDrive"
-                  name="drive-select"
-                >
-                <label :for="'drive-'+index">
-                  {{drive.name}}
-                  <br>
-                  <span class="drive-detail">
-                    {{$tr('available')}} {{bytesForHumans(drive.freespace)}}
-                  </span>
-                </label>
-              </div>
-              <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
-                <input
-                  type="radio"
-                  disabled
-                  :id="'disabled-drive-'+index"
-                >
-                <label :for="'disabled-drive-'+index">
-                  {{drive.name}}
-                  <br>
-                  <span class="drive-detail">{{$tr('notWritable')}}</span>
-                </label>
-              </div>
-            </div>
-          </template>
+          <drive-list
+            :value="selectedDrive"
+            :drives="wizardState.driveList"
+            :enabledDrivePred="driveIsEnabled"
+            :disabledMsg="$tr('notWritable')"
+            :enabledMsg="formatEnabledMsg"
+            @change="(driveId) => selectedDrive = driveId"
+          />
         </div>
         <div class="refresh-btn-wrapper">
           <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')">
@@ -77,113 +47,64 @@
 
 <script>
 
-  const actions = require('../../state/actions');
-
-  module.exports = {
+  import * as actions from '../../state/actions';
+  import * as manageContentActions from '../../state/manageContentActions';
+  import bytesForHumans from './bytesForHumans';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import driveList from './wizards/drive-list';
+  export default {
     $trNameSpace: 'wizardExport',
     $trs: {
       title: 'Export to a Local Drive',
       available: 'Available Storage:',
-      noDrivesDetected: 'No drives were detected:',
-      drivesFound: 'Drives detected:',
       notWritable: 'Not writable',
       cancel: 'Cancel',
       export: 'Export',
       refresh: 'Refresh',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      coreModal,
+      iconButton,
+      loadingSpinner,
+      driveList,
     },
-    data: () => ({
-      selectedDrive: undefined, // used when there's more than one option
-    }),
+    data: () => ({ selectedDrive: '' }),
     computed: {
-      noDrives() {
-        return !Array.isArray(this.wizardState.driveList);
-      },
-      driveToUse() {
-        if (this.writableDrives.length === 1) {
-          return this.writableDrives[0].id;
-        }
-        return this.selectedDrive;
-      },
       drivesLoading() {
         return this.wizardState.driveList === null;
       },
-      writableDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => drive.writable
-        );
-      },
-      unwritableDrives() {
-        return this.wizardState.driveList.filter(
-          (drive) => !drive.writable
-        );
-      },
       canSubmit() {
-        if (this.drivesLoading || this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.driveToUse);
+        return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
     },
     methods: {
+      formatEnabledMsg(drive) {
+        return `${this.$tr('available')} ${bytesForHumans(drive.freespace)}`;
+      },
+      driveIsEnabled(drive) {
+        return drive.writable;
+      },
       submit() {
         if (this.canSubmit) {
-          this.triggerLocalContentExportTask(this.driveToUse);
+          this.transitionWizardPage('forward', { driveId: this.selectedDrive });
         }
       },
       cancel() {
         if (!this.wizardState.busy) {
-          this.cancelImportExportWizard();
+          this.transitionWizardPage('cancel');
         }
-      },
-      bytesForHumans(bytes) {
-        // breaking down byte counts in terms of larger sizes
-        const kilobyte = 1024;
-        const megabyte = kilobyte ** 2;
-        const gigabyte = kilobyte ** 3;
-
-        function kilobyteCalc(byteCount) {
-          const kilos = Math.floor(byteCount / kilobyte);
-          return `${kilos} KB`;
-        }
-        function megabyteCalc(byteCount) {
-          const megs = Math.floor(byteCount / megabyte);
-          return `${megs} MB`;
-        }
-        function gigabyteCalc(byteCount) {
-          const gigs = Math.floor(byteCount / gigabyte);
-          return `${gigs} GB`;
-        }
-        function chooseSize(byteCount) {
-          if (byteCount > gigabyte) {
-            return gigabyteCalc(byteCount);
-          } else if (byteCount > megabyte) {
-            return megabyteCalc(byteCount);
-          } else if (byteCount > kilobyte) {
-            return kilobyteCalc(byteCount);
-          }
-          return `${bytes} B`;
-        }
-
-        return chooseSize(bytes);
       },
       selectDriveByID(driveID) {
         this.selectedDrive = driveID;
       },
     },
     vuex: {
-      getters: {
-        wizardState: (state) => state.pageState.wizardState,
-      },
+      getters: { wizardState: state => state.pageState.wizardState },
       actions: {
-        startImportWizard: actions.startImportWizard,
+        transitionWizardPage: manageContentActions.transitionWizardPage,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
-        cancelImportExportWizard: actions.cancelImportExportWizard,
-        triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
       },
     },
   };
@@ -207,31 +128,6 @@
 
   .modal-message
     margin: 2em 0
-
-  .error-svg
-    margin-right: 0.2em
-    margin-bottom: -6px
-
-  .drive-names
-    padding: 0.6em
-    border: 1px $core-bg-canvas solid
-    label
-      display: inline-table
-      font-size: 0.9em
-    &.disabled
-      color: $core-text-disabled
-    &.enabled
-      &:hover
-        background-color: $core-bg-canvas
-      &, label
-        cursor: pointer
-
-  .drive-list:not(first-child)
-    border-top: none
-
-  .drive-detail
-    color: $core-text-annotation
-    font-size: 0.7em
 
   .button-wrapper
     margin: 1em 0
