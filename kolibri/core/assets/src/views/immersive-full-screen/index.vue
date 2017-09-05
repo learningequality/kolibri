@@ -1,7 +1,7 @@
 <template>
 
   <div class="whole-page">
-    <div class="top-bar" :style="topBarStyles">
+    <div class="top-bar">
       <router-link class="back-btn" :to="backPageLink">
         <mat-svg
           class="back svg-back"
@@ -11,7 +11,7 @@
         <p class="back">{{ backPageText }}</p>
       </router-link>
     </div>
-    <div class="page-body" :style="pageBodyStyles">
+    <div class="page-body">
       <slot/>
     </div>
   </div>
@@ -32,28 +32,6 @@
       },
       backPageText: {
         type: String,
-      },
-      bodyColorHex: {
-        type: String,
-      },
-      topBarColorHex: {
-        type: String,
-      },
-    },
-    computed: {
-      pageBodyStyles() {
-        if (this.bodyColorHex) {
-          return {
-            backgroundColor: this.bodyColorHex,
-          };
-        }
-      },
-      topBarStyles() {
-        if (this.topBarColorHex) {
-          return {
-            backgroundColor: this.topBarColorHex,
-          };
-        }
       },
     },
   };
@@ -76,7 +54,7 @@
 
   .top-bar
     height: 60px
-    background-color: $core-text-default
+    background-color: $core-action-dark
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
 
   .back-btn
@@ -107,5 +85,6 @@
     top: 0
     bottom: 0
     overflow-y: auto
+    background-color: $core-bg-canvas
 
 </style>

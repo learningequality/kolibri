@@ -1,10 +1,6 @@
 <template>
 
-  <immersive-full-screen
-    v-bind="{ backPageLink, backPageText }"
-    bodyColorHex="#F9F9F9"
-    topBarColorHex="#724870"
-  >
+  <immersive-full-screen v-bind="{ backPageLink, backPageText }">
     <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
     <subpage-container v-else-if="user===null" withSideMargin>
