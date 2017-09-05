@@ -146,16 +146,19 @@
       },
     },
     watch: {
-      superuserChecked(newVal) {
+      superuserChecked(newVal, oldVal) {
         // when superuser is checked, sets all device permissions to true
         // does not set them all to false if unchecked
-        this.devicePermissionsChecked = newVal;
+        if (oldVal !== undefined) {
+          this.devicePermissionsChecked = newVal;
+        }
       },
     },
     beforeMount() {
-      this.superuserChecked = this.permissions.is_superuser || false;
-      // currently only one device permission
-      this.devicePermissionsChecked = this.permissions.can_manage_content || false;
+      this.superuserChecked = this.permissions.is_superuser;
+      // ORed with is_superuser since first admin user has `can_manage_content` set to false.
+      this.devicePermissionsChecked =
+        this.permissions.can_manage_content || this.permissions.is_superuser;
     },
     methods: {
       save() {

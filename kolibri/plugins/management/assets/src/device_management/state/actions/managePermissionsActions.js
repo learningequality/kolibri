@@ -8,7 +8,6 @@ import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.act
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
-import isEmpty from 'lodash/isEmpty';
 
 function fetchFacilityUsers() {
   return FacilityUserResource.getCollection().fetch();
@@ -104,9 +103,7 @@ export function showUserPermissionsPage(store, userId) {
 }
 
 /**
- * Adds or modifies a DevicePermissions model. If pageState.permissions was not hydrated
- * with a Permissions model, then it is assumed one does not exist and the
- * action creates one.
+ * Adds or modifies a DevicePermissions model.
  *
  * @param {boolean} payload.is_superuser
  * @param {boolean} payload.can_manage_content
@@ -120,9 +117,12 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  // If pageState.permissions is empty, then need to do a POST
-  if (isEmpty(store.state.pageState.permissions)) {
-    return NewDevicePermissionsResource.createModel(permissions).save()._promise;
-  }
-  return DevicePermissionsResource.getModel(userId).save(permissions)._promise;
+  const savePromise = DevicePermissionsResource.getModel(userId).save(permissions)._promise;
+  return savePromise.catch(function onFailure(error) {
+    // Save attempt with DevicePermissionsResource will fail if model does not exist.
+    // Fallback is to use NewDevicePermissionResource.createModel to create it.
+    if (error.status && error.status.code === 404) {
+      return NewDevicePermissionsResource.createModel(permissions).save()._promise;
+    }
+  });
 }
