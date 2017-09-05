@@ -25,12 +25,14 @@ function createStore() {
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
+    const errorMessage = 'testError';
+    Vue.prototype.$formatMessage = () => errorMessage;
     it('handleError action updates core state', () => {
       const store = createStore();
       coreActions.handleError(store, 'catastrophic failure');
       assert.equal(store.state.core.error, 'catastrophic failure');
       assert.equal(store.state.core.loading, false);
-      assert.equal(store.state.core.title, 'Error');
+      assert.equal(store.state.core.title, errorMessage);
     });
 
     it('handleApiError action updates core state', () => {
@@ -39,7 +41,7 @@ describe('Vuex store/actions for core module', () => {
       coreActions.handleApiError(store, apiError);
       assert(store.state.core.error.match(/Too Bad/));
       assert.equal(store.state.core.loading, false);
-      assert.equal(store.state.core.title, 'Error');
+      assert.equal(store.state.core.title, errorMessage);
     });
   });
 

@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils.translation import check_for_language, ugettext_lazy as _
 from kolibri.auth.constants.facility_presets import choices, mappings
+from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.serializers import FacilitySerializer, FacilityUserSerializer
 from rest_framework import serializers
@@ -30,18 +31,18 @@ class DeviceProvisionSerializer(serializers.Serializer):
     facility = FacilitySerializer()
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
-    language_code = serializers.CharField(max_length=15)
+    language_id = serializers.CharField(max_length=15)
 
     class Meta:
-        fields = ('facility', 'dataset', 'superuser', 'language_code')
+        fields = ('facility', 'dataset', 'superuser', 'language_id')
 
-    def validate_language_code(self, language_code):
+    def validate_language_id(self, language_id):
         """
-        Check that the language_code is supported by Kolibri
+        Check that the language_id is supported by Kolibri
         """
-        if not check_for_language(language_code):
+        if not check_for_language(language_id):
             raise serializers.ValidationError(_("Language is not supported by Kolibri"))
-        return language_code
+        return language_id
 
     def create(self, validated_data):
         """
@@ -62,15 +63,16 @@ class DeviceProvisionSerializer(serializers.Serializer):
             superuser_data = validated_data.pop('superuser')
             superuser_data['facility'] = facility
             superuser = FacilityUserSerializer(data=superuser_data).create(superuser_data)
+            facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
-            language_code = validated_data.pop('language_code')
+            language_id = validated_data.pop('language_id')
             device_settings, created = DeviceSettings.objects.get_or_create()
             device_settings.is_provisioned = True
-            device_settings.language_code = language_code
+            device_settings.language_id = language_id
             device_settings.save()
             return {
                 "facility": facility,
                 "preset": preset,
                 "superuser": superuser,
-                "language_code": language_code
+                "language_id": language_id
             }

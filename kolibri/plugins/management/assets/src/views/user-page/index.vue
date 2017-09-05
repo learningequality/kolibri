@@ -10,6 +10,13 @@
     </div>
 
     <div class="toolbar">
+      <div class="create">
+        <k-button
+          @click="openCreateUserModal"
+          :text="$tr('addNew')"
+          :primary="true"/>
+      </div>
+
       <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
         <option value="all"> {{$tr('allUsers')}} </option>
@@ -18,22 +25,11 @@
         <option :value="LEARNER"> {{$tr('learners')}} </option>
       </select>
 
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
-
-      <div class="create">
-        <k-button
-          @click="openCreateUserModal"
-          :text="$tr('addNew')"
-          :primary="true"/>
-      </div>
+      <k-filter-textbox
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
 
     </div>
 
@@ -112,6 +108,7 @@
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
@@ -121,6 +118,7 @@
       userCreateModal,
       userEditModal,
       kButton,
+      kFilterTextbox,
       userRole,
     },
     data: () => ({
@@ -205,7 +203,7 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
+  $toolbar-height = 38px
 
   .toolbar:after
     content: ''
@@ -216,24 +214,15 @@
   .create
     float: right
 
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
   #type-filter
-    float: left
     background-color: $core-bg-light
     border-color: $core-action-light
     height: $toolbar-height
     cursor: pointer
+    margin-right: 8px
+
+  #type-filter, .searchbar
+    margin-top: 5px
 
   .header h1
     display: inline-block
@@ -265,32 +254,6 @@
     padding-bottom: $row-padding
     color: $core-text-default
 
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
-  .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
-    float: left
-    margin-left: 5px
-
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
-
   .table-name
     $line-height = 1em
     line-height: $line-height
@@ -311,14 +274,6 @@
   @media screen and (max-width: 840px)
     .create, #type-filter
       box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
     .table-username
       display: none
     .table-name

@@ -13,7 +13,7 @@
           <source :src="video.storage_url" :type="`video/${video.extension}`">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="isDefaultTrack(track.lang)">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang.id" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.id)">
         </template>
       </video>
 
@@ -32,13 +32,13 @@
 
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
-  import LangLookup from './languagelookup';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import ScreenFull from 'screenfull';
+  import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
 
@@ -69,20 +69,22 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
-      videoLang: GlobalLangCode,
+      videoLangCode: GlobalLangCode,
       mimicFullscreen: false,
     }),
 
     computed: {
-      posterSource() {
+      posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
-        const posterArray = this.thumbnailFiles.filter(file =>
+        return this.thumbnailFiles.filter(file =>
           posterFileExtensions.some(ext => ext === file.extension)
         );
-        if (posterArray.length === 0) {
-          return '';
+      },
+      audioPoster() {
+        if (this.posterSources.length) {
+          return this.posterSources[0].storage_url;
         }
-        return posterArray[0].storage_url;
+        return audioIconPoster;
       },
       videoSources() {
         const videoFileExtensions = ['mp4', 'webm', 'ogg'];
@@ -106,15 +108,9 @@
       },
     },
     methods: {
-      getLangName(langCode) {
-        if (LangLookup[langCode]) {
-          return LangLookup[langCode].native_name;
-        }
-        return langCode;
-      },
       isDefaultTrack(langCode) {
         const shortLangCode = langCode.split('-')[0];
-        const shortGlobalLangCode = this.videoLang.split('-')[0];
+        const shortGlobalLangCode = this.videoLangCode.split('-')[0];
         if (shortLangCode === shortGlobalLangCode) {
           return true;
         }
@@ -150,7 +146,7 @@
         };
 
         if (!this.isVideo) {
-          videojsConfig.poster = this.posterSource;
+          videojsConfig.poster = this.audioPoster;
         }
 
         // Add appropriate fullscreen button
@@ -215,7 +211,7 @@
           track => track.mode === 'showing'
         );
         if (currentTrack) {
-          Lockr.set('videoLang', currentTrack.language);
+          Lockr.set('videoLangCode', currentTrack.language);
         }
       },
 
@@ -283,14 +279,13 @@
       ForwardButton.prototype.controlText_ = this.$tr('forward');
       videojs.registerComponent('ReplayButton', ReplayButton);
       videojs.registerComponent('ForwardButton', ForwardButton);
-      this.videoLang = Lockr.get('videoLang') || this.videoLang;
+      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
     },
     mounted() {
       this.initPlayer();
       window.addEventListener('resize', this.throttledResizePlayer);
     },
     beforeDestroy() {
-      this.recordProgress();
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
       this.player.dispose();

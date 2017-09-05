@@ -125,19 +125,14 @@
     },
     methods: {
       optionSelected(option) {
-        switch (option.id) {
-          case 'profile':
-            window.location = `/user`;
-            break;
-          case 'signOut':
-            this.kolibriLogout();
-            break;
-          case 'signIn':
-            redirectBrowser();
-          case 'language':
-            this.showLanguageModal = true;
-          default:
-            break;
+        if (option.id === 'profile') {
+          window.location = `/user`;
+        } else if (option.id === 'signOut') {
+          this.kolibriLogout();
+        } else if (option.id === 'signIn') {
+          redirectBrowser();
+        } else if (option.id === 'language') {
+          this.showLanguageModal = true;
         }
       },
     },

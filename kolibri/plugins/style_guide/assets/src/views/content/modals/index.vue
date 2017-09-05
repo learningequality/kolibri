@@ -197,7 +197,7 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   .modal-style-guide
     .vuep-preview

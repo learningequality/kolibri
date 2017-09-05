@@ -31,6 +31,7 @@ const initialState = {
     classes: [],
     users: [],
     taskList: [],
+    modalShown: false,
   },
 };
 
@@ -39,7 +40,7 @@ const mutations = {
     state.pageName = name;
   },
   SET_PAGE_STATE(state, pageState) {
-    Object.assign(state.pageState, pageState);
+    state.pageState = pageState;
   },
   SET_CONTENT_PAGE_STATE(state, pageState) {
     state.pageName = 'CONTENT_MGMT_PAGE';
@@ -59,15 +60,6 @@ const mutations = {
     state.pageState.classes.forEach((classModel, index, arr) => {
       if (classModel.id === id) {
         arr[index] = updatedClass;
-      }
-    });
-  },
-
-  UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
-    // pageState has shape for 'edit class page'
-    state.pageState.classUsers.forEach(user => {
-      if (user.id === userId) {
-        user.kind = newRole;
       }
     });
   },

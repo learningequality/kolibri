@@ -45,10 +45,10 @@ class TasksViewSet(viewsets.ViewSet):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
         ids = [job["id"] for job in jobs_response]
         # Clean up old job tasktypes
-        for key in id_tasktype.keys():
-            if key not in ids:
-                id_tasktype.pop(key)
-        get_client().clear(force=False)
+        keys_to_pop = [key for key in id_tasktype.keys() if key not in ids]
+        for key in keys_to_pop:
+            id_tasktype.pop(key)
+
         return Response(jobs_response)
 
     def create(self, request):
@@ -65,9 +65,9 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=['post'])
     def startremoteimport(self, request):
-        '''Download a channel's database from the main curation server, and then
+        '''
+        Download a channel's database from the main curation server, and then
         download its content.
-
         '''
 
         if "channel_id" not in request.data:

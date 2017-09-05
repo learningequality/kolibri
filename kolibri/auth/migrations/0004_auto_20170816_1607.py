@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import django.core.validators
 from django.db import migrations, models
+from kolibri.auth.constants.role_kinds import ADMIN
 
 
 def device_owner_to_super_user(apps, schema_editor):
@@ -13,13 +14,19 @@ def device_owner_to_super_user(apps, schema_editor):
     default_facility = Facility.objects.all().first()
     DevicePermissions = apps.get_model('device', 'DevicePermissions')
     DeviceSettings = apps.get_model('device', 'DeviceSettings')
-    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility
+    Role = apps.get_model('kolibriauth', 'Role')
+    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
     real_default_facility = RealFacility.get_default_facility()
     # Can't do much if no facilities exist, as no facility to FK the users onto
     if default_facility:
         for device_owner in DeviceOwner.objects.all():
-            uuid = RealFacilityUser(username=device_owner.username, facility=real_default_facility).calculate_uuid()
             dataset_id = real_default_facility.dataset_id
+            real_superuser = RealFacilityUser(
+                username=device_owner.username,
+                facility=real_default_facility,
+                dataset_id=dataset_id
+            )
+            uuid = real_superuser.calculate_uuid()
             superuser = FacilityUser.objects.create(
                 username=device_owner.username,
                 password=device_owner.password,
@@ -28,6 +35,24 @@ def device_owner_to_super_user(apps, schema_editor):
                 date_joined=device_owner.date_joined,
                 id=uuid,
                 dataset_id=dataset_id,
+                _morango_source_id=real_superuser._morango_source_id,
+                _morango_partition=real_superuser._morango_partition,
+            )
+            real_role = RealRole(
+                user=real_superuser,
+                collection=real_default_facility,
+                kind=ADMIN,
+                dataset_id=dataset_id,
+            )
+            role_uuid = real_role.calculate_uuid()
+            role = Role.objects.create(
+                user=superuser,
+                collection=default_facility,
+                kind=ADMIN,
+                id=role_uuid,
+                dataset_id=dataset_id,
+                _morango_source_id=real_role._morango_source_id,
+                _morango_partition=real_role._morango_partition,
             )
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
         # Finally, set the is_provisioned flag

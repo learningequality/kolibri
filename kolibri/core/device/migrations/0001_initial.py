@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('is_provisioned', models.BooleanField(default=False)),
-                ('language_code', models.CharField(default='en', max_length=15)),
+                ('language_id', models.CharField(default='en', max_length=15)),
             ],
         ),
     ]

@@ -258,6 +258,6 @@ function toPseudoText(text, messageParser) {
   return result;
 }
 
-export function toFakeRTL(text) {
+export default function toFakeRTL(text) {
   return toPseudoText(text, IntlMessageFormatParser);
 }

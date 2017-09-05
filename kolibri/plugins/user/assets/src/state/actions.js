@@ -66,7 +66,7 @@ function editProfile(store, edits, session) {
       coreActions.getCurrentSession(store, true);
       store.dispatch('SET_PROFILE_SUCCESS', true);
       store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_EROR', false, '');
+      store.dispatch('SET_PROFILE_ERROR', false, '');
 
       // error handling
     },
@@ -83,7 +83,7 @@ function editProfile(store, edits, session) {
 
       // copying logic from user-create-modal
       store.dispatch('SET_PROFILE_SUCCESS', false);
-      store.dispatch('SET_PROFILE_EROR', true, _errorMessageHandler(error));
+      store.dispatch('SET_PROFILE_ERROR', true, _errorMessageHandler(error));
       store.dispatch('SET_PROFILE_BUSY', false);
     }
   );
@@ -164,13 +164,12 @@ function signUp(store, signUpCreds) {
   const signUpModel = SignUpResource.createModel(signUpCreds);
   const signUpPromise = signUpModel.save(signUpCreds);
 
-  store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
+  store.dispatch('SET_SIGN_UP_BUSY', true);
 
   signUpPromise
     .then(() => {
       store.dispatch('SET_SIGN_UP_ERROR', null, '');
-      store.dispatch('SET_SIGN_UP_BUSY', false);
       // TODO: Better solution?
       redirectToHome();
     })

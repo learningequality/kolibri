@@ -21,6 +21,29 @@ import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResourceConstructor from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'coachReportPageTitles';
+
+const messages = {
+  recentChannelsPageTitle: 'Recent - All channels',
+  recentItemsForChannelPageTitle: 'Recent - Items',
+  recentPageTitle: 'Recent',
+  recentLearnerActivityReportPageTitle: 'Recent - Learners',
+  recentActivityLearnerDetailsReportPageTitle: 'Recent - Learner Details',
+  topicsReportAllChannelsPageTitle: 'Topics - All channels',
+  topicsForChannelReportPageTitle: 'Topics - Channel',
+  topicsContentItemsReportPageTitle: 'Topics - Items',
+  topicsLearnersReportForContentItemPageTitle: 'Topics - Learners',
+  topicsLearnerDetailReportPageTitle: 'Topics - Learner Details',
+  learnersReportPageTitle: 'Learners',
+  learnersReportAllChannelsPageTitle: 'Learners - All channels',
+  learnersReportForChannelPageTitle: 'Learners - Channel',
+  learnersReportForContentItemsPageTitle: 'Learners - Items',
+  learnersItemDetailsReportPageTitle: 'Learners - Item Details',
+};
+
+const translator = createTranslator(name, messages);
 
 const RecentReportResource = new RecentReportResourceConstructor();
 const UserReportResource = new UserReportResourceConstructor();
@@ -374,14 +397,14 @@ function setReportSorting(store, sortColumn, sortOrder) {
 
 function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('recentChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, null, true);
 }
 
 function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL);
-  store.dispatch('CORE_SET_TITLE', 'Recent - Items');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('recentItemsForChannelPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -417,7 +440,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
           );
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', 'Recents');
+          store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
         error => coreActions.handleApiError(store, error)
       );
@@ -428,7 +451,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
 
 function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
-  store.dispatch('CORE_SET_TITLE', 'Recent - Learners');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('recentLearnerActivityReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   _showLearnerList(store, {
@@ -455,7 +478,7 @@ function showRecentLearnerItemDetails(
     store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
-  store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('recentActivityLearnerDetailsReportPageTitle'));
   _showExerciseDetailView(
     store,
     classId,
@@ -470,7 +493,7 @@ function showRecentLearnerItemDetails(
 function showTopicChannels(store, classId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, null, false);
 }
@@ -478,7 +501,7 @@ function showTopicChannels(store, classId) {
 function showTopicChannelRoot(store, classId, channelId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
-  store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsForChannelReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const channelPromise = ChannelResource.getModel(channelId).fetch();
@@ -501,7 +524,7 @@ function showTopicChannelRoot(store, classId, channelId) {
 function showTopicItemList(store, classId, channelId, topicId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
-  store.dispatch('CORE_SET_TITLE', 'Topics - Items');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsContentItemsReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   _showContentList(store, {
@@ -518,7 +541,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
 function showTopicLearnersForItem(store, classId, channelId, contentId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
-  store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnersReportForContentItemPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   _showLearnerList(store, {
@@ -545,7 +568,7 @@ function showTopicLearnerItemDetails(
     store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
-  store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnerDetailReportPageTitle'));
   _showExerciseDetailView(
     store,
     classId,
@@ -559,7 +582,7 @@ function showTopicLearnerItemDetails(
 
 function showLearnerList(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_LIST);
-  store.dispatch('CORE_SET_TITLE', 'Learners');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const promises = [
@@ -592,14 +615,14 @@ function showLearnerList(store, classId) {
 
 function showLearnerChannels(store, classId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', 'Learners - All channels');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportAllChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, userId, false);
 }
 
 function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
-  store.dispatch('CORE_SET_TITLE', 'Learners - Channel');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const channelPromise = ChannelResource.getModel(channelId).fetch();
@@ -621,7 +644,7 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
 
 function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_LIST);
-  store.dispatch('CORE_SET_TITLE', 'Learners - Items');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForContentItemsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showContentList(store, {
     classId,
@@ -647,7 +670,7 @@ function showLearnerItemDetails(
     store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
-  store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersItemDetailsReportPageTitle'));
   _showExerciseDetailView(
     store,
     classId,

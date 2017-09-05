@@ -76,10 +76,6 @@
         required: true,
         validator: validateLinkObject,
       },
-      thumbnail: {
-        type: String,
-        required: false,
-      },
     },
     computed: {
       mastered() {

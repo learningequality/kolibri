@@ -18,6 +18,15 @@ import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
 import { redirectBrowser } from '../utils/browser';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'coreTitles';
+
+const messages = {
+  errorPageTitle: 'Error',
+};
+
+const translator = createTranslator(name, messages);
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -150,7 +159,7 @@ function _channelListState(data) {
 function handleError(store, errorString) {
   store.dispatch('CORE_SET_ERROR', errorString);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_TITLE', 'Error');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
 function handleApiError(store, errorObject) {
@@ -165,6 +174,7 @@ function handleApiError(store, errorObject) {
  * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
  */
 function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
+  store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise
@@ -182,6 +192,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       }
     })
     .catch(error => {
+      store.dispatch('CORE_SET_SIGN_IN_BUSY', false);
       if (error.status.code === 401) {
         store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
       } else if (error.status.code === 400 && error.entity.missing_field === 'password') {

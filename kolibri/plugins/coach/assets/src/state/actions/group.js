@@ -4,6 +4,15 @@ import * as Constants from '../../constants';
 import { setClassState } from './main';
 
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'groupManagementPageTitles';
+
+const messages = {
+  groupManagementPageTitle: 'Groups',
+};
+
+const translator = createTranslator(name, messages);
 
 function _userState(user) {
   return {
@@ -74,7 +83,7 @@ function showGroupsPage(store, classId) {
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', 'Groups');
+          store.dispatch('CORE_SET_TITLE', translator.$tr('groupManagementPageTitle'));
         },
         error => coreActions.handleError(store, error)
       );
