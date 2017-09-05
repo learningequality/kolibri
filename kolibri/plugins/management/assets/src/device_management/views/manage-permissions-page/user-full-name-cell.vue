@@ -39,9 +39,9 @@
   import every from 'lodash/every';
   import omit from 'lodash/omit';
 
-  function hasNoPermissions(ps) {
-    if (!ps) return true;
-    return every(omit(ps, ['user']), p => !p);
+  function hasNoPermissions(permissions) {
+    if (permissions === undefined) return true;
+    return every(omit(permissions, ['user']), permission => !permission);
   }
 
   export default {
