@@ -130,6 +130,7 @@
   .progress-bar
     width: 50%
     font-size: 0.75em
+    padding-bottom: 10px
 
   .progress-messages
     padding-left: 1em

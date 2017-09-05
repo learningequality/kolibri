@@ -24,6 +24,14 @@
     >
       {{ $tr('successfulImportNotification') }}
     </ui-alert>
+
+    <ui-alert
+      type="success"
+      v-if="notification===notificationTypes.CHANNEL_EXPORT_SUCCESS"
+      @dismiss="dismiss()"
+    >
+      {{ $tr('successfulExportNotification') }}
+    </ui-alert>
   </div>
 
 </template>
@@ -31,27 +39,28 @@
 
 <script>
 
-  import { notificationTypes } from '../../../constants';
+  import { notificationTypes } from '../../constants';
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
+    name: 'manageContentPageNotifications',
+    components: { uiAlert },
     props: {
       notification: {
         type: String,
         required: false,
       },
     },
-    components: { uiAlert },
     computed: { notificationTypes: () => notificationTypes },
     methods: {
       dismiss() {
         this.$emit('dismiss');
       },
     },
-    name: 'manageContentPageNotifications',
     $trs: {
       deleteFailureNotification: 'There was a problem deleting this channel',
       deleteSuccessNotification: 'The channel has been removed from this device',
       successfulImportNotification: 'A channel has been added to this device',
+      successfulExportNotification: 'Export successful',
     },
   };
 

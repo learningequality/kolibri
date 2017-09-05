@@ -6,11 +6,10 @@
       <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
       <subpage-container>
-        <task-status
-          class="main alert-bg"
+        <task-progress
           v-if="tasksInQueue"
           v-bind="firstTask"
-          @importsuccess="notification=notificationTypes.CHANNEL_IMPORT_SUCCESS"
+          @importsuccess="showTaskCompleteNotification()"
         />
 
         <notifications v-bind="{notification}" @dismiss="clearNotification()" />
@@ -59,13 +58,13 @@
   import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';
   import notifications from './manage-content-notifications';
-  import taskStatus from './task-status';
   import wizardImportSource from './wizards/wizard-import-source';
   import wizardImportNetwork from './wizards/wizard-import-network';
   import wizardImportLocal from './wizards/wizard-import-local';
   import wizardExport from './wizards/wizard-export';
   import importPreview from './wizards/import-preview';
   import subpageContainer from '../containers/subpage-container';
+  import taskProgress from './task-progress';
 
   const pageNameComponentMap = {
     [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-source',
@@ -92,7 +91,7 @@
       notifications,
       importPreview,
       subpageContainer,
-      taskStatus,
+      taskProgress,
       wizardImportSource,
       wizardImportNetwork,
       wizardImportLocal,
@@ -126,6 +125,19 @@
       },
       clearNotification() {
         this.notification = null;
+      },
+      showTaskCompleteNotification() {
+        switch (this.firstTask.type) {
+          case 'remoteimport':
+          case 'localimport':
+            this.notification = notificationTypes.CHANNEL_IMPORT_SUCCESS;
+            break;
+          case 'localexport':
+            this.notification = notificationTypes.CHANNEL_EXPORT_SUCCESS;
+            break;
+          default:
+            this.notification = null;
+        }
       },
     },
     vuex: {
