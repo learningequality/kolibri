@@ -77,7 +77,7 @@
       },
       showContentKindFilter: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       showChannelFilter: {
         type: Boolean,
