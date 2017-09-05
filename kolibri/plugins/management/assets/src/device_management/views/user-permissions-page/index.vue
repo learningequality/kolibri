@@ -149,9 +149,7 @@
       superuserChecked(newVal) {
         // when superuser is checked, sets all device permissions to true
         // does not set them all to false if unchecked
-        if (newVal) {
-          this.devicePermissionsChecked = true;
-        }
+        this.devicePermissionsChecked = newVal;
       },
     },
     beforeMount() {
