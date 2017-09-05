@@ -13,7 +13,7 @@ Kolibri
 .. image:: https://img.shields.io/badge/support-on%20discourse-blue.svg
   :target: https://community.learningequality.org/
 .. image:: https://img.shields.io/badge/irc-%23kolibri%20on%20freenode-blue.svg
-  :target: https://community.learningequality.org/
+  :target: http://webchat.freenode.net?channels=%23kolibri
 .. image:: https://img.shields.io/badge/demo-online-green.svg
   :target: http://kolibridemo.learningequality.org/
 
