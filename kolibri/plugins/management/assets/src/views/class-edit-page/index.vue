@@ -22,16 +22,6 @@
     </div>
 
     <div class="toolbar">
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
-
       <div class="enroll">
         <router-link :to="classEnrollLink">
           <k-button
@@ -39,6 +29,12 @@
             :primary="true"/>
         </router-link>
       </div>
+      <k-filter-textbox
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
+
 
     </div>
 
@@ -115,6 +111,7 @@
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
     name: 'classEnrollPage',
     $trs: {
@@ -135,6 +132,7 @@
       classRenameModal,
       userRemoveModal,
       kButton,
+      kFilterTextbox,
     },
     data: () => ({
       searchFilter: '',
@@ -210,6 +208,9 @@
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
 
+  .searchbar
+    margin-top: 5px
+
   #name-edit-box
     display: inline-block
     cursor: pointer
@@ -240,18 +241,6 @@
   .empty-list
     color: $core-text-annotation
     margin-left: 10px
-
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
 
   .header h2
     display: inline-block
@@ -297,30 +286,6 @@
   .table-cell
     color: $core-text-default
 
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
-  .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
-    float: left
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
-
   .table-name
     $line-height = 1em
     line-height: $line-height
@@ -341,10 +306,7 @@
     .create
       margin-top: -78px
     .searchbar
-      font-size: 0.9em
-      width: 100%
       margin-top: 5px
-      float: right
     .table-username
       display: none
     .table-name

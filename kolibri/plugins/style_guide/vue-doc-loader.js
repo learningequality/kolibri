@@ -12,7 +12,8 @@ module.exports = function(content) {
   var callback = this.async();
 
   var options = {
-    filecontent: content
+    filecontent: content,
+    defaultMethodVisibility: 'private'
   }
 
   var json;
