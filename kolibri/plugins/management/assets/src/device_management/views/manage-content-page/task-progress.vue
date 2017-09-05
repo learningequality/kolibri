@@ -124,7 +124,7 @@
     methods: {
       endTask() {
         if (this.taskHasCompleted) {
-          this.$emit('importsuccess');
+          this.$emit('taskcomplete');
           this.refreshChannelList();
         }
         this.cancelTask(this.id);

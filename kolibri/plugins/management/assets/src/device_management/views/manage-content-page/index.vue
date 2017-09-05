@@ -9,7 +9,7 @@
         <task-progress
           v-if="tasksInQueue"
           v-bind="firstTask"
-          @importsuccess="showTaskCompleteNotification()"
+          @taskcomplete="showTaskCompleteNotification()"
         />
 
         <notifications v-bind="{notification}" @dismiss="clearNotification()" />
