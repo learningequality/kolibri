@@ -72,6 +72,7 @@ function _topicState(data, ancestors = []) {
     parent: data.parent,
     kind: data.kind,
     progress,
+    channel_id: data.channel_id,
   };
   return state;
 }
@@ -97,6 +98,7 @@ function contentState(data, nextContent, ancestors = []) {
     license_owner: data.license_owner,
     parent: data.parent,
     lang: data.lang,
+    channel_id: data.channel_id,
   };
   Object.assign(state, assessmentMetaDataState(data));
   return state;
