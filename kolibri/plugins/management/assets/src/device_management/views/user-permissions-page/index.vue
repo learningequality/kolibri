@@ -167,18 +167,14 @@
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })
-          .then(
-            function onSuccess() {
-              this.saveProgress = SUCCESS;
-              this.goBack();
-            }.bind(this)
-          )
-          .catch(
-            function onFailure() {
-              this.uiBlocked = false;
-              this.saveProgress = FAILURE;
-            }.bind(this)
-          );
+          .then(() => {
+            this.saveProgress = SUCCESS;
+            this.goBack();
+          })
+          .catch(() => {
+            this.uiBlocked = false;
+            this.saveProgress = FAILURE;
+          });
       },
       goBack() {
         this.$router.push({ path: '/permissions' });

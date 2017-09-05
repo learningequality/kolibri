@@ -42,7 +42,13 @@ function fetchUserPermissions(userId) {
     .catch(function onPermissionsFailure(error) {
       if (error.status.code === 404) {
         return userPromise.then(function onUserSuccess(user) {
-          return { permissions: {}, user };
+          return {
+            permissions: {
+              is_superuser: false,
+              can_manage_content: false,
+            },
+            user,
+          };
         });
       }
     });
