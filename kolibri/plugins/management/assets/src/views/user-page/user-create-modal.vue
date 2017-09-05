@@ -10,36 +10,48 @@
     <form @submit.prevent="createNewUser">
       <section>
         <k-textbox
+          ref="name"
+          type="text"
+          class="user-field"
           :label="$tr('name')"
           :autofocus="true"
-          :required="true"
           :maxlength="120"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          @blur="nameBlurred = true"
+          v-model.trim="fullName"
+        />
+        <k-textbox
+          ref="username"
           type="text"
           class="user-field"
-          v-model.trim="fullName"/>
-        <k-textbox
           :label="$tr('username')"
-          :required="true"
           :maxlength="30"
-          :invalid="usernameInvalid"
-          :invalidText="usernameInvalidMsg"
-          type="text"
-          class="user-field"
-          v-model="username"/>
+          :invalid="usernameIsInvalid"
+          :invalidText="usernameIsInvalidText"
+          @blur="usernameBlurred = true"
+          v-model="username"
+        />
         <k-textbox
+          ref="password"
+          type="password"
+          class="user-field"
           :label="$tr('password')"
-          :required="true"
-          type="password"
-          class="user-field"
-          v-model="password"/>
+          :invalid="passwordIsInvalid"
+          :invalidText="passwordIsInvalidText"
+          @blur="passwordBlurred = true"
+          v-model="password"
+        />
         <k-textbox
-          :label="$tr('reEnterPassword')"
-          :required="true"
-          :invalid="passwordConfirmInvalid"
-          :invalidText="$tr('pwMismatchError')"
+          ref="confirmedPassword"
           type="password"
           class="user-field"
-          v-model="passwordConfirm"/>
+          :label="$tr('reEnterPassword')"
+          :invalid="confirmedPasswordIsInvalid"
+          :invalidText="confirmedPasswordIsInvalidText"
+          @blur="confirmedPasswordBlurred = true"
+          v-model="confirmedPassword"
+        />
 
         <ui-select
           :name="$tr('typeOfUser')"
@@ -52,7 +64,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" :loading="loading" type="submit"/>
+        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting"/>
       </section>
     </form>
   </core-modal>
@@ -87,6 +99,7 @@
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
+      required: 'This field is required',
     },
     components: {
       kButton,
@@ -100,41 +113,84 @@
         fullName: '',
         username: '',
         password: '',
-        passwordConfirm: '',
+        confirmedPassword: '',
         kind: {},
         errorMessage: '',
-        loading: false,
-      };
-    },
-    mounted() {
-      Object.assign(this.$data, this.$options.data());
-      this.kind = {
-        label: this.$tr('learner'),
-        value: UserKinds.LEARNER,
+        submitting: false,
+        nameBlurred: false,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        confirmedPasswordBlurred: false,
+        formSubmitted: false,
       };
     },
     computed: {
-      usernameAlreadyExists() {
-        return this.users.findIndex(user => user.username === this.username) !== -1;
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.fullName === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
       },
       usernameIsAlphaNumUnderscore() {
         return /^\w+$/g.test(this.username);
       },
-      usernameInvalid() {
-        return (
-          this.username !== '' && (this.usernameAlreadyExists || !this.usernameIsAlphaNumUnderscore)
-        );
+      usernameAlreadyExists() {
+        return this.users.findIndex(user => user.username === this.username) !== -1;
       },
-      usernameInvalidMsg() {
-        if (this.usernameAlreadyExists) {
-          return this.$tr('usernameAlreadyExists');
-        } else if (!this.usernameIsAlphaNumUnderscore) {
-          return this.$tr('usernameNotAlphaNumUnderscore');
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!this.usernameIsAlphaNumUnderscore) {
+            return this.$tr('usernameNotAlphaNumUnderscore');
+          }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
+          }
         }
         return '';
       },
-      passwordConfirmInvalid() {
-        return this.passwordConfirm !== '' && this.password !== this.passwordConfirm;
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
+      },
+      passwordIsInvalidText() {
+        if (this.passwordBlurred || this.formSubmitted) {
+          if (this.password === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      passwordIsInvalid() {
+        return !!this.passwordIsInvalidText;
+      },
+      confirmedPasswordIsInvalidText() {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
+          if (this.confirmedPassword === '') {
+            return this.$tr('required');
+          }
+          if (this.confirmedPassword !== this.password) {
+            return this.$tr('pwMismatchError');
+          }
+        }
+        return '';
+      },
+      confirmedPasswordIsInvalid() {
+        return !!this.confirmedPasswordIsInvalidText;
+      },
+      formIsValid() {
+        return (
+          !this.nameIsInvalid &&
+          !this.usernameIsInvalid &&
+          !this.passwordIsInvalid &&
+          !this.confirmedPasswordIsInvalid
+        );
       },
       userKinds() {
         return [
@@ -153,11 +209,19 @@
         ];
       },
     },
+    mounted() {
+      Object.assign(this.$data, this.$options.data());
+      this.kind = {
+        label: this.$tr('learner'),
+        value: UserKinds.LEARNER,
+      };
+    },
     methods: {
       createNewUser() {
         this.errorMessage = '';
-        if (!this.usernameInvalid && !this.passwordConfirmInvalid) {
-          this.loading = true;
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
           const newUser = {
             username: this.username,
             full_name: this.fullName,
@@ -169,7 +233,7 @@
               this.close();
             },
             error => {
-              this.loading = false;
+              this.submitting = false;
               if (error.status.code === 400) {
                 this.errorMessage = Object.values(error.entity)[0][0];
               } else if (error.status.code === 403) {
@@ -179,6 +243,19 @@
               }
             }
           );
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
         }
       },
       close() {
