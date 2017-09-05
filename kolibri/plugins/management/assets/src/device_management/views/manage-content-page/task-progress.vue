@@ -37,7 +37,7 @@
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="false"
         :raised="false"
-        @click="cancelTaskHandler()"
+        @click="endTask()"
       />
     </div>
 
@@ -55,13 +55,26 @@
   import { cancelTask } from '../../state/actions/taskActions';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
+  const RequiredString = {
+    type: String,
+    required: true,
+  };
+
   export default {
     name: 'taskProgress',
     components: {
       UiProgressLinear,
       kButton,
     },
-    props: ['percentage', 'status', 'type', 'id'],
+    props: {
+      type: RequiredString,
+      status: RequiredString,
+      percentage: {
+        type: Number,
+        required: true,
+      },
+      id: RequiredString,
+    },
     computed: {
       TaskStatuses: () => TaskStatuses,
       stageText() {
@@ -92,7 +105,6 @@
       taskHasCompleted() {
         return this.status === TaskStatuses.COMPLETED;
       },
-      // statuses used before transfer actually begins
       taskIsPreparing() {
         return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
@@ -110,7 +122,7 @@
       },
     },
     methods: {
-      cancelTaskHandler() {
+      endTask() {
         if (this.taskHasCompleted) {
           this.$emit('importsuccess');
           this.refreshChannelList();
