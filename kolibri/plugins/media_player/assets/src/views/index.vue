@@ -46,7 +46,30 @@
     name: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
+      // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: 'Go forward 10 seconds',
+      play: 'Play',
+      pause: 'Pause',
+      currentTime: 'Current time',
+      durationTime: 'Duration time',
+      loaded: 'Loaded',
+      progress: 'Progress',
+      progressBar: 'Progress bar',
+      fullscreen: 'Fullscreen',
+      nonFullscreen: 'Non-fullscreen',
+      mute: 'Mute',
+      unmute: 'Unmute',
+      playbackRate: 'Playback rate',
+      captions: 'Captions',
+      captionsOff: 'Captions off',
+      volumeLevel: 'Volume level',
+      networkError: 'A network error caused the media download to fail part-way',
+      formatError:
+        'The media could not be loaded, either because the server or network failed or because the format is not supported',
+      corruptionOrSupportError:
+        'The media playback was aborted due to a corruption problem or because the media used features your browser did not support',
+      sourceError: 'No compatible source was found for this media',
+      encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
 
     mixins: [ResponsiveElement],
@@ -142,6 +165,37 @@
               { name: 'playbackRateMenuButton' },
               { name: 'captionsButton' },
             ],
+          },
+          language: GlobalLangCode,
+          languages: {
+            [GlobalLangCode]: {
+              Play: this.$tr('play'),
+              Pause: this.$tr('pause'),
+              'Current Time': this.$tr('currentTime'),
+              'Duration Time': this.$tr('durationTime'),
+              Loaded: this.$tr('loaded'),
+              Progress: this.$tr('progress'),
+              'Progress Bar': this.$tr('progressBar'),
+              Fullscreen: this.$tr('fullscreen'),
+              'Non-Fullscreen': this.$tr('nonFullscreen'),
+              Mute: this.$tr('mute'),
+              Unmute: this.$tr('unmute'),
+              'Playback Rate': this.$tr('playbackRate'),
+              Captions: this.$tr('captions'),
+              'captions off': this.$tr('captionsOff'),
+              'Volume Level': this.$tr('volumeLevel'),
+              'A network error caused the media download to fail part-way.': this.$tr('networkError'),
+              'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
+                'formatError'
+              ),
+              'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': this.$tr(
+                'corruptionOrSupportError'
+              ),
+              'No compatible source was found for this media.': this.$tr('sourceError'),
+              'The media is encrypted and we do not have the keys to decrypt it.': this.$tr(
+                'encryptionError'
+              ),
+            },
           },
         };
 
