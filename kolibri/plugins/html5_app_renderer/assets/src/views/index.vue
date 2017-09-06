@@ -8,7 +8,7 @@
     <k-button
       class="btn"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullScreen"
+      @click="toggleFullscreen"
       :primary="true"/>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
