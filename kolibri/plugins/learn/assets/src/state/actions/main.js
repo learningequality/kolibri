@@ -180,28 +180,6 @@ function redirectToTopicsChannel(store) {
   );
 }
 
-function redirectToLearnChannel(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-
-  setChannelInfo(store).then(
-    () => {
-      const currentChannel = getCurrentChannelObject(store.state);
-      if (currentChannel) {
-        router.getInstance().replace({
-          name: PageNames.LEARN_CHANNEL,
-          params: { channel_id: currentChannel.id },
-        });
-      } else {
-        router.getInstance().replace({ name: PageNames.CONTENT_UNAVAILABLE });
-      }
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
-}
-
 function showTopicsTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   if (isRoot) {
@@ -398,7 +376,7 @@ function showSearch(store, channelId, searchTerm) {
   });
 }
 
-function showExamList(store, channelId) {
+function showExamList(store) {
   const userIsLoggedIn = isUserLoggedIn(store.state);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_LIST);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -409,30 +387,23 @@ function showExamList(store, channelId) {
     return Promise.resolve();
   }
 
-  return setChannelInfo(store, channelId).then(() => {
-    const currentChannel = getCurrentChannelObject(store.state);
-    if (!currentChannel) {
-      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-      return;
+  return UserExamResource.getCollection().fetch().only(
+    samePageCheckGenerator(store),
+    exams => {
+      const pageState = {};
+      pageState.exams = exams.map(_examState);
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('examsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
+      );
+    },
+    error => {
+      handleApiError(store, error);
     }
-    UserExamResource.getCollection().fetch().only(
-      samePageCheckGenerator(store),
-      exams => {
-        const pageState = {};
-        pageState.exams = exams.map(_examState);
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch(
-          'CORE_SET_TITLE',
-          translator.$tr('examsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
-        );
-      },
-      error => {
-        handleApiError(store, error);
-      }
-    );
-  });
+  );
 }
 
 function calcQuestionsAnswered(attemptLogs) {
@@ -445,7 +416,7 @@ function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-function showExam(store, channelId, id, questionNumber) {
+function showExam(store, id, questionNumber) {
   if (store.state.pageName !== PageNames.EXAM) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
@@ -458,7 +429,6 @@ function showExam(store, channelId, id, questionNumber) {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
     const examPromise = UserExamResource.getModel(id).fetch();
-    const channelsPromise = setChannelInfo(store, channelId);
     const examLogPromise = ExamLogResource.getCollection({
       user: store.state.core.session.user_id,
       exam: id,
@@ -467,14 +437,9 @@ function showExam(store, channelId, id, questionNumber) {
       user: store.state.core.session.user_id,
       exam: id,
     }).fetch();
-    ConditionalPromise.all([
-      examPromise,
-      channelsPromise,
-      examLogPromise,
-      examAttemptLogPromise,
-    ]).only(
+    ConditionalPromise.all([examPromise, examLogPromise, examAttemptLogPromise]).only(
       samePageCheckGenerator(store),
-      ([exam, channel, examLogs, examAttemptLogs]) => {
+      ([exam, examLogs, examAttemptLogs]) => {
         const currentChannel = getCurrentChannelObject(store.state);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -557,6 +522,8 @@ function showExam(store, channelId, id, questionNumber) {
                 handleError(store, `This exam has no valid questions`);
               } else {
                 const itemId = questions[questionNumber].itemId;
+
+                const channelId = exam.channel_id;
 
                 const currentQuestion = questions[questionNumber];
 
@@ -686,7 +653,6 @@ function closeExam(store) {
 export {
   contentState,
   redirectToTopicsChannel,
-  redirectToLearnChannel,
   showTopicsChannel,
   showTopicsTopic,
   showTopicsContent,

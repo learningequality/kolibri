@@ -73,7 +73,7 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
 
     def title_description_filter(self, queryset, value):
         """
@@ -291,7 +291,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
+        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)

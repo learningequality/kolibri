@@ -169,20 +169,17 @@
       },
       recommendedLink() {
         return {
-          name: PageNames.LEARN_CHANNEL,
-          params: { channel_id: this.channelId },
+          name: PageNames.LEARN_ROOT,
         };
       },
       topicsLink() {
         return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id: this.channelId },
+          name: PageNames.TOPICS_ROOT,
         };
       },
       examsLink() {
         return {
           name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
         };
       },
     },

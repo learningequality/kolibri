@@ -38,16 +38,18 @@
         :contents="trimmedResume"/>
     </template>
 
-    <template v-if="featured.length">
+    <template v-for="(contents, channelId) in featured" v-if="contents.length">
       <content-card-group-header
-        :header="$tr('featuredSectionHeader', { channelTitle })"
-        :view-more-page-link="featuredPageLink"
-        :show-view-more="featured.length > trimmedFeatured.length"/>
+        :key="channelId"
+        :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
+        :view-more-page-link="featuredPageLink(channelId)"
+        :show-view-more="contents.length > trimContent(contents).length"/>
       <component
+        :key="channelId"
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimmedFeatured"/>
+        :contents="trimContent(contents)"/>
     </template>
 
   </div>
@@ -62,6 +64,7 @@
   import contentCardGroupGrid from '../content-card-group-grid';
   import contentCardGroupHeader from '../content-card-group-header';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -96,25 +99,16 @@
       popularPageLink() {
         return {
           name: PageNames.RECOMMENDED_POPULAR,
-          params: { channel_id: this.channelId },
         };
       },
       nextStepsPageLink() {
         return {
           name: PageNames.RECOMMENDED_NEXT_STEPS,
-          params: { channel_id: this.channelId },
         };
       },
       resumePageLink() {
         return {
           name: PageNames.RECOMMENDED_RESUME,
-          params: { channel_id: this.channelId },
-        };
-      },
-      featuredPageLink() {
-        return {
-          name: PageNames.RECOMMENDED_FEATURED,
-          params: { channel_id: this.channelId },
         };
       },
       trimmedPopular() {
@@ -134,14 +128,25 @@
       genContentLink(id, kind) {
         return {
           name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
+          params: { id },
         };
+      },
+      trimContent(content) {
+        return content.slice(0, this.carouselLimit);
+      },
+      featuredPageLink(channel_id) {
+        return {
+          name: PageNames.RECOMMENDED_FEATURED,
+          params: { channel_id },
+        };
+      },
+      getChannelTitle(channel_id) {
+        return this.channels.find(channel => channel.id === channel_id).title;
       },
     },
     vuex: {
       getters: {
-        channelId: state => state.pageState.channelId,
-        channelTitle: state => state.pageState.channelTitle,
+        channels: getChannels,
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,
