@@ -137,10 +137,10 @@
       },
     },
     $trs: {
-      importingContent: 'Importing content\u2026',
-      exportingContent: 'Exporting content\u2026',
+      importingContent: 'Importing content…',
+      exportingContent: 'Exporting content…',
       finished: 'Finished!',
-      preparingTask: 'Preparing\u2026',
+      preparingTask: 'Preparing…',
       close: 'Close',
       cancel: 'Cancel',
       taskHasFailed: 'Transfer failed. Please try again.',
