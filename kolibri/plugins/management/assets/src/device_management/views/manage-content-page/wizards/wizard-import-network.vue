@@ -21,9 +21,7 @@
           @blur="channelIdBlurred=true"
         />
       </div>
-      <div class="core-text-alert">
-        {{ wizardState.error }}
-      </div>
+
       <div class="button-wrapper">
         <k-button
           @click="cancel"
@@ -49,6 +47,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+
   export default {
     name: 'wizardImportNetwork',
     $trs: {
