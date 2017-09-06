@@ -8,11 +8,10 @@
 
     <component
       :is="currentOnboardingForm"
-      :submitText="submitText"
-      :onboardingData="onboardingData"
+      :submit-text="submitText"
       @submit="continueOnboarding"
       class="onboarding-form"
-      />
+    />
 
   </div>
 
@@ -23,10 +22,10 @@
 
   import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
   import progressToolbar from './progress-toolbar';
-  import defaultLanguageForm from './setup-forms/default-language-form';
-  import facilityNameForm from './setup-forms/facility-name-form';
-  import superuserCredentialsForm from './setup-forms/superuser-credentials-form';
-  import facilityPermissionsForm from './setup-forms/facility-permissions-form';
+  import defaultLanguageForm from './onboarding-forms/default-language-form';
+  import facilityNameForm from './onboarding-forms/facility-name-form';
+  import superuserCredentialsForm from './onboarding-forms/superuser-credentials-form';
+  import facilityPermissionsForm from './onboarding-forms/facility-permissions-form';
 
   export default {
     name: 'Onboarding',
@@ -56,7 +55,7 @@
         return this.onboardingStep === this.totalOnboardingSteps;
       },
       submitText() {
-        return this.isLastStep ? 'Submit' : 'Continue';
+        return this.isLastStep ? 'Submit' : 'Continue'; // TODO wrap
       },
     },
     methods: {

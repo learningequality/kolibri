@@ -1,22 +1,11 @@
 <template>
 
-  <form @submit="setSuperuserCredentials">
-    <fieldset class="superuser-credentials-form">
-      <legend>
-        <h1>
-          Set user credentials
-        </h1>
-      </legend>
-
+  <onboarding-form header="Set user credentials" :submit-text="submitText" @submit="setSuperuserCredentials">
       <k-textbox v-model="name" label="Full name"/>
       <k-textbox v-model="username" label="Username"/>
       <k-textbox v-model="password" label="Password"/>
       <k-textbox v-model="passwordConfirm" label="Confirm Password"/>
-
-      <k-button :primary="true" type="submit" :text="submitText" />
-
-    </fieldset>
-  </form>
+  </onboarding-form>
 
 </template>
 
@@ -24,8 +13,10 @@
 <script>
 
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
+  import onboardingForm from '../onboarding-form';
+
+  // TODO wrap all strings in labels and header
 
   export default {
     name: 'superuserCredentialsForm',
@@ -34,21 +25,17 @@
         type: String,
         required: true,
       },
-      onboardingData: {
-        type: Object,
-        required: true,
-      },
     },
     components: {
+      onboardingForm,
       kTextbox,
-      kButton,
     },
     data() {
       return {
-        name: this.onboardingData.superuser.full_name,
-        username: this.onboardingData.superuser.username,
-        password: this.onboardingData.superuser.password,
-        passwordConfirm: this.onboardingData.superuser.password,
+        name: this.currentName,
+        username: this.currentUsername,
+        password: this.currentPassword,
+        passwordConfirm: this.currentPassword,
       };
     },
     methods: {
@@ -61,17 +48,15 @@
       actions: {
         submitSuperuserCredentials,
       },
+      getters: {
+        currentName: state => state.onboardingData.superuser.full_name,
+        currentUsername: state => state.onboardingData.superuser.username,
+        currentPassword: state => state.onboardingData.superuser.password,
+      },
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '../onboarding-form.styl'
-
-  .superuser-credentials-form
-    onboardingForm()
-
-</style>
+<style lang="stylus" scoped></style>
