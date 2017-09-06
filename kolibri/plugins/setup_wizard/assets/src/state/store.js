@@ -8,7 +8,7 @@ import {
 
 const initialState = {
   onboardingData: {
-    language_code: '',
+    language_id: '',
     facility: {
       name: '',
     },
@@ -25,8 +25,8 @@ const initialState = {
 };
 
 const mutations = {
-  SET_LANGUAGE(state, language_code) {
-    state.onboardingData.language_code = language_code;
+  SET_LANGUAGE(state, language_id) {
+    state.onboardingData.language_id = language_id;
   },
   SET_FACILITY_NAME(state, name) {
     state.onboardingData.facility.name = name;
