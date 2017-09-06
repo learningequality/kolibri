@@ -1,0 +1,78 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-03 18:14+0000\n"
+"PO-Revision-Date: 2017-08-23 18:15-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Arabic, Egypt\n"
+"Language: ar_EG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ar-EG\n"
+"X-Crowdin-File: /release-v0.5.x/en/LC_MESSAGES/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:12
+msgid "Facility"
+msgstr "مرفق"
+
+#: kolibri/auth/constants/collection_kinds.py:13
+msgid "Classroom"
+msgstr "الفصل"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+msgid "Learner group"
+msgstr "مجموعة متعلمين"
+
+#: kolibri/auth/constants/role_kinds.py:10
+msgid "Admin"
+msgstr "المُدير"
+
+#: kolibri/auth/constants/role_kinds.py:11
+msgid "Coach"
+msgstr "المدرب"
+
+#: kolibri/auth/models.py:157
+msgid "username"
+msgstr "اسم المستخدم"
+
+#: kolibri/auth/models.py:159
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "مطلوب. 30 حرفا أو أقل. حروف وأرقام فقط"
+
+#: kolibri/auth/models.py:163
+msgid "Enter a valid username. This value may contain only letters and numbers."
+msgstr "أدخل اسم مستخدم صالح. أدخل أحرف وأرقام فقط."
+
+#: kolibri/auth/models.py:167
+msgid "full name"
+msgstr "الاسم الكامل"
+
+#: kolibri/auth/models.py:168
+msgid "date joined"
+msgstr "تاريخ الانضمام"
+
+#: kolibri/auth/serializers.py:27
+msgid "An account with that username already exists"
+msgstr "يوجد بالفعل حساب بهذا الاسم"
+
+#: kolibri/content/models.py:215
+msgid "Unknown format"
+msgstr "فورمات غير معروف"
+
+#: kolibri/core/templates/kolibri/base.html:11
+msgid "Kolibri"
+msgstr "كوليبري"
+
+#: kolibri/plugins/management/kolibri_plugin.py:29
+msgid "Management"
+msgstr "الإدارة"
+
+#: kolibri/tasks/api.py:86
+msgid "The requested channel does not exist on the content server"
+msgstr "القناة المطلوبة غير موجودة على خادم المحتوى"
+
