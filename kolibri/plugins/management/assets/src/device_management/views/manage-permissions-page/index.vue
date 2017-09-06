@@ -5,20 +5,19 @@
       <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
       <div v-else>
-        <div>
-          <div class="one-half">
-            <h1>{{ $tr('devicePermissionsHeader') }}</h1>
-            <p>{{ $tr('devicePermissionsDescription') }}</p>
-          </div>
-          <div class="one-half">
-            <k-filter-textbox
-              v-model="searchFilterText"
-              :placeholder="$tr('searchPlaceholder')"
-            />
-          </div>
+        <div class="description">
+          <h1>{{ $tr('devicePermissionsHeader') }}</h1>
+          <p>{{ $tr('devicePermissionsDescription') }}</p>
         </div>
 
-        <user-grid class="user-grid" :searchFilter="searchFilterText" />
+        <div class="filter-box">
+          <k-filter-textbox
+            v-model="searchFilterText"
+            :placeholder="$tr('searchPlaceholder')"
+          />
+        </div>
+
+        <user-grid :searchFilter="searchFilterText" />
       </div>
 
   </subpage-container>
@@ -65,14 +64,11 @@
 
 <style lang="stylus" scoped>
 
-  .user-grid
-    margin-top: 2em
+  .description
+    margin-bottom: 2em
 
-  .one-half
-    display: inline-block
-    width: 50%
-
-  .search
-    float: right
+  .filter-box
+    text-align: right
+    margin-bottom: 1em
 
 </style>
