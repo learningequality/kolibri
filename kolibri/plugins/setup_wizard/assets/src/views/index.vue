@@ -89,6 +89,6 @@
       margin-left: auto
       margin-right: auto
       width: 90%
-      max-width: 550px // as specified by Jessica
+      max-width: 550px
 
 </style>

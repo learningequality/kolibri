@@ -1,6 +1,6 @@
 <template>
 
-  <form @submit="$emit('submit')">
+  <form @submit.prevent="$emit('submit')">
     <fieldset class="onboarding-form-fieldset">
       <legend>
         <h1 class="onboarding-form-header">

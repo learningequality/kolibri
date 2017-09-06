@@ -3,19 +3,21 @@
   <onboarding-form :header="$tr('languageFormHeader')" :submit-text="submitText" @submit="setLanguage">
     <label class="default-language-form-selected default-language-form-items">
       <span class="default-language-form-selected-label"> {{ $tr('selectedLanguageLabel') }} </span>
-      <span> {{ currentLanguage }} </span>
+      <span> {{ selectedLanguage }} </span>
     </label>
 
     <k-button
       v-for="language in buttonLanguages"
       class="default-language-form-button-option default-language-form-items"
-      @click="selectedLanguage = language.code"
-      :key="language.code"
+      @click="changeLanguage(language.id)"
+      :key="language.id"
       :raised="false"
       :text="language.lang_name"
     />
 
-    <select class="default-language-form-dropdown default-language-form-items">
+    <select
+      @input="changeLanguage($event.target.value)"
+      class="default-language-form-dropdown default-language-form-items">
       <option
         disabled
         selected
@@ -26,10 +28,11 @@
 
       <option
         v-for="language in selectorLanguages"
+        :key="language.id"
+        :value="language.id"
         class="default-language-form-dropdown-option"
-        value="language.id"
       >
-        {{ language.lang_name }}
+        {{ language.lang_name }}, {{language.id}}
       </option>
     </select>
   </onboarding-form>
@@ -39,7 +42,11 @@
 
 <script>
 
-  import { availableLanguages as allLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import {
+    availableLanguages as allLanguages,
+    currentLanguage as currentLanguageId,
+  } from 'kolibri.utils.i18n';
+  import { httpClient } from 'kolibri.client';
   import { submitDefaultLanguage } from '../../../state/actions/forms';
 
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -69,15 +76,15 @@
     },
     data() {
       return {
-        selectedLanguage: currentLanguage,
+        selectedLanguageId: currentLanguageId,
       };
     },
     computed: {
-      currentLanguage() {
-        return allLanguages[currentLanguage].lang_name;
+      selectedLanguage() {
+        return allLanguages[this.selectedLanguageId].lang_name;
       },
       remainingLanguages() {
-        const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
+        const remainingLanguages = Object.values(omit(allLanguages, [this.selectedLanguageId]));
         remainingLanguages.sort((lang1, lang2) => {
           // puts words with foreign characters first in the array
           return lang2.lang_name.localeCompare(lang1.lang_name);
@@ -93,8 +100,23 @@
       },
     },
     methods: {
+      changeLanguage(languageId) {
+        this.selectedLanguageId = languageId;
+        console.log(this.Kolibri.urls);
+        const path = this.Kolibri.urls['kolibri:set_language']();
+        const entity = {
+          language: this.selectedLanguageId,
+        };
+        httpClient({
+          path,
+          entity,
+        }).then(() => {
+          console.log('should be reloading...');
+          global.location.reload(true);
+        });
+      },
       setLanguage() {
-        this.submitDefaultLanguage(this.selectedLanguage);
+        this.submitDefaultLanguage(this.selectedLanguageId);
         this.$emit('submit');
       },
     },
