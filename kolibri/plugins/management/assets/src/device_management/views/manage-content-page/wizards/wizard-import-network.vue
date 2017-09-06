@@ -9,24 +9,26 @@
     @enter="submit"
     @back="goBack"
   >
-    <div class="main">
-      <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
-    </div>
-    <div class="core-text-alert">
-      {{ wizardState.error }}
-    </div>
-    <div class="button-wrapper">
-      <k-button
-        @click="cancel"
-        :text="$tr('cancel')"
-        :raised="false"
-        :disabled="wizardState.busy"/>
-      <k-button
-        :text="$tr('import')"
-        @click="submit"
-        :disabled="!canSubmit"
-        :primary="true"/>
-    </div>
+    <form @submit.prevent="submit">
+      <div class="main">
+        <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
+      </div>
+      <div class="core-text-alert">
+        {{ wizardState.error }}
+      </div>
+      <div class="button-wrapper">
+        <k-button
+          @click="cancel"
+          :text="$tr('cancel')"
+          :raised="false"
+          :disabled="wizardState.busy"/>
+        <k-button
+          :text="$tr('import')"
+          type="submit"
+          :disabled="!canSubmit"
+          :primary="true"/>
+      </div>
+    </form>
   </core-modal>
 
 </template>
