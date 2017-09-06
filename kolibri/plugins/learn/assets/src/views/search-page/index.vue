@@ -10,11 +10,16 @@
 
     <template v-else>
       <h1 class="search-results">{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
-      <p class="search-channel">{{ $tr('withinChannel', { channelName }) }}</p>
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-group-grid v-else :gen-content-link="genContentLink" :contents="contents" />
+      <content-card-group-grid
+        v-else
+        :gen-content-link="genContentLink"
+        :contents="contents"
+        :showContentKindFilter="true"
+        :showChannelFilter="true"
+      />
 
     </template>
 
@@ -27,7 +32,6 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../../constants';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
   import contentCardGroupGrid from '../content-card-group-grid';
   import searchBox from '../search-box';
@@ -36,7 +40,6 @@
     $trs: {
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',
-      withinChannel: 'Within {channelName}',
       noResultsMsg: 'No results for "{searchTerm}"',
     },
     components: {
@@ -69,7 +72,6 @@
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
         channelId: state => state.core.channels.currentId,
-        channelName: state => getCurrentChannelObject(state).title,
       },
     },
   };
