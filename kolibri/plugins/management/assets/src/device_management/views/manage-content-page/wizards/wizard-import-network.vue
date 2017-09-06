@@ -11,7 +11,15 @@
   >
     <form @submit.prevent="submit">
       <div class="main">
-        <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
+        <k-textbox
+          ref="textbox"
+          :label="$tr('enterContentChannel')"
+          v-model.trim="channelId"
+          :disabled="formIsDisabled"
+          :invalid="channelIdIsInvalid"
+          :invalidText="$tr('channelIdIsInvalid')"
+          @blur="channelIdBlurred=true"
+        />
       </div>
       <div class="core-text-alert">
         {{ wizardState.error }}
@@ -20,12 +28,13 @@
         <k-button
           @click="cancel"
           :text="$tr('cancel')"
+          type="button"
           :raised="false"
-          :disabled="wizardState.busy"/>
+          :disabled="formIsDisabled"/>
         <k-button
           :text="$tr('import')"
           type="submit"
-          :disabled="!canSubmit"
+          :disabled="formIsDisabled"
           :primary="true"/>
       </div>
     </form>
@@ -47,19 +56,26 @@
       enterContentChannel: 'Content channel ID',
       cancel: 'Cancel',
       import: 'Import',
+      channelIdIsInvalid: 'Content Channel ID cannot be blank',
     },
     components: {
       coreModal,
       kButton,
       kTextbox,
     },
-    data: () => ({ channelId: '' }),
+    data: () => ({
+      channelId: '',
+      channelIdBlurred: false,
+    }),
     computed: {
-      canSubmit() {
-        if (this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.channelId);
+      channelIdIsInvalid() {
+        return this.channelIdBlurred && !this.formIsValid;
+      },
+      formIsDisabled() {
+        return this.wizardState.busy;
+      },
+      formIsValid() {
+        return this.channelId !== '';
       },
     },
     methods: {
@@ -67,8 +83,11 @@
         this.transitionWizardPage('backward');
       },
       submit() {
-        if (this.canSubmit) {
+        if (this.formIsValid) {
           this.transitionWizardPage('forward', { channelId: this.channelId });
+        } else {
+          this.channelIdBlurred = true;
+          this.$refs.textbox.focus();
         }
       },
       cancel() {
