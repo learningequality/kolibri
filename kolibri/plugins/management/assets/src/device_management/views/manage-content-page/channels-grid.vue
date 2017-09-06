@@ -1,50 +1,52 @@
 <template>
 
   <div>
-    <p class="core-text-alert" v-if="sortedChannels.length===0 && !this.channelsLoading">
-      {{ $tr('emptyChannelListMessage') }}
-    </p>
+    <transition mode="out-in">
+      <p class="core-text-alert" v-if="sortedChannels.length===0 && !this.channelsLoading">
+        {{ $tr('emptyChannelListMessage') }}
+      </p>
 
-    <ui-progress-circular v-else-if="this.channelsLoading" :size="16" color="primary"/>
+      <ui-progress-circular v-else-if="this.channelsLoading" :size="16" color="primary"/>
 
-    <table v-else class="table">
+      <table v-else class="table">
 
-      <thead class="table-header">
-        <tr>
-          <th>{{ $tr('nameHeader') }}</th>
-          <th>{{ $tr('numContentsHeader') }}</th>
-          <th>{{ $tr('sizeHeader') }}</th>
-          <th>{{ $tr('lastUpdatedHeader') }}</th>
-          <th></th>
-        </tr>
-      </thead>
+        <thead class="table-header">
+          <tr>
+            <th>{{ $tr('nameHeader') }}</th>
+            <th>{{ $tr('numContentsHeader') }}</th>
+            <th>{{ $tr('sizeHeader') }}</th>
+            <th>{{ $tr('lastUpdatedHeader') }}</th>
+            <th></th>
+          </tr>
+        </thead>
 
-      <tbody class="table-body">
-        <tr v-for="channel in sortedChannels" :key="channel.id">
-          <td class="table-cell-title">
-            {{ channel.name }}
-          </td>
+        <tbody class="table-body">
+          <tr v-for="channel in sortedChannels" :key="channel.id">
+            <td class="table-cell-title">
+              {{ channel.name }}
+            </td>
 
-          <td>
-            <span>{{ channel.total_files }}</span>
-          </td>
-          <td>
-            <span>{{ bytesForHumans(channel.total_file_size) }}</span>
-          </td>
-          <td>
-            <elapsed-time :date="channel.last_updated" />
-          </td>
-          <td>
-            <k-button
-              @click="selectedChannelId=channel.id"
-              :raised="false"
-              :text="$tr('deleteButtonLabel')"
-            />
-          </td>
-        </tr>
-      </tbody>
+            <td>
+              <span>{{ channel.total_files }}</span>
+            </td>
+            <td>
+              <span>{{ bytesForHumans(channel.total_file_size) }}</span>
+            </td>
+            <td>
+              <elapsed-time :date="channel.last_updated" />
+            </td>
+            <td>
+              <k-button
+                @click="selectedChannelId=channel.id"
+                :raised="false"
+                :text="$tr('deleteButtonLabel')"
+              />
+            </td>
+          </tr>
+        </tbody>
 
-    </table>
+      </table>
+    </transition>
 
     <delete-channel-modal
       v-if="channelIsSelected"
