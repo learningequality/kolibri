@@ -26,10 +26,10 @@ class LearnModule extends KolibriModule {
           redirect: '/recommended',
         },
         {
-          name: PageNames.EXPLORE_ROOT,
+          name: PageNames.TOPICS_ROOT,
           path: '/topics',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToExploreChannel(store);
+            actions.redirectToTopicsChannel(store);
           },
         },
         {
@@ -54,24 +54,24 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.EXPLORE_CHANNEL,
+          name: PageNames.TOPICS_CHANNEL,
           path: '/:channel_id/topics',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreChannel(store, toRoute.params.channel_id);
+            actions.showTopicsChannel(store, toRoute.params.channel_id);
           },
         },
         {
-          name: PageNames.EXPLORE_TOPIC,
+          name: PageNames.TOPICS_TOPIC,
           path: '/:channel_id/topics/t/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showTopicsTopic(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.TOPICS_CONTENT,
           path: '/:channel_id/topics/c/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showTopicsContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {

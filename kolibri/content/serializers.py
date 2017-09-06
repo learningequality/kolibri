@@ -237,7 +237,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
             'license', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata', 'lang',
+            'assessmentmetadata', 'lang', 'channel_id',
         )
 
         list_serializer_class = ContentNodeListSerializer

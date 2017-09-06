@@ -1,11 +1,11 @@
 import * as constants from '../constants';
 
 function pageMode(state) {
-  const explorePages = [
-    constants.PageNames.EXPLORE_ROOT,
-    constants.PageNames.EXPLORE_CHANNEL,
-    constants.PageNames.EXPLORE_TOPIC,
-    constants.PageNames.EXPLORE_CONTENT,
+  const topicsPages = [
+    constants.PageNames.TOPICS_ROOT,
+    constants.PageNames.TOPICS_CHANNEL,
+    constants.PageNames.TOPICS_TOPIC,
+    constants.PageNames.TOPICS_CONTENT,
   ];
   const learnPages = [
     constants.PageNames.LEARN_ROOT,
@@ -13,8 +13,8 @@ function pageMode(state) {
     constants.PageNames.LEARN_CONTENT,
   ];
   const examPages = [constants.PageNames.EXAM_LIST, constants.PageNames.EXAM];
-  if (explorePages.some(page => page === state.pageName)) {
-    return constants.PageModes.EXPLORE;
+  if (topicsPages.some(page => page === state.pageName)) {
+    return constants.PageModes.TOPICS;
   } else if (learnPages.some(page => page === state.pageName)) {
     return constants.PageModes.LEARN;
   } else if (constants.PageNames.SEARCH === state.pageName) {

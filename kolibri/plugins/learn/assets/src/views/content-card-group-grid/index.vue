@@ -1,24 +1,35 @@
 <template>
 
   <div class="content-grid">
-    <ui-select
-      v-if="filter"
-      :label="$tr('display')"
-      :options="filterOptions"
-      v-model="selectedFilter"
-      class="filter"
-    />
+    <div>
+      <ui-select
+        v-if="showContentKindFilter"
+        class="filter"
+        :label="$tr('contentKinds')"
+        :options="contentKindFilterOptions"
+        v-model="contentKindFilterSelection"
+      />
+
+      <ui-select
+        v-if="showChannelFilter"
+        class="filter"
+        :label="$tr('channels')"
+        :options="channelFilterOptions"
+        v-model="channelFilterSelection"
+      />
+    </div>
 
     <content-card
       v-for="content in contents"
-      v-show="selectedFilter.value === 'all' || selectedFilter.value === content.kind"
+      v-show="showContentCard(content)"
       :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
       :class="{'grid-item': true, 'mobile': isMobile}"
       :kind="content.kind"
       :progress="content.progress"
-      :link="genContentLink(content.id, content.kind)"/>
+      :link="genContentLink(content.id, content.kind)"
+    />
 
   </div>
 
@@ -30,28 +41,28 @@
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import some from 'lodash/some';
-  import forEach from 'lodash/forEach';
   import uiSelect from 'keen-ui/src/UiSelect';
   import contentCard from '../content-card';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
-    mixins: [responsiveWindow],
     name: 'contentCardGroupGrid',
     $trs: {
-      display: 'Display',
-      all: 'All content ({ num, number })',
-      topics: 'Topics ({ num, number })',
-      exercises: 'Exercises ({ num, number })',
-      videos: 'Videos ({ num, number })',
-      audio: 'Audio ({ num, number })',
-      documents: 'Documents ({ num, number })',
-      html5: 'HTML5 Apps ({ num, number })',
+      contentKinds: 'Content kinds',
+      all: 'All',
+      topics: 'Topics',
+      exercises: 'Exercises',
+      videos: 'Videos',
+      audio: 'Audio',
+      documents: 'Documents',
+      html5: 'HTML5 Apps',
+      channels: 'Channels',
     },
     components: {
       contentCard,
       uiSelect,
     },
+    mixins: [responsiveWindow],
     props: {
       contents: {
         type: Array,
@@ -65,69 +76,104 @@
         default: () => {},
         required: false,
       },
-      filter: {
+      showContentKindFilter: {
         type: Boolean,
         default: true,
       },
+      showChannelFilter: {
+        type: Boolean,
+        default: false,
+      },
     },
-    data: () => ({ selectedFilter: '' }),
+    data: () => ({
+      contentKindFilterSelection: '',
+      channelFilterSelection: '',
+    }),
     computed: {
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
-      topics() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
-      },
-      exercises() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
-      },
-      videos() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.VIDEO);
-      },
-      audio() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.AUDIO);
-      },
-      documents() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.DOCUMENT);
-      },
-      html5() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.HTML5);
-      },
-      filterOptions() {
-        const options = [
+      contentKindFilterOptions() {
+        return [
           {
-            label: this.$tr('all', { num: this.contents.length }),
+            label: this.$tr('all'),
             value: 'all',
           },
+          {
+            label: this.$tr('topics'),
+            value: ContentNodeKinds.TOPIC,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.TOPIC),
+          },
+          {
+            label: this.$tr('exercises'),
+            value: ContentNodeKinds.EXERCISE,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.EXERCISE),
+          },
+          {
+            label: this.$tr('videos'),
+            value: ContentNodeKinds.VIDEO,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.VIDEO),
+          },
+          {
+            label: this.$tr('audio'),
+            value: ContentNodeKinds.AUDIO,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.AUDIO),
+          },
+          {
+            label: this.$tr('documents'),
+            value: ContentNodeKinds.DOCUMENT,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.DOCUMENT),
+          },
+          {
+            label: this.$tr('html5'),
+            value: ContentNodeKinds.HTML5,
+            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.HTML5),
+          },
         ];
-        const kindLabelsMap = {
-          [ContentNodeKinds.TOPIC]: this.$tr('topics', { num: this.topics.length }),
-          [ContentNodeKinds.EXERCISE]: this.$tr('exercises', { num: this.exercises.length }),
-          [ContentNodeKinds.VIDEO]: this.$tr('videos', { num: this.videos.length }),
-          [ContentNodeKinds.AUDIO]: this.$tr('audio', { num: this.audio.length }),
-          [ContentNodeKinds.DOCUMENT]: this.$tr('documents', { num: this.documents.length }),
-          [ContentNodeKinds.HTML5]: this.$tr('html5', { num: this.html5.length }),
-        };
-        forEach(kindLabelsMap, (value, key) => {
-          if (this.contentsContain(key)) {
-            options.push({
-              label: value,
-              value: key,
-            });
-          }
-        });
-        return options;
       },
-    },
-    methods: {
-      contentsContain(kind) {
-        return some(this.contents, content => content.kind === kind);
+      // TODO: currently uiSelect does not support disabled options :(
+      channelFilterOptions() {
+        const channelOptions = this.channels.map(channel => {
+          return {
+            label: channel.title,
+            value: channel.id,
+            disabled: !this.resultsIncludeChannel(channel.id),
+          };
+        });
+        return [
+          {
+            label: this.$tr('all'),
+            value: 'all',
+          },
+          ...channelOptions,
+        ];
       },
     },
     mounted() {
-      this.selectedFilter = this.filterOptions[0];
+      this.contentKindFilterSelection = this.contentKindFilterOptions[0];
+      this.channelFilterSelection = this.channelFilterOptions[0];
     },
-    vuex: { getters: { channelId: state => state.core.channels.currentId } },
+    methods: {
+      resultsIncludeContentKind(kind) {
+        return some(this.contents, content => content.kind === kind);
+      },
+      resultsIncludeChannel(channelId) {
+        return some(this.contents, content => content.channel_id === channelId);
+      },
+      showContentCard(content) {
+        return (
+          (this.contentKindFilterSelection.value === 'all' ||
+            this.contentKindFilterSelection.value === content.kind) &&
+          (this.channelFilterSelection.value === 'all' ||
+            this.channelFilterSelection.value === content.channel_id)
+        );
+      },
+    },
+    vuex: {
+      getters: {
+        channels: state => state.core.channels.list,
+      },
+    },
   };
 
 </script>
@@ -146,7 +192,10 @@
       width: 100%
 
   .filter
+    display: inline-block
     width: 200px
-    margin-top: 2em
+    margin-top: 16px
+    margin-bottom: 16px
+    margin-right: 16px
 
 </style>

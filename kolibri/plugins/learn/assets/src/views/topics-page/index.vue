@@ -31,9 +31,9 @@
   import contentCard from '../content-card';
   import contentCardGroupGrid from '../content-card-group-grid';
   export default {
-    name: 'learnExplore',
+    name: 'learnTopics',
     $trs: {
-      explore: 'Topics',
+      topics: 'Topics',
       navigate: 'Navigate content using headings',
     },
     components: {
@@ -43,19 +43,19 @@
     },
     computed: {
       title() {
-        return this.isRoot ? this.$tr('explore') : this.topic.title;
+        return this.isRoot ? this.$tr('topics') : this.topic.title;
       },
     },
     methods: {
       genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.TOPICS_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },

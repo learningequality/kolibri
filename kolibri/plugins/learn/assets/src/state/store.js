@@ -3,7 +3,7 @@ import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
-  pageName: constants.PageNames.EXPLORE_CHANNEL,
+  pageName: constants.PageNames.TOPICS_CHANNEL,
   pageState: {
     topics: [],
     contents: [],
