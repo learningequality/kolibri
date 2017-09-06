@@ -53,7 +53,7 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import explorePage from './explore-page';
+  import topicsPage from './topics-page';
   import contentPage from './content-page';
   import learnPage from './learn-page';
   import recommendedSubpage from './recommended-subpage';
@@ -78,7 +78,7 @@
     },
     mixins: [responsiveWindow],
     components: {
-      explorePage,
+      topicsPage,
       contentPage,
       learnPage,
       recommendedSubpage,
@@ -116,7 +116,7 @@
             page = PageNames.EXAM_LIST;
             break;
           default:
-            page = PageNames.EXPLORE_CHANNEL;
+            page = PageNames.TOPICS_CHANNEL;
         }
         this.$router.push({
           name: page,
@@ -132,16 +132,10 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (
-          this.pageName === PageNames.EXPLORE_CHANNEL ||
-          this.pageName === PageNames.EXPLORE_TOPIC
-        ) {
-          return 'explore-page';
+        if (this.pageName === PageNames.TOPICS_CHANNEL || this.pageName === PageNames.TOPICS_TOPIC) {
+          return 'topics-page';
         }
-        if (
-          this.pageName === PageNames.EXPLORE_CONTENT ||
-          this.pageName === PageNames.LEARN_CONTENT
-        ) {
+        if (this.pageName === PageNames.TOPICS_CONTENT || this.pageName === PageNames.LEARN_CONTENT) {
           return 'content-page';
         }
         if (this.pageName === PageNames.LEARN_CHANNEL) {
@@ -181,7 +175,7 @@
       },
       topicsLink() {
         return {
-          name: PageNames.EXPLORE_CHANNEL,
+          name: PageNames.TOPICS_CHANNEL,
           params: { channel_id: this.channelId },
         };
       },

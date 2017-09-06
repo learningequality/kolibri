@@ -1,7 +1,7 @@
 <template>
 
   <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
-  <k-breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
+  <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs"/>
 
 </template>
 
@@ -36,23 +36,23 @@
         }
         return crumbs;
       },
-      inExplore() {
-        return this.pageMode === PageModes.EXPLORE;
+      inTopics() {
+        return this.pageMode === PageModes.TOPICS;
       },
-      inExploreRoot() {
-        return this.pageName === PageNames.EXPLORE_CHANNEL;
+      inTopicsRoot() {
+        return this.pageName === PageNames.TOPICS_CHANNEL;
       },
-      exploreRootLink() {
-        return { name: PageNames.EXPLORE_CHANNEL };
+      topicsRootLink() {
+        return { name: PageNames.TOPICS_CHANNEL };
       },
-      exploreBreadcrumbs() {
+      topicsBreadcrumbs() {
         const crumbs = [
           {
             text: this.channelTitle,
-            link: this.exploreRootLink,
+            link: this.topicsRootLink,
           },
         ];
-        if (this.pageName === PageNames.EXPLORE_CONTENT) {
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
           this.contentCrumbs.forEach(crumb =>
             crumbs.push({
               text: crumb.title,
@@ -67,7 +67,7 @@
               link: this.topicLink(crumb.id),
             })
           );
-          if (!this.inExploreRoot) {
+          if (!this.inTopicsRoot) {
             crumbs.push({ text: this.topicTitle });
           }
         }
@@ -77,7 +77,7 @@
     methods: {
       topicLink(topicId) {
         return {
-          name: PageNames.EXPLORE_TOPIC,
+          name: PageNames.TOPICS_TOPIC,
           params: {
             channel_id: this.channelId,
             id: topicId,

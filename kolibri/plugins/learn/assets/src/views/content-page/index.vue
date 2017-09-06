@@ -245,7 +245,7 @@
       genContentLink(id, kind) {
         if (kind === 'topic') {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
