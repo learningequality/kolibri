@@ -1,7 +1,7 @@
 import abc
 from collections import namedtuple
 
-from barbequeue.exceptions import UserCancelledError
+from iceqube.exceptions import UserCancelledError
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
