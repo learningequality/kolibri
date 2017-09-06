@@ -48,7 +48,7 @@
       genContentLink(contentId, contentKind) {
         if (contentKind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: {
               id: contentId,
               channel_id: this.channelId,
@@ -56,7 +56,7 @@
           };
         }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.TOPICS_CONTENT,
           params: {
             id: contentId,
             channel_id: this.channelId,

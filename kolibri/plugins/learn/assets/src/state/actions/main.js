@@ -156,16 +156,16 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
  * These methods are used to update client-side state
  */
 
-function redirectToExploreChannel(store) {
+function redirectToTopicsChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
+  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
 
   setChannelInfo(store).then(
     () => {
       const currentChannel = getCurrentChannelObject(store.state);
       if (currentChannel) {
         router.getInstance().replace({
-          name: PageNames.EXPLORE_CHANNEL,
+          name: PageNames.TOPICS_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
@@ -200,12 +200,12 @@ function redirectToLearnChannel(store) {
   );
 }
 
-function showExploreTopic(store, channelId, id, isRoot = false) {
+function showTopicsTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   if (isRoot) {
-    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
   } else {
-    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_TOPIC);
   }
 
   const topicPromise = ContentNodeResource.getModel(id).fetch();
@@ -262,9 +262,9 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
   );
 }
 
-function showExploreChannel(store, channelId) {
+function showTopicsChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
 
   setChannelInfo(store, channelId).then(() => {
     const currentChannel = getCurrentChannelObject(store.state);
@@ -272,13 +272,13 @@ function showExploreChannel(store, channelId) {
       router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
       return;
     }
-    showExploreTopic(store, channelId, currentChannel.root_id, true);
+    showTopicsTopic(store, channelId, currentChannel.root_id, true);
   });
 }
 
-function showExploreContent(store, channelId, id) {
+function showTopicsContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
+  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
   const contentPromise = ContentNodeResource.getModel(id).fetch();
   const nextContentPromise = ContentNodeResource.fetchNextContent(id);
@@ -683,11 +683,11 @@ function closeExam(store) {
 
 export {
   contentState,
-  redirectToExploreChannel,
+  redirectToTopicsChannel,
   redirectToLearnChannel,
-  showExploreChannel,
-  showExploreTopic,
-  showExploreContent,
+  showTopicsChannel,
+  showTopicsTopic,
+  showTopicsContent,
   showContentUnavailable,
   triggerSearch,
   clearSearch,

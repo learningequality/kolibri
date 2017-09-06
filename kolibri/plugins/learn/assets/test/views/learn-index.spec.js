@@ -9,7 +9,7 @@ import coreBase from '../util/core-base.vue';
 const router = new VueRouter({
   routes: [
     { path: '/learn', name: 'LEARN_CHANNEL' },
-    { path: '/explore', name: 'EXPLORE_CHANNEL' },
+    { path: '/topics', name: 'TOPICS_CHANNEL' },
     { path: '/exams', name: 'EXAM_LIST' },
   ],
 });
@@ -19,7 +19,7 @@ function makeVm(options) {
   Object.assign(options, {
     components: {
       coreBase,
-      'explore-page': '<div>Explore Page</div>',
+      'topics-page': '<div>Topics Page</div>',
       'content-unavailable-page': '<div>Content Unavailable</div>',
     },
     router,
