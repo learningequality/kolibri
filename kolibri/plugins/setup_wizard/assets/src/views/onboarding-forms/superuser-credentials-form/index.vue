@@ -170,6 +170,7 @@
         this.validate('username');
         this.validate('password');
         this.validate('passwordConfirm');
+
         if (this.formIsValid) {
           this.submitSuperuserCredentials(this.name, this.username, this.password);
           this.$emit('submit');
