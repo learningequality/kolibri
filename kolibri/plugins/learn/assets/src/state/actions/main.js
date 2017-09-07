@@ -160,7 +160,7 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
 
 function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CHANNELS);
+  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
 
   setChannelInfo(store).then(
     channels => {

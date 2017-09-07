@@ -66,7 +66,7 @@
     methods: {
       generateExamLink(exam) {
         return {
-          name: PageNames.EXAM_ROOT,
+          name: PageNames.EXAM,
           params: {
             channel_id: exam.channelId,
             id: exam.id,

@@ -49,7 +49,7 @@
     methods: {
       genContentLink(id) {
         return {
-          name: PageNames.LEARN_CONTENT,
+          name: PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
       },

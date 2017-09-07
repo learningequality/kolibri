@@ -101,13 +101,16 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (this.pageName === PageNames.CHANNELS) {
+        if (this.pageName === PageNames.TOPICS_ROOT) {
           return 'channels-page';
         }
         if (this.pageName === PageNames.TOPICS_CHANNEL || this.pageName === PageNames.TOPICS_TOPIC) {
           return 'topics-page';
         }
-        if (this.pageName === PageNames.TOPICS_CONTENT || this.pageName === PageNames.LEARN_CONTENT) {
+        if (
+          this.pageName === PageNames.TOPICS_CONTENT ||
+          this.pageName === PageNames.RECOMMENDED_CONTENT
+        ) {
           return 'content-page';
         }
         if (this.pageName === PageNames.RECOMMENDED) {
@@ -131,7 +134,7 @@
         return null;
       },
       isWithinSearchPage() {
-        return this.pageName === PageNames.SEARCH || this.pageName === PageNames.SEARCH_ROOT;
+        return this.pageName === PageNames.SEARCH;
       },
       tabLinksAreVisible() {
         return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;
@@ -146,7 +149,7 @@
       },
       channelsLink() {
         return {
-          name: PageNames.CHANNELS,
+          name: PageNames.TOPICS_ROOT,
         };
       },
       examsLink() {

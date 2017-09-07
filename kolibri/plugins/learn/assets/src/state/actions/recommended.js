@@ -182,7 +182,7 @@ function showFeaturedPage(store, channelId) {
 
 function showLearnContent(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+  store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
   const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({
     recommendations_for: id,

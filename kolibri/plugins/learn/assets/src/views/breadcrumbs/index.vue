@@ -30,7 +30,7 @@
             link: this.learnRootLink,
           },
         ];
-        if (this.pageName === PageNames.LEARN_CONTENT) {
+        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
           crumbs.push({ text: this.contentTitle });
         }
         return crumbs;
@@ -50,7 +50,7 @@
         };
       },
       topicsBreadcrumbs() {
-        if (this.pageName === PageNames.CHANNELS) {
+        if (this.pageName === PageNames.TOPICS_ROOT) {
           return [];
         }
         const crumbs = [

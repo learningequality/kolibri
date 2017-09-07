@@ -250,7 +250,7 @@
           };
         }
         return {
-          name: PageNames.LEARN_CONTENT,
+          name: PageNames.RECOMMENDED_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },

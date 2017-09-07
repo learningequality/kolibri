@@ -26,7 +26,7 @@ class LearnModule extends KolibriModule {
           redirect: '/recommended',
         },
         {
-          name: PageNames.CHANNELS,
+          name: PageNames.TOPICS_ROOT,
           path: '/topics',
           handler: (toRoute, fromRoute) => {
             actions.showChannels(store);
@@ -103,7 +103,7 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.LEARN_CONTENT,
+          name: PageNames.RECOMMENDED_CONTENT,
           path: '/recommended/:id',
           handler: (toRoute, fromRoute) => {
             showLearnContent(store, toRoute.params.id);
@@ -122,6 +122,11 @@ class LearnModule extends KolibriModule {
           handler: (toRoute, fromRoute) => {
             actions.showExam(store, toRoute.params.id, toRoute.params.questionNumber);
           },
+        },
+        {
+          name: PageNames.EXAM_ROOT,
+          path: '/:channel_id/exams/:id',
+          redirect: '/:channel_id/exams/:id/0',
         },
         {
           path: '*',
