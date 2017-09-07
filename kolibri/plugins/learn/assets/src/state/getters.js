@@ -7,16 +7,12 @@ function pageMode(state) {
     constants.PageNames.TOPICS_TOPIC,
     constants.PageNames.TOPICS_CONTENT,
   ];
-  const learnPages = [
-    constants.PageNames.LEARN_ROOT,
-    constants.PageNames.LEARN_CHANNEL,
-    constants.PageNames.LEARN_CONTENT,
-  ];
+  const learnPages = [constants.PageNames.RECOMMENDED, constants.PageNames.RECOMMENDED_CONTENT];
   const examPages = [constants.PageNames.EXAM_LIST, constants.PageNames.EXAM];
   if (topicsPages.some(page => page === state.pageName)) {
     return constants.PageModes.TOPICS;
   } else if (learnPages.some(page => page === state.pageName)) {
-    return constants.PageModes.LEARN;
+    return constants.PageModes.RECOMMENDED;
   } else if (constants.PageNames.SEARCH === state.pageName) {
     return constants.PageModes.SEARCH;
   } else if (examPages.some(page => page === state.pageName)) {

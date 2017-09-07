@@ -94,10 +94,6 @@
         type: Array,
         required: true,
         validator(crumbItems) {
-          // Must not be empty
-          if (!crumbItems.length) {
-            return false;
-          }
           // All must have text
           if (!crumbItems.every(crumb => Boolean(crumb.text))) {
             return false;
@@ -160,39 +156,41 @@
         });
       },
       updateCrumbs() {
-        const tempCrumbs = Array.from(this.crumbs);
-        let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
-        let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
-        let trackingIndex = this.crumbs.length - 2;
+        if (this.crumbs.length) {
+          const tempCrumbs = Array.from(this.crumbs);
+          let lastCrumbWidth = Math.ceil(tempCrumbs.pop().ref[0].getBoundingClientRect().width);
+          let remainingWidth = this.parentWidth - DROPDOWN_BTN_WIDTH - lastCrumbWidth;
+          let trackingIndex = this.crumbs.length - 2;
 
-        while (tempCrumbs.length) {
-          if (remainingWidth <= 0) {
-            tempCrumbs.forEach((crumb, index) => {
-              const updatedCrumb = crumb;
-              updatedCrumb.collapsed = true;
-              this.crumbs.splice(index, 1, updatedCrumb);
-            });
-            break;
+          while (tempCrumbs.length) {
+            if (remainingWidth <= 0) {
+              tempCrumbs.forEach((crumb, index) => {
+                const updatedCrumb = crumb;
+                updatedCrumb.collapsed = true;
+                this.crumbs.splice(index, 1, updatedCrumb);
+              });
+              break;
+            }
+
+            lastCrumbWidth = Math.ceil(
+              tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width
+            );
+
+            if (lastCrumbWidth > remainingWidth) {
+              tempCrumbs.forEach((crumb, index) => {
+                const updatedCrumb = crumb;
+                updatedCrumb.collapsed = true;
+                this.crumbs.splice(index, 1, updatedCrumb);
+              });
+              break;
+            }
+
+            remainingWidth -= lastCrumbWidth;
+            const lastCrumb = tempCrumbs.pop();
+            lastCrumb.collapsed = false;
+            this.crumbs.splice(trackingIndex, 1, lastCrumb);
+            trackingIndex -= 1;
           }
-
-          lastCrumbWidth = Math.ceil(
-            tempCrumbs[tempCrumbs.length - 1].ref[0].getBoundingClientRect().width
-          );
-
-          if (lastCrumbWidth > remainingWidth) {
-            tempCrumbs.forEach((crumb, index) => {
-              const updatedCrumb = crumb;
-              updatedCrumb.collapsed = true;
-              this.crumbs.splice(index, 1, updatedCrumb);
-            });
-            break;
-          }
-
-          remainingWidth -= lastCrumbWidth;
-          const lastCrumb = tempCrumbs.pop();
-          lastCrumb.collapsed = false;
-          this.crumbs.splice(trackingIndex, 1, lastCrumb);
-          trackingIndex -= 1;
         }
       },
       throttleUpdateCrumbs: throttle(function updateCrumbs() {

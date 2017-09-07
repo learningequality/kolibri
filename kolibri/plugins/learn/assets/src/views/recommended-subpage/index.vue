@@ -49,8 +49,8 @@
     methods: {
       genContentLink(id) {
         return {
-          name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
+          name: PageNames.RECOMMENDED_CONTENT,
+          params: { id },
         };
       },
     },
@@ -59,7 +59,6 @@
         pageName: state => state.pageName,
         recommendations: state => state.pageState.recommendations,
         channelTitle: state => state.pageState.channelTitle,
-        channelId: state => state.core.channels.currentId,
       },
     },
   };

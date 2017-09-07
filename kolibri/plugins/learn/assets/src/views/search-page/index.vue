@@ -54,7 +54,6 @@
             name: PageNames.TOPICS_TOPIC,
             params: {
               id: contentId,
-              channel_id: this.channelId,
             },
           };
         }
@@ -62,7 +61,6 @@
           name: PageNames.TOPICS_CONTENT,
           params: {
             id: contentId,
-            channel_id: this.channelId,
           },
         };
       },
@@ -71,7 +69,6 @@
       getters: {
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
-        channelId: state => state.core.channels.currentId,
       },
     },
   };

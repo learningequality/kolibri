@@ -115,7 +115,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const scopeId = userId || classId;
 
   const promises = [
-    getAllChannelsLastActivePromise(store.state.core.channels.list, scope, scopeId),
+    getAllChannelsLastActivePromise(coreGetters.getChannels(store.state), scope, scopeId),
     setClassState(store, classId),
   ];
 

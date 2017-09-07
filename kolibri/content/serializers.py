@@ -174,6 +174,11 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
         result = []
         topic_only = True
+
+        # Allow results to be limited after all queryset filtering has occurred
+        if self.limit:
+            data = data[:self.limit]
+
         for item in data:
             obj = self.child.to_representation(
                 item,
@@ -200,6 +205,13 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     license = serializers.StringRelatedField(many=False)
     license_description = serializers.SerializerMethodField()
     lang = LanguageSerializer()
+
+    def __new__(cls, *args, **kwargs):
+        # This is overwritten to provide a ListClassSerializer for many=True
+        limit = kwargs.pop('limit', None)
+        new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
+        new.limit = limit
+        return new
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
