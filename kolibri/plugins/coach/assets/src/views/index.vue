@@ -92,7 +92,10 @@
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
+        return (
+          this.pageName !== Constants.PageNames.CLASS_LIST &&
+          (this.isCoach || this.isAdmin || this.isSuperuser)
+        );
       },
     },
     methods: {
