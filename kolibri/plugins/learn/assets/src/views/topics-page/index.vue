@@ -24,8 +24,6 @@
 
   import { PageNames } from '../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import some from 'lodash/some';
-  import forEach from 'lodash/forEach';
   import pageHeader from '../page-header';
   import contentCard from '../content-card';
   import contentCardGroupGrid from '../content-card-group-grid';

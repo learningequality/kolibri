@@ -12,7 +12,7 @@ function pageMode(state) {
   if (topicsPages.some(page => page === state.pageName)) {
     return constants.PageModes.TOPICS;
   } else if (learnPages.some(page => page === state.pageName)) {
-    return constants.PageModes.LEARN;
+    return constants.PageModes.RECOMMENDED;
   } else if (constants.PageNames.SEARCH === state.pageName) {
     return constants.PageModes.SEARCH;
   } else if (examPages.some(page => page === state.pageName)) {

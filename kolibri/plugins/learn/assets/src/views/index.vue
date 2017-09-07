@@ -15,7 +15,7 @@
         />
         <k-navbar-link
           type="icon-and-title"
-          :title="$tr('channels')"
+          :title="$tr('topics')"
           icon="folder"
           :link="channelsLink"
         />
@@ -46,7 +46,6 @@
 
 <script>
 
-  import { pageMode } from '../state/getters';
   import store from '../state/store';
   import { PageNames, PageModes, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -72,7 +71,7 @@
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
-      channels: 'Channels',
+      topics: 'Topics',
       exams: 'Exams',
     },
     mixins: [responsiveWindow],
@@ -164,7 +163,6 @@
         memberships: state => state.learnAppState.memberships,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
-        pageMode,
         isUserLoggedIn,
       },
     },

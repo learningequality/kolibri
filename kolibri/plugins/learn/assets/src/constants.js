@@ -20,7 +20,7 @@ const PageNames = {
 // switch between modes
 const PageModes = {
   TOPICS: 'TOPICS',
-  LEARN: 'LEARN',
+  RECOMMENDED: 'RECOMMENDED',
   SEARCH: 'SEARCH',
   EXAM: 'EXAM',
 };

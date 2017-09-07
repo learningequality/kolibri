@@ -14,11 +14,14 @@
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'learnBreadcrumbs',
-    $trs: { recommended: 'Recommended' },
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
+    },
     components: { kBreadcrumbs },
     computed: {
       inLearn() {
-        return this.pageMode === PageModes.LEARN;
+        return this.pageMode === PageModes.RECOMMENDED;
       },
       learnRootLink() {
         return { name: PageNames.RECOMMENDED };
@@ -38,10 +41,10 @@
       inTopics() {
         return this.pageMode === PageModes.TOPICS;
       },
-      inTopicsRoot() {
+      inTopicsChannel() {
         return this.pageName === PageNames.TOPICS_CHANNEL;
       },
-      topicsRootLink() {
+      topicsChannelLink() {
         return {
           name: PageNames.TOPICS_CHANNEL,
           params: {
@@ -49,16 +52,35 @@
           },
         };
       },
+      topicsRootLink() {
+        return {
+          name: PageNames.TOPICS_ROOT,
+        };
+      },
       topicsBreadcrumbs() {
         if (this.pageName === PageNames.TOPICS_ROOT) {
-          return [];
+          return [
+            {
+              text: this.$tr('channels'),
+            },
+          ];
         }
         const crumbs = [
           {
-            text: this.channelTitle,
+            text: this.$tr('channels'),
             link: this.topicsRootLink,
           },
         ];
+        if (this.inTopicsChannel) {
+          crumbs.push({
+            text: this.channelTitle,
+          });
+          return crumbs;
+        }
+        crumbs.push({
+          text: this.channelTitle,
+          link: this.topicsChannelLink,
+        });
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           this.contentCrumbs.forEach(crumb =>
             crumbs.push({
@@ -74,7 +96,7 @@
               link: this.topicLink(crumb.id),
             })
           );
-          if (!this.inTopicsRoot) {
+          if (!this.inTopicsChannel) {
             crumbs.push({ text: this.topicTitle });
           }
         }

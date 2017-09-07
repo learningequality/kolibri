@@ -200,7 +200,7 @@
         return null;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.LEARN) {
+        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
           return true;
         }
         return false;

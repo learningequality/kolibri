@@ -125,7 +125,7 @@
       },
     },
     methods: {
-      genContentLink(id, kind) {
+      genContentLink(id) {
         return {
           name: PageNames.RECOMMENDED_CONTENT,
           params: { id },
