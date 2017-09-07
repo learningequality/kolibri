@@ -8,7 +8,9 @@
     <form @submit.prevent="$emit('submit')">
       <fieldset class="onboarding-form-fields">
         <legend class="onboarding-form-legend">
-          <span v-if="description" class="onboardng-form-description"> {{ description }} </span>
+          <span v-if="hasDescription" class="onboardng-form-description">
+            <slot name="description"> {{ description }} </slot>
+          </span>
           <span v-else class="visuallyhidden"> {{ header }} </span>
         </legend>
 
@@ -50,6 +52,11 @@
     components: {
       kButton,
     },
+    computed: {
+      hasDescription() {
+        return this.description || this.$slots.description;
+      },
+    },
   };
 
 </script>
@@ -66,12 +73,12 @@
       border: none
       padding: 0
       margin: 0
-      margin-bottom: 40px
+      margin-bottom: 24px
 
     &-header
       margin-top: 0
-      margin-bottom: 16px
       font-size: $core-title-md
+      margin-bottom: 16px
 
     &-legend
       margin-bottom: 8px

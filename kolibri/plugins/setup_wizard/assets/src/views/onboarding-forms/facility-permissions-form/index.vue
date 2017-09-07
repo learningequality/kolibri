@@ -1,24 +1,89 @@
 <template>
 
-  <onboarding-form
-    :header="$tr('facilityPermissionsSetupFormHeader')"
-    :submit-text="submitText"
-    :description="$tr('facilityPermissionsSetupFormDescription')"
-    @submit="setPermissions">
+  <div>
 
-    <template v-for="(preset, value) in permissionPresets">
-      <label>
-        <k-radio-button
-        v-model="selectedPermissionPreset"
-        :radiovalue="value"
-        :label="preset.name"
-        />
-        {{ presetDescription(value) }}
-      </label>
+    <!-- Cannot match spec with current core modal -->
+    <!-- Should be its own component -->
+    <core-modal
+      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
+      @cancel="hideFacilityPermissionsDetails"
+      :enableBgClickCancel="true"
+      v-if="permissionPresetDetailsModalShown">
 
-    </template>
+      <dl class="permission-preset-human">
+        <dt class="permission-preset-human-title">
+          {{ permissionPresets.formal.name }}
+        </dt>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('disabledUserSelfSignupPermissionDetail') }}
+        </dd>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledUserPasswordlessLoginPermissionDetail') }}
+        </dd>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('disabledAccountEditPermissionDetail') }}
+        </dd>
+      </dl>
 
-  </onboarding-form>
+      <dl class="permission-preset-human">
+        <dt class="permission-preset-human-title">
+          {{ permissionPresets.informal.name }}
+        </dt>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
+        </dd>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledAccountEditPermissionDetail') }}
+        </dd>
+      </dl>
+
+      <dl class="permission-preset-human">
+        <dt class="permission-preset-human-title">
+          {{ permissionPresets.nonformal.name }}
+        </dt>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
+        </dd>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledAccountEditPermissionDetail') }}
+        </dd>
+      </dl>
+
+    </core-modal>
+
+    <onboarding-form
+      :header="$tr('facilityPermissionsSetupFormHeader')"
+      :submit-text="submitText"
+      @submit="setPermissions">
+
+      <template slot="description">
+        {{ $tr('facilityPermissionsSetupFormDescription') }}
+
+        <a @click="showFacilityPermissionsDetails">
+          {{ $tr('facilityPermissionsPresetDetailsLink') }}
+        </a>
+      </template>
+
+
+      <template v-for="(preset, value) in permissionPresets">
+
+        <label>
+          <k-radio-button
+          class="permission-preset"
+          v-model="selectedPermissionPreset"
+          :radiovalue="value"
+          :label="preset.name"
+          />
+          <span class="permission-preset-description">
+            {{ descriptions[value] }}
+          </span>
+        </label>
+
+      </template>
+
+    </onboarding-form>
+
+  </div>
 
 </template>
 
@@ -30,6 +95,7 @@
 
   import onboardingForm from '../onboarding-form';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
 
   // TODO add modal and link to open it
 
@@ -40,12 +106,21 @@
       facilityPermissionsSetupFormDescription:
         'How will you be using Kolibri? You can customize ' + 'these settings later.',
       facilityPermissionsPresetDetailsLink: 'Setup details',
+      facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',
       selfManagedSetupDescription:
         'For libraries, orphanages, correctional facilities, ' +
           'youth centers, computer labs, and other non-formal learning contexts',
       informalSetupDescription:
         'For parent-child learning, homeschooling, or supplementary ' + 'individual learning',
+      // IDEA This should be a dynamically generated component, based on mappings
+      enabledUserAccountDeletionPermissionDetail: 'Guests can create their own accounts',
+      disabledUserAccountDeletionPermissionDetail: 'Admins must create all user accounts',
+      enabledAccountEditPermissionDetail: 'Users can edit their account information', //  QUESTION might be worth using select?
+      disabledAccountEditPermissionDetail: 'Users cannot edit their account information',
+      enabledUserPasswordlessLoginPermissionDetail: 'Users can sign in without their passwords',
+      enabledUserSelfSignupPermissionDetail: 'Guests can create their own accounts',
+      disabledUserSelfSignupPermissionDetail: 'Admins must create all user accounts',
     },
     props: {
       submitText: {
@@ -56,10 +131,18 @@
     components: {
       onboardingForm,
       kRadioButton,
+      coreModal,
     },
     data() {
       return {
         selectedPermissionPreset: this.currentPermissionPreset,
+        permissionPresetDetailsModalShown: false,
+        descriptions: {
+          formal: this.$tr('adminManagedSetupDescription'),
+          informal: this.$tr('selfManagedSetupDescription'),
+          nonformal: this.$tr('informalSetupDescription'),
+        },
+        permissionsMappingsHuman: {},
         permissionPresets,
       };
     },
@@ -68,16 +151,11 @@
         this.submitFacilityPermissions(this.selectedPermissionPreset);
         this.$emit('submit');
       },
-      presetDescription(preset) {
-        console.log(preset);
-        switch (preset) {
-          case 'formal':
-            return this.$tr('adminManagedSetupDescription');
-          case 'informal':
-            return this.$tr('selfManagedSetupDescription');
-          case 'nonformal':
-            return this.$tr('informalSetupDescription');
-        }
+      showFacilityPermissionsDetails() {
+        this.permissionPresetDetailsModalShown = true;
+      },
+      hideFacilityPermissionsDetails() {
+        this.permissionPresetDetailsModalShown = false;
       },
     },
     vuex: {
@@ -93,4 +171,25 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  .permission-preset
+    margin-bottom: 16px
+    font-size: 14px
+    font-weight: bold
+
+    &-description
+      color: $core-text-annotation
+      font-size: 12px
+
+  .permission-preset-human
+    list-style: none
+    margin-bottom: 8px
+    &-title
+      font-weight: bold
+    &-detail
+      margin: 0
+
+</style>
