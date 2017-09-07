@@ -110,7 +110,7 @@
         if (this.pageName === PageNames.TOPICS_CONTENT || this.pageName === PageNames.LEARN_CONTENT) {
           return 'content-page';
         }
-        if (this.pageName === PageNames.LEARN_RECOMMENDED) {
+        if (this.pageName === PageNames.RECOMMENDED) {
           return 'learn-page';
         }
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
@@ -141,7 +141,7 @@
       },
       recommendedLink() {
         return {
-          name: PageNames.LEARN_RECOMMENDED,
+          name: PageNames.RECOMMENDED,
         };
       },
       channelsLink() {

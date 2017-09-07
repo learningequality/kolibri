@@ -30,7 +30,7 @@ const messages = {
   currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
   contentUnavailablePageTitle: 'Content Unavailable',
   searchPageTitle: 'Search',
-  examsForChannelPageTitle: 'Exams - { currentChannelTitle }',
+  examsListPageTitle: 'Exams',
   currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
 };
 
@@ -267,7 +267,7 @@ function showTopicsContent(store, id) {
   ]).only(
     samePageCheckGenerator(store),
     ([content, channels, nextContent, ancestors]) => {
-      const currentChannel = getChannelObject(store.state, channelId);
+      const currentChannel = getChannelObject(store.state, content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
@@ -370,10 +370,7 @@ function showExamList(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch(
-        'CORE_SET_TITLE',
-        translator.$tr('examsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
-      );
+      store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
     },
     error => {
       handleApiError(store, error);
@@ -634,7 +631,6 @@ export {
   showContentUnavailable,
   triggerSearch,
   clearSearch,
-  redirectToChannelSearch,
   showSearch,
   showExam,
   showExamList,

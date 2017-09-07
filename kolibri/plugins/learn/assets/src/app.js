@@ -33,7 +33,7 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.LEARN_RECOMMENDED,
+          name: PageNames.RECOMMENDED,
           path: '/recommended',
           handler: (toRoute, fromRoute) => {
             showLearn(store);

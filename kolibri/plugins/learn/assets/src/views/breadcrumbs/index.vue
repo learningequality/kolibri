@@ -21,7 +21,7 @@
         return this.pageMode === PageModes.LEARN;
       },
       learnRootLink() {
-        return { name: PageNames.LEARN_RECOMMENDED };
+        return { name: PageNames.RECOMMENDED };
       },
       learnBreadcrumbs() {
         const crumbs = [
