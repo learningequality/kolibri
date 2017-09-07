@@ -2,7 +2,7 @@
 
   <onboarding-form
     :header="$tr('facilityNamingFormHeader')"
-    :details="$tr('facilityNamingFormDetails')"
+    :description="$tr('facilityNamingFormDescription')"
     :submit-text="submitText"
     @submit="setFacilityName"
     >
@@ -23,7 +23,7 @@
     name: 'facilityNameForm',
     $trs: {
       facilityNamingFormHeader: 'Name your Facility',
-      facilityNamingFormDetails:
+      facilityNamingFormDescription:
         'A Facility is the location where you are installing Kolibri, ' +
           'such as a school or training center.',
       facilityFieldLabel: 'Facility name',

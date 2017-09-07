@@ -2,7 +2,7 @@
 
   <onboarding-form
     :header="$tr('adminAccountCreationHeader')"
-    :details="$tr('adminAccountCreationDetails')"
+    :description="$tr('adminAccountCreationDescription')"
     :submit-text="submitText"
     @submit="setSuperuserCredentials">
 
@@ -48,7 +48,7 @@
     name: 'superuserCredentialsForm',
     $trs: {
       adminAccountCreationHeader: 'Create your Admin account',
-      adminAccountCreationDetails:
+      adminAccountCreationDescription:
         'This account allows you to manage your Facility and content on this device.',
       adminNameFieldLabel: 'Full name',
       adminUsernameFieldLabel: 'Username',

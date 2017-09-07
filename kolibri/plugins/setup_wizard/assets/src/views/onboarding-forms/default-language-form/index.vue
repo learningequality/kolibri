@@ -15,6 +15,7 @@
       :text="language.lang_name"
     />
 
+    <!-- QUESTION use ui-select? -->
     <select
       @input="changeLanguage($event.target.value)"
       class="default-language-form-dropdown default-language-form-items">

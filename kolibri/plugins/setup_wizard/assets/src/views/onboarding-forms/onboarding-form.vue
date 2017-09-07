@@ -8,7 +8,7 @@
     <form @submit.prevent="$emit('submit')">
       <fieldset class="onboarding-form-fields">
         <legend class="onboarding-form-legend">
-          <span v-if="details" class="onboardng-form-details"> {{ details }} </span>
+          <span v-if="description" class="onboardng-form-description"> {{ description }} </span>
           <span v-else class="visuallyhidden"> {{ header }} </span>
         </legend>
 
@@ -38,7 +38,7 @@
         type: String,
         required: true,
       },
-      details: {
+      description: {
         type: String,
         required: false,
       },
@@ -76,7 +76,7 @@
     &-legend
       margin-bottom: 8px
 
-    &-details
+    &-description
       margin-bottom: 8px
 
     &-submit
