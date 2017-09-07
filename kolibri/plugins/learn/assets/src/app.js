@@ -26,24 +26,24 @@ class LearnModule extends KolibriModule {
           redirect: '/recommended',
         },
         {
-          name: PageNames.TOPICS_ROOT,
+          name: PageNames.CHANNELS,
           path: '/topics',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToTopicsChannel(store);
+            actions.showChannels(store);
           },
         },
         {
-          name: PageNames.LEARN_ROOT,
+          name: PageNames.LEARN_RECOMMENDED,
           path: '/recommended',
           handler: (toRoute, fromRoute) => {
             showLearn(store);
           },
         },
         {
-          name: PageNames.SEARCH_ROOT,
+          name: PageNames.SEARCH,
           path: '/search',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToChannelSearch(store);
+            actions.showSearch(store, toRoute.query.query);
           },
         },
         {
@@ -55,23 +55,23 @@ class LearnModule extends KolibriModule {
         },
         {
           name: PageNames.TOPICS_CHANNEL,
-          path: '/:channel_id/topics',
+          path: '/topics/:channel_id',
           handler: (toRoute, fromRoute) => {
             actions.showTopicsChannel(store, toRoute.params.channel_id);
           },
         },
         {
           name: PageNames.TOPICS_TOPIC,
-          path: '/:channel_id/topics/t/:id',
+          path: '/topics/t/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showTopicsTopic(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showTopicsTopic(store, toRoute.params.id);
           },
         },
         {
           name: PageNames.TOPICS_CONTENT,
-          path: '/:channel_id/topics/c/:id',
+          path: '/topics/c/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showTopicsContent(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showTopicsContent(store, toRoute.params.id);
           },
         },
         {
@@ -107,13 +107,6 @@ class LearnModule extends KolibriModule {
           path: '/recommended/:id',
           handler: (toRoute, fromRoute) => {
             showLearnContent(store, toRoute.params.id);
-          },
-        },
-        {
-          name: PageNames.SEARCH,
-          path: '/:channel_id/search',
-          handler: (toRoute, fromRoute) => {
-            actions.showSearch(store, toRoute.params.channel_id, toRoute.query.query);
           },
         },
         {

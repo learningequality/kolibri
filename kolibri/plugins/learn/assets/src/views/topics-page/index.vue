@@ -22,7 +22,6 @@
 
 <script>
 
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import some from 'lodash/some';
@@ -64,8 +63,8 @@
       getters: {
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
-        isRoot: state => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
-        channelId: state => getCurrentChannelObject(state).id,
+        isRoot: state => state.pageState.isRoot,
+        channelId: state => state.pageState.channel.id,
       },
     },
   };

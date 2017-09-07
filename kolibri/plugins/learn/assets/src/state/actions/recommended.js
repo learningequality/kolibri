@@ -10,8 +10,6 @@ import {
 import {
   currentUserId,
   isFacilityUser,
-  getCurrentChannelId,
-  getCurrentChannelObject,
   getChannels,
   getChannelObject,
 } from 'kolibri.coreVue.vuex.getters';

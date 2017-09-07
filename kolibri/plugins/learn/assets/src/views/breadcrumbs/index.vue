@@ -11,7 +11,6 @@
   import { PageNames } from '../../constants';
   import { PageModes } from '../../constants';
   import * as getters from '../../state/getters';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'learnBreadcrumbs',
@@ -46,6 +45,9 @@
         return { name: PageNames.TOPICS_CHANNEL };
       },
       topicsBreadcrumbs() {
+        if (this.pageName === PageNames.CHANNELS) {
+          return [];
+        }
         const crumbs = [
           {
             text: this.channelTitle,
@@ -89,8 +91,8 @@
       getters: {
         pageName: state => state.pageName,
         pageMode: getters.pageMode,
-        channelId: state => getCurrentChannelObject(state).id,
-        channelTitle: state => getCurrentChannelObject(state).title,
+        channelId: state => state.pageState.channel.id,
+        channelTitle: state => state.pageState.channel.title,
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
         contentTitle: state => state.pageState.content.title,

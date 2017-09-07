@@ -2,13 +2,13 @@ import * as constants from '../constants';
 
 function pageMode(state) {
   const topicsPages = [
-    constants.PageNames.TOPICS_ROOT,
+    constants.PageNames.CHANNELS,
     constants.PageNames.TOPICS_CHANNEL,
     constants.PageNames.TOPICS_TOPIC,
     constants.PageNames.TOPICS_CONTENT,
   ];
   const learnPages = [
-    constants.PageNames.LEARN_ROOT,
+    constants.PageNames.LEARN_RECOMMENDED,
     constants.PageNames.LEARN_CHANNEL,
     constants.PageNames.LEARN_CONTENT,
   ];

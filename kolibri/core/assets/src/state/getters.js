@@ -48,15 +48,6 @@ function getChannelObject(state, channelId) {
   return getChannels(state).find(channel => channel.id === channelId);
 }
 
-function getCurrentChannelId(state) {
-  return state.core.channels.currentId;
-}
-
-/* return the current channel object, according to vuex state */
-function getCurrentChannelObject(state) {
-  return getChannelObject(getCurrentChannelId(state));
-}
-
 function totalPoints(state) {
   return state.core.totalProgress * MaxPointsPerContent;
 }
@@ -78,8 +69,6 @@ export {
   isLearner,
   getChannels,
   getChannelObject,
-  getCurrentChannelId,
-  getCurrentChannelObject,
   currentFacilityId,
   totalPoints,
   contentPoints,

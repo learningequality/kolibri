@@ -36,7 +36,7 @@
 
 <script>
 
-  import { isUserLoggedIn, getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
@@ -78,7 +78,6 @@
       getters: {
         isUserLoggedIn,
         exams: state => state.pageState.exams,
-        channelId: state => getCurrentChannelObject(state).id,
       },
     },
   };
