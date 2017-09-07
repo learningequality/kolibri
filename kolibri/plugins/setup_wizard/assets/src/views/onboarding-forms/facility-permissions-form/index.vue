@@ -104,15 +104,14 @@
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? You can customize ' + 'these settings later.',
+        'How will you be using Kolibri? You can customize these settings later.',
       facilityPermissionsPresetDetailsLink: 'Setup details',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',
       selfManagedSetupDescription:
-        'For libraries, orphanages, correctional facilities, ' +
-          'youth centers, computer labs, and other non-formal learning contexts',
+        'For libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
       informalSetupDescription:
-        'For parent-child learning, homeschooling, or supplementary ' + 'individual learning',
+        'For parent-child learning, homeschooling, or supplementary individual learning',
       // IDEA This should be a dynamically generated component, based on mappings
       enabledUserAccountDeletionPermissionDetail: 'Guests can create their own accounts',
       disabledUserAccountDeletionPermissionDetail: 'Admins must create all user accounts',

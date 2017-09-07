@@ -24,8 +24,7 @@
     $trs: {
       facilityNamingFormHeader: 'Name your Facility',
       facilityNamingFormDescription:
-        'A Facility is the location where you are installing Kolibri, ' +
-          'such as a school or training center.',
+        'A Facility is the location where you are installing Kolibri, such as a school or training center.',
       facilityFieldLabel: 'Facility name',
     },
     props: {
