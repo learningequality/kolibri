@@ -33,9 +33,8 @@ def get_engine(connection_string):
     should consistently return the same engine for the same connection string.
     """
     if connection_string not in ENGINES_CACHES:
-        # At the moment, the echo argument is set to our DEBUG setting, so we will get
-        # a lot of SQLAlchemy output in DEBUG mode
-        engine = create_engine(connection_string, echo=settings.DEBUG, convert_unicode=True)
+        # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
+        engine = create_engine(connection_string, echo=False, convert_unicode=True)
         ENGINES_CACHES[connection_string] = engine
     return ENGINES_CACHES[connection_string]
 
