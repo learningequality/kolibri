@@ -56,7 +56,7 @@
   import omit from 'lodash/omit';
   import sortBy from 'lodash/sortBy';
 
-  const numberOfLanguageButtons = 4;
+  const numberOfLanguageButtons = 3;
 
   // TODO move default logic into state
 
