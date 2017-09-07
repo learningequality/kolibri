@@ -3,8 +3,8 @@ import logging as logger
 import os
 
 import requests
-from barbequeue.common.classes import State
-from barbequeue.exceptions import UserCancelledError
+from iceqube.common.classes import State
+from iceqube.exceptions import UserCancelledError
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http import Http404
