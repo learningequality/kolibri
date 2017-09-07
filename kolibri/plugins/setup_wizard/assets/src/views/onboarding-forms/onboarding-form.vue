@@ -1,23 +1,28 @@
 <template>
 
-  <form @submit.prevent="$emit('submit')">
-    <fieldset class="onboarding-form-fieldset">
-      <legend>
-        <h1 class="onboarding-form-header">
-          {{ header }}
-        </h1>
-      </legend>
+  <div>
+    <h1 class="onboarding-form-header">
+      {{ header }}
+    </h1>
 
-      <slot />
-    </fieldset>
+    <form @submit.prevent="$emit('submit')">
+      <fieldset class="onboarding-form-fields">
+        <legend class="onboarding-form-legend">
+          <span v-if="details" class="onboardng-form-details"> {{ details }} </span>
+          <span v-else class="visuallyhidden"> {{ header }} </span>
+        </legend>
 
-    <k-button
-      class="onboarding-form-submit"
-      :primary="true"
-      type="submit"
-      :text="submitText"
-    />
-  </form>
+        <slot />
+      </fieldset>
+
+      <k-button
+        class="onboarding-form-submit"
+        :primary="true"
+        type="submit"
+        :text="submitText"
+      />
+    </form>
+  </div>
 
 </template>
 
@@ -32,6 +37,10 @@
       header: {
         type: String,
         required: true,
+      },
+      details: {
+        type: String,
+        required: false,
       },
       submitText: {
         type: String,
@@ -48,15 +57,24 @@
 
 <style scoped lang="stylus">
 
+  @require '~kolibri.styles.definitions'
+
   .onboarding-form
-    &-fieldset
+    &-fields
       border: none
       padding: 0
       margin: 0
       margin-bottom: 40px
 
     &-header
-      margin-bottom: 24px
+      margin-top: 0
+      margin-bottom: 16px
+
+    &-legend
+      margin-bottom: 8px
+
+    &-details
+      margin-bottom: 8px
 
     &-submit
       margin: 0
