@@ -59,6 +59,8 @@
 
   @require '~kolibri.styles.definitions'
 
+  $core-title-md = 21px // filling in for future typography styles
+
   .onboarding-form
     &-fields
       border: none
@@ -69,6 +71,7 @@
     &-header
       margin-top: 0
       margin-bottom: 16px
+      font-size: $core-title-md
 
     &-legend
       margin-bottom: 8px

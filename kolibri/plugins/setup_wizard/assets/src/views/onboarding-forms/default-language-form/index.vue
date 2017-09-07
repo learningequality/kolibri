@@ -23,7 +23,7 @@
         selected
         hidden
       >
-        {{ $tr('showMoreLanguagesSelector').toUpperCase() }}
+        {{ $tr('showMoreLanguagesSelector') }}
       </option>
 
       <option
@@ -57,7 +57,6 @@
 
   const numberOfLanguageButtons = 4;
 
-  // TODO add language switching logic
   // TODO move default logic into state
 
   export default {
@@ -102,7 +101,6 @@
     methods: {
       changeLanguage(languageId) {
         this.selectedLanguageId = languageId;
-        console.log(this.Kolibri.urls);
         const path = this.Kolibri.urls['kolibri:set_language']();
         const entity = {
           language: this.selectedLanguageId,
@@ -111,7 +109,6 @@
           path,
           entity,
         }).then(() => {
-          console.log('should be reloading...');
           global.location.reload(true);
         });
       },
@@ -134,6 +131,17 @@
 
   @require '~kolibri.styles.definitions'
 
+  $k-button-styles()
+    padding: 0 16px
+    min-width: 64px
+    min-height: 36px
+    border-radius: 2px
+    font-size: 14px
+    font-weight: bold
+    line-height: 36px
+    text-transform: uppercase
+    max-width: 100%
+
   .default-language-form
     &-items
       margin: 0
@@ -152,5 +160,13 @@
 
     &-button-option
       color: $core-action-dark
+
+    &-dropdown
+      $k-button-styles()
+      width: 100px
+      background-color: $core-grey-200
+      &-option
+        text-transform: none
+        background-color: $core-bg-light
 
 </style>

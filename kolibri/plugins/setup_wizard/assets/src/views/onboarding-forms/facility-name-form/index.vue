@@ -1,6 +1,11 @@
 <template>
 
-  <onboarding-form header="Set facility name" :submit-text="submitText" @submit="setFacilityName">
+  <onboarding-form
+    :header="$tr('facilityNamingFormHeader')"
+    :details="$tr('facilityNamingFormDetails')"
+    :submit-text="submitText"
+    @submit="setFacilityName"
+    >
     <k-textbox v-model="facilityName" label="Facility name"/>
   </onboarding-form>
 
@@ -16,6 +21,12 @@
 
   export default {
     name: 'facilityNameForm',
+    $trs: {
+      facilityNamingFormHeader: 'Name your Facility',
+      facilityNamingFormDetails:
+        'A Facility is the location where you are installing Kolibri, ' +
+          'such as a school or training center.',
+    },
     props: {
       submitText: {
         type: String,
