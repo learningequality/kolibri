@@ -264,7 +264,7 @@
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.core.channels.currentId,
+        channelId: state => state.pageState.content.channel_id,
         pagename: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,

@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="title">
+    <page-header :title="topic.title">
       <div slot="icon">
         <mat-svg v-if="isRoot" category="action" name="explore"/>
         <mat-svg v-else category="file" name="folder"/>
@@ -39,11 +39,6 @@
       pageHeader,
       contentCard,
       contentCardGroupGrid,
-    },
-    computed: {
-      title() {
-        return this.isRoot ? this.$tr('topics') : this.topic.title;
-      },
     },
     methods: {
       genContentLink(id, kind) {

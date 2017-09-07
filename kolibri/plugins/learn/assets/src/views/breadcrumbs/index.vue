@@ -21,7 +21,7 @@
         return this.pageMode === PageModes.LEARN;
       },
       learnRootLink() {
-        return { name: PageNames.LEARN_CHANNEL };
+        return { name: PageNames.LEARN_RECOMMENDED };
       },
       learnBreadcrumbs() {
         const crumbs = [
@@ -42,7 +42,12 @@
         return this.pageName === PageNames.TOPICS_CHANNEL;
       },
       topicsRootLink() {
-        return { name: PageNames.TOPICS_CHANNEL };
+        return {
+          name: PageNames.TOPICS_CHANNEL,
+          params: {
+            channel_id: this.channelRootId,
+          },
+        };
       },
       topicsBreadcrumbs() {
         if (this.pageName === PageNames.CHANNELS) {
@@ -81,7 +86,6 @@
         return {
           name: PageNames.TOPICS_TOPIC,
           params: {
-            channel_id: this.channelId,
             id: topicId,
           },
         };
@@ -91,7 +95,7 @@
       getters: {
         pageName: state => state.pageName,
         pageMode: getters.pageMode,
-        channelId: state => state.pageState.channel.id,
+        channelRootId: state => state.pageState.channel.root_id,
         channelTitle: state => state.pageState.channel.title,
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],

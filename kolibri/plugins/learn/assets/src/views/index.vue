@@ -110,7 +110,7 @@
         if (this.pageName === PageNames.TOPICS_CONTENT || this.pageName === PageNames.LEARN_CONTENT) {
           return 'content-page';
         }
-        if (this.pageName === PageNames.LEARN_CHANNEL) {
+        if (this.pageName === PageNames.LEARN_RECOMMENDED) {
           return 'learn-page';
         }
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
@@ -161,7 +161,6 @@
         memberships: state => state.learnAppState.memberships,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
-        channelId: state => state.core.channels.currentId,
         pageMode,
         isUserLoggedIn,
       },

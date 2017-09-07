@@ -40,6 +40,7 @@
 
   import validateLinkObject from 'kolibri.utils.validateLinkObject';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import some from 'lodash/some';
   import uiSelect from 'keen-ui/src/UiSelect';
   import contentCard from '../content-card';
@@ -171,7 +172,7 @@
     },
     vuex: {
       getters: {
-        channels: state => state.core.channels.list,
+        channels: getChannels,
       },
     },
   };

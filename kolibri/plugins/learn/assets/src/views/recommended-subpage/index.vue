@@ -59,7 +59,6 @@
         pageName: state => state.pageName,
         recommendations: state => state.pageState.recommendations,
         channelTitle: state => state.pageState.channelTitle,
-        channelId: state => state.core.channels.currentId,
       },
     },
   };

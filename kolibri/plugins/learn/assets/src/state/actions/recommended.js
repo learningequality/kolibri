@@ -111,7 +111,7 @@ function showLearn(store) {
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
-  if (state.pageName !== PageNames.LEARN_CHANNEL) {
+  if (state.pageName !== PageNames.LEARN_RECOMMENDED) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
@@ -148,7 +148,7 @@ function showLearn(store) {
 
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
+      store.dispatch('SET_PAGE_NAME', PageNames.LEARN_RECOMMENDED);
 
       store.dispatch('CORE_SET_TITLE', translator.$tr('learnPageTitle'));
     },
