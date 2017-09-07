@@ -6,7 +6,7 @@
     :submit-text="submitText"
     @submit="setFacilityName"
     >
-    <k-textbox v-model="facilityName" label="Facility name"/>
+    <k-textbox :autofocus="true" v-model="facilityName" :label="$tr('facilityFieldLabel')"/>
   </onboarding-form>
 
 </template>
@@ -26,6 +26,7 @@
       facilityNamingFormDetails:
         'A Facility is the location where you are installing Kolibri, ' +
           'such as a school or training center.',
+      facilityFieldLabel: 'Facility name',
     },
     props: {
       submitText: {

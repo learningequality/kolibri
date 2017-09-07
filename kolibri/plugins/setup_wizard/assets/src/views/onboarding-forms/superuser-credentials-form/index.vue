@@ -1,10 +1,38 @@
 <template>
 
-  <onboarding-form header="Set user credentials" :submit-text="submitText" @submit="setSuperuserCredentials">
-      <k-textbox v-model="name" label="Full name"/>
-      <k-textbox v-model="username" label="Username"/>
-      <k-textbox v-model="password" label="Password"/>
-      <k-textbox v-model="passwordConfirm" label="Confirm Password"/>
+  <onboarding-form
+    :header="$tr('adminAccountCreationHeader')"
+    :details="$tr('adminAccountCreationDetails')"
+    :submit-text="submitText"
+    @submit="setSuperuserCredentials">
+
+      <k-textbox
+        v-model="name"
+        :label="$tr('adminNameFieldLabel')"
+        :autofocus="true"
+        autocomplete="name"
+        :maxlength="120"
+      />
+      <k-textbox
+        v-model="username"
+        :label="$tr('adminUsernameFieldLabel')"
+        type="username"
+        autocomplete="username"
+        :maxlength="30"
+      />
+      <k-textbox
+        v-model="password"
+        :label="$tr('adminPasswordFieldLabel')"
+        type="password"
+        autocomplete="new-password"
+      />
+      <k-textbox
+        v-model="passwordConfirm"
+        :label="$tr('adminPasswordConfirmationFieldLabel')"
+        type="password"
+        autocomplete="new-password"
+      />
+
   </onboarding-form>
 
 </template>
@@ -16,10 +44,17 @@
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
 
-  // TODO wrap all strings in labels and header
-
   export default {
     name: 'superuserCredentialsForm',
+    $trs: {
+      adminAccountCreationHeader: 'Create your Admin account',
+      adminAccountCreationDetails:
+        'This account allows you to manage your Facility and content on this device.',
+      adminNameFieldLabel: 'Full name',
+      adminUsernameFieldLabel: 'Username',
+      adminPasswordFieldLabel: 'Password',
+      adminPasswordConfirmationFieldLabel: 'Enter password again',
+    },
     props: {
       submitText: {
         type: String,
