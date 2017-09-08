@@ -120,10 +120,10 @@
         return '';
       },
       passwordConfirmErrorMessage() {
-        if (this.confirmedPassword === '') {
+        if (this.passwordConfirm === '') {
           return this.$tr('passwordFieldEmptyErrorMessage');
         }
-        if (this.confirmedPassword !== this.password) {
+        if (this.passwordConfirm !== this.password) {
           return this.$tr('passwordsMismatchErrorMessage');
         }
         return '';
@@ -144,7 +144,7 @@
         return (
           !this.usernameIsInvalid &&
           !this.passwordIsInvalid &&
-          !this.confirmedPasswordIsInvalid &&
+          !this.passwordConfirmIsInvalid &&
           !this.facilityIsInvalid
         );
       },

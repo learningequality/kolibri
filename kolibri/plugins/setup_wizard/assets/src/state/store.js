@@ -1,4 +1,5 @@
 import Vuex from 'kolibri.lib.vuex';
+import { currentLanguage } from 'kolibri.utils.i18n';
 import { findKey } from 'lodash';
 import { permissionPresets } from './constants';
 import {
@@ -8,7 +9,7 @@ import {
 
 const initialState = {
   onboardingData: {
-    language_id: '',
+    language_id: currentLanguage,
     facility: {
       name: '',
     },

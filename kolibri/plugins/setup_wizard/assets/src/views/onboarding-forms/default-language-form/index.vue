@@ -33,7 +33,7 @@
         :value="language.id"
         class="default-language-form-dropdown-option"
       >
-        {{ language.lang_name }}, {{language.id}}
+        {{ language.lang_name }}
       </option>
     </select>
   </onboarding-form>
@@ -43,10 +43,7 @@
 
 <script>
 
-  import {
-    availableLanguages as allLanguages,
-    currentLanguage as currentLanguageId,
-  } from 'kolibri.utils.i18n';
+  import { availableLanguages as allLanguages } from 'kolibri.utils.i18n';
   import { httpClient } from 'kolibri.client';
   import { submitDefaultLanguage } from '../../../state/actions/forms';
 
@@ -76,7 +73,7 @@
     },
     data() {
       return {
-        selectedLanguageId: currentLanguageId,
+        selectedLanguageId: this.currentLanguageId,
       };
     },
     computed: {
@@ -121,6 +118,9 @@
     vuex: {
       actions: {
         submitDefaultLanguage,
+      },
+      getters: {
+        currentLanguageId: state => state.onboardingData.language_id,
       },
     },
   };
