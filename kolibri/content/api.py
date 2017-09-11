@@ -13,7 +13,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from .permissions import OnlySuperuserCanDelete
+from .permissions import OnlyCanManageContentCanDelete
 from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
@@ -24,7 +24,7 @@ def _join_with_logical_operator(lst, operator):
 
 
 class ChannelMetadataViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlySuperuserCanDelete,)
+    permission_classes = (OnlyCanManageContentCanDelete,)
     serializer_class = serializers.ChannelMetadataSerializer
 
     def get_queryset(self):

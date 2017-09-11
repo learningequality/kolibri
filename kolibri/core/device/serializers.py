@@ -11,11 +11,14 @@ from .models import DevicePermissions, DeviceSettings
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
 
+    user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
+
     class Meta:
         model = DevicePermissions
         fields = (
             'user', 'is_superuser', 'can_manage_content',
         )
+
 
 class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
 

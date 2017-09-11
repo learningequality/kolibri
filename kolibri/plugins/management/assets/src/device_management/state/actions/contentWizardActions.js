@@ -1,29 +1,49 @@
-import { ChannelResource } from 'kolibri.resources';
-import { ContentWizardPages } from '../constants';
-import * as actions from './actions';
+import { TaskResource } from 'kolibri.resources';
+import { ContentWizardPages } from '../../constants';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import {
+  triggerLocalContentExportTask,
+  triggerLocalContentImportTask,
+  triggerRemoteContentImportTask,
+} from './taskActions';
 import find from 'lodash/find';
 
-/**
- * Force-refresh the ChannelResource Collection
- *
- */
-export function refreshChannelList(store) {
-  return ChannelResource.getCollection().fetch({ file_sizes: true }, true).then(channels => {
-    store.dispatch('SET_CONTENT_PAGE_CHANNELS', channels);
+export function updateWizardLocalDriveList(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  TaskResource.localDrives()
+    .then(response => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+    })
+    .catch(error => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+      handleApiError(store, error);
+    });
+}
+
+export function showWizardPage(store, pageName, meta = {}) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: Boolean(pageName),
+    page: pageName || null,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+    meta,
   });
 }
 
-/**
- * Delete a Channel from the device
- *
- * @param {Object} store - vuex store object
- * @param {string} channelId - a valid channel UUID
- * @returns {Promise}
- */
-export function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId).delete().then(() => {
-    refreshChannelList(store);
-  });
+export function startImportWizard(store) {
+  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
+}
+
+export function startExportWizard(store) {
+  showWizardPage(store, ContentWizardPages.EXPORT);
+  updateWizardLocalDriveList(store);
+}
+
+export function closeImportExportWizard(store) {
+  showWizardPage(store, false);
 }
 
 /**
@@ -41,7 +61,7 @@ export function transitionWizardPage(store, transition, params) {
   const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
-  const showPage = actions.showWizardPage.bind(null, store);
+  const showPage = showWizardPage.bind(null, store);
 
   if (transition === CANCEL) {
     return showPage(false);
@@ -87,7 +107,7 @@ export function transitionWizardPage(store, transition, params) {
   // At Export Wizard
   if (wizardPage === ContentWizardPages.EXPORT) {
     if (transition === FORWARD) {
-      return actions.triggerLocalContentExportTask(store, params.driveId);
+      return triggerLocalContentExportTask(store, params.driveId);
     }
   }
 
@@ -97,7 +117,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD) {
-      return actions.triggerLocalContentImportTask(store, params.sourceId);
+      return triggerLocalContentImportTask(store, params.sourceId);
     }
   }
 
@@ -107,7 +127,7 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_NETWORK);
     }
     if (transition === FORWARD) {
-      return actions.triggerRemoteContentImportTask(store, params.sourceId);
+      return triggerRemoteContentImportTask(store, params.sourceId);
     }
   }
 
