@@ -1,15 +1,17 @@
 <template>
 
-  <div class="onboarding-loading-wrapper">
-    <div class="onboarding-loading">
-      <loading-spinner :custom-styles="true" :delay="0" class="onboarding-loading-spinner" />
-      <h1 class="onboarding-loading-header">
-        {{ $tr('loadingPageHeader') }}
+  <div class="submission-state-page-wrapper">
+    <div class="submission-state-page">
+      <loading-spinner :custom-styles="true" :delay="0" class="submission-state-page-spinner" />
+
+      <h1 class="submission-state-page-header">
+        {{ header }}
       </h1>
 
-      <span class="onboarding-loading-subheader">
-        {{ $tr('loadingPageSubheader') }}
-      </span>
+      <div class="submission-state-page-body">
+        <slot />
+      </div>
+
     </div>
   </div>
 
@@ -21,10 +23,12 @@
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
 
   export default {
-    name: 'SetupLoadingPage',
-    $trs: {
-      loadingPageHeader: 'Setting up your facility...',
-      loadingPageSubheader: 'Please be patient. Setup may take several minutes',
+    name: 'submissionStatePage',
+    props: {
+      header: {
+        type: String,
+        required: true,
+      },
     },
     components: { loadingSpinner },
   };
@@ -36,7 +40,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .onboarding-loading
+  .submission-state-page
     position: absolute
     left: 50%
     top: 50%
@@ -51,9 +55,9 @@
     &-header
       font-size: 21px
       color: $core-accent-color
-      margin-bottom: 21px
+      margin-bottom: 24px
 
-    &-subheader
+    &-body
       font-size: 14px
 
     &-spinner

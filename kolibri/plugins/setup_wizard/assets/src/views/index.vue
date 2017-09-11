@@ -2,11 +2,9 @@
 
   <div class="onboarding">
 
-    <loading-page v-if="loading" />
+    <error-page v-if="error" />
 
-    <template v-else-if="error">
-
-    </template>
+    <loading-page v-else-if="loading" />
 
     <template v-else>
       <progress-toolbar
@@ -32,8 +30,8 @@
 
   import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
 
-  import loadingPage from './submission-states/loading';
-  import errorPage from './submission-states/error';
+  import loadingPage from './submission-states/loading-page';
+  import errorPage from './submission-states/error-page';
 
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './onboarding-forms/default-language-form';
@@ -43,6 +41,10 @@
 
   export default {
     name: 'Onboarding',
+    $trs: {
+      onboardingNextStepButton: 'Continue',
+      onboardingSubmitButton: 'Submit',
+    },
     components: { progressToolbar, loadingPage, errorPage },
     data() {
       return {
@@ -61,14 +63,16 @@
           case 4:
             return facilityPermissionsForm;
           default:
-            return null; // this is where we could do loading or error states?
+            return null;
         }
       },
       isLastStep() {
         return this.onboardingStep === this.totalOnboardingSteps;
       },
       submitText() {
-        return this.isLastStep ? 'Submit' : 'Continue'; // TODO wrap
+        return this.isLastStep
+          ? this.$tr('onboardingSubmitButton')
+          : this.$tr('onboardingNextStepButton');
       },
     },
     methods: {
