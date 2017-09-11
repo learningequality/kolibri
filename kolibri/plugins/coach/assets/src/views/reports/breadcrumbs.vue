@@ -8,6 +8,7 @@
 <script>
 
   import find from 'lodash/find';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import * as CoachConstants from '../../constants';
   import * as coachGetters from '../../state/getters/main';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
@@ -104,7 +105,7 @@
     },
     vuex: {
       getters: {
-        channels: state => state.core.channels.list,
+        channels: getChannels,
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,

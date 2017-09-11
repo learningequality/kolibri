@@ -7,7 +7,7 @@ import Vue from 'kolibri.lib.vue';
 import RootVue from './views';
 import * as actions from './state/actions/main';
 import {
-  showLearnChannel,
+  showLearn,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
@@ -26,24 +26,24 @@ class LearnModule extends KolibriModule {
           redirect: '/recommended',
         },
         {
-          name: PageNames.EXPLORE_ROOT,
+          name: PageNames.TOPICS_ROOT,
           path: '/topics',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToExploreChannel(store);
+            actions.showChannels(store);
           },
         },
         {
-          name: PageNames.LEARN_ROOT,
+          name: PageNames.RECOMMENDED,
           path: '/recommended',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToLearnChannel(store);
+            showLearn(store);
           },
         },
         {
-          name: PageNames.SEARCH_ROOT,
+          name: PageNames.SEARCH,
           path: '/search',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToChannelSearch(store);
+            actions.showSearch(store, toRoute.query.query);
           },
         },
         {
@@ -54,93 +54,73 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.EXPLORE_CHANNEL,
-          path: '/:channel_id/topics',
+          name: PageNames.TOPICS_CHANNEL,
+          path: '/topics/:channel_id',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreChannel(store, toRoute.params.channel_id);
+            actions.showTopicsChannel(store, toRoute.params.channel_id);
           },
         },
         {
-          name: PageNames.EXPLORE_TOPIC,
-          path: '/:channel_id/topics/t/:id',
+          name: PageNames.TOPICS_TOPIC,
+          path: '/topics/t/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showTopicsTopic(store, toRoute.params.id);
           },
         },
         {
-          name: PageNames.EXPLORE_CONTENT,
-          path: '/:channel_id/topics/c/:id',
+          name: PageNames.TOPICS_CONTENT,
+          path: '/topics/c/:id',
           handler: (toRoute, fromRoute) => {
-            actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
-          },
-        },
-        {
-          name: PageNames.LEARN_CHANNEL,
-          path: '/:channel_id/recommended',
-          handler: (toRoute, fromRoute) => {
-            const cursor = toRoute.query.cursor;
-            showLearnChannel(store, toRoute.params.channel_id, cursor);
+            actions.showTopicsContent(store, toRoute.params.id);
           },
         },
         {
           name: PageNames.RECOMMENDED_POPULAR,
-          path: '/:channel_id/recommended/popular',
+          path: '/recommended/popular',
           handler: (toRoute, fromRoute) => {
-            showPopularPage(store, toRoute.params.channel_id);
+            showPopularPage(store);
           },
         },
         {
           name: PageNames.RECOMMENDED_RESUME,
-          path: '/:channel_id/recommended/resume',
+          path: '/recommended/resume',
           handler: (toRoute, fromRoute) => {
-            showResumePage(store, toRoute.params.channel_id);
+            showResumePage(store);
           },
         },
         {
           name: PageNames.RECOMMENDED_NEXT_STEPS,
-          path: '/:channel_id/recommended/nextsteps',
+          path: '/recommended/nextsteps',
           handler: (toRoute, fromRoute) => {
-            showNextStepsPage(store, toRoute.params.channel_id);
+            showNextStepsPage(store);
           },
         },
         {
           name: PageNames.RECOMMENDED_FEATURED,
-          path: '/:channel_id/recommended/featured',
+          path: '/recommended/featured/:channel_id',
           handler: (toRoute, fromRoute) => {
             showFeaturedPage(store, toRoute.params.channel_id);
           },
         },
         {
-          name: PageNames.LEARN_CONTENT,
-          path: '/:channel_id/recommended/:id',
+          name: PageNames.RECOMMENDED_CONTENT,
+          path: '/recommended/:id',
           handler: (toRoute, fromRoute) => {
-            showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
-          },
-        },
-        {
-          name: PageNames.SEARCH,
-          path: '/:channel_id/search',
-          handler: (toRoute, fromRoute) => {
-            actions.showSearch(store, toRoute.params.channel_id, toRoute.query.query);
+            showLearnContent(store, toRoute.params.id);
           },
         },
         {
           name: PageNames.EXAM_LIST,
-          path: '/:channel_id/exams',
+          path: '/exams',
           handler: (toRoute, fromRoute) => {
-            actions.showExamList(store, toRoute.params.channel_id);
+            actions.showExamList(store);
           },
         },
         {
           name: PageNames.EXAM,
-          path: '/:channel_id/exams/:id/:questionNumber',
+          path: '/exams/:id/:questionNumber',
           handler: (toRoute, fromRoute) => {
-            actions.showExam(
-              store,
-              toRoute.params.channel_id,
-              toRoute.params.id,
-              toRoute.params.questionNumber
-            );
+            actions.showExam(store, toRoute.params.id, toRoute.params.questionNumber);
           },
         },
         {

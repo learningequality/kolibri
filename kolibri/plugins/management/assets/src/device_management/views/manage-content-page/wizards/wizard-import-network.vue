@@ -9,24 +9,33 @@
     @enter="submit"
     @back="goBack"
   >
-    <div class="main">
-      <k-textbox :label="$tr('enterContentChannel')" v-model="channelId" :disabled="wizardState.busy"/>
-    </div>
-    <div class="core-text-alert">
-      {{ wizardState.error }}
-    </div>
-    <div class="button-wrapper">
-      <k-button
-        @click="cancel"
-        :text="$tr('cancel')"
-        :raised="false"
-        :disabled="wizardState.busy"/>
-      <k-button
-        :text="$tr('import')"
-        @click="submit"
-        :disabled="!canSubmit"
-        :primary="true"/>
-    </div>
+    <form @submit.prevent="submit">
+      <div class="main">
+        <k-textbox
+          ref="textbox"
+          :label="$tr('enterContentChannel')"
+          v-model.trim="channelId"
+          :disabled="formIsDisabled"
+          :invalid="channelIdIsInvalid"
+          :invalidText="$tr('channelIdIsInvalid')"
+          @blur="channelIdBlurred=true"
+        />
+      </div>
+
+      <div class="button-wrapper">
+        <k-button
+          @click="cancel"
+          :text="$tr('cancel')"
+          type="button"
+          :raised="false"
+          :disabled="formIsDisabled"/>
+        <k-button
+          :text="$tr('import')"
+          type="submit"
+          :disabled="formIsDisabled"
+          :primary="true"/>
+      </div>
+    </form>
   </core-modal>
 
 </template>
@@ -34,10 +43,11 @@
 
 <script>
 
-  import * as manageContentActions from '../../state/manageContentActions';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+
   export default {
     name: 'wizardImportNetwork',
     $trs: {
@@ -45,19 +55,26 @@
       enterContentChannel: 'Content channel ID',
       cancel: 'Cancel',
       import: 'Import',
+      channelIdIsInvalid: 'Content Channel ID cannot be blank',
     },
     components: {
       coreModal,
       kButton,
       kTextbox,
     },
-    data: () => ({ channelId: '' }),
+    data: () => ({
+      channelId: '',
+      channelIdBlurred: false,
+    }),
     computed: {
-      canSubmit() {
-        if (this.wizardState.busy) {
-          return false;
-        }
-        return Boolean(this.channelId);
+      channelIdIsInvalid() {
+        return this.channelIdBlurred && !this.formIsValid;
+      },
+      formIsDisabled() {
+        return this.wizardState.busy;
+      },
+      formIsValid() {
+        return this.channelId !== '';
       },
     },
     methods: {
@@ -65,8 +82,11 @@
         this.transitionWizardPage('backward');
       },
       submit() {
-        if (this.canSubmit) {
+        if (this.formIsValid) {
           this.transitionWizardPage('forward', { channelId: this.channelId });
+        } else {
+          this.channelIdBlurred = true;
+          this.$refs.textbox.focus();
         }
       },
       cancel() {
@@ -75,7 +95,7 @@
     },
     vuex: {
       getters: { wizardState: state => state.pageState.wizardState },
-      actions: { transitionWizardPage: manageContentActions.transitionWizardPage },
+      actions: { transitionWizardPage },
     },
   };
 

@@ -1,6 +1,6 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('managementTitle')">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('facilityTitle')">
 
     <div v-if="isAdmin || isSuperuser">
       <div class="manage-content">
@@ -26,7 +26,6 @@
     [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
     [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'class-enroll-page',
     [PageNames.CLASS_MGMT_PAGE]: 'manage-class-page',
-    [PageNames.CONTENT_MGMT_PAGE]: 'manage-content-page',
     [PageNames.DATA_EXPORT_PAGE]: 'data-page',
     [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
     [PageNames.USER_MGMT_PAGE]: 'user-page',
@@ -38,11 +37,10 @@
   import dataPage from './data-page';
   import facilitiesConfigPage from './facilities-config-page';
   import manageClassPage from './manage-class-page';
-  import manageContentPage from './manage-content-page';
   import topNav from './top-nav';
   import userPage from './user-page';
   export default {
-    $trs: { managementTitle: 'Manage' },
+    $trs: { facilityTitle: 'Facility' },
     name: 'managementRoot',
     components: {
       authMessage,
@@ -52,7 +50,6 @@
       dataPage,
       facilitiesConfigPage,
       manageClassPage,
-      manageContentPage,
       topNav,
       userPage,
     },
@@ -77,20 +74,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .manage-content
-    width: 100%
-    @media screen and (max-width: $medium-breakpoint)
-        width: 90%
-        margin-left: auto
-        margin-right: auto
-
-  .page
-    padding: 1em 2em
-    padding-bottom: 3em
-    background-color: $core-bg-light
-    margin-top: 1em
-    border-radius: $radius
+  @require '../management-styles.styl'
 
 </style>

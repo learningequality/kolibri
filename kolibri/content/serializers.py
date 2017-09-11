@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.aggregates import Count
 from django.db.models.query import RawQuerySet
-from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File
+from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
@@ -27,12 +27,29 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         fields = ('root', 'id', 'name', 'description', 'author', 'last_updated')
 
 
+class LowerCaseField(serializers.CharField):
+
+    def to_representation(self, obj):
+        return super(LowerCaseField, self).to_representation(obj).lower()
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    id = LowerCaseField(max_length=14)
+    lang_code = LowerCaseField(max_length=3)
+    lang_subcode = LowerCaseField(max_length=10)
+
+    class Meta:
+        model = Language
+        fields = ('id', 'lang_code', 'lang_subcode', 'lang_name', 'lang_direction')
+
+
 class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
     preset = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
+    lang = LanguageSerializer()
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
@@ -157,6 +174,11 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
         result = []
         topic_only = True
+
+        # Allow results to be limited after all queryset filtering has occurred
+        if self.limit:
+            data = data[:self.limit]
+
         for item in data:
             obj = self.child.to_representation(
                 item,
@@ -182,6 +204,14 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     license = serializers.StringRelatedField(many=False)
     license_description = serializers.SerializerMethodField()
+    lang = LanguageSerializer()
+
+    def __new__(cls, *args, **kwargs):
+        # This is overwritten to provide a ListClassSerializer for many=True
+        limit = kwargs.pop('limit', None)
+        new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
+        new.limit = limit
+        return new
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -219,7 +249,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
             'license', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata',
+            'assessmentmetadata', 'lang', 'channel_id',
         )
 
         list_serializer_class = ContentNodeListSerializer

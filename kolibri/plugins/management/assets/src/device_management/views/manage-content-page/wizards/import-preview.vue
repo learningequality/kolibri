@@ -39,9 +39,9 @@
         </p>
       </div>
 
-      <div v-if="error" class="error">
+      <ui-alert type="error" v-show="error" :dismissible="false">
         {{ error }}
-      </div>
+      </ui-alert>
 
       <div class="button-wrapper">
         <k-button @click="cancel" :text="$tr('cancelButtonLabel')" />
@@ -63,13 +63,16 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { transitionWizardPage } from '../../../state/manageContentActions';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import find from 'lodash/find';
 
   export default {
+    name: 'previewImportWizard',
     components: {
       coreModal,
       kButton,
+      uiAlert,
     },
     computed: {
       modalTitle() {
@@ -125,7 +128,6 @@
         transitionWizardPage,
       },
     },
-    name: 'previewImportWizard',
     $trs: {
       cancelButtonLabel: 'Cancel',
       channelAlreadyInstalled: 'Already installed',

@@ -12,21 +12,6 @@
  *  and used as a template, with additional plugin-specific
  *  modifications made on top.
  */
-var path = require('path');
-
-/*
- * This is a filthy hack. Do as I say, not as I do.
- * Taken from: https://gist.github.com/branneman/8048520#6-the-hack
- * This forces the NODE_PATH environment variable to include the main
- * kolibri node_modules folder, so that even plugins being built outside
- * of the kolibri folder will have access to all installed loaders, etc.
- * Doing it here, rather than at command invocation, allows us to do this
- * in a cross platform way, and also to avoid having to prepend it to all
- * our commands that end up invoking webpack.
- */
-
-process.env.NODE_PATH = path.resolve(path.join(__dirname, '..', '..', 'node_modules'));
-require('module').Module._initPaths();
 
 var fs = require('fs');
 var path = require('path');
@@ -142,6 +127,7 @@ var config = {
   plugins: [],
   resolve: {
     extensions: ['.js', '.vue', '.styl'],
+    alias: {},
   },
   node: {
     __filename: true,

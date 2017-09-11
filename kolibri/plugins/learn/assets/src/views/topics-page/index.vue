@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="title">
+    <page-header :title="topic.title">
       <div slot="icon">
         <mat-svg v-if="isRoot" category="action" name="explore"/>
         <mat-svg v-else category="file" name="folder"/>
@@ -22,18 +22,15 @@
 
 <script>
 
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import some from 'lodash/some';
-  import forEach from 'lodash/forEach';
   import pageHeader from '../page-header';
   import contentCard from '../content-card';
   import contentCardGroupGrid from '../content-card-group-grid';
   export default {
-    name: 'learnExplore',
+    name: 'learnTopics',
     $trs: {
-      explore: 'Topics',
+      topics: 'Topics',
       navigate: 'Navigate content using headings',
     },
     components: {
@@ -41,21 +38,16 @@
       contentCard,
       contentCardGroupGrid,
     },
-    computed: {
-      title() {
-        return this.isRoot ? this.$tr('explore') : this.topic.title;
-      },
-    },
     methods: {
       genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.TOPICS_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
@@ -64,8 +56,8 @@
       getters: {
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
-        isRoot: state => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
-        channelId: state => getCurrentChannelObject(state).id,
+        isRoot: state => state.pageState.isRoot,
+        channelId: state => state.pageState.channel.id,
       },
     },
   };

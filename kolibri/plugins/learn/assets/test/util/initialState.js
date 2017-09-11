@@ -3,7 +3,7 @@ import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 // parallel implementation of initialState used in testing
 const learnInitialState = {
-  pageName: constants.PageNames.EXPLORE_CHANNEL,
+  pageName: constants.PageNames.TOPICS_CHANNEL,
   pageState: {
     topics: [],
     contents: [],

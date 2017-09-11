@@ -8,14 +8,9 @@
         <top-nav/>
       </template>
 
-      <div v-if="isCoach || isAdmin">
+      <div v-if="isCoach || isAdmin || isSuperuser">
         <component :is="currentPage"/>
       </div>
-      <auth-message
-        v-else-if="isSuperuser"
-        :header="$tr('superUserPrompt')"
-        :details="$tr('superUserCommand')"
-      />
       <auth-message v-else authorizedRole="adminOrCoach" />
     </div>
 
@@ -49,9 +44,6 @@
     name: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      superUserPrompt: 'Signed in as device owner',
-      superUserCommand:
-        'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
       authMessage,
@@ -100,7 +92,10 @@
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
+        return (
+          this.pageName !== Constants.PageNames.CLASS_LIST &&
+          (this.isCoach || this.isAdmin || this.isSuperuser)
+        );
       },
     },
     methods: {

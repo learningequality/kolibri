@@ -1,17 +1,15 @@
 /* eslint-env node */
-import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import {
   ClassroomResource,
   MembershipResource,
   FacilityUserResource,
-  TaskResource,
   RoleResource,
 } from 'kolibri.resources';
 
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { PageNames, ContentWizardPages } from '../constants';
+import { PageNames } from '../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import {
@@ -21,8 +19,6 @@ import {
 } from './facilityConfigPageActions';
 
 import preparePage from './preparePage';
-
-const logging = logger.getLogger(__filename);
 
 /**
  * Vuex State Mappers
@@ -86,17 +82,6 @@ function _userState(apiUserData) {
     full_name: apiUserData.full_name,
     kind: calcUserKind(apiUserData.roles),
   };
-}
-
-function _taskState(data) {
-  const state = {
-    id: data.id,
-    type: data.type,
-    status: data.status,
-    metadata: data.metadata,
-    percentage: data.percentage,
-  };
-  return state;
 }
 
 /**
@@ -509,151 +494,6 @@ function showUserPage(store) {
 }
 
 // ================================
-// CONTENT IMPORT/EXPORT ACTIONS
-
-function showContentPage(store) {
-  preparePage(store.dispatch, {
-    name: PageNames.CONTENT_MGMT_PAGE,
-    title: _managePageTitle('Content'),
-  });
-
-  if (!getters.isSuperuser(store.state)) {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return;
-  }
-
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
-    samePageCheckGenerator(store),
-    taskList => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', { shown: false });
-      store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-}
-
-function updateWizardLocalDriveList(store) {
-  const localDrivesPromise = TaskResource.localDrives();
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  localDrivesPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function showWizardPage(store, pageName, meta = {}) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: Boolean(pageName),
-    page: pageName || null,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-    meta,
-  });
-}
-
-function startImportWizard(store) {
-  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-}
-
-function startExportWizard(store) {
-  showWizardPage(store, ContentWizardPages.EXPORT);
-  updateWizardLocalDriveList(store);
-}
-
-function closeImportExportWizard(store) {
-  showWizardPage(store, false);
-}
-
-// called from a timer to continually update UI
-function pollTasks(store) {
-  const samePageCheck = samePageCheckGenerator(store);
-  TaskResource.getCollection().fetch({}, true).only(
-    // don't handle response if we've switched pages or if we're in the middle of another operation
-    () => samePageCheck() && !store.state.pageState.wizardState.busy,
-    taskList => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-      // Close the wizard if there's an outstanding task.
-      // (this can be removed when we support more than one
-      // concurrent task.)
-      if (taskList.length && store.state.pageState.wizardState.shown) {
-        closeImportExportWizard(store);
-      }
-    },
-    error => {
-      logging.error(`poll error: ${error}`);
-    }
-  );
-}
-
-function cancelTask(store, taskId) {
-  const cancelTaskPromise = TaskResource.cancelTask(taskId);
-  cancelTaskPromise
-    .then(() => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-    })
-    .catch(error => {
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function triggerLocalContentImportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localImportPromise = TaskResource.localImportContent(driveId);
-  localImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerLocalContentExportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localExportPromise = TaskResource.localExportContent(driveId);
-  localExportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerRemoteContentImportTask(store, channelId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  return remoteImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      if (error.status.code === 404) {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
-      } else {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      }
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-// ================================
 // OTHER ACTIONS
 
 function showDataPage(store) {
@@ -682,16 +522,5 @@ export {
   updateUser,
   deleteUser,
   showUserPage,
-  showContentPage,
-  pollTasks,
-  cancelTask,
-  startImportWizard,
-  startExportWizard,
-  showWizardPage,
-  closeImportExportWizard,
-  triggerLocalContentExportTask,
-  triggerLocalContentImportTask,
-  triggerRemoteContentImportTask,
-  updateWizardLocalDriveList,
   showDataPage,
 };

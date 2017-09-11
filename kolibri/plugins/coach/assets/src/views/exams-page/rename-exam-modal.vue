@@ -3,15 +3,17 @@
   <core-modal :title="$tr('renameExam')" @cancel="close">
     <form @submit.prevent="callRenameExam">
       <k-textbox
+        ref="name"
         :label="$tr('examName')"
         :autofocus="true"
-        :required="true"
-        :invalid="duplicateTitle"
-        :invalidText="$tr('duplicateTitle')"
-        v-model.trim="newExamTitle"/>
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        @blur="titleBlurred = true"
+        v-model.trim="newExamTitle"
+      />
       <div class="footer">
         <k-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>
-        <k-button :text="$tr('rename')" :primary="true" type="submit"/>
+        <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="submitting"/>
       </div>
     </form>
   </core-modal>
@@ -21,7 +23,7 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import { displayExamModal, renameExam } from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -33,6 +35,7 @@
       cancel: 'Cancel',
       rename: 'Rename',
       duplicateTitle: 'An exam with that title already exists',
+      required: 'This field is required',
     },
     components: {
       coreModal,
@@ -58,7 +61,12 @@
       },
     },
     data() {
-      return { newExamTitle: this.examTitle };
+      return {
+        newExamTitle: this.examTitle,
+        titleBlurred: false,
+        formSubmitted: false,
+        submitting: false,
+      };
     },
     computed: {
       duplicateTitle() {
@@ -73,11 +81,32 @@
         }
         return true;
       },
+      titleIsInvalidText() {
+        if (this.titleBlurred || this.formSubmitted) {
+          if (this.newExamTitle === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateTitle) {
+            return this.$tr('duplicateTitle');
+          }
+        }
+        return '';
+      },
+      titleIsInvalid() {
+        return !!this.titleIsInvalidText;
+      },
+      formIsValid() {
+        return !this.titleIsInvalid;
+      },
     },
     methods: {
       callRenameExam() {
-        if (!this.duplicateTitle) {
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
           this.renameExam(this.examId, this.newExamTitle);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {
@@ -86,8 +115,8 @@
     },
     vuex: {
       actions: {
-        displayExamModal: examActions.displayExamModal,
-        renameExam: examActions.renameExam,
+        displayExamModal,
+        renameExam,
       },
     },
   };

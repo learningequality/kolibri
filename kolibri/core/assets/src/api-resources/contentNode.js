@@ -19,7 +19,7 @@ export default class ContentNodeResource extends Resource {
     let collection;
     const key = this.cacheKey(getParams);
     if (!this.collections[key]) {
-      collection = this.createCollection(getParams, []);
+      collection = this.createCollection({}, getParams, []);
       collection.url = (...args) => this.urls[`${this.name}-descendants`](...args, id);
     } else {
       collection = this.collections[key];
@@ -88,7 +88,7 @@ export default class ContentNodeResource extends Resource {
     // Create a unique cache key so that this collection can be retrieved again with caching.
     const key = this.cacheKey(getParams, { allContent: true });
     if (!this.collections[key]) {
-      collection = this.createCollection(getParams, []);
+      collection = this.createCollection({}, getParams, []);
       // Edit the url of the collection so that it fetches from the all_content endpoint,
       // rather than the regular endpoint.
       collection.url = (...args) => this.urls[`${this.name}_all_content`](...args);

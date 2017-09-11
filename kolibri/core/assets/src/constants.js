@@ -89,6 +89,7 @@ const TopLevelPageNames = {
   USER: 'USER',
   ABOUT: 'ABOUT',
   PROFILE: 'PROFILE',
+  DEVICE: 'DEVICE',
 };
 
 // How many points is a completed content item worth?

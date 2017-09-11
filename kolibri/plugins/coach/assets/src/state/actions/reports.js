@@ -1,5 +1,4 @@
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
@@ -103,19 +102,11 @@ function _channelReportState(data) {
 }
 
 function _showChannelList(store, classId, userId = null, showRecentOnly = false) {
-  // don't handle super users
-  if (coreGetters.isSuperuser(store.state)) {
-    store.dispatch('SET_PAGE_STATE', {});
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-    return Promise.resolve();
-  }
-
   const scope = userId ? ReportConstants.UserScopes.USER : ReportConstants.UserScopes.CLASSROOM;
   const scopeId = userId || classId;
 
   const promises = [
-    getAllChannelsLastActivePromise(store.state.core.channels.list, scope, scopeId),
+    getAllChannelsLastActivePromise(coreGetters.getChannels(store.state), scope, scopeId),
     setClassState(store, classId),
   ];
 
@@ -126,6 +117,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       viewBy: ReportConstants.ViewBy.CHANNEL,
       showRecentOnly,
     };
+
     const defaultSortCol = showRecentOnly
       ? ReportConstants.TableColumns.DATE
       : ReportConstants.TableColumns.NAME;
@@ -285,7 +277,7 @@ function _showContentList(store, options) {
       store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
@@ -320,7 +312,7 @@ function _showLearnerList(store, options) {
       store.dispatch('SET_REPORT_PROPERTIES', reportProps);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
@@ -382,7 +374,7 @@ function _showExerciseDetailView(
       });
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -442,10 +434,10 @@ function showRecentItemsForChannel(store, classId, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
-        error => coreActions.handleApiError(store, error)
+        error => handleApiError(store, error)
       );
     },
-    error => coreActions.handleApiError(store, error)
+    error => handleApiError(store, error)
   );
 }
 
@@ -517,7 +509,7 @@ function showTopicChannelRoot(store, classId, channelId) {
         showRecentOnly: false,
       });
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
@@ -609,7 +601,7 @@ function showLearnerList(store, classId) {
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
@@ -638,7 +630,7 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
         showRecentOnly: false,
       });
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
