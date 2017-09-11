@@ -37,7 +37,7 @@ from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
 from morango.models import SyncableModel
-from morango.query import SyncableModelQuerySet
+from morango.utils.morango_mptt import MorangoMPTTTreeManager
 from morango.utils.morango_mptt import MorangoMPTTModel
 from mptt.models import TreeForeignKey
 
@@ -646,7 +646,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
 
     # Morango syncing settings
-    morango_model_name = "collection"
+    morango_model_name = None
 
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
@@ -897,8 +897,7 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
 
 
-# class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):
-class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):  # should this be from_queryset or just MorangoManager
+class CollectionProxyManager(MorangoMPTTTreeManager):
     def get_queryset(self):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
@@ -973,6 +972,7 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
+    _morango_model_dependencies = (Facility,)
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1027,6 +1027,7 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
+    _morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
