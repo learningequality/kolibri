@@ -138,7 +138,8 @@
     },
     computed: {
       usernameValidityCheck() {
-        return /^\w+$/g.test(this.username);
+        const hasPuncRe = /[\s`~!@#$%^&*()-+={}\[\]\|\\\/:;"'<>,\.\?]/; // eslint-disable-line
+        return !hasPuncRe.test(this.username);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
