@@ -7,7 +7,7 @@ function provisionDevice(store, onboardingData) {
 
   const { superuser } = onboardingData;
 
-  store.dispatch('SET_SUBMITTED', true);
+  store.dispatch('SET_LOADING', true);
 
   deviceProvisionPromise.then(
     response => {

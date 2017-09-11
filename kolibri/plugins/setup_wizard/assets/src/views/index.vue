@@ -1,17 +1,27 @@
 <template>
 
   <div class="onboarding">
-    <progress-toolbar
-      @backButtonClicked="goToPreviousStep"
-      :currentStep="onboardingStep"
-      :totalSteps="totalOnboardingSteps"/>
 
-    <component
-      :is="currentOnboardingForm"
-      :submit-text="submitText"
-      @submit="continueOnboarding"
-      class="onboarding-form"
-    />
+    <loading-page v-if="loading" />
+
+    <template v-else-if="error">
+
+    </template>
+
+    <template v-else>
+      <progress-toolbar
+        @backButtonClicked="goToPreviousStep"
+        :currentStep="onboardingStep"
+        :totalSteps="totalOnboardingSteps"
+        />
+
+      <component
+        :is="currentOnboardingForm"
+        :submit-text="submitText"
+        @submit="continueOnboarding"
+        class="onboarding-form"
+      />
+    </template>
 
   </div>
 
@@ -21,6 +31,10 @@
 <script>
 
   import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
+
+  import loadingPage from './submission-states/loading';
+  import errorPage from './submission-states/error';
+
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './onboarding-forms/default-language-form';
   import facilityNameForm from './onboarding-forms/facility-name-form';
@@ -29,7 +43,7 @@
 
   export default {
     name: 'Onboarding',
-    components: { progressToolbar },
+    components: { progressToolbar, loadingPage, errorPage },
     data() {
       return {
         totalOnboardingSteps: 4,
@@ -37,7 +51,6 @@
     },
     computed: {
       currentOnboardingForm() {
-        // we don't need to register the components, as we're not using them in the template?
         switch (this.onboardingStep) {
           case 1:
             return defaultLanguageForm;
@@ -67,6 +80,8 @@
       getters: {
         onboardingStep: state => state.onboardingStep,
         onboardingData: state => state.onboardingData,
+        loading: state => state.loading,
+        error: state => state.error,
       },
       actions: {
         goToNextStep,

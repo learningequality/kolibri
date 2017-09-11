@@ -20,7 +20,7 @@ const initialState = {
     },
     preset: findKey(permissionPresets, preset => preset.default) || '',
   },
-  submitted: false,
+  loading: false,
   error: false,
   onboardingStep: 1,
 };
@@ -44,8 +44,8 @@ const mutations = {
   SET_FACILITY_PRESET(state, preset) {
     state.onboardingData.preset = preset;
   },
-  SET_SUBMITTED(state, submittedFlag) {
-    state.submitted = submittedFlag;
+  SET_LOADING(state, loadingFlag) {
+    state.loading = loadingFlag;
   },
   SET_ERROR(state, errorFlag) {
     state.error = errorFlag;

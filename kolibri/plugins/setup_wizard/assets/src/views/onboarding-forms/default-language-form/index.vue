@@ -55,8 +55,6 @@
 
   const numberOfLanguageButtons = 3;
 
-  // TODO move default logic into state
-
   export default {
     name: 'defaultLanguageForm',
     $trs: {
