@@ -1,15 +1,13 @@
 import KolibriModule from 'kolibri_module';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
-
 import Vue from 'kolibri.lib.vue';
-
 import RootVue from './views';
 import * as actions from './state/actions';
 import store from './state/store';
 import { PageNames } from './constants';
 
-class ManagementModule extends KolibriModule {
+class FacilityManagementModule extends KolibriModule {
   ready() {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
@@ -42,13 +40,6 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.CONTENT_MGMT_PAGE,
-          path: '/content',
-          handler: (toRoute, fromRoute) => {
-            actions.showContentPage(store);
-          },
-        },
-        {
           name: PageNames.DATA_EXPORT_PAGE,
           path: '/data',
           handler: (toRoute, fromRoute) => {
@@ -57,7 +48,7 @@ class ManagementModule extends KolibriModule {
         },
         {
           name: PageNames.FACILITY_CONFIG_PAGE,
-          path: '/facilities',
+          path: '/configuration',
           handler: (toRoute, fromRoute) => {
             actions.showFacilityConfigPage(store);
           },
@@ -77,6 +68,4 @@ class ManagementModule extends KolibriModule {
   }
 }
 
-const managementModule = new ManagementModule();
-
-export { managementModule as default };
+export default new FacilityManagementModule();

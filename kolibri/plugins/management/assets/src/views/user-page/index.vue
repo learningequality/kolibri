@@ -64,7 +64,7 @@
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers">
+        <tr v-for="user in visibleUsers" :key="user.username">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
             {{user.username}}
@@ -105,13 +105,15 @@
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import orderBy from 'lodash/orderBy';
   import userCreateModal from './user-create-modal';
   import userEditModal from './user-edit-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userRole from '../user-role';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
+
   export default {
+    name: 'userPage',
     components: {
       userCreateModal,
       userEditModal,
@@ -120,8 +122,8 @@
       userRole,
     },
     data: () => ({
-      roleFilter: 'all',
       searchFilter: '',
+      roleFilter: 'all',
       currentUserEdit: null,
     }),
     computed: {
@@ -138,22 +140,10 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        const searchFilter = this.searchFilter;
-        const roleFilter = this.roleFilter;
-        function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
-          const fullName = user.full_name.toLowerCase();
-          const username = user.username.toLowerCase();
-          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-        }
-        function matchesRole(user) {
-          if (roleFilter === 'all') {
-            return true;
-          }
-          return user.kind === roleFilter;
-        }
-        const filteredUsers = this.users.filter(user => matchesText(user) && matchesRole(user));
-        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
+        return filterAndSortUsers(
+          this.users,
+          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
+        );
       },
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;
@@ -163,6 +153,9 @@
       },
     },
     methods: {
+      userMatchesRole(user) {
+        return this.roleFilter === 'all' || user.kind === this.roleFilter;
+      },
       openEditUserModal(user) {
         this.currentUserEdit = user;
         this.displayModal(constants.Modals.EDIT_USER);
@@ -181,7 +174,6 @@
         displayModal: actions.displayModal,
       },
     },
-    name: 'userPage',
     $trs: {
       filterUserType: 'Filter User Type',
       editAccountInfo: 'Edit',

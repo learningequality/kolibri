@@ -11,18 +11,20 @@
   import { PageNames } from '../../constants';
   import { PageModes } from '../../constants';
   import * as getters from '../../state/getters';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'learnBreadcrumbs',
-    $trs: { recommended: 'Recommended' },
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
+    },
     components: { kBreadcrumbs },
     computed: {
       inLearn() {
-        return this.pageMode === PageModes.LEARN;
+        return this.pageMode === PageModes.RECOMMENDED;
       },
       learnRootLink() {
-        return { name: PageNames.LEARN_CHANNEL };
+        return { name: PageNames.RECOMMENDED };
       },
       learnBreadcrumbs() {
         const crumbs = [
@@ -31,7 +33,7 @@
             link: this.learnRootLink,
           },
         ];
-        if (this.pageName === PageNames.LEARN_CONTENT) {
+        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
           crumbs.push({ text: this.contentTitle });
         }
         return crumbs;
@@ -39,19 +41,46 @@
       inTopics() {
         return this.pageMode === PageModes.TOPICS;
       },
-      inTopicsRoot() {
+      inTopicsChannel() {
         return this.pageName === PageNames.TOPICS_CHANNEL;
       },
+      topicsChannelLink() {
+        return {
+          name: PageNames.TOPICS_CHANNEL,
+          params: {
+            channel_id: this.channelRootId,
+          },
+        };
+      },
       topicsRootLink() {
-        return { name: PageNames.TOPICS_CHANNEL };
+        return {
+          name: PageNames.TOPICS_ROOT,
+        };
       },
       topicsBreadcrumbs() {
+        if (this.pageName === PageNames.TOPICS_ROOT) {
+          return [
+            {
+              text: this.$tr('channels'),
+            },
+          ];
+        }
         const crumbs = [
           {
-            text: this.channelTitle,
+            text: this.$tr('channels'),
             link: this.topicsRootLink,
           },
         ];
+        if (this.inTopicsChannel) {
+          crumbs.push({
+            text: this.channelTitle,
+          });
+          return crumbs;
+        }
+        crumbs.push({
+          text: this.channelTitle,
+          link: this.topicsChannelLink,
+        });
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           this.contentCrumbs.forEach(crumb =>
             crumbs.push({
@@ -67,7 +96,7 @@
               link: this.topicLink(crumb.id),
             })
           );
-          if (!this.inTopicsRoot) {
+          if (!this.inTopicsChannel) {
             crumbs.push({ text: this.topicTitle });
           }
         }
@@ -79,7 +108,6 @@
         return {
           name: PageNames.TOPICS_TOPIC,
           params: {
-            channel_id: this.channelId,
             id: topicId,
           },
         };
@@ -89,8 +117,8 @@
       getters: {
         pageName: state => state.pageName,
         pageMode: getters.pageMode,
-        channelId: state => getCurrentChannelObject(state).id,
-        channelTitle: state => getCurrentChannelObject(state).title,
+        channelRootId: state => state.pageState.channel.root_id,
+        channelTitle: state => state.pageState.channel.title,
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
         contentTitle: state => state.pageState.content.title,

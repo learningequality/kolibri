@@ -2,30 +2,28 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error"
+    :error="wizardState.error ? true : false"
     :enableBgClickCancel="false"
-    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
-    @back="goBack"
   >
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
+          <p>
+            {{ $tr('exportPrompt', { numChannels: channelList.length, exportSize }) }}
+          </p>
           <drive-list
             :value="selectedDrive"
             :drives="wizardState.driveList"
             :enabledDrivePred="driveIsEnabled"
-            :disabledMsg="$tr('incompatible')"
+            :disabledMsg="$tr('notWritable')"
+            :enabledMsg="formatEnabledMsg"
             @change="(driveId) => selectedDrive = driveId"
           />
         </div>
         <div class="refresh-btn-wrapper">
-          <k-button
-            :text="$tr('refresh')"
-            @click="updateWizardLocalDriveList"
-            :disabled="wizardState.busy"
-          />
+          <k-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')"/>
         </div>
       </template>
       <loading-spinner v-else :delay="500" class="spinner"/>
@@ -39,7 +37,7 @@
         :raised="false"
         :text="$tr('cancel')"/>
       <k-button
-        :text="$tr('import')"
+        :text="$tr('export')"
         @click="submit"
         :disabled="!canSubmit"
         :primary="true"/>
@@ -51,20 +49,29 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
-  import * as manageContentActions from '../../state/manageContentActions';
+  import {
+    transitionWizardPage,
+    updateWizardLocalDriveList,
+  } from '../../../state/actions/contentWizardActions';
+  import bytesForHumans from '../bytesForHumans';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import driveList from './wizards/drive-list';
+  import driveList from './drive-list';
+  import sumBy from 'lodash/sumBy';
+
   export default {
-    name: 'wizardLocalImport',
+    name: 'wizardExport',
     $trs: {
-      title: 'Import from a Local Drive',
-      incompatible: 'No content available',
-      refresh: 'Refresh',
+      available: 'available',
       cancel: 'Cancel',
-      import: 'Import',
+      export: 'Export',
+      exportPrompt:
+        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}} ({exportSize})',
+      notWritable: 'Not writable',
+      refresh: 'Refresh',
+      title: 'Export to where?',
+      waitForTotalSize: 'Calculating size...',
     },
     components: {
       coreModal,
@@ -78,31 +85,41 @@
         return this.wizardState.driveList === null;
       },
       canSubmit() {
-        return !this.drivesLoading && this.selectedDrive !== '' && !this.wizardState.busy;
+        return !this.drivesLoading && !this.wizardState.busy && this.selectedDrive !== '';
       },
-    },
-    mounted() {
-      this.updateWizardLocalDriveList();
+      exportSize() {
+        return bytesForHumans(sumBy(this.channelList, 'total_file_size'));
+      },
     },
     methods: {
-      driveIsEnabled: drive => drive.metadata.channels.length > 0,
-      goBack() {
-        this.transitionWizardPage('backward');
+      formatEnabledMsg(drive) {
+        return `${bytesForHumans(drive.freespace)} ${this.$tr('available')}`;
+      },
+      driveIsEnabled(drive) {
+        return drive.writable;
       },
       submit() {
-        this.transitionWizardPage('forward', { driveId: this.selectedDrive });
+        if (this.canSubmit) {
+          this.transitionWizardPage('forward', { driveId: this.selectedDrive });
+        }
       },
       cancel() {
         if (!this.wizardState.busy) {
           this.transitionWizardPage('cancel');
         }
       },
+      selectDriveByID(driveID) {
+        this.selectedDrive = driveID;
+      },
     },
     vuex: {
-      getters: { wizardState: state => state.pageState.wizardState },
+      getters: {
+        channelList: state => state.pageState.channelList,
+        wizardState: state => state.pageState.wizardState,
+      },
       actions: {
-        transitionWizardPage: manageContentActions.transitionWizardPage,
-        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
+        transitionWizardPage,
+        updateWizardLocalDriveList,
       },
     },
   };
@@ -139,8 +156,5 @@
 
   .spinner
     height: $min-height
-
-  .core-text-alert
-    text-align: center
 
 </style>

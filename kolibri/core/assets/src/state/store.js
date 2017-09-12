@@ -165,9 +165,6 @@ const mutations = {
   SET_TOTAL_PROGRESS(state, progress) {
     state.core.totalProgress = progress;
   },
-  SET_CORE_CURRENT_CHANNEL(state, channelId) {
-    state.core.channels.currentId = channelId;
-  },
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;
   },

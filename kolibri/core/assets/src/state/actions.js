@@ -1,8 +1,6 @@
-import cookiejs from 'js-cookie';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
-import { getDefaultChannelId } from 'kolibri.coreVue.vuex.getters';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -367,33 +365,10 @@ function initContentSession(store, channelId, contentId, contentKind) {
   return Promise.all(promises);
 }
 
-/*
- * Set channel state info.
- */
-function _setChannelState(store, currentChannelId, channelList) {
-  store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
-  store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  if (currentChannelId) {
-    cookiejs.set('currentChannelId', currentChannelId);
-  } else {
-    cookiejs.remove('currentChannelId');
-  }
-}
-
-/*
- * If channelId is null, choose it automatically
- */
-function setChannelInfo(store, channelId = null) {
+function setChannelInfo(store) {
   return ChannelResource.getCollection().fetch().then(
     channelsData => {
-      const channelList = _channelListState(channelsData);
-      let thisChannelId;
-      if (channelList.some(channel => channel.id === channelId)) {
-        thisChannelId = channelId;
-      } else {
-        thisChannelId = getDefaultChannelId(channelList);
-      }
-      _setChannelState(store, thisChannelId, channelList);
+      store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
     },
     error => {
       handleApiError(store, error);

@@ -65,7 +65,7 @@
       profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
-      superuser: '(Device owner)',
+      superuser: '(Superuser)',
       admin: '(Admin)',
       coach: '(Coach)',
       guest: 'Guest',

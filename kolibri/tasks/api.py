@@ -17,7 +17,8 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .client import get_client
-from .permissions import CanManageContent, IsSuperuserOnly
+from kolibri.content.permissions import CanManageContent
+
 
 try:
     from django.apps import apps
@@ -38,7 +39,7 @@ LOCAL_EXPORT = 'localexport'
 id_tasktype = {}
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (IsSuperuserOnly, CanManageContent)
+    permission_classes = (CanManageContent,)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]

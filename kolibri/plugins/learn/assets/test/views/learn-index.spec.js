@@ -8,7 +8,7 @@ import coreBase from '../util/core-base.vue';
 
 const router = new VueRouter({
   routes: [
-    { path: '/learn', name: 'LEARN_CHANNEL' },
+    { path: '/learn', name: 'RECOMMENDED' },
     { path: '/topics', name: 'TOPICS_CHANNEL' },
     { path: '/exams', name: 'EXAM_LIST' },
   ],
