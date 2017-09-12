@@ -23,9 +23,22 @@ def _join_with_logical_operator(lst, operator):
     return "(({items}))".format(items=op.join(lst))
 
 
+class ChannelMetadataFilter(filters.FilterSet):
+    available = filters.django_filters.MethodFilter()
+
+    def filter_available(self, queryset, value):
+        return queryset.filter(root__available=value)
+
+    class Meta:
+        model = models.ChannelMetadata
+        fields = ['available', ]
+
+
 class ChannelMetadataViewSet(viewsets.ModelViewSet):
     permission_classes = (OnlyCanManageContentCanDelete,)
     serializer_class = serializers.ChannelMetadataSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
