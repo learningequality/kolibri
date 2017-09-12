@@ -21,7 +21,7 @@ import {
 } from 'kolibri.coreVue.vuex.actions';
 
 import { PageNames } from '../../constants';
-import { contentState } from './main';
+import { contentState, setAndCheckChannels } from './main';
 
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
@@ -79,12 +79,15 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(state, channelId),
-    setChannelInfo(store),
+    setAndCheckChannels(store),
     // resolves to mapped content set because then resolves to its function's return value
   ]).then(([content]) => _mapContentSet(content), error => error);
 
   pagePrep.then(
-    recommendations => {
+    (recommendations, channels) => {
+      if (!channels.length) {
+        return;
+      }
       const recPageState = {
         recommendations,
       };
@@ -115,7 +118,7 @@ function showLearn(store) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
-  const channelsPromise = setChannelInfo(store);
+  const channelsPromise = setAndCheckChannels(store);
   ConditionalPromise.all([
     _getNextSteps(state),
     _getPopular(),
@@ -124,6 +127,9 @@ function showLearn(store) {
   ]).only(
     samePageCheckGenerator(store),
     ([nextSteps, popular, resume, channels]) => {
+      if (!channels.length) {
+        return;
+      }
       const featuredChannels = channels.slice(0, 3);
       const pageState = {
         // Hard to guarantee this uniqueness on the database side, so

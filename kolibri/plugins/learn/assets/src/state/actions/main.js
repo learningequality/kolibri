@@ -152,6 +152,15 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
   model.set({ progress_fraction: progressFraction });
 }
 
+function setAndCheckChannels(store) {
+  return setChannelInfo(store).then(channels => {
+    if (!channels.length) {
+      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+    }
+    return channels;
+  });
+}
+
 /**
  * Actions
  *
@@ -162,8 +171,11 @@ function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
 
-  setChannelInfo(store).then(
+  setAndCheckChannels(store).then(
     channels => {
+      if (!channels.length) {
+        return;
+      }
       const channelRootIds = channels.map(channel => channel.root);
       ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(rootNodes => {
         const pageState = {
@@ -342,7 +354,10 @@ function showSearch(store, searchTerm) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
-  setChannelInfo(store).then(() => {
+  setAndCheckChannels(store).then(channels => {
+    if (!channels.length) {
+      return;
+    }
     if (searchTerm) {
       triggerSearch(store, searchTerm);
     } else {
@@ -623,6 +638,7 @@ function closeExam(store) {
 }
 
 export {
+  setAndCheckChannels,
   contentState,
   showChannels,
   showTopicsChannel,
