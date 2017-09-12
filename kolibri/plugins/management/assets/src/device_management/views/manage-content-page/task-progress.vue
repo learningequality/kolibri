@@ -109,7 +109,7 @@
         return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
       formattedPercentage() {
-        return round(this.percentage * 100, 2).toFixed(1);
+        return Number(round(this.percentage * 100, 2).toFixed(1));
       },
       progressMessage() {
         if (this.percentage > 0) {
