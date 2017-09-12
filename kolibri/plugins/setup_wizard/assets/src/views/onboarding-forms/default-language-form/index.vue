@@ -1,8 +1,15 @@
 <template>
 
   <onboarding-form :header="$tr('languageFormHeader')" :submit-text="submitText" @submit="setLanguage">
-    <label class="default-language-form-selected default-language-form-items">
-      <span class="default-language-form-selected-label"> {{ $tr('selectedLanguageLabel') }} </span>
+    <label
+      :class="[
+        'default-language-form-selected',
+        'default-language-form-items',
+        (isMobile ? 'mobile' : '')
+      ]">
+      <span :class="['default-language-form-selected-label', (isMobile ? 'mobile' : '')]">
+        {{ $tr('selectedLanguageLabel') }}
+      </span>
       <span> {{ selectedLanguage }} </span>
     </label>
 
@@ -46,6 +53,7 @@
   import { availableLanguages as allLanguages } from 'kolibri.utils.i18n';
   import { httpClient } from 'kolibri.client';
   import { submitDefaultLanguage } from '../../../state/actions/forms';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import onboardingForm from '../onboarding-form';
@@ -53,7 +61,8 @@
   import omit from 'lodash/omit';
   import sortBy from 'lodash/sortBy';
 
-  const numberOfLanguageButtons = 3;
+  const mobileNumberOfLanguageButtons = 5;
+  const desktopNumberOfLanguageButtons = 3;
 
   export default {
     name: 'defaultLanguageForm',
@@ -62,11 +71,16 @@
       showMoreLanguagesSelector: 'More',
       selectedLanguageLabel: 'Selected',
     },
+    mixins: [responsiveWindow],
     components: { kButton, onboardingForm },
     props: {
       submitText: {
         type: String,
         required: true,
+      },
+      isMobile: {
+        type: Boolean,
+        required: false,
       },
     },
     data() {
@@ -87,11 +101,15 @@
 
         return remainingLanguages;
       },
+      numberOfLanguageButtons() {
+        console.log(mobileNumberOfLanguageButtons);
+        return this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
+      },
       buttonLanguages() {
-        return this.remainingLanguages.slice(0, numberOfLanguageButtons);
+        return this.remainingLanguages.slice(0, this.numberOfLanguageButtons);
       },
       selectorLanguages() {
-        return this.remainingLanguages.slice(numberOfLanguageButtons);
+        return this.remainingLanguages.slice(this.numberOfLanguageButtons);
       },
     },
     methods: {
@@ -150,12 +168,20 @@
     &-selected
       display: inline-block
       font-weight: bold
+      &.mobile
+        display: block
 
       &-label
         display: block
         font-weight: normal
         font-size: 10px
         margin-bottom: 8px
+        &.mobile
+          font-weight: none
+          font-size: inherit
+          display: inline
+          &:after
+            content: ':'
 
     &-button-option
       color: $core-action-dark

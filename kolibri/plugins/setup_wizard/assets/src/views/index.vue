@@ -16,8 +16,9 @@
       <component
         :is="currentOnboardingForm"
         :submit-text="submitText"
+        :isMobile="isMobile"
         @submit="continueOnboarding"
-        class="onboarding-form"
+        :class="['onboarding-form', (isMobile ? 'mobile' : '')]"
       />
     </template>
 
@@ -29,6 +30,7 @@
 <script>
 
   import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   import loadingPage from './submission-states/loading-page';
   import errorPage from './submission-states/error-page';
@@ -41,6 +43,7 @@
 
   export default {
     name: 'onboarding',
+    mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingSubmitButton: 'Submit',
@@ -74,6 +77,9 @@
           ? this.$tr('onboardingSubmitButton')
           : this.$tr('onboardingNextStepButton');
       },
+      isMobile() {
+        return this.windowSize.breakpoint < 4;
+      },
     },
     methods: {
       continueOnboarding() {
@@ -103,11 +109,16 @@
   @require '~kolibri.styles.definitions'
 
   .onboarding
+    width: 100%
     &-form
       margin-top: 64px
       margin-left: auto
       margin-right: auto
       width: 90%
       max-width: 550px
+      &.mobile
+        margin: 48px
+        width: auto
+        margin-top: 40px
 
 </style>
