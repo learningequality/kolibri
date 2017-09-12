@@ -38,6 +38,7 @@
         :primary="false"
         :raised="false"
         @click="endTask()"
+        :disabled="uiBlocked"
       />
     </div>
 
@@ -74,6 +75,11 @@
         required: true,
       },
       id: RequiredString,
+    },
+    data() {
+      return {
+        uiBlocked: false,
+      };
     },
     computed: {
       TaskStatuses: () => TaskStatuses,
@@ -123,11 +129,14 @@
     },
     methods: {
       endTask() {
+        this.uiBlocked = true;
         if (this.taskHasCompleted) {
           this.$emit('taskcomplete');
           this.refreshChannelList();
         }
-        this.cancelTask(this.id);
+        this.cancelTask(this.id).then(() => {
+          this.uiBlocked = false;
+        });
       },
     },
     vuex: {
