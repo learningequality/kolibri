@@ -46,7 +46,7 @@
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
-      onboardingSubmitButton: 'Submit',
+      onboardingFinishButton: 'Finish',
     },
     components: { progressToolbar, loadingPage, errorPage },
     data() {
@@ -74,7 +74,7 @@
       },
       submitText() {
         return this.isLastStep
-          ? this.$tr('onboardingSubmitButton')
+          ? this.$tr('onboardingFinishButton')
           : this.$tr('onboardingNextStepButton');
       },
       isMobile() {

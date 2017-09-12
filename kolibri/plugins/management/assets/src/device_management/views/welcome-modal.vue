@@ -7,12 +7,10 @@
   >
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalContentDescription') }}
-      <b> {{ $tr('contentTabLabel') }} </b>
     </p>
 
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalPermissionsDescription') }}
-      <b> {{ $tr('permissionsTabLabel') }} </b>
     </p>
 
     <span class="welcome-modal-dismiss-button-wrapper">
@@ -38,11 +36,9 @@
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',
       welcomeModalContentDescription:
-        'The first thing you should do is import some content from the ',
-      contentTabLabel: 'Content tab',
+        'The first thing you should do is import some content from the Content tab.',
       welcomeModalPermissionsDescription:
-        'The admin account you created during setup has special permissions to do this. Learn more in the ',
-      permissionsTabLabel: 'Permissions tab',
+        'The admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
     render: createElement => window.setTimeout(createElement, 750),

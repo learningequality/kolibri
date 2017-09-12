@@ -49,6 +49,15 @@
         </dd>
       </dl>
 
+      <span class="permission-preset-modal-dismiss-button-wrapper">
+        <k-button
+          class="permission-preset-modal-dismiss-button"
+          :text="$tr('permissionsModalDismissText')"
+          :primary="true"
+          @click="hideFacilityPermissionsDetails"
+        />
+      </span>
+
     </core-modal>
 
     <onboarding-form
@@ -95,6 +104,7 @@
 
   import onboardingForm from '../onboarding-form';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
 
   // TODO add modal and link to open it
@@ -113,6 +123,7 @@
       informalSetupDescription:
         'For parent-child learning, homeschooling, or supplementary individual learning',
       // IDEA This should be a dynamically generated component, based on mappings
+      permissionsModalDismissText: 'Close',
       enabledUserAccountDeletionPermissionDetail: 'Guests can create their own accounts',
       disabledUserAccountDeletionPermissionDetail: 'Admins must create all user accounts',
       enabledAccountEditPermissionDetail: 'Users can edit their account information', //  QUESTION might be worth using select?
@@ -130,6 +141,7 @@
     components: {
       onboardingForm,
       kRadioButton,
+      kButton,
       coreModal,
     },
     data() {
@@ -170,21 +182,34 @@
 </script>
 
 
-<style lang="stylus">
+<style scoped lang="stylus">
 
   @require '~kolibri.styles.definitions'
 
+  $margin-of-radio-button-text = 32px
+
   .permission-preset
-    margin-bottom: 16px
+    margin: 0
+    margin-top: 16px
     font-size: 14px
     font-weight: bold
 
     &-description
       color: $core-text-annotation
       font-size: 12px
+      display: inline-block
+      margin-left: $margin-of-radio-button-text
 
-    &-modal-link
-      cursor: pointer
+    &-modal
+      &-link
+        cursor: pointer
+      &-dismiss-button
+        text-transform: uppercase
+        &-wrapper
+          display: block
+          text-align: right
+          width: 100%
+
 
   .permission-preset-human
     list-style: none
@@ -192,6 +217,7 @@
     &-title
       font-weight: bold
     &-detail
+      line-height: 1.4em
       margin: 0
 
 </style>
