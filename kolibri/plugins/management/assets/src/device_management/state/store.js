@@ -5,6 +5,7 @@ import mutations from './mutations';
 const initialState = {
   pageName: '',
   pageState: {},
+  welcomeModalVisible: false,
 };
 
 export default new Vuex.Store({

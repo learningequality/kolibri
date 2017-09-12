@@ -40,7 +40,7 @@
   import facilityPermissionsForm from './onboarding-forms/facility-permissions-form';
 
   export default {
-    name: 'Onboarding',
+    name: 'onboarding',
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingSubmitButton: 'Submit',
