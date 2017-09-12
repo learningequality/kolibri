@@ -82,6 +82,7 @@ class AsyncCommand(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         self.progresstrackers = []
+        super(AsyncCommand, self).__init__(*args, **kwargs)
 
     def _update_all_progress(self, progress_fraction, progress):
         if callable(self.update_progress):
