@@ -44,12 +44,17 @@
       </ui-alert>
 
       <div class="button-wrapper">
-        <k-button @click="cancel" :text="$tr('cancelButtonLabel')" />
+        <k-button
+          @click="cancel"
+          :text="$tr('cancelButtonLabel')"
+          :disabled="wizardBusy"
+        />
         <k-button
           v-show="!error"
           :text="$tr('confirmButtonLabel')"
           @click="submit"
           :primary="true"
+          :disabled="wizardBusy"
         />
       </div>
     </div>
@@ -123,6 +128,7 @@
         coreChannel: state => channelId => {
           return find(state.core.channels.list, { id: channelId });
         },
+        wizardBusy: ({ pageState }) => pageState.wizardState.busy,
       },
       actions: {
         transitionWizardPage,
