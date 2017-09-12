@@ -67,7 +67,7 @@
         this.fieldVisited = true;
       },
       setFacilityName() {
-        this.validateFacilityName;
+        this.validateFacilityName();
         if (this.facilityNameIsInvalid) {
           this.$refs.facilityName.focus();
         } else {

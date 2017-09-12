@@ -102,7 +102,6 @@
         return remainingLanguages;
       },
       numberOfLanguageButtons() {
-        console.log(mobileNumberOfLanguageButtons);
         return this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
       },
       buttonLanguages() {

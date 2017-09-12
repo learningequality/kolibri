@@ -5,9 +5,11 @@ function submitFacilityName(store, facilityName) {
   store.dispatch('SET_FACILITY_NAME', facilityName);
 }
 function submitSuperuserCredentials(store, name, username, password) {
-  store.dispatch('SET_SU_NAME', name);
-  store.dispatch('SET_SU_USERNAME', username);
-  store.dispatch('SET_SU_PASSWORD', password);
+  store.dispatch('SET_SU', {
+    name,
+    username,
+    password,
+  });
 }
 function submitFacilityPermissions(store, facilityPreset) {
   store.dispatch('SET_FACILITY_PRESET', facilityPreset);

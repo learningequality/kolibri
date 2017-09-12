@@ -32,13 +32,9 @@ const mutations = {
   SET_FACILITY_NAME(state, name) {
     state.onboardingData.facility.name = name;
   },
-  SET_SU_NAME(state, name) {
+  SET_SU(state, { name, username, password }) {
+    state.onboardingData.superuser.username = username;
     state.onboardingData.superuser.full_name = name;
-  },
-  SET_SU_USERNAME(state, userName) {
-    state.onboardingData.superuser.username = userName;
-  },
-  SET_SU_PASSWORD(state, password) {
     state.onboardingData.superuser.password = password;
   },
   SET_FACILITY_PRESET(state, preset) {
