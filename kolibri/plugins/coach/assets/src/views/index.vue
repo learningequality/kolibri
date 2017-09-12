@@ -113,7 +113,6 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isSuperuser: coreGetters.isSuperuser,
         isAdmin: coreGetters.isAdmin,
         isCoach: coreGetters.isCoach,
         classList: state => state.classList,

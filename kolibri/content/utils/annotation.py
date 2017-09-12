@@ -25,9 +25,14 @@ def update_channel_metadata():
     """
     from .channel_import import import_channel_from_local_db
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
+    imported = False
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             import_channel_from_local_db(channel_id)
+            imported = True
+    if imported:
+        set_availability()
+
 
 def set_leaf_node_availability_from_local_file_availability():
     bridge = Bridge(app_name=CONTENT_APP_NAME)
@@ -137,3 +142,12 @@ def recurse_availability_up_tree():
             ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=exists(available_nodes)).execution_options(autocommit=True))
 
     bridge.end()
+
+def set_availability(checksums=None):
+    if checksums is None:
+        set_local_file_availability_from_disk()
+    else:
+        mark_local_files_as_available(checksums)
+
+    set_leaf_node_availability_from_local_file_availability()
+    recurse_availability_up_tree()

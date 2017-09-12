@@ -83,17 +83,14 @@ function _contentSummaryModel(store) {
 
 function _contentSessionModel(store) {
   const sessionLog = store.state.core.logging.session;
-  const mapping = {
+  return {
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
     progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
+    user: store.state.core.session.user_id,
   };
-  if (!getters.isSuperuser(store.state)) {
-    mapping.user = store.state.core.session.user_id;
-  }
-  return mapping;
 }
 
 function _sessionState(data) {
@@ -261,7 +258,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const promises = [];
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id && !getters.isSuperuser(store.state)) {
+  if (store.state.core.session.user_id) {
     /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
@@ -345,11 +342,6 @@ function initContentSession(store, channelId, contentId, contentKind) {
     _contentSessionModel(store)
   );
 
-  if (getters.isSuperuser(store.state)) {
-    // treat deviceOwner as anonymous user.
-    sessionData.user = null;
-  }
-
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
   const sessionModelPromise = sessionModel.save();
@@ -367,7 +359,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
 }
 
 function setChannelInfo(store) {
-  return ChannelResource.getCollection().fetch().then(
+  return ChannelResource.getCollection({ available: true }).fetch().then(
     channelsData => {
       store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
     },
@@ -417,7 +409,7 @@ function saveLogs(store) {
 }
 
 function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+  if (getters.isUserLoggedIn(store.state)) {
     const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
@@ -449,7 +441,7 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+    if (getters.isUserLoggedIn(store.state)) {
       const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
@@ -638,7 +630,7 @@ function saveAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
-  const user = getters.isFacilityUser(store.state) ? getters.currentUserId(store.state) : null;
+  const user = getters.isUserLoggedIn(store.state) ? getters.currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,

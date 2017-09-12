@@ -1,6 +1,6 @@
 import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-
+import * as coreGetters from 'kolibri.coreVue.vuex.getters';
 import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
 import * as Constants from '../../constants';
 import * as ReportConstants from '../../reportConstants';

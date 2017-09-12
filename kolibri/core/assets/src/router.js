@@ -41,6 +41,10 @@ class Router {
   getInstance(options) {
     return this._vueRouter;
   }
+
+  replace(location, onComplete, onAbort) {
+    return this._vueRouter.replace(location, onComplete, onAbort);
+  }
 }
 
 const router = new Router();
