@@ -9,10 +9,6 @@ function isSuperuser(state) {
   return state.core.session.kind[0] === UserKinds.SUPERUSER;
 }
 
-function isFacilityUser(state) {
-  return isUserLoggedIn(state) && !isSuperuser(state);
-}
-
 function isAdmin(state) {
   return state.core.session.kind[0] === UserKinds.ADMIN;
 }
@@ -67,7 +63,6 @@ function sessionTimeSpent(state) {
 export {
   isUserLoggedIn,
   isSuperuser,
-  isFacilityUser,
   isAdmin,
   isCoach,
   isLearner,

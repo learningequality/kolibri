@@ -18,13 +18,11 @@
     <h3>{{ $tr('role') }}</h3>
     <p>{{ role }}</p>
 
-    <template v-if="!isSuperuser">
-      <h3>{{ $tr('points') }}</h3>
-      <p>
-        <points-icon class="points-icon" :active="true"/>
-        <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
-      </p>
-    </template>
+    <h3>{{ $tr('points') }}</h3>
+    <p>
+      <points-icon class="points-icon" :active="true"/>
+      <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+    </p>
 
     <form @submit.prevent="submitEdits">
 

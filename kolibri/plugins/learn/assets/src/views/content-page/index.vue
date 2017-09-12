@@ -109,7 +109,7 @@
   import { PageNames, PageModes } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
   import contentCardGroupCarousel from '../content-card-group-carousel';
@@ -188,7 +188,7 @@
         return this.$tr('recommended');
       },
       progress() {
-        if (!this.isSuperuser) {
+        if (this.isUserLoggedIn) {
           return this.summaryProgress;
         }
         return this.sessionProgress;
@@ -270,7 +270,7 @@
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
         pageMode,
-        isSuperuser,
+        isUserLoggedIn,
       },
       actions: {
         initSessionAction,

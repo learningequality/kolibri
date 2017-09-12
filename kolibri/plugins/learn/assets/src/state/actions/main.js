@@ -7,7 +7,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { getChannelObject, isUserLoggedIn, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import { setChannelInfo, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -420,7 +420,7 @@ function showExam(store, id, questionNumber) {
 
         const attemptLogs = {};
 
-        if (store.state.core.session.user_id && !isSuperuser(store.state)) {
+        if (store.state.core.session.user_id) {
           if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
             store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
           } else {
