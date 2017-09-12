@@ -10,6 +10,7 @@
           v-if="tasksInQueue"
           v-bind="firstTask"
           @taskcomplete="showTaskCompleteNotification()"
+          @taskfailed="showTaskFailedNotification()"
         />
 
         <notifications v-bind="{notification}" @dismiss="clearNotification()" />
@@ -35,10 +36,7 @@
 
         <hr />
 
-        <channels-grid
-          @deletesuccess="notification=notificationTypes.CHANNEL_DELETE_SUCCESS"
-          @deletefailure="notification=notificationTypes.CHANNEL_DELETE_FAILURE"
-        />
+        <channels-grid/>
       </subpage-container>
     </template>
 
@@ -135,6 +133,25 @@
             break;
           case 'localexport':
             this.notification = notificationTypes.CHANNEL_EXPORT_SUCCESS;
+            break;
+          case 'deletechannel':
+            this.notification = notificationTypes.CHANNEL_DELETE_SUCCESS;
+            break;
+          default:
+            this.notification = null;
+        }
+      },
+      showTaskFailedNotification() {
+        switch (this.firstTask.type) {
+          case 'remoteimport':
+          case 'localimport':
+            this.notification = notificationTypes.CHANNEL_IMPORT_FAILURE;
+            break;
+          case 'localexport':
+            this.notification = notificationTypes.CHANNEL_EXPORT_FAILURE;
+            break;
+          case 'deletechannel':
+            this.notification = notificationTypes.CHANNEL_DELETE_FAILURE;
             break;
           default:
             this.notification = null;

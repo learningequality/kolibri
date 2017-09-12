@@ -69,6 +69,10 @@ export function triggerRemoteContentImportTask(store, channelId) {
   return triggerTask(store, TaskResource.remoteImportContent(channelId));
 }
 
+export function triggerChannelDeleteTask(store, channelId) {
+  return triggerTask(store, TaskResource.deleteChannel(channelId));
+}
+
 export function pollTasks(store) {
   const samePageCheck = samePageCheckGenerator(store);
   TaskResource.getCollection().fetch({}, true).only(

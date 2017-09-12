@@ -62,11 +62,12 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import { deleteChannel, refreshChannelList } from '../../state/actions/manageContentActions';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   export default {
     data: () => ({
       selectedChannelId: null,
@@ -103,13 +104,7 @@
         if (this.selectedChannelId !== null) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
-          this.deleteChannel(channelId)
-            .then(() => {
-              this.$emit('deletesuccess');
-            })
-            .catch(() => {
-              this.$emit('deletefailure');
-            });
+          this.triggerChannelDeleteTask(channelId);
         }
       },
       bytesForHumans(size) {
@@ -122,7 +117,7 @@
         pageState: state => state.pageState,
       },
       actions: {
-        deleteChannel,
+        triggerChannelDeleteTask,
         refreshChannelList,
       },
     },
