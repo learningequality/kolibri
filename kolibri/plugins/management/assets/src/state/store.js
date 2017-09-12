@@ -32,6 +32,8 @@ const initialState = {
     users: [],
     taskList: [],
     modalShown: false,
+    error: '',
+    isBusy: false,
   },
 };
 
@@ -91,6 +93,14 @@ const mutations = {
         }
       });
     });
+  },
+
+  SET_ERROR(state, error) {
+    state.pageState.error = error;
+  },
+
+  SET_BUSY(state, isBusy) {
+    state.pageState.isBusy = isBusy;
   },
 
   DELETE_USER(state, id) {

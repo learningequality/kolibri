@@ -26,33 +26,37 @@
 
     <form @submit.prevent="submitEdits">
 
+      <h3>{{ $tr('name') }}</h3>
+      <k-textbox
+        ref="name"
+        v-if="canEditName"
+        type="text"
+        autocomplete="name"
+        :autofocus="true"
+        :label="$tr('name')"
+        :disabled="busy"
+        :maxlength="120"
+        :invalid="nameIsInvalid"
+        :invalidText="nameIsInvalidText"
+        v-model="name"
+      />
+      <p v-else>{{ name }}</p>
+
       <h3>{{ $tr('username') }}</h3>
       <k-textbox
         ref="username"
         v-if="canEditUsername"
         type="text"
         autocomplete="username"
-        :autofocus="true"
         :label="$tr('username')"
         :disabled="busy"
+        :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
         v-model="username"
       />
       <p v-else>{{ session.username }}</p>
-
-      <h3>{{ $tr('name') }}</h3>
-      <k-textbox
-        v-if="canEditName"
-        type="text"
-        autocomplete="name"
-        :autofocus="canEditUsername ? false : true"
-        :label="$tr('name')"
-        :disabled="busy"
-        v-model="full_name"
-      />
-      <p v-else>{{ session.full_name }}</p>
 
       <k-button
         v-if="canEditUsername || canEditName"
@@ -113,9 +117,10 @@
     data() {
       return {
         username: this.session.username,
-        full_name: this.session.full_name,
+        name: this.session.full_name,
         usernameBlurred: false,
-        validateForm: false,
+        nameBlurred: false,
+        formSubmitted: false,
       };
     },
     computed: {
@@ -143,11 +148,22 @@
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
       usernameIsAlphaNumUnderscore() {
         return /^\w+$/g.test(this.username);
       },
       usernameIsInvalidText() {
-        if (this.usernameBlurred || this.validateForm) {
+        if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
@@ -169,16 +185,20 @@
     },
     methods: {
       submitEdits() {
-        this.validateForm = true;
+        this.formSubmitted = true;
         this.resetProfileState();
         if (this.formIsValid) {
           const edits = {
             username: this.username,
-            full_name: this.full_name,
+            full_name: this.name,
           };
           this.editProfile(edits, this.session);
         } else {
-          this.$refs.username.focus();
+          if (this.nameIsInvalid) {
+            this.$refs.name.focus();
+          } else if (this.usernameIsInvalid) {
+            this.$refs.username.focus();
+          }
         }
       },
     },

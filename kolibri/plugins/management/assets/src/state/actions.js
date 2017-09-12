@@ -100,6 +100,8 @@ function _managePageTitle(title) {
 
 function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
+  store.dispatch('SET_ERROR', '');
+  store.dispatch('SET_BUSY', false);
 }
 
 // ================================
@@ -373,77 +375,103 @@ function createUser(store, stateUserData) {
 
 /**
  * Do a PATCH to update existing user
- * @param {object} stateUser
- * Needed: id
- * Optional Changes: full_name, username, password, facility, kind(role)
+ * @param {object} store
+ * @param {string} userId
+ * @param {object} userUpdates Optional Changes: full_name, username, password, and kind(role)
  */
-function updateUser(store, stateUser) {
-  // payload needs username, fullname, and facility
-  const savedUserModel = FacilityUserResource.getModel(stateUser.id);
+function updateUser(store, userId, userUpdates) {
+  store.dispatch('SET_ERROR', '');
+  store.dispatch('SET_BUSY', true);
+  const savedUserModel = FacilityUserResource.getModel(userId);
   const savedUser = savedUserModel.attributes;
-  const changedValues = {};
-  let roleAssigned = Promise.resolve(savedUser);
 
   // explicit checks for the only values that can be changed
-  if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
-    changedValues.full_name = stateUser.full_name;
+  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const changedValues = {};
+  if (userUpdates.full_name && userUpdates.full_name !== origUserState.full_name) {
+    changedValues.full_name = userUpdates.full_name;
   }
-  if (stateUser.username && stateUser.username !== savedUser.username) {
-    changedValues.username = stateUser.username;
+  if (userUpdates.username && userUpdates.username !== origUserState.username) {
+    changedValues.username = userUpdates.username;
   }
-  if (stateUser.password && stateUser.password !== savedUser.password) {
-    changedValues.password = stateUser.password;
+  if (userUpdates.password && userUpdates.password !== origUserState.password) {
+    changedValues.password = userUpdates.password;
+  }
+  if (userUpdates.kind && userUpdates.kind !== origUserState.kind) {
+    changedValues.kind = userUpdates.kind;
   }
 
-  if (stateUser.kind && stateUser.kind !== _userState(savedUser).kind) {
-    // assumes there's no previous roles to delete at first
-    let handlePreviousRoles = Promise.resolve();
+  if (Object.getOwnPropertyNames(changedValues).length === 0) {
+    displayModal(store, false);
+    store.dispatch('SET_ERROR', '');
+    store.dispatch('SET_BUSY', false);
+  } else {
+    let roleAssigned = Promise.resolve(savedUser);
 
-    if (savedUser.roles.length) {
-      const roleDeletes = [];
-      savedUser.roles.forEach(role => {
-        roleDeletes.push(RoleResource.getModel(role.id).delete());
+    if (changedValues.kind) {
+      // assumes there's no previous roles to delete at first
+      let handlePreviousRoles = Promise.resolve();
+
+      if (savedUser.roles.length) {
+        const roleDeletes = [];
+        savedUser.roles.forEach(role => {
+          roleDeletes.push(RoleResource.getModel(role.id).delete());
+        });
+
+        // delete the old role models if this was not a learner
+        handlePreviousRoles = Promise.all(roleDeletes).then(
+          () => {
+            // to avoid having to make an API call, clear manually
+            savedUser.roles = [];
+          },
+          // models could not be deleted
+          error => error
+        );
+      }
+
+      // then assign the new role
+      roleAssigned = new Promise((resolve, reject) => {
+        // Take care of previous roles if necessary (will autoresolve if not)
+        handlePreviousRoles.then(
+          () => {
+            // only need to assign a new role if not a learner
+            if (changedValues.kind !== UserKinds.LEARNER) {
+              assignUserRole(savedUser, changedValues.kind).then(
+                updated => resolve(updated),
+                error => coreActions.handleApiError(store, error)
+              );
+            } else {
+              // new role is learner - having deleted old roles is enough
+              resolve(savedUserModel);
+            }
+          },
+          error => reject(error)
+        );
       });
-
-      // delete the old role models if this was not a learner
-      handlePreviousRoles = Promise.all(roleDeletes).then(
-        () => {
-          // to avoid having to make an API call, clear manually
-          savedUser.roles = [];
-        },
-        // models could not be deleted
-        error => error
-      );
     }
 
-    // then assign the new role
-    roleAssigned = new Promise((resolve, reject) => {
-      // Take care of previous roles if necessary (will autoresolve if not)
-      handlePreviousRoles.then(
-        () => {
-          // only need to assign a new role if not a learner
-          if (stateUser.kind !== UserKinds.LEARNER) {
-            assignUserRole(savedUser, stateUser.kind).then(
-              updated => resolve(updated),
-              error => coreActions.handleApiError(store, error)
-            );
-          } else {
-            // new role is learner - having deleted old roles is enough
-            resolve(savedUser);
-          }
+    roleAssigned.then(() => {
+      // payload needs username, fullname, and facility
+      // update user object with new values
+      savedUserModel.save(changedValues).then(
+        userWithAttrs => {
+          // dispatch changes to store
+          store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
+          displayModal(store, false);
+          store.dispatch('SET_ERROR', '');
+          store.dispatch('SET_BUSY', false);
         },
-        error => reject(error)
+        error => {
+          if (error.status.code === 400) {
+            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+          } else if (error.status.code === 403) {
+            store.dispatch('SET_ERROR', error.entity);
+          }
+          store.dispatch('SET_BUSY', false);
+        }
       );
     });
   }
-
-  roleAssigned.then(userWithRole => {
-    // update user object with new values
-    savedUserModel.save(changedValues).then(userWithAttrs => {
-      // dispatch changes to store
-      store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
-    });
-  });
 }
 
 /**
@@ -458,6 +486,7 @@ function deleteUser(store, id) {
   FacilityUserResource.getModel(id).delete().then(
     user => {
       store.dispatch('DELETE_USER', id);
+      displayModal(store, false);
     },
     error => {
       coreActions.handleApiError(store, error);
@@ -483,6 +512,8 @@ function showUserPage(store) {
       const pageState = {
         facilityUsers: users.map(_userState),
         modalShown: false,
+        error: '',
+        isBusy: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
