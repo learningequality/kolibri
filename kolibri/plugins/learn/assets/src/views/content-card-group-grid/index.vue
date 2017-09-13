@@ -26,7 +26,7 @@
       :title="content.title"
       :thumbnail="content.thumbnail"
       :class="{'grid-item': true, 'mobile': isMobile}"
-      :kind="content.kind"
+      :kind="content.id === content.channel_id ? channelKind : content.kind"
       :progress="content.progress"
       :link="genContentLink(content.id, content.kind)"
     />
@@ -91,6 +91,9 @@
       channelFilterSelection: '',
     }),
     computed: {
+      channelKind() {
+        return ContentNodeKinds.CHANNEL;
+      },
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
