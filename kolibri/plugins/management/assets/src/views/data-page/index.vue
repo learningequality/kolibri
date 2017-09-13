@@ -14,7 +14,7 @@
         {{$tr('detailsSubHeading')}}
       </p>
       <form :action="sessionlogurl" method="get">
-        <k-button :text="$tr('download')"/>
+        <k-button :text="$tr('download')" type="submit"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
@@ -27,7 +27,7 @@
         {{$tr('summarySubHeading')}}
       </p>
       <form :action="summarylogurl" method="get">
-        <k-button :text="$tr('download')"/>
+        <k-button :text="$tr('download')" type="submit"/>
       </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
