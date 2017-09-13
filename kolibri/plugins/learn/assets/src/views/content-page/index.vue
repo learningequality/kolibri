@@ -171,7 +171,11 @@
       },
       canDownload() {
         if (this.content) {
-          return this.content.kind !== ContentNodeKinds.EXERCISE && !this.isAndroidWebView;
+          return (
+            this.downloadableFiles.length &&
+            this.content.kind !== ContentNodeKinds.EXERCISE &&
+            !this.isAndroidWebView
+          );
         }
         return false;
       },
