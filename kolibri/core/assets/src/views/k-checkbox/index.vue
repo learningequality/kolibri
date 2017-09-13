@@ -64,7 +64,7 @@
     * Used for selection
     */
   export default {
-    name: 'k-checkbox',
+    name: 'kCheckbox',
     props: {
       /**
        * Label

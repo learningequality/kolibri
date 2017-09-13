@@ -38,7 +38,7 @@
    * Used to filter items via text input
    */
   export default {
-    name: 'k-filter-textbox',
+    name: 'kFilterTextbox',
     $trs: {
       filter: 'filter',
       clear: 'clear',

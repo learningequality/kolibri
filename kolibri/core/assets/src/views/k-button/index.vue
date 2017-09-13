@@ -16,10 +16,10 @@
 <script>
 
   /**
-   * The k-button component is used to trigger actions
+   * The kButton component is used to trigger actions
    */
   export default {
-    name: 'k-button',
+    name: 'kButton',
     props: {
       /**
        * Label text
