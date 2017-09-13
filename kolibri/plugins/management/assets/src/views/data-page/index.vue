@@ -13,9 +13,7 @@
       <p>
         {{$tr('detailsSubHeading')}}
       </p>
-      <form :action="sessionlogurl" method="get">
-        <k-button :text="$tr('download')" type="submit"/>
-      </form>
+      <k-button :text="$tr('download')" @click="downloadSessionLog"/>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
       </p>
@@ -26,9 +24,7 @@
       <p>
         {{$tr('summarySubHeading')}}
       </p>
-      <form :action="summarylogurl" method="get">
-        <k-button :text="$tr('download')" type="submit"/>
-      </form>
+      <k-button :text="$tr('download')" @click="downloadSummaryLog"/>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
       </p>
@@ -51,7 +47,7 @@
       pageHeading: 'Export usage data',
       pageSubHeading:
         'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
-      detailsHeading: 'Detail logs',
+      detailsHeading: 'Session logs',
       detailsSubHeading: 'Individual visits to each piece of content',
       summaryHeading: 'Summary logs',
       summarySubHeading: 'Total time/progress for each piece of content',
@@ -67,11 +63,13 @@
       columnSize() {
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
       },
-      summarylogurl() {
-        return urls['contentsummarylogcsv-list']();
+    },
+    methods: {
+      downloadSessionLog() {
+        window.location = urls['contentsessionlogcsv-list']();
       },
-      sessionlogurl() {
-        return urls['contentsessionlogcsv-list']();
+      downloadSummaryLog() {
+        window.location = urls['contentsummarylogcsv-list']();
       },
     },
   };
@@ -88,10 +86,5 @@
     border-radius: $radius
     font-size: 0.8em
     padding: 8px
-    margin-left: -8px
-    margin-right: 8px
-
-  form
-    display: inline
 
 </style>
