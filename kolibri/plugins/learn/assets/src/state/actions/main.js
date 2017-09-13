@@ -70,7 +70,7 @@ function _topicState(data, ancestors = []) {
     thumbnail: thumbnail.storage_url,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
-    kind: data.kind,
+    kind: data.pk === data.channel_id ? ContentNodeKinds.CHANNEL : data.kind,
     progress,
     channel_id: data.channel_id,
   };

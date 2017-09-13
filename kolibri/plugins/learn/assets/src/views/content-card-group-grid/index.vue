@@ -26,7 +26,7 @@
       :title="content.title"
       :thumbnail="content.thumbnail"
       :class="{'grid-item': true, 'mobile': isMobile}"
-      :kind="content.id === content.channel_id ? channelKind : content.kind"
+      :kind="content.kind"
       :progress="content.progress"
       :link="genContentLink(content.id, content.kind)"
     />
