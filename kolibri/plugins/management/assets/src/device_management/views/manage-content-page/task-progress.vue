@@ -22,7 +22,7 @@
       </div>
       <ui-progress-linear
         class="progress-linear"
-        :progress="formattedPercentage"
+        :progress="percentage"
         :type="progressBarType"
         color="primary"
       />
