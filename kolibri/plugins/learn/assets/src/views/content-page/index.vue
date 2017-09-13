@@ -71,7 +71,7 @@
       </p>
     </div>
 
-    <download-button v-if="canDownload" :files="content.files" class="download-button"/>
+    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
 
     <content-card-group-carousel
       v-if="showRecommended"
@@ -211,6 +211,9 @@
           this.content.kind === ContentNodeKinds.VIDEO ||
           this.content.kind === ContentNodeKinds.AUDIO
         );
+      },
+      downloadableFiles() {
+        return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
     components: {
