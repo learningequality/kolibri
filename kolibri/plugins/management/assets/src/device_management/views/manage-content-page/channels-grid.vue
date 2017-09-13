@@ -13,7 +13,7 @@
         <thead class="table-header">
           <tr>
             <th>{{ $tr('nameHeader') }}</th>
-            <th>{{ $tr('numContentsHeader') }}</th>
+            <th>{{ $tr('numResourcesHeader') }}</th>
             <th>{{ $tr('sizeHeader') }}</th>
             <th>{{ $tr('lastUpdatedHeader') }}</th>
             <th></th>
@@ -27,7 +27,7 @@
             </td>
 
             <td>
-              <span>{{ channel.total_files }}</span>
+              <span>{{ channel.total_resources }}</span>
             </td>
             <td>
               <span>{{ bytesForHumans(channel.total_file_size) }}</span>
@@ -68,6 +68,7 @@
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
+    name: 'channelsGrid',
     data: () => ({
       selectedChannelId: null,
       notification: null,
@@ -126,13 +127,12 @@
         refreshChannelList,
       },
     },
-    name: 'channelsGrid',
     $trs: {
       emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
-      numContentsHeader: '# Contents',
+      numResourcesHeader: 'Resources',
       sizeHeader: 'Size',
     },
   };
