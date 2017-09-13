@@ -18,8 +18,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             descendants = instance.root.get_descendants()
             total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
             channel_summary = descendants.prefetch_related('files__local_file').aggregate(
-                total_file_size=Sum('files__local_file__file_size'),
-                total_files=Count('files__local_file__file_size')
+                total_file_size=Sum('files__local_file__file_size')
             )
             value.update({"total_resources": total_resources})
             value.update(channel_summary)
