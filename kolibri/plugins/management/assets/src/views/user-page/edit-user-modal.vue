@@ -15,7 +15,7 @@
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
         v-model="newName"
-        />
+      />
 
       <k-textbox
         ref="username"
@@ -170,12 +170,11 @@
           }
           this.updateUser(this.id, userUpdates);
           if (
+            this.currentUserId === this.id &&
             this.currentUserKind !== UserKinds.SUPERUSER &&
-            Number(this.id) === this.currentUserId
+            this.newKind === UserKinds.LEARNER
           ) {
-            if (this.newKind === UserKinds.LEARNER) {
-              window.location.href = window.location.origin;
-            }
+            window.location.href = window.location.origin;
           }
         } else {
           if (this.nameIsInvalid) {

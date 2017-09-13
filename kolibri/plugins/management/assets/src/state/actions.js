@@ -7,11 +7,14 @@ import {
   RoleResource,
 } from 'kolibri.resources';
 
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import {
+  samePageCheckGenerator,
+  kolibriLogout,
+  handleApiError,
+} from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames } from '../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import {
   showFacilityConfigPage,
   resetFacilityConfig,
@@ -124,7 +127,7 @@ function createClass(store, name) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -144,7 +147,7 @@ function deleteClass(store, id) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -167,7 +170,7 @@ function updateClass(store, id, updateData) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -191,7 +194,7 @@ function removeClassUser(store, classId, userId) {
         displayModal(store, false);
       },
       error => {
-        coreActions.handleApiError(store, error);
+        handleApiError(store, error);
       }
     );
   });
@@ -217,7 +220,7 @@ function showClassesPage(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -250,7 +253,7 @@ function showClassEditPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -284,7 +287,7 @@ function showClassEnrollPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -413,10 +416,7 @@ function updateUser(store, userId, userUpdates) {
       let handlePreviousRoles = Promise.resolve();
 
       if (savedUser.roles.length) {
-        const roleDeletes = [];
-        savedUser.roles.forEach(role => {
-          roleDeletes.push(RoleResource.getModel(role.id).delete());
-        });
+        const roleDeletes = savedUser.roles.map(({ id }) => RoleResource.getModel(id).delete());
 
         // delete the old role models if this was not a learner
         handlePreviousRoles = Promise.all(roleDeletes).then(
@@ -438,7 +438,7 @@ function updateUser(store, userId, userUpdates) {
             if (changedValues.kind !== UserKinds.LEARNER) {
               assignUserRole(savedUser, changedValues.kind).then(
                 updated => resolve(updated),
-                error => coreActions.handleApiError(store, error)
+                error => handleApiError(store, error)
               );
             } else {
               // new role is learner - having deleted old roles is enough
@@ -458,8 +458,17 @@ function updateUser(store, userId, userUpdates) {
           // dispatch changes to store
           store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
           displayModal(store, false);
-          store.dispatch('SET_ERROR', '');
-          store.dispatch('SET_BUSY', false);
+          const currentUser = store.state.pageState.facilityUsers.find(
+            user => user.id === store.state.core.session.user_id
+          );
+          if (
+            currentUser.id === userId &&
+            currentUser.kind !== UserKinds.SUPERUSER &&
+            changedValues.kind &&
+            changedValues.kind === UserKinds.LEARNER
+          ) {
+            window.location.href = window.location.origin;
+          }
         },
         error => {
           if (error.status.code === 400) {
@@ -484,12 +493,15 @@ function deleteUser(store, id) {
     return;
   }
   FacilityUserResource.getModel(id).delete().then(
-    user => {
+    () => {
       store.dispatch('DELETE_USER', id);
       displayModal(store, false);
+      if (store.state.core.session.user_id === id) {
+        kolibriLogout();
+      }
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -519,7 +531,7 @@ function showUserPage(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }

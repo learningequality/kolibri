@@ -214,7 +214,6 @@
         modalShown: state => state.pageState.modalShown,
       },
       actions: {
-        deleteUser: actions.deleteUser,
         displayModal: actions.displayModal,
       },
     },

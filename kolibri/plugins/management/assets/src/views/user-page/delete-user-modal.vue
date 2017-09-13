@@ -27,7 +27,6 @@
 <script>
 
   import { deleteUser, displayModal } from '../../state/actions';
-  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
 
@@ -59,9 +58,6 @@
     methods: {
       handleDeleteUser() {
         this.submitting = true;
-        if (Number(this.id) === this.currentUserId) {
-          this.kolibriLogout();
-        }
         this.deleteUser(this.id);
       },
     },
@@ -69,10 +65,6 @@
       actions: {
         deleteUser,
         displayModal,
-        kolibriLogout,
-      },
-      getters: {
-        currentUserId: state => state.core.session.user_id,
       },
     },
     $trs: {
