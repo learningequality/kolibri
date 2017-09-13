@@ -91,9 +91,6 @@
       channelFilterSelection: '',
     }),
     computed: {
-      channelKind() {
-        return ContentNodeKinds.CHANNEL;
-      },
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
