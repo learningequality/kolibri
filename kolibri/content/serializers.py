@@ -1,6 +1,5 @@
 from django.core.cache import cache
 from django.db.models import Manager, Sum
-from django.db.models.aggregates import Count
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language
 from le_utils.constants import content_kinds
@@ -96,9 +95,10 @@ def get_topic_progress_fraction(topic, user):
     leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
         kind=content_kinds.TOPIC).values_list("content_id", flat=True)
     return round(
-        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0)/(len(leaf_ids) or 1),
+        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0) / (len(leaf_ids) or 1),
         4
     )
+
 
 def get_content_progress_fraction(content, user):
     from kolibri.logger.models import ContentSummaryLog
@@ -109,11 +109,13 @@ def get_content_progress_fraction(content, user):
         return None
     return round(overall_progress, 4)
 
+
 def get_topic_and_content_progress_fraction(node, user):
     if node.kind == content_kinds.TOPIC:
         return get_topic_progress_fraction(node, user)
     else:
         return get_content_progress_fraction(node, user)
+
 
 def get_topic_and_content_progress_fractions(nodes, user):
     leaf_ids = nodes.get_descendants(include_self=True).order_by().exclude(
@@ -128,11 +130,12 @@ def get_topic_and_content_progress_fractions(nodes, user):
             leaf_ids = node.get_descendants(include_self=True).order_by().exclude(
                 kind=content_kinds.TOPIC).values_list("content_id", flat=True)
             overall_progress[node.content_id] = round(
-                sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids)/len(leaf_ids),
+                sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids) / len(leaf_ids),
                 4
             )
 
     return overall_progress
+
 
 def get_content_progress_fractions(nodes, user):
     if isinstance(nodes, RawQuerySet) or isinstance(nodes, list):
@@ -256,6 +259,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
         list_serializer_class = ContentNodeListSerializer
 
+
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
@@ -281,6 +285,7 @@ class ContentNodeProgressListSerializer(serializers.ListSerializer):
                 annotate_progress_fraction=False
             ) for item in iterable
         ]
+
 
 class ContentNodeProgressSerializer(serializers.Serializer):
 
