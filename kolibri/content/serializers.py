@@ -15,11 +15,14 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
-            file_summary = instance.root.get_descendants().prefetch_related('files__local_file').aggregate(
+            descendants = instance.root.get_descendants()
+            total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
+            channel_summary = descendants.prefetch_related('files__local_file').aggregate(
                 total_file_size=Sum('files__local_file__file_size'),
                 total_files=Count('files__local_file__file_size')
             )
-            value.update(file_summary)
+            value.update({"total_resources": total_resources})
+            value.update(channel_summary)
         return value
 
     class Meta:
