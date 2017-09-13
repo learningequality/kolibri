@@ -51,7 +51,6 @@
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import round from 'lodash/round';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
   import { TaskTypes, TaskStatuses } from '../../constants';
@@ -115,11 +114,11 @@
         return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
       formattedPercentage() {
-        return Number(round(this.percentage * 100, 2).toFixed(1));
+        return this.percentage * 100;
       },
       progressMessage() {
         if (this.percentage > 0) {
-          return this.formattedPercentage + '%';
+          return this.formattedPercentage.toFixed(1) + '%';
         }
         return '';
       },
