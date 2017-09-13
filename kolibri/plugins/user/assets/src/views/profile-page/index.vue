@@ -238,5 +238,6 @@
     color: $core-status-correct
     font-size: 3em
     font-weight: bold
+    margin-left: 16px
 
 </style>
