@@ -406,8 +406,6 @@ function updateUser(store, userId, userUpdates) {
 
   if (Object.getOwnPropertyNames(changedValues).length === 0) {
     displayModal(store, false);
-    store.dispatch('SET_ERROR', '');
-    store.dispatch('SET_BUSY', false);
   } else {
     let roleAssigned = Promise.resolve(savedUser);
 

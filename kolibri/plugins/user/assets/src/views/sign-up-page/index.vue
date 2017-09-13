@@ -100,6 +100,7 @@
 
   import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
+  import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -175,12 +176,6 @@
       nameIsInvalid() {
         return !!this.nameIsInvalidText;
       },
-      usernameIsAlphaNumUnderscore() {
-        if (this.username === '') {
-          return true;
-        }
-        return /^\w+$/g.test(this.username);
-      },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
           return false;
@@ -192,7 +187,7 @@
           if (this.username === '') {
             return this.$tr('required');
           }
-          if (!this.usernameIsAlphaNumUnderscore) {
+          if (!validateUsername(this.username)) {
             return this.$tr('usernameAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {

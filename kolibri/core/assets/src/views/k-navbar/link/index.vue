@@ -22,7 +22,7 @@
 
 <script>
 
-  import ValidateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import uiIcon from 'keen-ui/src/UiIcon';
 
   /**
@@ -61,7 +61,7 @@
       link: {
         type: Object,
         required: true,
-        validator: ValidateLinkObject,
+        validator: validateLinkObject,
       },
     },
     components: { uiIcon },

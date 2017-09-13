@@ -84,6 +84,7 @@
     totalPoints,
   } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { validateUsername } from 'kolibri.utils.validators';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -159,15 +160,12 @@
       nameIsInvalid() {
         return !!this.nameIsInvalidText;
       },
-      usernameIsAlphaNumUnderscore() {
-        return /^\w+$/g.test(this.username);
-      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
           }
-          if (!this.usernameIsAlphaNumUnderscore) {
+          if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
         }

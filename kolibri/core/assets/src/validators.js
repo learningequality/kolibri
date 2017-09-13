@@ -6,7 +6,12 @@
 import every from 'lodash/every';
 import keys from 'lodash/keys';
 
-export default function validateLinkObject(object) {
+export function validateLinkObject(object) {
   const validKeys = ['name', 'path', 'params', 'query'];
   return every(keys(object), key => validKeys.includes(key));
+}
+
+export function validateUsername(username) {
+  const hasPuncRe = /[\s`~!@#$%^&*()-+={}\[\]\|\\\/:;"'<>,\.\?]/; // eslint-disable-line
+  return !hasPuncRe.test(username);
 }

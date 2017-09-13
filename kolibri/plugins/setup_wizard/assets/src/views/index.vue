@@ -95,6 +95,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { facilityPresetChoices } from '../state/constants';
+  import { validateUsername } from 'kolibri.utils.validators';
+
   export default {
     name: 'setupWizard',
     $trs: {
@@ -137,16 +139,12 @@
       };
     },
     computed: {
-      usernameValidityCheck() {
-        const hasPuncRe = /[\s`~!@#$%^&*()-+={}\[\]\|\\\/:;"'<>,\.\?]/; // eslint-disable-line
-        return !hasPuncRe.test(this.username);
-      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('usernameFieldEmptyErrorMessage');
           }
-          if (!this.usernameValidityCheck) {
+          if (!validateUsername(this.username)) {
             return this.$tr('usernameCharacterErrorMessage');
           }
         }

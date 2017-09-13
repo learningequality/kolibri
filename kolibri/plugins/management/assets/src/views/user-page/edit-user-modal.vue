@@ -64,6 +64,7 @@
 
   import { updateUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { validateUsername } from 'kolibri.utils.validators';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -133,15 +134,12 @@
       nameIsInvalid() {
         return !!this.nameIsInvalidText;
       },
-      usernameIsAlphaNumUnderscore() {
-        return /^\w+$/g.test(this.newUsername);
-      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.newUsername === '') {
             return this.$tr('required');
           }
-          if (!this.usernameIsAlphaNumUnderscore) {
+          if (!validateUsername(this.newUsername)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
         }

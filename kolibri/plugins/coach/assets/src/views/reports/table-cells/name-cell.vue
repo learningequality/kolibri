@@ -16,7 +16,7 @@
 
 <script>
 
-  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   export default {
     components: { contentIcon },

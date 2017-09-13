@@ -68,7 +68,7 @@
 
   import ResizeSensor from 'css-element-queries/src/ResizeSensor';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import ValidateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
@@ -99,7 +99,7 @@
             return false;
           }
           // All, but the last, must have a valid router link
-          return crumbItems.slice(0, -1).every(crumb => ValidateLinkObject(crumb.link));
+          return crumbItems.slice(0, -1).every(crumb => validateLinkObject(crumb.link));
         },
       },
     },
