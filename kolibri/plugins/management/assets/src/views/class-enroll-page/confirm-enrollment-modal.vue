@@ -34,7 +34,7 @@
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',
       noGoBack: 'No, go back',
-      yesEnrollUsers: 'Yes, enroll users',
+      yesEnrollUsers: 'Yes, enroll learners',
     },
     components: {
       coreModal,

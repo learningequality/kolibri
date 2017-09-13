@@ -115,7 +115,7 @@
   export default {
     name: 'classEnrollPage',
     $trs: {
-      enrollUsers: 'Enroll users',
+      enrollUsers: 'Enroll learners',
       tableTitle: 'Manage learners in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
