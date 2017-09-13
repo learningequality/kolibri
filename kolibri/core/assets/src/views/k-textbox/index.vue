@@ -1,24 +1,26 @@
 <template>
 
-  <ui-textbox
-    ref="textbox"
-    class="textbox"
-    v-model.trim="currentText"
-    :label="label"
-    :disabled="disabled"
-    :invalid="invalid"
-    :error="invalidText"
-    :autofocus="autofocus"
-    :maxlength="maxlength"
-    :autocomplete="autocomplete"
-    :type="type"
-    :enforceMaxlength="true"
-    :floatingLabel="true"
-    @input="updateText"
-    @keydown="emitKeydown"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-  />
+  <div class="mh">
+    <ui-textbox
+      ref="textbox"
+      class="textbox"
+      v-model.trim="currentText"
+      :label="label"
+      :disabled="disabled"
+      :invalid="invalid"
+      :error="invalidText"
+      :autofocus="autofocus"
+      :maxlength="maxlength"
+      :autocomplete="autocomplete"
+      :type="type"
+      :enforceMaxlength="true"
+      :floatingLabel="true"
+      @input="updateText"
+      @keydown="emitKeydown"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
+  </div>
 
 </template>
 
@@ -139,5 +141,8 @@
 
   .textbox
     max-width: 400px
+
+  .mh
+    min-height: 72px
 
 </style>
