@@ -38,6 +38,7 @@
         :primary="false"
         :raised="false"
         @click="endTask()"
+        :disabled="uiBlocked"
       />
     </div>
 
@@ -75,6 +76,11 @@
       },
       id: RequiredString,
     },
+    data() {
+      return {
+        uiBlocked: false,
+      };
+    },
     computed: {
       TaskStatuses: () => TaskStatuses,
       stageText() {
@@ -109,7 +115,7 @@
         return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
       formattedPercentage() {
-        return round(this.percentage * 100, 2).toFixed(1);
+        return Number(round(this.percentage * 100, 2).toFixed(1));
       },
       progressMessage() {
         if (this.percentage > 0) {
@@ -123,11 +129,14 @@
     },
     methods: {
       endTask() {
+        this.uiBlocked = true;
         if (this.taskHasCompleted) {
           this.$emit('taskcomplete');
           this.refreshChannelList();
         }
-        this.cancelTask(this.id);
+        this.cancelTask(this.id).then(() => {
+          this.uiBlocked = false;
+        });
       },
     },
     vuex: {
