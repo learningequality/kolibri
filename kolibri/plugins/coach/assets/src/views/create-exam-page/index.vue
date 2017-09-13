@@ -368,7 +368,7 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(this.currentChannel.id, topicId).then(
+        this.fetchContent(topicId).then(
           () => {
             this.loading = false;
           },

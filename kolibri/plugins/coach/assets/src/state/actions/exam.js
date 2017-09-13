@@ -291,16 +291,12 @@ function deleteExam(store, examId) {
   );
 }
 
-function getAllExercisesWithinTopic(store, channelId, topicId) {
+function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
-    const exercisesPromise = ContentNodeResource.getDescendantsCollection(
-      topicId,
-      { channel_id: channelId },
-      {
-        descendant_kind: ContentNodeKinds.EXERCISE,
-        fields: ['pk', 'title', 'assessmentmetadata'],
-      }
-    ).fetch();
+    const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
+      descendant_kind: ContentNodeKinds.EXERCISE,
+      fields: ['pk', 'title', 'assessmentmetadata'],
+    }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
