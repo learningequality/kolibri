@@ -33,7 +33,7 @@
    * Handles user input.
    */
   export default {
-    name: 'k-textbox',
+    name: 'kTextbox',
     components: { uiTextbox },
     props: {
       /**
