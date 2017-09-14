@@ -38,6 +38,7 @@
         :primary="false"
         :raised="false"
         @click="endTask()"
+        :disabled="uiBlocked"
       />
     </div>
 
@@ -50,7 +51,6 @@
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import round from 'lodash/round';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
   import { TaskTypes, TaskStatuses } from '../../constants';
@@ -74,6 +74,11 @@
         required: true,
       },
       id: RequiredString,
+    },
+    data() {
+      return {
+        uiBlocked: false,
+      };
     },
     computed: {
       TaskStatuses: () => TaskStatuses,
@@ -109,11 +114,11 @@
         return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
       },
       formattedPercentage() {
-        return round(this.percentage * 100, 2).toFixed(1);
+        return this.percentage * 100;
       },
       progressMessage() {
         if (this.percentage > 0) {
-          return this.formattedPercentage + '%';
+          return this.formattedPercentage.toFixed(1) + '%';
         }
         return '';
       },
@@ -123,11 +128,14 @@
     },
     methods: {
       endTask() {
+        this.uiBlocked = true;
         if (this.taskHasCompleted) {
           this.$emit('taskcomplete');
           this.refreshChannelList();
         }
-        this.cancelTask(this.id);
+        this.cancelTask(this.id).then(() => {
+          this.uiBlocked = false;
+        });
       },
     },
     vuex: {
