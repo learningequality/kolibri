@@ -12,7 +12,7 @@
         :autofocus="true"
         autocomplete="name"
         :maxlength="120"
-        @blur="validate('name')"
+        @blur="visitedFields.name = true"
         :invalid="nameIsInvalid"
         :invalidText="nameErrorMessage"
         ref="name"
@@ -23,7 +23,7 @@
         type="username"
         autocomplete="username"
         :maxlength="30"
-        @blur="validate('username')"
+        @blur="visitedFields.username = true"
         :invalid="usernameIsInvalid"
         :invalidText="usernameErrorMessage"
         ref="username"
@@ -33,7 +33,7 @@
         :label="$tr('adminPasswordFieldLabel')"
         type="password"
         autocomplete="new-password"
-        @blur="validate('password')"
+        @blur="visitedFields.password = true"
         :invalid="passwordIsInvalid"
         :invalidText="passwordErrorMessage"
         ref="password"
@@ -43,7 +43,7 @@
         :label="$tr('adminPasswordConfirmationFieldLabel')"
         type="password"
         autocomplete="new-password"
-        @blur="validate('passwordConfirm')"
+        @blur="visitedFields.passwordConfirm = true"
         :invalid="passwordConfirmIsInvalid"
         :invalidText="passwordConfirmErrorMessage"
         ref="passwordConfirm"
@@ -95,7 +95,12 @@
         username: this.currentUsername,
         password: this.currentPassword,
         passwordConfirm: this.currentPassword,
-        visitedFields: [],
+        visitedFields: {
+          name: false,
+          username: false,
+          password: false,
+          passwordConfirm: false,
+        },
       };
     },
     computed: {
@@ -130,16 +135,16 @@
         return '';
       },
       nameIsInvalid() {
-        return this.visitedFields.includes('name') && !!this.nameErrorMessage;
+        return this.visitedFields.name && !!this.nameErrorMessage;
       },
       usernameIsInvalid() {
-        return this.visitedFields.includes('username') && !!this.usernameErrorMessage;
+        return this.visitedFields.username && !!this.usernameErrorMessage;
       },
       passwordIsInvalid() {
-        return this.visitedFields.includes('password') && !!this.passwordErrorMessage;
+        return this.visitedFields.password && !!this.passwordErrorMessage;
       },
       passwordConfirmIsInvalid() {
-        return this.visitedFields.includes('passwordConfirm') && !!this.passwordConfirmErrorMessage;
+        return this.visitedFields.passwordConfirm && !!this.passwordConfirmErrorMessage;
       },
       formIsValid() {
         return (
@@ -151,32 +156,22 @@
       },
     },
     methods: {
-      validate(fieldName) {
-        this.visitedFields.push(fieldName);
-      },
       setSuperuserCredentials() {
-        const focusOnInvalidField = () => {
-          if (this.nameIsInvalid) {
-            this.$refs.name.focus();
-          } else if (this.usernameIsInvalid) {
-            this.$refs.username.focus();
-          } else if (this.passwordIsInvalid) {
-            this.$refs.password.focus();
-          } else if (this.passwordConfirmIsInvalid) {
-            this.$refs.passwordConfirm.focus();
-          }
-        };
-
-        this.validate('name');
-        this.validate('username');
-        this.validate('password');
-        this.validate('passwordConfirm');
+        for (const field in this.visitedFields) {
+          this.visitedFields[field] = true;
+        }
 
         if (this.formIsValid) {
           this.submitSuperuserCredentials(this.name, this.username, this.password);
           this.$emit('submit');
-        } else {
-          focusOnInvalidField();
+        } else if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.passwordConfirmIsInvalid) {
+          this.$refs.passwordConfirm.focus();
         }
       },
     },
