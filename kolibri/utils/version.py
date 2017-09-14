@@ -203,18 +203,18 @@ def get_git_changeset():
     timestamp based on datetime.now()
     """
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    git_log = subprocess.Popen(
-        'git log --pretty=format:%ct --quiet -1 HEAD',
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        cwd=repo_dir,
-        universal_newlines=True
-    )
-    # This does not fail if git is not available or current dir isn't a git
-    # repo - it's safe.
-    timestamp = git_log.communicate()[0]
     try:
+        git_log = subprocess.Popen(
+            'git log --pretty=format:%ct --quiet -1 HEAD',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            cwd=repo_dir,
+            universal_newlines=True
+        )
+        # This does not fail if git is not available or current dir isn't a git
+        # repo - it's safe.
+        timestamp = git_log.communicate()[0]
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
         return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except ValueError:
@@ -228,19 +228,21 @@ def get_git_describe():
     :returns: None if no git tag available (no git, no tags, or not in a repo)
     """
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    p = subprocess.Popen(
-        "git describe --tags --match 'v[0-9]*'",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        cwd=repo_dir,
-        universal_newlines=True
-    )
-    # This does not fail if git is not available or current dir isn't a git
-    # repo - it's safe.
-    version_string = p.communicate()[0].rstrip()
-    return version_string
-
+    try:
+        p = subprocess.Popen(
+            "git describe --tags --match 'v[0-9]*'",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            cwd=repo_dir,
+            universal_newlines=True
+        )
+        # This does not fail if git is not available or current dir isn't a git
+        # repo - it's safe.
+        version_string = p.communicate()[0].rstrip()
+        return version_string
+    except:
+        return None
 
 def get_version_from_git(get_git_describe_string):
     """
