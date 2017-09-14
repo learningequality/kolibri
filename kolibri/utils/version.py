@@ -217,7 +217,7 @@ def get_git_changeset():
         timestamp = git_log.communicate()[0]
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
         return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
-    except ValueError:
+    except (EnvironmentError, ValueError):
         return "{}-export".format(
             datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         )
@@ -241,7 +241,7 @@ def get_git_describe():
         # repo - it's safe.
         version_string = p.communicate()[0].rstrip()
         return version_string
-    except:
+    except EnvironmentError:
         return None
 
 def get_version_from_git(get_git_describe_string):
