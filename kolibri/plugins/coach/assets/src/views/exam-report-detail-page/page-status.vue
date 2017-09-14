@@ -10,11 +10,11 @@
         />
         <h1 class="user-name">{{ $tr('title', {name: userName}) }}</h1>
       </div>
-      <div v-html="$trHtml('overallScore', {score: score})" class="questions">
+      <div class="questions">
+        {{ $tr('overallScore', {score: score}) }}
       </div>
-      <div
-        v-html="$trHtml('questionsCorrect', { correct: questionsCorrect, total: questions.length })"
-        class="questions">
+      <div class="questions">
+        {{ $tr('questionsCorrect', { correct: questionsCorrect, total: questions.length }) }}
       </div>
     </div>
     <div class="column pure-u-1-4">
@@ -46,9 +46,8 @@
     name: 'coachExamReportDetailPageStatus',
     $trs: {
       title: '{name} - Exam Performance',
-      overallScore: 'Overall Score: <strong>{ score, number, percent }</strong>',
-      questionsCorrect:
-        'Questions Correct: <strong>{correct, number} of {total, number} correct</strong>',
+      overallScore: 'Overall score: { score, number, percent }',
+      questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',
       inProgress: 'In progress',
       notStarted: 'Not started',
