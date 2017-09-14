@@ -41,7 +41,7 @@
       />
       <template v-else>
         <h3>{{ $tr('name') }}</h3>
-        <p v-else>{{ name }}</p>
+        <p>{{ name }}</p>
       </template>
 
       <k-textbox
@@ -59,7 +59,7 @@
       />
       <template v-else>
         <h3>{{ $tr('username') }}</h3>
-        <p v-else>{{ session.username }}</p>
+        <p>{{ session.username }}</p>
       </template>
 
       <k-button
