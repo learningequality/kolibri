@@ -81,7 +81,11 @@
       },
     },
     watch: {
-      taskHasFailed: 'emitFailure',
+      taskHasFailed: () => {
+        if (this.taskHasFailed) {
+          this.$emit('taskfailed');
+        }
+      },
     },
     computed: {
       TaskStatuses: () => TaskStatuses,
@@ -138,11 +142,6 @@
           this.refreshChannelList();
         }
         this.cancelTask(this.id);
-      },
-      emitFailure() {
-        if (this.taskHasFailed) {
-          this.$emit('taskfailed');
-        }
       },
     },
     vuex: {
