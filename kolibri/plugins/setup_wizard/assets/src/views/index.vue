@@ -11,7 +11,7 @@
         @backButtonClicked="goToPreviousStep"
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
-        />
+      />
 
       <component
         :is="currentOnboardingForm"

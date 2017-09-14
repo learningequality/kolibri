@@ -10,7 +10,7 @@
       <span :class="['default-language-form-selected-label', (isMobile ? 'mobile' : '')]">
         {{ $tr('selectedLanguageLabel') }}
       </span>
-      <span> {{ selectedLanguage }} </span>
+        {{ selectedLanguage }}
     </label>
 
     <k-button
@@ -59,7 +59,6 @@
   import onboardingForm from '../onboarding-form';
 
   import omit from 'lodash/omit';
-  import sortBy from 'lodash/sortBy';
 
   const mobileNumberOfLanguageButtons = 5;
   const desktopNumberOfLanguageButtons = 3;

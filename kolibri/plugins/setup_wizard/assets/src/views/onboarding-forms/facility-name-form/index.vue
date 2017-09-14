@@ -13,7 +13,8 @@
       :invalid="facilityNameIsInvalid"
       :invalid-text="facilityNameErrorMessage"
       ref="facilityName"
-      :label="$tr('facilityNameFieldLabel')"/>
+      :label="$tr('facilityNameFieldLabel')"
+    />
   </onboarding-form>
 
 </template>

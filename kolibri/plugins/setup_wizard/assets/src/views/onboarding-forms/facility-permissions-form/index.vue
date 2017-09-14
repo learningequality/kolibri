@@ -76,12 +76,12 @@
 
       <template v-for="(preset, value) in permissionPresets">
 
-        <label>
+        <label class="permission-preset">
           <k-radio-button
-          class="permission-preset"
-          v-model="selectedPermissionPreset"
-          :radiovalue="value"
-          :label="preset.name"
+            class="permission-preset-radio-button"
+            v-model="selectedPermissionPreset"
+            :radiovalue="value"
+            :label="preset.name"
           />
           <span class="permission-preset-description">
             {{ descriptions[value] }}
@@ -106,8 +106,6 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-
-  // TODO add modal and link to open it
 
   export default {
     name: 'selectPermissionsForm',
@@ -189,10 +187,13 @@
   $margin-of-radio-button-text = 32px
 
   .permission-preset
-    margin: 0
-    margin-top: 16px
-    font-size: 14px
-    font-weight: bold
+    cursor: pointer
+
+    &-radio-button
+      margin: 0
+      margin-top: 16px
+      font-size: 14px
+      font-weight: bold
 
     &-description
       color: $core-text-annotation

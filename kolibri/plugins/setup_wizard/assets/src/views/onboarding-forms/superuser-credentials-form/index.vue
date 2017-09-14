@@ -103,6 +103,7 @@
         if (this.name === '') {
           return this.$tr('nameFieldEmptyErrorMessage');
         }
+        return '';
       },
       usernameErrorMessage() {
         if (this.username === '') {
