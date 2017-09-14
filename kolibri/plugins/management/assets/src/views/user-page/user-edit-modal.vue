@@ -61,7 +61,7 @@
       <!-- User Delete Mode -->
       <template v-if="usr_delete">
         <div class="user-field">
-          {{$trHtml('deleteConfirmation', {user:username})}}
+          {{ $tr('deleteConfirmation', { user: username }) }}
         </div>
       </template>
 
@@ -122,7 +122,7 @@
       no: 'No',
       confirm: 'Confirm',
       cancel: 'Cancel',
-      deleteConfirmation: 'Are you sure you want to delete {user}?',
+      deleteConfirmation: "Are you sure you want to delete '{user}'?",
       pwMismatch: 'Passwords must match',
       noNewPw: 'Please enter a new password',
     },
