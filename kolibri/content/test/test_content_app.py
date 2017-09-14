@@ -8,11 +8,8 @@ from kolibri.content import models as content
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
-from kolibri.auth.test.test_api import DUMMY_PASSWORD
-from kolibri.auth.test.helpers import create_superuser, provision_device
+from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
-
-from mock import patch, call
 
 class ContentNodeTestBase(object):
     """
@@ -180,73 +177,6 @@ class ContentNodeAPITestCase(APITestCase):
         data = content.ChannelMetadata.objects.values()[0]
         response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}))
         self.assertEqual(response.data['name'], 'testing')
-
-    @patch('kolibri.content.models.paths.get_content_storage_file_path')
-    @patch('kolibri.content.models.os.remove')
-    def test_channelmetadata_delete_remove_metadata_object(self, os_remove_mock, content_file_path):
-        facility = Facility.objects.create(name='name')
-        superuser = create_superuser(facility)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD, facility=facility)
-        data = content.ChannelMetadata.objects.values()[0]
-        response = self.client.delete(reverse("channel-detail", kwargs={'pk': data["id"]}))
-        self.assertEquals(200, response.status_code)
-        self.assertEquals(0, content.ChannelMetadata.objects.count())
-
-    @patch('kolibri.content.models.paths.get_content_storage_file_path')
-    @patch('kolibri.content.models.os.remove')
-    def test_channelmetadata_delete_remove_contentnodes(self, os_remove_mock, content_file_path):
-        facility = Facility.objects.create(name='name')
-        superuser = create_superuser(facility)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD, facility=facility)
-        data = content.ChannelMetadata.objects.values()[0]
-        response = self.client.delete(reverse("channel-detail", kwargs={'pk': data["id"]}))
-        self.assertEquals(200, response.status_code)
-        self.assertEquals(0, content.ContentNode.objects.count())
-
-    @patch('kolibri.content.models.paths.get_content_storage_file_path')
-    @patch('kolibri.content.models.os.remove')
-    def test_channelmetadata_delete_leave_unrelated_contentnodes(self, os_remove_mock, content_file_path):
-        facility = Facility.objects.create(name='name')
-        superuser = create_superuser(facility)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD, facility=facility)
-        data = content.ChannelMetadata.objects.values()[0]
-        c2c1 = content.ContentNode.objects.get(title="c2c1")
-        new_id = c2c1.id[:-1] + '1'
-        content.ContentNode.objects.create(
-            id=new_id,
-            content_id=c2c1.content_id,
-            kind=c2c1.kind,
-            channel_id=c2c1.channel_id,
-            available=True,
-            title=c2c1.title,
-        )
-        response = self.client.delete(reverse("channel-detail", kwargs={'pk': data["id"]}))
-        self.assertEquals(200, response.status_code)
-        self.assertEquals(1, content.ContentNode.objects.count())
-
-    @patch('kolibri.content.models.paths.get_content_storage_file_path')
-    @patch('kolibri.content.models.os.remove')
-    def test_channelmetadata_delete_remove_file_objects(self, os_remove_mock, content_file_path):
-        facility = Facility.objects.create(name='name')
-        superuser = create_superuser(facility)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD, facility=facility)
-        data = content.ChannelMetadata.objects.values()[0]
-        response = self.client.delete(reverse("channel-detail", kwargs={'pk': data["id"]}))
-        self.assertEquals(200, response.status_code)
-        self.assertEquals(0, content.File.objects.count())
-
-    @patch('kolibri.content.models.paths.get_content_storage_file_path')
-    @patch('kolibri.content.models.os.remove')
-    def test_channelmetadata_delete_files(self, os_remove_mock, content_file_path):
-        facility = Facility.objects.create(name='name')
-        superuser = create_superuser(facility)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD, facility=facility)
-        data = content.ChannelMetadata.objects.values()[0]
-        path = 'testing'
-        content_file_path.return_value = path
-        num_files = content.LocalFile.objects.filter(available=True).count()
-        self.client.delete(reverse("channel-detail", kwargs={'pk': data["id"]}))
-        os_remove_mock.assert_has_calls([call(path)]*num_files)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
