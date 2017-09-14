@@ -1,6 +1,3 @@
-
-
-
 <template>
 
   <core-modal :title="$tr('resetPassword')" @cancel="displayModal(false)">
