@@ -26,7 +26,6 @@
 
     <form @submit.prevent="submitEdits">
 
-      <h3>{{ $tr('name') }}</h3>
       <k-textbox
         ref="name"
         v-if="canEditName"
@@ -40,9 +39,11 @@
         :invalidText="nameIsInvalidText"
         v-model="name"
       />
-      <p v-else>{{ name }}</p>
+      <template v-else>
+        <h3>{{ $tr('name') }}</h3>
+        <p v-else>{{ name }}</p>
+      </template>
 
-      <h3>{{ $tr('username') }}</h3>
       <k-textbox
         ref="username"
         v-if="canEditUsername"
@@ -56,7 +57,10 @@
         @blur="usernameBlurred = true"
         v-model="username"
       />
-      <p v-else>{{ session.username }}</p>
+      <template v-else>
+        <h3>{{ $tr('username') }}</h3>
+        <p v-else>{{ session.username }}</p>
+      </template>
 
       <k-button
         v-if="canEditUsername || canEditName"
