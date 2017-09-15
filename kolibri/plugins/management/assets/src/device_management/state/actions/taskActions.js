@@ -17,6 +17,7 @@ function transformTasks(tasks) {
     status: task.status,
     metadata: task.metadata,
     percentage: task.percentage,
+    cancellable: task.cancellable,
   }));
 }
 
