@@ -13,8 +13,8 @@ package.domain = org.le
 source.dir = ./code
 
 # (str) Application version
-version.regex = v(\d+\.\d+\.\d+)
-version.filename = %(source.dir)s/kolibri/VERSION
+version.regex = (\d+\.\d+\.\d+)
+version.filename = %(source.dir)s/kolibri/ANDROID_VERSION
 
 # (list) Application requirements
 requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
