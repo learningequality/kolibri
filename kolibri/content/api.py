@@ -1,4 +1,3 @@
-import os
 from functools import reduce
 from random import sample
 
@@ -13,14 +12,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from .permissions import OnlyCanManageContentCanDelete
-from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
-
-
-def _join_with_logical_operator(lst, operator):
-    op = ") {operator} (".format(operator=operator)
-    return "(({items}))".format(items=op.join(lst))
 
 
 class ChannelMetadataFilter(filters.FilterSet):
@@ -34,36 +26,13 @@ class ChannelMetadataFilter(filters.FilterSet):
         fields = ['available', ]
 
 
-class ChannelMetadataViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlyCanManageContentCanDelete,)
+class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
-
-    def destroy(self, request, pk=None):
-        """
-        Destroys the ChannelMetadata object all of its metadata, any orphaned files as a result of its deletion
-        and its associated sqlite3 file on the filesystem.
-        """
-
-        self.get_object().delete_content_tree_and_files()
-
-        models.LocalFile.objects.delete_orphans()
-
-        self.delete_content_db_file(pk)
-        response_msg = 'Channel {} removed from device'.format(pk)
-
-        return Response(response_msg)
-
-    def delete_content_db_file(self, channel_id):
-        try:
-            os.remove(get_content_database_file_path(channel_id))
-            return True
-        except OSError:
-            return False
 
 
 class IdFilter(filters.FilterSet):
@@ -223,7 +192,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class ContentNodeViewset(viewsets.ModelViewSet):
+class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeFilter
@@ -315,7 +284,7 @@ class ContentNodeProgressFilter(IdFilter):
         model = models.ContentNode
 
 
-class ContentNodeProgressViewset(viewsets.ModelViewSet):
+class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
@@ -324,7 +293,7 @@ class ContentNodeProgressViewset(viewsets.ModelViewSet):
         return models.ContentNode.objects.all()
 
 
-class FileViewset(viewsets.ModelViewSet):
+class FileViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.FileSerializer
     pagination_class = OptionalPageNumberPagination
 

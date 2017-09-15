@@ -17,6 +17,7 @@ function transformTasks(tasks) {
     status: task.status,
     metadata: task.metadata,
     percentage: task.percentage,
+    cancellable: task.cancellable,
   }));
 }
 
@@ -67,6 +68,10 @@ export function triggerLocalContentExportTask(store, driveId) {
 
 export function triggerRemoteContentImportTask(store, channelId) {
   return triggerTask(store, TaskResource.remoteImportContent(channelId));
+}
+
+export function triggerChannelDeleteTask(store, channelId) {
+  return triggerTask(store, TaskResource.deleteChannel(channelId));
 }
 
 export function pollTasks(store) {

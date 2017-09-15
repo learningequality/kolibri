@@ -1,15 +1,15 @@
 import logging as logger
-
 import os
 
 import requests
 from barbequeue.common.classes import State
 from barbequeue.exceptions import UserCancelledError
 from django.apps.registry import AppRegistryNotReady
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadata
+from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
 from rest_framework import serializers, viewsets
@@ -17,8 +17,6 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .client import get_client
-from kolibri.content.permissions import CanManageContent
-
 
 try:
     from django.apps import apps
@@ -35,6 +33,7 @@ logging = logger.getLogger(__name__)
 REMOTE_IMPORT = 'remoteimport'
 LOCAL_IMPORT = 'localimport'
 LOCAL_EXPORT = 'localexport'
+DELETE_CHANNEL = 'deletechannel'
 
 id_tasktype = {}
 
@@ -62,6 +61,28 @@ class TasksViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
+
+    @list_route(methods=['post'])
+    def startdeletechannel(self, request):
+        '''
+        Delete a channel and all its associated content from the server
+        '''
+
+        if "channel_id" not in request.data:
+            raise serializers.ValidationError(
+                "The 'channel_id' field is required.")
+
+        channel_id = request.data['channel_id']
+
+        task_id = get_client().schedule(
+            _deletechannel, channel_id, track_progress=True)
+
+        id_tasktype[task_id] = DELETE_CHANNEL
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _job_to_response(get_client().status(task_id))
+
+        return Response(resp)
 
     @list_route(methods=['post'])
     def startremoteimport(self, request):
@@ -185,11 +206,7 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
             update_progress=update_progress,
             check_for_cancel=check_for_cancel)
     except UserCancelledError:
-        try:
-            os.remove(get_content_database_file_path(channel_id))
-        except OSError:
-            pass
-        # TODO: Delete channel data
+        call_command("deletechannel", channel_id, update_progress=update_progress)
         raise
 
 def _localimport(drive_id, update_progress=None, check_for_cancel=None):
@@ -216,10 +233,9 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
         for channel in drive.metadata["channels"]:
             channel_id = channel["id"]
             try:
-                os.remove(get_content_database_file_path(channel_id))
-            except OSError:
+                call_command("deletechannel", channel_id, update_progress=update_progress)
+            except CommandError:
                 pass
-            # TODO: Delete channel data
         raise
 
 
@@ -248,6 +264,10 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
             raise
 
 
+def _deletechannel(channel_id, update_progress=None):
+    call_command("deletechannel", channel_id, update_progress=update_progress)
+
+
 def _job_to_response(job):
     if not job:
         return {
@@ -256,6 +276,7 @@ def _job_to_response(job):
             "percentage": 0,
             "progress": [],
             "id": None,
+            "cancellable": False,
         }
     else:
         return {
@@ -265,4 +286,5 @@ def _job_to_response(job):
             "traceback": str(job.traceback),
             "percentage": job.percentage_progress,
             "id": job.job_id,
+            "cancellable": job.cancellable,
         }
