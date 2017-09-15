@@ -1,18 +1,16 @@
 <template>
 
-  <div class="submission-state-page-wrapper">
-    <div class="submission-state-page">
-      <loading-spinner :custom-styles="true" :delay="0" class="submission-state-page-spinner" />
+  <div class="submission-state-page">
+    <loading-spinner :delay="0" class="submission-state-page-spinner"/>
 
-      <h1 class="submission-state-page-header">
-        {{ header }}
-      </h1>
+    <h1 class="submission-state-page-header">
+      {{ header }}
+    </h1>
 
-      <div class="submission-state-page-body">
-        <slot />
-      </div>
-
+    <div class="submission-state-page-body">
+      <slot />
     </div>
+
   </div>
 
 </template>
@@ -41,28 +39,19 @@
   @require '~kolibri.styles.definitions'
 
   .submission-state-page
-    position: absolute
-    left: 50%
-    top: 50%
-    transform: translate(-50%, -50%)
-
-    &-wrapper
-      width: 100%
-      height: 100vh
-      text-align: center
-      position: relative
+    text-align: center
 
     &-header
       font-size: 21px
       color: $core-accent-color
+      margin-top: 0
       margin-bottom: 24px
 
     &-body
       font-size: 14px
 
     &-spinner
-      width: 185px
-      height: 185px
+      height: 125px // setting to the height of the spinner gif to make the wrapper hug it
       margin-bottom: 40px
       display: inline-block
 

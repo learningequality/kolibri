@@ -2,9 +2,15 @@
 
   <div class="onboarding">
 
-    <error-page v-if="error" />
+    <error-page
+      v-if="error"
+      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+    />
 
-    <loading-page v-else-if="loading" />
+    <loading-page
+      v-else-if="loading"
+      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+    />
 
     <template v-else>
       <progress-toolbar
@@ -18,7 +24,7 @@
         :submit-text="submitText"
         :isMobile="isMobile"
         @submit="continueOnboarding"
-        :class="['onboarding-form', (isMobile ? 'mobile' : '')]"
+        :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
       />
     </template>
 
@@ -83,7 +89,8 @@
     },
     methods: {
       continueOnboarding() {
-        this.isLastStep ? this.provisionDevice(this.onboardingData) : this.goToNextStep();
+        // this.isLastStep ? this.provisionDevice(this.onboardingData) : this.goToNextStep();
+        this.provisionDevice(this.onboardingData);
       },
     },
     vuex: {
@@ -110,7 +117,8 @@
 
   .onboarding
     width: 100%
-    &-form
+    clearfix() // child margin leaks up into otherwise empty parent
+    &-body
       margin-top: 64px
       margin-left: auto
       margin-right: auto
