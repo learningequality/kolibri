@@ -82,7 +82,7 @@
    * Used to aid deeply nested navigation
    */
   export default {
-    name: 'k-breadcrumbs',
+    name: 'kBreadcrumbs',
     components: { uiIconButton },
     mixins: [ResponsiveElement],
     props: {

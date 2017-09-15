@@ -5,7 +5,7 @@
       <ui-select
         v-if="showContentKindFilter"
         class="filter"
-        :label="$tr('contentKinds')"
+        :label="$tr('resourceType')"
         :options="contentKindFilterOptions"
         v-model="contentKindFilterSelection"
       />
@@ -49,7 +49,7 @@
   export default {
     name: 'contentCardGroupGrid',
     $trs: {
-      contentKinds: 'Content kinds',
+      resourceType: 'Type',
       all: 'All',
       topics: 'Topics',
       exercises: 'Exercises',

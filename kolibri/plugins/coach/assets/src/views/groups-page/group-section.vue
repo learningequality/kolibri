@@ -67,7 +67,7 @@
               :label="$tr('selectLearner')"
               :showLabel="false"
               :checked="isSelected(user.id)"
-              @change="toggleSelection"
+              @change="toggleSelection(user.id)"
               @click.stop
             />
           </td>

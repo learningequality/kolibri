@@ -30,7 +30,7 @@
    Buttons for use inside the k-navbar
    */
   export default {
-    name: 'k-navbar-button',
+    name: 'kNavbarButton',
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title.

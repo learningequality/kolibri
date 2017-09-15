@@ -181,10 +181,6 @@ function setUpVueIntl() {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
-  vue.prototype.$trHtml = function $trHtml(messageId, args) {
-    const nameSpace = this.$options.name || this.$options.$trNameSpace;
-    return $trWrapper(nameSpace, this.$options.$trs, this.$formatHTMLMessage, messageId, args);
-  };
 
   if (global.languageCode) {
     currentLanguage = global.languageCode;

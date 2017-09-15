@@ -26,10 +26,10 @@
   import uiIcon from 'keen-ui/src/UiIcon';
 
   /**
-   Links for use inside the k-navbar
+   Links for use inside the kNavbar
    */
   export default {
-    name: 'k-navbar-link',
+    name: 'kNavbarLink',
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title.

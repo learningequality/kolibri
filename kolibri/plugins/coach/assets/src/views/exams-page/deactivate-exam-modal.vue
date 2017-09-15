@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('deactivateExam')" @cancel="close">
     <p>
-      <span v-html="$trHtml('areYouSure', { examTitle })"></span>
+      <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('noLongerVisible') }}
     </p>
     <p>
@@ -31,7 +31,7 @@
     name: 'deactivateExamModal',
     $trs: {
       deactivateExam: 'Deactivate exam',
-      areYouSure: 'Are you sure you want to deactivate <strong>{ examTitle }</strong>?',
+      areYouSure: "Are you sure you want to deactivate '{ examTitle }'?",
       noLongerVisible: 'The exam will be no longer be visible to the following:',
       cancel: 'Cancel',
       deactivate: 'Deactivate',

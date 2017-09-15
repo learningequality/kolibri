@@ -33,8 +33,5 @@ function $trWrapper(formatter, messageId, args) {
 vue.prototype.$tr = function $tr(messageId, args) {
   return $trWrapper.call(this, this.$formatMessage, messageId, args);
 };
-vue.prototype.$trHtml = function $trHtml(messageId, args) {
-  return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
-};
 
 export default vue;

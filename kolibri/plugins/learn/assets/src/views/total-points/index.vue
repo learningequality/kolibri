@@ -62,7 +62,7 @@
 
   .description
     display: inline-block
-    padding-left: 0.25em
+    margin-left: 8px
 
   .description-value
     font-size: x-large

@@ -13,7 +13,7 @@
         <thead class="table-header">
           <tr>
             <th>{{ $tr('nameHeader') }}</th>
-            <th>{{ $tr('numContentsHeader') }}</th>
+            <th>{{ $tr('numResourcesHeader') }}</th>
             <th>{{ $tr('sizeHeader') }}</th>
             <th>{{ $tr('lastUpdatedHeader') }}</th>
             <th></th>
@@ -27,7 +27,7 @@
             </td>
 
             <td>
-              <span>{{ channel.total_files }}</span>
+              <span>{{ channel.total_resources }}</span>
             </td>
             <td>
               <span>{{ bytesForHumans(channel.total_file_size) }}</span>
@@ -62,12 +62,14 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
-  import { deleteChannel, refreshChannelList } from '../../state/actions/manageContentActions';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import deleteChannelModal from './delete-channel-modal';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   export default {
+    name: 'channelsGrid',
     data: () => ({
       selectedChannelId: null,
       notification: null,
@@ -103,13 +105,7 @@
         if (this.selectedChannelId !== null) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
-          this.deleteChannel(channelId)
-            .then(() => {
-              this.$emit('deletesuccess');
-            })
-            .catch(() => {
-              this.$emit('deletefailure');
-            });
+          this.triggerChannelDeleteTask(channelId);
         }
       },
       bytesForHumans(size) {
@@ -122,17 +118,16 @@
         pageState: state => state.pageState,
       },
       actions: {
-        deleteChannel,
+        triggerChannelDeleteTask,
         refreshChannelList,
       },
     },
-    name: 'channelsGrid',
     $trs: {
       emptyChannelListMessage: 'No channels installed',
       deleteButtonLabel: 'Delete',
       lastUpdatedHeader: 'Last updated',
       nameHeader: 'Channel',
-      numContentsHeader: '# Contents',
+      numResourcesHeader: 'Resources',
       sizeHeader: 'Size',
     },
   };

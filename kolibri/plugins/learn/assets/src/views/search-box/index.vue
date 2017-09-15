@@ -119,7 +119,6 @@
   .search-input
     display: table-cell
     width: 100%
-    height: 36px
     margin: 0
     padding: 0
     padding-left: 8px
