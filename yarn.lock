@@ -3047,9 +3047,9 @@ katex@^0.6.0:
   dependencies:
     match-at "^0.1.0"
 
-keen-ui@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/keen-ui/-/keen-ui-1.0.0.tgz#379f35a9222c4492613a1b755d462d4044afc5a4"
+keen-ui@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/keen-ui/-/keen-ui-1.0.1.tgz#9f85bd82d3c9f258c95df8f5abba07d5cd9803bb"
   dependencies:
     autosize "^3.0.20"
     deep-assign "^2.0.0"
@@ -4854,9 +4854,9 @@ schema-utils@^0.3.0:
   dependencies:
     ajv "^5.0.0"
 
-screenfull@3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.0.2.tgz#9fbcce07bad4c680a8f90f2bfc9c41788af55d0c"
+screenfull@3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.3.1.tgz#5eea886b412043af89e2e5cc4433f894d0ebb90b"
 
 seededshuffle@^0.1.1:
   version "0.1.1"

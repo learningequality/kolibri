@@ -42,32 +42,19 @@
 
     <div v-else>
 
-      <div class="actions-header pure-g">
+      <div class="actions-header">
 
-        <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
-          <ui-icon
-            :aria-label="$tr('search')"
-            icon="search"
-          />
-          <textbox
-            :aria-label="$tr('searchForUser')"
-            v-model.trim="filterInput"
-            type="search"
-            :placeholder="$tr('searchForUser')"
-            @input="pageNum = 1"
-            ref="searchbox"
-            class="inline-block"
-            />
-          <ui-icon-button
-            type="secondary"
-            icon="clear"
-            :class="filterInput === '' ? 'invisible' : ''"
-            @click="$refs.searchbox.reset()"
-          />
-        </div>
-        <div :class="[windowSize.breakpoint > 3 ? 'pure-u-1-4' : 'pure-u-1-1', filterInput === '' ? '' : 'invisible']">
+        <k-filter-textbox
+          class="filter"
+          :class="{ 'invisible' : showSelectedUsers }"
+          :placeholder="$tr('searchForUser')"
+          v-model.trim="filterInput"
+          @input="pageNum = 1"
+        />
+        <div class="inline-block">
           <ui-switch
             name="showSelectedUsers"
+            :class="{ 'invisible' : filterInput }"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
             v-model="showSelectedUsers"
             class="switch"
@@ -155,7 +142,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiSwitch from 'keen-ui/src/UiSwitch';
@@ -191,7 +178,7 @@
       kCheckbox,
       uiIconButton,
       uiIcon,
-      textbox,
+      kFilterTextbox,
       userCreateModal,
       confirmEnrollmentModal,
       uiSwitch,
@@ -422,5 +409,8 @@
   .row-enter, .row-leave-active
     opacity: 0
     transform: scale3d(1, 0.5, 1)
+
+  .filter
+    margin-right: 16px
 
 </style>

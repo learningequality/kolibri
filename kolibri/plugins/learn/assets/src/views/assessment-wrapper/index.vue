@@ -84,7 +84,7 @@ oriented data synchronization.
   import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -174,7 +174,7 @@ oriented data synchronization.
       },
       saveAttemptLogMasterLog() {
         this.saveAttemptLogAction().then(() => {
-          if (this.canLogInteractions && this.success) {
+          if (this.isUserLoggedIn && this.success) {
             this.setMasteryLogCompleteAction(now());
             this.saveMasteryLogAction();
           }
@@ -283,7 +283,7 @@ oriented data synchronization.
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
       },
       sessionInitialized() {
-        if (this.canLogInteractions) {
+        if (this.isUserLoggedIn) {
           this.initMasteryLog();
         } else {
           this.createDummyMasteryLogAction();
@@ -323,9 +323,6 @@ oriented data synchronization.
       this.saveAttemptLogMasterLog();
     },
     computed: {
-      canLogInteractions() {
-        return !this.isSuperuser && this.isUserLoggedIn;
-      },
       recentAttempts() {
         if (!this.pastattempts) {
           return [];
@@ -384,7 +381,6 @@ oriented data synchronization.
         updateExerciseProgress: actions.updateExerciseProgress,
       },
       getters: {
-        isSuperuser: getters.isSuperuser,
         isUserLoggedIn: getters.isUserLoggedIn,
         mastered: state => state.core.logging.mastery.complete,
         totalattempts: state => state.core.logging.mastery.totalattempts,

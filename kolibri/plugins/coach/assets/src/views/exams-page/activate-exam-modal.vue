@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('activateExam')" @cancel="close">
     <p>
-      <span v-html="$trHtml('areYouSure', { examTitle })"></span>
+      <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('willBeVisible') }}
     </p>
     <p>
@@ -31,7 +31,7 @@
     name: 'activateExamModal',
     $trs: {
       activateExam: 'Activate exam',
-      areYouSure: 'Are you sure you want to activate <strong>{ examTitle }</strong>?',
+      areYouSure: "Are you sure you want to activate '{ examTitle }'?",
       willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
       activate: 'Activate',

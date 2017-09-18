@@ -1,7 +1,7 @@
 <template>
 
   <core-modal :title="$tr('deleteExam')" @cancel="close">
-    <p v-html="$trHtml('areYouSure', { examTitle })"></p>
+    <p>{{ $tr('areYouSure', { examTitle }) }}</p>
     <div class="footer">
       <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
       <k-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
@@ -21,7 +21,7 @@
     $trs: {
       deleteExam: 'Delete exam',
       areYouSure:
-        'Are you sure you want to delete <strong>{ examTitle }</strong>? You will lose all data for this exam.',
+        "Are you sure you want to delete '{ examTitle }'? You will lose all data for this exam.",
       cancel: 'Cancel',
       delete: 'Delete',
     },

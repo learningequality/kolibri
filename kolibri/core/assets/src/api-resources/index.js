@@ -22,9 +22,9 @@ import ExamAttemptLogResource from './examAttemptLog';
 import FacilityDatasetResource from './facilityDataset';
 import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
-import FileSummaryResource from './fileSummary';
 import DeviceProvisionResource from './deviceProvision';
 import DevicePermissionsResource from './devicePermissions';
+import { NewDevicePermissionsResource } from './devicePermissions';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -50,9 +50,9 @@ const examAttemptLogResource = new ExamAttemptLogResource();
 const facilityDatasetResource = new FacilityDatasetResource();
 const userProgressResource = new UserProgressResource();
 const contentNodeProgressResource = new ContentNodeProgressResource();
-const fileSummaryResource = new FileSummaryResource();
 const deviceProvisionResource = new DeviceProvisionResource();
 const devicePermissionsResource = new DevicePermissionsResource();
+const newDevicePermissionsResource = new NewDevicePermissionsResource();
 
 export {
   classroomResource as ClassroomResource,
@@ -79,7 +79,7 @@ export {
   facilityDatasetResource as FacilityDatasetResource,
   userProgressResource as UserProgressResource,
   contentNodeProgressResource as ContentNodeProgressResource,
-  fileSummaryResource as FileSummaryResource,
   deviceProvisionResource as DeviceProvisionResource,
   devicePermissionsResource as DevicePermissionsResource,
+  newDevicePermissionsResource as NewDevicePermissionsResource,
 };

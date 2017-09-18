@@ -1,4 +1,3 @@
-import VueIntl from 'vue-intl';
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
 import importIntlLocale from './import-intl-locale';
@@ -29,19 +28,43 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   return formatter(message, args);
 }
 
+export const languageDirections = {
+  LTR: 'ltr',
+  RTL: 'rtl',
+};
+
 const defaultLocale = 'en';
 
+export const defaultLanguage = {
+  id: 'en',
+  lang_name: 'English',
+  lang_direction: languageDirections.LTR,
+};
+
+export const languageValidator = language => {
+  return ['id', 'lang_name', 'lang_direction'].reduce((valid, key) => valid && language[key], true);
+};
+
 export const availableLanguages = {
-  en: {
-    code: 'en',
-    name: 'English',
-  },
+  en: defaultLanguage,
 };
 
 export let currentLanguage = defaultLocale;
 
 // Default to ltr
-export let languageDirection = 'ltr';
+export let languageDirection = languageDirections.LTR;
+
+export const getContentLangDir = language => {
+  return (language || {}).lang_direction || languageDirections.LTR;
+};
+
+export const getLangDir = id => {
+  return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
+};
+
+export const isRtl = id => {
+  return getLangDir(id) === languageDirections.RTL;
+};
 
 export const languageDensities = {
   englishLike: 'english_like',
@@ -76,10 +99,14 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function setLanguageDensity(lang_code) {
-  const shortCode = lang_code.split('-')[0].toLowerCase();
+function languageIdToCode(id) {
+  return id.split('-')[0].toLowerCase();
+}
+
+function setLanguageDensity(id) {
+  const langCode = languageIdToCode(id);
   // Set the exported languageDensity in JS
-  languageDensity = languageDensityMapping[shortCode] || languageDensities.englishLike;
+  languageDensity = languageDensityMapping[langCode] || languageDensities.englishLike;
   // Set the body class for global typography
   global.document.body.classList.add(`language-${languageDensity}`);
 }
@@ -138,6 +165,8 @@ function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
+  const VueIntl = require('vue-intl');
+
   vue.use(VueIntl, { defaultLocale });
 
   vue.prototype.isRtl = global.languageDir === 'rtl';
@@ -151,10 +180,6 @@ function setUpVueIntl() {
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
-  };
-  vue.prototype.$trHtml = function $trHtml(messageId, args) {
-    const nameSpace = this.$options.name || this.$options.$trNameSpace;
-    return $trWrapper(nameSpace, this.$options.$trs, this.$formatHTMLMessage, messageId, args);
   };
 
   if (global.languageCode) {
@@ -177,9 +202,13 @@ export function setUpIntl() {
     if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
       Promise.all([
         new Promise(resolve => {
-          require.ensure([], require => {
-            resolve(() => require('intl'));
-          });
+          require.ensure(
+            ['intl'],
+            require => {
+              resolve(() => require('intl'));
+            },
+            'intl'
+          );
         }),
         importIntlLocale(global.languageCode),
       ]).then(
@@ -199,11 +228,15 @@ export function setUpIntl() {
         }
       );
     } else if (global.languageCode === 'rt-lft') {
-      require.ensure([], () => {
-        toFakeRTL = require('./mirrorText').toFakeRTL;
-        setUpVueIntl();
-        resolve();
-      });
+      require.ensure(
+        ['./mirrorText'],
+        require => {
+          toFakeRTL = require('./mirrorText').default;
+          setUpVueIntl();
+          resolve();
+        },
+        'fakeRtl'
+      );
     } else {
       setUpVueIntl();
       resolve();

@@ -81,7 +81,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
-    'kolibri.content.middleware.ContentDBRoutingMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -125,11 +124,6 @@ DATABASES = {
     },
 }
 
-# Enable dynamic routing for content databases
-DATABASE_ROUTERS = [
-    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
-    'kolibri.content.content_db_router.ContentDBRouter']
-
 # Content directories and URLs for channel metadata and content files
 
 # Directory and URL for storing content databases for channel data
@@ -153,9 +147,10 @@ LANGUAGES = [
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
     ('es-mx', 'Español (México)'),
-    ('fr-fr', 'Français, langue française'),
+    ('fr-fr', 'Français'),
     ('pt-pt', 'Português'),
     ('hi-in', 'हिंदी'),
+    ('ar-eg', 'العَرَبِيَّة‎‎')
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
@@ -221,6 +216,12 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'filters': ['require_debug_false'],
         },
+        'request_debug': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'color',
+            'filters': ['require_debug_true'],
+        },
         'file_debug': {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
@@ -242,7 +243,7 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'file'],
+            'handlers': ['mail_admins', 'file', 'request_debug'],
             'level': 'ERROR',
             'propagate': False,
         },

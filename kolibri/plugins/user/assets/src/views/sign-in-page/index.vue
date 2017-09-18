@@ -5,54 +5,72 @@
       <logo class="logo"/>
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
+        <ui-alert
+          v-if="invalidCredentials"
+          type="error"
+          class="alert"
+          :dismissible="false"
+        >
+          {{ $tr('signInError') }}
+        </ui-alert>
         <transition name="textbox">
-          <core-textbox
-            :label="$tr('username')"
+          <k-textbox
+            ref="username"
             id="username"
-            :placeholder="$tr('enterUsername')"
-            :aria-label="$tr('username')"
+            autocomplete="username"
+            :autofocus="true"
+            :label="$tr('username')"
+            :invalid="usernameIsInvalid"
+            :invalidText="usernameIsInvalidText"
+            @blur="handleUsernameBlur"
+            @input="showDropdown = true"
+            @keydown="handleKeyboardNav"
             v-model="username"
-            required
-            autofocus
-            @focus="showDropdown = true"
-            @blur="showDropdown = false"
-            @keydown="handleKeyboardNav"/>
+          />
         </transition>
         <transition name="list">
           <ul
+            v-if="simpleSignIn && suggestions.length"
+            v-show="showDropdown"
             class="suggestions"
-            v-if="simpleLogin && suggestions.length && !uniqueMatch"
-            v-show="showDropdown">
-            <ui-autocomplete-suggestion v-for="(suggestion, i) in suggestions"
+          >
+            <ui-autocomplete-suggestion
+              v-for="(suggestion, i) in suggestions"
+              :key="i"
               :suggestion="suggestion"
+              :class="{ highlighted: highlightedIndex === i }"
               @click.native="fillUsername(suggestion)"
-              :class="{ highlighted: highlightedIndex === i }"/>
+            />
           </ul>
         </transition>
         <transition name="textbox">
-          <core-textbox
-            :label="$tr('password')"
-            v-if="(!simpleLogin || (simpleLogin && (passwordMissing || invalidCredentials)))"
+          <k-textbox
+            v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+            ref="password"
             id="password"
             type="password"
-            :placeholder="$tr('enterPassword')"
-            :aria-label="$tr('password')"
-            v-model="password"
             autocomplete="current-password"
-            :autofocus="simpleLogin"
-            :required="!simpleLogin"
-            :invalid="passwordMissing"
-            :error="passwordMissing ? $tr('enterPassword') : ''"/>
+            :label="$tr('password')"
+            :autofocus="simpleSignIn"
+            :invalid="passwordIsInvalid"
+            :invalidText="passwordIsInvalidText"
+            @blur="passwordBlurred = true"
+            v-model="password"
+          />
         </transition>
-        <k-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
-
-        <p v-if="invalidCredentials" class="sign-in-error">{{ $tr('signInError') }}</p>
+        <k-button
+          id="login-btn"
+          type="submit"
+          :text="$tr('signIn')"
+          :primary="true"
+          :disabled="busy"
+        />
       </form>
       <div id="divid-line"></div>
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUp">
+        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
           <k-button :text="$tr('createAccount')" :primary="false"/>
         </router-link>
         <a class="group-btn" href="/learn">
@@ -68,22 +86,23 @@
 
 <script>
 
-  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import uiAlert from 'keen-ui/src/UiAlert';
+
   export default {
     name: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
       signIn: 'Sign in',
       username: 'Username',
-      enterUsername: 'Enter username',
       password: 'Password',
       enterPassword: 'Enter password',
       noAccount: `Don't have an account?`,
@@ -91,12 +110,15 @@
       accessAsGuest: 'Access as guest',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
+      required: 'This field is required',
+      requiredForCoachesAdmins: 'Password is required for coaches and admins',
     },
     components: {
       kButton,
-      coreTextbox,
+      kTextbox,
       logo,
       uiAutocompleteSuggestion,
+      uiAlert,
     },
     data: () => ({
       username: '',
@@ -105,19 +127,12 @@
       suggestionTerm: '',
       showDropdown: true,
       highlightedIndex: -1,
+      usernameBlurred: false,
+      passwordBlurred: false,
+      formSubmitted: false,
     }),
-    watch: { username: 'setSuggestionTerm' },
     computed: {
-      signUp() {
-        return { name: PageNames.SIGN_UP };
-      },
-      versionMsg() {
-        return this.$tr('poweredBy', { version: __version });
-      },
-      canSignUp() {
-        return this.facilityConfig.learnerCanSignUp;
-      },
-      simpleLogin() {
+      simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
       suggestions() {
@@ -126,6 +141,7 @@
           sug.toLowerCase().startsWith(this.username.toLowerCase())
         );
       },
+      // TODO: not used
       uniqueMatch() {
         // If we have a matching username entered, don't show any suggestions.
         return (
@@ -133,39 +149,49 @@
           this.suggestions[0].toLowerCase() === this.username.toLowerCase()
         );
       },
-    },
-    methods: {
-      handleKeyboardNav(e) {
-        if (this.showDropdown && this.suggestions.length) {
-          switch (e.code) {
-            case 'ArrowDown':
-              this.highlightedIndex = Math.min(
-                this.highlightedIndex + 1,
-                this.suggestions.length - 1
-              );
-              break;
-            case 'Enter':
-              this.fillUsername(this.suggestions[this.highlightedIndex]);
-              e.preventDefault();
-              break;
-            case 'Escape':
-              this.showDropdown = false;
-              break;
-            case 'ArrowUp':
-              this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
-              break;
-            default:
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.$tr('required');
           }
         }
+        return '';
       },
-      signIn() {
-        this.kolibriLogin({
-          username: this.username,
-          password: this.password,
-          facility: this.facility,
-        });
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
       },
-      setSuggestionTerm(newVal, oldVal) {
+      passwordIsInvalidText() {
+        if (this.passwordBlurred || this.formSubmitted) {
+          if (this.simpleSignIn && this.password === '') {
+            return this.$tr('requiredForCoachesAdmins');
+          } else if (this.password === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      passwordIsInvalid() {
+        return !!this.passwordIsInvalidText;
+      },
+      formIsValid() {
+        if (this.simpleSignIn) {
+          return !this.usernameIsInvalid;
+        }
+        return !this.usernameIsInvalid && !this.passwordIsInvalid;
+      },
+      canSignUp() {
+        return this.facilityConfig.learnerCanSignUp;
+      },
+      signUpPage() {
+        return { name: PageNames.SIGN_UP };
+      },
+      versionMsg() {
+        return this.$tr('poweredBy', { version: __version });
+      },
+    },
+    watch: { username: 'setSuggestionTerm' },
+    methods: {
+      setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
           // Only check if defined or not null
           if (newVal.length < 3) {
@@ -195,26 +221,83 @@
             this.usernameSuggestions = users.map(user => user.username);
             this.showDropdown = true;
           })
-          .catch(err => {
+          .catch(() => {
             this.usernameSuggestions = [];
           });
+      },
+      handleKeyboardNav(e) {
+        switch (e.code) {
+          case 'ArrowDown':
+            if (this.showDropdown && this.suggestions.length) {
+              this.highlightedIndex = Math.min(
+                this.highlightedIndex + 1,
+                this.suggestions.length - 1
+              );
+            }
+            break;
+          case 'ArrowUp':
+            if (this.showDropdown && this.suggestions.length) {
+              this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+            }
+            break;
+          case 'Escape':
+            this.showDropdown = false;
+            break;
+          case 'Enter':
+            if (this.highlightedIndex < 0) {
+              this.showDropdown = false;
+            } else {
+              this.fillUsername(this.suggestions[this.highlightedIndex]);
+              e.preventDefault();
+            }
+            break;
+          default:
+            this.showDropdown = true;
+        }
       },
       fillUsername(username) {
         // Only do this if we have been passed a non-null value
         if (username !== null && typeof username !== 'undefined') {
           this.username = username;
           this.showDropdown = false;
+          this.highlightedIndex = -1;
+          // focus on input after selection
+          this.$refs.username.$el.querySelector('input').focus();
+        }
+      },
+      handleUsernameBlur() {
+        this.usernameBlurred = true;
+        this.showDropdown = false;
+      },
+      signIn() {
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.kolibriLogin({
+            username: this.username,
+            password: this.password,
+            facility: this.facility,
+          });
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
         }
       },
     },
     vuex: {
       getters: {
-        facilityConfig: getters.facilityConfig,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        facility: currentFacilityId,
+        facilityConfig,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        facility: getters.currentFacilityId,
+        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        busy: state => state.core.signInBusy,
       },
-      actions: { kolibriLogin: actions.kolibriLogin },
+      actions: { kolibriLogin },
     },
   };
 
@@ -356,5 +439,9 @@
 
   .textbox-leave
     transform: opacity 0
+
+  .alert
+    // Needed since alert has transparent background-color
+    background-color: white
 
 </style>

@@ -23,58 +23,67 @@
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <core-textbox
-        :label="$tr('name')"
-        :aria-label="$tr('name')"
-        :maxlength="120"
-        v-model="name"
-        autocomplete="name"
-        :autofocus="true"
-        required
+      <k-textbox
+        ref="name"
         id="name"
-        type="text" />
+        type="text"
+        autocomplete="name"
+        :label="$tr('name')"
+        :maxlength="120"
+        :autofocus="true"
+        :invalid="nameIsInvalid"
+        :invalidText="nameIsInvalidText"
+        @blur="nameBlurred = true"
+        v-model="name"
+      />
 
-      <core-textbox
+      <k-textbox
+        ref="username"
+        id="username"
+        type="text"
+        autocomplete="username"
         :label="$tr('username')"
-        :aria-label="$tr('username')"
         :maxlength="30"
-        :invalid="!usernameIsValid"
-        :error="usernameIsInvalidError"
+        :invalid="usernameIsInvalid"
+        :invalidText="usernameIsInvalidText"
+        @blur="usernameBlurred = true"
         @input="resetSignUpState"
         v-model="username"
-        autocomplete="username"
-        required
-        id="username"
-        type="text" />
+      />
 
-      <core-textbox
+      <k-textbox
+        ref="password"
         id="password"
         type="password"
-        :aria-label="$tr('password')"
-        :label="$tr('password')"
-        v-model="password"
         autocomplete="new-password"
-        required />
+        :label="$tr('password')"
+        :invalid="passwordIsInvalid"
+        :invalidText="passwordIsInvalidText"
+        @blur="passwordBlurred = true"
+        v-model="password"
+      />
 
-      <core-textbox
+      <k-textbox
+        ref="confirmedPassword"
         id="confirmed-password"
         type="password"
-        :aria-label="$tr('reEnterPassword')"
-        :label="$tr('reEnterPassword')"
-        :invalid="!passwordsMatch"
-        :error="passwordError "
-        v-model="confirmed_password"
         autocomplete="new-password"
-        required />
+        :label="$tr('reEnterPassword')"
+        :invalid="confirmedPasswordIsInvalid"
+        :invalidText="confirmedPasswordIsInvalidText"
+        @blur="confirmedPasswordBlurred = true"
+        v-model="confirmedPassword"
+      />
 
       <ui-select
         :name="$tr('selectFacility')"
         :placeholder="$tr('selectFacility')"
         :label="$tr('facility')"
-        :options="facilityOptions"
-        :invalid="selectFacilityInvalid"
-        :error="$tr('selectFacility')"
         :value="selectedFacility"
+        :options="facilityList"
+        :invalid="facilityIsInvalid"
+        :error="facilityIsInvalidText"
+        @blur="facilityBlurred = true"
         @input="updateSelection"
       />
 
@@ -91,9 +100,10 @@
 
   import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
+  import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
@@ -115,11 +125,12 @@
       finish: 'Finish',
       facility: 'Facility',
       selectFacility: 'Select a facility',
+      required: 'This field is required',
     },
     components: {
       kButton,
       uiAlert,
-      coreTextbox,
+      kTextbox,
       uiToolbar,
       logo,
       uiIcon,
@@ -129,31 +140,41 @@
       name: '',
       username: '',
       password: '',
-      confirmed_password: '',
-      checkSelect: false,
+      confirmedPassword: '',
       selection: {},
+      nameBlurred: false,
+      usernameBlurred: false,
+      passwordBlurred: false,
+      confirmedPasswordBlurred: false,
+      facilityBlurred: false,
+      formSubmitted: false,
     }),
     computed: {
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
-      passwordsMatch() {
-        if (this.password && this.confirmed_password) {
-          return this.password === this.confirmed_password;
-        }
-        return true;
+      facilityList() {
+        return this.facilities.map(facility => ({
+          label: facility.name,
+          id: facility.id,
+        }));
       },
-      passwordError() {
-        if (this.passwordsMatch) {
-          return '';
+      selectedFacility() {
+        if (this.facilityList.length === 1) {
+          return this.facilityList[0];
         }
-        return this.$tr('passwordMatchError');
+        return this.selection;
       },
-      usernameIsAlphaNumUnderscore() {
-        if (this.username === '') {
-          return true;
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
         }
-        return /^\w+$/g.test(this.username);
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
       },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
@@ -161,23 +182,69 @@
         }
         return true;
       },
-      usernameIsValid() {
-        return this.usernameIsAlphaNumUnderscore && this.usernameDoesNotExistYet;
-      },
-      usernameIsInvalidError() {
-        if (!this.usernameIsAlphaNumUnderscore) {
-          return this.$tr('usernameAlphaNumError');
-        } else if (!this.usernameDoesNotExistYet) {
-          return this.$tr('usernameAlreadyExistsError');
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!validateUsername(this.username)) {
+            return this.$tr('usernameAlphaNumError');
+          }
+          if (!this.usernameDoesNotExistYet) {
+            return this.$tr('usernameAlreadyExistsError');
+          }
         }
+        return '';
       },
-      allFieldsPopulated() {
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
+      },
+      passwordIsInvalidText() {
+        if (this.passwordBlurred || this.formSubmitted) {
+          if (this.password === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      passwordIsInvalid() {
+        return !!this.passwordIsInvalidText;
+      },
+      confirmedPasswordIsInvalidText() {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
+          if (this.confirmedPassword === '') {
+            return this.$tr('required');
+          }
+          if (this.confirmedPassword !== this.password) {
+            return this.$tr('passwordMatchError');
+          }
+        }
+        return '';
+      },
+      confirmedPasswordIsInvalid() {
+        return !!this.confirmedPasswordIsInvalidText;
+      },
+      noFacilitySelected() {
+        return !this.selectedFacility.id;
+      },
+      facilityIsInvalidText() {
+        if (this.facilityBlurred || this.formSubmitted) {
+          if (this.noFacilitySelected) {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      facilityIsInvalid() {
+        return !!this.facilityIsInvalidText;
+      },
+      formIsValid() {
         return (
-          this.name &&
-          this.username &&
-          this.password &&
-          this.confirmed_password &&
-          !this.noFacilitySelected
+          !this.nameIsInvalid &&
+          !this.usernameIsInvalid &&
+          !this.passwordIsInvalid &&
+          !this.confirmedPasswordIsInvalid &&
+          !this.facilityIsInvalid
         );
       },
       unknownError() {
@@ -189,32 +256,14 @@
       errorMessage() {
         return this.backendErrorMessage || this.$tr('genericError');
       },
-      facilityOptions() {
-        return this.facilities.map(facility => ({
-          label: facility.name,
-          id: facility.id,
-        }));
-      },
-      noFacilitySelected() {
-        return !this.selectedFacility.id;
-      },
-      selectFacilityInvalid() {
-        if (!this.checkSelect) {
-          return false;
-        }
-        return this.noFacilitySelected;
-      },
-      selectedFacility() {
-        if (this.facilityOptions.length === 1) {
-          return this.facilityOptions[0];
-        }
-        return this.selection;
-      },
     },
     methods: {
+      updateSelection(selection) {
+        this.selection = selection;
+      },
       signUp() {
-        this.checkSelect = true;
-        const canSubmit = this.allFieldsPopulated && this.passwordsMatch && !this.busy;
+        this.formSubmitted = true;
+        const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
           this.signUpAction({
             facility: this.selectedFacility.id,
@@ -222,10 +271,20 @@
             username: this.username,
             password: this.password,
           });
+        } else {
+          this.focusOnInvalidField();
         }
       },
-      updateSelection(selection) {
-        this.selection = selection;
+      focusOnInvalidField() {
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        }
       },
     },
     vuex: {

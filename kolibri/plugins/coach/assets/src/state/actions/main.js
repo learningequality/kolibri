@@ -1,6 +1,15 @@
 import * as Constants from '../../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import { ClassroomResource } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'classListTitles';
+
+const messages = {
+  classListPageTitle: 'Classes',
+};
+
+const translator = createTranslator(name, messages);
 
 // ================================
 // CLASS LIST ACTIONS
@@ -28,7 +37,7 @@ function showClassListPage(store) {
       store.dispatch('SET_PAGE_STATE', {});
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Coach - Classes'); // Follow Naming Scheme
+      store.dispatch('CORE_SET_TITLE', translator.$tr('classListPageTitle'));
     },
     error => {
       coreActions.handleApiError(store, error);

@@ -23,7 +23,7 @@ class DeviceSettings(models.Model):
     """
 
     is_provisioned = models.BooleanField(default=False)
-    language_code = models.CharField(max_length=15, default=settings.LANGUAGE_CODE)
+    language_id = models.CharField(max_length=15, default=settings.LANGUAGE_CODE)
 
     def save(self, *args, **kwargs):
         self.pk = 1

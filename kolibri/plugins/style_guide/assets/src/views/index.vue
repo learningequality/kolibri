@@ -58,6 +58,13 @@
   html
     overflow: initial
 
+  code
+    background: #fdf6e3
+    color: #268bd2
+    font-size: smaller
+    padding: 4px
+    white-space: nowrap
+
   @require '../styles/style-guide.styl'
   @require '~vuep/dist/vuep.css'
 

@@ -38,6 +38,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
@@ -90,7 +91,7 @@
     },
     vuex: {
       getters: {
-        channels: state => state.core.channels.list,
+        channels: getChannels,
         standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,

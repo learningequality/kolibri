@@ -1,22 +1,20 @@
 /* eslint-env node */
-import logger from 'kolibri.lib.logging';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import {
   ClassroomResource,
   MembershipResource,
   FacilityUserResource,
-  TaskResource,
   RoleResource,
 } from 'kolibri.resources';
 
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import {
+  samePageCheckGenerator,
+  kolibriLogout,
+  handleApiError,
+} from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { PageNames, ContentWizardPages } from '../constants';
+import { PageNames } from '../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-// because these modules use ES6 module syntax, need to access exports.default in CommonJS context
-import addCoachRoleAction from './addCoachRoleAction';
-import removeCoachRoleAction from './removeCoachRoleAction';
 import {
   showFacilityConfigPage,
   resetFacilityConfig,
@@ -24,8 +22,6 @@ import {
 } from './facilityConfigPageActions';
 
 import preparePage from './preparePage';
-
-const logging = logger.getLogger(__filename);
 
 /**
  * Vuex State Mappers
@@ -91,17 +87,6 @@ function _userState(apiUserData) {
   };
 }
 
-function _taskState(data) {
-  const state = {
-    id: data.id,
-    type: data.type,
-    status: data.status,
-    metadata: data.metadata,
-    percentage: data.percentage,
-  };
-  return state;
-}
-
 /**
  * Title Helper
  */
@@ -118,6 +103,8 @@ function _managePageTitle(title) {
 
 function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
+  store.dispatch('SET_ERROR', '');
+  store.dispatch('SET_BUSY', false);
 }
 
 // ================================
@@ -140,7 +127,7 @@ function createClass(store, name) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -160,7 +147,7 @@ function deleteClass(store, id) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -183,7 +170,7 @@ function updateClass(store, id, updateData) {
       displayModal(store, false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -207,7 +194,7 @@ function removeClassUser(store, classId, userId) {
         displayModal(store, false);
       },
       error => {
-        coreActions.handleApiError(store, error);
+        handleApiError(store, error);
       }
     );
   });
@@ -233,7 +220,7 @@ function showClassesPage(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -266,7 +253,7 @@ function showClassEditPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -300,7 +287,7 @@ function showClassEnrollPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -391,77 +378,107 @@ function createUser(store, stateUserData) {
 
 /**
  * Do a PATCH to update existing user
- * @param {object} stateUser
- * Needed: id
- * Optional Changes: full_name, username, password, facility, kind(role)
+ * @param {object} store
+ * @param {string} userId
+ * @param {object} userUpdates Optional Changes: full_name, username, password, and kind(role)
  */
-function updateUser(store, stateUser) {
-  // payload needs username, fullname, and facility
-  const savedUserModel = FacilityUserResource.getModel(stateUser.id);
+function updateUser(store, userId, userUpdates) {
+  store.dispatch('SET_ERROR', '');
+  store.dispatch('SET_BUSY', true);
+  const savedUserModel = FacilityUserResource.getModel(userId);
   const savedUser = savedUserModel.attributes;
-  const changedValues = {};
-  let roleAssigned = Promise.resolve(savedUser);
 
   // explicit checks for the only values that can be changed
-  if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
-    changedValues.full_name = stateUser.full_name;
+  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const changedValues = {};
+  if (userUpdates.full_name && userUpdates.full_name !== origUserState.full_name) {
+    changedValues.full_name = userUpdates.full_name;
   }
-  if (stateUser.username && stateUser.username !== savedUser.username) {
-    changedValues.username = stateUser.username;
+  if (userUpdates.username && userUpdates.username !== origUserState.username) {
+    changedValues.username = userUpdates.username;
   }
-  if (stateUser.password && stateUser.password !== savedUser.password) {
-    changedValues.password = stateUser.password;
+  if (userUpdates.password && userUpdates.password !== origUserState.password) {
+    changedValues.password = userUpdates.password;
+  }
+  if (userUpdates.kind && userUpdates.kind !== origUserState.kind) {
+    changedValues.kind = userUpdates.kind;
   }
 
-  if (stateUser.kind && stateUser.kind !== _userState(savedUser).kind) {
-    // assumes there's no previous roles to delete at first
-    let handlePreviousRoles = Promise.resolve();
+  if (Object.getOwnPropertyNames(changedValues).length === 0) {
+    displayModal(store, false);
+  } else {
+    let roleAssigned = Promise.resolve(savedUser);
 
-    if (savedUser.roles.length) {
-      const roleDeletes = [];
-      savedUser.roles.forEach(role => {
-        roleDeletes.push(RoleResource.getModel(role.id).delete());
+    if (changedValues.kind) {
+      // assumes there's no previous roles to delete at first
+      let handlePreviousRoles = Promise.resolve();
+
+      if (savedUser.roles.length) {
+        const roleDeletes = savedUser.roles.map(({ id }) => RoleResource.getModel(id).delete());
+
+        // delete the old role models if this was not a learner
+        handlePreviousRoles = Promise.all(roleDeletes).then(
+          () => {
+            // to avoid having to make an API call, clear manually
+            savedUser.roles = [];
+          },
+          // models could not be deleted
+          error => error
+        );
+      }
+
+      // then assign the new role
+      roleAssigned = new Promise((resolve, reject) => {
+        // Take care of previous roles if necessary (will autoresolve if not)
+        handlePreviousRoles.then(
+          () => {
+            // only need to assign a new role if not a learner
+            if (changedValues.kind !== UserKinds.LEARNER) {
+              assignUserRole(savedUser, changedValues.kind).then(
+                updated => resolve(updated),
+                error => handleApiError(store, error)
+              );
+            } else {
+              // new role is learner - having deleted old roles is enough
+              resolve(savedUserModel);
+            }
+          },
+          error => reject(error)
+        );
       });
-
-      // delete the old role models if this was not a learner
-      handlePreviousRoles = Promise.all(roleDeletes).then(
-        () => {
-          // to avoid having to make an API call, clear manually
-          savedUser.roles = [];
-        },
-        // models could not be deleted
-        error => error
-      );
     }
 
-    // then assign the new role
-    roleAssigned = new Promise((resolve, reject) => {
-      // Take care of previous roles if necessary (will autoresolve if not)
-      handlePreviousRoles.then(
-        () => {
-          // only need to assign a new role if not a learner
-          if (stateUser.kind !== UserKinds.LEARNER) {
-            assignUserRole(savedUser, stateUser.kind).then(
-              updated => resolve(updated),
-              error => coreActions.handleApiError(store, error)
-            );
-          } else {
-            // new role is learner - having deleted old roles is enough
-            resolve(savedUser);
+    roleAssigned.then(() => {
+      // payload needs username, fullname, and facility
+      // update user object with new values
+      savedUserModel.save(changedValues).then(
+        userWithAttrs => {
+          // dispatch changes to store
+          store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
+          displayModal(store, false);
+          const currentUser = store.state.pageState.facilityUsers.find(
+            user => user.id === store.state.core.session.user_id
+          );
+          if (
+            currentUser.id === userId &&
+            currentUser.kind !== UserKinds.SUPERUSER &&
+            changedValues.kind &&
+            changedValues.kind === UserKinds.LEARNER
+          ) {
+            window.location.href = window.location.origin;
           }
         },
-        error => reject(error)
+        error => {
+          if (error.status.code === 400) {
+            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+          } else if (error.status.code === 403) {
+            store.dispatch('SET_ERROR', error.entity);
+          }
+          store.dispatch('SET_BUSY', false);
+        }
       );
     });
   }
-
-  roleAssigned.then(userWithRole => {
-    // update user object with new values
-    savedUserModel.save(changedValues).then(userWithAttrs => {
-      // dispatch changes to store
-      store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
-    });
-  });
 }
 
 /**
@@ -474,11 +491,15 @@ function deleteUser(store, id) {
     return;
   }
   FacilityUserResource.getModel(id).delete().then(
-    user => {
+    () => {
       store.dispatch('DELETE_USER', id);
+      displayModal(store, false);
+      if (store.state.core.session.user_id === id) {
+        kolibriLogout();
+      }
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
 }
@@ -501,169 +522,16 @@ function showUserPage(store) {
       const pageState = {
         facilityUsers: users.map(_userState),
         modalShown: false,
+        error: '',
+        isBusy: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      coreActions.handleApiError(store, error);
+      handleApiError(store, error);
     }
   );
-}
-
-// ================================
-// CONTENT IMPORT/EXPORT ACTIONS
-
-function showContentPage(store) {
-  preparePage(store.dispatch, {
-    name: PageNames.CONTENT_MGMT_PAGE,
-    title: _managePageTitle('Content'),
-  });
-
-  if (!getters.isSuperuser(store.state)) {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return;
-  }
-
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
-    samePageCheckGenerator(store),
-    taskList => {
-      const pageState = {
-        taskList: taskList.map(_taskState),
-        wizardState: { shown: false },
-        channelFileSummaries: {},
-      };
-      coreActions.setChannelInfo(store).then(() => {
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-    },
-    error => {
-      coreActions.handleApiError(store, error);
-    }
-  );
-}
-
-function updateWizardLocalDriveList(store) {
-  const localDrivesPromise = TaskResource.localDrives();
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  localDrivesPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function showWizardPage(store, pageName, meta = {}) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: Boolean(pageName),
-    page: pageName || null,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-    meta,
-  });
-}
-
-function startImportWizard(store) {
-  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-}
-
-function startExportWizard(store) {
-  showWizardPage(store, ContentWizardPages.EXPORT);
-  updateWizardLocalDriveList(store);
-}
-
-function closeImportExportWizard(store) {
-  showWizardPage(store, false);
-}
-
-// called from a timer to continually update UI
-function pollTasksAndChannels(store) {
-  const samePageCheck = samePageCheckGenerator(store);
-  TaskResource.getCollection().fetch({}, true).only(
-    // don't handle response if we've switched pages or if we're in the middle of another operation
-    () => samePageCheck() && !store.state.pageState.wizardState.busy,
-    taskList => {
-      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
-      // I.e. channel list always reflects the current state of ongoing task(s).
-      coreActions.setChannelInfo(store).only(samePageCheckGenerator(store), () => {
-        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-        // Close the wizard if there's an outstanding task.
-        // (this can be removed when we support more than one
-        // concurrent task.)
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          closeImportExportWizard(store);
-        }
-      });
-    },
-    error => {
-      logging.error(`poll error: ${error}`);
-    }
-  );
-}
-
-function clearTask(store, taskId) {
-  const clearTaskPromise = TaskResource.clearTask(taskId);
-  clearTaskPromise
-    .then(() => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-    })
-    .catch(error => {
-      coreActions.handleApiError(store, error);
-    });
-}
-
-function triggerLocalContentImportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localImportPromise = TaskResource.localImportContent(driveId);
-  localImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerLocalContentExportTask(store, driveId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const localExportPromise = TaskResource.localExportContent(driveId);
-  localExportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
-}
-
-function triggerRemoteContentImportTask(store, channelId) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  return remoteImportPromise
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-      closeImportExportWizard(store);
-    })
-    .catch(error => {
-      if (error.status.code === 404) {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
-      } else {
-        store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
-      }
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    });
 }
 
 // ================================
@@ -695,18 +563,5 @@ export {
   updateUser,
   deleteUser,
   showUserPage,
-  addCoachRoleAction as addCoachRole,
-  removeCoachRoleAction as removeCoachRole,
-  showContentPage,
-  pollTasksAndChannels,
-  clearTask,
-  startImportWizard,
-  startExportWizard,
-  showWizardPage,
-  closeImportExportWizard,
-  triggerLocalContentExportTask,
-  triggerLocalContentImportTask,
-  triggerRemoteContentImportTask,
-  updateWizardLocalDriveList,
   showDataPage,
 };

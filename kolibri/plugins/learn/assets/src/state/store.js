@@ -3,7 +3,7 @@ import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
 
 const initialState = {
-  pageName: constants.PageNames.EXPLORE_CHANNEL,
+  pageName: constants.PageNames.TOPICS_CHANNEL,
   pageState: {
     topics: [],
     contents: [],
@@ -22,6 +22,9 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
+  },
+  SET_FEATURED_CHANNEL_CONTENTS(state, channelId, contents) {
+    state.pageState.featured[channelId] = contents;
   },
   SET_EXAM_LOG(state, examLog) {
     state.examLog = examLog;

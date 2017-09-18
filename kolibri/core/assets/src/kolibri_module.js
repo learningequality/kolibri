@@ -82,4 +82,7 @@ export default class KolibriModule {
   emit(...args) {
     coreApp.emit(...args);
   }
+  get Kolibri() {
+    return coreApp;
+  }
 }

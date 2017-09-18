@@ -7,7 +7,4 @@ export default class ContentNodeProgressResource extends Resource {
   static idKey() {
     return 'pk';
   }
-  static resourceIdentifiers() {
-    return ['channel_id'];
-  }
 }

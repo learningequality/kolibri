@@ -910,6 +910,8 @@ class Facility(Collection):
     FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
 
     morango_model_name = "facility"
+    _morango_proxy_order = 1
+
     _KIND = collection_kinds.FACILITY
 
     objects = CollectionProxyManager()
@@ -973,6 +975,8 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
+    _morango_proxy_order = 2
+
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1027,6 +1031,8 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
+    _morango_proxy_order = 3
+
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()

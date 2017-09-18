@@ -4,21 +4,28 @@
     @cancel="close">
     <div>
       <form @submit.prevent="callCreateGroup">
-        <textbox type="text"
+        <k-textbox
+          ref="name"
+          type="text"
           :label="$tr('learnerGroupName')"
-          :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
-          :required="true"
-          :invalid="duplicateName"
-          :error="$tr('duplicateName')"
-          v-model.trim="groupNameInput" />
-        <k-button :text="$tr('cancel')"
-          @click="close"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          @blur="nameBlurred = true"
+          v-model.trim="name"
+        />
+        <k-button
+          type="button"
+          :text="$tr('cancel')"
           :raised="false"
-          type="button" />
-        <k-button :text="$tr('save')"
+          @click="close"
+        />
+        <k-button
+          type="submit"
+          :text="$tr('save')"
           :primary="true"
-          type="submit" />
+          :disabled="submitting"
+        />
       </form>
     </div>
   </core-modal>
@@ -28,9 +35,9 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import { displayModal, createGroup } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'createGroupModal',
@@ -40,16 +47,11 @@
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
-    },
-    data() {
-      return {
-        groupNameInput: '',
-        invalid: false,
-      };
+      required: 'This field is required',
     },
     components: {
       coreModal,
-      textbox,
+      kTextbox,
       kButton,
     },
     props: {
@@ -58,21 +60,50 @@
         required: true,
       },
     },
+    data() {
+      return {
+        name: '',
+        nameBlurred: false,
+        formSubmitted: false,
+        submitting: false,
+      };
+    },
     computed: {
       duplicateName() {
         const index = this.groups.findIndex(
-          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase()
+          group => group.name.toUpperCase() === this.name.toUpperCase()
         );
         if (index === -1) {
           return false;
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateName) {
+            return this.$tr('duplicateName');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.nameIsInvalid;
+      },
     },
     methods: {
       callCreateGroup() {
-        if (!this.duplicateName) {
-          this.createGroup(this.groupNameInput);
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
+          this.createGroup(this.name);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {
@@ -81,8 +112,8 @@
     },
     vuex: {
       actions: {
-        displayModal: groupActions.displayModal,
-        createGroup: groupActions.createGroup,
+        displayModal,
+        createGroup,
       },
     },
   };

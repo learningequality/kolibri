@@ -19,7 +19,6 @@ from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
-from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
@@ -44,13 +43,7 @@ class BaseLogQuerySet(SyncableModelQuerySet):
         """
         Filter a set of logs by content_id, using content_ids from the provided list or queryset.
         """
-
-        if default_database_is_attached():
-            # perform the query using an efficient cross-database join, if possible
-            return self.using(get_active_content_database()).filter(**{content_id_lookup + "__in": content_ids})
-        else:
-            # if the databases can't be joined, convert the content_ids into a list and pass in
-            return self.filter(**{content_id_lookup + "__in": list(content_ids)})
+        return self.filter(**{content_id_lookup + "__in": content_ids})
 
 
 def log_permissions(user_field):

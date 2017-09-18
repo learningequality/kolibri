@@ -1,7 +1,7 @@
 <template>
 
   <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
-  <k-breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
+  <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs"/>
 
 </template>
 
@@ -11,18 +11,20 @@
   import { PageNames } from '../../constants';
   import { PageModes } from '../../constants';
   import * as getters from '../../state/getters';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'learnBreadcrumbs',
-    $trs: { recommended: 'Recommended' },
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
+    },
     components: { kBreadcrumbs },
     computed: {
       inLearn() {
-        return this.pageMode === PageModes.LEARN;
+        return this.pageMode === PageModes.RECOMMENDED;
       },
       learnRootLink() {
-        return { name: PageNames.LEARN_CHANNEL };
+        return { name: PageNames.RECOMMENDED };
       },
       learnBreadcrumbs() {
         const crumbs = [
@@ -31,28 +33,55 @@
             link: this.learnRootLink,
           },
         ];
-        if (this.pageName === PageNames.LEARN_CONTENT) {
+        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
           crumbs.push({ text: this.contentTitle });
         }
         return crumbs;
       },
-      inExplore() {
-        return this.pageMode === PageModes.EXPLORE;
+      inTopics() {
+        return this.pageMode === PageModes.TOPICS;
       },
-      inExploreRoot() {
-        return this.pageName === PageNames.EXPLORE_CHANNEL;
+      inTopicsChannel() {
+        return this.pageName === PageNames.TOPICS_CHANNEL;
       },
-      exploreRootLink() {
-        return { name: PageNames.EXPLORE_CHANNEL };
+      topicsChannelLink() {
+        return {
+          name: PageNames.TOPICS_CHANNEL,
+          params: {
+            channel_id: this.channelRootId,
+          },
+        };
       },
-      exploreBreadcrumbs() {
+      topicsRootLink() {
+        return {
+          name: PageNames.TOPICS_ROOT,
+        };
+      },
+      topicsBreadcrumbs() {
+        if (this.pageName === PageNames.TOPICS_ROOT) {
+          return [
+            {
+              text: this.$tr('channels'),
+            },
+          ];
+        }
         const crumbs = [
           {
-            text: this.channelTitle,
-            link: this.exploreRootLink,
+            text: this.$tr('channels'),
+            link: this.topicsRootLink,
           },
         ];
-        if (this.pageName === PageNames.EXPLORE_CONTENT) {
+        if (this.inTopicsChannel) {
+          crumbs.push({
+            text: this.channelTitle,
+          });
+          return crumbs;
+        }
+        crumbs.push({
+          text: this.channelTitle,
+          link: this.topicsChannelLink,
+        });
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
           this.contentCrumbs.forEach(crumb =>
             crumbs.push({
               text: crumb.title,
@@ -67,7 +96,7 @@
               link: this.topicLink(crumb.id),
             })
           );
-          if (!this.inExploreRoot) {
+          if (!this.inTopicsChannel) {
             crumbs.push({ text: this.topicTitle });
           }
         }
@@ -77,9 +106,8 @@
     methods: {
       topicLink(topicId) {
         return {
-          name: PageNames.EXPLORE_TOPIC,
+          name: PageNames.TOPICS_TOPIC,
           params: {
-            channel_id: this.channelId,
             id: topicId,
           },
         };
@@ -89,8 +117,8 @@
       getters: {
         pageName: state => state.pageName,
         pageMode: getters.pageMode,
-        channelId: state => getCurrentChannelObject(state).id,
-        channelTitle: state => getCurrentChannelObject(state).title,
+        channelRootId: state => state.pageState.channel.root_id,
+        channelTitle: state => state.pageState.channel.title,
         topicTitle: state => state.pageState.topic.title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
         contentTitle: state => state.pageState.content.title,

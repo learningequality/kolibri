@@ -59,6 +59,20 @@
       </table>
     </p>
 
+    <p v-if="api.methods.length">
+      Methods:
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+        <tr v-for="(method, i) in api.methods" :key="i">
+          <td><code>{{ method.name }}</code></td>
+          <td>{{ method.description ? method.description : '-' }}</td>
+        </tr>
+      </table>
+    </p>
+
   </div>
 
 </template>
@@ -149,12 +163,5 @@
   th
     background: #e0e0e0
     text-align: left
-
-  code
-    background: #fdf6e3
-    color: #268bd2
-    font-size: smaller
-    padding: 4px
-    white-space: nowrap
 
 </style>

@@ -4,21 +4,21 @@ Kolibri template tags
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import copy
 import json
 import re
 
 from django import template
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import resolve, reverse
 from django.utils.html import mark_safe
 from django.utils.timezone import now
-from django.utils.translation import get_language, get_language_bidi
+from django.utils.translation import get_language, get_language_bidi, get_language_info
 from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
 from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
-from rest_framework.test import APIClient
 from six import iteritems
 
 register = template.Library()
@@ -35,7 +35,12 @@ def kolibri_language_globals(context):
     """.format(
         lang_code=get_language(),
         lang_dir=lang_dir,
-        languages=json.dumps({code: {'code': code, 'name': name} for code, name in settings.LANGUAGES}),
+        languages=json.dumps({code: {
+            # Format to match the schema of the content Language model
+            'id': code,
+            'lang_name': name,
+            'lang_direction': get_language_info(code)['bidi']
+        } for code, name in settings.LANGUAGES}),
     )
     return mark_safe(js)
 
@@ -91,41 +96,27 @@ def kolibri_set_server_time():
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
-    # Don't bootstrap when the debug panel is active, because it prevents profiling
-    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
-        return ''
-    # check necessary for when there is no initial content databases
-    if 'kwargs_channel_id' in kwargs:
-        if not context['currentChannel']:
-            return ''
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
+            "var model = {0}.resources.{1}.createModel(JSON.parse('{2}'), {3});"
             "model.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               JSONRenderer().render(response.data).decode('utf-8'),
                                json.dumps(url_params)))
     return mark_safe(html)
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
-    # Don't bootstrap when the debug panel is active, because it prevents profiling
-    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
-        return ''
-    # check necessary for when there is no initial content databases
-    if 'kwargs_channel_id' in kwargs:
-        if not context['currentChannel']:
-            return ''
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
+            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse('{4}'));"
             "collection.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
                                json.dumps(url_params),
                                json.dumps(kwargs),
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               JSONRenderer().render(response.data).decode('utf-8'),
                                ))
     return mark_safe(html)
 
@@ -135,12 +126,6 @@ def _replace_dict_values(check, replace, dict):
             dict[key] = replace
 
 def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs):
-    # instantiate client instance to make requests to server
-    client = APIClient()
-    # copy session key to client to make requests on behalf of user
-    client.cookies[settings.SESSION_COOKIE_NAME] = context['request'].session.session_key
-    # Copy language cookie to request
-    client.cookies[settings.LANGUAGE_COOKIE_NAME] = context['request'].COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     reversal = dict()
     kwargs_check = 'kwargs_'
     # remove prepended string and matching items from kwargs
@@ -149,11 +134,13 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
             item = kwargs.pop(key)
             key = re.sub(kwargs_check, '', key)
             reversal[key] = item
-    url = reverse('{0}-{1}'.format(base_name, route), kwargs=reversal)
+    view, view_args, view_kwargs = resolve(reverse('{0}-{1}'.format(base_name, route), kwargs=reversal))
     # switch out None temporarily because invalid filtering and caching can occur
     _replace_dict_values(None, str(''), kwargs)
-    # Get headers from current request
-    language_accept_header = context['request'].META.get('HTTP_ACCEPT_LANGUAGE', '')
-    response = client.get(url, data=kwargs, HTTP_ACCEPT_LANGUAGE=language_accept_header)
+    request = copy.copy(context['request'])
+    request.GET = request.GET.copy()
+    for key in kwargs:
+        request.GET[key] = kwargs[key]
+    response = view(request, **view_kwargs)
     _replace_dict_values(str(''), None, kwargs)
     return response, kwargs, reversal

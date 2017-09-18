@@ -4,37 +4,31 @@
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <div class="pure-g">
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
+        <k-textbox
+          ref="title"
           :label="$tr('title')"
-          :ariaLabel="$tr('title')"
-          :placeholder="$tr('enterTitle')"
           :autofocus="true"
-          :invalid="titleInvalid"
-          :error="titleInvalidMsg"
+          :invalid="titleIsInvalid"
+          :invalidText="titleIsInvalidText"
+          @blur="titleBlurred = true"
           v-model.trim="inputTitle"
-          @blur="validateTitle = true"
-          @input="validateTitle = true"
         />
       </div>
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
-        <textbox
-          :label="$tr('numQuestions')"
-          :ariaLabel="$tr('numQuestions')"
-          :placeholder="$tr('enterNum')"
-          :invalid="numQuestionsInvalid"
-          :error="numQuestionsInvalidMsg"
+        <k-textbox
+          ref="numQuest"
           type="number"
+          :label="$tr('numQuestions')"
+          :invalid="numQuestIsInvalid"
+          :invalidText="numQuestIsInvalidText"
+          @blur="numQuestBlurred = true"
           v-model.trim.number="inputNumQuestions"
-          @blur="validateNumQuestMax = true"
-          @input="validateNumQuestMax = true"
         />
       </div>
     </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
-    <!--<textbox-->
-      <!--:ariaLabel="$tr('searchContent')"-->
-      <!--:placeholder="$tr('searchContent')"-->
+    <!--<k-textbox-->
       <!--v-model.trim="searchInput"-->
     <!--/>-->
     <!--<div v-if="searchInput">-->
@@ -43,7 +37,7 @@
     <div>
       <nav>
         <ol>
-          <li v-for="(topic, index) in topic.breadcrumbs" :class="breadCrumbClass(index)">
+          <li v-for="(topic, index) in topic.breadcrumbs" :key="index" :class="breadCrumbClass(index)">
             <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
             <strong v-else>{{ topic.title }}</strong>
           </li>
@@ -76,10 +70,11 @@
                 :key="exercise.id"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
-                :exerciseNumAssesments="exercise.numAssessments"
+                :exerciseNumAssessments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
                 @addExercise="handleAddExercise"
-                @removeExercise="handleRemoveExercise"/>
+                @removeExercise="handleRemoveExercise"
+              />
               <topic-row
                 v-for="topic in subtopics"
                 :key="topic.id"
@@ -89,7 +84,8 @@
                 :selectedExercises="selectedExercises"
                 @goToTopic="handleGoToTopic"
                 @addTopicExercises="handleAddTopicExercises"
-                @removeTopicExercises="handleRemoveTopicExercises"/>
+                @removeTopicExercises="handleRemoveTopicExercises"
+              />
             </tbody>
           </table>
         </transition>
@@ -98,12 +94,19 @@
 
     <div class="footer">
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
-      <p class="validation-error">{{ validationError }}</p>
+
+      <ui-alert
+        v-if="formIsInvalid"
+        type="error"
+        :dismissible="false"
+      >
+        {{ formIsInvalidText }}
+      </ui-alert>
 
       <k-button :text="$tr('preview')" @click="preview"/>
 
       <br>
-      <k-button :text="$tr('finish')" :primary="true" @click="finish"/>
+      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting"/>
     </div>
 
     <preview-new-exam-modal
@@ -112,12 +115,14 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      @randomize="seed = generateRandomSeed()"/>
+      @randomize="seed = generateRandomSeed()"
+    />
 
     <ui-snackbar-container
       class="snackbar-container"
       ref="snackbarContainer"
-      position="center"/>
+      position="center"
+    />
   </div>
 
 </template>
@@ -125,34 +130,53 @@
 
 <script>
 
-  import * as ExamActions from '../../state/actions/exam';
+  import topicRow from './topic-row';
+  import exerciseRow from './exercise-row';
+  import previewNewExamModal from './preview-new-exam-modal';
+  import {
+    fetchContent,
+    createExam,
+    addExercise,
+    removeExercise,
+    displayExamModal,
+  } from '../../state/actions/exam';
   import { className } from '../../state/getters/main';
   import { Modals as ExamModals } from '../../examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-  import shuffle from 'lodash/shuffle';
-  import random from 'lodash/random';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiSelect from 'keen-ui/src/UiSelect';
   import uiSnackbar from 'keen-ui/src/UiSnackbar';
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import textbox from 'kolibri.coreVue.components.textbox';
-  import topicRow from './topic-row';
-  import exerciseRow from './exercise-row';
-  import previewNewExamModal from './preview-new-exam-modal';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import shuffle from 'lodash/shuffle';
+  import random from 'lodash/random';
+
   export default {
-    mixins: [responsiveWindow],
     name: 'createExamPage',
+    components: {
+      uiSelect,
+      uiSnackbar,
+      uiSnackbarContainer,
+      uiProgressLinear,
+      kButton,
+      kTextbox,
+      topicRow,
+      exerciseRow,
+      previewNewExamModal,
+      kCheckbox,
+      uiAlert,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
       title: 'Exam title',
-      enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
-      enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
       numQuestionsExceed:
@@ -172,27 +196,16 @@
         selectedChannel: '',
         inputTitle: '',
         inputNumQuestions: '',
-        validateTitle: false,
-        validateNumQuestMax: false,
-        validateNumQuestExceeds: false,
-        validationError: '',
+        titleBlurred: false,
+        numQuestBlurred: false,
+        selectionMade: false,
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
         selectAll: false,
+        previewOrSubmissionAttempt: false,
+        submitting: false,
       };
-    },
-    components: {
-      uiSelect,
-      uiSnackbar,
-      uiSnackbarContainer,
-      uiProgressLinear,
-      kButton,
-      textbox,
-      topicRow,
-      exerciseRow,
-      previewNewExamModal,
-      kCheckbox,
     },
     computed: {
       duplicateTitle() {
@@ -204,14 +217,19 @@
         }
         return true;
       },
-      titleIsEmpty() {
-        return !this.inputTitle;
+      titleIsInvalidText() {
+        if (this.titleBlurred || this.previewOrSubmissionAttempt) {
+          if (this.inputTitle === '') {
+            return this.$tr('examRequiresTitle');
+          }
+          if (this.duplicateTitle) {
+            return this.$tr('duplicateTitle');
+          }
+        }
+        return '';
       },
-      titleInvalid() {
-        return this.validateTitle ? this.titleIsEmpty || this.duplicateTitle : false;
-      },
-      titleInvalidMsg() {
-        return this.titleIsEmpty ? this.$tr('examRequiresTitle') : this.$tr('duplicateTitle');
+      titleIsInvalid() {
+        return !!this.titleIsInvalidText;
       },
       maxQuestionsFromSelection() {
         // in case numAssestments is null, return 0
@@ -220,38 +238,57 @@
           0
         );
       },
-      numQuestNotWithinRange() {
-        return this.validateNumQuestMax
-          ? this.inputNumQuestions < 1 || this.inputNumQuestions > 50
-          : false;
-      },
-      noExercisesSelected() {
-        return this.selectedExercises.length === 0;
-      },
       numQuestExceedsSelection() {
-        if (this.validateNumQuestExceeds && !this.noExercisesSelected) {
-          if (this.inputNumQuestions > this.maxQuestionsFromSelection) {
-            return true;
+        return this.inputNumQuestions > this.maxQuestionsFromSelection;
+      },
+      exercisesAreSelected() {
+        return this.selectedExercises.length > 0;
+      },
+      numQuestIsInvalidText() {
+        if (this.numQuestBlurred || this.previewOrSubmissionAttempt) {
+          if (this.inputNumQuestions === '') {
+            return this.$tr('numQuestionsBetween');
+          }
+          if (this.inputNumQuestions < 1 || this.inputNumQuestions > 50) {
+            return this.$tr('numQuestionsBetween');
+          }
+          if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
+            return this.$tr('numQuestionsExceed', {
+              inputNumQuestions: this.inputNumQuestions,
+              maxQuestionsFromSelection: this.maxQuestionsFromSelection,
+            });
           }
         }
-        return false;
+        return '';
       },
-      numQuestionsInvalid() {
-        if (this.numQuestNotWithinRange) {
-          return true;
-        } else if (this.numQuestExceedsSelection) {
-          return true;
-        }
-        return false;
+      numQuestIsInvalid() {
+        return !!this.numQuestIsInvalidText;
       },
-      numQuestionsInvalidMsg() {
-        if (this.numQuestNotWithinRange) {
-          return this.$tr('numQuestionsBetween');
+      selectionIsInvalidText() {
+        if (this.selectionMade || this.previewOrSubmissionAttempt) {
+          if (!this.exercisesAreSelected) {
+            return this.$tr('noneSelected');
+          }
         }
-        return this.$tr('numQuestionsExceed', {
-          inputNumQuestions: this.inputNumQuestions,
-          maxQuestionsFromSelection: this.maxQuestionsFromSelection,
-        });
+        return '';
+      },
+      selectionIsInvalid() {
+        return !!this.selectionIsInvalidText;
+      },
+      formIsInvalidText() {
+        if (this.titleIsInvalid) {
+          return this.titleIsInvalidText;
+        }
+        if (this.numQuestIsInvalid) {
+          return this.numQuestIsInvalidText;
+        }
+        if (this.selectionIsInvalid) {
+          return this.selectionIsInvalidText;
+        }
+        return '';
+      },
+      formIsInvalid() {
+        return !!this.formIsInvalidText;
       },
       allExercisesWithinCurrentTopic() {
         let allExercises = [];
@@ -320,6 +357,7 @@
     },
     methods: {
       changeSelection() {
+        this.selectionMade = true;
         const allExercises = this.allExercisesWithinCurrentTopic;
         const currentTopicTitle = this.topic.title;
         if (this.allExercisesWithinCurrentTopicSelected) {
@@ -330,7 +368,7 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(this.currentChannel.id, topicId).then(
+        this.fetchContent(topicId).then(
           () => {
             this.loading = false;
           },
@@ -338,6 +376,7 @@
         );
       },
       handleAddExercise(exercise) {
+        this.selectionMade = true;
         this.addExercise(exercise);
         this.$refs.snackbarContainer.createSnackbar({
           message: `${this.$tr('added')} ${exercise.title}`,
@@ -350,6 +389,7 @@
         });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
+        this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.$refs.snackbarContainer.createSnackbar({
           message: `${this.$tr('added')} ${topicTitle}`,
@@ -362,12 +402,19 @@
         });
       },
       preview() {
-        if (this.checkAllValid() === true) {
+        this.previewOrSubmissionAttempt = true;
+        if (this.formIsInvalid) {
+          this.focusOnInvalidField();
+        } else {
           this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
-        if (this.checkAllValid() === true) {
+        this.previewOrSubmissionAttempt = true;
+        if (this.formIsInvalid) {
+          this.focusOnInvalidField();
+        } else {
+          this.submitting = true;
           const classCollection = {
             id: this.classId,
             name: this.className,
@@ -384,28 +431,12 @@
           this.createExam(classCollection, examObj);
         }
       },
-      checkAllValid() {
-        this.validateTitle = true;
-        this.validateNumQuestMax = true;
-        this.validateNumQuestExceeds = true;
-        if (
-          !this.titleInvalid &&
-          !this.noExercisesSelected &&
-          !this.numQuestNotWithinRange &&
-          !this.numQuestExceedsSelection
-        ) {
-          this.validationError = '';
-          return true;
-        } else if (this.titleInvalid) {
-          this.validationError = this.titleInvalidMsg;
-        } else if (this.numQuestNotWithinRange) {
-          this.validationError = this.numQuestionsInvalidMsg;
-        } else if (this.noExercisesSelected) {
-          this.validationError = this.$tr('noneSelected');
-        } else if (this.numQuestExceedsSelection) {
-          this.validationError = this.numQuestionsInvalidMsg;
+      focusOnInvalidField() {
+        if (this.titleIsInvalid) {
+          this.$refs.title.focus();
+        } else if (this.numQuestIsInvalid) {
+          this.$refs.numQuest.focus();
         }
-        return false;
       },
       notLastBreadcrumb(index) {
         return index !== this.topic.breadcrumbs.length - 1;
@@ -433,11 +464,11 @@
         exams: state => state.pageState.exams,
       },
       actions: {
-        fetchContent: ExamActions.fetchContent,
-        createExam: ExamActions.createExam,
-        addExercise: ExamActions.addExercise,
-        removeExercise: ExamActions.removeExercise,
-        displayExamModal: ExamActions.displayExamModal,
+        fetchContent,
+        createExam,
+        addExercise,
+        removeExercise,
+        displayExamModal,
       },
     },
   };

@@ -6,15 +6,15 @@
   >
     <div>
       <form @submit.prevent="updateName">
-        <core-textbox
-          :label="$tr('classname')"
-          :aria-label="$tr('classname')"
-          v-model.trim="name"
-          :autofocus="true"
-          :required="true"
-          :invalid="duplicateName"
-          :error="$tr('duplicateName')"
+        <k-textbox
+          ref="name"
           type="text"
+          :label="$tr('classname')"
+          :autofocus="true"
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          @blur="nameBlurred = true"
+          v-model.trim="name"
         />
 
         <section class="footer">
@@ -29,6 +29,7 @@
             type="submit"
             :text="$tr('update')"
             :primary="true"
+            :disabled="submitting"
           />
         </section>
       </form>
@@ -40,10 +41,10 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { updateClass, displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
     name: 'classnameEditModal',
     $trs: {
@@ -52,11 +53,12 @@
       cancel: 'Cancel',
       update: 'Update',
       duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
     components: {
       kButton,
       coreModal,
-      coreTextbox,
+      kTextbox,
     },
     props: {
       classname: {
@@ -73,7 +75,12 @@
       },
     },
     data() {
-      return { name: this.classname };
+      return {
+        name: this.classname,
+        nameBlurred: false,
+        formSubmitted: false,
+        submitting: false,
+      };
     },
     computed: {
       duplicateName() {
@@ -88,11 +95,32 @@
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateName) {
+            return this.$tr('duplicateName');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.nameIsInvalid;
+      },
     },
     methods: {
       updateName() {
-        if (!this.duplicateName) {
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
           this.updateClass(this.classid, { name: this.name });
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {
@@ -101,8 +129,8 @@
     },
     vuex: {
       actions: {
-        updateClass: actions.updateClass,
-        displayModal: actions.displayModal,
+        updateClass,
+        displayModal,
       },
     },
   };

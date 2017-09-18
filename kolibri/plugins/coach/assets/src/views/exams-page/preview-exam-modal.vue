@@ -146,10 +146,9 @@
       },
     },
     created() {
-      ContentNodeResource.getCollection(
-        { channel_id: this.examChannelId },
-        { ids: this.examQuestionSources.map(item => item.exercise_id) }
-      )
+      ContentNodeResource.getCollection({
+        ids: this.examQuestionSources.map(item => item.exercise_id),
+      })
         .fetch()
         .then(contentNodes => {
           contentNodes.forEach(node => {

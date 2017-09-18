@@ -66,7 +66,7 @@
 
   import { PageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions';
+  import * as actions from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';

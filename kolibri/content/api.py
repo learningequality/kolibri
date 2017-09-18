@@ -1,58 +1,38 @@
-import os
-from collections import OrderedDict
 from functools import reduce
 from random import sample
 
 from django.core.cache import cache
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
-from kolibri.content.content_db_router import get_active_content_database, using_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from six.moves.urllib.parse import parse_qs, urlparse
 
-from .permissions import OnlySuperuserCanDelete
-from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
 
-def _join_with_logical_operator(lst, operator):
-    op = ") {operator} (".format(operator=operator)
-    return "(({items}))".format(items=op.join(lst))
+class ChannelMetadataFilter(filters.FilterSet):
+    available = filters.django_filters.MethodFilter()
+
+    def filter_available(self, queryset, value):
+        return queryset.filter(root__available=value)
+
+    class Meta:
+        model = models.ChannelMetadata
+        fields = ['available', ]
 
 
-class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlySuperuserCanDelete,)
-    serializer_class = serializers.ChannelMetadataCacheSerializer
+class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ChannelMetadataSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadataCache.objects.all()
-
-    def destroy(self, request, pk=None):
-        """
-        Destroys the ChannelMetadata object and its associated sqlite3 file on
-        the filesystem.
-        """
-        super(ChannelMetadataCacheViewSet, self).destroy(request)
-
-        if self.delete_content_db_file(pk):
-            response_msg = 'Channel {} removed from device'.format(pk)
-        else:
-            response_msg = 'Channel {} removed, but no content database was found'.format(pk)
-
-        return Response(response_msg)
-
-    def delete_content_db_file(self, channel_id):
-        try:
-            os.remove(get_content_database_file_path(channel_id))
-            return True
-        except OSError:
-            return False
+        return models.ChannelMetadata.objects.all()
 
 
 class IdFilter(filters.FilterSet):
@@ -75,7 +55,7 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
 
     def title_description_filter(self, queryset, value):
         """
@@ -127,7 +107,7 @@ class ContentNodeFilter(IdFilter):
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
 
-    def filter_popular(self, queryset, value):
+    def filter_popular(self, queryset, value, channel_id=None):
         """
         Recommend content that is popular with all users.
 
@@ -139,17 +119,17 @@ class ContentNodeFilter(IdFilter):
             # return 25 random content nodes if not enough session logs
             pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
             # .count scales with table size, so can get slow on larger channels
-            count_cache_key = 'content_count_for_{}'.format(get_active_content_database())
+            count_cache_key = 'content_count_for_{}'.format(channel_id)
             count = cache.get(count_cache_key) or min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
-        cache_key = 'popular_for_{}'.format(get_active_content_database())
+        cache_key = 'popular_for_{}'.format(channel_id)
         if cache.get(cache_key):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
         content_counts_sorted = ContentSessionLog.objects \
-            .filter(channel_id=get_active_content_database()) \
+            .filter(channel_id=channel_id) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
@@ -160,7 +140,7 @@ class ContentNodeFilter(IdFilter):
         cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
 
-    def filter_resume(self, queryset, value):
+    def filter_resume(self, queryset, value, channel_id=None):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
@@ -175,7 +155,7 @@ class ContentNodeFilter(IdFilter):
 
         # get the most recently viewed, but not finished, content nodes
         content_ids = ContentSummaryLog.objects \
-            .filter(user=value, channel_id=get_active_content_database()) \
+            .filter(user=value, channel_id=channel_id) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
             .values_list('content_id', flat=True) \
@@ -212,40 +192,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class AllContentCursorPagination(pagination.CursorPagination):
-    page_size = 10
-    ordering = 'lft'
-    cursor_query_param = 'cursor'
-
-    def get_paginated_response(self, data):
-        """
-        By default the get_paginated_response method of the CursorPagination class returns the url link
-        to the next and previous queries of they exist.
-        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
-        directly querying passed in URLs.
-        Instead, return the cursor value that points to the next and previous items, so that they can be put
-        in a GET parameter in future queries.
-        """
-        if self.has_next:
-            # The CursorPagination class has no internal methods to just return the cursor value, only
-            # the url of the next and previous, so we have to generate the URL, parse it, and then
-            # extract the cursor parameter from it to return in the Response.
-            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
-        else:
-            next_item = None
-        if self.has_previous:
-            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
-            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
-        else:
-            prev_item = None
-
-        return Response(OrderedDict([
-            ('next', next_item),
-            ('previous', prev_item),
-            ('results', data)
-        ]))
-
-class ContentNodeViewset(viewsets.ModelViewSet):
+class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeFilter
@@ -255,10 +202,11 @@ class ContentNodeViewset(viewsets.ModelViewSet):
         return queryset.prefetch_related(
             'assessmentmetadata',
             'files',
-        ).select_related('license')
+            'files__local_file'
+        ).select_related('license', 'lang')
 
     def get_queryset(self, prefetch=True):
-        queryset = models.ContentNode.objects.all()
+        queryset = models.ContentNode.objects.filter(available=True)
         if prefetch:
             return self.prefetch_related(queryset)
         return queryset
@@ -303,7 +251,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
-        cache_key = 'contentnode_ancestors_{db}_{pk}'.format(db=get_active_content_database(), pk=kwargs.get('pk'))
+        cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
@@ -323,15 +271,11 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
-    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
 
 
@@ -340,7 +284,7 @@ class ContentNodeProgressFilter(IdFilter):
         model = models.ContentNode
 
 
-class ContentNodeProgressViewset(viewsets.ModelViewSet):
+class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
@@ -349,21 +293,9 @@ class ContentNodeProgressViewset(viewsets.ModelViewSet):
         return models.ContentNode.objects.all()
 
 
-class FileViewset(viewsets.ModelViewSet):
+class FileViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.FileSerializer
     pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
         return models.File.objects.all()
-
-
-class ChannelFileSummaryViewSet(viewsets.ViewSet):
-    def list(self, request, **kwargs):
-        with using_content_database(kwargs['channel_id']):
-            file_summary = models.File.objects.aggregate(
-                total_files=Count('pk'),
-                total_file_size=Sum('file_size')
-            )
-            file_summary['channel_id'] = get_active_content_database()
-            # Need to wrap in an array to be fetchable as a Collection on client
-            return Response([file_summary])

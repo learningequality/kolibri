@@ -92,6 +92,7 @@ var parseBundlePlugin = function(data, base_dir) {
     ],
   };
 
+  // Calculate these paths here, so that we can export __publicPath as a variable in the webpack define plugin
   var publicPath, outputPath;
 
   if (process.env.DEV_SERVER) {
@@ -125,6 +126,7 @@ var parseBundlePlugin = function(data, base_dir) {
       __events: JSON.stringify(data.events || {}),
       __once: JSON.stringify(data.once || {}),
       __version: JSON.stringify(data.version),
+      // This is necessary to allow modules that use service workers to fetch their service worker code
       __publicPath: JSON.stringify(publicPath),
     }),
     new extract$trs(data.locale_data_folder, data.name),
@@ -138,6 +140,9 @@ var parseBundlePlugin = function(data, base_dir) {
   bundle.output = {
     path: outputPath,
     filename: '[name]-' + data.version + '.js',
+    // Need to define this in order for chunks to be named
+    // Without this chunks from different bundles will likely have colliding names
+    chunkFilename: '[name]-' + data.version + '.js',
     publicPath: publicPath,
     library: library,
   };

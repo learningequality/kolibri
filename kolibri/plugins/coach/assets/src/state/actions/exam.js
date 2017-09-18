@@ -17,6 +17,18 @@ import * as Constants from '../../constants';
 import { setClassState } from './main';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'coachExamPageTitles';
+
+const messages = {
+  coachExamListPageTitle: 'Exams',
+  coachExamCreationPageTitle: 'Create new exam',
+  coachExamReportPageTitle: 'Exam Report',
+  coachExamReportDetailPageTitle: 'Exam Report Detail',
+};
+
+const translator = createTranslator(name, messages);
 
 const pickIdAndName = pick(['id', 'name']);
 
@@ -24,7 +36,7 @@ function _channelState(channel) {
   return {
     id: channel.id,
     name: channel.name,
-    rootPk: channel.root_pk,
+    rootPk: channel.root,
   };
 }
 
@@ -148,7 +160,7 @@ function showExamsPage(store, classId) {
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', Constants.PageTitles.EXAMS);
+      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => CoreActions.handleError(store, error)
@@ -279,16 +291,12 @@ function deleteExam(store, examId) {
   );
 }
 
-function getAllExercisesWithinTopic(store, channelId, topicId) {
+function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
-    const exercisesPromise = ContentNodeResource.getDescendantsCollection(
-      topicId,
-      { channel_id: channelId },
-      {
-        descendant_kind: ContentNodeKinds.EXERCISE,
-        fields: ['pk', 'title', 'assessmentmetadata'],
-      }
-    ).fetch();
+    const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
+      descendant_kind: ContentNodeKinds.EXERCISE,
+      fields: ['pk', 'title', 'assessmentmetadata'],
+    }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
@@ -302,17 +310,16 @@ function getAllExercisesWithinTopic(store, channelId, topicId) {
 }
 
 // fetches topic, it's children subtopics, and children exercises
-function fetchContent(store, channelId, topicId) {
+function fetchContent(store, topicId) {
   return new Promise((resolve, reject) => {
-    const channelPayload = { channel_id: channelId };
-    const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
-    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId, channelPayload);
-    const subtopicsPromise = ContentNodeResource.getCollection(channelPayload, {
+    const topicPromise = ContentNodeResource.getModel(topicId).fetch();
+    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
+    const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
       fields: ['pk', 'title', 'ancestors'],
     }).fetch();
-    const exercisesPromise = ContentNodeResource.getCollection(channelPayload, {
+    const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
       fields: ['pk', 'title', 'assessmentmetadata'],
@@ -331,7 +338,7 @@ function fetchContent(store, channelId, topicId) {
         let subtopics = _topicsState(subtopicsCollection);
 
         const subtopicsExercisesPromises = subtopics.map(subtopic =>
-          getAllExercisesWithinTopic(store, channelId, subtopic.id)
+          getAllExercisesWithinTopic(store, subtopic.id)
         );
 
         ConditionalPromise.all(subtopicsExercisesPromises).only(
@@ -358,7 +365,7 @@ function fetchContent(store, channelId, topicId) {
 function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
-  store.dispatch('CORE_SET_TITLE', Constants.PageTitles.CREATE_EXAM);
+  store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
 
   const channelPromise = ChannelResource.getCollection().fetch();
   const examsPromise = ExamResource.getCollection({
@@ -372,7 +379,7 @@ function showCreateExamPage(store, classId, channelId) {
         channelsCollection.find(channel => channel.id === channelId)
       );
 
-      const fetchContentPromise = fetchContent(store, channelId, currentChannel.rootPk);
+      const fetchContentPromise = fetchContent(store, currentChannel.rootPk);
       ConditionalPromise.all([fetchContentPromise]).only(
         CoreActions.samePageCheckGenerator(store),
         ([content]) => {
@@ -481,7 +488,7 @@ function showExamReportPage(store, classId, channelId, examId) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Exam Report');
+      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
@@ -603,7 +610,7 @@ function showExamReportDetailPage(
 
             store.dispatch('SET_PAGE_STATE', pageState);
             store.dispatch('CORE_SET_ERROR', null);
-            store.dispatch('CORE_SET_TITLE', 'Exam Report Detail');
+            store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
             store.dispatch('CORE_SET_PAGE_LOADING', false);
           },
           error => CoreActions.handleApiError(store, error)

@@ -64,10 +64,10 @@ class Command(AsyncCommand):
     def copy_content(self, channel_id, path):
         self._transfer(COPY_METHOD, channel_id, path=path)
 
-    def _transfer(self, method, channel_id, path=None):
+    def _transfer(self, method, channel_id, path=None):  # noqa: max-complexity=16
 
         files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
-        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum']
+        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
         downloaded_files = []
         file_checksums_to_annotate = []
@@ -116,19 +116,15 @@ class Command(AsyncCommand):
                     file_checksums_to_annotate.append(f.id)
 
                 except HTTPError:
-                    pass
+                    overall_progress_update(f.file_size)
 
-        if self.is_cancelled():
-            # Cancelled, clean up any already downloading files.
-            for dest in downloaded_files:
-                os.remove(dest)
-            self.cancel()
-
-        annotation.set_local_file_availability_from_disk(file_checksums_to_annotate)
-
-        annotation.set_leaf_node_availability_from_local_file_availability(channel_id)
-
-        annotation.recurse_availability_up_tree(channel_id)
+            if self.is_cancelled():
+                # Cancelled, clean up any already downloading files.
+                for dest in downloaded_files:
+                    os.remove(dest)
+                self.cancel()
+            else:
+                annotation.set_availability(file_checksums_to_annotate)
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

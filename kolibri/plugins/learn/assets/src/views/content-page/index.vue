@@ -48,11 +48,11 @@
 
     <div class="metadata">
       <p v-if="content.author">
-        {{ $tr('author') }}: {{ content.author }}
+        {{ $tr('author', {author: content.author}) }}
       </p>
 
       <p v-if="content.license" >
-        {{ $tr('license') }}: {{ content.license }}
+        {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
           <span ref="licensetooltip">
@@ -67,26 +67,31 @@
       </p>
 
       <p v-if="content.license_owner">
-        {{ $tr('copyrightHolder') }}: {{ content.license_owner }}
+        {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
     </div>
 
-    <download-button v-if="canDownload" :files="content.files" class="download-button"/>
+    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
 
-    <content-card-carousel
+    <content-card-group-carousel
       v-if="showRecommended"
-      :gen-link="genRecLink"
+      :gen-content-link="genContentLink"
       :header="recommendedText"
       :contents="recommended"/>
 
-    <content-points
-      v-if="progress >= 1 && wasIncomplete"
-      @close="closeModal"
-      :kind="content.next_content.kind"
-      :title="content.next_content.title">
+    <template v-if="progress >= 1 && wasIncomplete">
+      <points-popup
+        v-if="showPopup"
+        @close="markAsComplete"
+        :kind="content.next_content.kind"
+        :title="content.next_content.title">
+        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+      </points-popup>
 
-      <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
-    </content-points>
+      <transition v-else name="slidein" appear>
+        <points-slidein @close="markAsComplete"/>
+      </transition>
+    </template>
 
   </div>
 
@@ -104,28 +109,30 @@
   import { PageNames, PageModes } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
-  import contentCardCarousel from '../content-card-carousel';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import assessmentWrapper from '../assessment-wrapper';
-  import contentPoints from '../content-points';
+  import pointsPopup from '../points-popup';
+  import pointsSlidein from '../points-slidein';
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Go to next item',
-      author: 'Author',
-      license: 'License',
+      author: 'Author: {author}',
+      license: 'License: {license}',
       licenseDescription: 'License description',
-      copyrightHolder: 'Copyright holder',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
@@ -164,7 +171,11 @@
       },
       canDownload() {
         if (this.content) {
-          return this.content.kind !== ContentNodeKinds.EXERCISE && !this.isAndroidWebView;
+          return (
+            this.downloadableFiles.length &&
+            this.content.kind !== ContentNodeKinds.EXERCISE &&
+            !this.isAndroidWebView
+          );
         }
         return false;
       },
@@ -181,42 +192,43 @@
         return this.$tr('recommended');
       },
       progress() {
-        if (!this.isSuperuser) {
+        if (this.isUserLoggedIn) {
           return this.summaryProgress;
         }
         return this.sessionProgress;
       },
       nextContentLink() {
-        const nextContent = this.content.next_content;
-        if (nextContent) {
-          if (nextContent.kind === 'topic') {
-            return {
-              name: PageNames.EXPLORE_TOPIC,
-              params: { channel_id: this.channelId, id: nextContent.id },
-            };
-          }
-          return {
-            name: PageNames.EXPLORE_CONTENT,
-            params: { channel_id: this.channelId, id: nextContent.id },
-          };
+        if (this.content.next_content) {
+          return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.LEARN) {
+        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
           return true;
         }
         return false;
       },
+      showPopup() {
+        return (
+          this.content.kind === ContentNodeKinds.EXERCISE ||
+          this.content.kind === ContentNodeKinds.VIDEO ||
+          this.content.kind === ContentNodeKinds.AUDIO
+        );
+      },
+      downloadableFiles() {
+        return this.content.files.filter(file => file.preset !== 'Thumbnail');
+      },
     },
     components: {
       pageHeader,
-      contentCardCarousel,
+      contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
       kButton,
       assessmentWrapper,
-      contentPoints,
+      pointsPopup,
+      pointsSlidein,
       uiPopover,
       uiIcon,
     },
@@ -234,18 +246,18 @@
         const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
-      closeModal() {
+      markAsComplete() {
         this.wasIncomplete = false;
       },
-      genRecLink(id, kind) {
+      genContentLink(id, kind) {
         if (kind === 'topic') {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: PageNames.LEARN_CONTENT,
+          name: PageNames.RECOMMENDED_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
@@ -259,13 +271,13 @@
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.core.channels.currentId,
+        channelId: state => state.pageState.content.channel_id,
         pagename: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
         pageMode,
-        isSuperuser,
+        isUserLoggedIn,
       },
       actions: {
         initSessionAction,
