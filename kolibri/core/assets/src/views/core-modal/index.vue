@@ -14,6 +14,7 @@
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
+        :class="{ mobile: windowSize.breakpoint <= 1 }"
         :style="{ width: width, height: height }">
 
         <div class="top-buttons" @keydown.enter.stop>
@@ -46,8 +47,11 @@
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
   export default {
     name: 'coreModal',
+    mixins: [responsiveWindow],
     $trs: {
       // error alerts
       errorAlert: 'Error in:',
@@ -191,9 +195,9 @@
     &:focus
       outline: none
 
-    @media (max-width: $portrait-breakpoint)
-      width: 85%
-      top: 45%
+  .modal.mobile
+    width: 85%
+    top: 45%
 
   .top-buttons
     position: relative
