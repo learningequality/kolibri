@@ -40,14 +40,3 @@ export function showManageContentPage(store) {
   }
   return Promise.resolve();
 }
-
-/**
- * Delete a Channel from the device
- *
- * @param {Object} store - vuex store object
- * @param {string} channelId - a valid channel UUID
- * @returns {Promise}
- */
-export function deleteChannel(store, channelId) {
-  return ChannelResource.getModel(channelId).delete().then(() => refreshChannelList(store));
-}

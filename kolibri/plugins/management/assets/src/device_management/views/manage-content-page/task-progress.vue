@@ -34,6 +34,7 @@
 
     <div class="buttons dtc">
       <k-button
+        v-if="taskHasCompleted || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="false"
         :raised="false"
@@ -74,6 +75,17 @@
         required: true,
       },
       id: RequiredString,
+      cancellable: {
+        type: Boolean,
+        required: true,
+      },
+    },
+    watch: {
+      taskHasFailed: () => {
+        if (this.taskHasFailed) {
+          this.$emit('taskfailed');
+        }
+      },
     },
     data() {
       return {
@@ -90,6 +102,8 @@
               return this.$tr('importingContent');
             case TaskTypes.LOCAL_EXPORT:
               return this.$tr('exportingContent');
+            case TaskTypes.DELETE_CHANNEL:
+              return this.$tr('deletingChannel');
             default:
               return '';
           }
@@ -152,6 +166,7 @@
       close: 'Close',
       cancel: 'Cancel',
       taskHasFailed: 'Transfer failed. Please try again.',
+      deletingChannel: 'Deleting channel…',
     },
   };
 

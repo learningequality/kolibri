@@ -126,7 +126,7 @@
         error: state => state.pageState.wizardState.error,
         sourceMeta: state => state.pageState.wizardState.meta,
         coreChannel: state => channelId => {
-          return find(state.core.channels.list, { id: channelId });
+          return find(state.pageState.channelList, { id: channelId });
         },
         wizardBusy: ({ pageState }) => pageState.wizardState.busy,
       },

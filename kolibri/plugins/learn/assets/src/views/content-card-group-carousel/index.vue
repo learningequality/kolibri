@@ -66,7 +66,7 @@
 <script>
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
