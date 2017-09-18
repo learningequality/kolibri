@@ -5,7 +5,7 @@
 
     <script>
 
-      import responsiveWindow from './responsive-window-mixin.js';
+      import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
       export default {
         mixins: [responsiveWindow],
