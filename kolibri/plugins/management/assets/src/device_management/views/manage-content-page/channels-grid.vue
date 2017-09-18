@@ -22,8 +22,11 @@
 
         <tbody class="table-body">
           <tr v-for="channel in sortedChannels" :key="channel.id">
-            <td class="table-cell-title">
-              {{ channel.name }}
+            <td>
+              <div>{{ channel.name }}</div>
+              <div class="channel-version">
+                {{ $tr('channelVersion', { versionNumber: channel.version }) }}
+              </div>
             </td>
 
             <td>
@@ -129,6 +132,7 @@
       nameHeader: 'Channel',
       numResourcesHeader: 'Resources',
       sizeHeader: 'Size',
+      channelVersion: 'Version {versionNumber}',
     },
   };
 
@@ -153,7 +157,8 @@
     td
       padding: 1rem 0
 
-  .table-cell-title
-    font-weight: bold
+  .channel-version
+    font-size: 0.85em
+    color: $core-text-annotation
 
 </style>
