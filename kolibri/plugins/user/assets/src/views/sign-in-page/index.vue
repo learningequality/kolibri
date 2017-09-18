@@ -335,7 +335,7 @@
 
   .login
     background-color: $login-overlay
-    height: 100%
+    height: 90%
     // Fallback for older browers.
     background: $core-bg-canvas
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
