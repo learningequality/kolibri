@@ -32,6 +32,8 @@ const initialState = {
     users: [],
     taskList: [],
     modalShown: false,
+    error: '',
+    isBusy: false,
   },
 };
 
@@ -42,7 +44,10 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
-
+  SET_CONTENT_PAGE_STATE(state, pageState) {
+    state.pageName = 'CONTENT_MGMT_PAGE';
+    state.pageState = pageState;
+  },
   // modal mutations
   SET_MODAL(state, modalName) {
     state.pageState.modalShown = modalName;
@@ -90,28 +95,16 @@ const mutations = {
     });
   },
 
-  DELETE_USER(state, id) {
-    state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
+  SET_ERROR(state, error) {
+    state.pageState.error = error;
   },
 
-  // content import-export-specific mutations
-  SET_CONTENT_PAGE_TASKS(state, taskList) {
-    state.pageState.taskList = taskList;
+  SET_BUSY(state, isBusy) {
+    state.pageState.isBusy = isBusy;
   },
-  SET_CONTENT_PAGE_CHANNELS(state, channelList) {
-    state.pageState.channelList = channelList;
-  },
-  SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
-    state.pageState.wizardState = wizardState;
-  },
-  SET_CONTENT_PAGE_WIZARD_DRIVES(state, driveList) {
-    state.pageState.wizardState.driveList = driveList;
-  },
-  SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
-    state.pageState.wizardState.error = error;
-  },
-  SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
-    state.pageState.wizardState.busy = isBusy;
+
+  DELETE_USER(state, id) {
+    state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
   },
 };
 

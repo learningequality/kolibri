@@ -8,7 +8,6 @@
     allowfullscreen>
 
     <k-button
-      v-if="supportsPDFs"
       class="btn doc-viewer-controls button-fullscreen"
       aria-controls="pdf-container"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"

@@ -1,8 +1,6 @@
-import cookiejs from 'js-cookie';
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
-import { getDefaultChannelId } from 'kolibri.coreVue.vuex.getters';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -46,7 +44,7 @@ function _contentSummaryLoggingState(data) {
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
     end_timestamp: data.end_timestamp,
-    progress: data.progress || 0,
+    progress: data.progress,
     time_spent: data.time_spent,
     extra_fields: data.extra_fields,
     time_spent_before_current_session: data.time_spent,
@@ -63,7 +61,7 @@ function _contentSessionLoggingState(data) {
     time_spent: data.time_spent,
     extra_fields: data.extra_fields,
     total_time_at_last_save: data.time_spent,
-    progress: data.progress || 0,
+    progress: data.progress,
     progress_at_last_save: data.progress,
   };
   return state;
@@ -76,7 +74,7 @@ function _contentSummaryModel(store) {
     start_timestamp: summaryLog.start_timestamp,
     end_timestamp: summaryLog.end_timestamp,
     completion_timestamp: summaryLog.completion_timestamp,
-    progress: summaryLog.progress || 0,
+    progress: summaryLog.progress,
     time_spent: summaryLog.time_spent,
     extra_fields: summaryLog.extra_fields,
   };
@@ -85,17 +83,14 @@ function _contentSummaryModel(store) {
 
 function _contentSessionModel(store) {
   const sessionLog = store.state.core.logging.session;
-  const mapping = {
+  return {
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
-    progress: sessionLog.progress || 0,
+    progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
+    user: store.state.core.session.user_id,
   };
-  if (!getters.isSuperuser(store.state)) {
-    mapping.user = store.state.core.session.user_id;
-  }
-  return mapping;
 }
 
 function _sessionState(data) {
@@ -174,6 +169,7 @@ function handleApiError(store, errorObject) {
  * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
  */
 function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
+  store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise
@@ -191,6 +187,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       }
     })
     .catch(error => {
+      store.dispatch('CORE_SET_SIGN_IN_BUSY', false);
       if (error.status.code === 401) {
         store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
       } else if (error.status.code === 400 && error.entity.missing_field === 'password') {
@@ -260,7 +257,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const promises = [];
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id && !getters.isSuperuser(store.state)) {
+  if (store.state.core.session.user_id) {
     /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
@@ -344,11 +341,6 @@ function initContentSession(store, channelId, contentId, contentKind) {
     _contentSessionModel(store)
   );
 
-  if (getters.isSuperuser(store.state)) {
-    // treat deviceOwner as anonymous user.
-    sessionData.user = null;
-  }
-
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
   const sessionModelPromise = sessionModel.save();
@@ -365,33 +357,10 @@ function initContentSession(store, channelId, contentId, contentKind) {
   return Promise.all(promises);
 }
 
-/*
- * Set channel state info.
- */
-function _setChannelState(store, currentChannelId, channelList) {
-  store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
-  store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  if (currentChannelId) {
-    cookiejs.set('currentChannelId', currentChannelId);
-  } else {
-    cookiejs.remove('currentChannelId');
-  }
-}
-
-/*
- * If channelId is null, choose it automatically
- */
-function setChannelInfo(store, channelId = null) {
-  return ChannelResource.getCollection().fetch().then(
+function setChannelInfo(store) {
+  return ChannelResource.getCollection({ available: true }).fetch().then(
     channelsData => {
-      const channelList = _channelListState(channelsData);
-      let thisChannelId;
-      if (channelList.some(channel => channel.id === channelId)) {
-        thisChannelId = channelId;
-      } else {
-        thisChannelId = getDefaultChannelId(channelList);
-      }
-      _setChannelState(store, thisChannelId, channelList);
+      store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
     },
     error => {
       handleApiError(store, error);
@@ -439,7 +408,7 @@ function saveLogs(store) {
 }
 
 function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+  if (getters.isUserLoggedIn(store.state)) {
     const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
@@ -471,7 +440,7 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+    if (getters.isUserLoggedIn(store.state)) {
       const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
@@ -507,6 +476,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
 
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
+  progressPercent = progressPercent || 0;
   const sessionProgress = sessionLog.progress + progressPercent;
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
@@ -520,6 +490,7 @@ summary and session log progress update for exercise
 **/
 function updateExerciseProgress(store, progressPercent, forceSave = false) {
   /* Update the logging state with new progress information */
+  progressPercent = progressPercent || 0;
   return _updateProgress(store, progressPercent, progressPercent, forceSave);
 }
 
@@ -658,7 +629,7 @@ function saveAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
-  const user = getters.isFacilityUser(store.state) ? getters.currentUserId(store.state) : null;
+  const user = getters.isUserLoggedIn(store.state) ? getters.currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,

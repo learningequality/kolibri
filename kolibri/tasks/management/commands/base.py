@@ -82,6 +82,7 @@ class AsyncCommand(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         self.progresstrackers = []
+        super(AsyncCommand, self).__init__(*args, **kwargs)
 
     def _update_all_progress(self, progress_fraction, progress):
         if callable(self.update_progress):
@@ -104,14 +105,17 @@ class AsyncCommand(BaseCommand):
         return tracker
 
     def is_cancelled(self, last_stage="CANCELLING"):
-        try:
-            self.check_for_cancel(last_stage)
-            return False
-        except UserCancelledError:
-            return True
+        if self.check_for_cancel:
+            try:
+                self.check_for_cancel(last_stage)
+                return False
+            except UserCancelledError:
+                return True
+        return False
 
     def cancel(self, last_stage="CANCELLED"):
-        self.check_for_cancel(last_stage)
+        if self.check_for_cancel:
+            return self.check_for_cancel(last_stage)
 
     @abc.abstractmethod
     def handle_async(self, *args, **options):

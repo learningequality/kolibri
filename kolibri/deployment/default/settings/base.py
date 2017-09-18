@@ -147,7 +147,7 @@ LANGUAGES = [
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
     ('es-mx', 'Español (México)'),
-    ('fr-fr', 'Français, langue française'),
+    ('fr-fr', 'Français'),
     ('pt-pt', 'Português'),
     ('hi-in', 'हिंदी'),
     ('ar-eg', 'العَرَبِيَّة‎‎')
@@ -216,6 +216,12 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'filters': ['require_debug_false'],
         },
+        'request_debug': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'color',
+            'filters': ['require_debug_true'],
+        },
         'file_debug': {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
@@ -237,7 +243,7 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'file'],
+            'handlers': ['mail_admins', 'file', 'request_debug'],
             'level': 'ERROR',
             'propagate': False,
         },

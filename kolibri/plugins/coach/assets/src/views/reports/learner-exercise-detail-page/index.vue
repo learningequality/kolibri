@@ -38,6 +38,7 @@
             :channelId="channelId"
             :available="exercise.available"
             :answerState="currentInteraction.answer"
+            :interactive="false"
             :extraFields="exercise.extra_fields"/>
         </div>
       </div>

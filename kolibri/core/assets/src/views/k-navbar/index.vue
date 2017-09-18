@@ -17,7 +17,7 @@
     */
 
   export default {
-    name: 'k-navbar',
+    name: 'kNavbar',
   };
 
 </script>

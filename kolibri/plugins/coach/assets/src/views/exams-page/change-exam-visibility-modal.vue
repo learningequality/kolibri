@@ -1,7 +1,7 @@
 <template>
 
   <core-modal :title="$tr('examVisibility')" @cancel="close">
-    <p v-html="$trHtml('shouldBeVisible', { examTitle })"></p>
+    <p>{{ $tr('shouldBeVisible', { examTitle }) }}</p>
     <k-radio-button
       :label="$tr('entireClass', { className })"
       :radiovalue="true"
@@ -39,7 +39,7 @@
     name: 'changeExamVisibilityModal',
     $trs: {
       examVisibility: 'Exam visibility',
-      shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',
+      shouldBeVisible: "'{ examTitle }' should be visible to:",
       group: 'group',
       specificGroups: 'Specific groups',
       selectGroups: 'Select groups',

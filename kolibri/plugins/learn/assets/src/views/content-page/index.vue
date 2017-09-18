@@ -48,11 +48,11 @@
 
     <div class="metadata">
       <p v-if="content.author">
-        {{ $tr('author') }}: {{ content.author }}
+        {{ $tr('author', {author: content.author}) }}
       </p>
 
       <p v-if="content.license" >
-        {{ $tr('license') }}: {{ content.license }}
+        {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
           <span ref="licensetooltip">
@@ -67,11 +67,11 @@
       </p>
 
       <p v-if="content.license_owner">
-        {{ $tr('copyrightHolder') }}: {{ content.license_owner }}
+        {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
     </div>
 
-    <download-button v-if="canDownload" :files="content.files" class="download-button"/>
+    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
 
     <content-card-group-carousel
       v-if="showRecommended"
@@ -109,7 +109,7 @@
   import { PageNames, PageModes } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../../state/actions/main';
   import pageHeader from '../page-header';
   import contentCardGroupCarousel from '../content-card-group-carousel';
@@ -129,10 +129,10 @@
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Go to next item',
-      author: 'Author',
-      license: 'License',
+      author: 'Author: {author}',
+      license: 'License: {license}',
       licenseDescription: 'License description',
-      copyrightHolder: 'Copyright holder',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
@@ -171,7 +171,11 @@
       },
       canDownload() {
         if (this.content) {
-          return this.content.kind !== ContentNodeKinds.EXERCISE && !this.isAndroidWebView;
+          return (
+            this.downloadableFiles.length &&
+            this.content.kind !== ContentNodeKinds.EXERCISE &&
+            !this.isAndroidWebView
+          );
         }
         return false;
       },
@@ -188,7 +192,7 @@
         return this.$tr('recommended');
       },
       progress() {
-        if (!this.isSuperuser) {
+        if (this.isUserLoggedIn) {
           return this.summaryProgress;
         }
         return this.sessionProgress;
@@ -200,7 +204,7 @@
         return null;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.LEARN) {
+        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
           return true;
         }
         return false;
@@ -211,6 +215,9 @@
           this.content.kind === ContentNodeKinds.VIDEO ||
           this.content.kind === ContentNodeKinds.AUDIO
         );
+      },
+      downloadableFiles() {
+        return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
     components: {
@@ -245,12 +252,12 @@
       genContentLink(id, kind) {
         if (kind === 'topic') {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: { channel_id: this.channelId, id },
           };
         }
         return {
-          name: PageNames.LEARN_CONTENT,
+          name: PageNames.RECOMMENDED_CONTENT,
           params: { channel_id: this.channelId, id },
         };
       },
@@ -264,13 +271,13 @@
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.core.channels.currentId,
+        channelId: state => state.pageState.content.channel_id,
         pagename: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
         pageMode,
-        isSuperuser,
+        isUserLoggedIn,
       },
       actions: {
         initSessionAction,

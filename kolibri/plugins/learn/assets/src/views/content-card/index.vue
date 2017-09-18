@@ -37,7 +37,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
-  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
@@ -75,10 +75,6 @@
         type: Object,
         required: true,
         validator: validateLinkObject,
-      },
-      thumbnail: {
-        type: String,
-        required: false,
       },
     },
     computed: {

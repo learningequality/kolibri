@@ -22,6 +22,8 @@
         :allowHints="allowHints"
         :supplementaryFiles="supplementaryFiles"
         :thumbnailFiles="thumbnailFiles"
+        :interactive="interactive"
+        :lang="lang"
         ref="contentView"
         />
       </div>
@@ -41,6 +43,7 @@
   const logging = logger.getLogger(__filename);
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
   export default {
     name: 'contentRender',
     $trs: {
@@ -85,6 +88,17 @@
       initSession: {
         type: Function,
         default: () => Promise.resolve(),
+      },
+      // Allow content renderers to display in a static mode
+      // where user interaction is not allowed
+      interactive: {
+        type: Boolean,
+        default: true,
+      },
+      lang: {
+        type: Object,
+        default: () => defaultLanguage,
+        validator: languageValidator,
       },
     },
     components: {

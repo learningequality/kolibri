@@ -55,12 +55,13 @@ import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
-import validateLinkObject from '../validateLinkObject';
+import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import urls from './urls';
 import client from './client';
 import * as i18n from '../utils/i18n';
+import kFilterTextbox from '../views/k-filter-textbox';
 
 export default {
   client,
@@ -105,6 +106,7 @@ export default {
       kBreadcrumbs,
       kCheckbox,
       kRadioButton,
+      kFilterTextbox,
       languageSwitcher,
     },
     router,
@@ -122,7 +124,7 @@ export default {
   urls,
   utils: {
     exams,
-    validateLinkObject,
+    validators,
     serverClock,
     i18n,
   },

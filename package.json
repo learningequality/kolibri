@@ -40,7 +40,7 @@
     "frame-throttle": "^2.0.1",
     "intl": "1.2.4",
     "js-cookie": "2.1.2",
-    "keen-ui": "1.0.0",
+    "keen-ui": "^1.0.1",
     "lodash": "^4.17.4",
     "loglevel": "1.4.1",
     "markdown-it": "^8.3.1",

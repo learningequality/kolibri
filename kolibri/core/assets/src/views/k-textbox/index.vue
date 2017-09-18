@@ -1,24 +1,26 @@
 <template>
 
-  <ui-textbox
-    ref="textbox"
-    v-model="currentText"
-    :label="label"
-    :disabled="disabled"
-    :required="required"
-    :invalid="invalid"
-    :error="invalidText"
-    :autofocus="autofocus"
-    :maxlength="maxlength"
-    :autocomplete="autocomplete"
-    :type="type"
-    :enforceMaxlength="true"
-    :floatingLabel="true"
-    @input="updateText"
-    @keydown="emitKeydown"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-  />
+  <div class="mh">
+    <ui-textbox
+      ref="textbox"
+      class="textbox"
+      v-model.trim="currentText"
+      :label="label"
+      :disabled="disabled"
+      :invalid="invalid"
+      :error="invalidText"
+      :autofocus="autofocus"
+      :maxlength="maxlength"
+      :autocomplete="autocomplete"
+      :type="type"
+      :enforceMaxlength="true"
+      :floatingLabel="true"
+      @input="updateText"
+      @keydown="emitKeydown"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
+  </div>
 
 </template>
 
@@ -31,7 +33,7 @@
    * Handles user input.
    */
   export default {
-    name: 'k-textbox',
+    name: 'kTextbox',
     components: { uiTextbox },
     props: {
       /**
@@ -51,13 +53,6 @@
        * Whether or not disabled
        */
       disabled: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Whether or not required
-       */
-      required: {
         type: Boolean,
         default: false,
       },
@@ -125,9 +120,16 @@
       },
       emitKeydown(e) {
         /**
-         * Emits keydown event with event
+         * Emits keydown event
          */
         this.$emit('keydown', e);
+      },
+      /**
+       * @public
+       * Focuses on the textbox
+       */
+      focus() {
+        this.$refs.textbox.$el.querySelector('input').focus();
       },
     },
   };
@@ -135,4 +137,12 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus" scoped>
+
+  .textbox
+    max-width: 400px
+
+  .mh
+    min-height: 72px
+
+</style>

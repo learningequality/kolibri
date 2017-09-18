@@ -1,5 +1,3 @@
-import os
-from collections import OrderedDict
 from functools import reduce
 from random import sample
 
@@ -13,46 +11,28 @@ from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from six.moves.urllib.parse import parse_qs, urlparse
 
-from .permissions import OnlySuperuserCanDelete
-from .utils.paths import get_content_database_file_path
 from .utils.search import fuzz
 
 
-def _join_with_logical_operator(lst, operator):
-    op = ") {operator} (".format(operator=operator)
-    return "(({items}))".format(items=op.join(lst))
+class ChannelMetadataFilter(filters.FilterSet):
+    available = filters.django_filters.MethodFilter()
+
+    def filter_available(self, queryset, value):
+        return queryset.filter(root__available=value)
+
+    class Meta:
+        model = models.ChannelMetadata
+        fields = ['available', ]
 
 
-class ChannelMetadataViewSet(viewsets.ModelViewSet):
-    permission_classes = (OnlySuperuserCanDelete,)
+class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
-
-    def destroy(self, request, pk=None):
-        """
-        Destroys the ChannelMetadata object all of its metadata, any orphaned files as a result of its deletion
-        and its associated sqlite3 file on the filesystem.
-        """
-
-        self.get_object().delete_content_tree_and_files()
-
-        models.LocalFile.objects.delete_orphans()
-
-        self.delete_content_db_file(pk)
-        response_msg = 'Channel {} removed from device'.format(pk)
-
-        return Response(response_msg)
-
-    def delete_content_db_file(self, channel_id):
-        try:
-            os.remove(get_content_database_file_path(channel_id))
-            return True
-        except OSError:
-            return False
 
 
 class IdFilter(filters.FilterSet):
@@ -75,7 +55,7 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
 
     def title_description_filter(self, queryset, value):
         """
@@ -212,40 +192,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class AllContentCursorPagination(pagination.CursorPagination):
-    page_size = 10
-    ordering = 'lft'
-    cursor_query_param = 'cursor'
-
-    def get_paginated_response(self, data):
-        """
-        By default the get_paginated_response method of the CursorPagination class returns the url link
-        to the next and previous queries of they exist.
-        For Kolibri this is not very helpful, as we construct our URLs on the client side rather than
-        directly querying passed in URLs.
-        Instead, return the cursor value that points to the next and previous items, so that they can be put
-        in a GET parameter in future queries.
-        """
-        if self.has_next:
-            # The CursorPagination class has no internal methods to just return the cursor value, only
-            # the url of the next and previous, so we have to generate the URL, parse it, and then
-            # extract the cursor parameter from it to return in the Response.
-            next_item = parse_qs(urlparse(self.get_next_link()).query).get(self.cursor_query_param)
-        else:
-            next_item = None
-        if self.has_previous:
-            # Similarly to next, we have to create the previous link and then parse it to get the cursor value
-            prev_item = parse_qs(urlparse(self.get_previous_link()).query).get(self.cursor_query_param)
-        else:
-            prev_item = None
-
-        return Response(OrderedDict([
-            ('next', next_item),
-            ('previous', prev_item),
-            ('results', data)
-        ]))
-
-class ContentNodeViewset(viewsets.ModelViewSet):
+class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeFilter
@@ -256,7 +203,7 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             'assessmentmetadata',
             'files',
             'files__local_file'
-        ).select_related('license')
+        ).select_related('license', 'lang')
 
     def get_queryset(self, prefetch=True):
         queryset = models.ContentNode.objects.filter(available=True)
@@ -324,15 +271,11 @@ class ContentNodeViewset(viewsets.ModelViewSet):
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
-    @list_route(methods=['get'], pagination_class=AllContentCursorPagination)
+    @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.get_queryset().exclude(kind=content_kinds.TOPIC)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
 
 
@@ -341,7 +284,7 @@ class ContentNodeProgressFilter(IdFilter):
         model = models.ContentNode
 
 
-class ContentNodeProgressViewset(viewsets.ModelViewSet):
+class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
@@ -350,7 +293,7 @@ class ContentNodeProgressViewset(viewsets.ModelViewSet):
         return models.ContentNode.objects.all()
 
 
-class FileViewset(viewsets.ModelViewSet):
+class FileViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.FileSerializer
     pagination_class = OptionalPageNumberPagination
 
