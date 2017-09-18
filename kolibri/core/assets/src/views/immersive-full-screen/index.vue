@@ -21,7 +21,7 @@
 
 <script>
 
-  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
     props: {

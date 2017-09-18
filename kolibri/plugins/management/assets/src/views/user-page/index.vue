@@ -35,17 +35,6 @@
 
     <hr>
 
-    <!-- Modals -->
-    <user-edit-modal
-      v-if="showEditUserModal"
-      :userid="currentUserEdit.id"
-      :fullname="currentUserEdit.full_name"
-      :username="currentUserEdit.username"
-      :userkind="currentUserEdit.kind"
-    />
-    <user-create-modal
-      v-if="showCreateUserModal"/>
-
     <table class="roster">
 
       <caption class="visuallyhidden">{{$tr('users')}}</caption>
@@ -58,13 +47,13 @@
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
           <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
-          <th class="col-header" scope="col"> {{$tr('edit')}} </th>
+          <th class="col-header" scope="col"></th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers" :key="user.username">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
             {{user.username}}
@@ -84,7 +73,11 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <k-button @click="openEditUserModal(user)" :text="$tr('editAccountInfo')" :raised="false"/>
+            <dropdown-menu
+              :name="$tr('manage')"
+              :options="manageUserOptions"
+              @select="handleManageUserSelection($event, user)"
+            />
           </td>
 
         </tr>
@@ -94,6 +87,32 @@
 
     <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
     <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
+
+
+    <!-- Modals -->
+    <user-create-modal v-if="showCreateUserModal"/>
+
+    <edit-user-modal
+      v-if="showEditUserModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+      :kind="selectedUser.kind"
+    />
+
+    <reset-user-password-modal
+      v-if="showResetUserPasswordModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+    />
+
+    <delete-user-modal
+      v-if="showDeleteUserModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+    />
 
   </div>
 
@@ -106,9 +125,12 @@
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import userCreateModal from './user-create-modal';
-  import userEditModal from './user-edit-modal';
+  import editUserModal from './edit-user-modal';
+  import resetUserPasswordModal from './reset-user-password-modal';
+  import deleteUserModal from './delete-user-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
@@ -116,15 +138,18 @@
     name: 'userPage',
     components: {
       userCreateModal,
-      userEditModal,
+      editUserModal,
+      resetUserPasswordModal,
+      deleteUserModal,
       kButton,
       kFilterTextbox,
+      dropdownMenu,
       userRole,
     },
     data: () => ({
       searchFilter: '',
       roleFilter: 'all',
-      currentUserEdit: null,
+      selectedUser: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
@@ -148,17 +173,36 @@
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;
       },
+      showResetUserPasswordModal() {
+        return this.modalShown === constants.Modals.RESET_USER_PASSWORD;
+      },
+      showDeleteUserModal() {
+        return this.modalShown === constants.Modals.DELETE_USER;
+      },
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
+      },
+      manageUserOptions() {
+        return [
+          { label: this.$tr('editUser') },
+          { label: this.$tr('resetUserPassword') },
+          { label: this.$tr('deleteUser') },
+        ];
       },
     },
     methods: {
       userMatchesRole(user) {
         return this.roleFilter === 'all' || user.kind === this.roleFilter;
       },
-      openEditUserModal(user) {
-        this.currentUserEdit = user;
-        this.displayModal(constants.Modals.EDIT_USER);
+      handleManageUserSelection(selection, user) {
+        this.selectedUser = user;
+        if (selection.label === this.$tr('editUser')) {
+          this.displayModal(constants.Modals.EDIT_USER);
+        } else if (selection.label === this.$tr('resetUserPassword')) {
+          this.displayModal(constants.Modals.RESET_USER_PASSWORD);
+        } else if (selection.label === this.$tr('deleteUser')) {
+          this.displayModal(constants.Modals.DELETE_USER);
+        }
       },
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
@@ -170,13 +214,11 @@
         modalShown: state => state.pageState.modalShown,
       },
       actions: {
-        deleteUser: actions.deleteUser,
         displayModal: actions.displayModal,
       },
     },
     $trs: {
       filterUserType: 'Filter User Type',
-      editAccountInfo: 'Edit',
       searchText: 'Search for a user...',
       allUsers: 'All Users',
       admins: 'Admins',
@@ -190,6 +232,10 @@
       edit: 'Edit',
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
+      manage: 'Manage',
+      editUser: 'Edit',
+      resetUserPassword: 'Reset password',
+      deleteUser: 'Delete',
     },
   };
 

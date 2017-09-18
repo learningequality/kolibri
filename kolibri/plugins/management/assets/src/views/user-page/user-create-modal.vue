@@ -76,6 +76,7 @@
 
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -136,9 +137,6 @@
       nameIsInvalid() {
         return !!this.nameIsInvalidText;
       },
-      usernameIsAlphaNumUnderscore() {
-        return /^\w+$/g.test(this.username);
-      },
       usernameAlreadyExists() {
         return this.users.findIndex(user => user.username === this.username) !== -1;
       },
@@ -147,7 +145,7 @@
           if (this.username === '') {
             return this.$tr('required');
           }
-          if (!this.usernameIsAlphaNumUnderscore) {
+          if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
           if (this.usernameAlreadyExists) {

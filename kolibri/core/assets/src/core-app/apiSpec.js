@@ -55,7 +55,7 @@ import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
-import validateLinkObject from '../validateLinkObject';
+import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import urls from './urls';
@@ -124,7 +124,7 @@ export default {
   urls,
   utils: {
     exams,
-    validateLinkObject,
+    validators,
     serverClock,
     i18n,
   },
