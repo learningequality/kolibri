@@ -89,8 +89,11 @@
     },
     methods: {
       continueOnboarding() {
-        // this.isLastStep ? this.provisionDevice(this.onboardingData) : this.goToNextStep();
-        this.provisionDevice(this.onboardingData);
+        if (this.isLastStep) {
+          this.provisionDevice(this.onboardingData);
+        } else {
+          this.goToNextStep();
+        }
       },
     },
     vuex: {

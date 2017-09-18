@@ -59,6 +59,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
+  import { validateUsername } from 'kolibri.utils.validators';
 
   export default {
     name: 'superuserCredentialsForm',
@@ -114,7 +115,7 @@
         if (this.username === '') {
           return this.$tr('usernameFieldEmptyErrorMessage');
         }
-        if (!/^\w+$/g.test(this.username)) {
+        if (!validateUsername(this.username)) {
           return this.$tr('usernameCharacterErrorMessage');
         }
         return '';
