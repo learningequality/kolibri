@@ -123,10 +123,8 @@ class ContentNodeFilter(IdFilter):
         completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
         # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-        engaged_content_nodes = queryset.filter(content_id__in=ContentSummaryLog.objects.filter(
-            user=value).values_list('content_id', flat=True))
-
-        return queryset.exclude(pk__in=engaged_content_nodes).filter(
+        return queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
+            user=value).values_list('content_id', flat=True)).filter(
             Q(has_prerequisite__in=completed_content_nodes) |
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
