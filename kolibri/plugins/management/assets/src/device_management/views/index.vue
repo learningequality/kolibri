@@ -1,16 +1,13 @@
 <template>
 
   <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
+    <transition name="delay-entry">
+      <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible"/>
+    </transition>
+
     <div>
-
-      <transition name="delay-entry">
-        <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible"/>
-      </transition>
-
-      <div class="manage-content">
-        <top-navigation v-if="canManageContent" />
-        <component :is="currentPage" />
-      </div>
+      <top-navigation v-if="canManageContent" />
+      <component :is="currentPage" />
     </div>
   </core-base>
 
@@ -74,8 +71,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '../../management-styles.styl'
 
   .delay-entry
     &-enter

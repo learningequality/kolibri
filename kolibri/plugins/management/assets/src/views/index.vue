@@ -74,6 +74,16 @@
 
 <style lang="stylus" scoped>
 
-  @require '../management-styles.styl'
+  @require '~kolibri.styles.definitions'
+
+  .manage-content
+    width: 100%
+
+  .page
+    padding: 1em 2em
+    padding-bottom: 3em
+    background-color: $core-bg-light
+    margin-top: 1em
+    border-radius: $radius
 
 </style>
