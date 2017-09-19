@@ -258,8 +258,7 @@
     background-color: $core-bg-canvas
 
   .roster
-    width: 100%
-    word-break: break-all
+    min-width: 600px
     margin-top: 20px
 
   th
@@ -292,23 +291,8 @@
     max-height: ($line-height * 2)
     display: inline-block
 
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      margin-top: 5px
-    .table-username
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+  .user-roster
+    overflow-x: auto
+    overflow-y: hidden
 
 </style>
