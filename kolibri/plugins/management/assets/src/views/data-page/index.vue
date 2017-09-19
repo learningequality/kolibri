@@ -70,7 +70,7 @@
     components: { kButton },
     computed: {
       cannotDownload() {
-        return !isAndroidWebView();
+        return isAndroidWebView();
       },
       columnSize() {
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
