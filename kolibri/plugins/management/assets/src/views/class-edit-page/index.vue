@@ -292,12 +292,6 @@
     max-height: ($line-height * 2)
     display: inline-block
 
-  @media print
-    .toolbar
-      display: none
-    .user-roster
-      width: 500px
-
   // TODO temporary fix until remove width calculation from learn
   @media screen and (max-width: 840px)
     .create
