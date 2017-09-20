@@ -68,7 +68,7 @@
               :showLabel="false"
               :checked="isSelected(user.id)"
               @change="toggleSelection(user.id)"
-              @click.stop
+              @click.native.stop
             />
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
