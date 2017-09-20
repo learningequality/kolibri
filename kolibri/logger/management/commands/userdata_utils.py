@@ -5,11 +5,34 @@ import random
 
 from django.db.models import Max, Min, Sum
 from django.db.models.query import F
+from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom, Facility, FacilityUser
 from kolibri.content.models import ContentNode
+from kolibri.core.device.models import DeviceSettings, DevicePermissions
 from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, MasteryLog
 from le_utils.constants import content_kinds
+
+
+def provision_device():
+    print('Provisioning device. Onboarding will be skipped after starting server.')
+    device_settings, created = DeviceSettings.objects.get_or_create()
+    device_settings.is_provisioned = True
+    device_settings.language_id = 'en'
+    device_settings.save()
+
+
+def add_superuser_to_facility(facility):
+    print('Creating superuser "admin" with password "admin" at facility {facility}.'.format(facility=facility.name))
+    superuser = FacilityUser.objects.create(
+        facility=facility,
+        full_name='Ad Min',
+        username='admin',
+    )
+    superuser.set_password('admin')
+    superuser.save()
+    DevicePermissions.objects.create(user=superuser, is_superuser=True)
+    facility.add_role(superuser, ADMIN)
 
 
 def get_or_create_facilities(**options):
@@ -86,7 +109,7 @@ def get_or_create_classroom_users(**options):
     )[0:n_users]
 
 
-def add_channel_activity_for_user(**options):
+def add_channel_activity_for_user(**options): # noqa: max-complexity=16
     n_content_items = options['n_content_items']
     channel = options['channel']
     user = options['user']

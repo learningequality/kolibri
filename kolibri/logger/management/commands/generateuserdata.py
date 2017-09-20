@@ -23,6 +23,7 @@ class Command(BaseCommand):
         # Slightly different from above, in that it will only generate new facilities if there are fewer facilities
         # on the device than specified
         parser.add_argument('--facilities', type=int, default=1, dest="facilities", help="Number of facilities")
+        parser.add_argument('--no-onboarding', action='store_true', dest="no_onboarding", help="Automatically create superusers and skip onboarding")
 
     def handle(self, *args, **options):  # noqa: max-complexity=16
         # Load in the user data from the csv file to give a predictable source of user data
@@ -31,6 +32,7 @@ class Command(BaseCommand):
 
         n_users = options['users']
         n_classes = options['classes']
+        no_onboarding = options['no_onboarding']
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(options['seed'])
@@ -40,7 +42,14 @@ class Command(BaseCommand):
 
         facilities = utils.get_or_create_facilities(n_facilities=options['facilities'])
 
+        # Device needs to be provisioned before adding superusers
+        if no_onboarding:
+            utils.provision_device()
+
         for facility in facilities:
+            if no_onboarding:
+                utils.add_superuser_to_facility(facility)
+
             classrooms = utils.get_or_create_classrooms(
                 n_classes=n_classes,
                 facility=facility,
