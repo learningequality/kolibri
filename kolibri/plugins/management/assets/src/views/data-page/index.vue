@@ -102,5 +102,6 @@
   .no-dl
     font-size: 0.8em
     color: $core-text-annotation
+    display: inline-block
 
 </style>
