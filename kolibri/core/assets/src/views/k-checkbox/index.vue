@@ -3,7 +3,7 @@
   <div
     class="k-checkbox-container"
     :class="{ 'k-checkbox-disabled': disabled }"
-    @click.prevent="toggleCheck"
+    @click.stop="toggleCheck"
   >
     <div class="tr">
 

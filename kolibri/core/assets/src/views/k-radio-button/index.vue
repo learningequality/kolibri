@@ -3,7 +3,7 @@
   <div
     class="k-radio-container"
     :class="{ 'k-radio-disabled': disabled }"
-    @click.prevent="select"
+    @click.stop="select"
   >
     <div class="tr">
 
