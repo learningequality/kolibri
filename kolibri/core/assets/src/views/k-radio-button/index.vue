@@ -11,6 +11,7 @@
         <input
           ref="kRadioInput"
           type="radio"
+          :autofocus="autofocus"
           class="k-radio-input"
           :id="id"
           :value="radiovalue"
@@ -78,6 +79,13 @@
        * Disabled state
        */
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+      * Autofocus on mount
+      */
+      autofocus: {
         type: Boolean,
         default: false,
       },
