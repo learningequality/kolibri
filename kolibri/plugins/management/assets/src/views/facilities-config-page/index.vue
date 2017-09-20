@@ -1,6 +1,12 @@
 <template>
 
   <div>
+
+    <notifications
+      :notification="notification"
+      @dismiss="dismissNotification()"
+    />
+
     <div class="mb">
       <h1>{{ $tr('pageHeader') }}</h1>
       <p>{{ $tr('pageDescription') }}</p>
@@ -45,11 +51,6 @@
         </div>
       </div>
     </template>
-
-    <notifications
-      :notification="notification"
-      @dismiss="dismissNotification()"
-    />
 
     <confirm-reset-modal
       id="confirm-reset"
