@@ -6,7 +6,7 @@
 
     <script>
 
-      import responsiveElement from './responsive-element-mixin.js';
+      import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
       export default {
         mixins: [responsiveElement],

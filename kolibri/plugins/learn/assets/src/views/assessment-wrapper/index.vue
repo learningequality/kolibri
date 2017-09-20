@@ -9,7 +9,7 @@ oriented data synchronization.
 
 <template v-if="ready">
 
-  <div id="exercise-container">
+  <div>
     <ui-alert v-if="itemError" :dismissible="false" type="error">
       {{ $tr('itemError') }}
     </ui-alert>
@@ -60,16 +60,21 @@ oriented data synchronization.
       <slot/>
     </div>
 
-    <div id="attemptprogress-container">
+    <div class="attemptprogress-container" :class="{ mobile: isMobile }">
       <exercise-attempts
         class="attemptprogress"
+        :class="{ mobile: isMobile }"
         :waitingForAttempt="firstAttempt"
         :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
-      <p class="message">{{ $tr('goal', {count: totalCorrectRequiredM}) }}</p>
-      <p id="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">{{ $tr('tryAgain') }}</p>
+      <p class="message" :class="{ mobile: isMobile }">
+        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+      </p>
+      <p class="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">
+        {{ $tr('tryAgain') }}
+      </p>
     </div>
   </div>
 
@@ -78,6 +83,7 @@ oriented data synchronization.
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import * as actions from 'kolibri.coreVue.vuex.actions';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
@@ -91,6 +97,7 @@ oriented data synchronization.
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
     name: 'assessmentWrapper',
+    mixins: [responsiveWindow],
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
@@ -367,6 +374,9 @@ oriented data synchronization.
       success() {
         return this.exerciseProgress === 1;
       },
+      isMobile() {
+        return this.windowSize.breakpoint <= 1;
+      },
     },
     vuex: {
       actions: {
@@ -405,42 +415,46 @@ oriented data synchronization.
     color: $core-text-annotation
     padding: 16px
     font-size: 14px
-    @media screen and (max-width: $portrait-breakpoint)
-      position: relative
-      text-align: center
-      clear: both
-      top: 40px
-      font-size: 12px
-      margin-top: 0
-      padding: 0
+
+  .message.mobile
+    position: relative
+    text-align: center
+    clear: both
+    top: 40px
+    font-size: 12px
+    margin-top: 0
+    padding: 0
 
   .attemptprogress
     position: absolute
     padding-left: 14px
     top: 38px
-    @media screen and (max-width: $portrait-breakpoint)
-      top: 0
-      padding-left: 0
-      left: 50%
-      transform: translate(-50%, 0)
 
-  #attemptprogress-container
+
+  .attemptprogress.mobile
+    top: 0
+    padding-left: 0
+    left: 50%
+    transform: translate(-50%, 0)
+
+  .attemptprogress-container
     border-radius: $radius
     position: relative
     background-color: $core-bg-light
     height: 104px
-    @media screen and (max-width: $portrait-breakpoint)
-      position: fixed
-      height: 60px
-      width: 100%
-      border-radius: 0
-      bottom: 0
-      border-bottom: thin solid $core-text-annotation
-      border-top: thin solid $core-text-annotation
-      z-index: 2
-      left: 0
 
-  #try-again
+  .attemptprogress-container.mobile
+    position: fixed
+    height: 60px
+    width: 100%
+    border-radius: 0
+    bottom: 0
+    border-bottom: thin solid $core-text-annotation
+    border-top: thin solid $core-text-annotation
+    z-index: 2
+    left: 0
+
+  .try-again
     color: $core-text-error
     font-size: 14px
     font-weight: bold

@@ -1,7 +1,9 @@
 <template>
 
   <div class="subpage-container" :class="{ 'side-margin': withSideMargin }">
-    <slot />
+    <div class="wrapper">
+      <slot />
+    </div>
   </div>
 
 </template>
@@ -37,5 +39,9 @@
     margin-top: 2em
     border-radius: 4px
     background-color: $core-bg-light
+    overflow-x: auto
+
+  .wrapper
+    min-width: 600px
 
 </style>

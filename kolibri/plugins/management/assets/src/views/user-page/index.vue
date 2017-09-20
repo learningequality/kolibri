@@ -282,8 +282,7 @@
     text-align: left
 
   .roster
-    width: 100%
-    word-break: break-all
+    min-width: 600px
 
   th
     text-align: inherit
@@ -310,24 +309,8 @@
   .role-header
     display: none
 
-  @media print
-    .toolbar
-      display: none
-    .user-roster
-      width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create, #type-filter
-      box-sizing: border-box
-    .table-username
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+  .user-roster
+    overflow-x: auto
+    overflow-y: hidden
 
 </style>

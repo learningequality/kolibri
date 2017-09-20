@@ -215,15 +215,4 @@
     height: 1px
     border: none
 
-  @media screen and (max-width: 620px)
-    .page-title
-      float: none
-      margin: 0.4em 0
-
-    .buttons
-      float: none
-
-    .button
-      margin: 5px
-
 </style>
