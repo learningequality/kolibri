@@ -3,7 +3,7 @@
   <div
     class="k-checkbox-container"
     :class="{ 'k-checkbox-disabled': disabled }"
-    @click.stop="toggleCheck"
+    @click="toggleCheck"
   >
     <div class="tr">
 
@@ -48,6 +48,7 @@
         class="k-checkbox-label"
         :for="id"
         :class="{ 'visuallyhidden': !showLabel }"
+        @click.prevent
       >
         {{ label }}
       </label>
