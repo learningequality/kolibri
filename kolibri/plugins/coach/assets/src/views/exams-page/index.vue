@@ -2,12 +2,12 @@
 
   <div>
     <h1>{{ className }} {{ $tr('exams') }}</h1>
-    <ui-radio-group
-      :name="$tr('examFilter')"
-      :label="$tr('show')"
-      :options="filterOptions"
-      v-model="filterSelected"
-      class="radio-group"
+    <ui-select
+      :label="$tr('exams')"
+      :floatingLabel="true"
+      :options="statusOptions"
+      v-model="statusSelected"
+      class="status-filter"
     />
     <k-button
       :primary="true"
@@ -33,9 +33,6 @@
           :examTitle="exam.title"
           :examActive="exam.active"
           :examVisibility="exam.visibility"
-          :classId="classId"
-          :className="className"
-          :classGroups="[]"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
           @deactivateExam="openDeactivateExamModal"
@@ -108,7 +105,7 @@
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiRadioGroup from 'keen-ui/src/UiRadioGroup';
+  import uiSelect from 'keen-ui/src/UiSelect';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
   import activateExamModal from './activate-exam-modal';
@@ -117,15 +114,14 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
+
   export default {
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      show: 'Show',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
-      examFilter: 'Exam filter',
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
@@ -134,7 +130,7 @@
     },
     components: {
       kButton,
-      uiRadioGroup,
+      uiSelect,
       examRow,
       createExamModal,
       activateExamModal,
@@ -146,7 +142,7 @@
     },
     data() {
       return {
-        filterSelected: this.$tr('all'),
+        statusSelected: { label: this.$tr('all') },
         selectedExam: {
           title: '',
           id: '',
@@ -164,20 +160,11 @@
       sortedChannels() {
         return orderBy(this.channels, [channel => channel.name.toUpperCase()], ['asc']);
       },
-      filterOptions() {
+      statusOptions() {
         return [
-          {
-            label: this.$tr('all'),
-            value: this.$tr('all'),
-          },
-          {
-            label: this.$tr('active'),
-            value: this.$tr('active'),
-          },
-          {
-            label: this.$tr('inactive'),
-            value: this.$tr('inactive'),
-          },
+          { label: this.$tr('all') },
+          { label: this.$tr('active') },
+          { label: this.$tr('inactive') },
         ];
       },
       activeExams() {
@@ -187,7 +174,7 @@
         return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
-        const filter = this.filterSelected;
+        const filter = this.statusSelected.label;
         if (filter === this.$tr('active')) {
           return this.activeExams;
         } else if (filter === this.$tr('inactive')) {
@@ -285,9 +272,6 @@
   .center-text
     text-align: center
 
-  .radio-group
-    display: inline-block
-
   table
     margin-top: 3em
     width: 100%
@@ -296,6 +280,11 @@
     text-align: left
 
   .col-visibility, .col-action
-    text-align: right
+    text-align: left
+
+  .status-filter
+    display: inline-block
+    margin: 0
+    width: 200px
 
 </style>
