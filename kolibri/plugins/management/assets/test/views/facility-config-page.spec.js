@@ -50,6 +50,7 @@ describe('facility config page view', () => {
   it('clicking save dispatches a save action', () => {
     const wrapper = makeWrapper();
     const saveActionStub = sinon.stub(wrapper, 'saveFacilityConfig');
+    saveActionStub.returns(Promise.resolve());
     const { saveButton } = getElements(wrapper);
     simulant.fire(saveButton(), 'click');
     return Vue.nextTick().then(() => {
