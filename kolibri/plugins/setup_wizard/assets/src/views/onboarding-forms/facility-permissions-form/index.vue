@@ -74,21 +74,20 @@
       </template>
 
 
-      <template v-for="(preset, value) in permissionPresets">
-
-        <label class="permission-preset">
-          <k-radio-button
-            class="permission-preset-radio-button"
-            v-model="selectedPermissionPreset"
-            :radiovalue="value"
-            :label="preset.name"
-          />
-          <span class="permission-preset-description">
-            {{ descriptions[value] }}
-          </span>
-        </label>
-
-      </template>
+      <label
+        v-for="(preset, shorthand , index) in permissionPresets"
+        class="permission-preset">
+        <k-radio-button
+          class="permission-preset-radio-button"
+          v-model="selectedPermissionPreset"
+          :autofocus="!index"
+          :radiovalue="shorthand"
+          :label="preset.name"
+        />
+        <span class="permission-preset-description">
+          {{ descriptions[shorthand] }}
+        </span>
+      </label>
 
     </onboarding-form>
 

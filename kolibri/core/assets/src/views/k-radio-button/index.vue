@@ -15,6 +15,7 @@
           :id="id"
           :value="radiovalue"
           :disabled="disabled"
+          :autofocus="autofocus"
           @focus="isActive = true"
           @blur="isActive = false"
           @change="emitChange"
@@ -78,6 +79,13 @@
        * Disabled state
        */
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+      * Autofocus on mount
+      */
+      autofocus: {
         type: Boolean,
         default: false,
       },
