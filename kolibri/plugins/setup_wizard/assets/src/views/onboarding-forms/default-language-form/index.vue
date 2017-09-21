@@ -7,10 +7,12 @@
         'default-language-form-items',
         (isMobile ? 'mobile' : '')
       ]">
-      <span :class="['default-language-form-selected-label', (isMobile ? 'mobile' : '')]">
+      <div class="default-language-form-selected-label">
         {{ $tr('selectedLanguageLabel') }}
-      </span>
+      </div>
+      <div>
         {{ selectedLanguage }}
+      </div>
     </label>
 
     <k-button
@@ -174,12 +176,6 @@
         font-weight: normal
         font-size: 10px
         margin-bottom: 8px
-        &.mobile
-          font-weight: none
-          font-size: inherit
-          display: inline
-          &:after
-            content: ':'
 
     &-button-option
       color: $core-action-dark
