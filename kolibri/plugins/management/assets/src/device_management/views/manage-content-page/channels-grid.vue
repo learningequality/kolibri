@@ -159,6 +159,7 @@
 
   .channel-version
     font-size: 0.85em
+    line-height: 1.5em
     color: $core-text-annotation
 
 </style>
