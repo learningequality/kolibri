@@ -142,6 +142,7 @@ function _channelListState(data) {
     description: channel.description,
     root_id: channel.root,
     last_updated: channel.last_updated,
+    version: channel.version,
   }));
 }
 

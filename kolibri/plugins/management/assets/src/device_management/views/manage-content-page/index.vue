@@ -164,7 +164,7 @@
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
-        deviceHasChannels: ({ pageState }) => pageState.channelList > 0,
+        deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
       },
       actions: {
         startImportWizard,
