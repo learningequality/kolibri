@@ -91,6 +91,7 @@
                 :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
                 class="inline-block check"
+                @click.native.stop
               />
             </td>
             <th class="col-username">{{ learner.username }}</th>
