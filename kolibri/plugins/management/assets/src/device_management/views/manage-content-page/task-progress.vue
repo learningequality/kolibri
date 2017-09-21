@@ -81,8 +81,8 @@
       },
     },
     watch: {
-      taskHasFailed: () => {
-        if (this.taskHasFailed) {
+      taskHasFailed(val) {
+        if (val) {
           this.$emit('taskfailed');
         }
       },
