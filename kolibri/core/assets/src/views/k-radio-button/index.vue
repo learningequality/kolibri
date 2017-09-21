@@ -11,11 +11,11 @@
         <input
           ref="kRadioInput"
           type="radio"
-          :autofocus="autofocus"
           class="k-radio-input"
           :id="id"
           :value="radiovalue"
           :disabled="disabled"
+          :autofocus="autofocus"
           @focus="isActive = true"
           @blur="isActive = false"
           @change="emitChange"
