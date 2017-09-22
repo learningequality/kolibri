@@ -10,17 +10,17 @@ package.name = kolibri
 package.domain = org.le
 
 # (str) Source code where the main.py live
-source.dir = ./code
+source.dir = ./src
 
 # (str) Application version
-version.regex = (\d+\.\d+\.\d+)
-version.filename = %(source.dir)s/kolibri/ANDROID_VERSION
+version.regex = (\d+\.\d+\.\d+\.\d+)
+version.filename = ANDROID_VERSION
 
 # (list) Application requirements
 requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
 
 # (str) Icon of the application
-icon.filename = ./resources/logo.png
+icon.filename = ./src/logo.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = all

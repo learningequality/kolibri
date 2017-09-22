@@ -1,6 +1,7 @@
 .buildozer/
-code/kolibri
-code/*.dist-info
+src/kolibri
+src/*.dist-info
 bin/
 *.apk
 *.whl
+ANDROID_VERSION
