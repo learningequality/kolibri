@@ -73,16 +73,17 @@
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   export default {
     name: 'channelsGrid',
+    components: {
+      uiProgressCircular,
+      deleteChannelModal,
+      elapsedTime,
+      kButton,
+    },
     data: () => ({
       selectedChannelId: null,
       notification: null,
       channelsLoading: true,
     }),
-    created() {
-      this.refreshChannelList().then(() => {
-        this.channelsLoading = false;
-      });
-    },
     computed: {
       channelIsSelected() {
         return this.selectedChannelId !== null;
@@ -97,11 +98,10 @@
         return this.channelList.sort(channel => channel.name);
       },
     },
-    components: {
-      uiProgressCircular,
-      deleteChannelModal,
-      elapsedTime,
-      kButton,
+    created() {
+      this.refreshChannelList().then(() => {
+        this.channelsLoading = false;
+      });
     },
     methods: {
       handleDeleteChannel() {
