@@ -43,6 +43,7 @@
                 @click="selectedChannelId=channel.id"
                 :raised="false"
                 :text="$tr('deleteButtonLabel')"
+                :disabled="tasksInQueue"
               />
             </td>
           </tr>
@@ -119,6 +120,7 @@
       getters: {
         channelList: state => state.pageState.channelList,
         pageState: state => state.pageState,
+        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
       },
       actions: {
         triggerChannelDeleteTask,
