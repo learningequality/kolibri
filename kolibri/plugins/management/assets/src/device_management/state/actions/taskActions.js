@@ -80,17 +80,10 @@ export function pollTasks(store) {
     // don't handle response if we've switched pages or if we're in the middle of another operation
     () => samePageCheck() && !store.state.pageState.wizardState.busy,
     taskList => {
-      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
-      // I.e. channel list always reflects the current state of ongoing task(s).
-      setChannelInfo(store).only(samePageCheckGenerator(store), () => {
-        updateTasks(store, taskList);
-        // Close the wizard if there's an outstanding task.
-        // (this can be removed when we support more than one
-        // concurrent task.)
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          closeImportExportWizard(store);
-        }
-      });
+      updateTasks(store, taskList);
+      if (taskList.length && store.state.pageState.wizardState.shown) {
+        closeImportExportWizard(store);
+      }
     },
     error => {
       logging.error(`poll error: ${error}`);
