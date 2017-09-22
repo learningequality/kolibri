@@ -34,6 +34,9 @@ $raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 
   &::-moz-focus-inner
     border: none
 
+a.button
+  display: inline-table // helps with vertical layout
+
 .button.primary.raised
   background-color: $core-action-normal
   color: white
@@ -80,12 +83,11 @@ $raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 
   transition: $transition
   text-decoration: underline
   cursor: pointer
+  padding: 0
+  display: inline
 
   &:hover
     color: $core-action-dark
 
   &:hover:focus
     outline: $core-outline
-
-.link.secondary
-  color: $core-text-default

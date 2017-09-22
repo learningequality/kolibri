@@ -8,20 +8,20 @@
       Buttons use the <code>&lt;button&gt;</code> HTML tag and trigger an action on the current page. Links use the <code>&lt;a&gt;</code> HTML tag and navigate to a new URL.
     </p>
     <p>
-      If the user would expect to use navigation history, right-click to copy a URL, or control-click to open a page in a new tab, then a link with an associated URL or route should be used. Otherwise, a button should be used.
+      Buttons and links are <em>not</em> visually distinguishable. Buttons can visually look like classic links, and links can visually look like classic buttons.
     </p>
     <p>
-      Buttons and links are <em>not</em> visually distinguishable. Buttons look like classic underlined hyperlinks, and links can look like classic buttons.
+      When the user would expect to use navigation history, right-click to copy a URL, or control-click to open a page in a new tab, then a link should be used. Otherwise, a button should be used.
     </p>
 
     <h2>Hierarchy</h2>
     <p>
-      There are 3 main types of button and links. Each maps to a different level of
-      visual hierarchy:
+      There are 3 main visual styles of buttons and links. Each maps to a different level of
+      <a href="https://en.wikipedia.org/wiki/Visual_hierarchy">visual hierarchy</a>:
     </p>
     <ul>
-      <li><strong>Raised:</strong> more prominent actions</li>
-      <li><strong>Flat:</strong> less prominent actions, or actions that repeat in a list</li>
+      <li><strong>Raised:</strong> button-like appearance for more prominent actions</li>
+      <li><strong>Flat:</strong> button-like appearance for less prominent actions</li>
       <li><strong>Link:</strong> very deemphasized actions, or actions inline within text</li>
     </ul>
 
@@ -32,7 +32,7 @@
     </show>
 
     <p>
-      Buttons can also be <strong>primary</strong> or <strong>secondary</strong>. There should only be one primary button visible at a time, and it should be a common or default action.
+      Actions with a button-like appearance can also be <strong>primary</strong> or <strong>secondary</strong>. There should only be one primary button visible at a time, and it should be a common or default action.
     </p>
 
     <show>
@@ -55,18 +55,30 @@
       <li>Do not add icons to buttons</li>
     </ul>
 
-    <h2>Placement of 'raised' and 'flat' buttons</h2>
+    <h2>Placement of 'raised' and 'flat' actions</h2>
     <ul>
       <li>Right-aligned in modal pop-ups</li>
       <li>Left-aligned in page forms</li>
       <li>Global actions related to tables should be put above the table and right-aligned</li>
     </ul>
 
-    <h2>Button API</h2>
+    <h2>APIs</h2>
+
+    <p>There are three components that all look the same, but are used for different purposes:</p>
+    <ul>
+      <li><code>kButton</code> is used to create <code>&lt;button&gt;</code> tags with <code>@click</code> event handlers.</li>
+      <li><code>kRouterLink</code> is used to create Vue router <code>&lt;router-link&gt;</code> components with <code>:to</code> properties. These compile into <code>&lt;a&gt;</code> tags.</li>
+      <li><code>kExternalLink</code> is used to create standard <code>&lt;a&gt;</code> tags with an <code>href</code> attribute.</li>
+    </ul>
+
+    <h3>kButton</h3>
     <component-docs :api="kButtonApi" />
-    <p>
-      Note that hyperlinks are not created using the <code>&lt;k-button&gt;</code> component. Instead, they are created using a standard HTML <code>&lt;a href&gt;</code> tag, or a Vue.js <code>&lt;router-link&gt;</code> component (see <a href="https://router.vuejs.org/en/api/router-link.html">documentation</a>).
-    </p>
+
+    <h3>kRouterLink</h3>
+    <component-docs :api="kRouterLinkApi" />
+
+    <h3>kExternalLink</h3>
+    <component-docs :api="kExternalLinkApi" />
 
     <h2>Interactive code example</h2>
     <vue-example :code="example" />
@@ -90,10 +102,16 @@
 
   import example from 'raw-loader!./example.html';
   import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
+  import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.kRouterLink';
+  import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.kExternalLink';
 
   import FullVue from 'vue/dist/vue.common';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   FullVue.component('k-button', kButton);
+  FullVue.component('k-router-link', kRouterLink);
+  FullVue.component('k-external-link', kExternalLink);
 
   export default {
     components: {
@@ -102,9 +120,13 @@
       vueExample,
       show,
       kButton,
+      kRouterLink,
+      kExternalLink,
     },
     data: () => ({
       kButtonApi,
+      kRouterLinkApi,
+      kExternalLinkApi,
       example,
     }),
   };

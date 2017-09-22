@@ -14,11 +14,14 @@
 
 <script>
 
+  import buttonClassesMixin from './buttonClassesMixin.js';
+
   /**
    * The kButton component is used to trigger actions
    */
   export default {
     name: 'kButton',
+    mixins: [buttonClassesMixin],
     props: {
       /**
        * Button label text
@@ -26,20 +29,6 @@
       text: {
         type: String,
         required: true,
-      },
-      /**
-       * Specifies 'primary' or 'secondary' style
-       */
-      primary: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Button appearance: 'raised', 'flat', or 'link'
-       */
-      appearance: {
-        type: String,
-        default: 'raised',
       },
       /**
        * Whether or not button is disabled
@@ -55,22 +44,19 @@
         type: String,
         default: 'button',
       },
-    },
-    computed: {
-      buttonClasses() {
-        if (this.primary && this.appearance === 'raised') {
-          return ['button', 'primary', 'raised'];
-        } else if (this.primary && this.appearance === 'flat') {
-          return ['button', 'primary', 'flat'];
-        } else if (this.primary && this.appearance === 'link') {
-          return ['link', 'primary'];
-        } else if (!this.primary && this.appearance === 'raised') {
-          return ['button', 'secondary', 'raised'];
-        } else if (!this.primary && this.appearance === 'flat') {
-          return ['button', 'secondary', 'flat'];
-        } else if (!this.primary && this.appearance === 'link') {
-          return ['link', 'secondary'];
-        }
+      /**
+       * Button appearance: 'raised', 'flat', or 'link'
+       */
+      appearance: {
+        type: String,
+        default: 'raised',
+      },
+      /**
+       * For 'raised' and 'flat' button-like appearance: show as primary or secondary style
+       */
+      primary: {
+        type: Boolean,
+        default: false,
       },
     },
     methods: {
