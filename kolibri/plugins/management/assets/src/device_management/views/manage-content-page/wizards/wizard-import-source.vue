@@ -12,7 +12,7 @@
       </div>
       <k-button
         @click="cancel"
-        :raised="false"
+        appearance="flat"
         :text="$tr('cancel')"/>
     </div>
   </core-modal>

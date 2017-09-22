@@ -36,7 +36,7 @@
     <div class="button-wrapper">
       <k-button
         @click="cancel"
-        :raised="false"
+        appearance="flat"
         :text="$tr('cancel')"/>
       <k-button
         :text="$tr('import')"

@@ -14,7 +14,7 @@
       </span>
     </p>
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('cancel')" appearance="flat" @click="close"/>
       <k-button :text="$tr('deactivate')" :primary="true" @click="deactivateExam(examId)"/>
     </div>
   </core-modal>

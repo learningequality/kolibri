@@ -41,7 +41,7 @@
             <td>
               <k-button
                 @click="selectedChannelId=channel.id"
-                :raised="false"
+                appearance="flat"
                 :text="$tr('deleteButtonLabel')"
               />
             </td>

@@ -22,7 +22,7 @@
 
     <div class="button-section">
       <k-button :text="$tr('cancel')"
-        :raised="false"
+        appearance="flat"
         @click="close" />
       <k-button :text="$tr('move')"
         :primary="true"

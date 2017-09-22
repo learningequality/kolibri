@@ -22,7 +22,7 @@
     name: 'kButton',
     props: {
       /**
-       * Label text
+       * Button label text
        */
       text: {
         type: String,
@@ -36,11 +36,11 @@
         default: false,
       },
       /**
-       * Specifies 'raised' or 'flat' style
+       * Button appearance: 'raised', 'flat', or 'link'
        */
-      raised: {
-        type: Boolean,
-        default: true,
+      appearance: {
+        type: String,
+        default: 'raised',
       },
       /**
        * Whether or not button is disabled
@@ -50,7 +50,7 @@
         default: false,
       },
       /**
-       * HTML button type
+       * HTML button 'type' attribute (e.g. 'submit', 'reset')
        */
       type: {
         type: String,
@@ -59,14 +59,18 @@
     },
     computed: {
       buttonClass() {
-        if (this.primary && this.raised) {
+        if (this.primary && this.appearance === 'raised') {
           return 'k-button-primary-raised';
-        } else if (this.primary && !this.raised) {
+        } else if (this.primary && this.appearance === 'flat') {
           return 'k-button-primary-flat';
-        } else if (!this.primary && this.raised) {
+        } else if (this.primary && this.appearance === 'link') {
+          return 'k-button-primary-link';
+        } else if (!this.primary && this.appearance === 'raised') {
           return 'k-button-secondary-raised';
-        } else if (!this.primary && !this.raised) {
+        } else if (!this.primary && this.appearance === 'flat') {
           return 'k-button-secondary-flat';
+        } else if (!this.primary && this.appearance === 'link') {
+          return 'k-button-secondary-link';
         }
       },
     },

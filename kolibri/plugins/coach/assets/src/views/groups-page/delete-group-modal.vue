@@ -5,7 +5,7 @@
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <k-button :text="$tr('cancel')"
-      :raised="false"
+      appearance="flat"
       @click="close" />
     <k-button :text="$tr('deleteGroup')"
       :primary="true"

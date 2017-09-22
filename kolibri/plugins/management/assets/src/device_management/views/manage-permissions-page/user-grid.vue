@@ -26,7 +26,7 @@
           <td class="align-right">
             <k-button
               @click="goToUserPermissionsPage(user.id)"
-              :raised="false"
+              appearance="flat"
               :text="permissionsButtonText(user.username)"
             />
           </td>

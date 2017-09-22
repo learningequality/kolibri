@@ -27,7 +27,7 @@
           @click="cancel"
           :text="$tr('cancel')"
           type="button"
-          :raised="false"
+          appearance="flat"
           :disabled="formIsDisabled"/>
         <k-button
           :text="$tr('import')"

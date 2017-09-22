@@ -18,7 +18,7 @@
       class="default-language-form-button-option default-language-form-items"
       @click="changeLanguage(language.id)"
       :key="language.id"
-      :raised="false"
+      appearance="flat"
       :text="language.lang_name"
     />
 

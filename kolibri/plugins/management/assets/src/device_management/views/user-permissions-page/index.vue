@@ -51,14 +51,14 @@
           :text="$tr('saveButton')"
           class="no-margin"
           :primary="true"
-          :raised="true"
+          appearance="raised"
           @click="save()"
         />
         <k-button
           :disabled="uiBlocked"
           :text="$tr('cancelButton')"
           :primary="false"
-          :raised="false"
+          appearance="flat"
           @click="goBack()"
         />
       </div>

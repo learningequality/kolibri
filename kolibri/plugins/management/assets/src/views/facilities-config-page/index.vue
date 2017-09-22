@@ -36,7 +36,7 @@
         <div>
           <k-button
             :primary="false"
-            :raised="true"
+            appearance="raised"
             @click="showModal=true"
             :text="$tr('resetToDefaultSettings')"
             name="reset-settings"
@@ -44,7 +44,7 @@
 
           <k-button
             :primary="true"
-            :raised="true"
+            appearance="raised"
             @click="saveConfig()"
             :text="$tr('saveChanges')"
             name="save-settings"

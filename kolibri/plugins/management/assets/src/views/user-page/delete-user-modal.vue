@@ -7,13 +7,13 @@
         <k-button
           :text="$tr('no')"
           :primary="false"
-          :raised="false"
+          appearance="flat"
           @click="displayModal(false)"
         />
         <k-button
           :text="$tr('yes')"
           :primary="true"
-          :raised="true"
+          appearance="raised"
           :disabled="submitting"
           @click="handleDeleteUser"
         />

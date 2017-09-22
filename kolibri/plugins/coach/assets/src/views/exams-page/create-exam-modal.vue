@@ -10,7 +10,7 @@
       class="channel-select"
     />
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('cancel')" appearance="flat" @click="close"/>
       <k-button :text="$tr('createExam')" :primary="true" :disabled="!selectedChannel" @click="routeToCreateExamPage"/>
     </div>
   </core-modal>

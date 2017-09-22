@@ -12,14 +12,14 @@
     <div class="modal-buttons">
       <k-button
         :primary="false"
-        :raised="false"
+        appearance="flat"
         @click="handleCancel()"
         :text="$tr('cancel')"
         name="cancel"
       />
       <k-button
         :primary="true"
-        :raised="true"
+        appearance="raised"
         @click="handleConfirm()"
         :text="$tr('reset')"
         name="reset"

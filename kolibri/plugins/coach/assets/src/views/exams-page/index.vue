@@ -11,7 +11,7 @@
     />
     <k-button
       :primary="true"
-      :raised="true"
+      appearance="raised"
       class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"

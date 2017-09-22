@@ -15,7 +15,7 @@
     <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
       <k-button
         :primary="false"
-        :raised="false"
+        appearance="flat"
         @click="emitChangeExamVisibility"
         :text="$tr('change')"
       />
@@ -25,7 +25,7 @@
       <k-button
         v-if="examActive"
         :primary="true"
-        :raised="false"
+        appearance="flat"
         @click="emitDeactivateExam"
         :text="$tr('deactivate')"
       />
@@ -33,7 +33,7 @@
       <k-button
         v-else
         :primary="false"
-        :raised="false"
+        appearance="flat"
         @click="emitActivateExam"
         :text="$tr('activate')"
       />

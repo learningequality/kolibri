@@ -37,7 +37,7 @@
         v-if="taskHasCompleted || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="false"
-        :raised="false"
+        appearance="flat"
         @click="endTask()"
         :disabled="uiBlocked"
       />
