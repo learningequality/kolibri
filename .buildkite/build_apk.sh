@@ -8,7 +8,7 @@ git clone https://github.com/christianmemije/kolibri-kivy
 
 # copy in the latest whl to make it available to the Docker build script
 buildkite-agent artifact download 'dist/*.whl' dist/
-cp dist/*.whl kolibri-kivy/
+cp dist/*.whl kolibri-kivy/src
 
 # build the APK
 cd kolibri-kivy
