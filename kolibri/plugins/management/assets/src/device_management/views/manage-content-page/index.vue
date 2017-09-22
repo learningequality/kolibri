@@ -129,11 +129,11 @@
       },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
+          // Handle failures silently in case of near-simultaneous cancels.
+          .catch(() => {})
           .then(() => {
             unblockCb();
-          })
-          // Handle failures silently in case of near-simultaneous cancels.
-          .catch(() => {});
+          });
       },
     },
     vuex: {

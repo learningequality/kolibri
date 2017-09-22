@@ -80,13 +80,6 @@
         required: true,
       },
     },
-    watch: {
-      taskHasFailed(val) {
-        if (val) {
-          this.$emit('taskfailed');
-        }
-      },
-    },
     data() {
       return {
         uiBlocked: false,
