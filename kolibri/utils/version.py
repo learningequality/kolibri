@@ -241,7 +241,7 @@ def get_git_describe():
         # repo - it's safe.
         version_string = p.communicate()[0].rstrip()
         return version_string
-    except EnvironmentError:
+    except EnvironmentError, OSError:
         return None
 
 def get_version_from_git(get_git_describe_string):
