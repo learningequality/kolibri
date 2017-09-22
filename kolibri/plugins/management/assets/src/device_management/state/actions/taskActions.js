@@ -1,10 +1,6 @@
 /* eslint-env node */
 import { TaskResource } from 'kolibri.resources';
-import {
-  handleApiError,
-  samePageCheckGenerator,
-  setChannelInfo,
-} from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import logger from 'kolibri.lib.logging';
 import { closeImportExportWizard } from './contentWizardActions';
 
@@ -26,13 +22,9 @@ export function fetchCurrentTasks() {
 }
 
 export function cancelTask(store, taskId) {
-  return TaskResource.cancelTask(taskId)
-    .then(function onSuccess() {
-      updateTasks(store, []);
-    })
-    .catch(function onFailure(error) {
-      handleApiError(store, error);
-    });
+  return TaskResource.cancelTask(taskId).then(function onSuccess() {
+    updateTasks(store, []);
+  });
 }
 
 function updateTasks(store, tasks) {
