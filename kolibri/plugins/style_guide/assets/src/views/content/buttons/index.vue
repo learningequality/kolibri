@@ -4,21 +4,31 @@
 
     <h1>Buttons and links</h1>
 
-    <h2>Button hierarchy</h2>
     <p>
-      There are 3 main types of buttons. Each maps to a different level of
+      Buttons use the <code>&lt;button&gt;</code> HTML tag and trigger an action on the current page. Links use the <code>&lt;a&gt;</code> HTML tag and navigate to a new URL.
+    </p>
+    <p>
+      If the user would expect to use navigation history, right-click to copy a URL, or control-click to open a page in a new tab, then a link with an associated URL or route should be used. Otherwise, a button should be used.
+    </p>
+    <p>
+      Buttons and links are <em>not</em> visually distinguishable. Buttons look like classic underlined hyperlinks, and links can look like classic buttons.
+    </p>
+
+    <h2>Hierarchy</h2>
+    <p>
+      There are 3 main types of button and links. Each maps to a different level of
       visual hierarchy:
     </p>
     <ul>
-      <li><strong>Raised buttons:</strong> more prominent actions</li>
-      <li><strong>Flat buttons:</strong> less prominent actions, or actions that repeat in a list</li>
-      <li><strong>Hyperlinks:</strong> very deemphasized actions, or actions inline within text</li>
+      <li><strong>Raised:</strong> more prominent actions</li>
+      <li><strong>Flat:</strong> less prominent actions, or actions that repeat in a list</li>
+      <li><strong>Link:</strong> very deemphasized actions, or actions inline within text</li>
     </ul>
 
     <show>
-      <k-button text="Raised" :primary="true" :raised="true"></k-button>
-      <k-button text="Flat" :primary="true" :raised="false"></k-button>
-      <a href="#">Hyperlink</a>
+      <k-button text="Raised" :primary="true" appearance="raised"></k-button>
+      <k-button text="Flat" :primary="true" appearance="flat"></k-button>
+      <k-button text="Link" :primary="true" appearance="link"></k-button>
     </show>
 
     <p>
@@ -26,17 +36,18 @@
     </p>
 
     <show>
-      <k-button text="Primary" :primary="true" :raised="true"></k-button>
-      <k-button text="Primary" :primary="true" :raised="false"></k-button>
-      <k-button text="Secondary" :primary="false" :raised="true"></k-button>
-      <k-button text="Secondary" :primary="false" :raised="false"></k-button>
+      <k-button text="Primary" :primary="true" appearance="raised"></k-button>
+      <k-button text="Primary" :primary="true" appearance="flat"></k-button>
+      <br>
+      <k-button text="Secondary" :primary="false" appearance="raised"></k-button>
+      <k-button text="Secondary" :primary="false" appearance="flat"></k-button>
     </show>
 
     <p>
-      Note that there is no "secondary hyperlink".
+      Note that we don't use a "secondary link" style.
     </p>
 
-    <h2>Language and contents</h2>
+    <h2>Label text</h2>
     <ul>
       <li>Labels should typically have a single word, or two at most</li>
       <li>Avoid ambiguity; be specific about the action that will be performed. For example, use 'Save' instead of 'OK'</li>
@@ -44,7 +55,7 @@
       <li>Do not add icons to buttons</li>
     </ul>
 
-    <h2>Placement</h2>
+    <h2>Placement of 'raised' and 'flat' buttons</h2>
     <ul>
       <li>Right-aligned in modal pop-ups</li>
       <li>Left-aligned in page forms</li>
