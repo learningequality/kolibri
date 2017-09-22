@@ -51,13 +51,16 @@ var parseBundlePlugin = function(data, base_dir) {
   var external;
   var library;
 
-  var local_config;
+  var local_config = {};
 
-  try {
-    local_config = require(path.resolve(path.join(data.plugin_path, 'webpack.config.js')));
-  } catch (e) {
-    local_config = {};
+  if(fs.readdirSync(data.plugin_path).includes('webpack.config.js')) {
+    try {
+      local_config = require(path.resolve(path.join(data.plugin_path, 'webpack.config.js')));
+    } catch (e) {
+      console.error(e)
+    }
   }
+
 
   if (local_config.coreAPISpec) {
     // Resolve this path now so that it can be unproblematically resolved later.
