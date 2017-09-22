@@ -9,6 +9,11 @@ steps:
 
   - wait
 
+  - label: Build the Android APK file
+    command: mkdir -p dist && .buildkite/build_apk.sh
+
+  - wait
+
   - label: Build the pex file
     command: mkdir -p dist && .buildkite/build_pex.sh
 
@@ -17,10 +22,5 @@ steps:
 
   - wait
 
-  - label: Build the Android APK file
-    command: mkdir -p dist && .buildkite/build_apk.sh
-
-  - wait
-  
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh
