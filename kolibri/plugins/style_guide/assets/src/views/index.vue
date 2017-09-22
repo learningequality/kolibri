@@ -59,7 +59,7 @@
     overflow: initial
 
   code
-    background: #fdf6e3
+    background: rgba(253, 246, 227, 0.5)
     color: #268bd2
     font-size: smaller
     padding: 4px
