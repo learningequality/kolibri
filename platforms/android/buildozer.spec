@@ -20,7 +20,7 @@ version.filename = ANDROID_VERSION
 requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
 
 # (str) Icon of the application
-icon.filename = ./src/logo.png
+icon.filename = ./assets/logo.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = all

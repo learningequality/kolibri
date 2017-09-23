@@ -47,7 +47,10 @@ def get_kolibri_android_version():
     Returns the version to be used for the Kolibri Android app.
     Schema: [kolibri major minor version].[kolibri android repo # commits].[timestamp]
     """
-    return '.'.join([get_kolibri_major_minor_version(), get_kolibri_android_commit_count(), get_current_time()])
+    kolibri_major_minor_version = str(get_kolibri_major_minor_version())
+    kolibri_kivy_commit_count = str(get_kolibri_android_commit_count())
+
+    return '.'.join([kolibri_major_minor_version, kolibri_kivy_commit_count, get_current_time()])
 
 
 def create_kolibri_android_version_file():

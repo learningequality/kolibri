@@ -1,1 +1,5 @@
+.git
+.gitignore
+.buildozer
 src/kolibri
+README.md

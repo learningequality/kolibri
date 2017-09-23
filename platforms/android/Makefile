@@ -1,25 +1,28 @@
 
 # Clear out apks
 clean:
+	# Make bin directory, where APK is held. Empty if it exists.
 	mkdir -p bin
 	rm -f bin/*.apk 2> /dev/null
+	rm -rf ./src/kolibri 2> /dev/null
 
 # Update build system (download NDK/SDK, build Python, etc)
 updatedependencies:
 	buildozer android update
 
-# Remove the default loading page, so that it will be replaced with our own version
-removeloadingpage:
+# Replace the default loading page, so that it will be replaced with our own version
+replaceloadingpage:
 	rm -f .buildozer/android/platform/build/dists/kolibri/webview_includes/_load.html
+	cp ./assets/_load.html .buildozer/android/platform/build/dists/kolibri/webview_includes/
+	cp ./assets/loading-spinner.gif .buildozer/android/platform/build/dists/kolibri/webview_includes/
 
 # Extract the whl file
 extractkolibriwhl:
-	rm -rf ./src/kolibri
 	unzip -q "src/kolibri*.whl" "kolibri/*" -d src/
 
 # Generate the andoid version
 generateversion:
-	python generateversion.py
+	python ./scripts/generateversion.py
 
 # Buld the debug version of the apk
 builddebugapk:
@@ -37,14 +40,13 @@ builddocker:
 	docker build -t kolibrikivy .
 
 # Run the docker image
-rundocker: builddocker
-	./rundocker.sh
-
+rundocker: clean builddocker
+	./scripts/rundocker.sh
 
 # NON DOCKER BUILD
 
 # Build non-docker local apk
-buildapklocally: clean updatedependencies removeloadingpage extractkolibriwhl generateversion builddebugapk
+buildapklocally: clean updatedependencies replaceloadingpage extractkolibriwhl generateversion builddebugapk
 
 # Deploys the apk on a device
 installapk:
@@ -55,5 +57,5 @@ runapk:
 	buildozer android run
 	buildozer android adb -- logcat | grep -i python
 
-uinstallapk:
+uninstallapk:
 	adb uninstall org.le.kolibri

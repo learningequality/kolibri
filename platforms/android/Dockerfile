@@ -1,6 +1,8 @@
 FROM ubuntu:16.04
-LABEL maintainer="Learning Equality <info@learningequality.org>"
+LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /home/kivy
 
 # Install the dependencies for the build system
 RUN dpkg --add-architecture i386 && \
@@ -34,39 +36,27 @@ RUN dpkg --add-architecture i386 && \
     pip install pip --upgrade && \
     pip install cython buildozer
 
-# Create an unprivileged user and run as that user, to please Buildozer
-RUN adduser -u 1000 kivy && \
-    mkdir -p /data /home/kivy/.buildozer && \
-    chown 1000 /data && \
-    chown -R kivy.kivy /home/kivy/.buildozer
+# would be nice if we could batch this into the bash file
+# Copy over files vital to build environment
+# NOTE: Technically, the only file necessary here is buildozer.spec
+COPY Makefile buildozer.spec ./
 
-USER kivy
+# Set up build environment
+RUN useradd -l kivy && \
+  chown -R kivy:kivy /home/kivy && \
+  su kivy -c "make updatedependencies"
 
-WORKDIR /home/kivy
+# Keeping these copies separate to keep cache valid as long as possible in setup
+# for kolibri builds. Buildozer takes a while to rebuild itself
+COPY scripts scripts/
+COPY assets assets/
+# Copy over kolibri-apk specific build files
+COPY src  src/
 
-# Copy in the files
-COPY . .
-
-# Clean apks, update packges, and remove loading page
-RUN make clean
-RUN make updatedependencies
-RUN make removeloadingpage
-
-# Because COPY below won't run as kivy user, make sure it will then have permission to unzip to ./src
-USER root
-RUN mkdir -p /home/kivy/src && \
-    chown kivy.kivy /home/kivy/src
-USER kivy
-
-# Extract .whl files
-RUN make extractkolibriwhl
-
-# Generate version
-RUN make generateversion
-
-# Build the APK
-RUN make builddebugapk
-
-# Copy the generated APK up the root for easy discovery and extraction
-USER root
-RUN cp /home/kivy/bin/*.apk /
+# Extract .whl files and build the apk
+RUN chown -R kivy:kivy /home/kivy && \
+  su kivy -c "\
+    make replaceloadingpage && \
+    make extractkolibriwhl && \
+    make generateversion && \
+    make builddebugapk"
