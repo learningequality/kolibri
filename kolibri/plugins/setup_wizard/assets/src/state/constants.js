@@ -1,3 +1,3 @@
-import presets from '../../../../../auth/constants/facility_configuration_presets.json';
+import permissionPresets from '../../../../../auth/constants/facility_configuration_presets.json';
 
-export const facilityPresetChoices = Object.keys(presets);
+export { permissionPresets };

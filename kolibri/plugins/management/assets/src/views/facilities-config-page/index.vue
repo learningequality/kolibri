@@ -1,6 +1,12 @@
 <template>
 
   <div>
+
+    <notifications
+      :notification="notification"
+      @dismiss="dismissNotification()"
+    />
+
     <div class="mb">
       <h1>{{ $tr('pageHeader') }}</h1>
       <p>{{ $tr('pageDescription') }}</p>
@@ -22,6 +28,7 @@
               :label="$tr(setting)"
               :checked="settings[setting]"
               @change="toggleSetting(setting)"
+              :key="setting"
             />
           </template>
         </div>
@@ -38,18 +45,14 @@
           <k-button
             :primary="true"
             :raised="true"
-            @click="saveFacilityConfig()"
+            @click="saveConfig()"
             :text="$tr('saveChanges')"
             name="save-settings"
+            :disabled="!settingsHaveChanged"
           />
         </div>
       </div>
     </template>
-
-    <notifications
-      :notification="notification"
-      @dismiss="dismissNotification()"
-    />
 
     <confirm-reset-modal
       id="confirm-reset"
@@ -75,19 +78,41 @@
   import notifications from './config-page-notifications';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import isEqual from 'lodash/isEqual';
+
   export default {
+    name: 'facilityConfigPage',
     components: {
       confirmResetModal,
       notifications,
       kCheckbox,
       kButton,
     },
-    data: () => ({ showModal: false }),
-    computed: { settingsList: () => settingsList },
+    data: () => ({
+      showModal: false,
+      settingsCopy: {},
+    }),
+    computed: {
+      settingsList: () => settingsList,
+      settingsHaveChanged() {
+        return !isEqual(this.settings, this.settingsCopy);
+      },
+    },
+    mounted() {
+      this.copySettings();
+    },
     methods: {
       resetToDefaultSettings() {
         this.showModal = false;
         this.resetFacilityConfig();
+      },
+      saveConfig() {
+        this.saveFacilityConfig().then(() => {
+          this.copySettings();
+        });
+      },
+      copySettings() {
+        this.settingsCopy = Object.assign({}, this.settings);
       },
     },
     vuex: {
@@ -110,7 +135,6 @@
         },
       },
     },
-    name: 'facilityConfigPage',
     $trs: {
       currentFacilityHeader: 'Your current Facility',
       learnerCanDeleteAccount: 'Allow users to delete their account',

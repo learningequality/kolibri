@@ -1,11 +1,13 @@
 <template>
 
   <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
+    <transition name="delay-entry">
+      <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible"/>
+    </transition>
+
     <div>
-      <div class="manage-content">
-        <top-navigation v-if="canManageContent" />
-        <component :is="currentPage" />
-      </div>
+      <top-navigation v-if="canManageContent" />
+      <component :is="currentPage" />
     </div>
   </core-base>
 
@@ -23,6 +25,7 @@
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
   import userPermissionsPage from './user-permissions-page';
+  import welcomeModal from './welcome-modal';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: 'manageContentPage',
@@ -34,6 +37,7 @@
     name: 'deviceManagementRoot',
     components: {
       coreBase,
+      welcomeModal,
       manageContentPage,
       managePermissionsPage,
       topNavigation,
@@ -49,7 +53,13 @@
     vuex: {
       getters: {
         pageName: ({ pageName }) => pageName,
+        welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
         canManageContent,
+      },
+      actions: {
+        hideWelcomeModal(store) {
+          store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
+        },
       },
     },
     $trs: {
@@ -62,6 +72,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '../../management-styles.styl'
+  .delay-entry
+    &-enter
+      opacity: 0
+    &-enter-active
+      transition: opacity 0.75s
 
 </style>

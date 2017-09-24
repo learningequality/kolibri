@@ -164,7 +164,7 @@
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
-        deviceHasChannels: ({ pageState }) => pageState.channelList > 0,
+        deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
       },
       actions: {
         startImportWizard,
@@ -214,16 +214,5 @@
     background-color: $core-text-annotation
     height: 1px
     border: none
-
-  @media screen and (max-width: 620px)
-    .page-title
-      float: none
-      margin: 0.4em 0
-
-    .buttons
-      float: none
-
-    .button
-      margin: 5px
 
 </style>

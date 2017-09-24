@@ -9,6 +9,9 @@ const mutations = {
   SET_PAGE_STATE(state, newPageState) {
     state.pageState = newPageState;
   },
+  SET_WELCOME_MODAL_VISIBLE(state, visibility) {
+    state.welcomeModalVisible = visibility;
+  },
 };
 
 export default Object.assign(

@@ -83,7 +83,7 @@
 
         <tbody name="row" is="transition-group">
           <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-              @click.prevent="toggleSelection(learner.id)" :key="learner.id">
+              @click="toggleSelection(learner.id)" :key="learner.id">
             <td class="col-checkbox">
               <k-checkbox
                 :label="$tr('selectUser')"
@@ -91,6 +91,7 @@
                 :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
                 class="inline-block check"
+                @click.native.stop
               />
             </td>
             <th class="col-username">{{ learner.username }}</th>

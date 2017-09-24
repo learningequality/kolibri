@@ -22,6 +22,13 @@ const routes = [
     redirect: '/content',
   },
   {
+    path: '/welcome',
+    redirect: () => {
+      store.dispatch('SET_WELCOME_MODAL_VISIBLE', true);
+      return '/content';
+    },
+  },
+  {
     name: PageNames.MANAGE_CONTENT_PAGE,
     path: '/content',
     handler: ({ name }) => {

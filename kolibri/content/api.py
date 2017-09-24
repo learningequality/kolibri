@@ -102,12 +102,14 @@ class ContentNodeFilter(IdFilter):
 
         completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
-        return queryset.exclude(pk__in=completed_content_nodes).filter(
+        # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
+        return queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
+            user=value).values_list('content_id', flat=True)).filter(
             Q(has_prerequisite__in=completed_content_nodes) |
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
 
-    def filter_popular(self, queryset, value, channel_id=None):
+    def filter_popular(self, queryset, value):
         """
         Recommend content that is popular with all users.
 
@@ -119,17 +121,16 @@ class ContentNodeFilter(IdFilter):
             # return 25 random content nodes if not enough session logs
             pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
             # .count scales with table size, so can get slow on larger channels
-            count_cache_key = 'content_count_for_{}'.format(channel_id)
+            count_cache_key = 'content_count_for_popular'
             count = cache.get(count_cache_key) or min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
-        cache_key = 'popular_for_{}'.format(channel_id)
+        cache_key = 'popular_content'
         if cache.get(cache_key):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
         content_counts_sorted = ContentSessionLog.objects \
-            .filter(channel_id=channel_id) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
@@ -140,7 +141,7 @@ class ContentNodeFilter(IdFilter):
         cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
 
-    def filter_resume(self, queryset, value, channel_id=None):
+    def filter_resume(self, queryset, value):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
@@ -155,7 +156,7 @@ class ContentNodeFilter(IdFilter):
 
         # get the most recently viewed, but not finished, content nodes
         content_ids = ContentSummaryLog.objects \
-            .filter(user=value, channel_id=channel_id) \
+            .filter(user=value) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
             .values_list('content_id', flat=True) \

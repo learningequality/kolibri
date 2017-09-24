@@ -1,6 +1,7 @@
 {% load i18n kolibri_tags webpack_tags content_tags cache %}
 {% load staticfiles %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}">
 <head>

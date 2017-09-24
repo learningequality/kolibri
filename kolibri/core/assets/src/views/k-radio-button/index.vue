@@ -3,7 +3,7 @@
   <div
     class="k-radio-container"
     :class="{ 'k-radio-disabled': disabled }"
-    @click.prevent="select"
+    @click="select"
   >
     <div class="tr">
 
@@ -15,11 +15,12 @@
           :id="id"
           :value="radiovalue"
           :disabled="disabled"
+          :autofocus="autofocus"
           @focus="isActive = true"
           @blur="isActive = false"
           @change="emitChange"
           v-model="model"
-          @click.stop
+          @click.stop="select"
         >
 
         <mat-svg
@@ -37,7 +38,7 @@
 
       </div>
 
-      <label :for="id" class="k-radio-label">{{ label }}</label>
+      <label :for="id" class="k-radio-label" @click.prevent>{{ label }}</label>
 
     </div>
   </div>
@@ -78,6 +79,13 @@
        * Disabled state
        */
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+      * Autofocus on mount
+      */
+      autofocus: {
         type: Boolean,
         default: false,
       },

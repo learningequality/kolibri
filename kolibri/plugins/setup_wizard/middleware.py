@@ -5,6 +5,7 @@ from kolibri.core.device.utils import device_provisioned
 ALLOWED_PATH_LIST = [
     "deviceprovision",
     "kolibri:setupwizardplugin:setupwizard",
+    "kolibri:set_language",
     "session-list"
 ]
 
