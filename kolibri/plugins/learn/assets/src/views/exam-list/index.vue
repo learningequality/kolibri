@@ -21,10 +21,14 @@
             {{ $tr('questionsLeft', { left: exam.questionCount - exam.answerCount }) }}
           </p>
           <div class="button-or-score">
-            <router-link :to="generateExamLink(exam)">
-              <k-button class="exam-button" :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"/>
-              <k-button class="exam-button" :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"/>
-            </router-link>
+            <k-router-link
+              class="exam-button"
+              appearance="flat"
+              :to="generateExamLink(exam)"
+              :primary="true"
+            >
+              {{ exam.answerCount === null ? $tr('start') : $tr('continue') }}
+            </k-router-link>
           </div>
         </div>
       </div>
@@ -40,7 +44,8 @@
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
     name: 'examIndex',
     $trs: {
@@ -56,7 +61,7 @@
     components: {
       authMessage,
       pageHeader,
-      kButton,
+      kRouterLink,
     },
     computed: {
       activeExams() {

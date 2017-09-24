@@ -33,9 +33,9 @@
         <tbody>
           <tr v-for="classModel in sortedClasses">
             <th scope="row" class="table-text">
-              <router-link :to="classEditLink(classModel.id)" class="table-name">
+              <k-router-link :to="classEditLink(classModel.id)" class="table-name">
                 {{classModel.name}}
-              </router-link>
+              </k-router-link>
             </th>
             <td class="table-data">
               {{ classModel.memberCount }}
@@ -63,11 +63,13 @@
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   export default {
     components: {
       classCreateModal,
       classDeleteModal,
       kButton,
+      kRouterLink,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {

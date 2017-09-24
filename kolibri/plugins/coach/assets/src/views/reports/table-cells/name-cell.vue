@@ -3,7 +3,7 @@
   <th scope="row">
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"/>
-      <router-link v-if="link" :to="link" class="link">{{ title }}</router-link>
+      <k-router-link v-if="link" :to="link" class="link">{{ title }}</k-router-link>
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper">
@@ -18,8 +18,10 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
-    components: { contentIcon },
+    components: { contentIcon, kRouterLink },
     props: {
       kind: {
         type: String,

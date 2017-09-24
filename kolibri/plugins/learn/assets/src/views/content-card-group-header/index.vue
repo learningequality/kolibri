@@ -9,9 +9,9 @@
         </h2>
 
         <span v-if="showViewMore" class="card-group-details-view-more">
-          <router-link :to="viewMorePageLink">
+          <k-router-link :to="viewMorePageLink">
             {{ $tr('viewMoreFromSectionButton') }}
-          </router-link>
+          </k-router-link>
         </span>
 
       </div>
@@ -23,8 +23,11 @@
 
 <script>
 
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
     name: 'contentCardGroupHeader',
+    components: { kRouterLink },
     $trs: {
       viewMoreFromSectionButton: 'View more',
     },

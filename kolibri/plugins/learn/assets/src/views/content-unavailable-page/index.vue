@@ -2,7 +2,11 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isSuperuser"><a href="/management/device#/content">{{ $tr('adminLink') }}</a></p>
+    <p v-if="isSuperuser">
+      <k-external-link href="/management/device#/content">
+        {{ $tr('adminLink') }}
+      </k-external-link>
+    </p>
     <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
@@ -12,6 +16,7 @@
 <script>
 
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
 
   export default {
     name: 'learnContentUnavailable',
@@ -20,6 +25,9 @@
       adminLink: 'Download content from the Management page',
       notAdmin:
         'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
+    },
+    components: {
+      kExternalLink,
     },
     vuex: {
       getters: {

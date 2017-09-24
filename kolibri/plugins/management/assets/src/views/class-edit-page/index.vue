@@ -23,11 +23,9 @@
 
     <div class="toolbar">
       <div class="enroll">
-        <router-link :to="classEnrollLink">
-          <k-button
-            :text="$tr('enrollUsers')"
-            :primary="true"/>
-        </router-link>
+        <k-router-link :to="classEnrollLink" :primary="true" appearance="raised">
+          {{ $tr('enrollUsers') }}
+        </k-router-link>
       </div>
       <k-filter-textbox
         :placeholder="$tr('searchText')"
@@ -110,7 +108,7 @@
   import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
     name: 'classEnrollPage',
@@ -131,7 +129,7 @@
     components: {
       classRenameModal,
       userRemoveModal,
-      kButton,
+      kRouterLink,
       kFilterTextbox,
     },
     data: () => ({

@@ -70,12 +70,21 @@
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
-          <k-button :text="$tr('createAccount')" :primary="false"/>
-        </router-link>
-        <a class="group-btn" href="/learn">
-          <k-button :text="$tr('accessAsGuest')" :primary="false"/>
-        </a>
+        <k-router-link
+          v-if="canSignUp"
+          :to="signUpPage"
+          :primary="false"
+          appearance="raised"
+        >
+          {{ $tr('createAccount') }}
+        </k-router-link>
+        <k-external-link
+          href="/learn"
+          :primary="false"
+          appearance="raised"
+        >
+          {{ $tr('accessAsGuest') }}
+        </k-external-link>
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
     </div>
@@ -92,6 +101,8 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
@@ -115,6 +126,8 @@
     },
     components: {
       kButton,
+      kRouterLink,
+      kExternalLink,
       kTextbox,
       logo,
       uiAutocompleteSuggestion,
@@ -322,6 +335,13 @@
             background-color: transparent
       &button
         background-color: $login-red
+
+    .button.secondary.raised
+      background-color: $core-text-default
+      color: $core-grey
+
+      &:hover
+        background-color: #0E0E0E
 
 </style>
 

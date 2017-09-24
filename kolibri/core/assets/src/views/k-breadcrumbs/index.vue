@@ -7,9 +7,9 @@
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
               <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
-                <router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
+                <k-router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
                   {{ crumb.text }}
-                </router-link>
+                </k-router-link>
               </li>
             </ol>
           </div>
@@ -23,7 +23,7 @@
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             v-show="!crumb.collapsed"
           >
-            <router-link :to="crumb.link">{{ crumb.text }}</router-link>
+            <k-router-link :to="crumb.link">{{ crumb.text }}</k-router-link>
           </li>
 
           <li
@@ -46,7 +46,7 @@
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
           >
-            <router-link :to="crumb.link" tabindex="-1">{{ crumb.text }}</router-link>
+            <k-router-link :to="crumb.link" tabindex="-1">{{ crumb.text }}</k-router-link>
           </li>
 
           <li
@@ -73,6 +73,7 @@
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   const DROPDOWN_BTN_WIDTH = 55;
   const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
@@ -83,12 +84,12 @@
    */
   export default {
     name: 'kBreadcrumbs',
-    components: { uiIconButton },
+    components: { uiIconButton, kRouterLink },
     mixins: [ResponsiveElement],
     props: {
       /**
        * An array of item objects. All objects must have a text value.
-       * All objects, but the last, must have a router link object.
+       * All objects, but the last, must have a router link 'to' object.
        */
       items: {
         type: Array,
@@ -106,7 +107,8 @@
 
     data: () => ({
       // Array of crumb objects.
-      // Each object contains text, router-link, vue ref, a resize sensor, and it's collapsed state.
+      // Each object contains:
+      // text, router-link 'to' object, vue ref, a resize sensor, and its collapsed state
       crumbs: [],
     }),
     computed: {
