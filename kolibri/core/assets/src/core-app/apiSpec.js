@@ -48,6 +48,7 @@ import authMessage from '../views/auth-message';
 import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
+import kFilterTextbox from '../views/k-filter-textbox';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -61,7 +62,7 @@ import * as resources from '../api-resources';
 import urls from './urls';
 import * as client from './client';
 import * as i18n from '../utils/i18n';
-import kFilterTextbox from '../views/k-filter-textbox';
+import * as browser from '../utils/browser';
 
 export default {
   client,
@@ -123,6 +124,7 @@ export default {
   },
   urls,
   utils: {
+    browser,
     exams,
     validators,
     serverClock,

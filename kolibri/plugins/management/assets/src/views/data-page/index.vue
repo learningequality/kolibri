@@ -13,7 +13,10 @@
       <p>
         {{$tr('detailsSubHeading')}}
       </p>
-      <k-button :text="$tr('download')" @click="downloadSessionLog"/>
+      <div>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog"/>
+        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+      </div>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
       </p>
@@ -24,7 +27,10 @@
       <p>
         {{$tr('summarySubHeading')}}
       </p>
-      <k-button :text="$tr('download')" @click="downloadSummaryLog"/>
+      <div>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog"/>
+        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+      </div>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
       </p>
@@ -38,8 +44,10 @@
 <script>
 
   import urls from 'kolibri.urls';
+  import { isAndroidWebView } from 'kolibri.utils.browser';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
+
   export default {
     mixins: [responsiveWindow],
     name: 'manageData',
@@ -57,9 +65,13 @@
         'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
       download: 'Download',
       note: 'Note',
+      noDownload: 'Download is not supported on Android',
     },
     components: { kButton },
     computed: {
+      cannotDownload() {
+        return isAndroidWebView();
+      },
       columnSize() {
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
       },
@@ -86,5 +98,10 @@
     border-radius: $radius
     font-size: 0.8em
     padding: 8px
+
+  .no-dl
+    font-size: 0.8em
+    color: $core-text-annotation
+    display: inline-block
 
 </style>

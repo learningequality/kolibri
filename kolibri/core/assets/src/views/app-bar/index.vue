@@ -55,7 +55,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import uiButton from 'keen-ui/src/UiButton';
-  import { redirectBrowser } from '../../utils/browser';
+  import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcher from '../language-switcher';
   export default {
     mixins: [responsiveWindow],
