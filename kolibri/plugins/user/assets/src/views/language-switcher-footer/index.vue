@@ -1,15 +1,7 @@
 <template>
 
-  <div class="page-footer">
-    <ul class="language-list">
-      <li
-        v-for="language in languageOptions"
-        :class="currentLanguage === language.id ? 'selected item' : 'choice item'"
-        @click="switchLanguage(language.id)"
-      >
-        {{ language.lang_name }}
-      </li>
-    </ul>
+  <div class="footer-wrapper">
+    <language-switcher-list class="list" />
   </div>
 
 </template>
@@ -18,15 +10,13 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
-  import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
+  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
 
   export default {
     name: 'languageSwitcherFooter',
     components: {
-      kButton,
+      languageSwitcherList,
     },
-    mixins: [languageSwitcherMixin],
-    $trs: {},
   };
 
 </script>
@@ -34,35 +24,12 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .choice
-    color: $core-action-normal
-
-  .selected
-    font-weight: bold
-
-  .page-footer
-    padding-left: 32px
-    padding-top: 16px
-    padding-bottom: 16px
+  .footer-wrapper
+    margin: 36px
     text-align: center
-    button
-      float: right
-      position: absolute
 
-  .language-list
-    list-style: none
-    margin: 0
-    padding: 0
-    text-align: initial
+  .list
     display: inline-block
-
-  .item
-    display: inline-block
-    padding-top: 6px
-    padding-right: 20px
-    &.choice
-      cursor: pointer
+    text-align: left
 
 </style>
