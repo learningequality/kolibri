@@ -25,7 +25,8 @@
 <style lang="stylus" scoped>
 
   .footer-wrapper
-    margin: 36px
+    margin-left: 36px
+    margin-right: 36px
     text-align: center
 
   .list
