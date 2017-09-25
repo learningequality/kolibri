@@ -9,6 +9,7 @@ import {
 import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import {
   setChannelInfo,
+  handleError,
   handleApiError,
   samePageCheckGenerator,
 } from 'kolibri.coreVue.vuex.actions';
