@@ -333,6 +333,13 @@
 
   $login-text = #D8D8D8
 
+  .k-button-secondary-raised
+    background-color: $core-text-default
+    color: $core-bg-canvas
+    &:hover
+      background-color: #0E0E0E
+
+
   .login
     background-color: #201A21
     height: 100%
