@@ -40,7 +40,7 @@
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         }
-        return null;
+        return '';
       },
       topLevelPageName: () => TopLevelPageNames.USER,
       currentPage() {
