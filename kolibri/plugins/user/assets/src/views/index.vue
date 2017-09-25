@@ -1,12 +1,16 @@
 <template>
 
   <div>
-    <core-base :navBarNeeded="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
-      <component v-if="navBarNeeded" :is="currentPage"/>
-    </core-base>
-    <div v-if="!navBarNeeded" class="full-page">
+    <core-base
+      v-if="navBarNeeded"
+      :navBarNeeded="navBarNeeded"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+    >
       <component :is="currentPage"/>
-      <language-switcher :footer="true"/>
+    </core-base>
+    <div v-else class="full-page">
+      <component :is="currentPage"/>
     </div>
   </div>
 
@@ -22,7 +26,6 @@
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
   export default {
     $trs: { userProfileTitle: 'Profile' },
     name: 'userPlugin',
@@ -31,7 +34,6 @@
       signInPage,
       signUpPage,
       profilePage,
-      languageSwitcher,
     },
     computed: {
       appBarTitle() {
