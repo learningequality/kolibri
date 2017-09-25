@@ -64,10 +64,6 @@ pdfjs-dist@^1.8.559:
     node-ensure "^0.0.0"
     worker-loader "^0.8.0"
 
-pdfobject@2.0.201604172:
-  version "2.0.201604172"
-  resolved "https://registry.yarnpkg.com/pdfobject/-/pdfobject-2.0.201604172.tgz#112edf93b98be121a5e780b06e7f5f78ad31ab3f"
-
 schema-utils@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.3.0.tgz#f5877222ce3e931edae039f17eb3716e7137f8cf"

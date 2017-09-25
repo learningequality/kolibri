@@ -15,7 +15,7 @@ import {
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
-import { redirectBrowser } from '../utils/browser';
+import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const name = 'coreTitles';
