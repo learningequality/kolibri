@@ -14,7 +14,7 @@ make writeversion
 cd $KOLIBRI_DOCKER_PATH \
     && git clone https://github.com/learningequality/kolibri-installers.git \
     && cd kolibri-installers \
-    && git checkout develop
+    && git checkout 35719420c287003821e4a1a5b8d8b06f8e6ddeb5
 
 # Copy kolbri whl file at KOLIBRI_WINDOWS_PATH path.
 cd $PARENT_PATH
