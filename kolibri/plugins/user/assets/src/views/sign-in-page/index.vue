@@ -79,7 +79,7 @@
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
     </div>
-    <language-switcher :footer="true"/>
+    <language-switcher-footer/>
   </div>
 
 </template>
@@ -97,7 +97,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+  import languageSwitcherFooter from '../language-switcher-footer';
 
   export default {
     name: 'signInPage',
@@ -121,7 +121,7 @@
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
-      languageSwitcher,
+      languageSwitcherFooter,
     },
     data: () => ({
       username: '',
