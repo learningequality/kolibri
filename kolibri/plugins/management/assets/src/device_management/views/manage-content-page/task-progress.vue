@@ -155,7 +155,7 @@
     $trs: {
       importingContent: 'Importing content…',
       exportingContent: 'Exporting content…',
-      finished: 'Finished!',
+      finished: 'Finished! Click "Close" button to see changes.',
       preparingTask: 'Preparing…',
       close: 'Close',
       cancel: 'Cancel',
