@@ -4,7 +4,7 @@
     <div id="login-container">
       <logo class="logo"/>
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-      <form id="login-form" ref="form" @submit.prevent="signIn">
+      <form class="login-form" ref="form" @submit.prevent="signIn">
         <ui-alert
           v-if="invalidCredentials"
           type="error"
@@ -59,14 +59,14 @@
           />
         </transition>
         <k-button
-          id="login-btn"
+          class="login-btn"
           type="submit"
           :text="$tr('signIn')"
           :primary="true"
           :disabled="busy"
         />
       </form>
-      <div id="divid-line"></div>
+      <div class="divider"></div>
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
@@ -78,6 +78,9 @@
         </a>
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
+    </div>
+    <div class="footer">
+      <language-switcher-footer/>
     </div>
   </div>
 
@@ -320,8 +323,6 @@
           color: $login-text
           &:autofill
             background-color: transparent
-      &button
-        background-color: $login-red
 
 </style>
 
@@ -330,83 +331,53 @@
 
   @require '~kolibri.styles.definitions'
 
-  $login-overlay = #201A21
   $login-text = #D8D8D8
 
   .login
-    background-color: $login-overlay
+    background-color: #201A21
     height: 100%
     // Fallback for older browers.
     background: $core-bg-canvas
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
     background-size: cover
-    overflow: hidden
-
-  #login-container
-    display: block
-    margin: auto
+    text-align: center
 
   .logo
-    position: relative
-    display: block
-    margin: auto
-    margin-top: 34px
-    width: 30%
-    height: auto
-    max-width: 120px
-    min-width: 60px
+    margin-top: 36px
+    width: 120px
 
   .login-text
     color: $login-text
 
   .title
-    font-weight: 100
     font-size: 1.3em
-    letter-spacing: 0.1em
-    text-align: center
 
-  #login-form
+  .login-form
     width: 70%
     max-width: 300px
-    margin: auto
-    margin-top: 30px
     position: relative
-
-  #password
-    margin-top: 30px
-
-  #login-btn
-    display: block
+    text-align: left
     margin: auto
-    margin-top: 38px
+
+  .login-btn
+    display: block
     width: 100%
 
-  #btn-group
-    display: table
+  .divider
     margin: auto
-    margin-top: 28px
-    margin-bottom: 20px
-    text-align: center
-
-  .group-btn
-    padding: 5px
-    display: inline-block
-    text-decoration: none
-
-  #divid-line
+    margin-top: 48px
+    margin-bottom: 36px
     width: 412px
     height: 1px
     background-color: $core-text-annotation
     background-color: $login-text
-    margin: auto
-    margin-top: 24px
 
   .version
-    text-align: center
     font-size: 0.8em
+    margin-top: 36px
 
-  .no-account
-    text-align: center
+  .footer
+    background-color: $core-bg-canvas
 
   .sign-in-error
     color: $core-text-error
