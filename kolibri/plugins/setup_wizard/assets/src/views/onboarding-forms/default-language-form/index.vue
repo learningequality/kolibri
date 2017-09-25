@@ -7,10 +7,12 @@
         'default-language-form-items',
         (isMobile ? 'mobile' : '')
       ]">
-      <span :class="['default-language-form-selected-label', (isMobile ? 'mobile' : '')]">
+      <div class="default-language-form-selected-label">
         {{ $tr('selectedLanguageLabel') }}
-      </span>
+      </div>
+      <div>
         {{ selectedLanguage }}
+      </div>
     </label>
 
     <k-button
@@ -25,6 +27,7 @@
     <!-- QUESTION use ui-select? -->
     <select
       @input="changeLanguage($event.target.value)"
+      v-if="selectorLanguages.length"
       class="default-language-form-dropdown default-language-form-items">
       <option
         disabled
@@ -101,7 +104,12 @@
         return remainingLanguages;
       },
       numberOfLanguageButtons() {
-        return this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
+        let numBtns = this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
+        // prevent a case where the selector menu has just a single item
+        if (Object.keys(allLanguages).length === numBtns + 2) {
+          return numBtns + 1;
+        }
+        return numBtns;
       },
       buttonLanguages() {
         return this.remainingLanguages.slice(0, this.numberOfLanguageButtons);
@@ -174,12 +182,6 @@
         font-weight: normal
         font-size: 10px
         margin-bottom: 8px
-        &.mobile
-          font-weight: none
-          font-size: inherit
-          display: inline
-          &:after
-            content: ':'
 
     &-button-option
       color: $core-action-dark
