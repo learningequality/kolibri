@@ -52,7 +52,7 @@
 
 <script>
 
-  import { availableLanguages as allLanguages } from 'kolibri.utils.i18n';
+  import { availableLanguages as allLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import { httpClient } from 'kolibri.client';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
@@ -74,7 +74,7 @@
     components: { kButton },
     data() {
       return {
-        selectedLanguageId: this.currentLanguage,
+        selectedLanguageId: currentLanguage,
       };
     },
     computed: {
@@ -82,10 +82,10 @@
         return this.windowSize.breakpoint < 4;
       },
       selectedLanguage() {
-        return allLanguages[this.currentLanguage].lang_name;
+        return allLanguages[currentLanguage].lang_name;
       },
       remainingLanguages() {
-        const remainingLanguages = Object.values(omit(allLanguages, [this.currentLanguage]));
+        const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
         remainingLanguages.sort((lang1, lang2) => {
           // puts words with foreign characters first in the array
           return lang2.lang_name.localeCompare(lang1.lang_name);

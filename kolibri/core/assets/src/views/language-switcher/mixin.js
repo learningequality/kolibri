@@ -34,8 +34,5 @@ export default {
         })
         .map(key => availableLanguages[key]);
     },
-    currentLanguage() {
-      return currentLanguage;
-    },
   },
 };

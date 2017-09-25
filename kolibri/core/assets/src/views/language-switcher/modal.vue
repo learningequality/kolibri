@@ -30,6 +30,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
+  import { currentLanguage } from 'kolibri.utils.i18n';
 
   export default {
     name: 'languageSwitcherModal',
@@ -43,7 +44,7 @@
     },
     data() {
       return {
-        selectedLanguage: this.currentLanguage,
+        selectedLanguage: currentLanguage,
       };
     },
     methods: {
