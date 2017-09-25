@@ -1,7 +1,7 @@
 <template>
 
-  <div class="login">
-    <div id="login-container">
+  <div class="wrapper-table">
+    <div class="main-row"><div id="main-cell">
       <logo class="logo"/>
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form class="login-form" ref="form" @submit.prevent="signIn">
@@ -78,9 +78,9 @@
         </a>
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
-    </div>
-    <div class="footer">
-      <language-switcher-footer/>
+    </div></div>
+    <div class="footer-row">
+      <language-switcher-footer class="footer-cell"/>
     </div>
   </div>
 
@@ -313,7 +313,7 @@
 
   $login-text = #D8D8D8
 
-  #login-container
+  #main-cell
     .ui-
       &textbox__
         &label-text
@@ -339,15 +339,22 @@
     &:hover
       background-color: #0E0E0E
 
-
-  .login
+  .wrapper-table
+    text-align: center
     background-color: #201A21
     height: 100%
-    // Fallback for older browers.
-    background: $core-bg-canvas
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
+    width: 100%
+    display: table
+
+  .main-row
+    display: table-row
+
+  #main-cell
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center
     background-size: cover
-    text-align: center
+    display: table-cell
+    vertical-align: middle
+    height: 100%
 
   .logo
     margin-top: 36px
@@ -374,17 +381,25 @@
     margin: auto
     margin-top: 48px
     margin-bottom: 36px
-    width: 412px
+    width: 100%
+    max-width: 412px
     height: 1px
     background-color: $core-text-annotation
-    background-color: $login-text
 
   .version
     font-size: 0.8em
     margin-top: 36px
+    margin-bottom: 36px
 
-  .footer
+  .footer-row
+    display: table-row
     background-color: $core-bg-canvas
+
+  .footer-cell
+    display: table-cell
+    vertical-align: middle
+    min-height: 50px
+    padding: 18px
 
   .sign-in-error
     color: $core-text-error

@@ -91,6 +91,9 @@
 
     </form>
 
+    <div class="footer">
+      <language-switcher-footer/>
+    </div>
   </div>
 
 </template>
@@ -354,5 +357,9 @@
   .app-bar-icon
     font-size: 2.5em
     margin-left: 0.25em
+
+  .footer
+    margin: 36px
+    margin-top: 96px
 
 </style>
