@@ -1,18 +1,20 @@
 import {
   ContentNodeResource,
   ContentNodeProgressResource,
-  SessionResource,
   UserExamResource,
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
 import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-import { setChannelInfo, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import {
+  setChannelInfo,
+  handleApiError,
+  samePageCheckGenerator,
+} from 'kolibri.coreVue.vuex.actions';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 
@@ -424,7 +426,12 @@ function showExam(store, id, questionNumber) {
       user: store.state.core.session.user_id,
       exam: id,
     }).fetch();
-    ConditionalPromise.all([examPromise, examLogPromise, examAttemptLogPromise]).only(
+    ConditionalPromise.all([
+      examPromise,
+      examLogPromise,
+      examAttemptLogPromise,
+      setAndCheckChannels(store),
+    ]).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
         const currentChannel = getChannelObject(store.state, exam.channel_id);
