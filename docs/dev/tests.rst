@@ -17,7 +17,7 @@ Running tests with a specific Python version:
 
      $ tox -e py2.7  # or...
      $ tox -e py3.4  # or...
-     $ tox -e py3.5  # or... 
+     $ tox -e py3.5
 
 To run a subset of tests::
 
@@ -30,13 +30,13 @@ JS unit tests
 -------------
 
 .. note:: TODO! This will be written by one of the JS devs :)
-     
+
 Testing philosophy
 ------------------
 
 .. warning::
     This section an unfinished draft. We should carefully import stuff
-    from our Dev Bible. 
+    from our Dev Bible.
 
 We want to achieve a ``>90%`` test coverage! To do that, it's best to do TDD,
 meaning to write tests that express what you want to achieve or fix and then
