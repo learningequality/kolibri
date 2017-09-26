@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isSuperuser"><a href="/management/device#/content">{{ $tr('adminLink') }}</a></p>
+    <p v-if="canManageContent"><a href="/management/device#/content">{{ $tr('adminLink') }}</a></p>
     <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
@@ -11,7 +11,7 @@
 
 <script>
 
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'learnContentUnavailable',
@@ -23,7 +23,7 @@
     },
     vuex: {
       getters: {
-        isSuperuser,
+        canManageContent,
       },
     },
   };

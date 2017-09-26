@@ -100,6 +100,11 @@ const LoginErrors = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
 };
 
+const PermissionTypes = {
+  SUPERUSER: 'SUPERUSER',
+  SOME_PERMISSIONS: 'SOME_PERMISSIONS',
+};
+
 export {
   UserKinds,
   ContentNodeKinds,
@@ -112,4 +117,5 @@ export {
   CollectionKinds,
   MaxPointsPerContent,
   LoginErrors,
+  PermissionTypes,
 };

@@ -26,10 +26,8 @@
           @change="superuserChecked=$event"
         />
         <p>
-          <mat-svg category="toggle" name="star" class="superuser" />
-          <span class="align">
-            {{ $tr('makeSuperuserDetails') }}
-          </span>
+          <permissions-icon permissionType="SUPERUSER" class="permissions-icon"/>
+          {{ $tr('makeSuperuserDetails') }}
         </p>
       </div>
 
@@ -85,6 +83,7 @@
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { addOrUpdateUserPermissions } from '../../state/actions/managePermissionsActions';
   import { PageNames } from '../../constants';
+  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -98,6 +97,7 @@
       kButton,
       kCheckbox,
       subpageContainer,
+      permissionsIcon,
     },
     data() {
       return {
@@ -221,12 +221,9 @@
     margin-left: 0
 
   .section
-    padding: 1em 0
+    padding: 1em
 
-  .align
-    vertical-align: super
-
-  svg.superuser
-    fill: $core-status-mastered
+  .permissions-icon
+    padding-right: 8px
 
 </style>
