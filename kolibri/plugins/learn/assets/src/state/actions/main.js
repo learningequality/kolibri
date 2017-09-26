@@ -179,11 +179,10 @@ function showChannels(store) {
       const channelRootIds = channels.map(channel => channel.root);
       ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(channelCollection => {
         const rootNodes = _collectionState(channelCollection);
-        rootNodes.map(rootNode => {
+        rootNodes.forEach(rootNode => {
           rootNode.thumbnail = channels.find(
             channel => channel.id === rootNode.channel_id
           ).thumbnail;
-          return rootNode;
         });
         const pageState = { rootNodes };
         store.dispatch('SET_PAGE_STATE', pageState);
