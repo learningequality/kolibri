@@ -87,7 +87,7 @@
         if (permissions.is_superuser) {
           return PermissionTypes.SUPERUSER;
         } else if (permissions.can_manage_content) {
-          return PermissionTypes.SOME_PERMISSIONS;
+          return PermissionTypes.LIMITED_PERMISSIONS;
         }
         return null;
       },

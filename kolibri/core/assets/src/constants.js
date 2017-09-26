@@ -102,7 +102,7 @@ const LoginErrors = {
 
 const PermissionTypes = {
   SUPERUSER: 'SUPERUSER',
-  SOME_PERMISSIONS: 'SOME_PERMISSIONS',
+  LIMITED_PERMISSIONS: 'LIMITED_PERMISSIONS',
 };
 
 export {

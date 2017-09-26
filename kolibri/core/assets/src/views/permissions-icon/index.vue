@@ -9,8 +9,8 @@
     />
 
     <ui-icon
-      v-else-if="permissionType === PermissionTypes.SOME_PERMISSIONS"
-      :ariaLabel="$tr('somePermissionsTooltip')"
+      v-else-if="permissionType === PermissionTypes.LIMITED_PERMISSIONS"
+      :ariaLabel="$tr('limitedPermissionsTooltip')"
       icon="vpn_key"
       class="some-permissions"
     />
@@ -38,7 +38,7 @@
         type: String,
         required: true,
         validator(value) {
-          return [PermissionTypes.SUPERUSER, PermissionTypes.SOME_PERMISSIONS].includes(value);
+          return [PermissionTypes.SUPERUSER, PermissionTypes.LIMITED_PERMISSIONS].includes(value);
         },
       },
     },
@@ -50,8 +50,8 @@
         switch (this.permissionType) {
           case PermissionTypes.SUPERUSER:
             return this.$tr('superuserTooltip');
-          case PermissionTypes.SOME_PERMISSIONS:
-            return this.$tr('somePermissionsTooltip');
+          case PermissionTypes.LIMITED_PERMISSIONS:
+            return this.$tr('limitedPermissionsTooltip');
           default:
             return '';
         }
@@ -59,7 +59,7 @@
     },
     $trs: {
       superuserTooltip: 'Superuser',
-      somePermissionsTooltip: 'Some permissions',
+      limitedPermissionsTooltip: 'Limited permissions',
     },
   };
 

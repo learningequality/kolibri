@@ -133,7 +133,7 @@
       devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       required: 'This field is required',
-      somePermissions: 'Some permissions',
+      limitedPermissions: 'Limited permissions',
     },
     components: {
       kButton,
@@ -167,15 +167,15 @@
         if (this.isSuperuser) {
           return PermissionTypes.SUPERUSER;
         } else if (this.userHasPermissions) {
-          return PermissionTypes.SOME_PERMISSIONS;
+          return PermissionTypes.LIMITED_PERMISSIONS;
         }
         return null;
       },
       permissionTypeText() {
         if (this.permissionType === PermissionTypes.SUPERUSER) {
           return this.$tr('isSuperuser');
-        } else if (this.permissionType === PermissionTypes.SOME_PERMISSIONS) {
-          return this.$tr('somePermissions');
+        } else if (this.permissionType === PermissionTypes.LIMITED_PERMISSIONS) {
+          return this.$tr('limitedPermissions');
         }
         return '';
       },
