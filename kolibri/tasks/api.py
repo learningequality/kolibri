@@ -8,10 +8,12 @@ from django.apps.registry import AppRegistryNotReady
 from django.core.management import CommandError, call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
-from kolibri.content.models import ChannelMetadata
+from django.db.models import Sum
+from kolibri.content.models import ChannelMetadata, LocalFile
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
+from kolibri.tasks.management.commands.base import AsyncCommand
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -196,7 +198,7 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
         "importchannel",
         "network",
         channel_id,
-        update_progress=update_progress,
+        # update_progress=update_progress,
         check_for_cancel=check_for_cancel)
     try:
         call_command(
@@ -214,21 +216,35 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
     drive = drives[drive_id]
     # copy channel's db file then copy all the content files from storage dir
     try:
+        # Total size of all the channel content
+        total_size = 0
+
         for channel in drive.metadata["channels"]:
             call_command(
                 "importchannel",
                 "local",
                 channel["id"],
                 drive.datafolder,
-                update_progress=update_progress,
+                # update_progress=update_progress,
                 check_for_cancel=check_for_cancel)
-            call_command(
-                "importcontent",
-                "local",
-                channel["id"],
-                drive.datafolder,
-                update_progress=update_progress,
-                check_for_cancel=check_for_cancel)
+
+            # Get content size
+            files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
+            total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
+            total_size += total_bytes_to_transfer
+
+        cmd = AsyncCommand(update_progress=update_progress, check_for_cancel=check_for_cancel)
+        with cmd.start_progress(total=total_size) as tracker: 
+            for channel in drive.metadata["channels"]:
+                call_command(
+                    "importcontent",
+                    "local",
+                    channel["id"],
+                    drive.datafolder,
+                    tracker=tracker,
+                    update_progress=update_progress,
+                    check_for_cancel=check_for_cancel)
+
     except UserCancelledError:
         for channel in drive.metadata["channels"]:
             channel_id = channel["id"]
@@ -242,26 +258,43 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
 def _localexport(drive_id, update_progress=None, check_for_cancel=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
+
+    # Get the total size of all the channel objects
+    total_size = 0
     for channel in ChannelMetadata.objects.all():
-        call_command(
-            "exportchannel",
-            channel.id,
-            drive.datafolder,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel)
-        try:
+        # For channel
+        src = get_content_database_file_path(channel.id)
+        total_size += os.path.getsize(src)
+
+        # For content
+        files = LocalFile.objects.filter(files__contentnode__channel_id=channel.id, available=True)
+        total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
+        total_size += total_bytes_to_transfer
+
+    cmd = AsyncCommand(update_progress=update_progress, check_for_cancel=check_for_cancel)
+    with cmd.start_progress(total=total_size) as tracker: 
+        for channel in ChannelMetadata.objects.all():
             call_command(
-                "exportcontent",
+                "exportchannel",
                 channel.id,
                 drive.datafolder,
+                tracker=tracker,
                 update_progress=update_progress,
                 check_for_cancel=check_for_cancel)
-        except UserCancelledError:
             try:
-                os.remove(get_content_database_file_path(channel.id, datafolder=drive.datafolder))
-            except OSError:
-                pass
-            raise
+                call_command(
+                    "exportcontent",
+                    channel.id,
+                    drive.datafolder,
+                    tracker=tracker,
+                    update_progress=update_progress,
+                    check_for_cancel=check_for_cancel)
+            except UserCancelledError:
+                try:
+                    os.remove(get_content_database_file_path(channel.id, datafolder=drive.datafolder))
+                except OSError:
+                    pass
+                raise
 
 
 def _deletechannel(channel_id, update_progress=None):
