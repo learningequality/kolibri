@@ -70,7 +70,7 @@ function _topicState(data, ancestors = []) {
     thumbnail: thumbnail.storage_url,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
-    kind: data.pk === data.channel_id ? ContentNodeKinds.CHANNEL : data.kind,
+    kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
     progress,
     channel_id: data.channel_id,
   };
@@ -177,10 +177,15 @@ function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(rootNodes => {
-        const pageState = {
-          rootNodes: _collectionState(rootNodes),
-        };
+      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(channelCollection => {
+        const rootNodes = _collectionState(channelCollection);
+        rootNodes.map(rootNode => {
+          rootNode.thumbnail = channels.find(
+            channel => channel.id === rootNode.channel_id
+          ).thumbnail;
+          return rootNode;
+        });
+        const pageState = { rootNodes };
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('CORE_SET_ERROR', null);
