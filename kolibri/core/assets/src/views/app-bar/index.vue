@@ -17,21 +17,20 @@
         :has-dropdown="true"
         ref="accountButton"
         class="username-text">
-        <template v-if="windowSize.breakpoint > 2">
-          <template v-if="isUserLoggedIn">
-            {{ username }}
-            <template v-if="isSuperuser">{{ $tr('superuser') }}</template>
-            <template v-if="isAdmin">{{ $tr('admin') }}</template>
-            <template v-if="isCoach">{{ $tr('coach') }}</template>
-          </template>
-          <template v-else>{{ $tr('guest') }}</template>
+        <template v-if="isUserLoggedIn">
+          {{ username }}
         </template>
-        <ui-menu
+        <keen-menu-port
           slot="dropdown"
           :options="accountMenuOptions"
           @close="$refs.accountButton.closeDropdown()"
           @select="optionSelected"
-        />
+        >
+          <div class="role">{{ $tr('role') }}</div>
+          <div v-if="isAdmin">{{ $tr('admin') }}</div>
+          <div v-else-if="isCoach">{{ $tr('coach') }}</div>
+          <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+        </keen-menu-port>
       </ui-button>
       <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
     </div>
@@ -53,7 +52,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
+  import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcher from '../language-switcher';
@@ -65,10 +64,10 @@
       profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
-      superuser: '(Superuser)',
-      admin: '(Admin)',
-      coach: '(Coach)',
-      guest: 'Guest',
+      role: 'Role',
+      admin: 'Admin',
+      coach: 'Coach',
+      learner: 'Learner',
       languageSwitchMenuOption: 'Change language',
     },
     props: {
@@ -91,7 +90,7 @@
     components: {
       uiToolbar,
       uiIconButton,
-      uiMenu,
+      keenMenuPort,
       uiButton,
       languageSwitcher,
     },
@@ -159,5 +158,9 @@
 
   .username-text
     text-transform: none
+
+  .role
+    font-size: small
+    margin-bottom: 8px
 
 </style>

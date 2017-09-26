@@ -10,7 +10,7 @@ function isSuperuser(state) {
 }
 
 function isAdmin(state) {
-  return state.core.session.kind[0] === UserKinds.ADMIN;
+  return state.core.session.kind.includes(UserKinds.ADMIN);
 }
 
 function isCoach(state) {
