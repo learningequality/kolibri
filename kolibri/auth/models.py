@@ -36,6 +36,7 @@ from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
+from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
 from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
@@ -447,6 +448,28 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             return queryset.none()
 
 
+class FacilityUserModelManager(SyncableModelManager):
+
+    def create_superuser(self, username, password):
+
+        # import here to avoid circularity
+        from kolibri.core.device.models import DevicePermissions
+
+        # get the default facility
+        facility = Facility.get_default_facility()
+
+        # create the new account in that facility
+        superuser = FacilityUser(username=username, facility=facility)
+        superuser.set_password(password)
+        superuser.save()
+
+        # make the user a facility admin
+        facility.add_role(superuser, role_kinds.ADMIN)
+
+        # make the user into a superuser on this device
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -468,6 +491,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
         )
     )
+
+    objects = FacilityUserModelManager()
 
     facility = models.ForeignKey("Facility")
 
