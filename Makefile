@@ -123,5 +123,4 @@ dockerenvdist: writeversion
 
 kolibripippex:
 	git clone https://github.com/learningequality/pip.git
-	python pip/setup.py bdist_wheel
-	cd pip && pex -m pip dist/*.whl -o kolibripip.pex && mv kolibripip.pex ../
+	cd pip && python setup.py bdist_wheel && pex -m pip dist/*.whl -o kolibripip.pex && mv kolibripip.pex ../
