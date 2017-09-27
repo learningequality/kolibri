@@ -52,13 +52,13 @@ def get_or_create_classroom_users(**options):
     # Full names - because we should never assume that users have names like us
     user_data_name_fields = ["GivenName", "MiddleInitial", "Surname"]
 
-    n_on_device = HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
-        target_user=F("id"),
+    n_in_classroom = HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
         ancestor_collection=classroom,
+        target_user=F("id"),
     ).count()
 
     # Only generate new users if there are fewer users than requested.
-    n_to_create = n_users - n_on_device
+    n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
         print('Generating {n} user object(s) for class: {classroom} in facility: {facility}'.format(
             n=n_to_create,
@@ -67,7 +67,7 @@ def get_or_create_classroom_users(**options):
         ))
         for i in range(0, n_to_create):
             # Get the first base data that does not have a matching user already
-            base_data = user_data[n_on_device + i]
+            base_data = user_data[n_in_classroom + i]
             # Randomly create the name from 1 to 3 of the three user name fields
             name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3))])
             user = FacilityUser.objects.create(
@@ -77,6 +77,8 @@ def get_or_create_classroom_users(**options):
             )
             # Set a dummy password so that if we want to login as this learner later, we can.
             user.set_password('password')
+            user.save()
+
             # Add the user to the current classroom
             classroom.add_member(user)
 

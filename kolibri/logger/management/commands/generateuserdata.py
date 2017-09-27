@@ -26,7 +26,7 @@ class Command(BaseCommand):
         parser.add_argument('--facilities', type=int, default=1, dest="facilities", help="Number of facilities")
         parser.add_argument('--no-onboarding', action='store_true', dest="no_onboarding", help="Automatically create superusers and skip onboarding")
 
-    def handle(self, *args, **options):  # noqa: max-complexity=16
+    def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
         with open(os.path.join(os.path.dirname(__file__), 'user_data.csv')) as f:
             user_data = [data for data in csv.DictReader(f)]
