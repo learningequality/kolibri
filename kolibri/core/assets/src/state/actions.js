@@ -143,6 +143,7 @@ function _channelListState(data) {
     root_id: channel.root,
     last_updated: channel.last_updated,
     version: channel.version,
+    thumbnail: channel.thumbnail,
   }));
 }
 
