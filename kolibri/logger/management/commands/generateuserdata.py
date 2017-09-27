@@ -7,7 +7,7 @@ import random
 from . import userdata_utils as utils
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from kolibri.auth.test.helpers import provision_device
+from kolibri.auth.test.helpers import provision_device, create_superuser
 from kolibri.content.models import ChannelMetadata
 
 
@@ -50,7 +50,8 @@ class Command(BaseCommand):
 
         for facility in facilities:
             if no_onboarding:
-                utils.add_superuser_to_facility(facility)
+                print('Creating superuser "superuser" with password "password" at facility {facility}.'.format(facility=facility.name))
+                create_superuser(facility=facility)
 
             classrooms = utils.get_or_create_classrooms(
                 n_classes=n_classes,

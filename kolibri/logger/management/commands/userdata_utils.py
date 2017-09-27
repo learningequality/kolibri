@@ -5,26 +5,11 @@ import random
 
 from django.db.models import Max, Min, Sum
 from django.db.models.query import F
-from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom, Facility, FacilityUser
 from kolibri.content.models import ContentNode
-from kolibri.core.device.models import DevicePermissions
 from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, MasteryLog
 from le_utils.constants import content_kinds
-
-
-def add_superuser_to_facility(facility):
-    print('Creating superuser "admin" with password "admin" at facility {facility}.'.format(facility=facility.name))
-    superuser = FacilityUser.objects.create(
-        facility=facility,
-        full_name='Ad Min',
-        username='admin',
-    )
-    superuser.set_password('admin')
-    superuser.save()
-    DevicePermissions.objects.create(user=superuser, is_superuser=True)
-    facility.add_role(superuser, ADMIN)
 
 
 def get_or_create_facilities(**options):
