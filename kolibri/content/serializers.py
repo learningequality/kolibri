@@ -25,7 +25,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChannelMetadata
-        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version')
+        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version', 'thumbnail')
 
 
 class LowerCaseField(serializers.CharField):
