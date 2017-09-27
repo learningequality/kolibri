@@ -70,7 +70,7 @@
           params: {
             channel_id: exam.channelId,
             id: exam.id,
-            questionNumber: exam.answerCount,
+            questionNumber: 0,
           },
         };
       },
