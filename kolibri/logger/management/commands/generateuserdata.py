@@ -4,7 +4,7 @@ import csv
 import os
 import random
 
-from . import userdata_utils as utils
+from kolibri.logger.utils import user_data as utils
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from kolibri.auth.test.helpers import provision_device, create_superuser
