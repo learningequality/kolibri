@@ -4,10 +4,11 @@ import csv
 import os
 import random
 
+from . import userdata_utils as utils
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from kolibri.auth.test.helpers import provision_device
 from kolibri.content.models import ChannelMetadata
-from . import userdata_utils as utils
 
 
 class Command(BaseCommand):
@@ -44,7 +45,8 @@ class Command(BaseCommand):
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
-            utils.provision_device()
+            print('Provisioning device. Onboarding will be skipped after starting server.')
+            provision_device()
 
         for facility in facilities:
             if no_onboarding:

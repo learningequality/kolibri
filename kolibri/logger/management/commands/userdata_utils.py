@@ -9,17 +9,9 @@ from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom, Facility, FacilityUser
 from kolibri.content.models import ContentNode
-from kolibri.core.device.models import DeviceSettings, DevicePermissions
+from kolibri.core.device.models import DevicePermissions
 from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, MasteryLog
 from le_utils.constants import content_kinds
-
-
-def provision_device():
-    print('Provisioning device. Onboarding will be skipped after starting server.')
-    device_settings, created = DeviceSettings.objects.get_or_create()
-    device_settings.is_provisioned = True
-    device_settings.language_id = 'en'
-    device_settings.save()
 
 
 def add_superuser_to_facility(facility):
