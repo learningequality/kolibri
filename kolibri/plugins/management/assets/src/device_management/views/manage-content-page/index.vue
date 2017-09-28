@@ -74,7 +74,7 @@
   const POLL_DELAY = 1000;
 
   export default {
-    name: 'manageContentState',
+    name: 'manageContentPage',
     $trs: {
       title: 'My channels',
       import: 'Import',
