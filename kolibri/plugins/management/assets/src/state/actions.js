@@ -69,7 +69,7 @@ function _userState(apiUserData) {
     if (apiUserData.roles) {
       // array of strings, where each string represents a role object
       const roleKinds = apiUserData.roles.map(roleObj => roleObj.kind);
-      if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
+      if (roleKinds.includes(UserKinds.ADMIN)) {
         return UserKinds.ADMIN;
       } else if (roleKinds.includes(UserKinds.COACH)) {
         return UserKinds.COACH;
@@ -84,6 +84,7 @@ function _userState(apiUserData) {
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: calcUserKind(apiUserData.roles),
+    is_superuser: apiUserData.is_superuser,
   };
 }
 

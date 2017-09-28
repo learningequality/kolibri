@@ -234,7 +234,6 @@ class SessionViewSet(viewsets.ViewSet):
                    'can_manage_content': user.can_manage_content}
         roles = Role.objects.filter(user_id=user.id)
 
-
         if len(roles) is 0:
             session.update({'facility_id': user.facility_id,
                             'kind': ['learner'],
