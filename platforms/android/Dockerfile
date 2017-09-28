@@ -39,12 +39,14 @@ RUN dpkg --add-architecture i386 && \
 # would be nice if we could batch this into the bash file
 # Copy over files vital to build environment
 # NOTE: Technically, the only file necessary here is buildozer.spec
-COPY Makefile buildozer.spec ./
+COPY buildozer.spec ./
 
 # Set up build environment
 RUN useradd -l kivy && \
-  chown -R kivy:kivy /home/kivy && \
-  su kivy -c "make updatedependencies"
+  chown kivy:kivy /home/kivy && \
+  su kivy -c "buildozer android update"
+
+COPY Makefile .git ./
 
 # Keeping these copies separate to keep cache valid as long as possible in setup
 # for kolibri builds. Buildozer takes a while to rebuild itself
@@ -54,7 +56,7 @@ COPY assets assets/
 COPY src  src/
 
 # Extract .whl files and build the apk
-RUN chown -R kivy:kivy /home/kivy && \
+RUN chown kivy:kivy /home/kivy/src && \
   su kivy -c "\
     make replaceloadingpage && \
     make extractkolibriwhl && \
