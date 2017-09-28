@@ -86,6 +86,7 @@ class RecentReportViewSet(viewsets.ModelViewSet):
     serializer_class = ContentReportSerializer
 
     def get_queryset(self):
+        channel_id = self.kwargs['channel_id']
         attempted_mastery_logs = MasteryLog.objects.filter(attemptlogs__isnull=False)
         query_node = ContentNode.objects.get(pk=self.kwargs['content_node_id'])
         if self.request.query_params.get('last_active_time'):
@@ -101,13 +102,13 @@ class RecentReportViewSet(viewsets.ModelViewSet):
             end_timestamp__gte=datetime_cutoff).values_list('content_id', flat=True)
         if connection.vendor == 'postgresql':
             pks_with_unique_content_ids = ContentNode.objects.order_by('content_id').distinct('content_id').filter(
-                content_id__in=recent_content_items).values_list('pk', flat=True)
+                channel_id=channel_id, content_id__in=recent_content_items).values_list('pk', flat=True)
         else:
             # note from rtibbles:
             # As good as either I or jamalex could come up with to ensure that we only return
             # unique content_id'ed ContentNodes from the coach recent report endpoint.
             # Would have loved to use distinct('content_id'), but unfortunately DISTINCT ON is Postgresql only
             pks_with_unique_content_ids = ContentNode.objects.filter(
-                content_id__in=recent_content_items).values('content_id').order_by('lft').annotate(
+                channel_id=channel_id, content_id__in=recent_content_items).values('content_id').order_by('lft').annotate(
                 pk=Min('pk')).values_list('pk', flat=True)
         return ContentNode.objects.filter(pk__in=pks_with_unique_content_ids).order_by('lft')
