@@ -18,10 +18,6 @@ Running tests with a specific Python version:
      $ tox -e py2.7  # or...
      $ tox -e py3.4  # or...
      $ tox -e py3.5  # or... 
-     $ tox -e bdd 
-
-The 'bdd' tests are the "Behavior Driven Development" tests, i.e. the heavier
-user interface tests.
 
 To run a subset of tests::
 
