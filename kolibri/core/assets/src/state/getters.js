@@ -6,7 +6,7 @@ function isUserLoggedIn(state) {
 }
 
 function isSuperuser(state) {
-  return state.core.session.kind[0] === UserKinds.SUPERUSER;
+  return state.core.session.kind.includes(UserKinds.SUPERUSER);
 }
 
 function isAdmin(state) {
@@ -14,11 +14,11 @@ function isAdmin(state) {
 }
 
 function isCoach(state) {
-  return state.core.session.kind[0] === UserKinds.COACH;
+  return state.core.session.kind.includes(UserKinds.COACH);
 }
 
 function isLearner(state) {
-  return state.core.session.kind[0] === UserKinds.LEARNER;
+  return state.core.session.kind.includes(UserKinds.LEARNER);
 }
 
 function canManageContent(state) {

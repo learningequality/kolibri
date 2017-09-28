@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div class="ui-menu-header"><slot/></div>
+    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
     <ul class="ui-menu" role="menu" :class="classes">
       <menu-option
         :disable-ripple="disableRipple"
@@ -157,7 +157,9 @@
 
   .ui-menu-header {
     padding: 1rem;
-    border-bottom: 1px solid #E0E0E0;
+    border-bottom: solid 1px rgba(black, 0.08);
+    color: $primary-text-color;
+    font-size: $ui-dropdown-item-font-size;
   }
 
 </style>

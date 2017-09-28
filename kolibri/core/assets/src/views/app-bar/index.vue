@@ -9,6 +9,7 @@
     :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
+
       <ui-button
         icon="person"
         type="primary"
@@ -16,22 +17,25 @@
         :ariaLabel="$tr('account')"
         :has-dropdown="true"
         ref="accountButton"
-        class="username-text">
-        <template v-if="isUserLoggedIn">
-          {{ username }}
-        </template>
+        class="username-text"
+      >
+        <template v-if="isUserLoggedIn">{{ username }}</template>
+
         <keen-menu-port
           slot="dropdown"
           :options="accountMenuOptions"
           @close="$refs.accountButton.closeDropdown()"
           @select="optionSelected"
         >
-          <div class="role">{{ $tr('role') }}</div>
-          <div v-if="isAdmin">{{ $tr('admin') }}</div>
-          <div v-else-if="isCoach">{{ $tr('coach') }}</div>
-          <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+          <template slot="header" v-if="isUserLoggedIn">
+            <div class="role">{{ $tr('role') }}</div>
+            <div v-if="isAdmin">{{ $tr('admin') }}</div>
+            <div v-else-if="isCoach">{{ $tr('coach') }}</div>
+            <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+          </template>
         </keen-menu-port>
       </ui-button>
+
       <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
     </div>
   </ui-toolbar>
