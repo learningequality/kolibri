@@ -75,7 +75,7 @@
           <td class="table-cell">
             <dropdown-menu
               :name="$tr('manage')"
-              :options="manageUserOptions"
+              :options="manageUserOptions(user.id)"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -133,6 +133,7 @@
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
+  import { currentUserId } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'userPage',
@@ -182,17 +183,17 @@
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
       },
-      manageUserOptions() {
-        return [
-          { label: this.$tr('editUser') },
-          { label: this.$tr('resetUserPassword') },
-          { label: this.$tr('deleteUser') },
-        ];
-      },
     },
     methods: {
       userMatchesRole(user) {
         return this.roleFilter === 'all' || user.kind === this.roleFilter;
+      },
+      manageUserOptions(userId) {
+        return [
+          { label: this.$tr('editUser') },
+          { label: this.$tr('resetUserPassword') },
+          { label: this.$tr('deleteUser'), disabled: userId === this.currentUserId },
+        ];
       },
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
@@ -212,6 +213,7 @@
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
+        currentUserId,
       },
       actions: {
         displayModal: actions.displayModal,
