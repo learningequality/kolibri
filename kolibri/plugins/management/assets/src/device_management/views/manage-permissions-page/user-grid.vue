@@ -84,7 +84,9 @@
       },
       getPermissionType(userId) {
         const permissions = this.userPermissions(userId);
-        if (permissions.is_superuser) {
+        if (!permissions) {
+          return null;
+        } else if (permissions.is_superuser) {
           return PermissionTypes.SUPERUSER;
         } else if (permissions.can_manage_content) {
           return PermissionTypes.LIMITED_PERMISSIONS;

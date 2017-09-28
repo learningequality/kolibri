@@ -46,13 +46,7 @@
 <script>
 
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
-  import {
-    isUserLoggedIn,
-    isSuperuser,
-    isAdmin,
-    isCoach,
-    isLearner,
-  } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn, isAdmin, isCoach, isLearner } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
@@ -144,7 +138,6 @@
       getters: {
         username: state => state.core.session.username,
         isUserLoggedIn,
-        isSuperuser,
         isAdmin,
         isCoach,
         isLearner,

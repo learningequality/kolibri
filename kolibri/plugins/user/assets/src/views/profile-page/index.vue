@@ -15,13 +15,18 @@
 
     <section v-if="userHasPermissions">
       <h2>{{ $tr('devicePermissions') }}</h2>
-      <permissions-icon :permissionType="permissionType" class="permissions-icon"/>
-      {{ permissionTypeText }}
-      <ul class="permissions-list">
-        <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
-          {{ getPermissionString(key) }}
-        </li>
-      </ul>
+      <p>
+        <permissions-icon :permissionType="permissionType" class="permissions-icon"/>
+        {{ permissionTypeText }}
+      </p>
+      <p>
+        {{ $tr('youCan') }}
+        <ul class="permissions-list">
+          <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
+            {{ getPermissionString(key) }}
+          </li>
+        </ul>
+      </p>
     </section>
 
     <form @submit.prevent="submitEdits">
@@ -96,7 +101,6 @@
   import {
     facilityConfig,
     isSuperuser,
-    canManageContent,
     isAdmin,
     isCoach,
     isLearner,
@@ -126,14 +130,15 @@
       isLearner: 'Learner',
       isCoach: 'Coach',
       isAdmin: 'Admin',
-      isSuperuser: 'Superuser permissions including:',
-      canManageContent: 'Can manage content',
+      isSuperuser: 'Superuser permissions ',
+      manageContent: 'Manage content',
       points: 'Points',
       role: 'Role',
       devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       required: 'This field is required',
-      limitedPermissions: 'Limited permissions including:',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
     },
     components: {
       kButton,
@@ -243,7 +248,7 @@
       },
       getPermissionString(permission) {
         if (permission === 'can_manage_content') {
-          return this.$tr('canManageContent');
+          return this.$tr('manageContent');
         }
         return permission;
       },
@@ -252,7 +257,6 @@
       getters: {
         facilityConfig,
         isSuperuser,
-        canManageContent,
         isAdmin,
         isCoach,
         isLearner,

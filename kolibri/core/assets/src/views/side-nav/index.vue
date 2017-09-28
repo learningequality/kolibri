@@ -160,7 +160,7 @@
             href: '/learn',
           },
         ];
-        if (this.isAdmin || this.isSuperuser || this.isCoach) {
+        if (this.isCoach || this.isAdmin || this.isSuperuser) {
           options.push({
             label: this.$tr('coach'),
             active: this.pageIsActive(TopLevelPageNames.COACH),
@@ -176,7 +176,7 @@
             href: '/management/facility',
           });
         }
-        if (this.isSuperuser || this.canManageContent) {
+        if (this.canManageContent || this.isSuperuser) {
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),

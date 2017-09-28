@@ -1,14 +1,7 @@
 import { UserKinds, MaxPointsPerContent } from '../constants';
 import some from 'lodash/some';
 
-function isUserLoggedIn(state) {
-  return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
-}
-
-function isSuperuser(state) {
-  return state.core.session.kind.includes(UserKinds.SUPERUSER);
-}
-
+// ROLES
 function isAdmin(state) {
   return state.core.session.kind.includes(UserKinds.ADMIN);
 }
@@ -21,21 +14,28 @@ function isLearner(state) {
   return state.core.session.kind.includes(UserKinds.LEARNER);
 }
 
-function canManageContent(state) {
-  return state.core.session.can_manage_content;
+function isUserLoggedIn(state) {
+  return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
 }
 
 function getUserRole(state) {
-  if (state.core.session.kind.includes(UserKinds.ADMIN)) {
+  if (isAdmin(state)) {
     return UserKinds.ADMIN;
-  } else if (state.core.session.kind.includes(UserKinds.COACH)) {
+  } else if (isCoach(state)) {
     return UserKinds.COACH;
-  } else if (state.core.session.kind.includes(UserKinds.LEARNER)) {
+  } else if (isLearner(state)) {
     return UserKinds.LEARNER;
   }
   return UserKinds.ANONYMOUS;
 }
 
+// PERMISSIONS
+function canManageContent(state) {
+  return state.core.session.can_manage_content;
+}
+function isSuperuser(state) {
+  return state.core.session.kind.includes(UserKinds.SUPERUSER);
+}
 function getUserPermissions(state) {
   const permissions = {};
   permissions.can_manage_content = state.core.session.can_manage_content;
