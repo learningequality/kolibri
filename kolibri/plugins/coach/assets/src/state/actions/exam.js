@@ -544,10 +544,9 @@ function showExamReportDetailPage(
           `Question number ${questionNumber} is not valid for this exam`
         );
       } else {
-        const contentPromise = ContentNodeResource.getCollection(
-          { channel_id: channelId },
-          { ids: questionSources.map(item => item.exercise_id) }
-        ).fetch();
+        const contentPromise = ContentNodeResource.getCollection({
+          ids: questionSources.map(item => item.exercise_id),
+        }).fetch();
 
         contentPromise.only(
           CoreActions.samePageCheckGenerator(store),
