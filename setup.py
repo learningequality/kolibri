@@ -156,7 +156,6 @@ setup(
     include_package_data=True,
     install_requires=install_requires,
     dependency_links=dependency_links,
-    setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',
     zip_safe=False,
