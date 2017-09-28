@@ -75,7 +75,7 @@
           <td class="table-cell">
             <dropdown-menu
               :name="$tr('manage')"
-              :options="manageUserOptions"
+              :options="manageUserOptions(user.id)"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -182,17 +182,19 @@
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
       },
-      manageUserOptions() {
-        return [
-          { label: this.$tr('editUser') },
-          { label: this.$tr('resetUserPassword') },
-          { label: this.$tr('deleteUser') },
-        ];
-      },
     },
     methods: {
       userMatchesRole(user) {
         return this.roleFilter === 'all' || user.kind === this.roleFilter;
+      },
+      manageUserOptions(userId) {
+        const options = [{ label: this.$tr('editUser') }, { label: this.$tr('resetUserPassword') }];
+        if (userId === this.currentUserId) {
+          options.push({ label: this.$tr('deleteUser'), disabled: true });
+        } else {
+          options.push({ label: this.$tr('deleteUser') });
+        }
+        return options;
       },
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
@@ -212,6 +214,7 @@
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
+        currentUserId: state => state.core.session.user_id,
       },
       actions: {
         displayModal: actions.displayModal,
