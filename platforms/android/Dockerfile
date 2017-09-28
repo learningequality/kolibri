@@ -1,46 +1,64 @@
 FROM ubuntu:16.04
-MAINTAINER Learning Equality <info@learningequality.org>
-
+LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /home/kivy
 
 # Install the dependencies for the build system
 RUN dpkg --add-architecture i386 && \
-            apt-get update && \
-            apt-get install -y python-pip cython vim build-essential ccache git gcc openjdk-8-jdk \
-                lsb-release unzip wget curl python-dev zlib1g-dev ant xsel xclip \
-                zlib1g:i386 libncurses5:i386 libstdc++6:i386 autoconf automake libtool libffi-dev libltdl-dev && \
-            apt-get clean && \
-            pip install pip --upgrade && \
-            pip install cython buildozer
+    apt-get update && apt-get install -y \
+    ant \
+    autoconf \
+    automake \
+    build-essential \
+    ccache \
+    curl \
+    cython \
+    gcc \
+    git \
+    libffi-dev \
+    libltdl-dev\
+    libncurses5:i386 \
+    libstdc++6:i386 \
+    libtool \
+    lsb-release \
+    openjdk-8-jdk \
+    python-dev \
+    python-pip \
+    unzip \
+    vim \
+    wget \
+    xclip \
+    xsel \
+    zlib1g-dev \
+    zlib1g:i386 \
+    && apt-get clean && \
+    pip install pip --upgrade && \
+    pip install cython buildozer
 
-# Create an unprivileged user and run as that user, to please Buildozer
-RUN adduser -u 1000 kivy && \
-            mkdir -p /data /home/kivy/.buildozer && chown 1000 /data && \
-            chown -R kivy.kivy /home/kivy/.buildozer
-USER kivy
-WORKDIR /home/kivy
+# would be nice if we could batch this into the bash file
+# Copy over files vital to build environment
+# NOTE: Technically, the only file necessary here is buildozer.spec
+COPY buildozer.spec ./
 
-# Copy in the Buildozer spec file, and update build system (download NDK/SDK, build Python, etc)
-COPY buildozer.spec .
-RUN buildozer android update
+# Set up build environment
+RUN useradd -l kivy && \
+  chown kivy:kivy /home/kivy && \
+  su kivy -c "buildozer android update"
 
-# Because COPY below won't run as kivy user, make sure it will then have permission to unzip to ./code
-USER root
-RUN mkdir -p /home/kivy/code && chown kivy.kivy /home/kivy/code
-USER kivy
+COPY Makefile .git ./
 
-# Copy in the code and resources
-COPY code ./code
-COPY kolibri*.whl .
-RUN unzip "kolibri*.whl" "kolibri/*" -d code/
-COPY resources ./resources
+# Keeping these copies separate to keep cache valid as long as possible in setup
+# for kolibri builds. Buildozer takes a while to rebuild itself
+COPY scripts scripts/
+COPY assets assets/
+# Copy over kolibri-apk specific build files
+COPY src  src/
 
-# Remove the default loading page, so that it will be replaced with our own version
-RUN rm .buildozer/android/platform/build/dists/kolibri/webview_includes/_load.html
-
-# Build the APK
-RUN buildozer android debug
-
-# Copy the generated APK up the root for easy discovery and extraction
-USER root
-RUN cp /home/kivy/bin/*.apk /
+# Extract .whl files and build the apk
+RUN chown kivy:kivy /home/kivy/src && \
+  su kivy -c "\
+    make replaceloadingpage && \
+    make extractkolibriwhl && \
+    make generateversion && \
+    make builddebugapk"
