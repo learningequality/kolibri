@@ -1,18 +1,21 @@
 import {
   ContentNodeResource,
   ContentNodeProgressResource,
-  SessionResource,
   UserExamResource,
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
 import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-import { setChannelInfo, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import {
+  setChannelInfo,
+  handleError,
+  handleApiError,
+  samePageCheckGenerator,
+} from 'kolibri.coreVue.vuex.actions';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 
@@ -70,7 +73,7 @@ function _topicState(data, ancestors = []) {
     thumbnail: thumbnail.storage_url,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
-    kind: data.pk === data.channel_id ? ContentNodeKinds.CHANNEL : data.kind,
+    kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
     progress,
     channel_id: data.channel_id,
   };
@@ -177,10 +180,14 @@ function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(rootNodes => {
-        const pageState = {
-          rootNodes: _collectionState(rootNodes),
-        };
+      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(channelCollection => {
+        const rootNodes = _collectionState(channelCollection);
+        rootNodes.forEach(rootNode => {
+          rootNode.thumbnail = channels.find(
+            channel => channel.id === rootNode.channel_id
+          ).thumbnail;
+        });
+        const pageState = { rootNodes };
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('CORE_SET_ERROR', null);
@@ -424,7 +431,12 @@ function showExam(store, id, questionNumber) {
       user: store.state.core.session.user_id,
       exam: id,
     }).fetch();
-    ConditionalPromise.all([examPromise, examLogPromise, examAttemptLogPromise]).only(
+    ConditionalPromise.all([
+      examPromise,
+      examLogPromise,
+      examAttemptLogPromise,
+      setAndCheckChannels(store),
+    ]).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
         const currentChannel = getChannelObject(store.state, exam.channel_id);

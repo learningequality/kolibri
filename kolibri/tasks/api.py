@@ -229,12 +229,12 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
                 check_for_cancel=check_for_cancel)
 
             # Get content size
-            files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
+            files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel["id"], available=False).distinct()
             total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
             total_size += total_bytes_to_transfer
 
         cmd = AsyncCommand(update_progress=update_progress, check_for_cancel=check_for_cancel)
-        with cmd.start_progress(total=total_size) as tracker: 
+        with cmd.start_progress(total=total_size) as tracker:
             for channel in drive.metadata["channels"]:
                 call_command(
                     "importcontent",
@@ -272,7 +272,7 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
         total_size += total_bytes_to_transfer
 
     cmd = AsyncCommand(update_progress=update_progress, check_for_cancel=check_for_cancel)
-    with cmd.start_progress(total=total_size) as tracker: 
+    with cmd.start_progress(total=total_size) as tracker:
         for channel in ChannelMetadata.objects.all():
             call_command(
                 "exportchannel",

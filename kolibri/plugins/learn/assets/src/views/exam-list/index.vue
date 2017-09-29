@@ -7,7 +7,7 @@
       <page-header :title="$tr('examName')"></page-header>
       <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
-      <div class="exam-row" v-for="exam in exams">
+      <div class="exam-row" v-for="exam in exams" :key="exam.id">
         <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
         <h2 class="exam-title">{{ exam.title }}</h2>
         <div class="exam-details" v-if="exam.closed || !exam.active">
@@ -70,6 +70,7 @@
           params: {
             channel_id: exam.channelId,
             id: exam.id,
+            questionNumber: 0,
           },
         };
       },

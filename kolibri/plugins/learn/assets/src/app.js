@@ -120,7 +120,8 @@ class LearnModule extends KolibriModule {
           name: PageNames.EXAM,
           path: '/exams/:id/:questionNumber',
           handler: (toRoute, fromRoute) => {
-            actions.showExam(store, toRoute.params.id, toRoute.params.questionNumber);
+            const { id, questionNumber } = toRoute.params;
+            actions.showExam(store, id, questionNumber);
           },
         },
         {

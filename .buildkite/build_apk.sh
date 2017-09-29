@@ -8,11 +8,11 @@ git clone https://github.com/learningequality/kolibri-kivy.git
 
 # copy in the latest whl to make it available to the Docker build script
 buildkite-agent artifact download 'dist/*.whl' dist/
-cp dist/*.whl kolibri-kivy/
+cp dist/*.whl kolibri-kivy/src
 
 # build the APK
 cd kolibri-kivy
-./build.sh
+make rundocker
 cd ..
 
 # extract the APK into the installer directory, and rename it to match the whl
