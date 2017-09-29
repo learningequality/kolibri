@@ -4,21 +4,9 @@ from django.apps import apps
 from django.conf import settings
 from sqlalchemy import ColumnDefault, MetaData, create_engine
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
-ENGINES_CACHES = {}
-
-# Introspecting and reflecting a database is expensive, so whenever possible, we cache
-# the results of such introspections here
-BASE_CLASSES_CACHE = {}
-
-def clear_cache():
-    global ENGINES_CACHES
-    global BASE_CLASSES_CACHE
-
-    ENGINES_CACHES = {}
-    BASE_CLASSES_CACHE = {}
 
 class ClassNotFoundError(Exception):
     pass
@@ -30,20 +18,16 @@ def sqlite_connection_string(db_path):
 def get_engine(connection_string):
     """
     Get a SQLAlchemy engine that allows us to connect to a database.
-    We have an extra caching layer here, that may be unnecessary as SQLAlchemy
-    should consistently return the same engine for the same connection string.
     """
-    if connection_string not in ENGINES_CACHES:
-        # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-        engine = create_engine(
-            connection_string,
-            echo=False,
-            connect_args={'check_same_thread': False},
-            poolclass=QueuePool,
-            convert_unicode=True,
-        )
-        ENGINES_CACHES[connection_string] = engine
-    return ENGINES_CACHES[connection_string]
+    # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
+    engine = create_engine(
+        connection_string,
+        echo=False,
+        connect_args={'check_same_thread': False},
+        poolclass=QueuePool,
+        convert_unicode=True,
+    )
+    return engine
 
 def make_session(connection_string):
     """
@@ -109,29 +93,26 @@ def get_base(connection_string, engine, app_name=None):
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
     our main entrypoint for interacting with arbitrary databases without a predefined schema
     """
-    cache_key = '{connection}_{app_name}'.format(connection=connection_string, app_name=(app_name or 'all'))
-    if cache_key not in BASE_CLASSES_CACHE:
-        # Set up a metadata first so that we can restrict it to only the tables of a particular app
-        metadata = MetaData()
-        if app_name is not None:
-            app_config = apps.get_app_config(app_name)
-            table_names = [model._meta.db_table for model in app_config.models.values()]
-            # This causes the introspection to be restricted to the table names of the particular Django app
-            metadata.reflect(engine, only=table_names)
-        else:
-            # Otherwise reflect all the database tables
-            metadata.reflect(engine)
-        # Set up the base mapping using the automap_base method, using the metadata we have defined above
-        Base = automap_base(metadata=metadata)
-        # TODO map relationship backreferences using the django names
-        # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
-        # every database table that we need
-        Base.prepare()
-        # Set any Django Model defaults
-        set_all_class_defaults(Base)
-        # This all took some time, so save this for later in case we need it
-        BASE_CLASSES_CACHE[cache_key] = Base
-    return BASE_CLASSES_CACHE[cache_key]
+    # Set up a metadata first so that we can restrict it to only the tables of a particular app
+    metadata = MetaData()
+    if app_name is not None:
+        app_config = apps.get_app_config(app_name)
+        table_names = [model._meta.db_table for model in app_config.models.values()]
+        # This causes the introspection to be restricted to the table names of the particular Django app
+        metadata.reflect(engine, only=table_names)
+    else:
+        # Otherwise reflect all the database tables
+        metadata.reflect(engine)
+    # Set up the base mapping using the automap_base method, using the metadata we have defined above
+    Base = automap_base(metadata=metadata)
+    # TODO map relationship backreferences using the django names
+    # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
+    # every database table that we need
+    Base.prepare()
+    # Set any Django Model defaults
+    set_all_class_defaults(Base)
+
+    return Base
 
 
 def get_default_db_string():
@@ -182,7 +163,3 @@ class Bridge(object):
         for connection in self.connections:
             connection.close()
         self.engine.dispose()
-        for key, engine in ENGINES_CACHES.items():
-            if engine == self.engine:
-                ENGINES_CACHES.pop(key)
-                break
