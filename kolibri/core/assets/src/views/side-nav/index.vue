@@ -17,7 +17,7 @@
         <ui-icon class="header-logo"><logo/></ui-icon>
         <span class="title">Kolibri</span>
       </div>
-      <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
+      <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight}px` }">
         <ui-menu
           class="nav-main"
           :options="menuOptions"
@@ -64,7 +64,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
   export default {
-    name: 'navbar',
+    name: 'sideNav',
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
       navigationLabel: 'Main user navigation',
@@ -160,7 +160,7 @@
             href: '/learn',
           },
         ];
-        if (this.isAdmin || this.isSuperuser || this.isCoach) {
+        if (this.isCoach || this.isAdmin || this.isSuperuser) {
           options.push({
             label: this.$tr('coach'),
             active: this.pageIsActive(TopLevelPageNames.COACH),
@@ -176,7 +176,7 @@
             href: '/management/facility',
           });
         }
-        if (this.isSuperuser || this.canManageContent) {
+        if (this.canManageContent || this.isSuperuser) {
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),

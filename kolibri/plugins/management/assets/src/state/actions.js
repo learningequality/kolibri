@@ -69,7 +69,7 @@ function _userState(apiUserData) {
     if (apiUserData.roles) {
       // array of strings, where each string represents a role object
       const roleKinds = apiUserData.roles.map(roleObj => roleObj.kind);
-      if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
+      if (roleKinds.includes(UserKinds.ADMIN)) {
         return UserKinds.ADMIN;
       } else if (roleKinds.includes(UserKinds.COACH)) {
         return UserKinds.COACH;
@@ -84,6 +84,7 @@ function _userState(apiUserData) {
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: calcUserKind(apiUserData.roles),
+    is_superuser: apiUserData.is_superuser,
   };
 }
 
@@ -459,13 +460,12 @@ function updateUser(store, userId, userUpdates) {
           const currentUser = store.state.pageState.facilityUsers.find(
             user => user.id === store.state.core.session.user_id
           );
-          if (
-            currentUser.id === userId &&
-            currentUser.kind !== UserKinds.SUPERUSER &&
-            changedValues.kind &&
-            changedValues.kind === UserKinds.LEARNER
-          ) {
-            window.location.href = window.location.origin;
+          if (currentUser.id === userId && changedValues.kind) {
+            const newCurrentUserKind = store.state.core.session.kind.filter(
+              kind => kind === UserKinds.SUPERUSER
+            );
+            newCurrentUserKind.push(changedValues.kind);
+            store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
           }
         },
         error => {
