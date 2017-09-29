@@ -6,7 +6,6 @@
     </core-base>
     <div v-if="!navBarNeeded" class="full-page">
       <component :is="currentPage"/>
-      <language-switcher :footer="true"/>
     </div>
   </div>
 
@@ -22,7 +21,7 @@
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+
   export default {
     $trs: { userProfileTitle: 'Profile' },
     name: 'userPlugin',
@@ -31,7 +30,6 @@
       signInPage,
       signUpPage,
       profilePage,
-      languageSwitcher,
     },
     computed: {
       appBarTitle() {
