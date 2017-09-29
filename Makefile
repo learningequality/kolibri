@@ -62,9 +62,10 @@ docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
 
-release: clean assets
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+release:
+	ls -l dist/
+	read "\nDo you want to upload everything in dist/*?\n\n CTRL+C to exit."
+	twine upload -s dist/*
 
 staticdeps: clean
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
