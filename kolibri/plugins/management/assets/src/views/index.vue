@@ -9,7 +9,7 @@
       <component class="manage-content page" :is="currentPage"/>
     </div>
 
-    <auth-message v-else :details="$tr('admninOrSuperuser')" />
+    <auth-message v-else :details="$tr('adminOrSuperuser')" />
 
   </core-base>
 
@@ -42,7 +42,7 @@
   export default {
     $trs: {
       facilityTitle: 'Facility',
-      admninOrSuperuser: 'You must be a signed in as an Admin or Superuser to view this page',
+      adminOrSuperuser: 'You must be a signed in as an Admin or Superuser to view this page',
     },
     name: 'managementRoot',
     components: {

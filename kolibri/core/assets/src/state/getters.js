@@ -43,7 +43,7 @@ function getUserPermissions(state) {
 }
 
 function userHasPermissions(state) {
-  return some(getUserPermissions(state), permission => permission === true);
+  return some(getUserPermissions(state));
 }
 
 function currentFacilityId(state) {

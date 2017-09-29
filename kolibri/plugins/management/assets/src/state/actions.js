@@ -460,13 +460,12 @@ function updateUser(store, userId, userUpdates) {
           const currentUser = store.state.pageState.facilityUsers.find(
             user => user.id === store.state.core.session.user_id
           );
-          if (
-            currentUser.id === userId &&
-            currentUser.kind !== UserKinds.SUPERUSER &&
-            changedValues.kind &&
-            changedValues.kind === UserKinds.LEARNER
-          ) {
-            window.location.href = window.location.origin;
+          if (currentUser.id === userId && changedValues.kind) {
+            const newCurrentUserKind = store.state.core.session.kind.filter(
+              kind => kind === UserKinds.SUPERUSER
+            );
+            newCurrentUserKind.push(changedValues.kind);
+            store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
           }
         },
         error => {
