@@ -622,7 +622,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     def can_delete(self, obj):
         # Users cannot delete themselves
-        if self is obj:
+        if self == obj:
             return False
         # Superusers cannot update their own permissions, because they only thing they can do is make themselves
         # not super, we all saw what happened in Superman 2, no red kryptonite here!
