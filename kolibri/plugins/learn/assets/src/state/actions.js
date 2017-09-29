@@ -535,6 +535,10 @@ function showExam(store, channelId, id, questionNumber) {
     ]).only(
       samePageCheckGenerator(store),
       ([exam, channel, examLogs, examAttemptLogs]) => {
+        if (exam.closed) {
+          router.getInstance().replace({ name: constants.PageNames.EXAM_LIST });
+          return;
+        }
         const currentChannel = coreGetters.getCurrentChannelObject(store.state);
         if (!currentChannel) {
           router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
