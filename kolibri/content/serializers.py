@@ -82,11 +82,6 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # so, first get a queryset from the Manager if needed
         data = data.all() if isinstance(data, Manager) else data
 
-        data = data.prefetch_related(
-            'assessmentmetadata',
-            'files',
-        ).select_related('license')
-
         cache_key = None
         # Cache parent look ups only
         if "parent" in self.context['request'].GET:
