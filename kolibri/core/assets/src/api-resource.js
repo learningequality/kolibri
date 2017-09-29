@@ -569,7 +569,9 @@ class Resource {
   }
 
   removeModel(model) {
-    delete this.models[model.id];
+    const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+    delete this.models[cacheKey];
   }
 
   /**
