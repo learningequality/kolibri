@@ -53,7 +53,6 @@
 <script>
 
   import { availableLanguages as allLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import { httpClient } from 'kolibri.client';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
 
