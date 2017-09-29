@@ -400,8 +400,6 @@
   .footer-cell
     display: table-cell
     vertical-align: middle
-    min-height: 50px
-    padding: 18px
 
   .sign-in-error
     color: $core-text-error
