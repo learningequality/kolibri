@@ -175,6 +175,9 @@ class Model {
             this.resource.removeModel(this);
             // Set a flag so that any collection containing this can ignore this model
             this.deleted = true;
+            // Any collection containing this model is now probably out of date,
+            // set synced to false to ensure that they update their data on fetch
+            this.synced = false;
             // Resolve the promise with the id.
             // Vuex will use this id to delete the model in its state.
             resolve(this.id);
@@ -569,7 +572,9 @@ class Resource {
   }
 
   removeModel(model) {
-    delete this.models[model.id];
+    const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+    delete this.models[cacheKey];
   }
 
   /**
