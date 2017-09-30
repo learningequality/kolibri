@@ -1,0 +1,43 @@
+Source: kolibri
+Priority: medium
+Section: education
+Maintainer: Benjamin Bach <benjamin@learningequality.org>
+Build-Depends: debhelper (>=9),
+               dh-python,
+               python3-all,
+               python3-setuptools,
+               python3-pytest
+Standards-Version: 3.9.7
+Homepage: https://learningequality.org/kolibri
+X-Python-Version: >= 2.7
+X-Python3-Version: >= 3.4
+Vcs-Git: https://github.com/learningequality/kolibri-installer-debian.git
+Vcs-Browser: https://github.com/learningequality/kolibri-installer-debian
+
+# We are not going to make a python 2 version.
+# Package: python-kolibri
+# Architecture: all
+# Depends: ${python:Depends}, ${misc:Depends}
+# Suggests: python-kolibri-doc
+# Description: <insert up to 60 chars description> (Python 2)
+#  <insert long description, indented with spaces>
+#  .
+#  This package installs the library for Python 2.
+
+Package: kolibri
+Architecture: all
+Depends: python3 (<< 3.6),
+         python3 (>= 3.5~)
+Suggests: python3-cryptography
+# Depends: ${python3:Depends}, ${misc:Depends}
+Description: The offline app for universal education
+ An educational platform for learners of all ages.
+ .
+ Retrieve and Distribute Open Educational Resources (OER) from online
+ resources or from device to device.
+ .
+ Resources are shared as 'channels', amongst which can be found
+ Khan Academy, PhET and CK-12.
+ .
+ To find more channels and create your own, please visit
+ our website: http://studio.learningequality.org/
