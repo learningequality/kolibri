@@ -75,7 +75,8 @@
           <td class="table-cell">
             <dropdown-menu
               :name="$tr('manage')"
-              :options="manageUserOptions"
+              :options="manageUserOptions(user.id)"
+              :disabled="!canEditUser(user)"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -133,6 +134,7 @@
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
+  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'userPage',
@@ -182,17 +184,17 @@
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
       },
-      manageUserOptions() {
-        return [
-          { label: this.$tr('editUser') },
-          { label: this.$tr('resetUserPassword') },
-          { label: this.$tr('deleteUser') },
-        ];
-      },
     },
     methods: {
       userMatchesRole(user) {
         return this.roleFilter === 'all' || user.kind === this.roleFilter;
+      },
+      manageUserOptions(userId) {
+        return [
+          { label: this.$tr('editUser') },
+          { label: this.$tr('resetUserPassword') },
+          { label: this.$tr('deleteUser'), disabled: userId === this.currentUserId },
+        ];
       },
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
@@ -207,11 +209,19 @@
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
       },
+      canEditUser(user) {
+        if (!this.isSuperuser) {
+          return !user.is_superuser;
+        }
+        return true;
+      },
     },
     vuex: {
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
+        currentUserId,
+        isSuperuser,
       },
       actions: {
         displayModal: actions.displayModal,

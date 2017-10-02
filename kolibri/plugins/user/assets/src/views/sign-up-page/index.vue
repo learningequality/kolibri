@@ -91,6 +91,9 @@
 
     </form>
 
+    <div class="footer">
+      <language-switcher :footer="true"/>
+    </div>
   </div>
 
 </template>
@@ -108,6 +111,8 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiSelect from 'keen-ui/src/UiSelect';
+  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+
   export default {
     name: 'signUpPage',
     $trs: {
@@ -135,6 +140,7 @@
       logo,
       uiIcon,
       uiSelect,
+      languageSwitcher,
     },
     data: () => ({
       name: '',
@@ -354,5 +360,9 @@
   .app-bar-icon
     font-size: 2.5em
     margin-left: 0.25em
+
+  .footer
+    margin: 36px
+    margin-top: 96px
 
 </style>

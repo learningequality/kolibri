@@ -134,7 +134,7 @@ function showLearn(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
 
       featuredChannels.forEach(channel => {
-        _getFeatured(channel.id).only(samePageCheckGenerator(store), featured => {
+        _getFeatured(state, channel.id).only(samePageCheckGenerator(store), featured => {
           store.dispatch('SET_FEATURED_CHANNEL_CONTENTS', channel.id, _mapContentSet(featured));
         });
       });
