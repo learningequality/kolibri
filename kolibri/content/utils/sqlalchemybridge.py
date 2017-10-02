@@ -8,7 +8,7 @@ from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 from sqlalchemy import ColumnDefault, create_engine, event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import QueuePool
 
 from .check_schema_db import DBSchemaError, db_matches_schema
@@ -66,7 +66,7 @@ def make_session(connection_string):
     when we actually commit to the database.
     """
     engine = get_engine(connection_string)
-    Session = sessionmaker(bind=engine, autoflush=False)
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     return Session(), engine
 
 def get_class(DjangoModel, Base):
