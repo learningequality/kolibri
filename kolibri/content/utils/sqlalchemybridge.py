@@ -5,7 +5,7 @@ from django.conf import settings
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 from sqlalchemy import ColumnDefault, MetaData, create_engine, event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import QueuePool
 
 
@@ -67,7 +67,7 @@ def make_session(connection_string):
     when we actually commit to the database.
     """
     engine = get_engine(connection_string)
-    Session = sessionmaker(bind=engine, autoflush=False)
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     return Session(), engine
 
 def get_class(DjangoModel, Base):
