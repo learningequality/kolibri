@@ -2,10 +2,18 @@ import os
 
 from django.apps import apps
 from django.conf import settings
-from sqlalchemy import ColumnDefault, MetaData, create_engine
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
+from sqlalchemy import ColumnDefault, MetaData, create_engine, event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
+
+
+def set_sqlite_connection_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute(CONNECTION_PRAGMAS)
+    cursor.close()
+
 
 ENGINES_CACHES = {}
 
@@ -42,6 +50,12 @@ def get_engine(connection_string):
             poolclass=QueuePool,
             convert_unicode=True,
         )
+        if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
+            event.listen(engine, "connect", set_sqlite_connection_pragma)
+            connection = engine.connect()
+            connection.execute(START_PRAGMAS)
+            connection.close()
+
         ENGINES_CACHES[connection_string] = engine
     return ENGINES_CACHES[connection_string]
 
