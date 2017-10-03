@@ -2,10 +2,19 @@ import os
 
 from django.apps import apps
 from django.conf import settings
-from sqlalchemy import ColumnDefault, MetaData, create_engine
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
+from sqlalchemy import ColumnDefault, MetaData, create_engine, event
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
+
+
+def set_sqlite_connection_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute(CONNECTION_PRAGMAS)
+    cursor.close()
+
 
 ENGINES_CACHES = {}
 
@@ -42,6 +51,12 @@ def get_engine(connection_string):
             poolclass=QueuePool,
             convert_unicode=True,
         )
+        if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
+            event.listen(engine, "connect", set_sqlite_connection_pragma)
+            connection = engine.connect()
+            connection.execute(START_PRAGMAS)
+            connection.close()
+
         ENGINES_CACHES[connection_string] = engine
     return ENGINES_CACHES[connection_string]
 
@@ -152,6 +167,11 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+
+class DatabaseNotReady(Exception):
+    pass
+
+
 class Bridge(object):
 
     def __init__(self, sqlite_file_path=None, app_name=None):
@@ -161,9 +181,16 @@ class Bridge(object):
             self.connection_string = sqlite_connection_string(sqlite_file_path)
         self.session, self.engine = make_session(self.connection_string)
 
-        self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
-
         self.connections = []
+
+        try:
+
+            self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
+
+        except InvalidRequestError:
+            # If we initialize without a database, this error will be thrown.
+            self.end()
+            raise DatabaseNotReady('Database is not reflectable')
 
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)
@@ -181,8 +208,3 @@ class Bridge(object):
         self.session.close()
         for connection in self.connections:
             connection.close()
-        self.engine.dispose()
-        for key, engine in ENGINES_CACHES.items():
-            if engine == self.engine:
-                ENGINES_CACHES.pop(key)
-                break
