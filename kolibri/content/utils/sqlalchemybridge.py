@@ -4,6 +4,7 @@ from django.apps import apps
 from django.conf import settings
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 from sqlalchemy import ColumnDefault, MetaData, create_engine, event
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -166,6 +167,11 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+
+class DatabaseNotReady(Exception):
+    pass
+
+
 class Bridge(object):
 
     def __init__(self, sqlite_file_path=None, app_name=None):
@@ -175,9 +181,16 @@ class Bridge(object):
             self.connection_string = sqlite_connection_string(sqlite_file_path)
         self.session, self.engine = make_session(self.connection_string)
 
-        self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
-
         self.connections = []
+
+        try:
+
+            self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
+
+        except InvalidRequestError:
+            # If we initialize without a database, this error will be thrown.
+            self.end()
+            raise DatabaseNotReady('Database is not reflectable')
 
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)

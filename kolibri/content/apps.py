@@ -11,8 +11,13 @@ class KolibriContentConfig(AppConfig):
     def ready(self):
         # Initialize bridge for default db/content app here
         # to avoid a race condition during runtime.
-        from kolibri.content.utils.sqlalchemybridge import Bridge
+        from kolibri.content.utils.sqlalchemybridge import Bridge, DatabaseNotReady
 
-        default_db_bridge = Bridge(app_name=self.label)
+        try:
 
-        default_db_bridge.end()
+            default_db_bridge = Bridge(app_name=self.label)
+
+            default_db_bridge.end()
+
+        except DatabaseNotReady:
+            pass
