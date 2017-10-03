@@ -7,3 +7,12 @@ class KolibriContentConfig(AppConfig):
     name = 'kolibri.content'
     label = 'content'
     verbose_name = 'Kolibri Content'
+
+    def ready(self):
+        # Initialize bridge for default db/content app here
+        # to avoid a race condition during runtime.
+        from kolibri.content.utils.sqlalchemybridge import Bridge
+
+        default_db_bridge = Bridge(app_name=self.label)
+
+        default_db_bridge.end()
