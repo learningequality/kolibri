@@ -9,7 +9,7 @@ from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 from sqlalchemy import ColumnDefault, create_engine, event
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import NullPool
 
 from .check_schema_db import DBSchemaError, db_matches_schema
 
@@ -47,7 +47,7 @@ def get_engine(connection_string):
         connection_string,
         echo=False,
         connect_args={'check_same_thread': False},
-        poolclass=QueuePool,
+        poolclass=NullPool,
         convert_unicode=True,
     )
     if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
