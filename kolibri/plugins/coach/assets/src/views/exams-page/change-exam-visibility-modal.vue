@@ -40,7 +40,7 @@
     name: 'changeExamVisibilityModal',
     $trs: {
       examVisibility: 'Change exam visibility',
-      shouldBeVisible: `Make '{ examTitle }' visible to entire class or specific groups`,
+      shouldBeVisible: "Make '{ examTitle }' visible to entire class or specific groups",
       group: 'group',
       selectGroups: 'Select groups',
       entireClass: 'Entire { className } class',

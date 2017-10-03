@@ -22,7 +22,7 @@
           <th class="col-icon"></th>
           <th class="col-title">{{ $tr('title') }}</th>
           <th class="col-visibility">{{ $tr('visibleTo') }}</th>
-          <th class="col-action">{{ $tr('action') }}</th>
+          <th class="col-action"></th>
         </tr>
       </thead>
       <tbody>
@@ -125,7 +125,6 @@
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      action: 'Action',
       noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
@@ -264,6 +263,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .create-button
     float: right
     margin-top: 1em
@@ -279,12 +280,17 @@
   .col-title
     text-align: left
 
-  .col-visibility, .col-action
+  .col-visibility
     text-align: left
 
   .status-filter
     display: inline-block
     margin: 0
     width: 200px
+
+  th
+    color: $core-text-annotation
+    font-size: smaller
+    font-weight: normal
 
 </style>
