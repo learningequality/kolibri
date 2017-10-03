@@ -147,7 +147,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiSelect from 'keen-ui/src/UiSelect';
   import uiSnackbar from 'keen-ui/src/UiSnackbar';
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
@@ -158,7 +157,6 @@
   export default {
     name: 'createExamPage',
     components: {
-      uiSelect,
       uiSnackbar,
       uiSnackbarContainer,
       uiProgressLinear,

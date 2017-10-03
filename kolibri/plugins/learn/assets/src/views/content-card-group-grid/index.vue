@@ -2,19 +2,21 @@
 
   <div class="content-grid">
     <div>
-      <ui-select
+      <k-select
         v-if="showContentKindFilter"
         class="filter"
         :label="$tr('resourceType')"
         :options="contentKindFilterOptions"
+        :inline="true"
         v-model="contentKindFilterSelection"
       />
 
-      <ui-select
+      <k-select
         v-if="showChannelFilter"
         class="filter"
         :label="$tr('channels')"
         :options="channelFilterOptions"
+        :inline="true"
         v-model="channelFilterSelection"
       />
     </div>
@@ -42,7 +44,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import some from 'lodash/some';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import contentCard from '../content-card';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
@@ -61,7 +63,7 @@
     },
     components: {
       contentCard,
-      uiSelect,
+      kSelect,
     },
     mixins: [responsiveWindow],
     props: {
@@ -87,8 +89,8 @@
       },
     },
     data: () => ({
-      contentKindFilterSelection: '',
-      channelFilterSelection: '',
+      contentKindFilterSelection: {},
+      channelFilterSelection: {},
     }),
     computed: {
       isMobile() {
@@ -132,7 +134,7 @@
           },
         ];
       },
-      // TODO: currently uiSelect does not support disabled options :(
+      // TODO: currently kSelect (uiSelect) does not support disabled options :(
       channelFilterOptions() {
         const channelOptions = this.channels.map(channel => {
           return {
@@ -150,7 +152,7 @@
         ];
       },
     },
-    mounted() {
+    beforeMount() {
       this.contentKindFilterSelection = this.contentKindFilterOptions[0];
       this.channelFilterSelection = this.channelFilterOptions[0];
     },
@@ -193,9 +195,6 @@
       width: 100%
 
   .filter
-    display: inline-block
-    width: 200px
-    margin-top: 16px
     margin-bottom: 16px
     margin-right: 16px
 

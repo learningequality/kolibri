@@ -2,9 +2,8 @@
 
   <core-modal :title="$tr('createNewExam')" @cancel="close">
     <p>{{ $tr('useContentFrom') }}</p>
-    <ui-select
-      :name="$tr('selectChannel')"
-      :placeholder="$tr('selectChannel')"
+    <k-select
+      :label="$tr('selectChannel')"
       :options="channelList"
       v-model="selectedChannel"
       class="channel-select"
@@ -24,7 +23,7 @@
   import { PageNames } from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   export default {
     name: 'createExamModal',
     $trs: {
@@ -37,7 +36,7 @@
     components: {
       coreModal,
       kButton,
-      uiSelect,
+      kSelect,
     },
     props: {
       classId: {
@@ -50,12 +49,12 @@
       },
     },
     data() {
-      return { selectedChannel: '' };
+      return { selectedChannel: {} };
     },
     computed: {
       channelList() {
         return this.channels.map(channel => ({
-          id: channel.id,
+          value: channel.id,
           label: channel.name,
         }));
       },
@@ -66,7 +65,7 @@
           name: PageNames.CREATE_EXAM,
           params: {
             classId: this.classId,
-            channelId: this.selectedChannel.id,
+            channelId: this.selectedChannel.value,
           },
         });
       },

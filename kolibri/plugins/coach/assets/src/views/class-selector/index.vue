@@ -2,8 +2,8 @@
 
   <div>
     <h1 class="classes-link"><router-link :to="classListPage">{{ $tr('allClasses') }}</router-link></h1>
-    <ui-select
-      :name="$tr('selectClass')"
+    <k-select
+      :label="$tr('selectClass')"
       :value="currentClass"
       :options="classOptions"
       @change="changeClass"
@@ -18,7 +18,7 @@
 
   import orderBy from 'lodash/orderBy';
   import { PageNames } from '../../constants';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
     name: 'classSelector',
@@ -27,7 +27,7 @@
       selectClass: 'Class',
     },
     components: {
-      uiSelect,
+      kSelect,
       uiIcon,
     },
     props: {
@@ -47,11 +47,11 @@
       classOptions() {
         return this.sortedClasses.map(classroom => ({
           label: classroom.name,
-          id: classroom.id,
+          value: classroom.id,
         }));
       },
       currentClass() {
-        return this.classOptions.find(classroom => classroom.id === this.currentClassId);
+        return this.classOptions.find(classroom => classroom.value === this.currentClassId);
       },
       classListPage() {
         return { name: PageNames.CLASS_LIST };
@@ -59,7 +59,7 @@
     },
     methods: {
       changeClass(classSelected) {
-        this.$emit('changeClass', classSelected.id);
+        this.$emit('changeClass', classSelected.value);
       },
     },
   };
@@ -80,7 +80,7 @@
 <style lang="stylus" scoped>
 
   .class-selector
-    display: inline-flex
+    display: inline-block
     vertical-align: bottom
 
   .classes-link

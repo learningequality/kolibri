@@ -53,13 +53,14 @@
           v-model="confirmedPassword"
         />
 
-        <ui-select
-          :name="$tr('typeOfUser')"
+        <k-select
           :label="$tr('typeOfUser')"
           :options="userKinds"
           v-model="kind"
           class="kind-select"
         />
+
+
       </section>
 
       <!-- Button Options at footer of modal -->
@@ -81,7 +82,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   export default {
     name: 'userCreateModal',
     $trs: {
@@ -107,7 +108,7 @@
       coreModal,
       kTextbox,
       uiAlert,
-      uiSelect,
+      kSelect,
     },
     data() {
       return {
@@ -207,7 +208,7 @@
         ];
       },
     },
-    mounted() {
+    beforeMount() {
       Object.assign(this.$data, this.$options.data());
       this.kind = {
         label: this.$tr('learner'),

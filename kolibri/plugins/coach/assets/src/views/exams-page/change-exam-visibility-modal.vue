@@ -8,10 +8,8 @@
       v-model="classIsSelected"
       @change="deselectGroups"
     />
-    <ui-select
-      :name="$tr('group')"
+    <k-select
       :label="$tr('specificGroups')"
-      :placeholder="$tr('selectGroups')"
       :multiple="true"
       :options="groupOptions"
       v-model="groupsSelected"
@@ -34,7 +32,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   export default {
     name: 'changeExamVisibilityModal',
     $trs: {
@@ -51,7 +49,7 @@
       coreModal,
       kButton,
       kRadioButton,
-      uiSelect,
+      kSelect,
     },
     props: {
       examId: {
@@ -89,7 +87,7 @@
       groupOptions() {
         return this.classGroups.map(group => ({
           label: group.name,
-          id: group.id,
+          value: group.id,
         }));
       },
     },
@@ -103,7 +101,7 @@
       initiallySelectedGroups() {
         return this.examVisibility.groups.map(group => ({
           label: group.collection.name,
-          id: group.collection.id,
+          value: group.collection.id,
         }));
       },
       handleSelectChange() {
@@ -131,24 +129,27 @@
           this.updateExamAssignments(this.examId, classCollection, groupAssignments);
         } else if (this.groupsSelected.length) {
           const unassignGroups = this.initiallySelectedGroups().filter(
-            initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id)
+            initialGroup =>
+              !this.groupsSelected.find(newGroup => newGroup.value === initialGroup.value)
           );
           const assignGroups = this.groupsSelected.filter(
             newGroup =>
-              !this.initiallySelectedGroups().find(initialGroup => initialGroup.id === newGroup.id)
+              !this.initiallySelectedGroups().find(
+                initialGroup => initialGroup.value === newGroup.value
+              )
           );
           if (!unassignGroups.length && !assignGroups.length) {
             this.close();
             return;
           }
           const assignGroupCollections = assignGroups.map(group => ({
-            id: group.id,
+            id: group.value,
             name: group.label,
             kind: CollectionKinds.LEARNERGROUP,
           }));
           let unassignments = unassignGroups.map(
             unassignGroup =>
-              this.examVisibility.groups.find(group => group.collection.id === unassignGroup.id)
+              this.examVisibility.groups.find(group => group.collection.id === unassignGroup.value)
                 .assignmentId
           );
           if (this.examVisibility.class) {

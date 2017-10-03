@@ -49,6 +49,7 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -108,6 +109,7 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      kSelect,
       languageSwitcher,
     },
     router,
