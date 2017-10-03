@@ -23,7 +23,7 @@ class LearnModule extends KolibriModule {
       const routes = [
         {
           path: '/',
-          redirect: '/recommended',
+          redirect: '/topics',
         },
         {
           name: PageNames.TOPICS_ROOT,

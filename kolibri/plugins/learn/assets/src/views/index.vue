@@ -7,12 +7,14 @@
 
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
+        <!--
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
           icon="forum"
           :link="recommendedLink"
         />
+        -->
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('topics')"
