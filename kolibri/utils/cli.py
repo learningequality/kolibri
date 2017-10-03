@@ -624,7 +624,10 @@ def main(args=None):
     if arguments['start']:
         port = arguments['--port']
         port = int(port) if port else None
-        start(port, daemon=not arguments['--foreground'])
+        daemon = not arguments['--foreground']
+        if sys.platform == 'darwin':
+            daemon = False
+        start(port, daemon=daemon)
         return
 
     if arguments['stop']:

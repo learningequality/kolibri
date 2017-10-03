@@ -76,6 +76,7 @@
             <dropdown-menu
               :name="$tr('manage')"
               :options="manageUserOptions(user.id)"
+              :disabled="!canEditUser(user)"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -133,7 +134,7 @@
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import { currentUserId } from 'kolibri.coreVue.vuex.getters';
+  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'userPage',
@@ -208,12 +209,19 @@
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
       },
+      canEditUser(user) {
+        if (!this.isSuperuser) {
+          return !user.is_superuser;
+        }
+        return true;
+      },
     },
     vuex: {
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
         currentUserId,
+        isSuperuser,
       },
       actions: {
         displayModal: actions.displayModal,

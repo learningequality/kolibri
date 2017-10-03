@@ -1,5 +1,6 @@
 from kolibri.auth.constants.role_kinds import ADMIN
-from kolibri.auth.test.helpers import provision_device
+from kolibri.auth.test.test_api import FacilityFactory, FacilityUserFactory
+from kolibri.auth.test.helpers import create_superuser, provision_device
 from kolibri.auth.models import Facility, FacilityDataset, FacilityUser, Role
 from kolibri.core.device.models import DevicePermissions
 
@@ -7,6 +8,8 @@ from django.core.urlresolvers import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+DUMMY_PASSWORD = "password"
 
 class DeviceProvisionTestCase(APITestCase):
 
@@ -99,3 +102,24 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertEqual(FacilityDataset.objects.get().learner_can_sign_up, self.dataset_data["learner_can_sign_up"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_delete_account, self.dataset_data["learner_can_delete_account"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_login_with_no_password, self.dataset_data["learner_can_login_with_no_password"])
+
+
+class DevicePermissionsTestCase(APITestCase):
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
+
+    def test_superuser_delete_own_permissions(self):
+        response = self.client.delete(reverse('devicepermissions-detail', kwargs={'pk': self.superuser.devicepermissions.pk}), format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_superuser_update_own_permissions(self):
+        response = self.client.patch(reverse('devicepermissions-detail',
+                                     kwargs={'pk': self.superuser.devicepermissions.pk}),
+                                     {'is_superuser': False},
+                                     format="json")
+        self.assertEqual(response.status_code, 403)

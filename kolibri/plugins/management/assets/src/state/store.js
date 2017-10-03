@@ -106,6 +106,10 @@ const mutations = {
   DELETE_USER(state, id) {
     state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
   },
+
+  UPDATE_CURRENT_USER_KIND(state, newKind) {
+    state.core.session.kind = newKind;
+  },
 };
 
 // assigns core state and mutations

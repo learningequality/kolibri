@@ -510,6 +510,10 @@ class FacilityUserPermissionsTestCase(TestCase):
 
         self.assertSetEqual(set(FacilityUser.objects.all()), set(self.superuser.filter_readable(FacilityUser.objects.all())))
 
+    def test_superuser_cannot_delete_self(self):
+        """ superuser can't delete themselves """
+        self.assertFalse(self.superuser.can_delete(self.superuser))
+
 
 class SuperuserPermissionsTestCase(TestCase):
     """
