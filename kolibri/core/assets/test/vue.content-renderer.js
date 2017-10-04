@@ -19,14 +19,15 @@ describe('contentRenderer Component', function() {
     },
   ];
 
+  function defaultPropsDataFromFiles(files = defaultFiles) {
+    return {
+      id: 'testing',
+      kind: 'test',
+      files,
+    };
+  }
+
   describe('computed property', function() {
-    function defaultPropsDataFromFiles(files) {
-      return {
-        id: 'testing',
-        kind: 'test',
-        files,
-      };
-    }
 
     describe('availableFiles', function() {
       function testAvailableFiles(files, expected) {
@@ -105,71 +106,105 @@ describe('contentRenderer Component', function() {
   describe('method', function() {
     describe('updateRendererComponent', function() {
       describe('when content is available', function() {
+
         beforeEach(function() {
-          this.vm = new ContentRendererComponent({
-            propsData: {
-              id: 'test',
-              kind: 'test',
-              files: defaultFiles,
-            },
-          }).$mount();
-          this.vm.available = true;
+          // this.vm = new ContentRendererComponent({
+          //   propsData: {
+          //     id: 'test',
+          //     kind: 'test',
+          //     files: defaultFiles,
+          //   },
+          // }).$mount();
+          // this.vm.available = true;
           this.component = { test: 'testing' };
           this.initSessionSpy = sinon.stub();
           this.initSessionSpy.returns(Promise.resolve({}));
-          this.vm.initSession = this.initSessionSpy;
-          this.vm.Kolibri = {
-            retrieveContentRenderer: () => Promise.resolve(this.component),
-          };
+          // this.vm.initSession = this.initSessionSpy;
+          // this.vm.Kolibri = {
+          //   retrieveContentRenderer: () => Promise.resolve(this.component),
+          // };
         });
-        it('should set currentViewClass to returned component', function() {
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(() => {
-              assert.equal(this.vm.currentViewClass, this.component);
-              resolve();
+
+        describe('when renderer is available', () => {
+          before(() => {
+            Vue.prototype.Kolibri = {
+              retrieveContentRenderer: () => Promise.resolve({ test: 'testing' }),
+            }
+          });
+
+          after(() => {
+            Vue.prototype.Kolibri = {};
+          });
+
+          it('should set currentViewClass to returned component', function() {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            return Vue.nextTick()
+            .then(() => {
+              assert.deepEqual(wrapper.vm.currentViewClass, this.component);
             });
           });
-        });
-        it('should call initSession', function() {
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(() => {
-              assert.ok(this.initSessionSpy.calledOnce);
-              resolve();
+
+          it('should call initSession', function() {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+              initSession: sinon.stub().returns(Promise.resolve()),
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            return Vue.nextTick()
+            .then(() => {
+              assert.ok(wrapper.vm.initSession.calledOnce);
             });
           });
-        });
-        describe('when no renderer is available', function() {
-          it('should set noRendererAvailable to true', function() {
-            this.vm.Kolibri = {
-              retrieveContentRenderer: () => Promise.reject(),
-            };
-            return new Promise(resolve => {
-              this.vm.updateRendererComponent().then(() => {
-                assert.equal(this.vm.noRendererAvailable, true);
-                resolve();
-              });
+        })
+
+        describe.only('when no renderer is available', function() {
+          before(() => {
+            Vue.prototype.Kolibri = {
+              retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
+            }
+          });
+
+          after(() => {
+            Vue.prototype.Kolibri = {};
+          });
+
+          it('calling updateRendererComponent should set noRendererAvailable to true', function() {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            // 'created' hook runs it once. Running it here again for testing.
+            // TODO Look into how to do this without calling the method directly
+            return wrapper.vm.updateRendererComponent()
+            .then(() => {
+              assert.equal(wrapper.vm.noRendererAvailable, true);
             });
           });
         });
       });
-      describe('when content is not available', function() {
-        beforeEach(function() {
-          this.vm = new ContentRendererComponent({
-            propsData: {
-              id: 'testing',
-              kind: 'test',
-              files: defaultFiles,
-            },
-          }).$mount();
-        });
-        it('should return null', function() {
-          this.vm.available = false;
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(component => {
-              assert.equal(component, null);
-              resolve();
-            });
+
+      describe('when content is not available', () => {
+        it('should return null', () => {
+          const props = Object.assign(defaultPropsDataFromFiles(), {
+            available: false,
           });
+          const wrapper = mount(contentRenderer, {
+            propsData: props,
+          });
+          // 'created' hook runs it once. Running it here again for testing.
+          return wrapper.vm.updateRendererComponent()
+          .then((component) => {
+            assert.equal(component, null);
+          })
         });
       });
     });
