@@ -17,7 +17,7 @@ class BaseLogFilter(filters.FilterSet):
     classroom = filters.django_filters.MethodFilter()
     learner_group = filters.django_filters.MethodFilter()
 
-    # Only device owner (superuser) can filter by facilities
+    # Only a superuser can filter by facilities
     def filter_facility(self, queryset, value):
         return queryset.filter(user__facility_id=value)
 

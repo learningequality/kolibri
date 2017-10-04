@@ -1,37 +1,56 @@
 <template>
 
   <div class="content">
-    <ui-alert
-      v-if="success"
-      type="success"
-      :dismissible="false"
-    >
-      {{ $tr('success') }}
-    </ui-alert>
-    <ui-alert
-      v-if="error"
-      type="error"
-      :dismissible="false"
-    >
-      {{ errorMessage || $tr('genericError') }}
-    </ui-alert>
-    <h3>{{ $tr('role') }}</h3>
-    <p>{{ role }}</p>
 
-    <h3>{{ $tr('points') }}</h3>
-    <p>
+    <section>
+      <h2>{{ $tr('points') }}</h2>
       <points-icon class="points-icon" :active="true"/>
       <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
-    </p>
+    </section>
+
+    <section>
+      <h2>{{ $tr('role') }}</h2>
+      {{ role }}
+    </section>
+
+    <section v-if="userHasPermissions">
+      <h2>{{ $tr('devicePermissions') }}</h2>
+      <p>
+        <permissions-icon :permissionType="permissionType" class="permissions-icon"/>
+        {{ permissionTypeText }}
+      </p>
+      <p>
+        {{ $tr('youCan') }}
+        <ul class="permissions-list">
+          <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
+            {{ getPermissionString(key) }}
+          </li>
+        </ul>
+      </p>
+    </section>
 
     <form @submit.prevent="submitEdits">
+      <ui-alert
+        v-if="success"
+        type="success"
+        :dismissible="false"
+      >
+        {{ $tr('success') }}
+      </ui-alert>
+      <ui-alert
+        v-if="error"
+        type="error"
+        :dismissible="false"
+      >
+        {{ errorMessage || $tr('genericError') }}
+      </ui-alert>
 
       <k-textbox
         ref="name"
         v-if="canEditName"
         type="text"
         autocomplete="name"
-        :autofocus="true"
+        :autofocus="false"
         :label="$tr('name')"
         :disabled="busy"
         :maxlength="120"
@@ -40,7 +59,7 @@
         v-model="name"
       />
       <template v-else>
-        <h3>{{ $tr('name') }}</h3>
+        <h2>{{ $tr('name') }}</h2>
         <p>{{ name }}</p>
       </template>
 
@@ -58,7 +77,7 @@
         v-model="username"
       />
       <template v-else>
-        <h3>{{ $tr('username') }}</h3>
+        <h2>{{ $tr('username') }}</h2>
         <p>{{ session.username }}</p>
       </template>
 
@@ -86,6 +105,9 @@
     isCoach,
     isLearner,
     totalPoints,
+    getUserRole,
+    getUserPermissions,
+    userHasPermissions,
   } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -93,7 +115,9 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'profilePage',
@@ -106,17 +130,22 @@
       isLearner: 'Learner',
       isCoach: 'Coach',
       isAdmin: 'Admin',
-      isSuperuser: 'Device Owner',
+      isSuperuser: 'Superuser permissions ',
+      manageContent: 'Manage content',
       points: 'Points',
       role: 'Role',
+      devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       required: 'This field is required',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
     },
     components: {
       kButton,
       kTextbox,
       uiAlert,
       pointsIcon,
+      permissionsIcon,
     },
     mixins: [responsiveWindow],
     data() {
@@ -130,14 +159,28 @@
     },
     computed: {
       role() {
-        if (this.isSuperuser) {
-          return this.$tr('isSuperuser');
-        } else if (this.isAdmin) {
+        if (this.getUserRole === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
-        } else if (this.isCoach) {
+        } else if (this.getUserRole === UserKinds.COACH) {
           return this.$tr('isCoach');
-        } else if (this.isLearner) {
+        } else if (this.getUserRole === UserKinds.LEARNER) {
           return this.$tr('isLearner');
+        }
+        return '';
+      },
+      permissionType() {
+        if (this.isSuperuser) {
+          return PermissionTypes.SUPERUSER;
+        } else if (this.userHasPermissions) {
+          return PermissionTypes.LIMITED_PERMISSIONS;
+        }
+        return null;
+      },
+      permissionTypeText() {
+        if (this.permissionType === PermissionTypes.SUPERUSER) {
+          return this.$tr('isSuperuser');
+        } else if (this.permissionType === PermissionTypes.LIMITED_PERMISSIONS) {
+          return this.$tr('limitedPermissions');
         }
         return '';
       },
@@ -203,6 +246,12 @@
           }
         }
       },
+      getPermissionString(permission) {
+        if (permission === 'can_manage_content') {
+          return this.$tr('manageContent');
+        }
+        return permission;
+      },
     },
     vuex: {
       getters: {
@@ -217,6 +266,9 @@
         error: state => state.pageState.error,
         errorMessage: state => state.pageState.errorMessage,
         success: state => state.pageState.success,
+        getUserRole,
+        getUserPermissions,
+        userHasPermissions,
       },
       actions: {
         editProfile,
@@ -234,7 +286,7 @@
   @require '~kolibri.styles.definitions'
 
   // taken from docs, assumes 1rem = 16px
-  $vertical-page-margin = 100px
+  $vertical-page-margin = 50px
   $iphone-width = 320
 
   .content
@@ -261,5 +313,14 @@
     font-size: 3em
     font-weight: bold
     margin-left: 16px
+
+  section
+    margin-bottom: 36px
+
+  .permissions-list
+    padding-left: 37px
+
+  .permissions-icon
+    padding-right: 8px
 
 </style>

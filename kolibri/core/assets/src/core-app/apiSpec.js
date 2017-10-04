@@ -30,6 +30,7 @@ import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
 import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
+import permissionsIcon from '../views/permissions-icon';
 import coreBase from '../views/core-base';
 import coreModal from '../views/core-modal';
 import sideNav from '../views/side-nav';
@@ -90,6 +91,7 @@ export default {
       progressBar,
       contentIcon,
       progressIcon,
+      permissionsIcon,
       coreBase,
       coreModal,
       sideNav,
