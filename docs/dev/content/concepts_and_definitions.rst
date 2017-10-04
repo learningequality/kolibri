@@ -16,9 +16,9 @@ ContentDB Diagram
 .. image:: ./content_distributed_db.png
 .. Source: https://www.draw.io/#G0B5xDzmtBJIQlNlEybldiODJqUHM
 
-**PK = Primary Key
-**FK = Foreign Key
-**M2M = ManyToManyField
+* PK = Primary Key
+* FK = Foreign Key
+* M2M = ManyToManyField
 
 ContentTag
 ----------
@@ -29,7 +29,7 @@ This model is used to establish a filtering system for all ContentNode objects.
 ChannelMetadata
 ---------------
 
-A Django model in each content database that stores the database readable names, description and author for each channel. 
+A Django model in each content database that stores the database readable names, description and author for each channel.
 
 ChannelMetadataCache
 --------------------
