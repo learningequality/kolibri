@@ -306,7 +306,9 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
     # When incrementing content schema versions, this should be incremented to the new version
     # A new TestCase for importing for this old version should then be subclassed from this TestCase
     # See 'NoVersionImportTestCase' below for an example
-    name = '1'
+    #
+    # TODO: rtibbles Revert this change that only tests unversioned import
+    name = NO_VERSION
 
     def setUp(self):
         try:
@@ -402,9 +404,9 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         super(NaiveImportTestCase, cls).tearDownClass()
 
 
-class NoVersionImportTestCase(NaiveImportTestCase):
-    """
-    Integration test for import from no version import
-    """
+# class NoVersionImportTestCase(NaiveImportTestCase):
+#     """
+#     Integration test for import from no version import
+#     """
 
-    name = NO_VERSION
+#     name = NO_VERSION
