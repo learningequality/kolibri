@@ -4,17 +4,17 @@
     <template slot="app-bar-actions">
       <action-bar-search-box v-if="!isWithinSearchPage"/>
     </template>
-
+    <!--
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
-        <!--
+
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
           icon="forum"
           :link="recommendedLink"
         />
-        -->
+
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('topics')"
@@ -31,7 +31,7 @@
         />
       </k-navbar>
     </div>
-
+    -->
     <div v-if="pointsAreVisible" class="points-wrapper">
       <a class="points-link" href="/user"><total-points/></a>
     </div>
