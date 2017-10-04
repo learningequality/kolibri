@@ -5,135 +5,112 @@
 
 import Vue from 'vue-test';
 import contentRenderer from '../src/views/content-renderer';
+import { mount } from 'avoriaz';
 
 const ContentRendererComponent = Vue.extend(contentRenderer);
 import assert from 'assert';
 import sinon from 'sinon';
 
 describe('contentRenderer Component', function() {
-  beforeEach(function() {
-    this.kind = 'test';
-    this.files = [
-      {
-        available: true,
-        extension: 'tst',
-      },
-    ];
-    this.id = 'testing';
-  });
+  const defaultFiles = [
+    {
+      available: true,
+      extension: 'tst',
+    },
+  ];
+
   describe('computed property', function() {
+    function defaultPropsDataFromFiles(files) {
+      return {
+        id: 'testing',
+        kind: 'test',
+        files,
+      };
+    }
+
     describe('availableFiles', function() {
+      function testAvailableFiles(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.availableFiles.length, expected);
+      }
+
       it('should be 1 when there is one available file', function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+        testAvailableFiles(defaultFiles, 1);
       });
+
       it('should be 1 when there is one available file and a supplementary file', function() {
-        this.files.push({
+        const newFiles = defaultFiles.concat({
           available: true,
           supplementary: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+        testAvailableFiles(newFiles, 1);
       });
+
       it('should be 1 when there is one available file and a thumbnail file', function() {
-        this.files.push({
+        const newFiles = defaultFiles.concat({
           available: true,
           thumbnail: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+        testAvailableFiles(newFiles, 1);
       });
+
       it('should be 2 when there are two available files', function() {
-        this.files.push({
+        const newFiles = defaultFiles.concat({
           available: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 2);
+        testAvailableFiles(newFiles, 2);
       });
     });
+
     describe('defaultFile', function() {
+      function testDefaultFile(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.defaultFile, expected);
+      }
+
       it('should be the file when there is one available file', function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.defaultFile, this.files[0]);
+        testDefaultFile(defaultFiles, defaultFiles[0]);
       });
+
       it('should be undefined when there are no available files', function() {
-        this.files = [];
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.defaultFile, 'undefined');
+        testDefaultFile([], undefined);
       });
     });
+
     describe('extension', function() {
+      function testExtension(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.extension, expected);
+      }
+
       it("should be the file's extension when there is one available file", function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.extension, this.files[0].extension);
+        testExtension(defaultFiles, defaultFiles[0].extension);
       });
+
       it('should be undefined when there are no available files', function() {
-        this.files = [];
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.extension, 'undefined');
+        testExtension([], undefined);
       });
     });
   });
+
   describe('method', function() {
     describe('updateRendererComponent', function() {
       describe('when content is available', function() {
         beforeEach(function() {
           this.vm = new ContentRendererComponent({
             propsData: {
-              id: this.id,
-              kind: this.kind,
-              files: this.files,
+              id: 'test',
+              kind: 'test',
+              files: defaultFiles,
             },
           }).$mount();
           this.vm.available = true;
@@ -179,9 +156,9 @@ describe('contentRenderer Component', function() {
         beforeEach(function() {
           this.vm = new ContentRendererComponent({
             propsData: {
-              id: this.id,
-              kind: this.kind,
-              files: this.files,
+              id: 'testing',
+              kind: 'test',
+              files: defaultFiles,
             },
           }).$mount();
         });
