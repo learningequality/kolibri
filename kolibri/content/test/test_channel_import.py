@@ -6,8 +6,9 @@ from django.apps import apps
 from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
-from kolibri.content.utils.channel_import import ChannelImport, NO_VERSION, mappings
-from kolibri.content.utils.sqlalchemybridge import get_default_db_string, clear_cache
+from kolibri.content.models import NO_VERSION
+from kolibri.content.utils.channel_import import ChannelImport, mappings
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 from mock import patch, MagicMock, Mock, call
 
@@ -392,7 +393,6 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         return self.content_engine
 
     def tearDown(self):
-        clear_cache()
         call_command('flush', interactive=False)
         super(NaiveImportTestCase, self).tearDown()
 

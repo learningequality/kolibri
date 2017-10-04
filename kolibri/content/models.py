@@ -24,6 +24,8 @@ from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
+NO_VERSION = 'unversioned'
+
 CONTENT_SCHEMA_VERSION = '1'
 
 class UUIDField(models.CharField):
