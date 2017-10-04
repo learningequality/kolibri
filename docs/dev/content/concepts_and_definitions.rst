@@ -13,7 +13,7 @@ A Django model that is used to store details about the source file, such as what
 
 ContentDB Diagram
 -----------------
-.. image:: ../img/content_distributed_db.png
+.. image:: ./content_distributed_db.png
 .. Source: https://www.draw.io/#G0B5xDzmtBJIQlNlEybldiODJqUHM
 
 **PK = Primary Key
