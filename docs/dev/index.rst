@@ -2,10 +2,10 @@ Developer Guide
 ===============
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   getting_started
-   manual_testing
+  getting_started
+  manual_testing
 
 .. _architecture:
 
@@ -13,18 +13,16 @@ Architecture
 ------------
 
 .. toctree::
-   :maxdepth: 1
-   :glob:
+  :maxdepth: 1
 
-   building
-   conventions
-   frontend
-   git_workflow
-   i18n
-   plugins
-   release_process
-   stack
-   tests
+  building
+  conventions
+  frontend
+  i18n
+  plugins
+  release_process
+  stack
+  tests
 
 .. _themes:
 
@@ -32,14 +30,14 @@ Themes
 ------
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   content/index
-   dataflow/index
-   uap/index
-   user_management
-   asset_loading
-   logger/index
+  content/index
+  dataflow/index
+  uap/index
+  user_management
+  asset_loading
+  logger/index
 
 References
 ----------
