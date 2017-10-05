@@ -271,7 +271,7 @@ To run Python tests for all environments, lint and documentation tests, use simp
 To run Python linting tests (pep8 and static code analysis), use ``tox -e lint`` or
 ``make lint``.
 
-Note that tox, by default, reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
+Note that tox reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
 
 We strive for 100% code coverage in Kolibri. When you open a Pull Request, code coverage (and your impact on coverage) will be reported. To test code coverage locally, so that you can work to improve it, you can run the following:
 
@@ -311,6 +311,14 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
 .. code-block:: bash
 
   kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
+
+
+
+To run a subset of tests, you can also run
+
+.. code-block:: bash
+
+  py.test test/test_kolibri.py
 
 
 Updating Documentation
