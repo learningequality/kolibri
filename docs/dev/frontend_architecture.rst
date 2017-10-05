@@ -1,5 +1,5 @@
 
-Front-end Architecture
+Front-end architecture
 ======================
 
 

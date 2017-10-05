@@ -1,4 +1,4 @@
-Files and Directories
+Files and directories
 =====================
 
 

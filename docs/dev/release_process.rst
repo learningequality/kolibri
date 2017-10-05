@@ -1,5 +1,6 @@
 .. _release_process:
-Release Process
+
+Release process
 ===============
 
 Update the Change log (release notes)

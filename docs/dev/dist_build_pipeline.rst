@@ -1,4 +1,7 @@
-Distribution and installers
+
+.. _build_pipeline:
+
+Distribution build pipeline
 ===========================
 
 The Kolibri Package build pipeline looks like this::

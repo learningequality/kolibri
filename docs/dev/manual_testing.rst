@@ -1,5 +1,5 @@
 
-Manual Testing & QA
+Manual testing & QA
 ===================
 
 Accessibility (A11y) Testing
