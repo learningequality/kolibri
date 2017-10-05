@@ -47,7 +47,7 @@
 <script>
 
   import store from '../state/store';
-  import { PageNames, PageModes, RecommendedPages } from '../constants';
+  import { PageNames, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
