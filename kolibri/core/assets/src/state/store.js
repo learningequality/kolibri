@@ -87,9 +87,6 @@ const mutations = {
   },
   SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
     state.core.logging.session.progress = sessionProgress;
-    if (state.core.logging.summary.progress < 1.0 && summaryProgress >= 1.0) {
-      state.core.totalProgress += 1;
-    }
     state.core.logging.summary.progress = summaryProgress;
   },
   SET_LOGGING_COMPLETION_TIME(state, time) {
