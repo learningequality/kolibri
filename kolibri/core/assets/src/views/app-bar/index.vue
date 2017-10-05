@@ -19,8 +19,8 @@
         :has-dropdown="true"
         ref="accountButton"
         class="username-text">
+        {{ username }}
         <template v-if="windowSize.breakpoint > 2">
-          {{ username }}
           <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
           <template v-if="isAdmin">({{ $tr('admin') }})</template>
           <template v-if="isCoach">({{ $tr('coach') }})</template>
