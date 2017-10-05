@@ -235,6 +235,7 @@ function showExploreChannel(store, channelId) {
 
 
 function showExploreContent(store, channelId, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
@@ -325,6 +326,7 @@ function showLearnChannel(store, channelId, page = 1) {
 
 
 function showLearnContent(store, channelId, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   const channelPayload = { channel_id: channelId };
