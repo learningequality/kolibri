@@ -34,16 +34,14 @@ insight (like "next lesson" recommendations), and to allow user data to be synce
 thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different
 devices at a school.
 
-See https://learningequality.org/kolibri/ for more info.
+See `our website <https://learningequality.org/kolibri/>`_ for more information.
 
 
 How can I use it?
 -----------------
 
 Kolibri is under active development and is not yet ready to be used in real
-deployments.
-
-**We expect a public beta to be available during second half of 2017.**
+deployments. We expect a public release to be available during second half of 2017.
 
 In the meantime, take a look at
 `KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
@@ -53,17 +51,4 @@ is already deployed around the world.
 How can I contribute?
 ---------------------
 
-.. warning::
-
-  *We welcome new contributors but since* ***Kolibri*** *is still in*
-  *development, the APIs are subject to change, and upgrade paths are not*
-  *guaranteed for all releases. We do not recommend deploying Kolibri before*
-  *the first public betas are available.*
-
-  *Please start by:*
-
-* Reading our `Developer Documentation <http://kolibri.readthedocs.io/en/develop/dev/getting_started.html>`_ available online, and in the ``docs/`` directory.
-* Get support in our `Support Community <http://community.learningequality.org/>`_.
-* Sign up to receive developer announcements: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
-* or via IRC: #kolibri on Freenode.
-
+Thanks for your interest! Please see the 'contributing' section of our `online documentation <http://kolibri.readthedocs.io/>`_.
