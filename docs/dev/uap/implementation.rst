@@ -63,7 +63,7 @@ most of the work to the database engine (and leverage efficient hierarchy
 lookups afforded by MPTT). The following algorithms and explanations will
 refer to the naming in the following diagram:
 
-.. image:: ../img/uap_role_membership_queries.svg
+.. image:: ./img/uap_role_membership_queries.svg
 .. Source: https://docs.google.com/drawings/d/1QPQoUGxm5u4WFhcg97IY5sqe7NjxXXKremmwfe4jYtc/edit
 
 In pseudocode, the query for "What Roles does Source User have in relation to
