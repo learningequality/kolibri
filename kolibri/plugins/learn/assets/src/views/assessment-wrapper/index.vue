@@ -323,10 +323,6 @@ oriented data synchronization.
         this.$emit('stopTracking', ...args);
       },
     },
-    beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
-    },
     computed: {
       canLogInteractions() {
         return !this.isSuperuser && this.isUserLoggedIn;
