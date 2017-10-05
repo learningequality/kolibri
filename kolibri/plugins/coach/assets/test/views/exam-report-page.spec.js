@@ -2,25 +2,25 @@
 import Vue from 'vue-test';
 import assert from 'assert';
 import ExamReportPage from '../../src/views/exam-report-page';
+import { shallow } from 'avoriaz';
 
 function makeVm(options = {}) {
-  const Ctor = Vue.extend(ExamReportPage);
   const components = {
     'router-link': '<div></div>',
   };
-  return new Ctor(Object.assign(options, { components })).$mount();
+  return shallow(ExamReportPage, Object.assign(options, { components }));
 }
 
 function getElements(vm) {
   return {
-    headerStats: () => vm.$el.querySelectorAll('.header h1'),
-    tableRows: () => vm.$el.querySelectorAll('tbody > tr'),
+    headerStats: () => vm.find('.header h1'),
+    tableRows: () => vm.find('tbody > tr'),
   };
 }
 
 function getTextInScoreColumn(tdEl) {
   // in the second column
-  return tdEl.querySelectorAll('td')[1].innerText;
+  return tdEl.find('td')[1].text();
 }
 
 describe('exam report page', () => {
@@ -60,7 +60,7 @@ describe('exam report page', () => {
     const els = getElements(vm);
     assert.equal(els.headerStats().length, 2);
     // h1 text doesn't get formatted, so inspecting vm.averageScore directly
-    assert.equal(vm.averageScore, 0.5);
+    assert.equal(vm.vm.averageScore, 0.5);
   });
 
   it('shows correct scores for exam takers', () => {

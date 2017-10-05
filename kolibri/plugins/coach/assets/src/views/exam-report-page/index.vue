@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="table-row" v-for="examTaker in examTakers">
+          <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
             <th scope="row" class="table-text">
               <router-link
                 v-if="examTaker.progress !== undefined"
@@ -107,9 +107,6 @@
         classId: state => state.classId,
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
-      },
-      actions: {
-        displayExamModal: actions.displayExamModal,
       },
     },
     name: 'examReportPage',
