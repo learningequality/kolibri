@@ -19,7 +19,6 @@ Architecture
    building
    conventions
    frontend
-   git_workflow
    i18n
    plugins
    release_process

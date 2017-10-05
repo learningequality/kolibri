@@ -198,49 +198,6 @@ In production, content is served through CherryPy. Static assets must be pre-bui
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
-Contributing code to Kolibri
-----------------------------
-
-* Once you've toyed around with things, read through the rest of the :doc:`index`, especially topics in :ref:`architecture` and :ref:`themes` to understand more about the Kolibri structure.
-* When you're up to speed with that, you're probably itching to make some contributions! Head over to the `issues page on GitHub <https://github.com/learningequality/kolibri/issues>`_ and take a look at the current project priorities. Try filtering by milestone. If you find a bug in your testing, please `submit your own issue <https://github.com/learningequality/kolibri/issues/new>`_
-* Once you've identified an issue and you're ready to start hacking on a solution, get ready to :ref:`pull_request`!
-
-Branching and Release Process
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``develop`` branch is reserved for active development. When we get close to releasing a new stable version/release of Kolibri, we generally fork the develop branch into a new branch (like ``release-0.1.x``). If you're working on an issue tagged for example with the ``release-0.1.x`` milestone, then you should target changes to that branch. Changes to those branches will later be pulled into ``develop`` again. If you're not sure which branch to target, ask the dev team!
-
-
-.. note::
-  At a high level, we follow the 'Gitflow' model. Some helpful references:
-
-  * http://nvie.com/posts/a-successful-git-branching-model/
-  * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
-
-.. _pull_request:
-
-
-Submit Pull Requests
-~~~~~~~~~~~~~~~~~~~~~
-
-The most common situation is working off of ``develop`` branch so we'll take it as an example:
-
-.. code-block:: bash
-
-  $ git checkout upstream/develop
-  $ git checkout -b name-of-your-bugfix-or-feature
-
-After making changes to the code, commit and push them to a branch on your fork:
-
-.. code-block:: bash
-
-  $ git add -A  # Add all changed and new files to the commit
-  $ git commit -m "Write here the commit message"
-  $ git push origin name-of-your-bugfix-or-feature
-
-Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`_, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the aplicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
-
-
 Additional Recommended Setup
 ----------------------------
 
@@ -392,3 +349,26 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Consistency
 
 For more information, see the next section on :doc:`manual_testing`.
+
+
+Submitting a Pull Request
+-------------------------
+
+The most common situation is working off of ``develop`` branch so we'll take it as an example:
+
+.. code-block:: bash
+
+  $ git checkout upstream/develop
+  $ git checkout -b name-of-your-bugfix-or-feature
+
+After making changes to the code, commit and push them to a branch on your fork:
+
+.. code-block:: bash
+
+  $ git add -A  # Add all changed and new files to the commit
+  $ git commit -m "Write here the commit message"
+  $ git push origin name-of-your-bugfix-or-feature
+
+Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`_, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the applicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
+
+Learn more about our :ref:`release_process`
