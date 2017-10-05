@@ -47,3 +47,8 @@ In the meantime, take a look at
 `KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
 is already deployed around the world.
 
+
+How can I contribute?
+---------------------
+
+Thanks for your interest! Please see the 'contributing' section of our `online documentation <http://kolibri.readthedocs.io/>`_.
