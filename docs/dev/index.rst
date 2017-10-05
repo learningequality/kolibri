@@ -25,7 +25,6 @@ Architecture
    release_process
    stack
    tests
-   version_numbers
 
 .. _themes:
 

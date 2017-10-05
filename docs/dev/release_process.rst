@@ -12,6 +12,8 @@ done from individual commits and pull requests, but it's good to check.
 Create a release branch
 -----------------------
 
+Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
+
 Select a release series number and initial version number::
 
     $ SERIES=0.1.x
@@ -132,3 +134,14 @@ Release with PyPI using the make command::
     $ make release
 
 Declare victory.
+
+
+More on version numbers
+-----------------------
+
+.. note:: The content below is pulled from the docstring of the ``kolibri.utils.version`` module.
+
+.. automodule:: kolibri.utils.version
+  :undoc-members:
+  :show-inheritance:
+
