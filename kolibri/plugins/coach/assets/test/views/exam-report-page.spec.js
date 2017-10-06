@@ -4,17 +4,18 @@ import assert from 'assert';
 import ExamReportPage from '../../src/views/exam-report-page';
 import { shallow } from 'avoriaz';
 
-function makeVm(options = {}) {
+function makeWrapper(options = {}) {
   const components = {
     'router-link': '<div></div>',
   };
   return shallow(ExamReportPage, Object.assign(options, { components }));
 }
 
-function getElements(vm) {
+function getElements(wrapper) {
   return {
-    headerStats: () => vm.find('.header h1'),
-    tableRows: () => vm.find('tbody > tr'),
+    averageScore: () => wrapper.find('.header h1:nth-child(2)')[0],
+    tableRows: () => wrapper.find('tbody > tr'),
+    takenBy: () => wrapper.find('.header h1:nth-child(1)')[0],
   };
 }
 
@@ -25,7 +26,7 @@ function getTextInScoreColumn(tdEl) {
 
 describe('exam report page', () => {
   it('average score is not shown if no exams in progress', () => {
-    const vm = makeVm({
+    const wrapper = makeWrapper({
       vuex: {
         getters: {
           examTakers: () => [
@@ -38,12 +39,13 @@ describe('exam report page', () => {
         },
       },
     });
-    const els = getElements(vm);
-    assert.equal(els.headerStats().length, 1);
+    const { takenBy, averageScore } = getElements(wrapper);
+    assert.equal(takenBy().text().trim(), 'Exam taken by: 0 learners');
+    assert(averageScore() === undefined);
   });
 
   it('average score is shown if at least one exam in progress', () => {
-    const vm = makeVm({
+    const wrapper = makeWrapper({
       vuex: {
         getters: {
           examTakers: () => [
@@ -57,14 +59,13 @@ describe('exam report page', () => {
         },
       },
     });
-    const els = getElements(vm);
-    assert.equal(els.headerStats().length, 2);
-    // h1 text doesn't get formatted, so inspecting vm.averageScore directly
-    assert.equal(vm.vm.averageScore, 0.5);
+    const { averageScore, takenBy } = getElements(wrapper);
+    assert.equal(takenBy().text().trim(), 'Exam taken by: 2 learners');
+    assert.equal(averageScore().text().trim(), 'Average Score: 50%');
   });
 
   it('shows correct scores for exam takers', () => {
-    const vm = makeVm({
+    const wrapper = makeWrapper({
       vuex: {
         getters: {
           examTakers: () => [
@@ -77,10 +78,10 @@ describe('exam report page', () => {
         },
       },
     });
-    const els = getElements(vm);
+    const { tableRows } = getElements(wrapper);
     // score is properly formatted
-    assert.equal(getTextInScoreColumn(els.tableRows()[0]).trim(), '50%');
+    assert.equal(getTextInScoreColumn(tableRows()[0]).trim(), '50%');
     // emdash
-    assert.equal(getTextInScoreColumn(els.tableRows()[1]).trim(), '–');
+    assert.equal(getTextInScoreColumn(tableRows()[1]).trim(), '–');
   });
 });
