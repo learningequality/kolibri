@@ -39,5 +39,8 @@ var server = new WebpackDevServer(compiler, {
     chunks: false,
     errorDetails: true,
   },
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+  }
 });
 server.listen(devServerConfig.port, devServerConfig.address, function() {});
