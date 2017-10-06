@@ -23,9 +23,12 @@
 
     <div class="toolbar">
       <div class="enroll">
-        <k-router-link :to="classEnrollLink" :primary="true" appearance="raised">
-          {{ $tr('enrollUsers') }}
-        </k-router-link>
+        <k-router-link
+          :text="$tr('enrollUsers')"
+          :to="classEnrollLink"
+          :primary="true"
+          appearance="raised"
+        />
       </div>
       <k-filter-textbox
         :placeholder="$tr('searchText')"

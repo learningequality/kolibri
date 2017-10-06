@@ -3,9 +3,7 @@
   <div>
     <h1>{{ $tr('header') }}</h1>
     <p>
-      <k-external-link href="/management/device#/content">
-        {{ $tr('adminLink') }}
-      </k-external-link>
+      <k-external-link :text="$tr('adminLink')" href="/management/device#/content" />
     </p>
   </div>
 

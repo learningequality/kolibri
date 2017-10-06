@@ -33,9 +33,11 @@
         <tbody>
           <tr v-for="classModel in sortedClasses">
             <th scope="row" class="table-text">
-              <k-router-link :to="classEditLink(classModel.id)" class="table-name">
-                {{classModel.name}}
-              </k-router-link>
+              <k-router-link
+                :text="classModel.name"
+                :to="classEditLink(classModel.id)"
+                class="table-name"
+              />
             </th>
             <td class="table-data">
               {{ classModel.memberCount }}

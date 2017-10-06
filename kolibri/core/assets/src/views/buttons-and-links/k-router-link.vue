@@ -1,8 +1,7 @@
 <template>
 
   <router-link :class="buttonClasses" :to="to">
-    <!-- Link label text -->
-    <slot />
+    {{ text }}
   </router-link>
 
 </template>
@@ -20,7 +19,14 @@
     mixins: [buttonClassesMixin],
     props: {
       /**
-       * <router-link :to="..."> property
+       * Link text
+       */
+      text: {
+        type: String,
+        required: true,
+      },
+      /**
+       * vue-router link object
        */
       to: {
         required: true,

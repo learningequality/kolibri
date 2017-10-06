@@ -27,11 +27,10 @@
             <th scope="row" class="table-text">
               <k-router-link
                 v-if="examTaker.progress !== undefined"
+                :text="examTaker.name"
                 :to="examDetailPageLink(examTaker.id)"
                 class="table-name"
-              >
-                {{ examTaker.name }}
-              </k-router-link>
+              />
               <span v-else class="table-name">
                 {{ examTaker.name }}
               </span>

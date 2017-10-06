@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <h1 class="classes-link"><k-router-link :to="classListPage">{{ $tr('allClasses') }}</k-router-link></h1>
+    <h1 class="classes-link">
+      <k-router-link :text="$tr('allClasses')" :to="classListPage" />
+    </h1>
     <ui-select
       :name="$tr('selectClass')"
       :value="currentClass"

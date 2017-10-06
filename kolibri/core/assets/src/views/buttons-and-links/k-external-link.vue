@@ -1,8 +1,7 @@
 <template>
 
   <a :class="buttonClasses" :href="href">
-    <!-- Link label text -->
-    <slot />
+    {{ text }}
   </a>
 
 </template>
@@ -20,7 +19,14 @@
     mixins: [buttonClassesMixin],
     props: {
       /**
-       * <a href="..."> property
+       * Link text
+       */
+      text: {
+        type: String,
+        required: true,
+      },
+      /**
+       * URL string
        */
       href: {
         type: String,

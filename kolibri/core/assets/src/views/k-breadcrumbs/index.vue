@@ -7,9 +7,11 @@
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
               <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
-                <k-router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
-                  {{ crumb.text }}
-                </k-router-link>
+                <k-router-link
+                  :text="crumb.text"
+                  :to="crumb.link"
+                  :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }"
+                />
               </li>
             </ol>
           </div>
@@ -23,7 +25,7 @@
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             v-show="!crumb.collapsed"
           >
-            <k-router-link :to="crumb.link">{{ crumb.text }}</k-router-link>
+            <k-router-link :text="crumb.text" :to="crumb.link" />
           </li>
 
           <li
@@ -46,7 +48,7 @@
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
           >
-            <k-router-link :to="crumb.link" tabindex="-1">{{ crumb.text }}</k-router-link>
+            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
 
           <li

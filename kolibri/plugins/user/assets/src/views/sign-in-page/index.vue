@@ -72,19 +72,17 @@
       <div id="btn-group">
         <k-router-link
           v-if="canSignUp"
+          :text="$tr('createAccount')"
           :to="signUpPage"
           :primary="false"
           appearance="raised"
-        >
-          {{ $tr('createAccount') }}
-        </k-router-link>
+        />
         <k-external-link
+          :text="$tr('accessAsGuest')"
           href="/learn"
           :primary="false"
           appearance="raised"
-        >
-          {{ $tr('accessAsGuest') }}
-        </k-external-link>
+        />
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
     </div></div>

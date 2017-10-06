@@ -33,11 +33,10 @@
           <div class="exam-row-3rd-col"  :class="thirdColClass">
             <k-router-link
               appearance="flat"
+              :text="exam.answerCount === null ? $tr('start') : $tr('continue')"
               :to="generateExamLink(exam)"
               :primary="true"
-            >
-              {{ exam.answerCount === null ? $tr('start') : $tr('continue') }}
-            </k-router-link>
+            />
           </div>
         </template>
 

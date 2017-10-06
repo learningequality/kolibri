@@ -9,9 +9,7 @@
         </h2>
 
         <span v-if="showViewMore" class="card-group-details-view-more">
-          <k-router-link :to="viewMorePageLink">
-            {{ $tr('viewMoreFromSectionButton') }}
-          </k-router-link>
+          <k-router-link :text="$tr('viewMoreFromSectionButton')" :to="viewMorePageLink" />
         </span>
 
       </div>
