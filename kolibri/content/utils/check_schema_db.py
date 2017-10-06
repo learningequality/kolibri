@@ -1,12 +1,11 @@
-import logging
-
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.orm import RelationshipProperty
 
-logger = logging.getLogger(__name__)
-
 # Modified from https://gist.github.com/miohtama/278fd4eeb9e5272d061c
+
+class DBSchemaError(Exception):
+    pass
 
 def db_matches_schema(Base, session):
     """
@@ -19,8 +18,6 @@ def db_matches_schema(Base, session):
 
     engine = session.get_bind()
     iengine = inspect(engine)
-
-    errors = False
 
     tables = iengine.get_table_names()
 
@@ -45,10 +42,6 @@ def db_matches_schema(Base, session):
                     for column in column_prop.columns:
                         # Assume normal flat column
                         if column.key not in columns:
-                            logger.debug("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
-                            errors = True
+                            raise DBSchemaError("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
         else:
-            logger.debug("Model %s declares table %s which does not exist in database %s", klass, table, engine)
-            errors = True
-
-    return not errors
+            raise DBSchemaError("Model %s declares table %s which does not exist in database %s", klass, table, engine)

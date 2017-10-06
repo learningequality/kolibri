@@ -1,3 +1,4 @@
+import logging
 import os
 import pickle
 
@@ -9,7 +10,9 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 
-from .check_schema_db import db_matches_schema
+from .check_schema_db import DBSchemaError, db_matches_schema
+
+logger = logging.getLogger(__name__)
 
 BASES = {}
 
@@ -163,8 +166,11 @@ class Bridge(object):
             for version in CONTENT_DB_SCHEMA_VERSIONS:
                 self.Base = BASES[version]
                 self.session, self.engine = make_session(self.connection_string)
-                if (db_matches_schema(self.Base, self.session)):
+                try:
+                    db_matches_schema(self.Base, self.session)
                     break
+                except DBSchemaError as e:
+                    logging.debug(e)
             else:
                 raise SchemaNotFoundError('No matching schema found for this database')
         # We are using scoped sessions, so should always return the same session
