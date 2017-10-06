@@ -6,6 +6,7 @@ from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDa
 
 from kolibri.core.device.models import DevicePermissions, DeviceSettings
 
+
 def create_superuser(facility, username="superuser"):
     from .test_api import DUMMY_PASSWORD
     superuser = FacilityUser.objects.create(username=username, facility=facility)
@@ -14,11 +15,13 @@ def create_superuser(facility, username="superuser"):
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser
 
+
 def provision_device():
     if DeviceSettings.objects.all().exists():
         DeviceSettings.objects.update(is_provisioned=True)
     else:
         DeviceSettings.objects.create(is_provisioned=True)
+
 
 def create_dummy_facility_data(allow_sign_ups=False, classroom_count=2, learnergroup_count=2):
     """

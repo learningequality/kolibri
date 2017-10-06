@@ -12,7 +12,19 @@
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
-          {{ permissionPresets.formal.name }}
+          {{ $tr('selfManagedSetupTitle') }}
+        </dt>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
+        </dd>
+        <dd class="permission-preset-human-detail">
+          {{ $tr('enabledAccountEditPermissionDetail') }}
+        </dd>
+      </dl>
+
+      <dl class="permission-preset-human">
+        <dt class="permission-preset-human-title">
+          {{ $tr('adminManagedSetupTitle') }}
         </dt>
         <dd class="permission-preset-human-detail">
           {{ $tr('disabledUserSelfSignupPermissionDetail') }}
@@ -27,22 +39,10 @@
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
-          {{ permissionPresets.informal.name }}
+          {{ $tr('informalSetupTitle') }}
         </dt>
         <dd class="permission-preset-human-detail">
-          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
-        </dd>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledAccountEditPermissionDetail') }}
-        </dd>
-      </dl>
-
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
-          {{ permissionPresets.nonformal.name }}
-        </dt>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
+          {{ $tr('disabledUserSelfSignupPermissionDetail') }}
         </dd>
         <dd class="permission-preset-human-detail">
           {{ $tr('enabledAccountEditPermissionDetail') }}
@@ -74,19 +74,43 @@
         />
       </template>
 
+      <label
+      class="permission-preset">
+      <k-radio-button
+      class="permission-preset-radio-button"
+      v-model="selectedPreset"
+      radiovalue="informal"
+      :label="$tr('selfManagedSetupTitle')"
+      />
+      <span class="permission-preset-description">
+        {{ $tr('selfManagedSetupDescription') }}
+      </span>
+    </label>
 
       <label
-        v-for="(preset, shorthand , index) in permissionPresets"
         class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
-          v-model="selectedPermissionPreset"
-          :autofocus="!index"
-          :radiovalue="shorthand"
-          :label="preset.name"
+          v-model="selectedPreset"
+          :autofocus="true"
+          radiovalue="formal"
+          :label="$tr('adminManagedSetupTitle')"
         />
         <span class="permission-preset-description">
-          {{ descriptions[shorthand] }}
+          {{ $tr('adminManagedSetupDescription') }}
+        </span>
+      </label>
+
+      <label
+        class="permission-preset">
+        <k-radio-button
+          class="permission-preset-radio-button"
+          v-model="selectedPreset"
+          radiovalue="nonformal"
+          :label="$tr('informalSetupTitle')"
+        />
+        <span class="permission-preset-description">
+          {{ $tr('informalSetupDescription') }}
         </span>
       </label>
 
@@ -99,7 +123,6 @@
 
 <script>
 
-  import { permissionPresets } from '../../../state/constants';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
 
   import onboardingForm from '../onboarding-form';
@@ -115,9 +138,12 @@
         'How will you be using Kolibri? You can customize these settings later.',
       facilityPermissionsPresetDetailsLink: 'Setup details',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
+      adminManagedSetupTitle: 'Admin-managed',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',
+      selfManagedSetupTitle: 'Self-managed',
       selfManagedSetupDescription:
         'For libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+      informalSetupTitle: 'Informal and personal use',
       informalSetupDescription:
         'For parent-child learning, homeschooling, or supplementary individual learning',
       // IDEA This should be a dynamically generated component, based on mappings
@@ -144,20 +170,13 @@
     },
     data() {
       return {
-        selectedPermissionPreset: this.currentPermissionPreset,
+        selectedPreset: this.currentPermissionPreset,
         permissionPresetDetailsModalShown: false,
-        descriptions: {
-          formal: this.$tr('adminManagedSetupDescription'),
-          informal: this.$tr('selfManagedSetupDescription'),
-          nonformal: this.$tr('informalSetupDescription'),
-        },
-        permissionsMappingsHuman: {},
-        permissionPresets,
       };
     },
     methods: {
       setPermissions() {
-        this.submitFacilityPermissions(this.selectedPermissionPreset);
+        this.submitFacilityPermissions(this.selectedPreset);
         this.$emit('submit');
       },
       showFacilityPermissionsDetails() {

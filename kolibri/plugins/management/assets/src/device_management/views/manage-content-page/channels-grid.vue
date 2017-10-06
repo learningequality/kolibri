@@ -43,6 +43,7 @@
                 @click="selectedChannelId=channel.id"
                 appearance="flat"
                 :text="$tr('deleteButtonLabel')"
+                :disabled="tasksInQueue"
               />
             </td>
           </tr>
@@ -73,16 +74,17 @@
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   export default {
     name: 'channelsGrid',
+    components: {
+      uiProgressCircular,
+      deleteChannelModal,
+      elapsedTime,
+      kButton,
+    },
     data: () => ({
       selectedChannelId: null,
       notification: null,
       channelsLoading: true,
     }),
-    created() {
-      this.refreshChannelList().then(() => {
-        this.channelsLoading = false;
-      });
-    },
     computed: {
       channelIsSelected() {
         return this.selectedChannelId !== null;
@@ -97,11 +99,10 @@
         return this.channelList.sort(channel => channel.name);
       },
     },
-    components: {
-      uiProgressCircular,
-      deleteChannelModal,
-      elapsedTime,
-      kButton,
+    created() {
+      this.refreshChannelList().then(() => {
+        this.channelsLoading = false;
+      });
     },
     methods: {
       handleDeleteChannel() {
@@ -119,6 +120,7 @@
       getters: {
         channelList: state => state.pageState.channelList,
         pageState: state => state.pageState,
+        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
       },
       actions: {
         triggerChannelDeleteTask,

@@ -1,12 +1,4 @@
-import {
-  ContentNodeResource,
-  ContentNodeProgressResource,
-  SessionResource,
-  UserExamResource,
-  ExamLogResource,
-  ExamAttemptLogResource,
-} from 'kolibri.resources';
-
+import { ContentNodeResource } from 'kolibri.resources';
 import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 
 import {
@@ -76,10 +68,10 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
     getContentPromise(state, channelId),
     setAndCheckChannels(store),
     // resolves to mapped content set because then resolves to its function's return value
-  ]).then(([content]) => _mapContentSet(content), error => error);
+  ]).then(([content, channels]) => [_mapContentSet(content), channels]);
 
   pagePrep.then(
-    (recommendations, channels) => {
+    ([recommendations, channels]) => {
       if (!channels.length) {
         return;
       }
@@ -142,7 +134,7 @@ function showLearn(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
 
       featuredChannels.forEach(channel => {
-        _getFeatured(channel.id).only(samePageCheckGenerator(store), featured => {
+        _getFeatured(state, channel.id).only(samePageCheckGenerator(store), featured => {
           store.dispatch('SET_FEATURED_CHANNEL_CONTENTS', channel.id, _mapContentSet(featured));
         });
       });

@@ -15,7 +15,7 @@ import {
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import intervalTimer from '../timer';
-import { redirectBrowser } from '../utils/browser';
+import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const name = 'coreTitles';
@@ -143,6 +143,7 @@ function _channelListState(data) {
     root_id: channel.root,
     last_updated: channel.last_updated,
     version: channel.version,
+    thumbnail: channel.thumbnail,
   }));
 }
 
@@ -176,14 +177,14 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const manageURL = urls['kolibri:managementplugin:management']();
+      const facilityURL = urls['kolibri:managementplugin:management']();
       const deviceURL = urls['kolibri:managementplugin:device_management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
       } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-        redirectBrowser(window.location.origin + manageURL);
+        redirectBrowser(window.location.origin + facilityURL);
       } else {
         redirectBrowser();
       }

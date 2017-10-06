@@ -261,6 +261,24 @@ class UserUpdateTestCase(APITestCase):
         self.assertTrue(response)
 
 
+class UserDeleteTestCase(APITestCase):
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
+
+    def test_user_delete(self):
+        response = self.client.delete(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), format="json")
+        self.assertEqual(response.status_code, 204)
+
+    def test_superuser_delete_self(self):
+        response = self.client.delete(reverse('facilityuser-detail', kwargs={'pk': self.superuser.pk}), format="json")
+        self.assertEqual(response.status_code, 403)
+
+
 class LoginLogoutTestCase(APITestCase):
 
     def setUp(self):

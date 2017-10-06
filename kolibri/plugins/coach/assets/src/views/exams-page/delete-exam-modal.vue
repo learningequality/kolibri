@@ -62,9 +62,7 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>
 

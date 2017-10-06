@@ -126,5 +126,6 @@
 
   .button-section
     margin-top: 1em
+    text-align: right
 
 </style>
