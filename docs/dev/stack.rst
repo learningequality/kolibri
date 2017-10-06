@@ -1,5 +1,5 @@
-Tech Stack
-==========
+Tech stack overview
+===================
 
 Kolibri is a web application built primarily using `Python <https://www.python.org/>`_ on the server-side and `JavaScript <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference>`_ on the client-side.
 
@@ -44,9 +44,7 @@ Internationalization
 
 We leverage the `ICU Message <http://userguide.icu-project.org/formatparse/messages>`_ syntax for formatting all user-facing text.
 
-On the client-side, these strings are rendered using `Format.js <http://formatjs.io/>`_ and integrated with Vue.js using `vue-intl <https://github.com/learningequality/vue-intl>`_.
-
-*TODO: server-side, message extraction, translation*
+See :ref:`i18n` for more information.
 
 
 Developer Docs
@@ -92,12 +90,13 @@ Installers and Packages
 
 *TODO: introduce stack (sdist, PyPi, Debian, Windows, etc)*
 
+see :ref:`build_pipeline`
+
 
 Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-*TODO: introduce stack (GitHub, CodeCov, Travis, commit hooks)*
-
+*TODO: introduce stack (GitHub, CodeCov, Travis, buildkite, commit hooks)*
 
 
 Tests and Linting

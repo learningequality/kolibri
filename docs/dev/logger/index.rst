@@ -1,5 +1,5 @@
-User Logs
-=========
+User log module
+===============
 
 This is a core module found in ``kolibri/logger``.
 
