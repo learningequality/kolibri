@@ -24,20 +24,14 @@
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
       },
-      learnRootLink() {
-        return { name: PageNames.RECOMMENDED };
-      },
       learnBreadcrumbs() {
-        const crumbs = [
+        return [
           {
             text: this.$tr('recommended'),
-            link: this.learnRootLink,
+            link: { name: PageNames.RECOMMENDED },
           },
+          { text: this.contentTitle },
         ];
-        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
-          crumbs.push({ text: this.contentTitle });
-        }
-        return crumbs;
       },
       inTopics() {
         return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
@@ -53,23 +47,11 @@
           },
         };
       },
-      topicsRootLink() {
-        return {
-          name: PageNames.TOPICS_ROOT,
-        };
-      },
       topicsBreadcrumbs() {
-        if (this.pageName === PageNames.TOPICS_ROOT) {
-          return [
-            {
-              text: this.$tr('channels'),
-            },
-          ];
-        }
         const crumbs = [
           {
             text: this.$tr('channels'),
-            link: this.topicsRootLink,
+            link: { name: PageNames.TOPICS_ROOT },
           },
         ];
         if (this.inTopicsChannel) {
