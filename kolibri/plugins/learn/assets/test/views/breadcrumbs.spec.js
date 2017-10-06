@@ -21,7 +21,7 @@ const router = new VueRouter({
       name: PageNames.TOPICS_TOPIC,
     },
     {
-      path: '/topics/:id',
+      path: '/topics/:channel_id',
       name: PageNames.TOPICS_CHANNEL,
     },
   ],
@@ -38,7 +38,7 @@ function getElements(wrapper) {
   };
 }
 
-describe.only('learn page breadcrumbs', () => {
+describe('learn page breadcrumbs', () => {
   describe('when in Learn Page mode', () => {
     it('shows no breadcrumbs on Recommended page', () => {
       const store = makeStore({ pageName: PageNames.RECOMMENDED });
@@ -106,9 +106,11 @@ describe.only('learn page breadcrumbs', () => {
       assert.equal(bcs[0].text, 'Channels');
       // Parent Channel Link
       assert.equal(bcs[1].link.name, PageNames.TOPICS_CHANNEL);
+      assert.equal(bcs[1].link.params.channel_id, 'another_channel');
       assert.equal(bcs[1].text, 'Another Recommended Channel');
       // Previous Topic Link
       assert.equal(bcs[2].link.name, PageNames.TOPICS_TOPIC);
+      assert.equal(bcs[2].link.params.id, 'previous_topic');
       assert.equal(bcs[2].text, 'Previous Topic');
       // Topic
       assert.equal(bcs[3].link, undefined);
@@ -136,9 +138,11 @@ describe.only('learn page breadcrumbs', () => {
       assert.equal(bcs[0].text, 'Channels');
       // Channel Link
       assert.equal(bcs[1].link.name, PageNames.TOPICS_CHANNEL);
+      assert.equal(bcs[1].link.params.channel_id, 'another_channel');
       assert.equal(bcs[1].text, 'Another Recommended Channel');
       // Previous Topic link
       assert.equal(bcs[2].link.name, PageNames.TOPICS_TOPIC);
+      assert.equal(bcs[2].link.params.id, 'previous_topic');
       assert.equal(bcs[2].text, 'Previous Topic');
       // Content Item
       assert.equal(bcs[3].link, undefined);
