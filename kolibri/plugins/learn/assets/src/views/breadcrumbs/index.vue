@@ -1,7 +1,9 @@
 <template>
 
-  <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
-  <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
+  <div class="learn-breadcrumbs">
+    <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
+    <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
+  </div>
 
 </template>
 
@@ -20,7 +22,7 @@
     components: { kBreadcrumbs },
     computed: {
       inLearn() {
-        return this.pageMode === PageModes.RECOMMENDED;
+        return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
       },
       learnRootLink() {
         return { name: PageNames.RECOMMENDED };
@@ -38,7 +40,7 @@
         return crumbs;
       },
       inTopics() {
-        return this.pageMode === PageModes.TOPICS;
+        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
       },
       inTopicsChannel() {
         return this.pageName === PageNames.TOPICS_CHANNEL;
@@ -116,11 +118,11 @@
       getters: {
         pageName: state => state.pageName,
         pageMode,
-        channelRootId: state => state.pageState.channel.root_id,
-        channelTitle: state => state.pageState.channel.title,
-        topicTitle: state => state.pageState.topic.title,
+        channelRootId: state => (state.pageState.channel || {}).root_id,
+        channelTitle: state => (state.pageState.channel || {}).title,
+        topicTitle: state => (state.pageState.topic || {}).title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
-        contentTitle: state => state.pageState.content.title,
+        contentTitle: state => (state.pageState.content || {}).title,
         contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
       },
     },
