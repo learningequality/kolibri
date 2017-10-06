@@ -35,7 +35,7 @@
     </div>
 
     <div>
-      <breadcrumbs/>
+      <breadcrumbs />
       <component :is="currentPage"/>
     </div>
 

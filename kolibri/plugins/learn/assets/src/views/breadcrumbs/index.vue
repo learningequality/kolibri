@@ -1,16 +1,15 @@
 <template>
 
-  <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
-  <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs"/>
+  <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
+  <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
 
 </template>
 
 
 <script>
 
-  import { PageNames } from '../../constants';
-  import { PageModes } from '../../constants';
-  import * as getters from '../../state/getters';
+  import { PageNames, PageModes } from '../../constants';
+  import { pageMode } from '../../state/getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'learnBreadcrumbs',
@@ -116,7 +115,7 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        pageMode: getters.pageMode,
+        pageMode,
         channelRootId: state => state.pageState.channel.root_id,
         channelTitle: state => state.pageState.channel.title,
         topicTitle: state => state.pageState.topic.title,
