@@ -4,7 +4,7 @@ import pickle
 from django.apps import apps
 from django.conf import settings
 from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
-from sqlalchemy import ColumnDefault, MetaData, create_engine
+from sqlalchemy import ColumnDefault, create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -106,28 +106,17 @@ def prepare_bases():
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=name), 'rb') as f:
             metadata = pickle.load(f)
-        BASES[name] = prepare_base(metadata=metadata)
+        BASES[name] = prepare_base(metadata)
 
 
-def prepare_base(engine=None, metadata=None, app_name=None):
+def prepare_base(metadata):
     """
-    Get a Base mapping for a particular database engine and Django app
+    Create a Base mapping for models for a particular schema version of the content app
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
-    our main entrypoint for interacting with arbitrary databases without a predefined schema
+    our main entrypoint for interacting with content databases and the content app tables
+    of the default database.
     """
-    if not metadata:
-        # Set up a metadata first so that we can restrict it to only the tables of a particular app
-        # If a metadata has been passed in, assume reflection is not necessary
-        metadata = MetaData()
-        if app_name is not None:
-            app_config = apps.get_app_config(app_name)
-            table_names = [model._meta.db_table for model in app_config.models.values()]
-            # This causes the introspection to be restricted to the table names of the particular Django app
-            metadata.reflect(engine, only=table_names)
-        else:
-            # Otherwise reflect all the database tables
-            metadata.reflect(engine)
-    # Set up the base mapping using the automap_base method, using the metadata we have defined above
+    # Set up the base mapping using the automap_base method, using the metadata passed in
     Base = automap_base(metadata=metadata)
     # TODO map relationship backreferences using the django names
     # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
@@ -135,7 +124,6 @@ def prepare_base(engine=None, metadata=None, app_name=None):
     Base.prepare()
     # Set any Django Model defaults
     set_all_class_defaults(Base)
-    # This all took some time, so save this for later in case we need it
     return Base
 
 

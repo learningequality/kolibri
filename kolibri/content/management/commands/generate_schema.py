@@ -13,6 +13,13 @@ from sqlalchemy.orm import sessionmaker
 DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_data.json')
 
 class Command(BaseCommand):
+    """
+    This management command produces SQLAlchemy schema reflections of the content database app.
+    It should be run when the Content Models schema is updated, and if it is a change between released
+    versions the CONTENT_DB_SCHEMA version should have been incremented.
+    It also produces a data dump of the content test fixture that fits to this database schema,
+    so that we can use it for testing purposes.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument('version', type=str)
@@ -47,5 +54,5 @@ class Command(BaseCommand):
         with open(SCHEMA_PATH_TEMPLATE.format(name=options['version']), 'wb') as f:
             pickle.dump(metadata, f, protocol=2)
 
-        with open(DATA_PATH_TEMPLATE.format(name=options['version']), 'w') as f:
+        with open(DATA_PATH_TEMPLATE.format(name=options['version']), 'wb') as f:
             json.dump(data, f)
