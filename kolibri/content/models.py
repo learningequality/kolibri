@@ -24,6 +24,10 @@ from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
+V020BETA1 = 'v0.2.0-beta1'
+
+V040BETA3 = 'v0.4.0-beta3'
+
 NO_VERSION = 'unversioned'
 
 CONTENT_SCHEMA_VERSION = '1'
@@ -137,7 +141,7 @@ class Language(models.Model):
     lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS, default=LANGUAGE_DIRECTIONS[0][0])
 
     def __str__(self):
-        return self.lang_name
+        return self.lang_name or ''
 
 
 class File(models.Model):

@@ -131,7 +131,10 @@ class ChannelImport(object):
         return mapper
 
     def base_table_mapper(self, SourceRecord):
-        return self.source.session.query(SourceRecord).all()
+        # If SourceRecord is none, then the source table does not exist in the DB
+        if SourceRecord:
+            return self.source.session.query(SourceRecord).all()
+        return []
 
     def generate_table_mapper(self, table_map=None):
         if table_map is None:

@@ -3,16 +3,22 @@ import pickle
 
 from django.apps import apps
 from django.conf import settings
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION
+from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
 from sqlalchemy import ColumnDefault, MetaData, create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 
-BASES = {
-    CONTENT_SCHEMA_VERSION: None,
-    NO_VERSION: None,
-}
+from .check_schema_db import db_matches_schema
+
+BASES = {}
+
+CONTENT_DB_SCHEMA_VERSIONS = [
+    CONTENT_SCHEMA_VERSION,
+    NO_VERSION,
+    V040BETA3,
+    V020BETA1,
+]
 
 class ClassNotFoundError(Exception):
     pass
@@ -96,7 +102,7 @@ SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{nam
 
 def prepare_bases():
 
-    for name in BASES.keys():
+    for name in CONTENT_DB_SCHEMA_VERSIONS:
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=name), 'rb') as f:
             metadata = pickle.load(f)
@@ -151,6 +157,9 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+class SchemaNotFoundError(Exception):
+    pass
+
 class Bridge(object):
 
     def __init__(self, sqlite_file_path=None, app_name=None):
@@ -160,9 +169,18 @@ class Bridge(object):
             self.Base = BASES[CONTENT_SCHEMA_VERSION]
         else:
             # Otherwise, we are accessing an external content database.
-            # Assume for now that all of these are the 'unversioned' DB schema
+            # So we try each of our historical database schema in order to see
+            # which glass slipper fits! If none do, just turn into a pumpkin.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
-            self.Base = BASES[NO_VERSION]
+            for version in CONTENT_DB_SCHEMA_VERSIONS:
+                self.Base = BASES[version]
+                self.session, self.engine = make_session(self.connection_string)
+                if (db_matches_schema(self.Base, self.session)):
+                    break
+            else:
+                raise SchemaNotFoundError('No matching schema found for this database')
+        # We are using scoped sessions, so should always return the same session
+        # in the same thread
         self.session, self.engine = make_session(self.connection_string)
 
         self.connections = []
