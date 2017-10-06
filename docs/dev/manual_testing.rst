@@ -51,7 +51,7 @@ Amazon's `AWS Workspaces <https://aws.amazon.com/workspaces/>`_ provides a faste
 
 Workspaces is very useful, but it has limitations: only a small range of OSes are available, and connectivity and provisioning are required.
 
-An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems. `This tutorial <https://docs.google.com/document/d/10LgeCJmqsweui0yTTCDf4DjY5aoNNpXG8hF_DGKUHAI/edit>`_ was written for KA Lite, but much of it still applies to Kolibri.
+An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems. `This tutorial <https://docs.google.com/document/d/1CG4Z0hofN0ipsny9mDf1xr2C_eY5c-T2nUbhlz2eZjA/edit>`_ shows how to test Kolibri in a VM.
 
 **Hardware**
 
