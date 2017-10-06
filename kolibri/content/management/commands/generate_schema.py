@@ -40,7 +40,7 @@ class Command(BaseCommand):
         session = sessionmaker(bind=engine, autoflush=False)()
 
         # Load fixture data into the test database with Django
-        call_command('loaddata', 'content_test.json', interactive=False)
+        call_command('loaddata', 'content_import_test.json', interactive=False)
 
         def get_dict(item):
             value = {key: value for key, value in item.__dict__.items() if key != '_sa_instance_state'}
