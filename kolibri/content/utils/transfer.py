@@ -1,5 +1,6 @@
 import logging as logger
 import os
+import pyfastcopy  # noqa
 import shutil
 import requests
 from requests.adapters import HTTPAdapter
@@ -186,6 +187,18 @@ class FileCopy(Transfer):
     def __iter__(self):
         self._content_iterator = self._read_block_iterator()
         return self
+
+    def fast_file_copy(self):
+        """
+        Shutil.copyfile() will indeed call `copyfile()` in pyfastcopy to use
+        the sendfile system call to copy the source file to the destination
+        by the kernel to avoid use of userspace buffers
+        """
+        shutil.copyfile(self.source, self.dest_tmp)
+        self.completed = True
+        self.close()
+        self.finalize()
+        return self.total_size
 
     def close(self):
         self.source_file_obj.close()

@@ -47,17 +47,12 @@ class Command(AsyncCommand):
 
                 with copy:
 
-                    with self.start_progress(total=copy.total_size) as file_cp_progress_update:
-
-                        for chunk in copy:
-                            if self.is_cancelled():
-                                copy.cancel()
-                                break
-                            length = len(chunk)
-                            overall_progress_update(length)
-                            file_cp_progress_update(length)
-                        else:
-                            exported_files.append(dest)
+                    size = copy.fast_file_copy()
+                    if self.is_cancelled():
+                        copy.cancel()
+                    else:
+                        overall_progress_update(size)
+                        exported_files.append(dest)
 
             if self.is_cancelled():
                 # Cancelled, clean up any already downloading files.

@@ -92,31 +92,42 @@ class Command(AsyncCommand):
                 if method == DOWNLOAD_METHOD:
                     url = paths.get_content_storage_remote_url(filename)
                     filetransfer = transfer.FileDownload(url, dest)
+
+                    try:
+                        with filetransfer:
+
+                            with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+
+                                for chunk in filetransfer:
+                                    if self.is_cancelled():
+                                        filetransfer.cancel()
+                                        break
+                                    length = len(chunk)
+                                    overall_progress_update(length)
+                                    file_dl_progress_update(length)
+                                else:
+                                    # If the for loop didn't break, add this to downloaded files.
+                                    downloaded_files.append(dest)
+
+                        file_checksums_to_annotate.append(f.id)
+
+                    except HTTPError:
+                        overall_progress_update(f.file_size)
+
                 elif method == COPY_METHOD:
                     srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
-                try:
-
                     with filetransfer:
+                        size = filetransfer.fast_file_copy()
+                        if self.is_cancelled():
+                            filetransfer.cancel()
 
-                        with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
-
-                            for chunk in filetransfer:
-                                if self.is_cancelled():
-                                    filetransfer.cancel()
-                                    break
-                                length = len(chunk)
-                                overall_progress_update(length)
-                                file_dl_progress_update(length)
-                            else:
-                                # If the for loop didn't break, add this to downloaded files.
-                                downloaded_files.append(dest)
+                        else:
+                            overall_progress_update(size)
+                            downloaded_files.append(dest)
 
                     file_checksums_to_annotate.append(f.id)
-
-                except HTTPError:
-                    overall_progress_update(f.file_size)
 
             if self.is_cancelled():
                 # Cancelled, clean up any already downloading files.
