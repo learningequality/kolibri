@@ -15,10 +15,14 @@ function makeWrapper(propsData = {}) {
           learner_can_edit_username: false,
         },
       },
+      // A fake part of the state to confirm efficacy of mutation
+      TEST_DROPBOX: null
     },
-    // TODO bring in real mutations, and test the state instead of just dispatch
+    // TODO bring in real mutations instead of faking them
     mutations: {
-      CONFIG_PAGE_MODIFY_SETTING() {},
+      CONFIG_PAGE_MODIFY_SETTING(state, payload) {
+        state.TEST_DROPBOX = payload;
+      },
     },
   });
   return mount(ConfigPage, { propsData, store });
@@ -49,13 +53,14 @@ describe('facility config page view', () => {
 
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
-    wrapper.vm.$store.dispatch = sinon.spy();
     const { checkbox } = getElements(wrapper);
-
     checkbox().trigger('click');
-    sinon.assert.calledWith(wrapper.vm.$store.dispatch, 'CONFIG_PAGE_MODIFY_SETTING', {
-      name: 'learnerCanEditUsername',
-      value: true,
+    return Vue.nextTick()
+    .then(() => {
+      assert.deepEqual(wrapper.vm.$store.state.TEST_DROPBOX, {
+        name: 'learnerCanEditUsername',
+        value: true,
+      });
     });
   });
 
