@@ -5,6 +5,13 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+
+0.5.1dev (unreleased)
+---------------------
+
+ - Python dependencies: Only bundle, do not install dependencies in system env #2299
+
+
 0.5
 ---
 
