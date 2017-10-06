@@ -35,7 +35,7 @@ collection is conferred through Membership. Collections are subdivided into
 several pre-defined levels: Facility, Classroom, and LearnerGroup, as
 illustrated here:
 
-.. image:: ../img/uap_collection_hierarchy.svg
+.. image:: ./img/uap_collection_hierarchy.svg
 .. Source: https://docs.google.com/drawings/d/1G7EwJtp3lT4dSAEXnGKq390haKwVPyekLCu-_FqPP7I/edit
 
 In this illustration, Facility X contains two Classrooms, Class A and Class B.
@@ -52,7 +52,7 @@ Group Q through a ``Membership`` object, which makes her a member of Group Q.
 As Group Q is contained within Class A, which is contained within Facility X,
 she is also implicitly a member of both those collections.
 
-.. image:: ../img/uap_membership_diagram.svg
+.. image:: ./img/uap_membership_diagram.svg
 .. Source: https://docs.google.com/drawings/d/1oAgG8unJj_6sxrVlvcAF-kmghStQLqQHdU9xIW-hhys/edit
 
 Note also that a ``FacilityUser`` is always implicitly a member of the
@@ -70,7 +70,7 @@ object also stores the "kind" of the role (currently, one of "admin" or
 
 To illustrate, consider the example in the following figure:
 
-.. image:: ../img/uap_role_membership_diagram.svg
+.. image:: ./img/uap_role_membership_diagram.svg
 .. Source: https://docs.google.com/drawings/d/1bZiLHeRjudzuELxK0odBHe8SuWClm_E1uxuBhZWmHVY/edit
 
 The figure shows a Role object linking Bob with Class A, and the Role is
@@ -112,5 +112,5 @@ core actions for which we need to define permissions are the CRUD operations
 often go hand in hand, we can collectively refer to them as "Write
 Permissions".
 
-.. image:: ../img/uap_crud_permissions.svg
+.. image:: ./img/uap_crud_permissions.svg
 .. Source: https://docs.google.com/drawings/d/1gWZQjBV_-yjrPKzaxfX6lDuVWts7E5Rp58eLT0T-1Uo/edit

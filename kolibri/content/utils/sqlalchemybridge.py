@@ -4,6 +4,7 @@ from django.apps import apps
 from django.conf import settings
 from sqlalchemy import ColumnDefault, MetaData, create_engine
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
 
 ENGINES_CACHES = {}
@@ -34,7 +35,13 @@ def get_engine(connection_string):
     """
     if connection_string not in ENGINES_CACHES:
         # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-        engine = create_engine(connection_string, echo=False, convert_unicode=True)
+        engine = create_engine(
+            connection_string,
+            echo=False,
+            connect_args={'check_same_thread': False},
+            poolclass=QueuePool,
+            convert_unicode=True,
+        )
         ENGINES_CACHES[connection_string] = engine
     return ENGINES_CACHES[connection_string]
 

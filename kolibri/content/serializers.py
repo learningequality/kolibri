@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
-from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language
+from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
@@ -16,11 +16,11 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
             descendants = instance.root.get_descendants()
             total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
-            channel_summary = descendants.prefetch_related('files__local_file').aggregate(
-                total_file_size=Sum('files__local_file__file_size')
-            )
-            value.update({"total_resources": total_resources})
-            value.update(channel_summary)
+
+            local_files = LocalFile.objects.filter(files__contentnode__channel_id=instance.id).distinct()
+            total_file_size = local_files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+            value.update({"total_resources": total_resources, "total_file_size": total_file_size})
         return value
 
     class Meta:

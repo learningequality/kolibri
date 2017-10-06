@@ -233,21 +233,23 @@ class SessionViewSet(viewsets.ViewSet):
                    'user_id': user.id,
                    'can_manage_content': user.can_manage_content}
         roles = Role.objects.filter(user_id=user.id)
-        if len(roles) is not 0 or user.is_superuser:
-            session.update({'facility_id': user.facility_id,
-                            'kind': [],
-                            'error': '200'})
-            if user.is_superuser:
-                session['kind'].append('superuser')
-            for role in roles:
-                if role.kind == 'admin':
-                    session['kind'].append('admin')
-                else:
-                    session['kind'].append('coach')
-        else:
+
+        if len(roles) is 0:
             session.update({'facility_id': user.facility_id,
                             'kind': ['learner'],
                             'error': '200'})
+        else:
+            session.update({'facility_id': user.facility_id,
+                            'kind': [],
+                            'error': '200'})
+            for role in roles:
+                if role.kind == 'admin':
+                    session['kind'].append('admin')
+                elif role.kind == 'coach':
+                    session['kind'].append('coach')
+
+        if user.is_superuser:
+            session['kind'].insert(0, 'superuser')
 
         UserSessionLog.update_log(user)
 

@@ -66,7 +66,6 @@
     color: white
     cursor: default
 
-
   .inprogress
     background-color: $core-status-progress
 

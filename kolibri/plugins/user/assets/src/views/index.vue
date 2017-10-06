@@ -26,6 +26,7 @@
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
+
   export default {
     $trs: { userProfileTitle: 'Profile' },
     name: 'userPlugin',
