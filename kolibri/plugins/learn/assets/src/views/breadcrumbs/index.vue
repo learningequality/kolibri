@@ -24,6 +24,9 @@
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
       },
+      inTopics() {
+        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
+      },
       learnBreadcrumbs() {
         return [
           {
@@ -33,68 +36,64 @@
           { text: this.contentTitle },
         ];
       },
-      inTopics() {
-        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
+      middleTopicBreadcrumbs() {
+        let crumbs = [];
+
+        // Channels have no previous topics
+        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+          return crumbs;
+        }
+
+        // Link to top-level Channel
+        crumbs.push({
+          text: this.channelTitle,
+          link: {
+            name: PageNames.TOPICS_CHANNEL,
+            params: {
+              channel_id: this.channelRootId,
+            },
+          }
+        });
+
+        // Links to previous topics
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
+        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+          crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
+        }
+        return crumbs;
       },
-      inTopicsChannel() {
-        return this.pageName === PageNames.TOPICS_CHANNEL;
-      },
-      topicsChannelLink() {
-        return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: {
-            channel_id: this.channelRootId,
-          },
-        };
+      lastTopicBreadcrumb() {
+        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+          return { text: this.channelTitle };
+        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
+          return { text: this.contentTitle };
+        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+          return { text: this.topicTitle };
+        }
       },
       topicsBreadcrumbs() {
-        const crumbs = [
+        return [
+          // All Channels Link
           {
             text: this.$tr('channels'),
             link: { name: PageNames.TOPICS_ROOT },
           },
+          ...this.middleTopicBreadcrumbs,
+          this.lastTopicBreadcrumb,
         ];
-        if (this.inTopicsChannel) {
-          crumbs.push({
-            text: this.channelTitle,
-          });
-          return crumbs;
-        }
-        crumbs.push({
-          text: this.channelTitle,
-          link: this.topicsChannelLink,
-        });
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          this.contentCrumbs.forEach(crumb =>
-            crumbs.push({
-              text: crumb.title,
-              link: this.topicLink(crumb.id),
-            })
-          );
-          crumbs.push({ text: this.contentTitle });
-        } else {
-          this.topicCrumbs.forEach(crumb =>
-            crumbs.push({
-              text: crumb.title,
-              link: this.topicLink(crumb.id),
-            })
-          );
-          if (!this.inTopicsChannel) {
-            crumbs.push({ text: this.topicTitle });
-          }
-        }
-        return crumbs;
       },
     },
     methods: {
-      topicLink(topicId) {
-        return {
-          name: PageNames.TOPICS_TOPIC,
-          params: {
-            id: topicId,
+      topicCrumbLinks(crumbs) {
+        return crumbs.map(({ title, id }) => ({
+          text: title,
+          link: {
+            name: PageNames.TOPICS_TOPIC,
+            params: { id },
           },
-        };
-      },
+        }));
+      }
     },
     vuex: {
       getters: {
