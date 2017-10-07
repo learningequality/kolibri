@@ -2,7 +2,7 @@ import logging as logger
 
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
+from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
 from kolibri.utils.time import local_now
 
 from .annotation import set_leaf_node_availability_from_local_file_availability
@@ -11,8 +11,6 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge, ClassNotFoundError
 
 logging = logger.getLogger(__name__)
-
-NO_VERSION = 'unversioned'
 
 CONTENT_APP_NAME = KolibriContentConfig.label
 
@@ -133,7 +131,10 @@ class ChannelImport(object):
         return mapper
 
     def base_table_mapper(self, SourceRecord):
-        return self.source.session.query(SourceRecord).all()
+        # If SourceRecord is none, then the source table does not exist in the DB
+        if SourceRecord:
+            return self.source.session.query(SourceRecord).all()
+        return []
 
     def generate_table_mapper(self, table_map=None):
         if table_map is None:
