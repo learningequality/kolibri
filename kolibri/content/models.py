@@ -90,7 +90,8 @@ class ContentNode(MPTTModel):
     """
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    license = models.ForeignKey('License', null=True, blank=True)
+    license_name = models.CharField(max_length=50)
+    license_description = models.CharField(max_length=400, null=True, blank=True)
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
@@ -245,18 +246,6 @@ class LocalFile(models.Model):
             return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
         else:
             return None
-
-
-@python_2_unicode_compatible
-class License(models.Model):
-    """
-    Normalize the license of ContentNode model
-    """
-    license_name = models.CharField(max_length=50)
-    license_description = models.CharField(max_length=400, null=True, blank=True)
-
-    def __str__(self):
-        return self.license_name
 
 
 class AssessmentMetaData(models.Model):

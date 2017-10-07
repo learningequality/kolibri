@@ -207,8 +207,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
-    license = serializers.StringRelatedField(many=False)
-    license_description = serializers.SerializerMethodField()
     lang = LanguageSerializer()
 
     def __new__(cls, *args, **kwargs):
@@ -244,16 +242,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    def get_license_description(self, target_node):
-        if target_node.license_id:
-            return target_node.license.license_description
-        return ''
-
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'parent', 'author',
+            'license_name', 'license_description', 'files', 'parent', 'author',
             'assessmentmetadata', 'lang', 'channel_id',
         )
 
