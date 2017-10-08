@@ -96,7 +96,7 @@ function contentState(data, nextContent, ancestors = []) {
     content_id: data.content_id,
     next_content: nextContent,
     author: data.author,
-    license: data.license,
+    license: data.license_name,
     license_description: data.license_description,
     license_owner: data.license_owner,
     parent: data.parent,
