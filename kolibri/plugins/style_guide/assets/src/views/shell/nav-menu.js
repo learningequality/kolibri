@@ -43,7 +43,7 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Horizontal Navbar',
+        itemName: 'Horizontal navbar',
         itemRoute: {
           path: `/components/navbar`,
           component: navbarPage,

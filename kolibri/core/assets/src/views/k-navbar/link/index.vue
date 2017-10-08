@@ -32,7 +32,7 @@
     name: 'kNavbarLink',
     props: {
       /**
-        * The type of tab. title, icon, or icon-and-title.
+        * The type of tab. title, icon, or icon-and-title
         */
       type: {
         type: String,
@@ -49,7 +49,7 @@
         required: false,
       },
       /**
-        * A material icon name.
+        * A material icon name
         */
       icon: {
         type: String,
