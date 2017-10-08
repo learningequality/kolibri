@@ -7,3 +7,7 @@ class KolibriContentConfig(AppConfig):
     name = 'kolibri.content'
     label = 'content'
     verbose_name = 'Kolibri Content'
+
+    def ready(self):
+        from kolibri.content.utils.sqlalchemybridge import prepare_bases
+        prepare_bases()

@@ -73,21 +73,19 @@
         </a>
       </template>
 
-      <label
-      class="permission-preset">
-      <k-radio-button
-      class="permission-preset-radio-button"
-      v-model="selectedPreset"
-      radiovalue="informal"
-      :label="$tr('selfManagedSetupTitle')"
-      />
-      <span class="permission-preset-description">
-        {{ $tr('selfManagedSetupDescription') }}
-      </span>
-    </label>
+      <label class="permission-preset">
+        <k-radio-button
+          class="permission-preset-radio-button"
+          v-model="selectedPreset"
+          radiovalue="nonformal"
+          :label="$tr('selfManagedSetupTitle')"
+        />
+        <span class="permission-preset-description">
+          {{ $tr('selfManagedSetupDescription') }}
+        </span>
+      </label>
 
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
@@ -100,18 +98,17 @@
         </span>
       </label>
 
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          radiovalue="nonformal"
+          radiovalue="informal"
           :label="$tr('informalSetupTitle')"
         />
         <span class="permission-preset-description">
           {{ $tr('informalSetupDescription') }}
         </span>
-      </label>
+    </label>
 
     </onboarding-form>
 
