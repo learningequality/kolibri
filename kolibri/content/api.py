@@ -204,7 +204,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             'assessmentmetadata',
             'files',
             'files__local_file'
-        ).select_related('license', 'lang')
+        ).select_related('lang')
 
     def get_queryset(self, prefetch=True):
         queryset = models.ContentNode.objects.filter(available=True)

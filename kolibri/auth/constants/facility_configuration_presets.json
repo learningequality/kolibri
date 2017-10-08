@@ -12,6 +12,7 @@
   },
   "nonformal": {
     "name": "Self-managed",
+    "default": true,
     "mappings": {
       "learner_can_edit_username": true,
       "learner_can_edit_name": true,
@@ -23,7 +24,6 @@
   },
   "informal": {
     "name": "Informal and personal use",
-    "default": true,
     "mappings": {
       "learner_can_edit_username": true,
       "learner_can_edit_name": true,
