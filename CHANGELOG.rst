@@ -11,6 +11,7 @@ Changes are ordered reverse-chronologically.
  - Add support for RTL languages
  - Add support for frontend translation outside of Vue components
  - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
+ - Automatic database backup during upgrades. #2365
 
 
 0.5.1dev (unreleased)
