@@ -256,6 +256,7 @@ function showExploreChannel(store, channelId) {
 }
 
 function showExploreContent(store, channelId, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
@@ -378,6 +379,7 @@ function showLearnChannel(store, channelId, cursor) {
 }
 
 function showLearnContent(store, channelId, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   const channelPayload = { channel_id: channelId };
@@ -590,6 +592,10 @@ function showExam(store, channelId, id, questionNumber) {
     ]).only(
       samePageCheckGenerator(store),
       ([exam, channel, examLogs, examAttemptLogs]) => {
+        if (exam.closed) {
+          router.getInstance().replace({ name: constants.PageNames.EXAM_LIST });
+          return;
+        }
         const currentChannel = coreGetters.getCurrentChannelObject(store.state);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
