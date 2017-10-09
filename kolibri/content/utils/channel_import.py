@@ -283,6 +283,8 @@ class NoVersionChannelImport(ChannelImport):
 
     def get_license(self, SourceRecord):
         license_id = SourceRecord.license_id
+        if not license_id:
+            return None
         if license_id not in self.licenses:
             LicenseRecord = self.source.get_class(License)
             license = self.source.session.query(LicenseRecord).get(license_id)
@@ -291,10 +293,14 @@ class NoVersionChannelImport(ChannelImport):
 
     def get_license_name(self, SourceRecord):
         license = self.get_license(SourceRecord)
+        if not license:
+            return None
         return license.license_name
 
     def get_license_description(self, SourceRecord):
         license = self.get_license(SourceRecord)
+        if not license:
+            return None
         return license.license_description
 
 
