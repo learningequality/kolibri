@@ -50,6 +50,7 @@ module.exports = function(config) {
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
       'kolibri/**/assets/test/**/*.js',
+      'kolibri/**/assets/**/*.spec.js',
     ],
 
     // list of files to exclude
@@ -59,6 +60,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'kolibri/**/assets/test/**/*.js': ['webpack', 'sourcemap'],
+      'kolibri/**/assets/**/*.spec.js': ['webpack', 'sourcemap'],
     },
 
     // test results reporter to use
