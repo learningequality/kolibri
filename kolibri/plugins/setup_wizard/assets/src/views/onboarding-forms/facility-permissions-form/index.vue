@@ -68,7 +68,7 @@
       <template slot="description">
         {{ $tr('facilityPermissionsSetupFormDescription') }}
 
-        <a class="permission-preset-modal-link" @click="showFacilityPermissionsDetails">
+        <a class="permission-preset-modal-link" @click="showFacilityPermissionsDetails" href="#">
           {{ $tr('facilityPermissionsPresetDetailsLink') }}
         </a>
       </template>
@@ -228,12 +228,12 @@
 
 
   .permission-preset-human
-    list-style: none
     margin-bottom: 8px
     &-title
       font-weight: bold
     &-detail
       line-height: 1.4em
-      margin: 0
+      display: list-item
+      margin-left: 20px
 
 </style>
