@@ -6,9 +6,15 @@ import initialState from './initialState';
 
 Vue.use(Vuex);
 
-export default function makeStore() {
+export default function makeStore(options = {}) {
+  const { pageName } = options;
+  const state = cloneDeep(initialState);
+  if (pageName) {
+    state.pageName = pageName;
+  }
+
   return new Vuex.Store({
     mutations,
-    state: cloneDeep(initialState),
+    state,
   });
 }
