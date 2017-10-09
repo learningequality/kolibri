@@ -95,7 +95,7 @@ def get_topic_and_content_progress_fractions(nodes, user):
             overall_progress[node.content_id] = round(
                 sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids)/len(leaf_ids),
                 4
-            )
+            ) if leaf_ids else 0.0
 
     return overall_progress
 
