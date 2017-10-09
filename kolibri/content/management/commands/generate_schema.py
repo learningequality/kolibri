@@ -10,7 +10,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
-DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_data.json')
+DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../../fixtures/{name}_content_data.json')
 
 class Command(BaseCommand):
     """
@@ -54,5 +54,5 @@ class Command(BaseCommand):
         with open(SCHEMA_PATH_TEMPLATE.format(name=options['version']), 'wb') as f:
             pickle.dump(metadata, f, protocol=2)
 
-        with open(DATA_PATH_TEMPLATE.format(name=options['version']), 'wb') as f:
+        with open(DATA_PATH_TEMPLATE.format(name=options['version']), 'w') as f:
             json.dump(data, f)
