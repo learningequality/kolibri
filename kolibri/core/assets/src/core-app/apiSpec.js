@@ -41,7 +41,8 @@ import kNavbar from '../views/k-navbar';
 import kNavbarButton from '../views/k-navbar/button';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
-import languageSwitcher from '../views/language-switcher';
+import languageSwitcherMixin from '../views/language-switcher/mixin.js';
+import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
@@ -101,6 +102,7 @@ export default {
       kNavbar,
       kNavbarButton,
       kNavbarLink,
+      languageSwitcherList,
       logo,
       immersiveFullScreen,
       elapsedTime,
@@ -110,12 +112,12 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
-      languageSwitcher,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
+      languageSwitcherMixin,
     },
   },
   resources,

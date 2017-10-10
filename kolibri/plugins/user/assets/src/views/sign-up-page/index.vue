@@ -92,7 +92,7 @@
     </form>
 
     <div class="footer">
-      <language-switcher :footer="true"/>
+      <language-switcher-footer/>
     </div>
   </div>
 
@@ -111,7 +111,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiSelect from 'keen-ui/src/UiSelect';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+  import languageSwitcherFooter from '../language-switcher-footer';
 
   export default {
     name: 'signUpPage',
@@ -140,7 +140,7 @@
       logo,
       uiIcon,
       uiSelect,
-      languageSwitcher,
+      languageSwitcherFooter,
     },
     data: () => ({
       name: '',
