@@ -14,21 +14,21 @@
       When the user would expect to use navigation history, right-click to copy a URL, or control-click to open a page in a new tab, then a link should be used. Otherwise, a button should be used.
     </p>
 
-    <h2>Hierarchy</h2>
+    <h2>Visual styles</h2>
     <p>
-      There are 3 main visual styles of buttons and links. Each maps to a different level of
+      There are 3 main appearances of button and link components. (Remember that a button component can visually look like a link, and a link component can visually look like a button.) Each appearance maps to a different level of
       <a href="https://en.wikipedia.org/wiki/Visual_hierarchy">visual hierarchy</a>:
     </p>
     <ul>
-      <li><strong>Raised:</strong> button-like appearance for more prominent actions</li>
-      <li><strong>Flat:</strong> button-like appearance for less prominent actions</li>
-      <li><strong>Link:</strong> very deemphasized actions, or actions inline within text</li>
+      <li><strong>Raised buttons:</strong> button-like appearance for more prominent actions</li>
+      <li><strong>Flat buttons:</strong> button-like appearance for less prominent actions</li>
+      <li><strong>Basic links:</strong> hyperlink-like appearance for deemphasized actions, or actions inline within text</li>
     </ul>
 
     <show>
-      <k-button text="Raised" :primary="true" appearance="raised-button"></k-button>
-      <k-button text="Flat" :primary="true" appearance="flat-button"></k-button>
-      <k-button text="Link" :primary="true" appearance="basic-link"></k-button>
+      <k-button text="Raised button" :primary="true" appearance="raised-button"></k-button>
+      <k-button text="Flat button" :primary="true" appearance="flat-button"></k-button>
+      <k-button text="Basic link" :primary="true" appearance="basic-link"></k-button>
     </show>
 
     <p>
@@ -37,14 +37,14 @@
 
     <show>
       <k-button text="Primary" :primary="true" appearance="raised-button"></k-button>
-      <k-button text="Primary" :primary="true" appearance="flat-button"></k-button>
-      <br>
       <k-button text="Secondary" :primary="false" appearance="raised-button"></k-button>
+      <br>
+      <k-button text="Primary" :primary="true" appearance="flat-button"></k-button>
       <k-button text="Secondary" :primary="false" appearance="flat-button"></k-button>
     </show>
 
     <p>
-      Note that we don't use a "secondary link" style.
+      Note that we don't use a "secondary basic link" style.
     </p>
 
     <h2>Label text</h2>
@@ -55,7 +55,7 @@
       <li>Do not add icons to buttons</li>
     </ul>
 
-    <h2>Placement of 'raised' and 'flat' actions</h2>
+    <h2>Placement of 'raised button' and 'flat button' actions</h2>
     <ul>
       <li>Right-aligned in modal pop-ups</li>
       <li>Left-aligned in page forms</li>
