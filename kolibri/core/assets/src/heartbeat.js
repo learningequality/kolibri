@@ -20,7 +20,8 @@ class HeartBeat {
   start() {
     logging.debug('Starting heartbeat');
     this.setActivityListeners();
-    this.beat();
+    // No need to start it straight away, can wait.
+    this.wait();
   }
   setActivityListeners() {
     this.events.forEach((event) => {
@@ -39,6 +40,10 @@ class HeartBeat {
   setInactive() {
     this.active = false;
   }
+  wait() {
+    this.timerId = setTimeout(this.beat, this.delay);
+    return this.timerId;
+  }
   beat() {
     if (this.active) {
       logging.debug('There was activity, polling session endpoint!');
@@ -46,10 +51,15 @@ class HeartBeat {
         logging.error('Periodic server polling failed, with error: ', error);
       });
       this.setActivityListeners();
+    } else {
+      logging.debug('No user activity, polling keepalive endpoint to keep session active');
+      this.kolibri.resources.KeepAliveResource.getModel('now').fetch({}, true).catch((error) => {
+        logging.error('Periodic server polling failed with error: ', error);
+      });
     }
     this.setInactive();
-    this.timerId = setTimeout(this.beat, this.delay);
-    return this.timerId;
+
+    return this.wait();
   }
   get events() {
     return [
