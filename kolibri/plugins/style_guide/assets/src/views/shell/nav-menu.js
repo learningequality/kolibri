@@ -36,14 +36,14 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Breadcrumbs',
+        itemName: 'Topic tree breadcrumbs',
         itemRoute: {
           path: `/components/breadcrumbs`,
           component: breadcrumbsPage,
         },
       },
       {
-        itemName: 'Horizontal Navbar',
+        itemName: 'Horizontal navbar',
         itemRoute: {
           path: `/components/navbar`,
           component: navbarPage,
