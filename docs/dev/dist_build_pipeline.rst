@@ -1,4 +1,7 @@
-Distribution and installers
+
+.. _build_pipeline:
+
+Distribution build pipeline
 ===========================
 
 The Kolibri Package build pipeline looks like this::
@@ -31,11 +34,3 @@ To build both the slim Kolibri and the one with bundled dependencies, simply
 run ``make dist``. The ``.whl`` files will now be available in ``dist/*whl``
 and you can install them with ``pip install dist/filename.whl``.
 
-Automated CI tests
-------------------
-
-If you add ``[ setup ]`` to your commit message, our CI will automatically test
-that builds work.
-
-Otherwise, changes to certain files like ``requirements/*`` and ``setup.py``
-will automatically prompt test builds to fire.

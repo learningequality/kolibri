@@ -17,7 +17,8 @@
         @keydown.enter.native.prevent="selectOption(option)"
         @keydown.esc.native.esc="closeMenu"
 
-        v-for="option in options"
+        v-for="(option, i) in options"
+        :key="i"
       >
         <slot name="option" :option="option"></slot>
       </menu-option>

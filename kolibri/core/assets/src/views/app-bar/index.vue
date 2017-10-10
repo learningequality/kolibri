@@ -35,8 +35,11 @@
           </template>
         </keen-menu-port>
       </ui-button>
-
-      <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
+      <language-switcher-modal
+        v-if="showLanguageModal"
+        @close="showLanguageModal = false"
+        class="override-ui-toolbar"
+      />
     </div>
   </ui-toolbar>
 
@@ -53,7 +56,7 @@
   import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
-  import languageSwitcher from '../language-switcher';
+  import languageSwitcherModal from '../language-switcher/modal';
   export default {
     mixins: [responsiveWindow],
     name: 'appBar',
@@ -90,7 +93,7 @@
       uiIconButton,
       keenMenuPort,
       uiButton,
-      languageSwitcher,
+      languageSwitcherModal,
     },
     computed: {
       accountMenuOptions() {
@@ -146,6 +149,16 @@
   };
 
 </script>
+
+
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  .override-ui-toolbar
+    color: $core-text-default
+
+</style>
 
 
 <style lang="stylus" scoped>

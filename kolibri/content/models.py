@@ -24,6 +24,12 @@ from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
+V020BETA1 = 'v0.2.0-beta1'
+
+V040BETA3 = 'v0.4.0-beta3'
+
+NO_VERSION = 'unversioned'
+
 CONTENT_SCHEMA_VERSION = '1'
 
 class UUIDField(models.CharField):
@@ -84,7 +90,8 @@ class ContentNode(MPTTModel):
     """
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    license = models.ForeignKey('License', null=True, blank=True)
+    license_name = models.CharField(max_length=50, null=True, blank=True)
+    license_description = models.CharField(max_length=400, null=True, blank=True)
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
@@ -135,7 +142,7 @@ class Language(models.Model):
     lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS, default=LANGUAGE_DIRECTIONS[0][0])
 
     def __str__(self):
-        return self.lang_name
+        return self.lang_name or ''
 
 
 class File(models.Model):
@@ -239,18 +246,6 @@ class LocalFile(models.Model):
             return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
         else:
             return None
-
-
-@python_2_unicode_compatible
-class License(models.Model):
-    """
-    Normalize the license of ContentNode model
-    """
-    license_name = models.CharField(max_length=50)
-    license_description = models.CharField(max_length=400, null=True, blank=True)
-
-    def __str__(self):
-        return self.license_name
 
 
 class AssessmentMetaData(models.Model):

@@ -25,7 +25,10 @@ var lint = process.env.LINT || production;
 
 var postCSSLoader = {
   loader: 'postcss-loader',
-  options: { config: path.resolve(__dirname, '../../postcss.config.js') },
+  options: {
+    config: { path: path.resolve(__dirname, '../../postcss.config.js') },
+    sourceMap: !production,
+  },
 };
 
 var cssLoader = {

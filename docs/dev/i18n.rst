@@ -1,5 +1,8 @@
-i18n
-====
+
+.. _i18n:
+
+Internationalization
+====================
 
 As a platform intended for use around the world, Kolibri has a strong mandate for translation and internationalization. As such, it has been designed with technologies to enable this built in.
 

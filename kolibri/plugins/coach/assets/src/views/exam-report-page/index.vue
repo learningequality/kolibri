@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="table-row" v-for="examTaker in examTakers">
+          <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
             <th scope="row" class="table-text">
               <k-router-link
                 v-if="examTaker.progress !== undefined"
@@ -68,13 +68,13 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions/exam';
+  import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
     components: { kRouterLink },
+    name: 'examReportPage',
     computed: {
       noExamData() {
         return this.examTakers.length === 0;
@@ -93,7 +93,7 @@
     methods: {
       examDetailPageLink(id) {
         return {
-          name: constants.PageNames.EXAM_REPORT_DETAIL_ROOT,
+          name: PageNames.EXAM_REPORT_DETAIL_ROOT,
           params: {
             classId: this.classId,
             channelId: this.channelId,
@@ -110,11 +110,7 @@
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
       },
-      actions: {
-        displayExamModal: actions.displayExamModal,
-      },
     },
-    name: 'examReportPage',
     $trs: {
       examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
       averageScore: 'Average Score: {num, number, percent}',

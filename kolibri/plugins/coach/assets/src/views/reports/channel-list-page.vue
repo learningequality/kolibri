@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" ref="recentHeader">
+    <div v-if="showRecentOnly" class="header">
       <h1>{{ $tr('recentTitle') }}</h1>
       <report-subheading />
     </div>
@@ -24,8 +24,16 @@
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
-            <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
-            <activity-cell :date="channel.lastActive"/>
+            <name-cell
+              :kind="CHANNEL"
+              :title="channel.title"
+              :link="reportLink(channel.id)"
+              :key="channel.id"
+            />
+            <activity-cell
+              :date="channel.lastActive"
+              :key="channel.id"
+            />
           </tr>
         </template>
       </tbody>

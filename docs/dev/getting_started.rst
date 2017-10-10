@@ -301,7 +301,7 @@ Kolibri comes with a Python test suite based on ``py.test``. To run tests in you
 
 .. code-block:: bash
 
-  python setup.py test  # alternatively, "make test" does the same
+  pytest  # alternatively, "make test" does the same
 
 You can also use ``tox`` to setup a clean and disposable environment:
 
