@@ -17,7 +17,7 @@
         :class="{ mobile: windowSize.breakpoint <= 1 }"
         :style="{ width: width, height: height }">
 
-        <div class="top-buttons" @keydown.enter.stop>
+        <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
           <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
             <mat-svg category="navigation" name="arrow_back"/>
           </button>
@@ -95,6 +95,10 @@
       height: {
         type: String,
         required: false,
+      },
+      hideTopButtons: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -214,9 +218,6 @@
 
   .btn-close
     right: -10px
-
-  .title
-    text-align: center
 
   .fade-enter-active, .fade-leave-active
     transition: all 0.3s ease

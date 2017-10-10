@@ -2,45 +2,39 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error ? true : false"
     :enableBgClickCancel="false"
-    @cancel="cancel"
     @enter="submit"
+    hideTopButtons
   >
-    <div class="main">
-      <template v-if="!drivesLoading">
-        <div class="modal-message">
-          <p>
-            {{ $tr('exportPrompt', { numChannels: channelList.length, exportSize }) }}
-          </p>
-          <drive-list
-            :value="selectedDrive"
-            :drives="wizardState.driveList"
-            :enabledDrivePred="driveIsEnabled"
-            :disabledMsg="$tr('notWritable')"
-            :enabledMsg="formatEnabledMsg"
-            @change="(driveId) => selectedDrive = driveId"
-          />
-        </div>
-        <div class="refresh-btn-wrapper">
-          <k-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')"/>
-        </div>
-      </template>
-      <loading-spinner v-else :delay="500" class="spinner"/>
+    <div class="options">
+      <drive-list
+        v-if="!drivesLoading"
+        :value="selectedDrive"
+        :drives="wizardState.driveList"
+        :enabledDrivePred="driveIsEnabled"
+        :disabledMsg="$tr('notWritable')"
+        :enabledMsg="formatEnabledMsg"
+        @change="(driveId) => selectedDrive = driveId"
+      />
+      <loading-spinner v-else :delay="500" class="spinner" />
     </div>
-    <div class="core-text-alert">
+
+    <ui-alert v-if="wizardState.error" type="error">
       {{ wizardState.error }}
-    </div>
-    <div class="button-wrapper">
+    </ui-alert>
+
+    <div class="buttons">
       <k-button
+        :text="$tr('cancel')"
         @click="cancel"
         appearance="flat-button"
-        :text="$tr('cancel')"/>
+      />
       <k-button
-        :text="$tr('export')"
+        :text="$tr('continue')"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true"/>
+        :primary="true"
+      />
     </div>
   </core-modal>
 
@@ -49,35 +43,30 @@
 
 <script>
 
-  import {
-    transitionWizardPage,
-    updateWizardLocalDriveList,
-  } from '../../../state/actions/contentWizardActions';
   import bytesForHumans from '../bytesForHumans';
   import coreModal from 'kolibri.coreVue.components.coreModal';
+  import driveList from './drive-list';
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import driveList from './drive-list';
   import sumBy from 'lodash/sumBy';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
 
   export default {
     name: 'wizardExport',
     $trs: {
       available: 'available',
       cancel: 'Cancel',
-      export: 'Export',
-      exportPrompt:
-        'You are about to export {numChannels, number} {numChannels, plural, one {channel} other {channels}} ({exportSize})',
+      continue: 'Continue',
       notWritable: 'Not writable',
-      refresh: 'Refresh',
-      title: 'Export to where?',
-      waitForTotalSize: 'Calculating size...',
+      title: 'Select an export destination',
     },
     components: {
       coreModal,
+      driveList,
       kButton,
       loadingSpinner,
-      driveList,
+      uiAlert,
     },
     data: () => ({ selectedDrive: '' }),
     computed: {
@@ -114,12 +103,11 @@
     },
     vuex: {
       getters: {
-        channelList: state => state.pageState.channelList,
-        wizardState: state => state.pageState.wizardState,
+        channelList: ({ pageState }) => pageState.channelList,
+        wizardState: ({ pageState }) => pageState.wizardState,
       },
       actions: {
         transitionWizardPage,
-        updateWizardLocalDriveList,
       },
     },
   };
@@ -133,28 +121,15 @@
 
   $min-height = 200px
 
-  .main
-    text-align: left
-    margin: 3em 0
-    min-height: $min-height
-
-  h2
-    font-size: 1em
-
-  .modal-message
-    margin: 2em 0
-
-  .button-wrapper
-    margin: 1em 0
-    text-align: center
-
-  button
-    margin: 0.4em
-
-  .refresh-btn-wrapper
-    text-align: center
-
   .spinner
     height: $min-height
+
+  .options
+    margin: 2em 0
+    min-height: $min-height
+
+
+  .buttons
+    text-align: right
 
 </style>

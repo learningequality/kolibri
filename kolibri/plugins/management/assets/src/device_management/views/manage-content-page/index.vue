@@ -54,6 +54,7 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import availableChannelsPage from '../available-channels-page';
   import wizardImportSource from './wizards/wizard-import-source';
   import wizardImportNetwork from './wizards/wizard-import-network';
   import wizardImportLocal from './wizards/wizard-import-local';
@@ -70,6 +71,7 @@
     [ContentWizardPages.EXPORT]: 'wizard-export',
     [ContentWizardPages.LOCAL_IMPORT_PREVIEW]: 'import-preview',
     [ContentWizardPages.REMOTE_IMPORT_PREVIEW]: 'import-preview',
+    [ContentWizardPages.NETWORK_AVAILABLE_CHANNELS]: 'available-channels-page',
   };
 
   const POLL_DELAY = 1000;
@@ -85,6 +87,7 @@
     },
     components: {
       authMessage,
+      availableChannelsPage,
       channelsGrid,
       kButton,
       importPreview,

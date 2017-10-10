@@ -10,6 +10,7 @@ import {
   showManagePermissionsPage,
   showUserPermissionsPage,
 } from './state/actions/managePermissionsActions';
+import { transitionWizardPage } from './state/actions/contentWizardActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
 
 function hideLoadingScreen() {
@@ -59,6 +60,16 @@ const routes = [
         title: 'Manage User Permissions',
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+    },
+  },
+  {
+    name: 'wizardtransition',
+    // Wizard transitions don't change the URL
+    path: '',
+    handler: ({ params }) => {
+      if (params.transition === 'cancel') {
+        transitionWizardPage(store, 'cancel');
+      }
     },
   },
 ];

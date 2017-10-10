@@ -15,10 +15,10 @@
         <div class="other-details">
           <div v-if="inImportingMode && onDevice" class="on-device">
             <mat-svg category="action" name="check_circle" />
-            {{ $tr('onYourDevice') }}
+            <span>{{ $tr('onYourDevice') }}</span>
           </div>
           <div v-if="inManagingMode" class="resources-size">
-            {{ resourcesSizeText }}
+            <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
         <div class="title">
@@ -43,6 +43,7 @@
         @click="$emit('clickselect')"
         name="select"
         :text="$tr('selectButton')"
+        primary
       />
       <k-button
         v-if="inManagingMode"
@@ -131,6 +132,8 @@
   .channel-list-item
     display: table
     vertical-align: middle
+    padding: 2em 0
+    border-bottom: 1px solid $core-grey
 
   .title
     font-size: 1.2em
@@ -166,6 +169,14 @@
   .other-details
     float: right
     line-height: 1.7em
+
+  .on-device
+    line-height: 1.7em
+    svg
+      fill: $core-status-correct
+    span
+      margin-left: 10px
+      vertical-align: top
 
   .buttons
     width: 10%

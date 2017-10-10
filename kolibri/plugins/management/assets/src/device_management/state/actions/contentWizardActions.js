@@ -46,6 +46,20 @@ export function closeImportExportWizard(store) {
   showWizardPage(store, false);
 }
 
+function prepareAvailableChannelsPage(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.NETWORK_AVAILABLE_CHANNELS,
+    availableChannels: [...store.state.pageState.channelList],
+    channelsOnDevice: [...store.state.pageState.channelList],
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+  return Promise.resolve();
+}
+
 /**
  * State machine for the Import/Export wizards.
  * Only handles forward, back, and cancel transitions.
@@ -73,7 +87,14 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD && params.source === 'network') {
-      return showPage(ContentWizardPages.IMPORT_NETWORK);
+      return prepareAvailableChannelsPage(store);
+    }
+  }
+
+  // At Available Channels Page
+  if (wizardPage === ContentWizardPages.NETWORK_AVAILABLE_CHANNELS) {
+    if (transition === FORWARD) {
+      console.log(params);
     }
   }
 
