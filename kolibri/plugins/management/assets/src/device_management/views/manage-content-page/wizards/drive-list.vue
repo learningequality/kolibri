@@ -58,16 +58,21 @@
         required: true,
       },
     },
+    data() {
+      return {
+        selectedDrive: '',
+      };
+    },
     computed: {
-      selectedDrive() {
-        return this.value;
-      },
       enabledDrives() {
         return this.drives.filter(drive => this.enabledDrivePred(drive));
       },
       disabledDrives() {
         return this.drives.filter(drive => !this.enabledDrivePred(drive));
       },
+    },
+    mounted() {
+      this.selectedDrive = this.value;
     },
     methods: {
       enabledDriveLabel(drive) {
