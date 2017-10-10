@@ -263,3 +263,9 @@ class SessionViewSet(viewsets.ViewSet):
             UserSessionLog.update_log(user)
 
             return session
+
+
+class KeepSessionAliveViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        return Response()
