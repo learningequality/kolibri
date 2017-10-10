@@ -2,12 +2,12 @@
 
   <page-template :completed="true">
 
-    <h1>Channel breadcrumbs</h1>
+    <h1>Topic tree breadcrumbs</h1>
 
     <h2>Usage guidelines</h2>
 
     <p>
-      Breadcrumbs should be used to aid navigation with any instance of the topic tree.
+      Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
       Place it directly above the content to be navigated through.
     </p>
 

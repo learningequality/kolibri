@@ -36,7 +36,7 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Channel breadcrumbs',
+        itemName: 'Topic tree breadcrumbs',
         itemRoute: {
           path: `/components/breadcrumbs`,
           component: breadcrumbsPage,
