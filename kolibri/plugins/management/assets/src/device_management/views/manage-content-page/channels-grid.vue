@@ -6,7 +6,7 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-circular v-else-if="this.channelsLoading" :size="16" color="primary"/>
+      <ui-progress-linear v-else-if="this.channelsLoading" type="indefinite" color="primary"/>
 
       <div v-else>
         <div class="channel-list-header">
@@ -41,7 +41,7 @@
 
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiProgressCircular from 'keen-ui/src/UiProgressCircular';
+  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
@@ -49,7 +49,7 @@
     name: 'channelsGrid',
     components: {
       channelListItem,
-      uiProgressCircular,
+      uiProgressLinear,
       deleteChannelModal,
       kButton,
     },
