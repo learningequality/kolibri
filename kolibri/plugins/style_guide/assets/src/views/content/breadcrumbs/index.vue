@@ -7,7 +7,7 @@
     <h2>Usage guidelines</h2>
 
     <p>
-      Breadcrumbs hould be used to aid navigation with any instance of the topic tree.
+      Breadcrumbs should be used to aid navigation with any instance of the topic tree.
       Place it directly above the content to be navigated through.
     </p>
 
