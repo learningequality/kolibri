@@ -21,7 +21,7 @@
           <k-button
             type="button"
             :text="$tr('cancel')"
-            appearance="flat"
+            appearance="flat-button"
             @click="close"
           />
 

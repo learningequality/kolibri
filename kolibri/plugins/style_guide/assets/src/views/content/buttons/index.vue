@@ -26,9 +26,9 @@
     </ul>
 
     <show>
-      <k-button text="Raised" :primary="true" appearance="raised"></k-button>
-      <k-button text="Flat" :primary="true" appearance="flat"></k-button>
-      <k-button text="Link" :primary="true" appearance="link"></k-button>
+      <k-button text="Raised" :primary="true" appearance="raised-button"></k-button>
+      <k-button text="Flat" :primary="true" appearance="flat-button"></k-button>
+      <k-button text="Link" :primary="true" appearance="basic-link"></k-button>
     </show>
 
     <p>
@@ -36,11 +36,11 @@
     </p>
 
     <show>
-      <k-button text="Primary" :primary="true" appearance="raised"></k-button>
-      <k-button text="Primary" :primary="true" appearance="flat"></k-button>
+      <k-button text="Primary" :primary="true" appearance="raised-button"></k-button>
+      <k-button text="Primary" :primary="true" appearance="flat-button"></k-button>
       <br>
-      <k-button text="Secondary" :primary="false" appearance="raised"></k-button>
-      <k-button text="Secondary" :primary="false" appearance="flat"></k-button>
+      <k-button text="Secondary" :primary="false" appearance="raised-button"></k-button>
+      <k-button text="Secondary" :primary="false" appearance="flat-button"></k-button>
     </show>
 
     <p>

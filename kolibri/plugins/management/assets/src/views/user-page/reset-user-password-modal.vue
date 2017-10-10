@@ -29,14 +29,14 @@
         <k-button
           :text="$tr('cancel')"
           :primary="false"
-          appearance="flat"
+          appearance="flat-button"
           @click="displayModal(false)"
         />
         <k-button
           type="submit"
           :text="$tr('save')"
           :primary="true"
-          appearance="raised"
+          appearance="raised-button"
           :disabled="isBusy"
         />
       </div>

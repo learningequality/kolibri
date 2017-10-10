@@ -32,7 +32,7 @@
           </div>
           <div class="exam-row-3rd-col"  :class="thirdColClass">
             <k-router-link
-              appearance="flat"
+              appearance="flat-button"
               :text="exam.answerCount === null ? $tr('start') : $tr('continue')"
               :to="generateExamLink(exam)"
               :primary="true"

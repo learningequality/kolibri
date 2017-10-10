@@ -20,7 +20,7 @@
         <section class="footer">
           <k-button
             type="button"
-            appearance="flat"
+            appearance="flat-button"
             :text="$tr('cancel')"
             @click="close"
           />

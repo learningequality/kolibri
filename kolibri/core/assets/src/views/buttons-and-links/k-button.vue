@@ -14,6 +14,7 @@
 
 <script>
 
+  import { validator } from './appearances.js';
   import buttonClassesMixin from './buttonClassesMixin.js';
 
   /**
@@ -45,14 +46,15 @@
         default: 'button',
       },
       /**
-       * Button appearance: 'raised', 'flat', or 'link'
+       * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
       appearance: {
         type: String,
-        default: 'raised',
+        default: 'raised-button',
+        validator,
       },
       /**
-       * For 'raised' and 'flat' button-like appearance: show as primary or secondary style
+       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
        */
       primary: {
         type: Boolean,

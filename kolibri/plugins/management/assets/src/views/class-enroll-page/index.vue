@@ -8,7 +8,7 @@
           :text="$tr('backToClassDetails')"
           :to="editClassLink"
           :primary="false"
-          appearance="flat"
+          appearance="flat-button"
           class="link-button"
         />
       </div>

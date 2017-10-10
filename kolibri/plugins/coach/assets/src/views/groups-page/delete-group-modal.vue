@@ -5,7 +5,7 @@
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <div class="ta-r">
-      <k-button :text="$tr('cancel')" appearance="flat" @click="close" />
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
       <k-button :text="$tr('deleteGroup')" :primary="true" @click="deleteGroup(groupId)" />
     </div>
   </core-modal>

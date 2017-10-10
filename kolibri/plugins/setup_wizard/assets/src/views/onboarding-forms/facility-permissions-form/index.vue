@@ -68,7 +68,7 @@
       <template slot="description">
         {{ $tr('facilityPermissionsSetupFormDescription') }}
         <k-button
-          appearance="link"
+          appearance="basic-link"
           :text="$tr('facilityPermissionsPresetDetailsLink')"
           @click="showFacilityPermissionsDetails"
         />

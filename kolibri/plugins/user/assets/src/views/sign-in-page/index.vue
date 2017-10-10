@@ -75,13 +75,13 @@
           :text="$tr('createAccount')"
           :to="signUpPage"
           :primary="false"
-          appearance="raised"
+          appearance="raised-button"
         />
         <k-external-link
           :text="$tr('accessAsGuest')"
           href="/learn"
           :primary="false"
-          appearance="raised"
+          appearance="raised-button"
         />
       </div>
       <p class="login-text version">{{ versionMsg }}</p>

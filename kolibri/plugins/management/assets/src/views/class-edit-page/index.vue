@@ -27,7 +27,7 @@
           :text="$tr('enrollUsers')"
           :to="classEnrollLink"
           :primary="true"
-          appearance="raised"
+          appearance="raised-button"
         />
       </div>
       <k-filter-textbox

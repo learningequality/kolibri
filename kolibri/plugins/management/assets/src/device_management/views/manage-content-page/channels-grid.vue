@@ -41,7 +41,7 @@
             <td>
               <k-button
                 @click="selectedChannelId=channel.id"
-                appearance="flat"
+                appearance="flat-button"
                 :text="$tr('deleteButtonLabel')"
                 :disabled="tasksInQueue"
               />
