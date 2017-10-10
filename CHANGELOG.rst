@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.7 (unreleased)
+----------------
+
+ - (adding changes here)
+
+
 0.6
 ---
 
