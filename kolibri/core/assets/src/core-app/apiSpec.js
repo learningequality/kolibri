@@ -40,7 +40,6 @@ import kRouterLink from '../views/buttons-and-links/k-router-link';
 import kTextbox from '../views/k-textbox';
 import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
-import kNavbarButton from '../views/k-navbar/button';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
 import languageSwitcherMixin from '../views/language-switcher/mixin.js';
@@ -104,7 +103,6 @@ export default {
       kTextbox,
       dropdownMenu,
       kNavbar,
-      kNavbarButton,
       kNavbarLink,
       languageSwitcherList,
       logo,

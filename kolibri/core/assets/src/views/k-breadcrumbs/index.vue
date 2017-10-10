@@ -82,7 +82,7 @@
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   /**
-   * Used to aid deeply nested navigation
+   * Used to aid deeply nested navigation of content channels, topics, and resources
    */
   export default {
     name: 'kBreadcrumbs',
@@ -90,8 +90,9 @@
     mixins: [ResponsiveElement],
     props: {
       /**
-       * An array of item objects. All objects must have a text value.
-       * All objects, but the last, must have a router link 'to' object.
+       * An array of objects, each with a 'text' attribute (String) and a
+       * 'link' attribute (vue router link object). The 'link' attribute
+       * of the last item in the array is optional and ignored.
        */
       items: {
         type: Array,

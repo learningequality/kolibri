@@ -85,7 +85,11 @@
 
     <h2>Known exceptions</h2>
     <ul>
-      <li>On the sign-in page, the "Sign In" button has a non-standard width for aesthetic reasons</li>
+      <li>
+        On the sign-in page, the primary button is wider for aesthetic
+        reasons. Also, the secondary buttons are inverted to reduce contrast
+        with the dark background.
+      </li>
     </ul>
 
   </page-template>
