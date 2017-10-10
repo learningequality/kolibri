@@ -3,13 +3,10 @@
   <div class="channel-list-item">
 
     <div class="thumbnail dtc">
-      <mat-svg
-        v-if="channel.thumbnail === ''"
-        category="action"
-        name="view_module"
-        class="default-icon"
-      />
-      <img v-else :src="thumbnailImg" />
+      <img v-if="thumbnailImg" :src="thumbnailImg" />
+      <div v-else class="default-icon">
+        <mat-svg category="navigation" name="apps" />
+      </div>
     </div>
 
     <div class="details dtc">
@@ -101,10 +98,8 @@
         return this.channel.thumbnail;
       },
       tasksInQueue() {
-        if (this.pageState.taskList === undefined) {
-          return false;
-        }
-        return this.pageState.taskList.length > 0;
+        const { taskList = [] } = this.pageState;
+        return taskList.length > 0;
       },
     },
     vuex: {
@@ -154,6 +149,14 @@
     text-align: left
     img
       width: 100%
+
+  .default-icon
+    background-color: $core-grey
+    text-align: center
+    svg
+      width: 50%
+      height: 50%
+      margin: 20px
 
   .details
     width: 100%

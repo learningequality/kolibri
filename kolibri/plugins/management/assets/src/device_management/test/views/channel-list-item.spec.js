@@ -69,14 +69,14 @@ describe('channelListItem', () => {
       const { thumbnail } = getElements(wrapper);
       const thumb = thumbnail();
       assert.equal(thumb.first('img').getAttribute('src'), 'abcd1234');
-      assert(!thumb.contains('svg.default-icon'));
+      assert(!thumb.contains('svg'));
     });
 
     it('defaults to a material design icon if there is no thumbnail', () => {
       const wrapper = makeWrapper();
       const { thumbnail } = getElements(wrapper);
       const thumb = thumbnail();
-      assert(thumb.contains('svg.default-icon'));
+      assert(thumb.contains('svg'));
       assert(!thumb.contains('img'));
     });
   });
