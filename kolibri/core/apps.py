@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 from django.db.backends.signals import connection_created
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 
 
 class KolibriCoreConfig(AppConfig):
@@ -26,7 +27,7 @@ class KolibriCoreConfig(AppConfig):
             cursor = connection.cursor()
 
             # Shorten the default WAL autocheckpoint from 1000 pages to 500
-            cursor.execute("PRAGMA wal_autocheckpoint=500;")
+            cursor.execute(CONNECTION_PRAGMAS)
 
             # We don't turn on the following pragmas, because they have negligible
             # performance impact. For reference, here's what we've tested:
@@ -54,4 +55,4 @@ class KolibriCoreConfig(AppConfig):
             # WAL's main advantage allows simultaneous reads
             # and writes (vs. the default exclusive write lock)
             # at the cost of a slight penalty to all reads.
-            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute(START_PRAGMAS)

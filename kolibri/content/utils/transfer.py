@@ -33,7 +33,7 @@ class TransferNotYetClosed(Exception):
 
 class Transfer(object):
 
-    def __init__(self, source, dest, block_size=2097152, remove_existing_temp_file=True, timeout=20):
+    def __init__(self, source, dest, block_size=None, remove_existing_temp_file=True, timeout=20):
         self.source = source
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
