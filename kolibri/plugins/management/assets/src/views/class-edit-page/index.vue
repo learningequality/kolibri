@@ -160,7 +160,10 @@
       visibleUsers() {
         const searchFilter = this.searchFilter;
         function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
