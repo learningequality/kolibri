@@ -8,3 +8,4 @@ pytest
 mixer
 pytest-cov
 pytest-django
+cryptography==1.8.1

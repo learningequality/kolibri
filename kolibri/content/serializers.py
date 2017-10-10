@@ -95,7 +95,7 @@ def get_topic_and_content_progress_fractions(nodes, user):
             overall_progress[node.content_id] = round(
                 sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids)/len(leaf_ids),
                 4
-            )
+            ) if leaf_ids else 0.0
 
     return overall_progress
 
@@ -120,9 +120,17 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # so, first get a queryset from the Manager if needed
         data = data.all() if isinstance(data, Manager) else data
 
+        # initialize cache key
         cache_key = None
+
+        # ensure that we are filtering by the parent only
+        # this allows us to only cache results on the learn page
+        from .api import ContentNodeFilter
+        pure_parent_query = "parent" in self.context['request'].GET and \
+            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+
         # Cache parent look ups only
-        if "parent" in self.context['request'].GET:
+        if pure_parent_query:
             cache_key = 'contentnode_list_{db}_{parent}'.format(
                 db=get_active_content_database(),
                 parent=self.context['request'].GET.get('parent'))
@@ -155,7 +163,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and cache_key:
+        if topic_only and pure_parent_query:
             cache.set(cache_key, result, 60 * 10)
 
         return result

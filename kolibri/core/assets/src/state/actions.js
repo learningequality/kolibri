@@ -437,6 +437,17 @@ function fetchPoints(store) {
   }
 }
 
+function fetchPoints(store) {
+  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
+    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
+      getters.currentUserId(store.state)
+    );
+    userProgressModel.fetch().then(progress => {
+      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+    });
+  }
+}
+
 /**
  * Helper function to handle common functionality between updateProgress and updateExerciseProgress
  * @param  {VuexStore} store        The currently active Vuex store
@@ -481,6 +492,28 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
     saveLogs(store);
   }
   return summaryProgress;
+}
+
+/**
+ * Update the progress percentage
+ * To be called periodically by content renderers on interval or on pause
+ * Must be called after initContentSession
+ * @param {float} progressPercent
+ * @param {boolean} forceSave
+ */
+function updateProgress(store, progressPercent, forceSave = false) {
+  /* Create aliases for logs */
+  const summaryLog = store.state.core.logging.summary;
+  const sessionLog = store.state.core.logging.session;
+
+  /* Calculate progress based on progressPercent */
+  // TODO rtibbles: Delegate this to the renderers?
+  const sessionProgress = sessionLog.progress + progressPercent;
+  const summaryProgress = summaryLog.id
+    ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
+    : 0;
+
+  return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
 }
 
 /**
@@ -576,12 +609,13 @@ function stopTrackingProgress(store) {
 
 function saveMasteryLog(store) {
   const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
-  masteryLogModel
-    .save(_masteryLogModel(store))
-    .only(samePageCheckGenerator(store), newMasteryLog => {
-      // Update store in case an id has been set.
-      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-    });
+  return masteryLogModel.save(_masteryLogModel(store));
+}
+
+function saveAndStoreMasteryLog(store) {
+  return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
+    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+  });
 }
 
 function setMasteryLogComplete(store, completetime) {
@@ -639,12 +673,17 @@ function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item,
   });
-  const promise = attemptLogModel.save(_attemptLogModel(store));
-  promise.then(newAttemptLog => {
+  if (attemptLogModel) {
+    return attemptLogModel.save(_attemptLogModel(store));
+  }
+  return Promise.resolve();
+}
+
+function saveAndStoreAttemptLog(store) {
+  return saveAttemptLog(store).only(samePageCheckGenerator(store), newAttemptLog => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
-  return promise;
 }
 
 function createAttemptLog(store, itemId) {
@@ -746,10 +785,12 @@ export {
   samePageCheckGenerator,
   initMasteryLog,
   saveMasteryLog,
+  saveAndStoreMasteryLog,
   setMasteryLogComplete,
   createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
+  saveAndStoreAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
