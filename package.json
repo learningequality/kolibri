@@ -65,6 +65,7 @@
     "css-loader": "^0.28.7",
     "eslint": "^4.2.0",
     "eslint-config-prettier": "^2.3.0",
+    "eslint-loader": "^1.9.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "beta",
     "esprima": "^4.0.0",

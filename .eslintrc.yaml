@@ -1,8 +1,13 @@
+env:
+  es6: true
+  browser: true
 parserOptions:
-  ecmaVersion: 7
   sourceType: module
 globals:
   __version: true
+  __coreAPISpec: true
+  __filename: true
+  __publicPath: true
 extends:
   - eslint:recommended
   - prettier
@@ -26,3 +31,4 @@ rules:
   vue/order-in-components: 2
   # ignores the 'kolibri.*' imports
   import/no-unresolved: [2, { ignore: ['kolibri[_.]'] }]
+  comma-style: 2
