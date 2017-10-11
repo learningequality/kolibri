@@ -187,6 +187,7 @@
             href: '/user',
           });
         }
+        options.push({ type: 'divider' });
         return options;
       },
     },
@@ -309,7 +310,6 @@
 
   .side-nav-scrollable-area-footer
     color: $core-text-annotation
-    margin-top: 36px
     padding: 16px
 
   .side-nav-scrollable-area-footer-logo
@@ -376,7 +376,7 @@
             color: $core-accent-color
 
       &.is-divider
-        margin-top: 8px
-        margin-bottom: 8px
+        margin-top: 0
+        margin-bottom: 0
 
 </style>
