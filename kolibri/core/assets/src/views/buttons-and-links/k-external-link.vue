@@ -27,13 +27,6 @@
         required: true,
       },
       /**
-       * URL string
-       */
-      href: {
-        type: String,
-        required: true,
-      },
-      /**
        * Link appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
       appearance: {
@@ -47,6 +40,13 @@
       primary: {
         type: Boolean,
         default: false,
+      },
+      /**
+       * URL string
+       */
+      href: {
+        type: String,
+        required: true,
       },
     },
   };

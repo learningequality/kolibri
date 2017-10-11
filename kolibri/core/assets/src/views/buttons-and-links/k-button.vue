@@ -32,20 +32,6 @@
         required: true,
       },
       /**
-       * Whether or not button is disabled
-       */
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * HTML button 'type' attribute (e.g. 'submit', 'reset')
-       */
-      type: {
-        type: String,
-        default: 'button',
-      },
-      /**
        * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
       appearance: {
@@ -59,6 +45,20 @@
       primary: {
         type: Boolean,
         default: false,
+      },
+      /**
+       * Whether or not button is disabled
+       */
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * HTML button 'type' attribute (e.g. 'submit', 'reset')
+       */
+      type: {
+        type: String,
+        default: 'button',
       },
     },
     methods: {
