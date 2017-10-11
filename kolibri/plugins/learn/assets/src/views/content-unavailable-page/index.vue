@@ -2,13 +2,17 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p><a href="/management/device#/content">{{ $tr('adminLink') }}</a></p>
+    <p>
+      <k-external-link :text="$tr('adminLink')" href="/management/device#/content" />
+    </p>
   </div>
 
 </template>
 
 
 <script>
+
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
 
   export default {
     name: 'learnContentUnavailable',

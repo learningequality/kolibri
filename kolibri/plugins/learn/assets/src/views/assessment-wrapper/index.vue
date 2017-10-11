@@ -41,7 +41,7 @@ oriented data synchronization.
         <k-button
           :text="$tr('check')"
           :primary="false"
-          :raised="true"
+          appearance="raised-button"
           v-if="!complete"
           @click="checkAnswer"
           class="question-btn"
@@ -51,7 +51,7 @@ oriented data synchronization.
         <k-button
           :text="$tr('correct')"
           :primary="true"
-          :raised="true"
+          appearance="raised-button"
           v-else
           @click="nextQuestion"
           class="question-btn"

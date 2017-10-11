@@ -16,7 +16,7 @@
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
-                  :raised="false"
+                  appearance="flat-button"
                   :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
                 />
               </li>

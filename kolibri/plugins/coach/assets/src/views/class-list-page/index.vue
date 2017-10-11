@@ -17,9 +17,7 @@
         <tbody>
           <tr v-for="cl in sortedClasses">
             <th scope="row" class="table-text">
-              <router-link :to="recentPageLink(cl.id)">
-                {{ cl.name }}
-              </router-link>
+              <k-router-link :text="cl.name" :to="recentPageLink(cl.id)" />
             </th>
             <td class="table-data">{{ cl.memberCount }}</td>
           </tr>
@@ -38,11 +36,13 @@
 
   import * as constants from '../../constants';
   import orderBy from 'lodash/orderBy';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
     data: () => ({
       currentClassDelete: null,
     }),
+    components: { kRouterLink },
     computed: {
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);

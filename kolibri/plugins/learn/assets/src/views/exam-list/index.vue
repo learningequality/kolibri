@@ -31,10 +31,12 @@
             </p>
           </div>
           <div class="exam-row-3rd-col"  :class="thirdColClass">
-            <router-link :to="generateExamLink(exam)">
-              <k-button :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"/>
-              <k-button :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"/>
-            </router-link>
+            <k-router-link
+              appearance="flat-button"
+              :text="exam.answerCount === null ? $tr('start') : $tr('continue')"
+              :to="generateExamLink(exam)"
+              :primary="true"
+            />
           </div>
         </template>
 
@@ -52,7 +54,7 @@
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
@@ -71,7 +73,7 @@
     components: {
       authMessage,
       pageHeader,
-      kButton,
+      kRouterLink,
     },
     computed: {
       activeExams() {

@@ -22,6 +22,7 @@
       :key="language.id"
       :raised="false"
       :text="language.lang_name"
+      appearance="basic-link"
     />
 
     <select
@@ -130,7 +131,8 @@
   .language-list
     &-items
       margin: 0
-      margin-right: 8px
+      display: inline-block
+      margin-right: 16px
       margin-bottom: 8px
 
     &-selected

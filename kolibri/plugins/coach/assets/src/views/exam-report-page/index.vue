@@ -25,14 +25,14 @@
         <tbody>
           <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
             <th scope="row" class="table-text">
-              <router-link
+              <k-router-link
                 v-if="examTaker.progress !== undefined"
+                :text="examTaker.name"
                 :to="examDetailPageLink(examTaker.id)"
-                class="table-name">
-                {{examTaker.name}}
-              </router-link>
+                class="table-name"
+              />
               <span v-else class="table-name">
-                {{examTaker.name}}
+                {{ examTaker.name }}
               </span>
             </th>
 
@@ -70,8 +70,10 @@
 
   import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
+    components: { kRouterLink },
     name: 'examReportPage',
     computed: {
       noExamData() {

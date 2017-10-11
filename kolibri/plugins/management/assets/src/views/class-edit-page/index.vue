@@ -23,11 +23,12 @@
 
     <div class="toolbar">
       <div class="enroll">
-        <router-link :to="classEnrollLink">
-          <k-button
-            :text="$tr('enrollUsers')"
-            :primary="true"/>
-        </router-link>
+        <k-router-link
+          :text="$tr('enrollUsers')"
+          :to="classEnrollLink"
+          :primary="true"
+          appearance="raised-button"
+        />
       </div>
       <k-filter-textbox
         :placeholder="$tr('searchText')"
@@ -110,7 +111,7 @@
   import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
     name: 'classEnrollPage',
@@ -131,7 +132,7 @@
     components: {
       classRenameModal,
       userRemoveModal,
-      kButton,
+      kRouterLink,
       kFilterTextbox,
     },
     data: () => ({
@@ -159,7 +160,10 @@
       visibleUsers() {
         const searchFilter = this.searchFilter;
         function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));

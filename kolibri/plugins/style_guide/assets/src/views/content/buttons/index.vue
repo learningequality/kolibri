@@ -4,39 +4,50 @@
 
     <h1>Buttons and links</h1>
 
-    <h2>Button hierarchy</h2>
     <p>
-      There are 3 main types of buttons. Each maps to a different level of
-      visual hierarchy:
+      Buttons use the <code>&lt;button&gt;</code> HTML tag and trigger an action on the current page. Links use the <code>&lt;a&gt;</code> HTML tag and navigate to a new URL.
+    </p>
+    <p>
+      Buttons and links are <em>not</em> visually distinguishable. Buttons can visually look like classic links, and links can visually look like classic buttons.
+    </p>
+    <p>
+      When the user would expect to use navigation history, right-click to copy a URL, or control-click to open a page in a new tab, then a link should be used. Otherwise, a button should be used.
+    </p>
+
+    <h2>Visual styles</h2>
+    <p>
+      There are 3 main appearances of button and link components. (Remember that a button component can visually look like a link, and a link component can visually look like a button.) Each appearance maps to a different level of
+      <a href="https://en.wikipedia.org/wiki/Visual_hierarchy">visual hierarchy</a>:
     </p>
     <ul>
-      <li><strong>Raised buttons:</strong> more prominent actions</li>
-      <li><strong>Flat buttons:</strong> less prominent actions, or actions that repeat in a list</li>
-      <li><strong>Hyperlinks:</strong> very deemphasized actions, or actions inline within text</li>
+      <li><strong>Raised buttons:</strong> button-like appearance for more prominent actions</li>
+      <li><strong>Flat buttons:</strong> button-like appearance for less prominent actions</li>
+      <li><strong>Basic links:</strong> hyperlink-like appearance for deemphasized actions, or actions inline within text</li>
     </ul>
 
     <show>
-      <k-button text="Raised" :primary="true" :raised="true"></k-button>
-      <k-button text="Flat" :primary="true" :raised="false"></k-button>
-      <a href="#">Hyperlink</a>
+      <k-button text="Raised button" :primary="true" appearance="raised-button"></k-button>
+      <k-button text="Flat button" :primary="true" appearance="flat-button"></k-button>
+      <k-button text="Basic link" :primary="true" appearance="basic-link"></k-button>
     </show>
 
     <p>
-      Buttons can also be <strong>primary</strong> or <strong>secondary</strong>. There should only be one primary button visible at a time, and it should be a common or default action.
+      Actions with a button-like appearance can also be <strong>primary</strong> or <strong>secondary</strong>. There should only be one primary button visible at a time, and it should be a common or default action.
     </p>
 
     <show>
-      <k-button text="Primary" :primary="true" :raised="true"></k-button>
-      <k-button text="Primary" :primary="true" :raised="false"></k-button>
-      <k-button text="Secondary" :primary="false" :raised="true"></k-button>
-      <k-button text="Secondary" :primary="false" :raised="false"></k-button>
+      <k-button text="Primary" :primary="true" appearance="raised-button"></k-button>
+      <k-button text="Secondary" :primary="false" appearance="raised-button"></k-button>
+      <br>
+      <k-button text="Primary" :primary="true" appearance="flat-button"></k-button>
+      <k-button text="Secondary" :primary="false" appearance="flat-button"></k-button>
     </show>
 
     <p>
-      Note that there is no "secondary hyperlink".
+      Note that we don't use a "secondary basic link" style.
     </p>
 
-    <h2>Language and contents</h2>
+    <h2>Label text</h2>
     <ul>
       <li>Labels should typically have a single word, or two at most</li>
       <li>Avoid ambiguity; be specific about the action that will be performed. For example, use 'Save' instead of 'OK'</li>
@@ -44,18 +55,30 @@
       <li>Do not add icons to buttons</li>
     </ul>
 
-    <h2>Placement</h2>
+    <h2>Placement of 'raised button' and 'flat button' actions</h2>
     <ul>
       <li>Right-aligned in modal pop-ups</li>
       <li>Left-aligned in page forms</li>
       <li>Global actions related to tables should be put above the table and right-aligned</li>
     </ul>
 
-    <h2>Button API</h2>
+    <h2>APIs</h2>
+
+    <p>There are three components that all look the same, but are used for different purposes:</p>
+    <ul>
+      <li><code>kButton</code> is used to create <code>&lt;button&gt;</code> tags with <code>@click</code> event handlers.</li>
+      <li><code>kRouterLink</code> is used to create Vue router <code>&lt;router-link&gt;</code> components with <code>:to</code> properties. These compile into <code>&lt;a&gt;</code> tags.</li>
+      <li><code>kExternalLink</code> is used to create standard <code>&lt;a&gt;</code> tags with an <code>href</code> attribute.</li>
+    </ul>
+
+    <h3>kButton</h3>
     <component-docs :api="kButtonApi" />
-    <p>
-      Note that hyperlinks are not created using the <code>&lt;k-button&gt;</code> component. Instead, they are created using a standard HTML <code>&lt;a href&gt;</code> tag, or a Vue.js <code>&lt;router-link&gt;</code> component (see <a href="https://router.vuejs.org/en/api/router-link.html">documentation</a>).
-    </p>
+
+    <h3>kRouterLink</h3>
+    <component-docs :api="kRouterLinkApi" />
+
+    <h3>kExternalLink</h3>
+    <component-docs :api="kExternalLinkApi" />
 
     <h2>Interactive code example</h2>
     <vue-example :code="example" />
@@ -83,10 +106,16 @@
 
   import example from 'raw-loader!./example.html';
   import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
+  import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.kRouterLink';
+  import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.kExternalLink';
 
   import FullVue from 'vue/dist/vue.common';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   FullVue.component('k-button', kButton);
+  FullVue.component('k-router-link', kRouterLink);
+  FullVue.component('k-external-link', kExternalLink);
 
   export default {
     components: {
@@ -95,9 +124,13 @@
       vueExample,
       show,
       kButton,
+      kRouterLink,
+      kExternalLink,
     },
     data: () => ({
       kButtonApi,
+      kRouterLinkApi,
+      kExternalLinkApi,
       example,
     }),
   };

@@ -53,7 +53,7 @@
       <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
-        <k-button :text="$tr('cancel')" :raised="false" @click="toggleModal"/>
+        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal"/>
         <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
       </core-modal>
     </template>

@@ -9,7 +9,7 @@
       <div class="modal-buttons">
         <k-button
           :text="$tr('noGoBack')"
-          :raised="false"
+          appearance="flat-button"
           @click="close"/>
         <k-button
           :text="$tr('yesEnrollUsers')"

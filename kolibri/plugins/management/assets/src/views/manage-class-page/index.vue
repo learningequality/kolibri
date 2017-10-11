@@ -33,15 +33,17 @@
         <tbody>
           <tr v-for="classModel in sortedClasses">
             <th scope="row" class="table-text">
-              <router-link :to="classEditLink(classModel.id)" class="table-name">
-                {{classModel.name}}
-              </router-link>
+              <k-router-link
+                :text="classModel.name"
+                :to="classEditLink(classModel.id)"
+                class="table-name"
+              />
             </th>
             <td class="table-data">
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button :raised="false" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
+              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
             </td>
           </tr>
         </tbody>
@@ -63,11 +65,13 @@
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   export default {
     components: {
       classCreateModal,
       classDeleteModal,
       kButton,
+      kRouterLink,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {

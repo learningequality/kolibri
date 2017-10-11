@@ -4,11 +4,13 @@
     <div class="top-buttons pure-g">
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
-        <router-link :to="editClassLink" class="link-button">
-          <k-button
-            :text="$tr('backToClassDetails')"
-            :primary="false"/>
-        </router-link>
+        <k-router-link
+          :text="$tr('backToClassDetails')"
+          :to="editClassLink"
+          :primary="false"
+          appearance="flat-button"
+          class="link-button"
+        />
       </div>
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
@@ -140,6 +142,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
@@ -176,6 +179,7 @@
     },
     components: {
       kButton,
+      kRouterLink,
       kCheckbox,
       uiIconButton,
       uiIcon,

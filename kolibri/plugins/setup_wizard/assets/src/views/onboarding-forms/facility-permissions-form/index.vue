@@ -67,10 +67,11 @@
 
       <template slot="description">
         {{ $tr('facilityPermissionsSetupFormDescription') }}
-
-        <a class="permission-preset-modal-link" @click="showFacilityPermissionsDetails" href="#">
-          {{ $tr('facilityPermissionsPresetDetailsLink') }}
-        </a>
+        <k-button
+          appearance="basic-link"
+          :text="$tr('facilityPermissionsPresetDetailsLink')"
+          @click="showFacilityPermissionsDetails"
+        />
       </template>
 
       <label class="permission-preset">
@@ -217,8 +218,6 @@
       margin-left: $margin-of-radio-button-text
 
     &-modal
-      &-link
-        cursor: pointer
       &-dismiss-button
         text-transform: uppercase
         &-wrapper
