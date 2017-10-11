@@ -76,7 +76,7 @@ LOCALE_PATHS += [
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
@@ -137,7 +137,7 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://contentworkshop.learningequality.org"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://contentworkshop.learningequality.org"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

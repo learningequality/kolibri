@@ -13,6 +13,12 @@ Changes are ordered reverse-chronologically.
  - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
 
 
+0.5.1dev (unreleased)
+---------------------
+
+ - Python dependencies: Only bundle, do not install dependencies in system env #2299
+
+
 0.5
 ---
 

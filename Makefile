@@ -1,4 +1,5 @@
 REQUIREMENTS=requirements.txt
+REQUIREMENTS_CEXT=requirements/cext.txt
 
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
@@ -64,16 +65,16 @@ docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
 
-release: clean assets
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
-	@echo ""
-	@echo "Now run something like twine -s dist/* to upload all results in the dist/ folder"
+release:
+	ls -l dist/
+	read "\nDo you want to upload everything in dist/*?\n\n CTRL+C to exit."
+	twine upload -s dist/*
 
 staticdeps:
 	rm -r kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
+	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
@@ -118,3 +119,7 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+
+kolibripippex:
+	git clone https://github.com/learningequality/pip.git
+	cd pip && python setup.py bdist_wheel && pex -m pip dist/*.whl -o kolibripip.pex && mv kolibripip.pex ../

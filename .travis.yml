@@ -79,7 +79,7 @@ before_install:
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
-# command to run tests, e.g. python setup.py test
+# command to run tests
 script:
   - tox -e $TOX_ENV
 
