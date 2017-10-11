@@ -1,6 +1,5 @@
 import logging as logger
 import os
-import pyfastcopy  # noqa
 import shutil
 import requests
 from requests.adapters import HTTPAdapter
@@ -194,6 +193,8 @@ class FileCopy(Transfer):
         the sendfile system call to copy the source file to the destination
         by the kernel to avoid use of userspace buffers
         """
+        import pyfastcopy  # noqa
+
         shutil.copyfile(self.source, self.dest_tmp)
         self.completed = True
         self.close()

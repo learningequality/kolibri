@@ -114,13 +114,13 @@ Auto-generated usage instructions from ``kolibri -h``::
 logger = logging.getLogger(__name__)
 
 
-def get_cext_path(dist_path):
+def get_crypto_path(dist_path):
     """
-    Get the directory of dist/cext.
+    Get the directory of dist/cext/cryptography.
     """
     # Python version of current platform
     python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
-    dirname = os.path.join(dist_path, 'cext/' + python_version)
+    dirname = os.path.join(dist_path, 'cext/cryptography/' + python_version)
 
     platform = util.get_platform()
     # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
@@ -139,14 +139,20 @@ def get_cext_path(dist_path):
     sys.path = sys.path + [os.path.realpath(str(dirname))]
 
 
-# Add path for c extensions to sys.path
-get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+# Add path for cryptography to sys.path
+kolibri_dist_path = os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+get_crypto_path(kolibri_dist_path)
+
 try:
     import cryptography  # noqa
 except ImportError:
     # Fallback
     logging.warning('No C Extensions available for this platform.\n')
     sys.path = sys.path[:-1]
+
+pyfastcopy_path = os.path.join(kolibri_dist_path, 'cext/pyfastcopy/linux')
+if sys.platform.startswith('linux') and os.path.isdir(pyfastcopy_path):
+    sys.path = sys.path + [pyfastcopy_path]
 
 
 class PluginDoesNotExist(Exception):

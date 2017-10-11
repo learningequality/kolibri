@@ -1,5 +1,5 @@
 import os
-
+import sys
 from django.core.management.base import CommandError
 from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
@@ -89,13 +89,30 @@ class Command(AsyncCommand):
                     continue
 
                 # determine where we're downloading/copying from, and create appropriate transfer object
-                if method == DOWNLOAD_METHOD:
-                    url = paths.get_content_storage_remote_url(filename)
-                    filetransfer = transfer.FileDownload(url, dest)
+                if method == COPY_METHOD and sys.platform.startswith("linux"):
+                    srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    filetransfer = transfer.FileCopy(srcpath, dest)
+
+                    with filetransfer:
+                        size = filetransfer.fast_file_copy()
+                        if self.is_cancelled():
+                            filetransfer.cancel()
+
+                        else:
+                            overall_progress_update(size)
+                            downloaded_files.append(dest)
+                    file_checksums_to_annotate.append(f.id)
+
+                else:
+                    if method == DOWNLOAD_METHOD:
+                        url = paths.get_content_storage_remote_url(filename)
+                        filetransfer = transfer.FileDownload(url, dest)
+                    else:
+                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                        filetransfer = transfer.FileCopy(srcpath, dest)
 
                     try:
                         with filetransfer:
-
                             with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
 
                                 for chunk in filetransfer:
@@ -113,21 +130,6 @@ class Command(AsyncCommand):
 
                     except HTTPError:
                         overall_progress_update(f.file_size)
-
-                elif method == COPY_METHOD:
-                    srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
-                    filetransfer = transfer.FileCopy(srcpath, dest)
-
-                    with filetransfer:
-                        size = filetransfer.fast_file_copy()
-                        if self.is_cancelled():
-                            filetransfer.cancel()
-
-                        else:
-                            overall_progress_update(size)
-                            downloaded_files.append(dest)
-
-                    file_checksums_to_annotate.append(f.id)
 
             if self.is_cancelled():
                 # Cancelled, clean up any already downloading files.
