@@ -6,14 +6,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
+import tempfile
+from functools import wraps
 
 import kolibri
 import pytest
-
-from functools import wraps
 from kolibri.utils import cli
 from mock import patch
-import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +24,9 @@ def version_file_restore(func):
     """
     Decorator that reads contents of the version file and restores it after
     calling ``func(orig_version='x.y', version_file='/path')``.
-    
+
     If a version file doesn't exist, it calls ``func(... version_file=None)``
-    
+
     This decorator is used for testing functions that trigger during upgrades
     without mocking more than necessary.
     """
@@ -37,12 +36,12 @@ def version_file_restore(func):
         version_file_existed = os.path.isfile(version_file)
         orig_version = kolibri.__version__
         kwargs['orig_version'] = orig_version
-        
+
         if version_file_existed:
             kwargs['version_file'] = version_file
-        
+
         func(*args, **kwargs)
-        
+
         if version_file_existed:
             open(version_file, "w").write(orig_version)
 
@@ -202,10 +201,10 @@ def test_first_run(
     """
     Tests that the first_run() function performs as expected
     """
-    
+
     if version_file:
         os.unlink(version_file)
-    
+
     cli.initialize()
     update.assert_called_once()
     dbbackup.assert_not_called()
@@ -213,7 +212,7 @@ def test_first_run(
     # Check that it got called for each default plugin
     from kolibri.core.settings import DEFAULT_PLUGINS
     assert plugin.call_count == len(DEFAULT_PLUGINS)
-    
+
 
 @pytest.mark.django_db
 @version_file_restore
@@ -224,23 +223,23 @@ def test_update(update, monkeypatch, version_file=None, orig_version=None):
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
-    
+
     activate_log_logger(monkeypatch)
-    
+
     # When testing, the database is already opened, so we want this to fail!
     with pytest.raises(AssertionError):
-        cli.dbbackup()
-    
+        cli.dbbackup(orig_version)
+
     with patch('kolibri.utils.cli.dbbackup') as dbbackup:
         cli.initialize()
         update.assert_called_once()
         dbbackup.assert_called_once()
-    
+
     from django.db import connections
     connections['default'].close()
-    
+
     dest_folder = tempfile.mkdtemp()
-    cli.dbbackup(dest_folder=dest_folder, ignore_open=True)
+    cli.dbbackup(orig_version, dest_folder=dest_folder, ignore_open=True)
     assert "Test DB, nothing written to" in LOG_LOGGER[-1][1]
 
 

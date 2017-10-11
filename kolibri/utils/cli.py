@@ -32,7 +32,7 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
 
 import django  # noqa
 from django.core.management import call_command  # noqa
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError  # noqa
 from docopt import docopt  # noqa
 
 from . import server  # noqa
@@ -191,7 +191,7 @@ def initialize(debug=False):
         change_version = kolibri.__version__ != version.strip()
         if change_version:
             # Version changed, make a backup no matter what.
-            dbbackup()
+            dbbackup(version)
             enable_default_plugins()
 
         django.setup()
@@ -278,32 +278,37 @@ def update():
 update.called = False
 
 
-def dbbackup(dest_folder=None, ignore_open=False):
+def default_backup_folder():
+    return os.path.join(os.environ['KOLIBRI_HOME'], 'backups')
+
+
+def dbbackup(old_version, dest_folder=None, ignore_open=False):
     """
     This might be subject to move into a management command, but we want to
     guarantee that we aren't dumping the database while it's open and thus
     generate an inconsistent or corrupt db file.
-    
+
     Backup database to dest_folder.
-    
+
     Notice that it's important to add at least version and date to the path
     of the backup, otherwise you risk that upgrade activities carried out on
     the same date overwrite each other. It's also quite important for the user
     to know which version of Kolibri that a certain database should match.
-    
+
     :param: dest_folder: Default is ~/.kolibri/backups/db-[version]-[date].sqlite3
     """
-    
+
     from django.conf import settings
-    
-    if not 'sqlite3' in settings.DATABASES['default']['ENGINE']:
+
+    if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
         logger.info("Skipping backup, unknown engine.")
         return
-    
+
     from django.db import connections
-    
+
     try:
         cursor = connections['default'].cursor()
+        cursor.execute(".tables")
         cursor.close()
         if not ignore_open:
             raise AssertionError(
@@ -313,26 +318,28 @@ def dbbackup(dest_folder=None, ignore_open=False):
     except OperationalError:
         # This is what we want!
         pass
-    
+
     if not dest_folder:
-        dest_folder = os.path.join(os.environ['KOLIBRI_HOME'], 'backups')
-    
-    fname = "db-v{version}-{dtm}.sqlite3".format(
-        version=kolibri.__version__,
+        dest_folder = default_backup_folder()
+
+    # This file name is a convention, used to figure out the latest backup
+    # that was made (by the dbrestore command)
+    fname = "db-v{version}_{dtm}.sqlite3".format(
+        version=old_version,
         dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     )
-    
+
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
-    
+
     orig_dbname = settings.DATABASES['default']['NAME']
     backup_path = os.path.join(dest_folder, fname)
-    
-    if not orig_dbname.startswith("file:memorydb"):
+
+    if not connections['default'].is_in_memory_db(orig_dbname):
         shutil.copy2(orig_dbname, backup_path)
-        logger.info("Backed up database to: {path}".format(backup_path))
+        logger.info("Backed up database to: {path}".format(path=backup_path))
     else:
-        logger.info("Test DB, nothing written to: {}".format(backup_path))
+        logger.info("Test DB, nothing written to: {path}".format(path=backup_path))
 
 
 def start(port=None, daemon=True):
