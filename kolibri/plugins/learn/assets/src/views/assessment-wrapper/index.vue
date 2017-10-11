@@ -179,13 +179,21 @@ oriented data synchronization.
           simpleAnswer,
         });
       },
-      saveAttemptLogMasterLog() {
-        this.saveAttemptLogAction().then(() => {
-          if (this.isUserLoggedIn && this.success) {
-            this.setMasteryLogCompleteAction(now());
-            this.saveMasteryLogAction();
-          }
-        });
+      saveAttemptLogMasterLog(updateStore = true) {
+        if (updateStore) {
+          this.saveAndStoreAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.setMasteryLogCompleteAction(now());
+              this.saveAndStoreMasteryLogAction();
+            }
+          });
+        } else {
+          this.saveAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.saveMasteryLogAction();
+            }
+          });
+        }
       },
       checkAnswer() {
         if (!this.checkingAnswer) {
@@ -326,8 +334,7 @@ oriented data synchronization.
       },
     },
     beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
+      this.saveAttemptLogMasterLog(false);
     },
     computed: {
       recentAttempts() {
@@ -383,9 +390,11 @@ oriented data synchronization.
         initMasteryLogAction: actions.initMasteryLog,
         createDummyMasteryLogAction: actions.createDummyMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
+        saveAndStoreMasteryLogAction: actions.saveAndStoreMasteryLog,
         setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
+        saveAndStoreAttemptLogAction: actions.saveAndStoreAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
         updateExerciseProgress: actions.updateExerciseProgress,
