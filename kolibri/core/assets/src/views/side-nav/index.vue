@@ -258,7 +258,8 @@
     top: 0
     bottom: 0
     z-index: 16
-    background: $core-bg-light
+    color: $core-text-default
+    background: $core-bg-canvas
     box-shadow: $side-nav-box-shadow
 
   .side-nav-enter
@@ -287,16 +288,15 @@
     z-index: 17
     font-size: 14px
     text-transform: uppercase
-    overflow: hidden
     background-color: $core-text-default
     box-shadow: $side-nav-header-box-shadow
 
   .side-nav-header-name
     margin-left: 8px
+    vertical-align: middle
     color: $core-bg-light
     font-weight: bold
     font-size: 18px
-    vertical-align: middle
 
   .side-nav-scrollable-area
     position: fixed
@@ -305,11 +305,11 @@
     overflow: auto
 
   .side-nav-scrollable-area-menu
-    width: 100%
+    background: $core-bg-canvas
 
   .side-nav-scrollable-area-footer
-    padding: 16px
     margin-top: 36px
+    padding: 16px
 
   .side-nav-scrollable-area-footer-logo
     width: 40px
@@ -345,28 +345,31 @@
   // Customize Keen UI Menu option
   .side-nav-scrollable-area-menu
     .ui-menu
-      border: none
-      padding: 0
       max-height: none
+      padding: 0
+      background: $core-bg-canvas
+      border: none
 
     .ui-menu-option
       &:not(.is-divider)
-        margin-top: 0
-        margin-bottom: 0
         padding-top: 4px
         padding-bottom: 4px
-        font-size: 14px
 
         .ui-menu-option-text
           overflow: visible
+          white-space: normal
+          color: $core-text-default
+          font-size: 14px
 
         .ui-menu-option-icon
+          color: $core-text-default
           font-size: 1.2em
 
         &.is-active
-          color: $core-accent-color
-          font-weight: bold
-          opacity: 1
+          .ui-menu-option-text
+            color: $core-accent-color
+            font-weight: bold
+            opacity: 1
 
           .ui-menu-option-icon
             color: $core-accent-color
