@@ -1,55 +1,56 @@
 <template>
 
   <div>
-    <div
-      v-show="navShown"
-      class="side-nav"
-      :style="{ width: `${this.width}px` }"
-    >
+    <transition name="side-nav">
       <div
-        class="side-nav-header"
-        :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
+        v-show="navShown"
+        class="side-nav"
+        :style="{ width: `${this.width}px` }"
       >
-        <ui-icon-button
-          :aria-label="$tr('closeNav')"
-          type="secondary"
-          color="white"
-          size="large"
-          icon="close"
-          @click="toggleNav"
-        />
-        <ui-icon class="side-nav-header-logo"><logo/></ui-icon>
-        <span class="side-nav-header-name">Kolibri</span>
-      </div>
+        <div
+          class="side-nav-header"
+          :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
+        >
+          <ui-icon-button
+            :aria-label="$tr('closeNav')"
+            type="secondary"
+            color="white"
+            size="large"
+            icon="close"
+            @click="toggleNav"
+          />
+          <span class="side-nav-header-name">Kolibri</span>
+        </div>
 
-      <div
-        class="side-nav-scrollable-area"
-        :style="{ top: `${headerHeight}px`, width: `${width}px` }"
-      >
-        <ui-menu
-          class="side-nav-scrollable-area-menu"
-          role="navigation"
-          :options="menuOptions"
-          :hasIcons="true"
-          :aria-label="$tr('navigationLabel')"
-          @select="navigate"
-        />
+        <div
+          class="side-nav-scrollable-area"
+          :style="{ top: `${headerHeight}px`, width: `${width}px` }"
+        >
+          <ui-menu
+            class="side-nav-scrollable-area-menu"
+            role="navigation"
+            :options="menuOptions"
+            :hasIcons="true"
+            :aria-label="$tr('navigationLabel')"
+            @select="navigate"
+          />
 
-        <div class="side-nav-scrollable-area-footer">
-          <logo class="side-nav-scrollable-area-footer-logo"/>
-          <div class="side-nav-scrollable-area-footer-info">
-            <p>{{ footerMsg }}</p>
-            <!-- Not translated -->
-            <p>© 2017 Learning Equality</p>
+          <div class="side-nav-scrollable-area-footer">
+            <logo class="side-nav-scrollable-area-footer-logo"/>
+            <div class="side-nav-scrollable-area-footer-info">
+              <p>{{ footerMsg }}</p>
+              <!-- Not translated -->
+              <p>© 2017 Learning Equality</p>
+            </div>
           </div>
         </div>
-      </div>
 
-    </div>
+      </div>
+    </transition>
 
     <div
       v-if="navShown && mobile"
-      class="side-nav-overlay"
+      class="side-nav-backdrop"
       @keydown.esc="toggleNav"
       @click="toggleNav"
     >
@@ -74,7 +75,6 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import uiMenu from './keen-menu-port';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
 
@@ -82,7 +82,6 @@
     name: 'sideNav',
     components: {
       uiMenu,
-      uiIcon,
       uiIconButton,
       logo,
     },
@@ -221,13 +220,38 @@
 
   @require '~kolibri.styles.definitions'
 
+  // matches angular material's spec
+  $side-nav-box-shadow = 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
+
+  // matches keen-ui toolbar's spec
+  $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+
   .side-nav
     position: fixed
     top: 0
     bottom: 0
     z-index: 16
     background: $core-bg-light
-    box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
+    box-shadow: $side-nav-box-shadow
+
+  .side-nav-enter
+    transform: translate3D(-100%, 0, 0)
+
+  .side-nav-enter-active
+    transition: all 0.2s ease-in-out
+
+  .side-nav-enter-to
+    transform: translate3D(0, 0, 0)
+
+  .side-nav-leave
+    transform: translate3D(0, 0, 0)
+
+  .side-nav-leave-active
+    transition: all 0.2s ease-in-out
+
+  .side-nav-leave-to
+    transform: translate3D(-100%, 0, 0)
+
 
   .side-nav-header
     position: fixed
@@ -238,16 +262,14 @@
     text-transform: uppercase
     overflow: hidden
     background-color: $core-text-default
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2)
+    box-shadow: $side-nav-header-box-shadow
 
   .side-nav-header-name
     margin-left: 8px
     color: $core-bg-light
     font-weight: bold
+    font-size: 18px
     vertical-align: middle
-
-  .side-nav-header-logo
-    font-size: 40px
 
   .side-nav-scrollable-area
     position: fixed
@@ -260,15 +282,22 @@
 
   .side-nav-scrollable-area-footer
     padding: 16px
+    margin-top: 36px
 
   .side-nav-scrollable-area-footer-logo
     width: 40px
     height: 40px
 
   .side-nav-scrollable-area-footer-info
-    font-size: x-small
+    display: inline-block
+    margin-left: 8px
+    width: 140px
+    font-size: 10px
+    line-height: 16px
+    p
+      margin: 0
 
-  .side-nav-overlay
+  .side-nav-backdrop
     position: fixed
     top: 0
     left: 0
