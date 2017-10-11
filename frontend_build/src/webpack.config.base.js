@@ -151,7 +151,12 @@ if (lint) {
           enforce: 'pre',
           use: {
             loader: 'eslint-loader',
-            options: { failOnError: production },
+            options: {
+              failOnError: production,
+              emitError: production,
+              emitWarning: !production,
+              fix: !production,
+            },
           },
           exclude: /node_modules/,
         },
