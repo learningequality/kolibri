@@ -308,6 +308,7 @@
     background: $core-bg-canvas
 
   .side-nav-scrollable-area-footer
+    color: $core-text-annotation
     margin-top: 36px
     padding: 16px
 
