@@ -159,7 +159,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
-        expected_output = root.get_descendants(include_self=True).count()
+        expected_output = root.get_descendants(include_self=True).filter(available=True).count()
         response = self.client.get(self._reverse_channel_url("contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
 
@@ -293,7 +293,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     @mock.patch.object(cache, 'set')
     def test_parent_query_cache_is_set(self, mock_cache_set):
-        id = content.ContentNode.objects.get(title="c2c3").id
+        id = content.ContentNode.objects.get(title="c3").id
         self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
         self.assertTrue(mock_cache_set.called)
 
