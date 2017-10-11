@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div @keydown.esc="toggleNav" ref="sideNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -12,6 +12,7 @@
           :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
         >
           <ui-icon-button
+            ref="toggleButton"
             :aria-label="$tr('closeNav')"
             type="secondary"
             color="white"
@@ -49,9 +50,8 @@
     </transition>
 
     <div
-      v-if="navShown && mobile"
+      v-show="navShown"
       class="side-nav-backdrop"
-      @keydown.esc="toggleNav"
       @click="toggleNav"
     >
     </div>
@@ -122,6 +122,11 @@
         required: true,
       },
     },
+    data() {
+      return {
+        previouslyFocusedElement: null,
+      };
+    },
     computed: {
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -185,6 +190,20 @@
         return options;
       },
     },
+    watch: {
+      navShown(isShown) {
+        this.$nextTick(() => {
+          if (isShown) {
+            window.addEventListener('focus', this.containFocus, true);
+            this.previouslyFocusedElement = document.activeElement;
+            this.$refs.toggleButton.$el.focus();
+          } else {
+            window.removeEventListener('focus', this.containFocus, true);
+            this.previouslyFocusedElement.focus();
+          }
+        });
+      },
+    },
     methods: {
       navigate(option) {
         if (option.href) {
@@ -198,6 +217,14 @@
       },
       pageIsActive(pageName) {
         return this.topLevelPageName === pageName;
+      },
+      containFocus(event) {
+        if (event.target === window) {
+          return;
+        }
+        if (!this.$refs.sideNav.contains(event.target)) {
+          this.$refs.toggleButton.$el.focus();
+        }
       },
     },
     vuex: {
