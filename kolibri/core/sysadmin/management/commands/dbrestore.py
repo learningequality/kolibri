@@ -103,6 +103,11 @@ class Command(BaseCommand):
         logger.success("Restored database.")
         logger.success("{} to {}".format(use_backup, dst_db_file))
 
+        # Finally, it's okay to import models and open database connections.
+        # We need this to assert consistency:
+        from morango.models import DatabaseIDModel
+        DatabaseIDModel.objects.create()
+
     def search_latest(self, search_root, fallback_version):
         logger.info("Searching latest backup in {}...".format(search_root))
 
