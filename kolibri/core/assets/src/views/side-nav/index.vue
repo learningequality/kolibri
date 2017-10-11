@@ -344,24 +344,35 @@
 
   // Customize Keen UI Menu option
   .side-nav-scrollable-area-menu
+    .ui-menu
+      border: none
+      padding: 0
+      max-height: none
+
     .ui-menu-option
-      margin: 5px 0
       &:not(.is-divider)
+        margin-top: 0
+        margin-bottom: 0
+        padding-top: 4px
+        padding-bottom: 4px
         font-size: 14px
+
+        .ui-menu-option-text
+          overflow: visible
+
+        .ui-menu-option-icon
+          font-size: 1.2em
+
         &.is-active
-          .ui-menu-option-icon
-            color: $core-accent-color
           color: $core-accent-color
           font-weight: bold
           opacity: 1
-        .ui-menu-option-text
-          overflow: visible
-        .ui-menu-option-icon
-          font-size: 1.2em
-      &.is_divider
-        background-color: $core-text-annotation
-    &.ui-menu
-      border: none
-      max-width: 320px
+
+          .ui-menu-option-icon
+            color: $core-accent-color
+
+      &.is-divider
+        margin-top: 8px
+        margin-bottom: 8px
 
 </style>
