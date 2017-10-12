@@ -5,8 +5,7 @@ import os
 
 import kolibri
 from django.conf import settings
-from django.core.management.base import BaseCommand
-from kolibri.dist.django.core.management.base import CommandError
+from django.core.management.base import BaseCommand, CommandError
 from kolibri.utils import server
 
 from ...utils import dbrestore, default_backup_folder, search_latest
@@ -36,7 +35,10 @@ class Command(BaseCommand):
             '--latest', '-l',
             action='store_true',
             dest='latest',
-            help='Automatically detect and restore from latest backup matching'
+            help=(
+                "Automatically detect and restore from latest backup matching "
+                "the major and minor version (X.Y) of current installation."
+            )
         )
 
     def handle(self, *args, **options):

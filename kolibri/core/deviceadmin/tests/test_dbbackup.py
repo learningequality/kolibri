@@ -4,8 +4,8 @@ import os
 import tempfile
 
 import pytest
+from django.core.management import call_command
 from kolibri.core.deviceadmin.tests.test_dbrestore import mock_status_not_running
-from kolibri.dist.django.core.management import call_command
 from mock import patch
 
 

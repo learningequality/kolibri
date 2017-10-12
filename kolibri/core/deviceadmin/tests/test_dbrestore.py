@@ -4,10 +4,11 @@ import tempfile
 
 import kolibri
 import pytest
+from django.core.management import call_command
 from django.test.utils import override_settings
 from kolibri.auth.constants.collection_kinds import FACILITY
+from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
 from kolibri.core.deviceadmin.utils import dbbackup
-from kolibri.dist.django.core.management import call_command
 from kolibri.utils.server import STATUS_UNKNOWN, NotRunning
 from mock import patch
 
@@ -30,6 +31,12 @@ def test_latest():
 
     with pytest.raises(RuntimeError):
         call_command("dbrestore", latest=True)
+
+
+def test_illegal_command():
+
+    with pytest.raises(CommandError):
+        call_command("dbrestore", latest=True, dump_file="wup wup")
 
 
 def test_active_kolibri():
