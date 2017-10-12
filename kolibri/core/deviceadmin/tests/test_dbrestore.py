@@ -4,11 +4,12 @@ import tempfile
 
 import kolibri
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from django.test.utils import override_settings
 from kolibri.auth.constants.collection_kinds import FACILITY
 from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
-from kolibri.core.deviceadmin.utils import dbbackup
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup, dbrestore
 from kolibri.utils.server import STATUS_UNKNOWN, NotRunning
 from mock import patch
 
@@ -21,6 +22,14 @@ MOCK_DATABASES = {
         }
     }
 }
+
+
+def is_sqlite_settings():
+    """
+    This does not work during pytest collection, needs to be called while
+    executing tests!
+    """
+    return 'sqlite3' in settings.DATABASES['default']['ENGINE']
 
 
 def mock_status_not_running():
@@ -68,13 +77,21 @@ def test_inactive_kolibri():
             gs.assert_called_once()
 
 
+def test_not_sqlite():
+    if is_sqlite_settings():
+        return
+    with pytest.raises(IncompatibleDatabase):
+        dbrestore("/doesnt/matter.file")
+
+
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
 def test_restore_from_latest():
     """
     Tests that we cannot restore while kolibri is active
     """
-
+    if not is_sqlite_settings():
+        return
     with patch(
         "kolibri.utils.server.get_status",
         side_effect=mock_status_not_running
@@ -102,7 +119,8 @@ def test_restore_from_file():
     """
     Tests that we cannot restore while kolibri is active
     """
-
+    if not is_sqlite_settings():
+        return
     with patch(
         "kolibri.utils.server.get_status",
         side_effect=mock_status_not_running

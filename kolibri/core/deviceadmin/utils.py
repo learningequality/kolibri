@@ -12,6 +12,10 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
+class IncompatibleDatabase(Exception):
+    pass
+
+
 def default_backup_folder():
     return os.path.join(os.environ['KOLIBRI_HOME'], 'backups')
 
@@ -61,8 +65,7 @@ def dbbackup(old_version, dest_folder=None):
     """
 
     if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
-        logger.info("Skipping backup, unknown engine.")
-        return
+        raise IncompatibleDatabase()
 
     if not dest_folder:
         dest_folder = default_backup_folder()
@@ -93,6 +96,9 @@ def dbrestore(from_file):
     Restores the database given a special database dump file containing SQL
     statements.
     """
+
+    if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
+        raise IncompatibleDatabase()
 
     dst_file = settings.DATABASES['default']['NAME']
 

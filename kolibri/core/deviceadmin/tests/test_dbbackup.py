@@ -5,7 +5,8 @@ import tempfile
 
 import pytest
 from django.core.management import call_command
-from kolibri.core.deviceadmin.tests.test_dbrestore import mock_status_not_running
+from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings, mock_status_not_running
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup
 from mock import patch
 
 
@@ -27,6 +28,8 @@ def test_inactive_kolibri():
     """
     Tests that if kolibri is inactive, a dump is created
     """
+    if not is_sqlite_settings():
+        return
 
     dest_folder = tempfile.mkdtemp()
 
@@ -41,3 +44,10 @@ def test_inactive_kolibri():
         files = os.listdir(dest_folder)
         assert len(files) == 1
         assert os.path.getsize(os.path.join(dest_folder, files[0])) > 1000
+
+
+def test_not_sqlite():
+    if is_sqlite_settings():
+        return
+    with pytest.raises(IncompatibleDatabase):
+        dbbackup("/doesnt/matter.file")
