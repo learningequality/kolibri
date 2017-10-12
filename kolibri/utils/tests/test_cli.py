@@ -6,7 +6,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
-import tempfile
 from functools import wraps
 
 import kolibri
@@ -195,7 +194,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 @version_file_restore
 @patch('kolibri.utils.cli.update')
 @patch('kolibri.utils.cli.plugin')
-@patch('kolibri.utils.cli.dbbackup')
+@patch('kolibri.core.deviceadmin.utils.dbbackup')
 def test_first_run(
         dbbackup, plugin, update, version_file=None, orig_version=None):
     """
@@ -217,30 +216,30 @@ def test_first_run(
 @pytest.mark.django_db
 @version_file_restore
 @patch('kolibri.utils.cli.update')
-def test_update(update, monkeypatch, version_file=None, orig_version=None):
+@patch('kolibri.core.deviceadmin.utils.dbbackup')
+def test_update(dbbackup, update, version_file=None, orig_version=None):
     """
-    Tests that update() function performs as expected
+    Tests that update() function performs as expected, creating a database
+    backup automatically when version changes
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
 
-    activate_log_logger(monkeypatch)
+    cli.initialize()
+    update.assert_called_once()
+    dbbackup.assert_called_once()
 
-    # When testing, the database is already opened, so we want this to fail!
-    with pytest.raises(AssertionError):
-        cli.dbbackup(orig_version)
 
-    with patch('kolibri.utils.cli.dbbackup') as dbbackup:
-        cli.initialize()
-        update.assert_called_once()
-        dbbackup.assert_called_once()
-
-    from django.db import connections
-    connections['default'].close()
-
-    dest_folder = tempfile.mkdtemp()
-    cli.dbbackup(orig_version, dest_folder=dest_folder, ignore_open=True)
-    assert "Test DB, nothing written to" in LOG_LOGGER[-1][1]
+@patch('kolibri.utils.cli.update')
+@patch('kolibri.core.deviceadmin.utils.dbbackup')
+def test_update_no_version_change(dbbackup, update, orig_version=None):
+    """
+    Tests that when the version doesn't change, we are not doing things we
+    shouldn't
+    """
+    cli.initialize()
+    update.assert_not_called()
+    dbbackup.assert_not_called()
 
 
 def test_cli_usage():
