@@ -30,7 +30,9 @@ module.exports = {
   plugins: ['import', 'vue'],
   settings: {
     'import/resolver': {
-      [path.resolve('./frontend_build/src/alias_import_resolver.js')]: {
+      [path.resolve(
+        path.join(path.dirname(__filename), './frontend_build/src/alias_import_resolver.js')
+      )]: {
         extensions: ['.js', '.vue'],
       },
     },
