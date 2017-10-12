@@ -31,7 +31,14 @@ To downgrade you need to do two steps:
 #. Restore the latest :ref:`backup`.
 
 When you upgrade Kolibri, the database is changed to match the latest version
-of Kolibri, however these changes cannot be unmade. That's why
+of Kolibri, however these changes cannot be unmade. That's why you need to
+restore the database from a backup.
+
+After downgrading, you can restore from the latest backup matching your version
+by running::
+
+    $ kolibri manage restore --latest
+
 
 .. _backup:
 
@@ -45,7 +52,9 @@ causes problems, you can downgrade and restore the backup.
 Backups
 ~~~~~~~
 
-Kolibri stores database backups in ``~/.kolibri/backups``.
+Kolibri stores database backups in ``~/.kolibri/backups``. The dump files
+created contain SQL statements to be run by SQLite3. You can re-instate a
+dump by using the special ``dbrestore`` command.
 
 Restoring from backup
 ~~~~~~~~~~~~~~~~~~~~~
@@ -57,5 +66,5 @@ line::
 
 To restore from a specific backup file::
 
-    $ kolibri manage dbrestore /path/to/db-backup.sqlite3
+    $ kolibri manage dbrestore /path/to/db-backup.dump
 
