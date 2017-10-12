@@ -40,4 +40,4 @@ Using docker to build the apk has disadvantages, as any changes to the config fi
 #### Helpful commands
 
 * Run `make buildapklocally; make installapk; make runapk` to combine all these steps into a one-liner for convenience.
-* Run `make uninstall` to uninstall the Kolibri Android app from the device.
+* Run `make uninstallapk` to uninstall the Kolibri Android app from the device.
