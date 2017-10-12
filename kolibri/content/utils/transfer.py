@@ -33,7 +33,7 @@ class TransferNotYetClosed(Exception):
 
 class Transfer(object):
 
-    def __init__(self, source, dest, block_size=None, remove_existing_temp_file=True, timeout=20):
+    def __init__(self, source, dest, block_size=2097152, remove_existing_temp_file=True, timeout=20):
         self.source = source
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
@@ -134,6 +134,11 @@ class Transfer(object):
 
 
 class FileDownload(Transfer):
+
+    def __init__(self, *args, **kwargs):
+        # Set block size to None, to always get the largest chunk available from the socket
+        kwargs["block_size"] = None
+        super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
         assert not self.started, "File download has already been started, and cannot be started again"
