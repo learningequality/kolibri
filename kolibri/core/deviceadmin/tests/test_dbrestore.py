@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.test.utils import override_settings
 from kolibri.auth.constants.collection_kinds import FACILITY
 from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup, dbrestore
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup, dbrestore, default_backup_folder, get_dtm_from_backup_name, search_latest
 from kolibri.utils.server import STATUS_UNKNOWN, NotRunning
 from mock import patch
 
@@ -102,6 +102,11 @@ def test_not_sqlite():
         dbrestore("/doesnt/matter.file")
 
 
+def test_fail_on_unknown_file():
+    with pytest.raises(ValueError):
+        get_dtm_from_backup_name("this-file-has-no-time")
+
+
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
 def test_restore_from_latest():
@@ -119,6 +124,15 @@ def test_restore_from_latest():
         Facility.objects.create(name="test latest", kind=FACILITY)
         # Create a backup file from the current test database
         call_command("dbbackup")
+
+        # Also add in a file with an old time stamp to ensure its ignored
+        sql = "syntax error;"
+        fbroken = "db-v{}_2015-08-02_00-00-00.dump".format(kolibri.__version__)
+        open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
+
+        # Add an unparsable file name
+        fbroken = "db-v{}_.dump".format(kolibri.__version__)
+        open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES):
@@ -191,3 +205,25 @@ def test_restore_from_file_to_file():
             call_command("dbrestore", dump_file=backup)
             # Test that the user has been restored!
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+
+
+def test_search_latest():
+
+    search_root = tempfile.mkdtemp()
+
+    major_version = ".".join(map(str, kolibri.VERSION[:2]))
+
+    files = [
+        "db-v{}_2015-08-02_00-00-00.dump".format(kolibri.__version__),
+        "db-v{}_2016-08-02_00-00-00.dump".format(kolibri.__version__),
+        "db-v{}_2017-07-02_00-00-00.dump".format(major_version),
+        "db-v{}_2017-08-02_00-00-00.dump".format(kolibri.__version__),
+    ]
+
+    latest = files[-1]
+
+    for f in files:
+        open(os.path.join(search_root, f), "w").write("")
+
+    __, search_fname = os.path.split(search_latest(search_root, major_version))
+    assert search_fname == latest

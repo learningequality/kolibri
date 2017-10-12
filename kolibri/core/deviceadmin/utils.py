@@ -143,7 +143,10 @@ def search_latest(search_root, fallback_version):
     backups.sort()
 
     for backup in backups:
-        dtm = get_dtm_from_backup_name(backup)
+        try:
+            dtm = get_dtm_from_backup_name(backup)
+        except ValueError:
+            continue
         # Always pick the newest version
         if is_full_version(backup) or dtm > newest_dtm:
             newest_dtm = dtm
