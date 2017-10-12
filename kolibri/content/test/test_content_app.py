@@ -174,6 +174,11 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
         self.assertEqual(len(response.data), 2)
 
+    def test_contentnode_allcontent(self):
+        nodes = content.ContentNode.objects.exclude(kind=content_kinds.TOPIC).count()
+        response = self.client.get(self._reverse_channel_url("contentnode-all-content"))
+        self.assertEqual(len(response.data), nodes)
+
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("channel-list", kwargs={}))
         self.assertEqual(response.data[0]['name'], 'testing')

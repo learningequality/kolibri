@@ -274,7 +274,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
