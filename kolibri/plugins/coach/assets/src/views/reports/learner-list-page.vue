@@ -118,9 +118,10 @@
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
-          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM
-            ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
-            : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
+          const targetName =
+            this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM
+              ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
+              : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
           return {
             name: targetName,
             params: {

@@ -10,8 +10,16 @@ function makeWrapper(options) {
 
 function getElements(wrapper) {
   return {
-    headerText: () => wrapper.first('.auth-message h1').text().trim(),
-    detailsText: () => wrapper.first('.auth-message p').text().trim(),
+    headerText: () =>
+      wrapper
+        .first('.auth-message h1')
+        .text()
+        .trim(),
+    detailsText: () =>
+      wrapper
+        .first('.auth-message p')
+        .text()
+        .trim(),
   };
 }
 

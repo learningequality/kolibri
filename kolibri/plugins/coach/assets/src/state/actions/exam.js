@@ -168,31 +168,35 @@ function showExamsPage(store, classId) {
 }
 
 function activateExam(store, examId) {
-  ExamResource.getModel(examId).save({ active: true }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].active = true;
+  ExamResource.getModel(examId)
+    .save({ active: true })
+    .then(
+      () => {
+        const exams = store.state.pageState.exams;
+        const examIndex = exams.findIndex(exam => exam.id === examId);
+        exams[examIndex].active = true;
 
-      store.dispatch('SET_EXAMS', exams);
-      displayExamModal(store, false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
+        store.dispatch('SET_EXAMS', exams);
+        displayExamModal(store, false);
+      },
+      error => CoreActions.handleError(store, error)
+    );
 }
 
 function deactivateExam(store, examId) {
-  ExamResource.getModel(examId).save({ active: false }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].active = false;
+  ExamResource.getModel(examId)
+    .save({ active: false })
+    .then(
+      () => {
+        const exams = store.state.pageState.exams;
+        const examIndex = exams.findIndex(exam => exam.id === examId);
+        exams[examIndex].active = false;
 
-      store.dispatch('SET_EXAMS', exams);
-      displayExamModal(store, false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
+        store.dispatch('SET_EXAMS', exams);
+        displayExamModal(store, false);
+      },
+      error => CoreActions.handleError(store, error)
+    );
 }
 
 function _assignExamTo(examId, collection) {
@@ -265,30 +269,34 @@ function previewExam(store) {
 }
 
 function renameExam(store, examId, newExamTitle) {
-  ExamResource.getModel(examId).save({ title: newExamTitle }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].title = newExamTitle;
+  ExamResource.getModel(examId)
+    .save({ title: newExamTitle })
+    .then(
+      () => {
+        const exams = store.state.pageState.exams;
+        const examIndex = exams.findIndex(exam => exam.id === examId);
+        exams[examIndex].title = newExamTitle;
 
-      store.dispatch('SET_EXAMS', exams);
-      displayExamModal(store, false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
+        store.dispatch('SET_EXAMS', exams);
+        displayExamModal(store, false);
+      },
+      error => CoreActions.handleError(store, error)
+    );
 }
 
 function deleteExam(store, examId) {
-  ExamResource.getModel(examId).delete().then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const updatedExams = exams.filter(exam => exam.id !== examId);
+  ExamResource.getModel(examId)
+    .delete()
+    .then(
+      () => {
+        const exams = store.state.pageState.exams;
+        const updatedExams = exams.filter(exam => exam.id !== examId);
 
-      store.dispatch('SET_EXAMS', updatedExams);
-      displayExamModal(store, false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
+        store.dispatch('SET_EXAMS', updatedExams);
+        displayExamModal(store, false);
+      },
+      error => CoreActions.handleError(store, error)
+    );
 }
 
 function getAllExercisesWithinTopic(store, topicId) {
@@ -429,18 +437,20 @@ function createExam(store, classCollection, examObj) {
     question_sources: examObj.questionSources,
     seed: examObj.seed,
   };
-  ExamResource.createModel(examPayload).save().then(
-    exam => {
-      _assignExamTo(exam.id, classCollection).then(
-        () => {
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          router.getInstance().push({ name: Constants.PageNames.EXAMS });
-        },
-        error => CoreActions.handleError(store, error)
-      );
-    },
-    error => CoreActions.handleError(store, error)
-  );
+  ExamResource.createModel(examPayload)
+    .save()
+    .then(
+      exam => {
+        _assignExamTo(exam.id, classCollection).then(
+          () => {
+            store.dispatch('CORE_SET_PAGE_LOADING', false);
+            router.getInstance().push({ name: Constants.PageNames.EXAMS });
+          },
+          error => CoreActions.handleError(store, error)
+        );
+      },
+      error => CoreActions.handleError(store, error)
+    );
 }
 
 function showExamReportPage(store, classId, channelId, examId) {

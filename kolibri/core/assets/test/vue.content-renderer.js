@@ -22,7 +22,6 @@ describe('contentRenderer Component', () => {
   }
 
   describe('computed property', () => {
-
     describe('availableFiles', () => {
       function testAvailableFiles(files, expected) {
         const wrapper = mount(contentRenderer, {
@@ -105,7 +104,7 @@ describe('contentRenderer Component', () => {
           before(() => {
             Vue.prototype.Kolibri = {
               retrieveContentRenderer: () => Promise.resolve(dummyComponent),
-            }
+            };
           });
 
           after(() => {
@@ -119,8 +118,7 @@ describe('contentRenderer Component', () => {
             const wrapper = mount(contentRenderer, {
               propsData: props,
             });
-            return Vue.nextTick()
-            .then(() => {
+            return Vue.nextTick().then(() => {
               assert.deepEqual(wrapper.vm.currentViewClass, dummyComponent);
             });
           });
@@ -133,18 +131,17 @@ describe('contentRenderer Component', () => {
             const wrapper = mount(contentRenderer, {
               propsData: props,
             });
-            return Vue.nextTick()
-            .then(() => {
+            return Vue.nextTick().then(() => {
               assert.ok(wrapper.vm.initSession.calledOnce);
             });
           });
-        })
+        });
 
         describe('when no renderer is available', () => {
           before(() => {
             Vue.prototype.Kolibri = {
               retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
-            }
+            };
           });
 
           after(() => {
@@ -160,8 +157,7 @@ describe('contentRenderer Component', () => {
             });
             // 'created' hook runs it once. Running it here again for testing.
             // TODO Look into how to do this without calling the method directly
-            return wrapper.vm.updateRendererComponent()
-            .then(() => {
+            return wrapper.vm.updateRendererComponent().then(() => {
               assert.equal(wrapper.vm.noRendererAvailable, true);
             });
           });
@@ -177,10 +173,9 @@ describe('contentRenderer Component', () => {
             propsData: props,
           });
           // 'created' hook runs it once. Running it here again for testing.
-          return wrapper.vm.updateRendererComponent()
-          .then((component) => {
+          return wrapper.vm.updateRendererComponent().then(component => {
             assert.equal(component, null);
-          })
+          });
         });
       });
     });

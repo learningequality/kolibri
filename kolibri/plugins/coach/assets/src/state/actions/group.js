@@ -98,20 +98,22 @@ function createGroup(store, groupName) {
     parent: store.state.classId,
     name: groupName,
   };
-  LearnerGroupResource.createModel(groupPayload).save().then(
-    group => {
-      const groups = store.state.pageState.groups;
-      groups.push(_groupState(group));
+  LearnerGroupResource.createModel(groupPayload)
+    .save()
+    .then(
+      group => {
+        const groups = store.state.pageState.groups;
+        groups.push(_groupState(group));
 
-      // Clear cache for future fetches
-      LearnerGroupResource.clearCache();
+        // Clear cache for future fetches
+        LearnerGroupResource.clearCache();
 
-      store.dispatch('SET_GROUPS', groups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      displayModal(store, false);
-    },
-    error => coreActions.handleError(store, error)
-  );
+        store.dispatch('SET_GROUPS', groups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        displayModal(store, false);
+      },
+      error => coreActions.handleError(store, error)
+    );
 }
 
 function renameGroup(store, groupId, newGroupName) {
@@ -119,33 +121,37 @@ function renameGroup(store, groupId, newGroupName) {
   const groupPayload = {
     name: newGroupName,
   };
-  LearnerGroupResource.getModel(groupId).save(groupPayload).then(
-    () => {
-      const groups = store.state.pageState.groups;
-      const groupIndex = groups.findIndex(group => group.id === groupId);
-      groups[groupIndex].name = newGroupName;
+  LearnerGroupResource.getModel(groupId)
+    .save(groupPayload)
+    .then(
+      () => {
+        const groups = store.state.pageState.groups;
+        const groupIndex = groups.findIndex(group => group.id === groupId);
+        groups[groupIndex].name = newGroupName;
 
-      store.dispatch('SET_GROUPS', groups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
-    },
-    error => coreActions.handleError(store, error)
-  );
+        store.dispatch('SET_GROUPS', groups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        this.displayModal(false);
+      },
+      error => coreActions.handleError(store, error)
+    );
 }
 
 function deleteGroup(store, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  LearnerGroupResource.getModel(groupId).delete().then(
-    () => {
-      const groups = store.state.pageState.groups;
-      const updatedGroups = groups.filter(group => group.id !== groupId);
+  LearnerGroupResource.getModel(groupId)
+    .delete()
+    .then(
+      () => {
+        const groups = store.state.pageState.groups;
+        const updatedGroups = groups.filter(group => group.id !== groupId);
 
-      store.dispatch('SET_GROUPS', updatedGroups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
-    },
-    error => coreActions.handleError(store, error)
-  );
+        store.dispatch('SET_GROUPS', updatedGroups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        this.displayModal(false);
+      },
+      error => coreActions.handleError(store, error)
+    );
 }
 
 function _addUserToGroup(store, groupId, userId) {
@@ -154,21 +160,23 @@ function _addUserToGroup(store, groupId, userId) {
     user: userId,
   };
   return new Promise((resolve, reject) => {
-    MembershipResource.createModel(membershipPayload).save().then(
-      () => {
-        const groups = store.state.pageState.groups;
-        const groupIndex = groups.findIndex(group => group.id === groupId);
-        const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
-        groups[groupIndex].users.push(userObject);
+    MembershipResource.createModel(membershipPayload)
+      .save()
+      .then(
+        () => {
+          const groups = store.state.pageState.groups;
+          const groupIndex = groups.findIndex(group => group.id === groupId);
+          const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
+          groups[groupIndex].users.push(userObject);
 
-        // Clear cache for future fetches
-        LearnerGroupResource.clearCache();
+          // Clear cache for future fetches
+          LearnerGroupResource.clearCache();
 
-        store.dispatch('SET_GROUPS', groups);
-        resolve();
-      },
-      error => reject(error)
-    );
+          store.dispatch('SET_GROUPS', groups);
+          resolve();
+        },
+        error => reject(error)
+      );
   });
 }
 
@@ -186,23 +194,29 @@ function _removeUserfromGroup(store, groupId, userId) {
     user_id: userId,
   };
   return new Promise((resolve, reject) => {
-    MembershipResource.getCollection(membershipPayload).fetch().then(membership => {
-      const membershipId = membership[0].id; // will always only have one item in the array.
-      MembershipResource.getModel(membershipId).delete().then(
-        () => {
-          const groups = store.state.pageState.groups;
-          const groupIndex = groups.findIndex(group => group.id === groupId);
-          groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
+    MembershipResource.getCollection(membershipPayload)
+      .fetch()
+      .then(membership => {
+        const membershipId = membership[0].id; // will always only have one item in the array.
+        MembershipResource.getModel(membershipId)
+          .delete()
+          .then(
+            () => {
+              const groups = store.state.pageState.groups;
+              const groupIndex = groups.findIndex(group => group.id === groupId);
+              groups[groupIndex].users = groups[groupIndex].users.filter(
+                user => user.id !== userId
+              );
 
-          // Clear cache for future fetches
-          LearnerGroupResource.clearCache();
+              // Clear cache for future fetches
+              LearnerGroupResource.clearCache();
 
-          store.dispatch('SET_GROUPS', groups);
-          resolve();
-        },
-        error => reject(error)
-      );
-    });
+              store.dispatch('SET_GROUPS', groups);
+              resolve();
+            },
+            error => reject(error)
+          );
+      });
   });
 }
 

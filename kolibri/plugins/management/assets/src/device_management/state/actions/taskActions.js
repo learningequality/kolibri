@@ -18,7 +18,9 @@ function transformTasks(tasks) {
 }
 
 export function fetchCurrentTasks() {
-  return TaskResource.getCollection().fetch().then(transformTasks);
+  return TaskResource.getCollection()
+    .fetch()
+    .then(transformTasks);
 }
 
 export function cancelTask(store, taskId) {
@@ -68,17 +70,19 @@ export function triggerChannelDeleteTask(store, channelId) {
 
 export function pollTasks(store) {
   const samePageCheck = samePageCheckGenerator(store);
-  TaskResource.getCollection().fetch({}, true).only(
-    // don't handle response if we've switched pages or if we're in the middle of another operation
-    () => samePageCheck() && !store.state.pageState.wizardState.busy,
-    taskList => {
-      updateTasks(store, taskList);
-      if (taskList.length && store.state.pageState.wizardState.shown) {
-        closeImportExportWizard(store);
+  TaskResource.getCollection()
+    .fetch({}, true)
+    .only(
+      // don't handle response if we've switched pages or if we're in the middle of another operation
+      () => samePageCheck() && !store.state.pageState.wizardState.busy,
+      taskList => {
+        updateTasks(store, taskList);
+        if (taskList.length && store.state.pageState.wizardState.shown) {
+          closeImportExportWizard(store);
+        }
+      },
+      error => {
+        logging.error(`poll error: ${error}`);
       }
-    },
-    error => {
-      logging.error(`poll error: ${error}`);
-    }
-  );
+    );
 }

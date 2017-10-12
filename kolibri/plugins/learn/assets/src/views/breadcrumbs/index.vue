@@ -52,7 +52,7 @@
             params: {
               channel_id: this.channelRootId,
             },
-          }
+          },
         });
 
         // Links to previous topics
@@ -93,7 +93,7 @@
             params: { id },
           },
         }));
-      }
+      },
     },
     vuex: {
       getters: {

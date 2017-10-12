@@ -361,14 +361,16 @@ function initContentSession(store, channelId, contentId, contentKind) {
 }
 
 function setChannelInfo(store) {
-  return ChannelResource.getCollection({ available: true }).fetch().then(
-    channelsData => {
-      store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  return ChannelResource.getCollection({ available: true })
+    .fetch()
+    .then(
+      channelsData => {
+        store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 /**

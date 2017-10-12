@@ -17,7 +17,7 @@ const defaultChannel = {
 function makeStore() {
   return new Vuex.Store({
     state: {
-      pageState: {}
+      pageState: {},
     },
   });
 }
@@ -36,16 +36,32 @@ function makeWrapper(options = {}) {
 
 function getElements(wrapper) {
   return {
-    resourcesSizeText: () => wrapper.first('.resources-size').text().trim(),
+    resourcesSizeText: () =>
+      wrapper
+        .first('.resources-size')
+        .text()
+        .trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
     deleteButton: () => wrapper.find('button[name="delete"]'),
     selectButton: () => wrapper.find('button[name="select"]'),
-    title: () => wrapper.first('.title').text().trim(),
-    version: () => wrapper.first('.version').text().trim(),
-    description: () => wrapper.first('.description').text().trim(),
+    title: () =>
+      wrapper
+        .first('.title')
+        .text()
+        .trim(),
+    version: () =>
+      wrapper
+        .first('.version')
+        .text()
+        .trim(),
+    description: () =>
+      wrapper
+        .first('.description')
+        .text()
+        .trim(),
     thumbnail: () => wrapper.first('.thumbnail'),
-  }
+  };
 }
 
 describe('channelListItem', () => {
@@ -99,7 +115,7 @@ describe('channelListItem', () => {
 
     it('delete button is disabled when there are tasks in queue', () => {
       const store = makeStore();
-      store.state.pageState.taskList = [{id: 'task_1'}]
+      store.state.pageState.taskList = [{ id: 'task_1' }];
       const wrapper = makeWrapper({ store });
       const { deleteButton } = getElements(wrapper);
       assert.equal(deleteButton()[0].getAttribute('disabled'), 'disabled');
@@ -118,13 +134,12 @@ describe('channelListItem', () => {
       const emitSpy = sinon.spy(wrapper.vm, '$emit');
       const { deleteButton } = getElements(wrapper);
       deleteButton()[0].trigger('click');
-      return wrapper.vm.$nextTick()
-      .then(() => {
+      return wrapper.vm.$nextTick().then(() => {
         sinon.assert.calledOnce(emitSpy);
         sinon.assert.calledWith(emitSpy, 'clickdelete');
       });
     });
-  })
+  });
 
   describe('when in "importing" mode', () => {
     const defaultProps = {
@@ -144,8 +159,7 @@ describe('channelListItem', () => {
       const emitSpy = sinon.spy(wrapper.vm, '$emit');
       const { selectButton } = getElements(wrapper);
       selectButton()[0].trigger('click');
-      return wrapper.vm.$nextTick()
-      .then(() => {
+      return wrapper.vm.$nextTick().then(() => {
         sinon.assert.calledOnce(emitSpy);
         sinon.assert.calledWith(emitSpy, 'clickselect');
       });
@@ -167,5 +181,5 @@ describe('channelListItem', () => {
       assert.deepEqual(onDevice(), []);
       assert.deepEqual(resourcesSize(), []);
     });
-  })
+  });
 });

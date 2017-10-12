@@ -14,7 +14,7 @@ webpack_config.plugins.push(
   })
 );
 
-webpack_config.plugins.push(new ExtractTextPlugin("styles.css"));
+webpack_config.plugins.push(new ExtractTextPlugin('styles.css'));
 
 webpack_config.devtool = 'none';
 

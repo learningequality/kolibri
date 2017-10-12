@@ -45,7 +45,12 @@ describe('exam report page', () => {
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { takenBy, averageScore } = getElements(wrapper);
-    assert.equal(takenBy().text().trim(), 'Exam taken by: 0 learners');
+    assert.equal(
+      takenBy()
+        .text()
+        .trim(),
+      'Exam taken by: 0 learners'
+    );
     assert(averageScore() === undefined);
   });
 
@@ -58,8 +63,18 @@ describe('exam report page', () => {
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { averageScore, takenBy } = getElements(wrapper);
-    assert.equal(takenBy().text().trim(), 'Exam taken by: 2 learners');
-    assert.equal(averageScore().text().trim(), 'Average Score: 50%');
+    assert.equal(
+      takenBy()
+        .text()
+        .trim(),
+      'Exam taken by: 2 learners'
+    );
+    assert.equal(
+      averageScore()
+        .text()
+        .trim(),
+      'Average Score: 50%'
+    );
   });
 
   it('shows correct scores for exam takers', () => {
