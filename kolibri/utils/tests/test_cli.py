@@ -10,6 +10,7 @@ from functools import wraps
 
 import kolibri
 import pytest
+from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
 from mock import patch
 
@@ -216,8 +217,7 @@ def test_first_run(
 @pytest.mark.django_db
 @version_file_restore
 @patch('kolibri.utils.cli.update')
-@patch('kolibri.core.deviceadmin.utils.dbbackup')
-def test_update(dbbackup, update, version_file=None, orig_version=None):
+def test_update(update, version_file=None, orig_version=None):
     """
     Tests that update() function performs as expected, creating a database
     backup automatically when version changes
@@ -225,9 +225,13 @@ def test_update(dbbackup, update, version_file=None, orig_version=None):
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
 
-    cli.initialize()
+    if is_sqlite_settings():
+        with patch('kolibri.core.deviceadmin.utils.dbbackup') as dbbackup:
+            cli.initialize()
+            dbbackup.assert_called_once()
+    else:
+        cli.initialize()
     update.assert_called_once()
-    dbbackup.assert_called_once()
 
 
 @patch('kolibri.utils.cli.update')
