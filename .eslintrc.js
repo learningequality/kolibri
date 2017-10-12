@@ -8,6 +8,11 @@ module.exports = {
   },
   parserOptions: {
     sourceType: 'module',
+    ecmaVersion: 7,
+    ecmaFeatures: {
+      impliedStrict: true,
+      experimentalObjectRestSpread: true,
+    },
   },
   globals: {
     __version: true,
