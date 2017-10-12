@@ -49,12 +49,17 @@ class Command(BaseCommand):
     # @ReservedAssignment
     help = (
         "Restores a database backup of Kolibri. This is not intended for "
-        "replication across different devices, but rather as restoring a "
+        "replication across different devices, but *only* for restoring a "
         "single device from a local backup of the database."
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('dump_file', nargs='?', type=str)
+        parser.add_argument(
+            'dump_file',
+            nargs='?',
+            type=str,
+            help="Specifies the exact dump file to restore from"
+        )
         parser.add_argument(
             '--latest', '-l',
             action='store_true',
