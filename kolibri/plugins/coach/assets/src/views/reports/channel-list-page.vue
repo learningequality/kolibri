@@ -65,14 +65,14 @@
       nameCell,
       activityCell,
     },
+    mixins: [alignMixin],
+    $trs: {
+      recentTitle: 'Recent Activity',
+      channels: 'Channels',
+      channelList: 'Channel list',
+      lastActivity: 'Last active',
+    },
     computed: {
-      mixins: [alignMixin],
-      $trs: {
-        recentTitle: 'Recent Activity',
-        channels: 'Channels',
-        channelList: 'Channel list',
-        lastActivity: 'Last active',
-      },
       CHANNEL() {
         return ContentNodeKinds.CHANNEL;
       },
