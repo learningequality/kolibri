@@ -73,8 +73,8 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
-    components: { kRouterLink },
     name: 'examReportPage',
+    components: { kRouterLink },
     computed: {
       noExamData() {
         return this.examTakers.length === 0;

@@ -129,6 +129,12 @@
 
   export default {
     name: 'selectPermissionsForm',
+    components: {
+      onboardingForm,
+      kRadioButton,
+      kButton,
+      coreModal,
+    },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
@@ -158,12 +164,6 @@
         type: String,
         required: true,
       },
-    },
-    components: {
-      onboardingForm,
-      kRadioButton,
-      kButton,
-      coreModal,
     },
     data() {
       return {

@@ -97,6 +97,11 @@
         required: false,
       },
     },
+    data() {
+      return {
+        lastFocus: null,
+      };
+    },
     beforeMount() {
       this.lastFocus = document.activeElement;
     },
@@ -116,19 +121,14 @@
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       window.setTimeout(() => this.lastFocus.focus());
     },
-    data() {
-      return {
-        lastFocus: null,
-      };
-    },
     methods: {
-      emitCancelEvent(event) {
+      emitCancelEvent() {
         this.$emit('cancel');
       },
-      emitEnterEvent(event) {
+      emitEnterEvent() {
         this.$emit('enter');
       },
-      emitBackEvent(event) {
+      emitBackEvent() {
         this.$emit('back');
       },
       focusModal() {

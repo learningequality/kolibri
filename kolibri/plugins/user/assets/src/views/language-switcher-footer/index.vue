@@ -9,7 +9,6 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
 
   export default {

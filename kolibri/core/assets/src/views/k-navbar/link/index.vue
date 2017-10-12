@@ -30,6 +30,7 @@
    */
   export default {
     name: 'kNavbarLink',
+    components: { uiIcon },
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title
@@ -64,7 +65,6 @@
         validator: validateLinkObject,
       },
     },
-    components: { uiIcon },
   };
 
 </script>

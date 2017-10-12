@@ -10,16 +10,17 @@
        :class="{ 'mimic-fullscreen': mimicFullscreen }">
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type="`video/${video.extension}`">
+          <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang.id" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.id)">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang.id" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.id)"
+          :key="track.storage_url">
         </template>
       </video>
 
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
-          <source :src="audio.storage_url" :type="`audio/${audio.extension}`">
+          <source :src="audio.storage_url" :type="`audio/${audio.extension}`" :key="audio.storage_url">
         </template>
       </audio>
     </div>
@@ -71,10 +72,9 @@
       sourceError: 'No compatible source was found for this media',
       encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
+    components: { loadingSpinner },
 
     mixins: [ResponsiveElement],
-
-    components: { loadingSpinner },
 
     props: {
       files: {
@@ -129,6 +129,22 @@
       fullscreenAllowed() {
         return ScreenFull.enabled;
       },
+    },
+    created() {
+      ReplayButton.prototype.controlText_ = this.$tr('replay');
+      ForwardButton.prototype.controlText_ = this.$tr('forward');
+      videojs.registerComponent('ReplayButton', ReplayButton);
+      videojs.registerComponent('ForwardButton', ForwardButton);
+      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
+    },
+    mounted() {
+      this.initPlayer();
+      window.addEventListener('resize', this.throttledResizePlayer);
+    },
+    beforeDestroy() {
+      this.$emit('stopTracking');
+      window.removeEventListener('resize', this.throttledResizePlayer);
+      this.player.dispose();
     },
     methods: {
       isDefaultTrack(langCode) {
@@ -327,22 +343,6 @@
           this.player.addClass('player-tiny');
         }
       },
-    },
-    created() {
-      ReplayButton.prototype.controlText_ = this.$tr('replay');
-      ForwardButton.prototype.controlText_ = this.$tr('forward');
-      videojs.registerComponent('ReplayButton', ReplayButton);
-      videojs.registerComponent('ForwardButton', ForwardButton);
-      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
-    },
-    mounted() {
-      this.initPlayer();
-      window.addEventListener('resize', this.throttledResizePlayer);
-    },
-    beforeDestroy() {
-      this.$emit('stopTracking');
-      window.removeEventListener('resize', this.throttledResizePlayer);
-      this.player.dispose();
     },
   };
 

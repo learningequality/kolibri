@@ -68,6 +68,11 @@
         searchQuery: this.searchTerm,
       };
     },
+    watch: {
+      searchTerm(val) {
+        this.searchQuery = val || '';
+      },
+    },
     methods: {
       handleEscKey() {
         if (this.searchQuery === '') {
@@ -83,11 +88,6 @@
             query: { query: this.searchQuery },
           });
         }
-      },
-    },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
       },
     },
     vuex: {

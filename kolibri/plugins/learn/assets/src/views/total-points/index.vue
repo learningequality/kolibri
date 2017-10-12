@@ -32,10 +32,10 @@
       },
       actions: { fetchPoints },
     },
+    watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
     },
-    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>

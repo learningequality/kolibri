@@ -15,7 +15,7 @@ const initialState = () => ({
       list: [
         { id: 'recent_channel', title: 'Recent Channel' },
         { id: 'not_recent_channel', title: 'Not Recent Channel' },
-        { id: 'null_channel', title: 'Null Channel' }
+        { id: 'null_channel', title: 'Null Channel' },
       ],
     },
   },

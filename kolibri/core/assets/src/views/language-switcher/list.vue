@@ -70,8 +70,8 @@
       showMoreLanguagesSelector: 'More',
       selectedLanguageLabel: 'Selected language',
     },
-    mixins: [responsiveWindow, languageSwitcherMixin],
     components: { kButton },
+    mixins: [responsiveWindow, languageSwitcherMixin],
     data() {
       return {
         selectedLanguageId: currentLanguage,

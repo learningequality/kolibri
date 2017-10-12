@@ -49,12 +49,12 @@
 
   export default {
     name: 'onboarding',
+    components: { progressToolbar, loadingPage, errorPage },
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
     },
-    components: { progressToolbar, loadingPage, errorPage },
     data() {
       return {
         totalOnboardingSteps: 4,

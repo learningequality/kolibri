@@ -93,9 +93,7 @@ describe('learn page breadcrumbs', () => {
       };
       store.state.pageState.topic = {
         title: 'Recommended Topic',
-        breadcrumbs: [
-          { id: 'previous_topic', title: 'Previous Topic' },
-        ],
+        breadcrumbs: [{ id: 'previous_topic', title: 'Previous Topic' }],
       };
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
@@ -125,9 +123,7 @@ describe('learn page breadcrumbs', () => {
       };
       store.state.pageState.content = {
         title: 'Recommended Item',
-        breadcrumbs: [
-          { id: 'previous_topic', title: 'Previous Topic' },
-        ],
+        breadcrumbs: [{ id: 'previous_topic', title: 'Previous Topic' }],
       };
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
@@ -148,5 +144,5 @@ describe('learn page breadcrumbs', () => {
       assert.equal(bcs[3].link, undefined);
       assert.equal(bcs[3].text, 'Recommended Item');
     });
-  })
+  });
 });

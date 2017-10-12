@@ -77,12 +77,12 @@
       resumeSectionHeader: 'Resume',
       featuredSectionHeader: 'Featured in { channelTitle }',
     },
-    mixins: [responsiveWindow],
     components: {
       contentCardGroupCarousel,
       contentCardGroupGrid,
       contentCardGroupHeader,
     },
+    mixins: [responsiveWindow],
     computed: {
       isMobile() {
         return this.windowSize.breakpoint <= 1;

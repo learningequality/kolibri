@@ -9,10 +9,11 @@
       </div>
       <div class="exam-preview-container pure-g">
         <div class="question-selector pure-u-1-3">
-          <div v-for="(exercise, exerciseIndex) in examQuestionSources">
+          <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
-              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
+              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                :key="questionIndex">
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
@@ -120,6 +121,18 @@
         return this.currentQuestion.itemId;
       },
     },
+    created() {
+      ContentNodeResource.getCollection({
+        ids: this.examQuestionSources.map(item => item.exercise_id),
+      })
+        .fetch()
+        .then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.pk, node);
+          });
+          this.loading = false;
+        });
+    },
     methods: {
       isSelected(questionItemId, exerciseId) {
         return (
@@ -144,18 +157,6 @@
       close() {
         this.displayExamModal(false);
       },
-    },
-    created() {
-      ContentNodeResource.getCollection({
-        ids: this.examQuestionSources.map(item => item.exercise_id),
-      })
-        .fetch()
-        .then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.pk, node);
-          });
-          this.loading = false;
-        });
     },
     vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };

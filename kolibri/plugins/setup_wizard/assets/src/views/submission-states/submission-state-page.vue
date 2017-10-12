@@ -22,13 +22,13 @@
 
   export default {
     name: 'submissionStatePage',
+    components: { loadingSpinner },
     props: {
       header: {
         type: String,
         required: true,
       },
     },
-    components: { loadingSpinner },
   };
 
 </script>

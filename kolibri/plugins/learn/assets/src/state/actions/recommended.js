@@ -182,9 +182,9 @@ function showLearnContent(store, id) {
   }).fetch();
   const channelsPromise = setChannelInfo(store);
   const nextContentPromise = ContentNodeResource.fetchNextContent(id);
-  ConditionalPromise.all([contentPromise, channelsPromise, nextContentPromise]).only(
+  ConditionalPromise.all([contentPromise, nextContentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([content, channels, nextContent]) => {
+    ([content, nextContent]) => {
       const pageState = {
         content: contentState(content, nextContent),
         recommended: store.state.pageState.recommended,

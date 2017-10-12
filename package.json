@@ -17,8 +17,7 @@
     "install": "node ./frontend_build/src/install_dependencies.js",
     "clean": "node ./frontend_build/src/clean.js",
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
-    "lint-js:base": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
-    "lint-js": "yarn run lint-js:base -- './\\{kolibri/**/assets,frontend_build,karma_config\\}/**/*.\\{js,vue\\}'",
+    "lint-js": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
     "lint-js:fix": "yarn run lint-js -- -w"
   },
   "repository": {
@@ -32,6 +31,7 @@
   },
   "private": true,
   "dependencies": {
+    "array-includes": "^3.0.3",
     "core-js": "^2.4.1",
     "css-element-queries": "^0.4.0",
     "date-fns": "^1.28.2",
@@ -58,13 +58,14 @@
   "devDependencies": {
     "autoprefixer": "^7.1.4",
     "avoriaz": "^6.0.0",
-    "buble": "^0.15.2",
-    "buble-loader": "^0.4.0",
+    "buble": "^0.16.0",
+    "buble-loader": "^0.4.1",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "css-loader": "^0.28.7",
     "eslint": "^4.2.0",
     "eslint-config-prettier": "^2.3.0",
+    "eslint-loader": "^1.9.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "beta",
     "esprima": "^4.0.0",

@@ -16,7 +16,7 @@ function makeWrapper(propsData = {}) {
         },
       },
       // A fake part of the state to confirm efficacy of mutation
-      TEST_DROPBOX: null
+      TEST_DROPBOX: null,
     },
     // TODO bring in real mutations instead of faking them
     mutations: {
@@ -48,15 +48,13 @@ describe('facility config page view', () => {
   function assertModalIsDown(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
     assert(confirmResetModal() === undefined);
-
   }
 
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    return Vue.nextTick()
-    .then(() => {
+    return Vue.nextTick().then(() => {
       assert.deepEqual(wrapper.vm.$store.state.TEST_DROPBOX, {
         name: 'learnerCanEditUsername',
         value: true,

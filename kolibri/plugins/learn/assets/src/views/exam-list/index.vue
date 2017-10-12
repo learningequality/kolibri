@@ -59,6 +59,11 @@
 
   export default {
     name: 'examIndex',
+    components: {
+      authMessage,
+      pageHeader,
+      kRouterLink,
+    },
     mixins: [responsiveWindow],
     $trs: {
       examName: 'Exams',
@@ -69,11 +74,6 @@
       start: 'Start',
       noExams: 'You have no exams assigned',
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
-    },
-    components: {
-      authMessage,
-      pageHeader,
-      kRouterLink,
     },
     computed: {
       activeExams() {

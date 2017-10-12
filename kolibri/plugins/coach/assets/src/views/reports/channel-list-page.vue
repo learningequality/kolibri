@@ -57,21 +57,20 @@
   import activityCell from './table-cells/activity-cell';
   import alignMixin from './align-mixin';
   export default {
-    mixins: [alignMixin],
-    name: 'channelList',
     name: 'coachRecentPageChannelList',
-    $trs: {
-      recentTitle: 'Recent Activity',
-      channels: 'Channels',
-      channelList: 'Channel list',
-      lastActivity: 'Last active',
-    },
     components: {
       reportTable,
       reportSubheading,
       headerCell,
       nameCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      recentTitle: 'Recent Activity',
+      channels: 'Channels',
+      channelList: 'Channel list',
+      lastActivity: 'Last active',
     },
     computed: {
       CHANNEL() {

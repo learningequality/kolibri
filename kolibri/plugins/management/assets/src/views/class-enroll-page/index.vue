@@ -152,8 +152,20 @@
   import uiSwitch from 'keen-ui/src/UiSwitch';
   import userRole from '../user-role';
   export default {
-    mixins: [responsiveWindow],
     name: 'managementClassEnroll',
+    components: {
+      kButton,
+      kRouterLink,
+      kCheckbox,
+      uiIconButton,
+      uiIcon,
+      kFilterTextbox,
+      userCreateModal,
+      confirmEnrollmentModal,
+      uiSwitch,
+      userRole,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',
@@ -176,18 +188,6 @@
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
-    components: {
-      kButton,
-      kRouterLink,
-      kCheckbox,
-      uiIconButton,
-      uiIcon,
-      kFilterTextbox,
-      userCreateModal,
-      confirmEnrollmentModal,
-      uiSwitch,
-      userRole,
     },
     data: () => ({
       filterInput: '',
@@ -261,6 +261,11 @@
         return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
       },
     },
+    watch: {
+      userJustCreated(user) {
+        this.selectedUsers.push(user.id);
+      },
+    },
     methods: {
       reducePageNum() {
         while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
@@ -310,11 +315,6 @@
       },
       openConfirmEnrollmentModal() {
         this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
-      },
-    },
-    watch: {
-      userJustCreated(user) {
-        this.selectedUsers.push(user.id);
       },
     },
     vuex: {
