@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 import subprocess
 import argparse
 import imp
@@ -79,25 +80,49 @@ def install_package_by_wheel(path, name):
                 shutil.rmtree(os.path.join(path, item), ignore_errors=True)
 
 
-def parse_package_page(files, pk_version):
+def parse_package_page(files, pkg_path, pkg_name):
     """
     Parse the PYPI and Piwheel link for the package and install the desired wheel files.
     """
 
+    file_dict = {}
     for file in files.find_all('a'):
         file_name = file.string.split('-')
 
         # If the file format is tar.gz or the package version is not the latest, ignore
-        if file_name[-1].split('.')[-1] != 'whl' or file_name[1] != pk_version or file_name[2][2:] == '26':
+        if file_name[-1].split('.')[-1] != 'whl' or file_name[2][2:] == '26':
             continue
-        
+
+        if file_name[1] in file_dict:
+            file_dict[file_name[1]].append(file)
+        else:
+            file_dict[file_name[1]] = [file]
+
+    # If the c extension doesn't ship any whl, then just install the tar.gz file
+    if not file_dict:
+        if sys.platform.startswith('linux'):
+            path = os.path.join(pkg_path, 'linux')
+            print ('Installing {}...'.format(pkg_name))
+            return_code = subprocess.call(['pip', 'install', '-q', '-t',
+            path, pkg_name])
+            if return_code == 1:
+                print ('Installation failed for package {}\n'.format(pkg_name))
+                return False
+            else:
+                return True
+        else:
+            return True
+
+    # Get the latest version of the c extension to install
+    latest_version = sorted(file_dict.keys())[-1]
+    for file in file_dict[latest_version]:
+        file_name = file.string.split('-')
         print ('Installing {}...'.format(file.string))
 
         implementation = file_name[2][:2]
         python_version = file_name[2][2:]
-
-        path = os.path.join(DIST_CEXT, file_name[2])
         
+        path = os.path.join(pkg_path, file_name[2])
         abi = file_name[3]
         platform = file_name[4].split('.')[0]
 
@@ -121,7 +146,7 @@ def parse_package_page(files, pk_version):
             print ('Download failed for package {}\n'.format(file.string))
 
 
-def install(name, pk_version):
+def install(name):
     """
     Start installing from the pypi page of the package.
     """
@@ -134,9 +159,10 @@ def install(name, pk_version):
         links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
         for link in links:
             r = requests.get(link + name)
-            files = BeautifulSoup(r.content, 'html.parser')
-
-            parse_package_page(files, pk_version)
+            if r.status_code == 200:
+                files = BeautifulSoup(r.content, 'html.parser')
+                path = os.path.join(DIST_CEXT, name)
+                parse_package_page(files, path, name)
 
     except ImportError:
         raise ImportError('Importing modules failed.\n')
@@ -149,12 +175,8 @@ def parse_requirements(args):
     """
     with open(args.file) as f:
         for line in f:
-            char_list = line.split('==')
-            if len(char_list) == 2:
-                # Install package according to its name and version
-                install(char_list[0], char_list[1])
-            else:
-                print ('Name format is incorrect. Should be \'packageName==packageVersion\'.')
+            # Install package according to its name and version
+            install(line.strip())
 
 
 if __name__ == '__main__':

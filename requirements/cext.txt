@@ -1,1 +1,2 @@
-cryptography==2.0.3
+cryptography
+pyfastcopy

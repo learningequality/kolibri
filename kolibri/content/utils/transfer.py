@@ -187,6 +187,20 @@ class FileCopy(Transfer):
         self._content_iterator = self._read_block_iterator()
         return self
 
+    def fast_file_copy(self):
+        """
+        Shutil.copyfile() will indeed call `copyfile()` in pyfastcopy to use
+        the sendfile system call to copy the source file to the destination
+        by the kernel to avoid use of userspace buffers
+        """
+        import pyfastcopy  # noqa
+
+        shutil.copyfile(self.source, self.dest_tmp)
+        self.completed = True
+        self.close()
+        self.finalize()
+        return self.total_size
+
     def close(self):
         self.source_file_obj.close()
         super(FileCopy, self).close()
