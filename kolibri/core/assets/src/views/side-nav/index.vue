@@ -232,11 +232,11 @@
       actions: { signOut: kolibriLogout },
       getters: {
         session: state => state.core.session,
-        isUserLoggedIn: isUserLoggedIn,
-        isSuperuser: isSuperuser,
-        isAdmin: isAdmin,
-        isCoach: isCoach,
-        canManageContent: canManageContent,
+        isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
       },
     },
   };
@@ -260,7 +260,7 @@
     bottom: 0
     z-index: 16
     color: $core-text-default
-    background: $core-bg-canvas
+    background: $core-bg-light
     box-shadow: $side-nav-box-shadow
 
   .side-nav-enter
@@ -280,7 +280,6 @@
 
   .side-nav-leave-to
     transform: translate3D(-100%, 0, 0)
-
 
   .side-nav-header
     position: fixed
@@ -306,7 +305,7 @@
     overflow: auto
 
   .side-nav-scrollable-area-menu
-    background: $core-bg-canvas
+    background: $core-bg-light
 
   .side-nav-scrollable-area-footer
     color: $core-text-annotation
@@ -336,47 +335,40 @@
     background-attachment: fixed
     z-index: 15
 
-</style>
 
+  /* keen menu */
+  >>>.ui-menu
+    max-height: none
+    padding: 0
+    background: $core-bg-light
+    border: none
 
-<style lang="stylus">
+  >>>.ui-menu-option
+    &:not(.is-divider)
+      padding-top: 4px
+      padding-bottom: 4px
 
-  @require '~kolibri.styles.definitions'
+      .ui-menu-option-text
+        overflow: visible
+        white-space: normal
+        color: $core-text-default
+        font-size: 14px
 
-  // Customize Keen UI Menu option
-  .side-nav-scrollable-area-menu
-    .ui-menu
-      max-height: none
-      padding: 0
-      background: $core-bg-canvas
-      border: none
+      .ui-menu-option-icon
+        color: $core-text-default
+        font-size: 1.2em
 
-    .ui-menu-option
-      &:not(.is-divider)
-        padding-top: 4px
-        padding-bottom: 4px
-
+      &.is-active
         .ui-menu-option-text
-          overflow: visible
-          white-space: normal
-          color: $core-text-default
-          font-size: 14px
+          color: $core-accent-color
+          font-weight: bold
+          opacity: 1
 
         .ui-menu-option-icon
-          color: $core-text-default
-          font-size: 1.2em
+          color: $core-accent-color
 
-        &.is-active
-          .ui-menu-option-text
-            color: $core-accent-color
-            font-weight: bold
-            opacity: 1
-
-          .ui-menu-option-icon
-            color: $core-accent-color
-
-      &.is-divider
-        margin-top: 0
-        margin-bottom: 0
+    &.is-divider
+      margin-top: 0
+      margin-bottom: 0
 
 </style>
