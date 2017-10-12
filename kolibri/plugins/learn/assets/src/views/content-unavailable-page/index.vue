@@ -12,8 +12,6 @@
 
 <script>
 
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
-
   export default {
     name: 'learnContentUnavailable',
     $trs: {

@@ -35,6 +35,9 @@
 
   export default {
     name: 'onboardingForm',
+    components: {
+      kButton,
+    },
     props: {
       header: {
         type: String,
@@ -48,9 +51,6 @@
         type: String,
         required: true,
       },
-    },
-    components: {
-      kButton,
     },
     computed: {
       hasDescription() {

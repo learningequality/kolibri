@@ -37,6 +37,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
+    name: 'confirmResetModal',
     components: {
       coreModal,
       kButton,
@@ -49,7 +50,6 @@
         this.$emit('click-cancel');
       },
     },
-    name: 'confirmResetModal',
     $trs: {
       cancel: 'Cancel',
       changesWillBeLost: 'Your changes will be lost',

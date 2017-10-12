@@ -6,7 +6,7 @@
         <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
-              <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
+              <li v-for="(crumb, index) in collapsedCrumbs" class="breadcrumbs-dropdown-item" :key="index">
                 <k-router-link
                   :text="crumb.text"
                   :to="crumb.link"
@@ -24,6 +24,7 @@
             v-if="index !== crumbs.length - 1"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             v-show="!crumb.collapsed"
+            :key="index"
           >
             <k-router-link :text="crumb.text" :to="crumb.link" />
           </li>
@@ -31,6 +32,7 @@
           <li
             v-else
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            :key="index"
           >
             <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
           </li>
@@ -47,6 +49,7 @@
             v-if="index !== crumbs.length - 1"
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
+            :key="index"
           >
             <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
@@ -55,6 +58,7 @@
             v-else
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            :key="index"
           >
             <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
           </li>

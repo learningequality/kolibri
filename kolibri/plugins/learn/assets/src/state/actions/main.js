@@ -282,12 +282,12 @@ function showTopicsContent(store, id) {
   const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
   ConditionalPromise.all([
     contentPromise,
-    channelsPromise,
     nextContentPromise,
     ancestorsPromise,
+    channelsPromise,
   ]).only(
     samePageCheckGenerator(store),
-    ([content, channels, nextContent, ancestors]) => {
+    ([content, nextContent, ancestors]) => {
       const currentChannel = getChannelObject(store.state, content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -624,7 +624,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   const promise = examAttemptLogModel.save(attributes);
   return promise.then(
     newExamAttemptLog =>
-      new Promise((resolve, reject) => {
+      new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
         store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
           // prettier-ignore

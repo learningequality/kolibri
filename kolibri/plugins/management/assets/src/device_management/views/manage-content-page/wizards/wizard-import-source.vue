@@ -27,6 +27,10 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'wizardImportSource',
+    components: {
+      coreModal,
+      kButton,
+    },
     $trs: {
       title: 'Please choose a source...',
       internet: 'Internet',
@@ -40,10 +44,6 @@
       cancel() {
         return this.transitionWizardPage('cancel');
       },
-    },
-    components: {
-      coreModal,
-      kButton,
     },
     vuex: {
       actions: { transitionWizardPage },

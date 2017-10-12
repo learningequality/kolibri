@@ -74,7 +74,6 @@
       topics: 'Topics',
       exams: 'Exams',
     },
-    mixins: [responsiveWindow],
     components: {
       channelsPage,
       topicsPage,
@@ -92,6 +91,7 @@
       totalPoints,
       actionBarSearchBox,
     },
+    mixins: [responsiveWindow],
     computed: {
       topLevelPageName() {
         return TopLevelPageNames.LEARN;

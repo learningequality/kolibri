@@ -15,6 +15,7 @@
       class="placeholder"
       v-for="i in numSpaces"
       :class="{'placeholder-empty': i === 0 && waitingForAttempt}"
+      :key="i"
     ></div>
   </div>
 
@@ -25,6 +26,7 @@
 
   import answerIcon from './answer-icon';
   export default {
+    components: { answerIcon },
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
@@ -50,7 +52,6 @@
         },
       },
     },
-    components: { answerIcon },
     computed: {
       numItemsToRender() {
         if (this.waitingForAttempt) {

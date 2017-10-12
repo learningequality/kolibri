@@ -9,7 +9,7 @@
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.groups"><strong>{{ group.collection.name }}</strong></li>
+          <li v-for="(group, index) in examVisibility.groups" :key="index"><strong>{{ group.collection.name }}</strong></li>
         </ul>
       </span>
     </p>

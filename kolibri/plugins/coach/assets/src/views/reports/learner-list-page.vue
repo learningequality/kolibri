@@ -83,17 +83,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    mixins: [alignMixin],
     name: 'learnerReportPage',
-    $trs: {
-      name: 'Name',
-      group: 'Group',
-      exerciseProgress: 'Exercise progress',
-      contentProgress: 'Resource progress',
-      lastActivity: 'Last activity',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-    },
     components: {
       contentIcon,
       breadcrumbs,
@@ -103,6 +93,16 @@
       nameCell,
       progressCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      name: 'Name',
+      group: 'Group',
+      exerciseProgress: 'Exercise progress',
+      contentProgress: 'Resource progress',
+      lastActivity: 'Last activity',
+      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     computed: {
       isExercisePage() {

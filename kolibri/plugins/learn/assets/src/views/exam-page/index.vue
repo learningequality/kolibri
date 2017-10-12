@@ -120,6 +120,17 @@
         closeExam: actions.closeExam,
       },
     },
+    computed: {
+      backPageLink() {
+        return {
+          name: PageNames.EXAM_LIST,
+          params: { channel_id: this.channelId },
+        };
+      },
+      questionsUnanswered() {
+        return this.exam.questionCount - this.questionsAnswered;
+      },
+    },
     created() {
       this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
         leading: false,
@@ -184,17 +195,6 @@
         this.closeExam().then(() => {
           this.$router.push(this.backPageLink);
         });
-      },
-    },
-    computed: {
-      backPageLink() {
-        return {
-          name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
-        };
-      },
-      questionsUnanswered() {
-        return this.exam.questionCount - this.questionsAnswered;
       },
     },
   };

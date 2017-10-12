@@ -75,6 +75,10 @@
 
   export default {
     name: 'contentCardCarousel',
+    components: {
+      uiIconButton,
+      contentCard,
+    },
     mixins: [responsiveElement],
     $trs: { viewAllButtonLabel: 'View all' },
     props: {
@@ -91,10 +95,6 @@
         },
       },
     },
-    components: {
-      uiIconButton,
-      contentCard,
-    },
     data() {
       return {
         // flag marks holds the index (in contents array, prop) of first item in carousel
@@ -104,6 +104,37 @@
         // tracks whether the carousel has been interacted with
         interacted: false,
       };
+    },
+    computed: {
+      contentSetSize() {
+        if (this.elSize.width > 2 * contentCardWidth) {
+          const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
+          const numOfGutters = numOfCards - 1;
+          const totalWidth = numOfCards * contentCardWidth + numOfGutters * gutterWidth;
+          if (this.elSize.width >= totalWidth) {
+            return numOfCards;
+          }
+          return numOfCards - 1;
+        }
+        return 1;
+      },
+      contentSetEnd() {
+        return this.contentSetStart + (this.contentSetSize - 1);
+      },
+      isFirstSet() {
+        return this.contentSetStart === 0;
+      },
+      isLastSet() {
+        return this.contentSetEnd >= this.contents.length - 1;
+      },
+      widthOfCarousel() {
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        return {
+          width: `${cards + gutters}px`,
+          'min-width': `${contentCardWidth}px`,
+        };
+      },
     },
     watch: {
       // ensures that indeces in contentSetStart/End are within bounds of the contents
@@ -135,37 +166,6 @@
           this.contentSetStart = this.contents.length - this.contentSetSize;
           this.leftToRight = true;
         }
-      },
-    },
-    computed: {
-      contentSetSize() {
-        if (this.elSize.width > 2 * contentCardWidth) {
-          const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
-          const numOfGutters = numOfCards - 1;
-          const totalWidth = numOfCards * contentCardWidth + numOfGutters * gutterWidth;
-          if (this.elSize.width >= totalWidth) {
-            return numOfCards;
-          }
-          return numOfCards - 1;
-        }
-        return 1;
-      },
-      contentSetEnd() {
-        return this.contentSetStart + (this.contentSetSize - 1);
-      },
-      isFirstSet() {
-        return this.contentSetStart === 0;
-      },
-      isLastSet() {
-        return this.contentSetEnd >= this.contents.length - 1;
-      },
-      widthOfCarousel() {
-        const cards = this.contentSetSize * contentCardWidth;
-        const gutters = (this.contentSetSize - 1) * gutterWidth;
-        return {
-          width: `${cards + gutters}px`,
-          'min-width': `${contentCardWidth}px`,
-        };
       },
     },
     methods: {

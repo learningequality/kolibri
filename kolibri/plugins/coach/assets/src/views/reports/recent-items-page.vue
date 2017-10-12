@@ -64,8 +64,18 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import alignMixin from './align-mixin';
   export default {
-    mixins: [alignMixin],
     name: 'coachRecentReports',
+    components: {
+      breadcrumbs,
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell,
+      contentIcon,
+      progressBar,
+    },
+    mixins: [alignMixin],
     $trs: {
       title: 'Recent Activity',
       name: 'Name',
@@ -76,16 +86,6 @@
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
-    },
-    components: {
-      breadcrumbs,
-      reportTable,
-      reportSubheading,
-      headerCell,
-      nameCell,
-      activityCell,
-      contentIcon,
-      progressBar,
     },
     computed: {
       tableColumns() {

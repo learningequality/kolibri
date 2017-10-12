@@ -31,98 +31,98 @@ class LearnModule extends KolibriModule {
           {
             name: PageNames.TOPICS_ROOT,
             path: '/topics',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showChannels(store);
             },
           },
           {
             name: PageNames.RECOMMENDED,
             path: '/recommended',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               showLearn(store);
             },
           },
           {
             name: PageNames.SEARCH,
             path: '/search',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               actions.showSearch(store, toRoute.query.query);
             },
           },
           {
             name: PageNames.CONTENT_UNAVAILABLE,
             path: '/content-unavailable',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showContentUnavailable(store);
             },
           },
           {
             name: PageNames.TOPICS_CHANNEL,
             path: '/topics/:channel_id',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               actions.showTopicsChannel(store, toRoute.params.channel_id);
             },
           },
           {
             name: PageNames.TOPICS_TOPIC,
             path: '/topics/t/:id',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               actions.showTopicsTopic(store, toRoute.params.id);
             },
           },
           {
             name: PageNames.TOPICS_CONTENT,
             path: '/topics/c/:id',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               actions.showTopicsContent(store, toRoute.params.id);
             },
           },
           {
             name: PageNames.RECOMMENDED_POPULAR,
             path: '/recommended/popular',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               showPopularPage(store);
             },
           },
           {
             name: PageNames.RECOMMENDED_RESUME,
             path: '/recommended/resume',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               showResumePage(store);
             },
           },
           {
             name: PageNames.RECOMMENDED_NEXT_STEPS,
             path: '/recommended/nextsteps',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               showNextStepsPage(store);
             },
           },
           {
             name: PageNames.RECOMMENDED_FEATURED,
             path: '/recommended/featured/:channel_id',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               showFeaturedPage(store, toRoute.params.channel_id);
             },
           },
           {
             name: PageNames.RECOMMENDED_CONTENT,
             path: '/recommended/:id',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               showLearnContent(store, toRoute.params.id);
             },
           },
           {
             name: PageNames.EXAM_LIST,
             path: '/exams',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showExamList(store);
             },
           },
           {
             name: PageNames.EXAM,
             path: '/exams/:id/:questionNumber',
-            handler: (toRoute, fromRoute) => {
+            handler: toRoute => {
               const { id, questionNumber } = toRoute.params;
               actions.showExam(store, id, questionNumber);
             },

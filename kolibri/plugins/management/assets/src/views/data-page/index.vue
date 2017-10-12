@@ -49,8 +49,9 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    mixins: [responsiveWindow],
     name: 'manageData',
+    components: { kButton },
+    mixins: [responsiveWindow],
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
@@ -67,7 +68,6 @@
       note: 'Note',
       noDownload: 'Download is not supported on Android',
     },
-    components: { kButton },
     computed: {
       cannotDownload() {
         return isAndroidWebView();

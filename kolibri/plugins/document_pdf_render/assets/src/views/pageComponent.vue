@@ -43,11 +43,6 @@
       active: false,
       rendered: false,
     }),
-    watch: {
-      scale: 'renderPage',
-      active: 'renderPage',
-      pdfPage: 'renderPage',
-    },
     computed: {
       pageHeight() {
         return this.height || this.defaultHeight;
@@ -55,6 +50,11 @@
       pageWidth() {
         return this.width || this.defaultWidth;
       },
+    },
+    watch: {
+      scale: 'renderPage',
+      active: 'renderPage',
+      pdfPage: 'renderPage',
     },
     methods: {
       cancelRender() {

@@ -31,7 +31,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="classModel in sortedClasses">
+          <tr v-for="classModel in sortedClasses" :key="classModel.id">
             <th scope="row" class="table-text">
               <k-router-link
                 :text="classModel.name"
@@ -67,6 +67,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   export default {
+    name: 'classPage',
     components: {
       classCreateModal,
       classDeleteModal,
@@ -110,7 +111,6 @@
       },
       actions: { displayModal: actions.displayModal },
     },
-    name: 'classPage',
     $trs: {
       allClasses: 'All Classes',
       addNew: 'Add New Class',

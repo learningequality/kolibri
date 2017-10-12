@@ -45,7 +45,9 @@
 
   export default {
     name: 'ui-menu',
-
+    components: {
+      'menu-option': UiMenuOption,
+    },
     props: {
       options: {
         type: Array,
@@ -110,10 +112,6 @@
         e.stopPropagation();
         this.$el.querySelector('.ui-menu-option').focus();
       },
-    },
-
-    components: {
-      'menu-option': UiMenuOption,
     },
   };
 

@@ -11,6 +11,7 @@
             selected: isSelected(index),
             clickable: true
           }"
+          :key="index"
         >
             <mat-svg
               v-if="attemptLog.noattempt"

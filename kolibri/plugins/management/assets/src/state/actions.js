@@ -147,7 +147,7 @@ function deleteClass(store, id) {
   ClassroomResource.getModel(id)
     .delete()
     .then(
-      classModel => {
+      () => {
         store.dispatch('DELETE_CLASS', id);
         displayModal(store, false);
       },
@@ -196,7 +196,7 @@ function removeClassUser(store, classId, userId) {
     MembershipResource.getModel(membershipId)
       .delete()
       .then(
-        response => {
+        () => {
           store.dispatch('DELETE_CLASS_USER', userId);
           displayModal(store, false);
         },

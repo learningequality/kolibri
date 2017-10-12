@@ -185,7 +185,7 @@ export class Model {
             // Otherwise, DELETE the Model
             const clientObj = { path: this.url, method: 'DELETE' };
             this.resource.client(clientObj).then(
-              response => {
+              () => {
                 // delete this instance
                 this.resource.removeModel(this);
                 // Set a flag so that any collection containing this can ignore this model

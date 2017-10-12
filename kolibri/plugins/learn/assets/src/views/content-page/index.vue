@@ -123,7 +123,6 @@
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -134,6 +133,18 @@
       license: 'License: {license}',
       licenseDescription: 'License description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+    },
+    components: {
+      pageHeader,
+      contentCardGroupCarousel,
+      contentRenderer,
+      downloadButton,
+      kButton,
+      assessmentWrapper,
+      pointsPopup,
+      pointsSlidein,
+      uiPopover,
+      uiIcon,
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
@@ -188,17 +199,8 @@
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
-    components: {
-      pageHeader,
-      contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
-      kButton,
-      assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
-      uiPopover,
-      uiIcon,
+    beforeDestroy() {
+      this.stopTracking();
     },
     methods: {
       nextContentClicked() {
@@ -229,9 +231,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    beforeDestroy() {
-      this.stopTracking();
     },
     vuex: {
       getters: {

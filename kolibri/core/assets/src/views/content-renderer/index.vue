@@ -50,6 +50,10 @@
       msgNotAvailable: 'This content is not available',
       rendererNotAvailable: 'Kolibri is unable to render this content',
     },
+    components: {
+      loadingSpinner,
+      uiAlert,
+    },
     props: {
       id: {
         type: String,
@@ -101,10 +105,10 @@
         validator: languageValidator,
       },
     },
-    components: {
-      loadingSpinner,
-      uiAlert,
-    },
+    data: () => ({
+      currentViewClass: null,
+      noRendererAvailable: false,
+    }),
     computed: {
       extension() {
         if (this.availableFiles.length > 0) {
@@ -130,10 +134,6 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.updateRendererComponent);
     },
-    data: () => ({
-      currentViewClass: null,
-      noRendererAvailable: false,
-    }),
     methods: {
       /* Check the Kolibri core app for a content renderer module that is able to
        * handle the rendering of the current content node. This is the entrance point for changes
@@ -150,7 +150,7 @@
             this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
           ])
             .then(([session, component]) => {
-              this.$emit('sessionInitialized');
+              this.$emit('sessionInitialized', session);
               this.currentViewClass = component;
               return this.currentViewClass;
             })

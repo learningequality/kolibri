@@ -66,7 +66,7 @@
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
             {{user.username}}

@@ -55,13 +55,13 @@ function showGroupsPage(store, classId) {
   }).fetch({}, true);
 
   ConditionalPromise.all([
-    facilityPromise,
     classUsersPromise,
     groupPromise,
+    facilityPromise,
     setClassState(store, classId),
   ]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classUsers, groupsCollection]) => {
+    ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
         FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true)

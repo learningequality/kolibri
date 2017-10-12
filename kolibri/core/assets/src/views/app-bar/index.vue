@@ -58,8 +58,15 @@
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from '../language-switcher/modal';
   export default {
-    mixins: [responsiveWindow],
     name: 'appBar',
+    components: {
+      uiToolbar,
+      uiIconButton,
+      keenMenuPort,
+      uiButton,
+      languageSwitcherModal,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       account: 'Account',
       profile: 'Profile',
@@ -88,13 +95,6 @@
     data: () => ({
       showLanguageModal: false,
     }),
-    components: {
-      uiToolbar,
-      uiIconButton,
-      keenMenuPort,
-      uiButton,
-      languageSwitcherModal,
-    },
     computed: {
       accountMenuOptions() {
         const changeLanguage = {
