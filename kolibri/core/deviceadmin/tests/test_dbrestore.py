@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import os
+import random
 import tempfile
 
 import kolibri
@@ -17,6 +19,16 @@ MOCK_DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ":memory:",
+        'OPTIONS': {
+            'timeout': 100,
+        }
+    }
+}
+
+MOCK_DATABASES_FILE = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(tempfile.mkdtemp(), "test{}.db".format(random.randint(0, 100000))),
         'OPTIONS': {
             'timeout': 100,
         }
@@ -46,6 +58,12 @@ def test_illegal_command():
 
     with pytest.raises(CommandError):
         call_command("dbrestore", latest=True, dump_file="wup wup")
+
+
+def test_no_restore_from_no_file():
+
+    with pytest.raises(CommandError):
+        call_command("dbrestore", dump_file="does not exist")
 
 
 def test_active_kolibri():
@@ -115,9 +133,10 @@ def test_restore_from_latest():
 
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
-def test_restore_from_file():
+def test_restore_from_file_to_memory():
     """
-    Tests that we cannot restore while kolibri is active
+    Restores from a file dump to a database stored in memory and reads contents
+    from the new database.
     """
     if not is_sqlite_settings():
         return
@@ -134,6 +153,37 @@ def test_restore_from_file():
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES):
+            from django import db
+            # Destroy current connections and create new ones:
+            db.connections.close_all()
+            db.connections = db.ConnectionHandler()
+            call_command("dbrestore", dump_file=backup)
+            # Test that the user has been restored!
+            assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
+def test_restore_from_file_to_file():
+    """
+    Restores from a file dump to a database stored in a file and reads contents
+    from the new database.
+    """
+    if not is_sqlite_settings():
+        return
+    with patch(
+        "kolibri.utils.server.get_status",
+        side_effect=mock_status_not_running
+    ):
+        # Create something special in the database!
+        from kolibri.auth.models import Facility
+        Facility.objects.create(name="test file", kind=FACILITY)
+        # Create a backup file from the current test database
+        dest_folder = tempfile.mkdtemp()
+        backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
+
+        # Restore it into a new test database setting
+        with override_settings(DATABASES=MOCK_DATABASES_FILE):
             from django import db
             # Destroy current connections and create new ones:
             db.connections.close_all()

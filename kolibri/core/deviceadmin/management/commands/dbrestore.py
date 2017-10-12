@@ -4,7 +4,6 @@ import logging
 import os
 
 import kolibri
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from kolibri.utils import server
 
@@ -60,9 +59,6 @@ class Command(BaseCommand):
 
         if latest == bool(use_backup):
             raise CommandError("Either specify a backup file or use --latest")
-
-        if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
-            raise CommandError("Not configured to use sqlite3")
 
         logger.info("Beginning database restore")
 
