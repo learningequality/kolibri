@@ -8,6 +8,7 @@
       :label="$tr('selectClass')"
       :value="currentClass"
       :options="classOptions"
+      :inline="true"
       @change="changeClass"
       class="class-selector"
     />
@@ -72,21 +73,14 @@
 </script>
 
 
-<style lang="stylus">
-
-  .class-selector
-    .ui-select__display-value
-      font-size: 1.5em
-      font-weight: bold
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   .class-selector
-    display: inline-block
     vertical-align: bottom
+
+  >>>.ui-select__display-value
+    font-size: 1.5em
+    font-weight: bold
 
   .classes-link
     display: inline-block

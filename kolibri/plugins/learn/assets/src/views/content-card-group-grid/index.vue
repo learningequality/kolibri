@@ -4,7 +4,6 @@
     <div>
       <k-select
         v-if="showContentKindFilter"
-        class="filter"
         :label="$tr('resourceType')"
         :options="contentKindFilterOptions"
         :inline="true"
@@ -13,7 +12,6 @@
 
       <k-select
         v-if="showChannelFilter"
-        class="filter"
         :label="$tr('channels')"
         :options="channelFilterOptions"
         :inline="true"
@@ -193,9 +191,5 @@
     margin-bottom: $gutters
     &.mobile
       width: 100%
-
-  .filter
-    margin-bottom: 16px
-    margin-right: 16px
 
 </style>

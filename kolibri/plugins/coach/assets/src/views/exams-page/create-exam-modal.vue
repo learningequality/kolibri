@@ -87,13 +87,8 @@
   .channel-select
     padding-bottom: 4rem
 
-</style>
+  >>>.ui-select__options
+    max-height: 5rem
 
-
-<style lang="stylus">
-
-  .channel-select
-    .ui-select__options
-      max-height: 5rem
 
 </style>

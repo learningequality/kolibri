@@ -3276,14 +3276,16 @@ katex@^0.6.0:
   dependencies:
     match-at "^0.1.0"
 
-keen-ui@^1.0.1:
+"keen-ui@https://github.com/christianmemije/keen-ui":
   version "1.0.1"
-  resolved "https://registry.yarnpkg.com/keen-ui/-/keen-ui-1.0.1.tgz#9f85bd82d3c9f258c95df8f5abba07d5cd9803bb"
+  resolved "https://github.com/christianmemije/keen-ui#ea3a84e21f4e5f41e35b8c7b57e672329ae08716"
   dependencies:
     autosize "^3.0.20"
     deep-assign "^2.0.0"
     fuzzysearch "^1.0.3"
     lodash.debounce "^4.0.8"
+    lodash.sortby "^4.7.0"
+    lodash.startswith "^4.2.1"
     tether-drop "^1.4.2"
     tether-tooltip "^1.2.0"
 
@@ -3446,6 +3448,14 @@ lodash.mergewith@^4.6.0:
 lodash.rest@^4.0.0:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/lodash.rest/-/lodash.rest-4.0.5.tgz#954ef75049262038c96d1fc98b28fdaf9f0772aa"
+
+lodash.sortby@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
+
+lodash.startswith@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/lodash.startswith/-/lodash.startswith-4.2.1.tgz#c598c4adce188a27e53145731cdc6c0e7177600c"
 
 lodash.tail@^4.1.1:
   version "4.1.1"

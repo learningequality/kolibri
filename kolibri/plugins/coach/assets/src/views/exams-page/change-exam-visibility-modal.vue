@@ -184,13 +184,7 @@
   .group-select
     padding-bottom: 4rem
 
-</style>
-
-
-<style lang="stylus">
-
-  .group-select
-    .ui-select__options
-      max-height: 5rem
+  >>>.ui-select__options
+    max-height: 5rem
 
 </style>
