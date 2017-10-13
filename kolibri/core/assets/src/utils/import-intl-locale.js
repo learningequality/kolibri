@@ -1,4 +1,4 @@
-module.exports = (locale, callback) => {
+module.exports = locale => {
   switch (locale) {
     case 'fr-FR':
       return new Promise(resolve => {

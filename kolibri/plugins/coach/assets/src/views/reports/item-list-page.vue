@@ -76,16 +76,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    mixins: [alignMixin],
     name: 'itemReportPage',
-    $trs: {
-      name: 'Name',
-      avgExerciseProgress: 'Avg. exercise progress',
-      avgContentProgress: 'Avg. resource progress',
-      lastActivity: 'Last activity',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-    },
     components: {
       contentIcon,
       breadcrumbs,
@@ -94,6 +85,20 @@
       nameCell,
       progressCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      name: 'Name',
+      avgExerciseProgress: 'Avg. exercise progress',
+      avgContentProgress: 'Avg. resource progress',
+      lastActivity: 'Last activity',
+      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+    },
+    computed: {
+      tableColumns() {
+        return reportConstants.TableColumns;
+      },
     },
     methods: {
       genRowLink(row) {
@@ -138,11 +143,6 @@
           }
         }
         return null;
-      },
-    },
-    computed: {
-      tableColumns() {
-        return reportConstants.TableColumns;
       },
     },
     vuex: {

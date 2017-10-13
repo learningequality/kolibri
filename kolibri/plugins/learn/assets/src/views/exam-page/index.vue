@@ -53,7 +53,7 @@
       <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
-        <k-button :text="$tr('cancel')" :raised="false" @click="toggleModal"/>
+        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal"/>
         <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
       </core-modal>
     </template>
@@ -120,6 +120,17 @@
         closeExam: actions.closeExam,
       },
     },
+    computed: {
+      backPageLink() {
+        return {
+          name: PageNames.EXAM_LIST,
+          params: { channel_id: this.channelId },
+        };
+      },
+      questionsUnanswered() {
+        return this.exam.questionCount - this.questionsAnswered;
+      },
+    },
     created() {
       this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
         leading: false,
@@ -184,17 +195,6 @@
         this.closeExam().then(() => {
           this.$router.push(this.backPageLink);
         });
-      },
-    },
-    computed: {
-      backPageLink() {
-        return {
-          name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
-        };
-      },
-      questionsUnanswered() {
-        return this.exam.questionCount - this.questionsAnswered;
       },
     },
   };

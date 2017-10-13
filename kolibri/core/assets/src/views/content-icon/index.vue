@@ -54,6 +54,7 @@
   import values from 'lodash/values';
   import uiIcon from 'keen-ui/src/UiIcon';
   export default {
+    components: { uiIcon },
     props: {
       kind: {
         type: String,
@@ -77,7 +78,6 @@
         return `color-${this.colorStyle}`;
       },
     },
-    components: { uiIcon },
     methods: {
       is(kind) {
         return this.kind === kind;

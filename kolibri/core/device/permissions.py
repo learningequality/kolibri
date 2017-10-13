@@ -17,11 +17,11 @@ class UserCanManageDevicePermissions(DenyAll):
 
     def user_can_update_object(self, user, obj):
         # Superuser cannot commit superuser-suicide
-        return user.is_superuser and obj.user is not user
+        return user.is_superuser and obj.user != user
 
     def user_can_delete_object(self, user, obj):
         # Superuser cannot commit superuser-suicide
-        return user.is_superuser and obj.user is not user
+        return user.is_superuser and obj.user != user
 
 
 class NotProvisionedCanPost(BasePermission):

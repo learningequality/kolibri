@@ -9,7 +9,7 @@
       class="channel-select"
     />
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close"/>
       <k-button :text="$tr('createExam')" :primary="true" :disabled="!selectedChannel" @click="routeToCreateExamPage"/>
     </div>
   </core-modal>
@@ -82,9 +82,7 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
   .channel-select
     padding-bottom: 4rem

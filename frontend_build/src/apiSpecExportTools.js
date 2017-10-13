@@ -54,7 +54,8 @@ function specModule(filePath) {
           type: 'Literal',
           value: path,
           raw: '"' + path + '"',
-        }), (prop.shorthand = false);
+        }),
+          (prop.shorthand = false);
       }
     });
   }

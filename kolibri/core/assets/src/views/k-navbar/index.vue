@@ -2,7 +2,7 @@
 
   <nav class="tabs">
     <ul>
-      <!-- Can contain either tab-buttons or tab-links. -->
+      <!-- Contains k-navbar-link components -->
       <slot/>
     </ul>
   </nav>
@@ -13,7 +13,7 @@
 <script>
 
   /**
-    * Used for navigation within a plugin
+    * Used for navigation between sub-pages of a top-level Kolibri section
     */
 
   export default {

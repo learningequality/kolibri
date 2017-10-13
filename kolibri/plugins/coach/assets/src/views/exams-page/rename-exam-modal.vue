@@ -12,7 +12,7 @@
         v-model.trim="newExamTitle"
       />
       <div class="footer">
-        <k-button :text="$tr('cancel')" :raised="false" type="button" @click="close"/>
+        <k-button :text="$tr('cancel')" appearance="flat-button" type="button" @click="close"/>
         <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="submitting"/>
       </div>
     </form>
@@ -127,8 +127,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>

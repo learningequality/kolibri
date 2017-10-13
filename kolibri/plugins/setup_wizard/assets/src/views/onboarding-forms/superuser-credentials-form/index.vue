@@ -63,6 +63,10 @@
 
   export default {
     name: 'superuserCredentialsForm',
+    components: {
+      onboardingForm,
+      kTextbox,
+    },
     $trs: {
       adminAccountCreationHeader: 'Create your Admin account',
       adminAccountCreationDescription:
@@ -85,10 +89,6 @@
         type: String,
         required: true,
       },
-    },
-    components: {
-      onboardingForm,
-      kTextbox,
     },
     data() {
       return {

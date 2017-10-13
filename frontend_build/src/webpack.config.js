@@ -6,7 +6,6 @@
  * configurations and Webpack documentation for details on what the configuration bundles do.
  */
 
-
 // ensure the correct version of node is being used
 // (specified in package.json)
 require('engine-strict').check();

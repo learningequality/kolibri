@@ -22,7 +22,7 @@
 <script>
 
   import { contentPoints } from 'kolibri.coreVue.vuex.getters';
-  import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
 

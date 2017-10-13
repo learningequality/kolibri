@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" ref="recentHeader">
+    <div v-if="showRecentOnly" class="header">
       <h1>{{ $tr('recentTitle') }}</h1>
       <report-subheading />
     </div>
@@ -24,8 +24,16 @@
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
-            <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
-            <activity-cell :date="channel.lastActive"/>
+            <name-cell
+              :kind="CHANNEL"
+              :title="channel.title"
+              :link="reportLink(channel.id)"
+              :key="channel.id"
+            />
+            <activity-cell
+              :date="channel.lastActive"
+              :key="channel.id"
+            />
           </tr>
         </template>
       </tbody>
@@ -49,21 +57,20 @@
   import activityCell from './table-cells/activity-cell';
   import alignMixin from './align-mixin';
   export default {
-    mixins: [alignMixin],
-    name: 'channelList',
     name: 'coachRecentPageChannelList',
-    $trs: {
-      recentTitle: 'Recent Activity',
-      channels: 'Channels',
-      channelList: 'Channel list',
-      lastActivity: 'Last active',
-    },
     components: {
       reportTable,
       reportSubheading,
       headerCell,
       nameCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      recentTitle: 'Recent Activity',
+      channels: 'Channels',
+      channelList: 'Channel list',
+      lastActivity: 'Last active',
     },
     computed: {
       CHANNEL() {

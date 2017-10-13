@@ -10,7 +10,7 @@ from .serializers import DevicePermissionsSerializer, DeviceProvisionSerializer
 class DevicePermissionsViewSet(viewsets.ModelViewSet):
     queryset = DevicePermissions.objects.all()
     serializer_class = DevicePermissionsSerializer
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
 

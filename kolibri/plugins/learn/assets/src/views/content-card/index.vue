@@ -42,6 +42,10 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
+    components: {
+      contentIcon,
+      progressIcon,
+    },
     mixins: [responsiveElement],
     props: {
       title: {
@@ -116,10 +120,6 @@
         }
         return '';
       },
-    },
-    components: {
-      contentIcon,
-      progressIcon,
     },
   };
 

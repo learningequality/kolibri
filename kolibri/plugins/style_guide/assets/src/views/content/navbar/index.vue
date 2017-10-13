@@ -1,30 +1,56 @@
 <template>
 
-  <page-template title="Horizontal Navbar" :completed="false">
+  <page-template :completed="true">
+
+    <h1>Horizontal Navbar</h1>
+
+    <p>
+      The horizontal navbar should be the primary means of navigating between
+      sub-pages of top-level sections (app plugins) of Kolibri.
+    </p>
+
+    <p>
+      Navbar links use information from vue router to determine which one is
+      visually selected.
+    </p>
+
+    <show>
+      <k-navbar>
+        <k-navbar-link
+          type="icon-and-title"
+          title="Trending"
+          icon="trending_up"
+          :link="a">
+        </k-navbar-link>
+        <k-navbar-link
+          type="icon-and-title"
+          title="Lit"
+          icon="whatshot"
+          :link="b">
+        </k-navbar-link>
+        <k-navbar-link
+          type="icon-and-title"
+          title="Favorites"
+          icon="favorite"
+          :link="c">
+        </k-navbar-link>
+      </k-navbar>
+    </show>
+
+    <h2>Usage guidelines</h2>
+
+    <p>Text for navbar items should ideally be a single, short word.</p>
+
     <h2>Component APIs</h2>
-    <h3><code>{{ kNavbarApi.name }}</code></h3>
+
+    <h3>Navbar</h3>
     <component-docs :api="kNavbarApi" />
-    <h3><code>{{ kNavbarLinkApi.name }}</code></h3>
+
+    <h3>Navbar Link</h3>
     <component-docs :api="kNavbarLinkApi" />
 
     <h2>Code Example</h2>
     <vue-example :code="example" />
-
-    <h2>Guidelines</h2>
-
-    <h3>Usage</h3>
-    <ul>
-      <li>Should be the primary means of navigation within a plugin.</li>
-      <li>Should appear in all user-facing plugins.</li>
-      <li>If there exists an appropriate icon for each navbar item, then use them. Else, stick to text only navbar items.</li>
-      <li>Text for navbar items should ideally be kept to one word. Two if really necessary.</li>
-      <li>Should not be nested.</li>
-    </ul>
-
-    <h3>Responsiveness</h3>
-    <ul>
-      <li>Horizontally scrolls if all items do not fit within parent's width.</li>
-    </ul>
 
   </page-template>
 
@@ -36,6 +62,7 @@
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
+  import show from '../../shell/show';
 
   import example from 'raw-loader!./example.html';
   import kNavbarApi from '!vue-doc!kolibri.coreVue.components.kNavbar';
@@ -52,12 +79,26 @@
       pageTemplate,
       componentDocs,
       vueExample,
+      kNavbarLink,
+      kNavbar,
+      show,
     },
     data: () => ({
       kNavbarApi,
       kNavbarLinkApi,
       example,
     }),
+    computed: {
+      a() {
+        return {};
+      },
+      b() {
+        return { path: '#' };
+      },
+      c() {
+        return { path: '#' };
+      },
+    },
   };
 
 </script>

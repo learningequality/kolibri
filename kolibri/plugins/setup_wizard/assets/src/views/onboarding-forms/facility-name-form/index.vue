@@ -29,6 +29,10 @@
 
   export default {
     name: 'facilityNameForm',
+    components: {
+      onboardingForm,
+      kTextbox,
+    },
     $trs: {
       facilityNamingFormHeader: 'Name your Facility',
       facilityNamingFormDescription:
@@ -41,10 +45,6 @@
         type: String,
         required: true,
       },
-    },
-    components: {
-      onboardingForm,
-      kTextbox,
     },
     data() {
       return {

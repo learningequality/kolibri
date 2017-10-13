@@ -4,12 +4,12 @@
     <div>
       <p>{{ $tr('areYouSure') }} <strong>{{ className }}</strong>?</p>
       <ul class="review-enroll-ul">
-        <li class="review-enroll-li" v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
+        <li class="review-enroll-li" v-for="userId in selectedUsers" :key="userId"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
       <div class="modal-buttons">
         <k-button
           :text="$tr('noGoBack')"
-          :raised="false"
+          appearance="flat-button"
           @click="close"/>
         <k-button
           :text="$tr('yesEnrollUsers')"
@@ -67,13 +67,10 @@
         return this.facilityUsers.find(user => user.id === userId).username;
       },
       enrollUsers() {
-        this.enrollUsersInClass(this.classId, this.selectedUsers).then(
-          () => {
-            this.close();
-            this.$router.push(this.editClassLink);
-          },
-          error => {}
-        );
+        this.enrollUsersInClass(this.classId, this.selectedUsers).then(() => {
+          this.close();
+          this.$router.push(this.editClassLink);
+        });
       },
       close() {
         this.displayModal(false);

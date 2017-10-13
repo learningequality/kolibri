@@ -366,12 +366,9 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(topicId).then(
-          () => {
-            this.loading = false;
-          },
-          error => {}
-        );
+        this.fetchContent(topicId).then(() => {
+          this.loading = false;
+        });
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;

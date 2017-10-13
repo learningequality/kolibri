@@ -19,28 +19,28 @@ class UserModule extends KolibriModule {
           {
             name: PageNames.ROOT,
             path: '/',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showRoot(store);
             },
           },
           {
             name: PageNames.SIGN_IN,
             path: '/signin',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showSignIn(store);
             },
           },
           {
             name: PageNames.SIGN_UP,
             path: '/create_account',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showSignUp(store);
             },
           },
           {
             name: PageNames.PROFILE,
             path: '/profile',
-            handler: (toRoute, fromRoute) => {
+            handler: () => {
               actions.showProfile(store);
             },
           },
@@ -51,8 +51,8 @@ class UserModule extends KolibriModule {
         ];
 
         this.rootvue = new Vue({
-          el: 'rootvue',
           name: 'UserRoot',
+          el: 'rootvue',
           render: createElement => createElement(RootVue),
           router: router.init(routes),
         });

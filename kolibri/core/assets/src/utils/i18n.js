@@ -1,12 +1,8 @@
 import vue from 'kolibri.lib.vue';
-import logger from '../logging';
+import { getLogger } from '../logging';
 import importIntlLocale from './import-intl-locale';
 
-const logging = logger.getLogger(__filename);
-
-let toFakeRTL;
-// This will get set during initialization if the dummy language
-// has been activated
+const logging = getLogger(__filename);
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {
@@ -20,10 +16,6 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
     id: `${nameSpace}.${messageId}`,
     defaultMessage: defaultMessageText,
   };
-
-  if (vue.locale === 'rt-lft') {
-    message.defaultMessage = toFakeRTL(defaultMessageText);
-  }
 
   return formatter(message, args);
 }
@@ -226,16 +218,6 @@ export function setUpIntl() {
           logging.error('An error occurred trying to setup Internationalization', error);
           reject();
         }
-      );
-    } else if (global.languageCode === 'rt-lft') {
-      require.ensure(
-        ['./mirrorText'],
-        require => {
-          toFakeRTL = require('./mirrorText').default;
-          setUpVueIntl();
-          resolve();
-        },
-        'fakeRtl'
       );
     } else {
       setUpVueIntl();

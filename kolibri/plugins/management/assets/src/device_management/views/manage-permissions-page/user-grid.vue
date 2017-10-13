@@ -8,6 +8,7 @@
     <table v-else class="table">
       <thead class="table-header">
         <tr>
+          <th></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
           <th></th>
@@ -16,9 +17,15 @@
 
       <tbody>
         <tr v-for="user in visibleUsers" :key="user.id" class="table-row">
+          <td class="icon-col">
+            <permissions-icon
+              v-if="!!getPermissionType(user.id)"
+              :permissionType="getPermissionType(user.id)"
+            />
+            </td>
           <td>
-            <user-full-name-cell :user="user" />
-            <span v-if="isCurrentUser(user.username)" class="align"> ({{ $tr('you') }})</span>
+            {{ user.full_name }}
+            <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
           </td>
           <td>
             {{ user.username }}
@@ -26,7 +33,7 @@
           <td class="align-right">
             <k-button
               @click="goToUserPermissionsPage(user.id)"
-              :raised="false"
+              appearance="flat-button"
               :text="permissionsButtonText(user.username)"
             />
           </td>
@@ -41,14 +48,15 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
-  import userFullNameCell from './user-full-name-cell';
+  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
+  import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'userGrid',
     components: {
       kButton,
-      userFullNameCell,
+      permissionsIcon,
     },
     props: {
       searchFilter: {
@@ -74,13 +82,24 @@
           path: `/permissions/${userId}`,
         });
       },
+      getPermissionType(userId) {
+        const permissions = this.userPermissions(userId);
+        if (!permissions) {
+          return null;
+        } else if (permissions.is_superuser) {
+          return PermissionTypes.SUPERUSER;
+        } else if (permissions.can_manage_content) {
+          return PermissionTypes.LIMITED_PERMISSIONS;
+        }
+        return null;
+      },
     },
     vuex: {
       getters: {
         isCurrentUser: ({ core }) => username => core.session.username === username,
         facilityUsers: ({ pageState }) => pageState.facilityUsers,
+        userPermissions: state => userid => state.pageState.permissions[userid],
       },
-      actions: {},
     },
     $trs: {
       viewPermissions: 'View Permissions',
@@ -115,7 +134,8 @@
     font-weight: normal
     font-size: 0.8em
 
-  .align
-    vertical-align: super
+  .icon-col
+    width: 24px
+    padding-right: 16px
 
 </style>

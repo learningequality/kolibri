@@ -47,7 +47,10 @@
 
   export default {
     name: 'ui-menu-option',
-
+    components: {
+      UiIcon,
+      UiRippleInk,
+    },
     props: {
       type: String,
       label: String,
@@ -85,11 +88,6 @@
       isDivider() {
         return this.type === 'divider';
       },
-    },
-
-    components: {
-      UiIcon,
-      UiRippleInk,
     },
   };
 

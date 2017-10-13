@@ -41,7 +41,7 @@ oriented data synchronization.
         <k-button
           :text="$tr('check')"
           :primary="false"
-          :raised="true"
+          appearance="raised-button"
           v-if="!complete"
           @click="checkAnswer"
           class="question-btn"
@@ -51,7 +51,7 @@ oriented data synchronization.
         <k-button
           :text="$tr('correct')"
           :primary="true"
-          :raised="true"
+          appearance="raised-button"
           v-else
           @click="nextQuestion"
           class="question-btn"
@@ -86,8 +86,7 @@ oriented data synchronization.
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import * as actions from 'kolibri.coreVue.vuex.actions';
-  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
   import { updateContentNodeProgress } from '../../state/actions/main';
@@ -97,6 +96,12 @@ oriented data synchronization.
   import uiAlert from 'keen-ui/src/UiAlert';
   export default {
     name: 'assessmentWrapper',
+    components: {
+      exerciseAttempts,
+      contentRenderer,
+      kButton,
+      uiAlert,
+    },
     mixins: [responsiveWindow],
     $trs: {
       goal:
@@ -141,13 +146,6 @@ oriented data synchronization.
         default: () => Promise.resolve(),
       },
     },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
-    components: {
-      exerciseAttempts,
-      contentRenderer,
-      kButton,
-      uiAlert,
-    },
     data: () => ({
       ready: false,
       itemId: '',
@@ -160,6 +158,60 @@ oriented data synchronization.
       // Attempted fix for #1725
       checkingAnswer: false,
     }),
+    computed: {
+      recentAttempts() {
+        if (!this.pastattempts) {
+          return [];
+        }
+        return this.pastattempts
+          .map(attempt => {
+            if (attempt.hinted) {
+              return 'hint';
+            }
+            return attempt.correct ? 'right' : 'wrong';
+          })
+          .reverse();
+      },
+      mOfNMasteryModel() {
+        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
+      },
+      totalCorrectRequiredM() {
+        return this.mOfNMasteryModel.m;
+      },
+      attemptsWindowN() {
+        return this.mOfNMasteryModel.n;
+      },
+      exerciseProgress() {
+        if (this.mastered) {
+          return 1;
+        }
+        if (this.pastattempts) {
+          if (this.pastattempts.length > this.attemptsWindowN) {
+            return Math.min(
+              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
+                this.totalCorrectRequiredM,
+              1
+            );
+          }
+          return Math.min(
+            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
+            1
+          );
+        }
+        return 0;
+      },
+      success() {
+        return this.exerciseProgress === 1;
+      },
+      isMobile() {
+        return this.windowSize.breakpoint <= 1;
+      },
+    },
+    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    beforeDestroy() {
+      // Make sure any unsaved data is captured before tear down.
+      this.saveAttemptLogMasterLog();
+    },
     methods: {
       updateAttemptLogMasteryLog({
         correct,
@@ -323,59 +375,6 @@ oriented data synchronization.
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
-      },
-    },
-    beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
-    },
-    computed: {
-      recentAttempts() {
-        if (!this.pastattempts) {
-          return [];
-        }
-        return this.pastattempts
-          .map(attempt => {
-            if (attempt.hinted) {
-              return 'hint';
-            }
-            return attempt.correct ? 'right' : 'wrong';
-          })
-          .reverse();
-      },
-      mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
-      },
-      totalCorrectRequiredM() {
-        return this.mOfNMasteryModel.m;
-      },
-      attemptsWindowN() {
-        return this.mOfNMasteryModel.n;
-      },
-      exerciseProgress() {
-        if (this.mastered) {
-          return 1;
-        }
-        if (this.pastattempts) {
-          if (this.pastattempts.length > this.attemptsWindowN) {
-            return Math.min(
-              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
-                this.totalCorrectRequiredM,
-              1
-            );
-          }
-          return Math.min(
-            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-            1
-          );
-        }
-        return 0;
-      },
-      success() {
-        return this.exerciseProgress === 1;
-      },
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
       },
     },
     vuex: {

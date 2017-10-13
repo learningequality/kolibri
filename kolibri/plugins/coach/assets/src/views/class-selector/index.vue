@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <h1 class="classes-link"><router-link :to="classListPage">{{ $tr('allClasses') }}</router-link></h1>
+    <h1 class="classes-link">
+      <k-router-link :text="$tr('allClasses')" :to="classListPage" />
+    </h1>
     <k-select
       :label="$tr('selectClass')"
       :value="currentClass"
@@ -20,6 +22,8 @@
   import { PageNames } from '../../constants';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
     name: 'classSelector',
     $trs: {
@@ -29,6 +33,7 @@
     components: {
       kSelect,
       uiIcon,
+      kRouterLink,
     },
     props: {
       classes: {
