@@ -65,6 +65,9 @@ describe('HeartBeat', function () {
       this.keepalivefetchspy.returns(Promise.resolve({}));
       this.sessionModelMock = {
         fetch: this.sessionfetchspy,
+        attributes: {
+          user_id: 'test',
+        },
       };
       this.keepaliveModelMock = {
         fetch: this.keepalivefetchspy,
