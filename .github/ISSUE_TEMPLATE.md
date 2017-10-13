@@ -1,31 +1,28 @@
-## Summary
 
-*Briefly describe the issue and please DELETE the non applicable headings below. *
+### Observed behavior
 
-## System information
+description of the behavior that was observed, including screenshots or other references when applicable
 
-*Please specify the Kolibri version you were using and your operating system!*
+### Expected behavior
 
- - Version: ?
- - Operating system: ?
- - Browser: ?
+description of what behavior was expected but did not occur
 
-## Traceback or relevant snippet from server.log or browser console
+### User-facing consequences
+
+implications for a user of the application
+
+### Errors and logs
 
 ```
-INSERT TRACEBACK, LOG MESSAGES ETC. HERE
+logs and errors here
 ```
 
-## How to reproduce
+### Steps to reproduce
 
-1. Steps
-1. To
-1. Reproduce
+precise steps that someone else can follow in order to see this behavior
 
-## Screenshots
+### Context
 
-*If applicable*
-
-## Real-life consequences (anything community should be aware of, for instance how it affects your deployment)
-
-*If applicable*
+* Kolibri version: ?
+* Operating system: ?
+* Browser: ?

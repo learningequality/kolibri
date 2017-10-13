@@ -1,27 +1,28 @@
-## Summary
 
-*Short description*
+# Checklist
 
-## TODO
+- [ ] Target milestone
+- [ ] New tests
+- [ ] Updated documentation
+- [ ] External dependency updates
+- [ ] Internal dependency updates (with link to diff)
+- [ ] Screenshots
+- [ ] Update to CHANGELOG.rst
+- [ ] Update to AUTHORS.rst
 
-- [ ] Have tests been written for the new code?
-- [ ] Has documentation been written/updated?
-- [ ] New dependencies (if any) added to requirements file
-- [ ] Add an entry to CHANGELOG.rst
-- [ ] Add yourself it AUTHORS.rst if you don't appear there
+# Details
 
-## Reviewer guidance
+### Summary
 
-*If you PR has a significant size, give the reviewer some helpful remarks*
+description of the change, including screenshots when applicable
 
-## Issues addressed
+### Reviewer guidance
 
-List the issues solved or partly solved by the PR
+description of how to test the changes
 
-## Documentation
+### References
 
-If the PR has documentation, link the file here (either .rst in your repo or if built on Read The Docs)
-
-## Screenshots (if appropriate)
-
-They're nice. :)
+* related issues and PRs
+* related trello links
+* related mockups or specs
+* links to dependency updates
