@@ -180,18 +180,20 @@ function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(channelCollection => {
-        const rootNodes = _collectionState(channelCollection);
-        rootNodes.forEach(rootNode => {
-          rootNode.thumbnail = channels.find(
-            channel => channel.id === rootNode.channel_id
-          ).thumbnail;
+      ContentNodeResource.getCollection({ ids: channelRootIds })
+        .fetch()
+        .then(channelCollection => {
+          const rootNodes = _collectionState(channelCollection);
+          rootNodes.forEach(rootNode => {
+            rootNode.thumbnail = channels.find(
+              channel => channel.id === rootNode.channel_id
+            ).thumbnail;
+          });
+          const pageState = { rootNodes };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
         });
-        const pageState = { rootNodes };
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-      });
     },
     error => {
       handleApiError(store, error);
@@ -271,6 +273,7 @@ function showTopicsChannel(store, id) {
 }
 
 function showTopicsContent(store, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
@@ -384,20 +387,22 @@ function showExamList(store) {
     return Promise.resolve();
   }
 
-  return UserExamResource.getCollection().fetch().only(
-    samePageCheckGenerator(store),
-    exams => {
-      const pageState = {};
-      pageState.exams = exams.map(_examState);
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  return UserExamResource.getCollection()
+    .fetch()
+    .only(
+      samePageCheckGenerator(store),
+      exams => {
+        const pageState = {};
+        pageState.exams = exams.map(_examState);
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_ERROR', null);
+        store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 function calcQuestionsAnswered(attemptLogs) {
@@ -439,6 +444,10 @@ function showExam(store, id, questionNumber) {
     ]).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
+        if (exam.closed) {
+          router.getInstance().replace({ name: constants.PageNames.EXAM_LIST });
+          return;
+        }
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -644,9 +653,11 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 function closeExam(store) {
   const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
-  return ExamLogResource.getModel(examLog.id).save(examLog).catch(error => {
-    handleApiError(store, error);
-  });
+  return ExamLogResource.getModel(examLog.id)
+    .save(examLog)
+    .catch(error => {
+      handleApiError(store, error);
+    });
 }
 
 export {

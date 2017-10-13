@@ -1,9 +1,13 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
+import mock
 import datetime
+
 from django.test import TestCase
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
+
 from kolibri.content import models as content
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
@@ -66,8 +70,8 @@ class ContentNodeTestBase(object):
     def test_descendants_of_kind(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(title__in=["c2"])
-        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
+        expected_output = content.ContentNode.objects.filter(title__in=["c1"])
+        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.VIDEO)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_top_level_topics(self):
@@ -154,8 +158,10 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_contentnode_list(self):
+        root = content.ContentNode.objects.get(title="root")
+        expected_output = root.get_descendants(include_self=True).filter(available=True).count()
         response = self.client.get(self._reverse_channel_url("contentnode-list"))
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), expected_output)
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -289,3 +295,29 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(get_progress_fraction(c1), 0)
         self.assertEqual(get_progress_fraction(c2), 0.4)
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
+
+    @mock.patch.object(cache, 'set')
+    def test_parent_query_cache_is_set(self, mock_cache_set):
+        id = content.ContentNode.objects.get(title="c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        self.assertTrue(mock_cache_set.called)
+
+    @mock.patch.object(cache, 'set')
+    def test_parent_query_cache_not_set(self, mock_cache_set):
+        id = content.ContentNode.objects.get(title="c2c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
+        self.assertFalse(mock_cache_set.called)
+
+    def test_parent_query_cache_hit(self):
+        id = content.ContentNode.objects.get(title="c2c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        with mock.patch.object(cache, 'set') as mock_cache_set:
+            self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+            self.assertFalse(mock_cache_set.called)
+
+    def tearDown(self):
+        """
+        clean up files/folders created during the test
+        """
+        cache.clear()
+        super(ContentNodeAPITestCase, self).tearDown()
