@@ -81,6 +81,9 @@ var config = {
         test: /\.js$/,
         loader: 'buble-loader',
         exclude: /node_modules\/(?!(keen-ui)\/).*/,
+        query: {
+          objectAssign: 'Object.assign',
+        },
       },
       {
         test: /\.css$/,
