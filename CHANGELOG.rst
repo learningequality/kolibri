@@ -5,12 +5,25 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
-0.6
----
+0.6.0
+-----
 
- - Add support for RTL languages
- - Add support for frontend translation outside of Vue components
- - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
+ - Cross-channel searching and browsing
+ - Improved device onboarding experience
+ - Improved device permissions experience (deprecated 'device owner', added 'superuser' flag and import permission)
+ - Various channel import/export experience and stability improvements
+ - Responsive login page
+ - Dynamic language switching
+ - Work on integrated living style guide
+ - Added beta support for right-to-left languages
+ - Improved handling of locale codes
+ - Added support for frontend translation outside of Vue components
+ - Added an open-source 'code of conduct' for contributors
+ - By default run PEX file in foreground on MacOS
+ - Crypto optimizations from C extensions
+ - Deprecated support for HTML in translation strings
+ - Hide thumbnails from content 'download' button
+ - ... and many other updates and fixes
 
 
 0.5.1dev (unreleased)
