@@ -45,10 +45,10 @@ class HeartBeat {
     return this.timerId;
   }
   beat() {
+    const sessionModel = this.kolibri.resources.SessionResource.getModel('current');
+    const userId = sessionModel.attributes.user_id;
     if (this.active) {
       logging.debug('There was activity, polling session endpoint!');
-      const sessionModel = this.kolibri.resources.SessionResource.getModel('current');
-      const userId = sessionModel.attributes.user_id;
       this.kolibri.resources.SessionResource.getModel('current').fetch({}, true).then(session => {
         if (session.user_id !== userId) {
           window.location.reload();
@@ -59,7 +59,11 @@ class HeartBeat {
       this.setActivityListeners();
     } else {
       logging.debug('No user activity, polling keepalive endpoint to keep session active');
-      this.kolibri.resources.KeepAliveResource.getModel('now').fetch({}, true).catch((error) => {
+      this.kolibri.resources.KeepAliveResource.getModel('now').fetch({}, true).then(session => {
+        if (session.user_id !== userId) {
+          window.location.reload();
+        }
+      }).catch((error) => {
         logging.error('Periodic server polling failed with error: ', error);
       });
     }

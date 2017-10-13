@@ -268,4 +268,11 @@ class SessionViewSet(viewsets.ViewSet):
 class KeepSessionAliveViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
-        return Response()
+        user = get_user(request)
+        if isinstance(user, AnonymousUser):
+            user_id = None
+        else:
+            user_id = user.id
+        return Response({
+            'user_id': user_id,
+        })
