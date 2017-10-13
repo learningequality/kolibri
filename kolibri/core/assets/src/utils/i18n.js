@@ -1,8 +1,8 @@
 import vue from 'kolibri.lib.vue';
-import { getLogger } from '../logging';
+import logger from '../logging';
 import importIntlLocale from './import-intl-locale';
 
-const logging = getLogger(__filename);
+const logging = logger.getLogger(__filename);
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {

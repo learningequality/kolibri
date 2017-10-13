@@ -82,9 +82,9 @@
 
   import escodegen from 'escodegen';
   import CamelCase from 'lodash/camelCase';
-  import { getLogger } from 'kolibri.lib.logging';
+  import logger from 'kolibri.lib.logging';
 
-  const logging = getLogger(__filename);
+  const logging = logger.getLogger(__filename);
 
   export default {
     props: {
