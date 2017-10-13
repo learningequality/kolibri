@@ -4,7 +4,7 @@
     <div class="circle in-points">
       <points-icon class="icon" :active="true"/>
     </div>
-    <span class="total in-points">{{ $formatNumber(totalPoints) }}</span>
+    <span class="total in-points" v-if="windowSize.breakpoint > 0">{{ $formatNumber(totalPoints) }}</span>
     <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('totalPoints', { points: totalPoints }) }}</ui-tooltip>
   </div>
 
@@ -15,12 +15,14 @@
 
   const { totalPoints, currentUserId, isUserLoggedIn, isSuperuser } = require('kolibri.coreVue.vuex.getters');
   const { fetchPoints } = require('kolibri.coreVue.vuex.actions');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
     $trNameSpace: 'totalPoints',
     $trs: {
       totalPoints: 'You have earned { points, number } points!',
     },
+    mixins: [responsiveWindow],
     components: {
       'points-icon': require('kolibri.coreVue.components.pointsIcon'),
       'ui-tooltip': require('keen-ui/src/UiTooltip'),
