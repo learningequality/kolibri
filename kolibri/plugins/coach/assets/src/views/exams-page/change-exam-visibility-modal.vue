@@ -8,18 +8,16 @@
       v-model="classIsSelected"
       @change="deselectGroups"
     />
-    <k-select
-      v-if="classGroups.length"
-      :label="$tr('selectGroups')"
-      :multiple="true"
-      :options="groupOptions"
-      v-model="groupsSelected"
-      @change="handleSelectChange"
-      class="group-select"
+    <k-checkbox
+      v-for="group in classGroups"
+      :key="group.id"
+      :label="group.name"
+      :checked="groupIsSelected(group.id)"
+      @change="handleGroupChange(group.id, $event)"
     />
     <div class="footer">
       <k-button :text="$tr('cancel')" appearance="flat-button" @click="close"/>
-      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('update')" :primary="true" :disabled="busy" @click="updateVisibility"/>
     </div>
   </core-modal>
 
@@ -28,12 +26,13 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import { displayExamModal, updateExamAssignments } from '../../state/actions/exam';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+
   export default {
     name: 'changeExamVisibilityModal',
     $trs: {
@@ -49,7 +48,7 @@
       coreModal,
       kButton,
       kRadioButton,
-      kSelect,
+      kCheckbox,
     },
     props: {
       examId: {
@@ -79,40 +78,48 @@
     },
     data() {
       return {
-        classIsSelected: this.classInitiallySelected(),
-        groupsSelected: this.initiallySelectedGroups(),
+        classIsSelected: this.classIsInitiallySelected(),
+        selectedGroups: this.initiallySelectedGroups(),
       };
     },
-    computed: {
-      groupOptions() {
-        return this.classGroups.map(group => ({
-          label: group.name,
-          value: group.id,
-        }));
-      },
-    },
     methods: {
-      classInitiallySelected() {
+      classIsInitiallySelected() {
         if (this.examVisibility.class) {
           return true;
         }
         return false;
       },
+
       initiallySelectedGroups() {
-        return this.examVisibility.groups.map(group => ({
-          label: group.collection.name,
-          value: group.collection.id,
-        }));
+        return this.examVisibility.groups.map(group => group.collection.id);
       },
-      handleSelectChange() {
-        this.classIsSelected = !this.groupsSelected.length;
-      },
+
       deselectGroups() {
-        this.groupsSelected = [];
+        this.selectedGroups = [];
       },
+
+      groupIsSelected(groupId) {
+        return this.selectedGroups.includes(groupId);
+      },
+
+      handleGroupChange(groupId, isSelected) {
+        if (isSelected) {
+          if (!this.selectedGroups.includes(groupId)) {
+            this.selectedGroups.push(groupId);
+          }
+        } else {
+          this.selectedGroups = this.selectedGroups.filter(group => group !== groupId);
+        }
+        this.classIsSelected = !this.selectedGroups.length;
+      },
+
+      getGroupName(groupId) {
+        return this.classGroups.find(group => group.id === groupId).name;
+      },
+
       updateVisibility() {
         if (this.classIsSelected) {
-          if (this.classIsSelected === this.classInitiallySelected()) {
+          if (this.classIsSelected === this.classIsInitiallySelected()) {
             this.close();
             return;
           }
@@ -127,29 +134,26 @@
             assignment => assignment.assignmentId
           );
           this.updateExamAssignments(this.examId, classCollection, groupAssignments);
-        } else if (this.groupsSelected.length) {
+        } else if (this.selectedGroups.length) {
           const unassignGroups = this.initiallySelectedGroups().filter(
-            initialGroup =>
-              !this.groupsSelected.find(newGroup => newGroup.value === initialGroup.value)
+            initialGroup => !this.selectedGroups.find(newGroup => newGroup === initialGroup)
           );
-          const assignGroups = this.groupsSelected.filter(
+          const assignGroups = this.selectedGroups.filter(
             newGroup =>
-              !this.initiallySelectedGroups().find(
-                initialGroup => initialGroup.value === newGroup.value
-              )
+              !this.initiallySelectedGroups().find(initialGroup => initialGroup === newGroup)
           );
           if (!unassignGroups.length && !assignGroups.length) {
             this.close();
             return;
           }
           const assignGroupCollections = assignGroups.map(group => ({
-            id: group.value,
-            name: group.label,
+            id: group,
+            name: this.getGroupName(group),
             kind: CollectionKinds.LEARNERGROUP,
           }));
           let unassignments = unassignGroups.map(
             unassignGroup =>
-              this.examVisibility.groups.find(group => group.collection.id === unassignGroup.value)
+              this.examVisibility.groups.find(group => group.collection.id === unassignGroup)
                 .assignmentId
           );
           if (this.examVisibility.class) {
@@ -158,14 +162,18 @@
           this.updateExamAssignments(this.examId, assignGroupCollections, unassignments);
         }
       },
+
       close() {
         this.displayExamModal(false);
       },
     },
     vuex: {
       actions: {
-        displayExamModal: examActions.displayExamModal,
-        updateExamAssignments: examActions.updateExamAssignments,
+        displayExamModal,
+        updateExamAssignments,
+      },
+      getters: {
+        busy: state => state.pageState.busy,
       },
     },
   };
