@@ -61,21 +61,16 @@ describe('HeartBeat', function () {
       this.heartBeat.active = false;
       this.sessionfetchspy = sinon.stub();
       this.sessionfetchspy.returns(Promise.resolve({}));
-      this.keepalivefetchspy = sinon.stub();
-      this.keepalivefetchspy.returns(Promise.resolve({}));
       this.sessionModelMock = {
         fetch: this.sessionfetchspy,
-      };
-      this.keepaliveModelMock = {
-        fetch: this.keepalivefetchspy,
+        attributes: {
+          user_id: 'test',
+        },
       };
       this.kolibri = {
         resources: {
           SessionResource: {
             getModel: () => this.sessionModelMock,
-          },
-          KeepAliveResource: {
-            getModel: () => this.keepaliveModelMock,
           },
         },
       };
@@ -93,10 +88,6 @@ describe('HeartBeat', function () {
     });
     it('should return a setTimeout identifier', function () {
       assert.equal(typeof this.heartBeat.beat(), 'number');
-    });
-    it('should ping KeepAliveResource', function () {
-      this.heartBeat.beat();
-      assert.ok(this.keepalivefetchspy.calledOnce);
     });
     describe('and activity is detected', function () {
       beforeEach(function () {

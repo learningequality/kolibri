@@ -225,6 +225,8 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -259,13 +261,7 @@ class SessionViewSet(viewsets.ViewSet):
                 session.update({'facility_id': user.facility_id,
                                 'kind': ['learner'],
                                 'error': '200'})
-
-            UserSessionLog.update_log(user)
+            if active:
+                UserSessionLog.update_log(user)
 
             return session
-
-
-class KeepSessionAliveViewSet(viewsets.ViewSet):
-
-    def retrieve(self, request, pk=None):
-        return Response()
