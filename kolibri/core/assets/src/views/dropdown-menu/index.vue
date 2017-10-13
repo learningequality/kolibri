@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <span v-if="windowSize.breakpoint > 0">
+    <span v-if="inAppBar && windowSize.breakpoint > 1 || !inAppBar && windowSize.breakpoint > 0 ">
       <ui-button
         :ariaLabel="name"
         :type="type"
