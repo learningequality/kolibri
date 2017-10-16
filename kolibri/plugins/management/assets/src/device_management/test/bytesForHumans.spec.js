@@ -4,6 +4,10 @@ import assert from 'assert';
 import bytesForHumans from '../views/manage-content-page/bytesForHumans';
 
 describe('bytesForHumans utility', () => {
+  it('formats correctly for 0B', () => {
+    assert.equal(bytesForHumans(0), '0B');
+  });
+
   it('formats correctly for B range', () => {
     assert.equal(bytesForHumans(100), '100B');
   });
