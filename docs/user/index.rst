@@ -2,11 +2,11 @@ User Guide
 ==========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
    install
-   device_owner
-   facility_admin
+   access
+   manage
    coach
    learner
    faq
