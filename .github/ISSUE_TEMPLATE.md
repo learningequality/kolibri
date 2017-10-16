@@ -9,12 +9,22 @@ description of what behavior was expected but did not occur
 
 ### User-facing consequences
 
-implications for a user of the application
+implications and real-world consequences for learners, coaches, admins, and other users of the application
 
 ### Errors and logs
 
+Relevant errors and tracebacks from:
+
+* the command line
+* `~/.kolibri/kolibri.log`
+* the browser console
+
 ```
-logs and errors here
+server logs
+```
+
+```
+browser console logs
 ```
 
 ### Steps to reproduce
