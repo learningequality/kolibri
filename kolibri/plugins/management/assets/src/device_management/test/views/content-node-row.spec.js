@@ -16,7 +16,7 @@ const defaultProps = {
 
 function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
-    propsData: Object.assign({}, defaultProps, props),
+    propsData: {...defaultProps, ...props},
   });
 }
 

@@ -20,6 +20,7 @@ function makeWrapper(props = {}) {
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
     button: () => wrapper.first(kButton),
@@ -31,7 +32,7 @@ function getElements(wrapper) {
   }
 }
 
-describe.only('selectedResourcesSize component', () => {
+describe('selectedResourcesSize component', () => {
   it('shows the correct message and button when in import mode', () => {
     const wrapper = makeWrapper();
     const { chooseMsg, buttonText } = getElements(wrapper);

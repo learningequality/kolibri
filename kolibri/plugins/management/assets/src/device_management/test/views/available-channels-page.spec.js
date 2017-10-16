@@ -44,13 +44,15 @@ function makeStore() {
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;
+  const defaultProps = {};
   return mount(AvailableChannelsPage, {
-    propsData: Object.assign({}, props),
+    propsData: {...defaultProps, ...props },
     store: store || makeStore(),
     router,
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),

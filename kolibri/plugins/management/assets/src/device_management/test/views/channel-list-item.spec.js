@@ -29,37 +29,22 @@ function makeWrapper(options = {}) {
     mode: 'managing',
   };
   return mount(ChannelListItem, {
-    propsData: Object.assign(defaultProps, props),
+    propsData: {...defaultProps, ...props},
     store: store || makeStore(),
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
-    resourcesSizeText: () =>
-      wrapper
-        .first('.resources-size')
-        .text()
-        .trim(),
+    resourcesSizeText: () => wrapper.first('.resources-size').text().trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
     deleteButton: () => wrapper.find('button[name="delete"]'),
     selectButton: () => wrapper.find('button[name="select"]'),
-    title: () =>
-      wrapper
-        .first('.title')
-        .text()
-        .trim(),
-    version: () =>
-      wrapper
-        .first('.version')
-        .text()
-        .trim(),
-    description: () =>
-      wrapper
-        .first('.description')
-        .text()
-        .trim(),
+    title: () => wrapper.first('.title').text().trim(),
+    version: () => wrapper.first('.version').text().trim(),
+    description: () => wrapper.first('.description').text().trim(),
     thumbnail: () => wrapper.first('.thumbnail'),
   };
 }
@@ -77,9 +62,7 @@ describe('channelListItem', () => {
     it('shows the thumbnail using encoded string', () => {
       const wrapper = makeWrapper({
         props: {
-          channel: Object.assign({}, defaultChannel, {
-            thumbnail: 'abcd1234',
-          }),
+          channel : {...defaultChannel, thumbnail: 'abcd1234' },
         },
       });
       const { thumbnail } = getElements(wrapper);
@@ -173,9 +156,7 @@ describe('channelListItem', () => {
     });
 
     it('does not show the "on device" indicator if channel is not installed', () => {
-      const props = Object.assign({}, defaultProps, {
-        onDevice: false,
-      });
+      const props = {...defaultProps, onDevice: false };
       const wrapper = makeWrapper({ props });
       const { onDevice, resourcesSize } = getElements(wrapper);
       assert.deepEqual(onDevice(), []);
