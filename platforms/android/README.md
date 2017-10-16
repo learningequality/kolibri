@@ -41,3 +41,20 @@ Using docker to build the apk has disadvantages, as any changes to the config fi
 
 * Run `make buildapklocally; make installapk; make runapk` to combine all these steps into a one-liner for convenience.
 * Run `make uninstallapk` to uninstall the Kolibri Android app from the device.
+
+## Debugging the app
+
+### Server side
+
+You can access the server side error logs by running the following commands.
+
+```
+adb shell
+run-as org.le.kolibri
+cd ./.kolibri
+cat debug.log
+```
+
+### Client side
+
+You can debug the webview using [Weinre](https://people.apache.org/~pmuellr/weinre/docs/latest/Home.html). Visit the site to learn how to install and setup. You will have to build a custom Kolibri .whl file that contains the weinre script tag in the [base.html file](https://github.com/learningequality/kolibri/blob/develop/kolibri/core/templates/kolibri/base.html).
