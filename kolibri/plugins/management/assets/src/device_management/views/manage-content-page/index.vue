@@ -33,7 +33,7 @@
           </div>
         </div>
 
-        <channels-grid/>
+        <channels-grid />
 
       </subpage-container>
     </template>

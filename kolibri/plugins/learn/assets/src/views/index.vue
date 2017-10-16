@@ -31,11 +31,11 @@
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><total-points/></a>
+      <a class="points-link" href="/user"><total-points /></a>
     </div>
 
     <div>
-      <breadcrumbs/>
+      <breadcrumbs />
       <component :is="currentPage" />
     </div>
 

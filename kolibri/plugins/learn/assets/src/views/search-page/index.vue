@@ -4,7 +4,7 @@
 
     <h3>Search</h3>
 
-    <search-box/>
+    <search-box />
 
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 

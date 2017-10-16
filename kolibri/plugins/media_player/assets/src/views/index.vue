@@ -2,7 +2,7 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <loading-spinner/>
+      <loading-spinner />
     </div>
     <div
        v-show="!loading"

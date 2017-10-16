@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <sidenav/>
+    <sidenav />
     <router-view class="content" />
   </div>
 

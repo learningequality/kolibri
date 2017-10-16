@@ -48,10 +48,13 @@ module.exports = {
     'vue/return-in-computed-property': 2,
 
     'vue/no-async-in-computed-properties': 2,
-    'vue/no-duplicate-attributes': [2, {
-      'allowCoexistClass': true,
-      'allowCoexistStyle': false,
-    }],
+    'vue/no-duplicate-attributes': [
+      2,
+      {
+        allowCoexistClass: true,
+        allowCoexistStyle: false,
+      },
+    ],
     'vue/no-side-effects-in-computed-properties': 2,
     'vue/order-in-components': 2,
     // 'vue/require-default-prop': 2,
@@ -69,13 +72,16 @@ module.exports = {
     */
     'vue/html-quotes': [2, 'double'],
     'vue/html-self-closing': [2],
-    'vue/max-attributes-per-line': [2, {
-      'singleline': 10,
-      'multiline': {
-        'max': 1,
-        'allowFirstLine': false
-      }
-    }],
+    'vue/max-attributes-per-line': [
+      2,
+      {
+        singleline: 10,
+        multiline: {
+          max: 1,
+          allowFirstLine: false,
+        },
+      },
+    ],
     'vue/mustache-interpolation-spacing': [2, 'always'],
     'vue/name-property-casing': [2, 'camelCase'],
     'vue/no-multi-spaces': 2,

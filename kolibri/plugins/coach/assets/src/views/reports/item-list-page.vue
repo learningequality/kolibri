@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1>
       <content-icon
         :kind="pageState.contentScopeSummary.kind"

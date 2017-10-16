@@ -5,7 +5,7 @@
     :submitText="submitText"
     @submit="setLanguage"
   >
-    <language-switcher-list/>
+    <language-switcher-list />
   </onboarding-form>
 
 </template>

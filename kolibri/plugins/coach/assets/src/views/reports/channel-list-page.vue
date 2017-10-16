@@ -3,7 +3,7 @@
   <div>
     <div v-if="showRecentOnly" class="header">
       <h1>{{ $tr('recentTitle') }}</h1>
-      <report-subheading/>
+      <report-subheading />
     </div>
 
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">

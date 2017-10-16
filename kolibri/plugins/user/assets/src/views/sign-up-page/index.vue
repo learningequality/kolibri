@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo/></ui-icon>
+        <ui-icon class="app-bar-icon"><logo /></ui-icon>
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -92,7 +92,7 @@
     </form>
 
     <div class="footer">
-      <language-switcher-footer/>
+      <language-switcher-footer />
     </div>
   </div>
 

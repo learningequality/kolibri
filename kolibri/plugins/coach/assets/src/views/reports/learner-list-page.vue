@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1 v-if="!isRootLearnerPage">
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
@@ -10,7 +10,7 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
-    <report-subheading/>
+    <report-subheading />
 
     <report-table>
       <thead slot="thead">

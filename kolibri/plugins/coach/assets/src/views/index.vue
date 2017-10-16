@@ -5,7 +5,7 @@
     <div class="content">
       <template v-if="showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
-        <top-nav/>
+        <top-nav />
       </template>
 
       <div v-if="userCanAccessPage">
