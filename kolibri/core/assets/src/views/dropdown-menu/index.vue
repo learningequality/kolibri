@@ -8,7 +8,7 @@
         :type="type"
         :color="color"
         :icon="icon"
-        :has-dropdown="true"
+        :hasDropdown="true"
         :class="{ appbarbutton: inAppBar }"
         ref="buttonLarge">
         {{ name }}
@@ -28,7 +28,7 @@
         :type="type"
         :color="color"
         :icon="icon"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="button">
         <ui-menu
           :options="options"

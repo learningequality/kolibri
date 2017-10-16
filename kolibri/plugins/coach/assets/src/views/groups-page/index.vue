@@ -10,22 +10,22 @@
     />
 
     <create-group-modal v-if="showCreateGroupModal"
-      :groups="sortedGroups" />
+      :groups="sortedGroups"/>
 
     <rename-group-modal v-if="showRenameGroupModal"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
-      :groups="sortedGroups" />
+      :groups="sortedGroups"/>
 
     <delete-group-modal v-if="showDeleteGroupModal"
       :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id" />
+      :groupId="selectedGroup.id"/>
 
     <move-learners-modal v-if="showMoveLearnersModal"
       :groupId="selectedGroup.id"
       :groups="sortedGroups"
       :usersToMove="usersToMove"
-      :isUngrouped="isUngrouped" />
+      :isUngrouped="isUngrouped"/>
 
     <group-section
       v-for="group in sortedGroups"
@@ -34,13 +34,13 @@
       :group="group"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
-      @move="openMoveLearnersModal" />
+      @move="openMoveLearnersModal"/>
 
     <group-section
       :canMove="Boolean(sortedGroups.length)"
       :group="ungroupedUsersObject"
       :isUngrouped="true"
-      @move="openMoveLearnersModal" />
+      @move="openMoveLearnersModal"/>
   </div>
 
 </template>

@@ -11,13 +11,13 @@
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
-      <div id="edit-name" class="name-edit">{{currClass.name}}</div>
+      <div id="edit-name" class="name-edit">{{ currClass.name }}</div>
       <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
     </div>
 
     <div class="header">
       <h2 class="table-title">
-        {{$tr('tableTitle')}}
+        {{ $tr('tableTitle') }}
       </h2>
     </div>
 
@@ -50,16 +50,16 @@
 
     <table class="roster">
 
-      <caption class="visuallyhidden">{{$tr('users')}}</caption>
+      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
+          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
@@ -69,7 +69,7 @@
         <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
-            {{user.username}}
+            {{ user.username }}
           </th>
 
           <!-- Logic for role tags -->
@@ -79,14 +79,14 @@
           <!-- Full Name field -->
           <td scope="row" class="table-cell full-name">
             <span class="table-name">
-              {{user.full_name}}
+              {{ user.full_name }}
             </span>
           </td>
 
           <!-- Edit field -->
           <td class="table-cell">
             <div class="remove-user-btn" @click="openRemoveUserModal(user)">
-              {{$tr('remove')}}
+              {{ $tr('remove') }}
             </div>
           </td>
 

@@ -2,8 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title">
-    </page-header>
+    <page-header :title="content.title"/>
 
     <content-renderer
       v-if="!content.assessment"
@@ -51,7 +50,7 @@
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <p v-if="content.license" >
+      <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
@@ -75,7 +74,7 @@
 
     <content-card-group-carousel
       v-if="showRecommended"
-      :gen-content-link="genContentLink"
+      :genContentLink="genContentLink"
       :header="recommendedText"
       :contents="recommended"/>
 

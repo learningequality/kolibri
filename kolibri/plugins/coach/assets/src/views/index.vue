@@ -11,7 +11,7 @@
       <div v-if="userCanAccessPage">
         <component :is="currentPage"/>
       </div>
-      <auth-message v-else authorizedRole="adminOrCoach" />
+      <auth-message v-else authorizedRole="adminOrCoach"/>
     </div>
 
   </core-base>

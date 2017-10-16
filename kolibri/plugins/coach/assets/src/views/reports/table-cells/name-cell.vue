@@ -3,11 +3,11 @@
   <th scope="row">
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"/>
-      <k-router-link v-if="link" :text="title" :to="link" class="link" />
+      <k-router-link v-if="link" :text="title" :to="link" class="link"/>
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper">
-      <slot name="details" />
+      <slot name="details"/>
     </div>
   </th>
 

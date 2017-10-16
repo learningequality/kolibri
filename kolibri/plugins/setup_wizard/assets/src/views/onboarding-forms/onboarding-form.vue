@@ -14,7 +14,7 @@
           <span v-else class="visuallyhidden"> {{ header }} </span>
         </legend>
 
-        <slot />
+        <slot/>
       </fieldset>
 
       <k-button

@@ -4,7 +4,7 @@
     <ui-progress-linear v-show="loading"/>
     <div v-show="!loading">
       <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
         <slot name="randomize-button"/>
       </div>
       <div class="exam-preview-container pure-g">

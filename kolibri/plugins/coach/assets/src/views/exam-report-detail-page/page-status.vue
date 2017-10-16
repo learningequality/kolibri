@@ -22,7 +22,7 @@
         <progress-icon class="svg-icon" :progress="progress"/>
         <span v-if="completed">
           <strong> {{ $tr('completed') }} </strong>
-          <br />
+          <br>
           <elapsed-time :date="completionTimestamp"/>
         </span>
         <span v-else-if="completed !== null">
@@ -63,7 +63,7 @@
       },
       questions: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       completed: {
         type: Boolean,

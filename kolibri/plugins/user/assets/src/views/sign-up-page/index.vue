@@ -18,7 +18,7 @@
 
     <form class="signup-form" ref="form" @submit.prevent="signUp">
       <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
-        {{errorMessage}}
+        {{ errorMessage }}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
@@ -87,7 +87,7 @@
         @input="updateSelection"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit"/>
 
     </form>
 

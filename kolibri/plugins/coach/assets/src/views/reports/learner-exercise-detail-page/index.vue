@@ -12,7 +12,7 @@
       <div class="details-container">
         <div class="attempt-log-container">
           <attempt-log-list
-            :attempt-logs="attemptLogs"
+            :attemptLogs="attemptLogs"
             :selectedQuestionNumber="attemptLogIndex"
             @select="navigateToNewAttempt($event)"
           />

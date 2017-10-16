@@ -6,7 +6,7 @@
 
     <content-card-group-grid
       :contents="recommendations"
-      :gen-content-link="genContentLink" />
+      :genContentLink="genContentLink"/>
   </div>
 
 </template>

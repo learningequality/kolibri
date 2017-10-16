@@ -3,10 +3,10 @@
   <page-template title="Filters" :completed="false">
 
     <h2><code>{{ kFilterTextboxApi.name }}</code> API</h2>
-    <component-docs :api="kFilterTextboxApi" />
+    <component-docs :api="kFilterTextboxApi"/>
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <vue-example :code="example"/>
 
     <h2>Guidelines</h2>
     <h3>How they behave together</h3>

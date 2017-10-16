@@ -16,7 +16,7 @@
       <div class="details-container">
         <div class="attempt-log-container">
           <attempt-log-list
-            :attempt-logs="examAttempts"
+            :attemptLogs="examAttempts"
             :selectedQuestionNumber="questionNumber"
             @select="navigateToAttempt"
           />

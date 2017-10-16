@@ -15,7 +15,7 @@
 
       <content-card-group-grid
         v-else
-        :gen-content-link="genContentLink"
+        :genContentLink="genContentLink"
         :contents="contents"
         :showContentKindFilter="true"
         :showChannelFilter="true"

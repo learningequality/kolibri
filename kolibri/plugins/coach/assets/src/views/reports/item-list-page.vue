@@ -49,7 +49,7 @@
           </name-cell>
           <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
           <progress-cell :num="row.contentProgress" :isExercise="false"/>
-          <activity-cell :date="row.lastActive" />
+          <activity-cell :date="row.lastActive"/>
         </tr>
       </tbody>
     </report-table>

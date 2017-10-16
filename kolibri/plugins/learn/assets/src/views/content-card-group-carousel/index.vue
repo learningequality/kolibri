@@ -8,7 +8,7 @@
           class="previous-button"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
-          :disable-ripple="true"
+          :disableRipple="true"
           icon="arrow_back"
           size="large"
         />
@@ -19,7 +19,7 @@
           class="next-button"
           v-show="!isLastSet"
           :disabled="isLastSet"
-          :disable-ripple="true"
+          :disableRipple="true"
           icon="arrow_forward"
           size="large"
         />

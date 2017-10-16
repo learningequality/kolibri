@@ -3,10 +3,10 @@
   <page-template title="Radio Buttons" :completed="false">
 
     <h2><code>{{ kRadioButtonApi.name }}</code> API</h2>
-    <component-docs :api="kRadioButtonApi" />
+    <component-docs :api="kRadioButtonApi"/>
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <vue-example :code="example"/>
 
     <h2>Guidelines</h2>
     <h3>Usage</h3>

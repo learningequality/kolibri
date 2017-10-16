@@ -5,11 +5,11 @@
     <template v-if="popular.length">
       <content-card-group-header
         :header="$tr('popularSectionHeader')"
-        :view-more-page-link="popularPageLink"
-        :show-view-more="popular.length > trimmedPopular.length"/>
+        :viewMorePageLink="popularPageLink"
+        :showViewMore="popular.length > trimmedPopular.length"/>
       <component
         :is="recommendationDisplay"
-        :gen-content-link="genContentLink"
+        :genContentLink="genContentLink"
         :filter="false"
         :contents="trimmedPopular"/>
     </template>
@@ -17,11 +17,11 @@
     <template v-if="nextSteps.length">
       <content-card-group-header
         :header="$tr('suggestedNextStepsSectionHeader')"
-        :view-more-page-link="nextStepsPageLink"
-        :show-view-more="nextSteps.length > trimmedNextSteps.length"/>
+        :viewMorePageLink="nextStepsPageLink"
+        :showViewMore="nextSteps.length > trimmedNextSteps.length"/>
       <component
         :is="recommendationDisplay"
-        :gen-content-link="genContentLink"
+        :genContentLink="genContentLink"
         :filter="false"
         :contents="trimmedNextSteps"/>
     </template>
@@ -29,11 +29,11 @@
     <template v-if="resume.length">
       <content-card-group-header
         :header="$tr('resumeSectionHeader')"
-        :view-more-page-link="resumePageLink"
-        :show-view-more="resume.length > trimmedResume.length"/>
+        :viewMorePageLink="resumePageLink"
+        :showViewMore="resume.length > trimmedResume.length"/>
       <component
         :is="recommendationDisplay"
-        :gen-content-link="genContentLink"
+        :genContentLink="genContentLink"
         :filter="false"
         :contents="trimmedResume"/>
     </template>
@@ -42,12 +42,12 @@
       <content-card-group-header
         :key="channelId"
         :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
-        :view-more-page-link="featuredPageLink(channelId)"
-        :show-view-more="contents.length > trimContent(contents).length"/>
+        :viewMorePageLink="featuredPageLink(channelId)"
+        :showViewMore="contents.length > trimContent(contents).length"/>
       <component
         :key="channelId"
         :is="recommendationDisplay"
-        :gen-content-link="genContentLink"
+        :genContentLink="genContentLink"
         :filter="false"
         :contents="trimContent(contents)"/>
     </template>

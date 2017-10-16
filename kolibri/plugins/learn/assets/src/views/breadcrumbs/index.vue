@@ -1,8 +1,8 @@
 <template>
 
   <div class="learn-breadcrumbs">
-    <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
-    <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
+    <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
+    <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs"/>
   </div>
 
 </template>

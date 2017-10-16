@@ -2,7 +2,7 @@
 
   <subpage-container>
 
-      <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
+      <auth-message v-if="!isSuperuser" authorizedRole="superuser"/>
 
       <div v-else>
         <div class="description">
@@ -17,7 +17,7 @@
           />
         </div>
 
-        <user-grid :searchFilter="searchFilterText" />
+        <user-grid :searchFilter="searchFilterText"/>
       </div>
 
   </subpage-container>

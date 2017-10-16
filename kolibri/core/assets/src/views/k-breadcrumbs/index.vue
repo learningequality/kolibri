@@ -3,7 +3,7 @@
   <div v-show="crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-        <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
+        <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
               <li v-for="(crumb, index) in collapsedCrumbs" class="breadcrumbs-dropdown-item" :key="index">
@@ -26,7 +26,7 @@
             v-show="!crumb.collapsed"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" />
+            <k-router-link :text="crumb.text" :to="crumb.link"/>
           </li>
 
           <li
@@ -51,7 +51,7 @@
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
+            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1"/>
           </li>
 
           <li

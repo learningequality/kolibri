@@ -31,7 +31,7 @@
       @click="zoomOut"/>
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
+      <progress-bar v-if="documentLoading" class="progress-bar" :showPercentage="true" :progress="progress"/>
       <page-component
         class="pdf-page-container"
         v-for="(page, index) in pdfPages"

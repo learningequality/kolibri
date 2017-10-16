@@ -2,8 +2,8 @@
 
   <div>
     <mat-svg v-if="answer === 'right'" category="navigation" name="check" class="yes" :class="{ yay: success }"/>
-    <mat-svg v-else-if="answer === 'wrong'" category="navigation" name="close" class="no"  :class="{ yay: success }"/>
-    <mat-svg v-else-if="answer === 'hint'"  category="action" name="lightbulb_outline"  class="no"  :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'wrong'" category="navigation" name="close" class="no" :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'hint'" category="action" name="lightbulb_outline" class="no" :class="{ yay: success }"/>
   </div>
 
 </template>

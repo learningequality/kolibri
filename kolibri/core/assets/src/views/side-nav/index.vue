@@ -5,7 +5,7 @@
       <div
         v-show="navShown"
         class="side-nav"
-        :style="{ width: `${this.width}px` }"
+        :style="{ width: `${width}px` }"
       >
         <div
           class="side-nav-header"

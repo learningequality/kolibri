@@ -4,7 +4,7 @@
 
     <breadcrumbs/>
     <h1>{{ $tr('title') }}</h1>
-    <report-subheading />
+    <report-subheading/>
 
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
@@ -33,10 +33,10 @@
             :link="genLink(row)"
           />
           <td>
-            <progress-bar :show-percentage="false" :progress="row.contentProgress"/>
+            <progress-bar :showPercentage="false" :progress="row.contentProgress"/>
             {{ progressString(row) }}
           </td>
-          <activity-cell :date="row.lastActive" />
+          <activity-cell :date="row.lastActive"/>
         </tr>
       </tbody>
     </report-table>

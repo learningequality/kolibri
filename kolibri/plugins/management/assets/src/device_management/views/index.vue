@@ -6,8 +6,8 @@
     </transition>
 
     <div>
-      <top-navigation v-if="canManageContent" />
-      <component :is="currentPage" />
+      <top-navigation v-if="canManageContent"/>
+      <component :is="currentPage"/>
     </div>
   </core-base>
 

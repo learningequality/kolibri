@@ -18,7 +18,7 @@
     </td>
     <td class="col-selection">
       <template v-if="!noExercisesWithinTopicSelected">
-      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic })}}
+      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic }) }}
       </template>
     </td>
   </tr>

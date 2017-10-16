@@ -5,7 +5,7 @@
       <progress-bar :progress="num"/>
       <div v-if="extraText" class="extra-text">
         <mat-svg category="social" name="person" class="person-icon"/>
-        {{extraText}}
+        {{ extraText }}
       </div>
     </template>
     <template v-else>–</template>

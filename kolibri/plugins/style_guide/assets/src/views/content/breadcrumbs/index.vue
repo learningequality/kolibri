@@ -20,10 +20,10 @@
     </show>
 
     <h2>API</h2>
-    <component-docs :api="kBreadcrumbsApi" />
+    <component-docs :api="kBreadcrumbsApi"/>
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <vue-example :code="example"/>
 
   </page-template>
 

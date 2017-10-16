@@ -13,7 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <content-card-group-grid :contents="contents" :gen-content-link="genContentLink" v-if="contents.length" />
+    <content-card-group-grid :contents="contents" :genContentLink="genContentLink" v-if="contents.length"/>
 
   </div>
 

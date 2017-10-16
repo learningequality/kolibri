@@ -15,7 +15,7 @@
         type="primary"
         color="primary"
         :ariaLabel="$tr('account')"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="accountButton"
         class="username-text"
       >

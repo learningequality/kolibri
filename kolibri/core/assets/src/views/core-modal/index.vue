@@ -29,8 +29,8 @@
         <!-- Modal Title -->
         <h1 v-show="!invisibleTitle" class="title" id="modal-title">
           <!-- Accessible error reporting per @radina -->
-          <span v-if="hasError" class="visuallyhidden">{{$tr('errorAlert')}}</span>
-          {{title}}
+          <span v-if="hasError" class="visuallyhidden">{{ $tr('errorAlert') }}</span>
+          {{ title }}
         </h1>
 
         <!-- Modal Content -->

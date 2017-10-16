@@ -2,7 +2,7 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <template slot="app-bar-actions">
-      <action-bar-search-box v-if="!isWithinSearchPage" />
+      <action-bar-search-box v-if="!isWithinSearchPage"/>
     </template>
 
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
@@ -31,12 +31,12 @@
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><total-points /></a>
+      <a class="points-link" href="/user"><total-points/></a>
     </div>
 
     <div>
-      <breadcrumbs />
-      <component :is="currentPage" />
+      <breadcrumbs/>
+      <component :is="currentPage"/>
     </div>
 
   </core-base>

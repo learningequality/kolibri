@@ -9,7 +9,7 @@
       <component class="manage-content page" :is="currentPage"/>
     </div>
 
-    <auth-message v-else :details="$tr('adminOrSuperuser')" />
+    <auth-message v-else :details="$tr('adminOrSuperuser')"/>
 
   </core-base>
 

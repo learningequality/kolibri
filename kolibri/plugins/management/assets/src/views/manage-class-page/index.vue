@@ -22,7 +22,7 @@
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
-        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>

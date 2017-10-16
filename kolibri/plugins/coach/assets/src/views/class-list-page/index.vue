@@ -17,7 +17,7 @@
         <tbody>
           <tr v-for="cl in sortedClasses" :key="cl.id">
             <th scope="row" class="table-text">
-              <k-router-link :text="cl.name" :to="recentPageLink(cl.id)" />
+              <k-router-link :text="cl.name" :to="recentPageLink(cl.id)"/>
             </th>
             <td class="table-data">{{ cl.memberCount }}</td>
           </tr>

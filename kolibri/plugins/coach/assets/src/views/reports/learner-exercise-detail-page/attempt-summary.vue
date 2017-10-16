@@ -14,7 +14,7 @@
         <content-icon class="svg-icon" :kind="kind"/>
         {{ exerciseTitle }}
       </div>
-      <div :class="{'in-progress': !isCompleted, 'requirements': true}" >
+      <div :class="{'in-progress': !isCompleted, 'requirements': true}">
         <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
         {{ requirementsString }}
       </div>
@@ -24,12 +24,12 @@
         <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
         <span v-if="isCompleted">
           <strong> {{ $tr('statusMastered') }} </strong>
-          <br />
+          <br>
           <elapsed-time :date="dateCompleted"/>
         </span>
         <span v-else-if="isCompleted !== null">
           <strong> {{ $tr('statusInProgress') }} </strong>
-          <br />
+          <br>
           <elapsed-time :date="dateLastAttempted"/>
         </span>
         <span v-else>

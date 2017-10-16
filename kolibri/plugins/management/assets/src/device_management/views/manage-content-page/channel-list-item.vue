@@ -3,9 +3,9 @@
   <div class="channel-list-item">
 
     <div class="thumbnail dtc">
-      <img v-if="thumbnailImg" :src="thumbnailImg" />
+      <img v-if="thumbnailImg" :src="thumbnailImg">
       <div v-else class="default-icon">
-        <mat-svg category="navigation" name="apps" />
+        <mat-svg category="navigation" name="apps"/>
       </div>
     </div>
 
@@ -14,7 +14,7 @@
       <div class="details-top">
         <div class="other-details">
           <div v-if="inImportingMode && onDevice" class="on-device">
-            <mat-svg category="action" name="check_circle" />
+            <mat-svg category="action" name="check_circle"/>
             {{ $tr('onYourDevice') }}
           </div>
           <div v-if="inManagingMode" class="resources-size">

@@ -3,10 +3,10 @@
   <page-template title="Text Fields" :completed="false">
 
     <h2><code>{{ kTextboxApi.name }}</code> API</h2>
-    <component-docs :api="kTextboxApi" />
+    <component-docs :api="kTextboxApi"/>
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <vue-example :code="example"/>
 
     <h2>Guidelines</h2>
     <h3>Labels</h3>

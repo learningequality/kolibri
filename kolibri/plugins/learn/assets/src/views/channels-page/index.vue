@@ -10,7 +10,7 @@
 
     <content-card-group-grid
       :contents="channels"
-      :gen-content-link="genChannelLink"
+      :genContentLink="genChannelLink"
       v-if="channels.length"
       :showContentKindFilter="false"
     />

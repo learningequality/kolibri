@@ -1,7 +1,7 @@
 <template>
 
   <immersive-full-screen v-bind="{ backPageLink, backPageText }">
-    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
+    <auth-message v-if="!isSuperuser" authorizedRole="superuser"/>
 
     <subpage-container v-else-if="user===null" withSideMargin>
       <h1>{{ $tr('userDoesNotExist') }}</h1>
@@ -31,7 +31,7 @@
         </p>
       </div>
 
-      <hr />
+      <hr>
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>

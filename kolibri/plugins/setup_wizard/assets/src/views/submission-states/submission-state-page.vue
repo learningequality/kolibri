@@ -8,7 +8,7 @@
     </h1>
 
     <div class="submission-state-page-body">
-      <slot />
+      <slot/>
     </div>
 
   </div>
