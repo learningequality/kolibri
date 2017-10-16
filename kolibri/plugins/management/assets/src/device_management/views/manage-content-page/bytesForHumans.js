@@ -20,6 +20,6 @@ const stringMap = {
 };
 
 export default function bytesForHumans(bytes) {
-  const unit = [ONE_GB, ONE_MB, ONE_KB].find(x => bytes > x) || ONE_B;
+  const unit = [ONE_GB, ONE_MB, ONE_KB].find(x => bytes >= x) || ONE_B;
   return translator.$tr(stringMap[unit], { n: Math.floor(bytes / unit) });
 }
