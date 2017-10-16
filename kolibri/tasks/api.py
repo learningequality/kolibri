@@ -180,17 +180,6 @@ class TasksViewSet(viewsets.ViewSet):
         get_client().clear(force=True)
         return Response({})
 
-    @list_route(methods=['get'])
-    def localdrive(self, request):
-        drives = get_mounted_drives_with_channel_info()
-
-        # make sure everything is a dict, before converting to JSON
-        assert isinstance(drives, dict)
-        out = [mountdata._asdict() for mountdata in drives.values()]
-
-        return Response(out)
-
-
 def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
     call_command(
         "importchannel",
