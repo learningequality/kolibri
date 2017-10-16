@@ -1,7 +1,7 @@
 <template>
 
   <div class="footer-wrapper">
-    <language-switcher-list class="list"/>
+    <language-switcher-list class="list" />
   </div>
 
 </template>

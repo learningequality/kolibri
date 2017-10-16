@@ -3,7 +3,7 @@
   <div class="drive-list">
     <div v-if="drives.length === 0">
       <h2 class="core-text-alert">
-        <mat-svg class="error-svg" category="alert" name="error_outline"/>
+        <mat-svg class="error-svg" category="alert" name="error_outline" />
         {{ $tr('noDrivesDetected') }}
       </h2>
     </div>

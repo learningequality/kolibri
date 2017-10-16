@@ -37,7 +37,7 @@
           />
 
           <div class="side-nav-scrollable-area-footer">
-            <logo class="side-nav-scrollable-area-footer-logo"/>
+            <logo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->

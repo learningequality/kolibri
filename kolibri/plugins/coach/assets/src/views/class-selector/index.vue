@@ -2,7 +2,7 @@
 
   <div>
     <h1 class="classes-link">
-      <k-router-link :text="$tr('allClasses')" :to="classListPage"/>
+      <k-router-link :text="$tr('allClasses')" :to="classListPage" />
     </h1>
     <ui-select
       :name="$tr('selectClass')"

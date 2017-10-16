@@ -87,7 +87,7 @@
         @input="updateSelection"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit"/>
+      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 

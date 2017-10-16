@@ -4,14 +4,14 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
+        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav/>
       </template>
 
       <div v-if="userCanAccessPage">
-        <component :is="currentPage"/>
+        <component :is="currentPage" />
       </div>
-      <auth-message v-else authorizedRole="adminOrCoach"/>
+      <auth-message v-else authorizedRole="adminOrCoach" />
     </div>
 
   </core-base>

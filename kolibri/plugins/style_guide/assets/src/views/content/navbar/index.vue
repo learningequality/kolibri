@@ -20,17 +20,17 @@
           type="icon-and-title"
           title="Trending"
           icon="trending_up"
-          :link="a"/>
+          :link="a" />
         <k-navbar-link
           type="icon-and-title"
           title="Lit"
           icon="whatshot"
-          :link="b"/>
+          :link="b" />
         <k-navbar-link
           type="icon-and-title"
           title="Favorites"
           icon="favorite"
-          :link="c"/>
+          :link="c" />
       </k-navbar>
     </show>
 
@@ -41,13 +41,13 @@
     <h2>Component APIs</h2>
 
     <h3>Navbar</h3>
-    <component-docs :api="kNavbarApi"/>
+    <component-docs :api="kNavbarApi" />
 
     <h3>Navbar Link</h3>
-    <component-docs :api="kNavbarLinkApi"/>
+    <component-docs :api="kNavbarLinkApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example"/>
+    <vue-example :code="example" />
 
   </page-template>
 

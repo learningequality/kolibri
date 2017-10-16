@@ -52,7 +52,7 @@
             :thumbnail="content.thumbnail"
             :kind="content.kind"
             :progress="content.progress"
-            :link="genContentLink(content.id, content.kind)"/>
+            :link="genContentLink(content.id, content.kind)" />
           </slot>
       </div>
 

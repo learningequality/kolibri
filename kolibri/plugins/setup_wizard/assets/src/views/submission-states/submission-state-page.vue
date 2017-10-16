@@ -1,14 +1,14 @@
 <template>
 
   <div class="submission-state-page">
-    <loading-spinner :delay="0" class="submission-state-page-spinner"/>
+    <loading-spinner :delay="0" class="submission-state-page-spinner" />
 
     <h1 class="submission-state-page-header">
       {{ header }}
     </h1>
 
     <div class="submission-state-page-body">
-      <slot/>
+      <slot></slot>
     </div>
 
   </div>

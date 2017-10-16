@@ -55,7 +55,7 @@
             :isExercise="isExercisePage"
           />
           <td>{{ row.groupName || '–' }}</td>
-          <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive"/>
+          <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
     </report-table>

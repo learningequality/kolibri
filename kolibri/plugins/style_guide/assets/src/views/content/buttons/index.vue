@@ -26,9 +26,9 @@
     </ul>
 
     <show>
-      <k-button text="Raised button" :primary="true" appearance="raised-button"/>
-      <k-button text="Flat button" :primary="true" appearance="flat-button"/>
-      <k-button text="Basic link" :primary="true" appearance="basic-link"/>
+      <k-button text="Raised button" :primary="true" appearance="raised-button" />
+      <k-button text="Flat button" :primary="true" appearance="flat-button" />
+      <k-button text="Basic link" :primary="true" appearance="basic-link" />
     </show>
 
     <p>
@@ -36,11 +36,11 @@
     </p>
 
     <show>
-      <k-button text="Primary" :primary="true" appearance="raised-button"/>
-      <k-button text="Secondary" :primary="false" appearance="raised-button"/>
+      <k-button text="Primary" :primary="true" appearance="raised-button" />
+      <k-button text="Secondary" :primary="false" appearance="raised-button" />
       <br>
-      <k-button text="Primary" :primary="true" appearance="flat-button"/>
-      <k-button text="Secondary" :primary="false" appearance="flat-button"/>
+      <k-button text="Primary" :primary="true" appearance="flat-button" />
+      <k-button text="Secondary" :primary="false" appearance="flat-button" />
     </show>
 
     <p>
@@ -72,16 +72,16 @@
     </ul>
 
     <h3>kButton</h3>
-    <component-docs :api="kButtonApi"/>
+    <component-docs :api="kButtonApi" />
 
     <h3>kRouterLink</h3>
-    <component-docs :api="kRouterLinkApi"/>
+    <component-docs :api="kRouterLinkApi" />
 
     <h3>kExternalLink</h3>
-    <component-docs :api="kExternalLinkApi"/>
+    <component-docs :api="kExternalLinkApi" />
 
     <h2>Interactive code example</h2>
-    <vue-example :code="example"/>
+    <vue-example :code="example" />
 
     <h2>Known exceptions</h2>
     <ul>

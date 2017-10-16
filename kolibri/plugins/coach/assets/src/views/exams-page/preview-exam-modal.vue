@@ -1,11 +1,11 @@
 <template>
 
   <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
-    <ui-progress-linear v-show="loading"/>
+    <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
         <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
-        <slot name="randomize-button"/>
+        <slot name="randomize-button"></slot>
       </div>
       <div class="exam-preview-container pure-g">
         <div class="question-selector pure-u-1-3">
@@ -38,7 +38,7 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false"/>
+            :allowHints="false" />
           </div>
       </div>
       </div>

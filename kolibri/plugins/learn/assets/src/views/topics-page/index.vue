@@ -4,8 +4,8 @@
 
     <page-header :title="topic.title">
       <div slot="icon">
-        <mat-svg v-if="isRoot" category="action" name="explore"/>
-        <mat-svg v-else category="file" name="folder"/>
+        <mat-svg v-if="isRoot" category="action" name="explore" />
+        <mat-svg v-else category="file" name="folder" />
       </div>
     </page-header>
 
@@ -13,7 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <content-card-group-grid :contents="contents" :genContentLink="genContentLink" v-if="contents.length"/>
+    <content-card-group-grid :contents="contents" :genContentLink="genContentLink" v-if="contents.length" />
 
   </div>
 

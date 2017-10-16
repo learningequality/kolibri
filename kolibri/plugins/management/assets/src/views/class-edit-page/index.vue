@@ -12,7 +12,7 @@
 
     <div id="name-edit-box" @click="openEditNameModal">
       <div id="edit-name" class="name-edit">{{ currClass.name }}</div>
-      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
+      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true" />
     </div>
 
     <div class="header">

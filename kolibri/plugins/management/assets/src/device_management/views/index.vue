@@ -2,12 +2,12 @@
 
   <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
     <transition name="delay-entry">
-      <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible"/>
+      <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible" />
     </transition>
 
     <div>
-      <top-navigation v-if="canManageContent"/>
-      <component :is="currentPage"/>
+      <top-navigation v-if="canManageContent" />
+      <component :is="currentPage" />
     </div>
   </core-base>
 

@@ -3,7 +3,7 @@
   <nav class="tabs">
     <ul>
       <!-- Contains k-navbar-link components -->
-      <slot/>
+      <slot></slot>
     </ul>
   </nav>
 

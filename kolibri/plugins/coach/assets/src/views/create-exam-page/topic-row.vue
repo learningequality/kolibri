@@ -12,7 +12,7 @@
       />
     </th>
     <td class="col-title">
-      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
+      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
       <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
       <span v-else class="disabled">{{ topicTitle }}</span>
     </td>

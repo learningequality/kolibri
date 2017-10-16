@@ -14,7 +14,7 @@
         {{ $tr('detailsSubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog"/>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
@@ -28,7 +28,7 @@
         {{ $tr('summarySubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog"/>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">

@@ -4,7 +4,7 @@
 
     <page-header :title="$tr('channels')">
       <div slot="icon">
-        <mat-svg category="navigation" name="apps"/>
+        <mat-svg category="navigation" name="apps" />
       </div>
     </page-header>
 

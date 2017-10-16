@@ -1,17 +1,17 @@
 <template>
 
   <div>
-    <auth-message v-if="!isUserLoggedIn" authorizedRole="learner"/>
+    <auth-message v-if="!isUserLoggedIn" authorizedRole="learner" />
 
     <div v-else>
-      <page-header :title="$tr('examName')"/>
+      <page-header :title="$tr('examName')" />
       <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
 
       <div class="pure-g exam-row" v-for="exam in exams" :key="exam.id">
 
         <div class="exam-row-1st-col" :class="firstColClass">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
           <h2 class="exam-title">{{ exam.title }}</h2>
         </div>
 

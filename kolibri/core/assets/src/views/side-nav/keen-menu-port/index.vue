@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
+    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
     <ul class="ui-menu" role="menu" :class="classes">
       <menu-option
         :disableRipple="disableRipple"

@@ -67,18 +67,15 @@ module.exports = {
         'ignores': []
     }],
     */
-      'vue/html-quotes': [2, 'double'],
-    // Since slot is an html5 elem, not self-closing
-    // 'vue/html-self-closing': [2],
-    /*
+    'vue/html-quotes': [2, 'double'],
+    'vue/html-self-closing': [2],
     'vue/max-attributes-per-line': [2, {
-      'singleline': 10,
+      'singleline': 3,
       'multiline': {
         'max': 1,
         'allowFirstLine': false
       }
     }],
-    */
     'vue/mustache-interpolation-spacing': [2, 'always'],
     'vue/name-property-casing': [2, 'camelCase'],
     'vue/no-multi-spaces': 2,

@@ -6,7 +6,7 @@
     </ui-alert>
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
-        <loading-spinner id="spinner" v-if="!currentViewClass"/>
+        <loading-spinner id="spinner" v-if="!currentViewClass" />
         <component v-else :is="currentViewClass"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -31,7 +31,7 @@
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot/>
+    <slot></slot>
   </div>
 
 </template>

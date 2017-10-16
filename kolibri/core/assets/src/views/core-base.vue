@@ -10,7 +10,7 @@
         @toggleSideNav="navShown=!navShown"
       >
         <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"/>
+          <slot name="app-bar-actions"></slot>
         </div>
       </app-bar>
       <side-nav
@@ -21,18 +21,18 @@
         @toggleSideNav="navShown=!navShown"
       />
       <div :style="contentStyle" class="content-container">
-        <loading-spinner v-if="loading" class="align-to-parent"/>
+        <loading-spinner v-if="loading" class="align-to-parent" />
         <template v-else>
-          <error-box v-if="error"/>
-          <slot/>
+          <error-box v-if="error" />
+          <slot></slot>
         </template>
       </div>
     </div>
     <div v-else>
-      <loading-spinner v-if="loading" class="align-to-parent"/>
+      <loading-spinner v-if="loading" class="align-to-parent" />
       <template v-else>
-        <error-box v-if="error"/>
-        <slot/>
+        <error-box v-if="error" />
+        <slot></slot>
       </template>
     </div>
   </div>

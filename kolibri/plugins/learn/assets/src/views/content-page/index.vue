@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title"/>
+    <page-header :title="content.title" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -20,7 +20,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </content-renderer>
 
     <assessment-wrapper
@@ -39,7 +39,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -55,7 +55,7 @@
 
         <template v-if="content.license_description">
           <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
+            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip" />
           </span>
 
           <ui-popover trigger="licensetooltip" class="license-description">
@@ -70,13 +70,13 @@
       </p>
     </div>
 
-    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
+    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
 
     <content-card-group-carousel
       v-if="showRecommended"
       :genContentLink="genContentLink"
       :header="recommendedText"
-      :contents="recommended"/>
+      :contents="recommended" />
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
@@ -84,11 +84,11 @@
         @close="markAsComplete"
         :kind="content.next_content.kind"
         :title="content.next_content.title">
-        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right" />
       </points-popup>
 
       <transition v-else name="slidein" appear>
-        <points-slidein @close="markAsComplete"/>
+        <points-slidein @close="markAsComplete" />
       </transition>
     </template>
 

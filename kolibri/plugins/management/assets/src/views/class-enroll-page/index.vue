@@ -33,7 +33,7 @@
       v-if="showConfirmEnrollmentModal"
       :className="className"
       :classId="classId"
-      :selectedUsers="selectedUsers"/>
+      :selectedUsers="selectedUsers" />
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
@@ -115,19 +115,19 @@
             :ariaLabel="$tr('previousResults')"
             :disabled="pageNum === 1"
             size="small"
-            @click="goToPage(pageNum - 1)"/>
+            @click="goToPage(pageNum - 1)" />
           <ui-icon-button
             type="primary"
             icon="chevron_right"
             :ariaLabel="$tr('nextResults')"
             :disabled="pageNum === numPages"
             size="small"
-            @click="goToPage(pageNum + 1)"/>
+            @click="goToPage(pageNum + 1)" />
         </nav>
       </div>
     </div>
 
-    <user-create-modal v-if="showCreateUserModal"/>
+    <user-create-modal v-if="showCreateUserModal" />
 
   </div>
 

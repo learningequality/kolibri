@@ -28,7 +28,7 @@
           />
         </div>
       </template>
-      <loading-spinner v-else :delay="500" class="spinner"/>
+      <loading-spinner v-else :delay="500" class="spinner" />
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -37,12 +37,12 @@
       <k-button
         @click="cancel"
         appearance="flat-button"
-        :text="$tr('cancel')"/>
+        :text="$tr('cancel')" />
       <k-button
         :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true"/>
+        :primary="true" />
     </div>
   </core-modal>
 

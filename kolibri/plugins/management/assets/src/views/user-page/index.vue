@@ -14,7 +14,7 @@
         <k-button
           @click="openCreateUserModal"
           :text="$tr('addNew')"
-          :primary="true"/>
+          :primary="true" />
       </div>
 
       <label for="type-filter" class="visuallyhidden">{{ $tr('filterUserType') }}</label>
@@ -61,7 +61,7 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <user-role :role="user.kind" :omitLearner="true"/>
+            <user-role :role="user.kind" :omitLearner="true" />
           </td>
 
           <!-- Full Name field -->
@@ -91,7 +91,7 @@
 
 
     <!-- Modals -->
-    <user-create-modal v-if="showCreateUserModal"/>
+    <user-create-modal v-if="showCreateUserModal" />
 
     <edit-user-modal
       v-if="showEditUserModal"

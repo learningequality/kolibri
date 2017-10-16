@@ -26,7 +26,7 @@
             v-show="!crumb.collapsed"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link"/>
+            <k-router-link :text="crumb.text" :to="crumb.link" />
           </li>
 
           <li
@@ -51,7 +51,7 @@
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1"/>
+            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
 
           <li

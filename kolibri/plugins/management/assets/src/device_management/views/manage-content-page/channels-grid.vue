@@ -6,7 +6,7 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear v-else-if="channelsLoading" type="indefinite" color="primary"/>
+      <ui-progress-linear v-else-if="channelsLoading" type="indefinite" color="primary" />
 
       <div v-else>
         <div class="channel-list-header">

@@ -1,7 +1,7 @@
 <template>
 
   <immersive-full-screen v-bind="{ backPageLink, backPageText }">
-    <auth-message v-if="!isSuperuser" authorizedRole="superuser"/>
+    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
     <subpage-container v-else-if="user===null" withSideMargin>
       <h1>{{ $tr('userDoesNotExist') }}</h1>
@@ -26,7 +26,7 @@
           @change="superuserChecked=$event"
         />
         <p>
-          <permissions-icon permissionType="SUPERUSER" class="permissions-icon"/>
+          <permissions-icon permissionType="SUPERUSER" class="permissions-icon" />
           {{ $tr('makeSuperuserDetails') }}
         </p>
       </div>

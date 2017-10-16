@@ -24,20 +24,20 @@
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('avgExerciseProgress')"
             :sortable="true"
-            :column="tableColumns.EXERCISE"/>
+            :column="tableColumns.EXERCISE" />
           <header-cell
             :text="$tr('avgContentProgress')"
             :sortable="true"
-            :column="tableColumns.CONTENT"/>
+            :column="tableColumns.CONTENT" />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -47,9 +47,9 @@
             •
             {{ $tr('contentCountText', {count: row.contentCount}) }}
           </name-cell>
-          <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
-          <progress-cell :num="row.contentProgress" :isExercise="false"/>
-          <activity-cell :date="row.lastActive"/>
+          <progress-cell :num="row.exerciseProgress" :isExercise="true" />
+          <progress-cell :num="row.contentProgress" :isExercise="false" />
+          <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
     </report-table>

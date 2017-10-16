@@ -18,7 +18,7 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
@@ -43,7 +43,7 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
+              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
             </td>
           </tr>
         </tbody>

@@ -7,7 +7,7 @@
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
           :kind="exercise.kind"
-          :summaryLog="summaryLog"/>
+          :summaryLog="summaryLog" />
       </div>
       <div class="details-container">
         <div class="attempt-log-container">
@@ -39,7 +39,7 @@
             :available="exercise.available"
             :answerState="currentInteraction.answer"
             :interactive="false"
-            :extraFields="exercise.extra_fields"/>
+            :extraFields="exercise.extra_fields" />
         </div>
       </div>
     </template>

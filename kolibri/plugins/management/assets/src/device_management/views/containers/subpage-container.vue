@@ -2,7 +2,7 @@
 
   <div class="subpage-container" :class="{ 'side-margin': withSideMargin }">
     <div class="wrapper">
-      <slot/>
+      <slot></slot>
     </div>
   </div>
 

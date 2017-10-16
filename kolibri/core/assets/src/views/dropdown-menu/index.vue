@@ -18,7 +18,7 @@
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.buttonLarge.closeDropdown()"
-          @select="emitSelection"/>
+          @select="emitSelection" />
       </ui-button>
     </span>
     <span v-else>
@@ -36,7 +36,7 @@
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.button.closeDropdown()"
-          @select="emitSelection"/>
+          @select="emitSelection" />
       </ui-icon-button>
     </span>
   </span>

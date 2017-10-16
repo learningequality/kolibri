@@ -2,7 +2,7 @@
 
   <div class="wrapper-table">
     <div class="main-row"><div id="main-cell">
-      <logo class="logo"/>
+      <logo class="logo" />
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form class="login-form" ref="form" @submit.prevent="signIn">
         <ui-alert
@@ -87,7 +87,7 @@
       <p class="login-text version">{{ versionMsg }}</p>
     </div></div>
     <div class="footer-row">
-      <language-switcher-footer class="footer-cell"/>
+      <language-switcher-footer class="footer-cell" />
     </div>
   </div>
 

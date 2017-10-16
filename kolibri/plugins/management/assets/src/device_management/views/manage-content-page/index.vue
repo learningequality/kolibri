@@ -3,7 +3,7 @@
   <div>
 
     <template v-if="canManageContent">
-      <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
+      <component v-if="pageState.wizardState.shown" :is="wizardComponent" />
 
       <subpage-container>
         <task-progress
@@ -38,7 +38,7 @@
       </subpage-container>
     </template>
 
-    <auth-message v-else :details="$tr('noAccessDetails')"/>
+    <auth-message v-else :details="$tr('noAccessDetails')" />
 
   </div>
 

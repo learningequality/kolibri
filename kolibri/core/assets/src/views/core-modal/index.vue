@@ -19,10 +19,10 @@
 
         <div class="top-buttons" @keydown.enter.stop>
           <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
-            <mat-svg category="navigation" name="arrow_back"/>
+            <mat-svg category="navigation" name="arrow_back" />
           </button>
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
-            <mat-svg category="navigation" name="close"/>
+            <mat-svg category="navigation" name="close" />
           </button>
         </div>
 
