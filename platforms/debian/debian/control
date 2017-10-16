@@ -1,12 +1,13 @@
-Source: kolibri
-Priority: medium
+Source: kolibri-source
+Priority: optional
 Section: education
 Maintainer: Benjamin Bach <benjamin@learningequality.org>
 Build-Depends: debhelper (>=9),
                dh-python,
                python3-all,
                python3-setuptools,
-               python3-pytest
+               python3-pytest,
+               python3-pip
 Standards-Version: 3.9.7
 Homepage: https://learningequality.org/kolibri
 X-Python-Version: >= 2.7
