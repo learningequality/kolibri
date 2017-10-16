@@ -84,8 +84,12 @@
         </thead>
 
         <tbody name="row" is="transition-group">
-          <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-              @click="toggleSelection(learner.id)" :key="learner.id">
+          <tr
+            v-for="learner in visibleFilteredUsers"
+            :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            @click="toggleSelection(learner.id)"
+            :key="learner.id"
+          >
             <td class="col-checkbox">
               <k-checkbox
                 :label="$tr('selectUser')"

@@ -70,7 +70,7 @@ module.exports = {
     'vue/html-quotes': [2, 'double'],
     'vue/html-self-closing': [2],
     'vue/max-attributes-per-line': [2, {
-      'singleline': 3,
+      'singleline': 10,
       'multiline': {
         'max': 1,
         'allowFirstLine': false

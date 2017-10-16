@@ -12,8 +12,10 @@
           <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
-              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
-                :key="questionIndex">
+              <li
+                v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                :key="questionIndex"
+              >
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"

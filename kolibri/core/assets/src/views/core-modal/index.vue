@@ -2,20 +2,24 @@
 
   <!-- Accessibility properties for the overlay -->
   <transition name="fade">
-    <div class="modal-overlay"
+    <div
+      class="modal-overlay"
       @keydown.esc="emitCancelEvent"
       @keydown.enter="emitEnterEvent"
       @click="bgClick($event)"
       ref="modal-overlay"
-      id="modal-window">
+      id="modal-window"
+    >
 
-      <div class="modal"
+      <div
+        class="modal"
         ref="modal"
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
         :class="{ mobile: windowSize.breakpoint <= 1 }"
-        :style="{ width: width, height: height }">
+        :style="{ width: width, height: height }"
+      >
 
         <div class="top-buttons" @keydown.enter.stop>
           <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">

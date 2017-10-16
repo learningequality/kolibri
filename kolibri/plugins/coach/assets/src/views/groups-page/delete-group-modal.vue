@@ -1,7 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('deleteLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('deleteLearnerGroup')" @cancel="close">
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <div class="ta-r">

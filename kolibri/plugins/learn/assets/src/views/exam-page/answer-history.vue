@@ -5,8 +5,12 @@
       <template v-for="(question, index) in questions">
         <li @click="$emit('goToQuestion', index)" :class="isSelected(index)" class="clickable" :key="index">
           <svg class="item svg-item">
-            <circle cx="32" cy="32" r="8"
-              :style="{ fill: ((attemptLogs[question.contentId] || {})[question.itemId] || {}).answer ? 'purple' : 'lightgrey' }" />
+            <circle
+              cx="32"
+              cy="32"
+              r="8"
+              :style="{ fill: ((attemptLogs[question.contentId] || {})[question.itemId] || {}).answer ? 'purple' : 'lightgrey' }"
+            />
           </svg>
           <p class="item">
             {{ questionText(index + 1) }}

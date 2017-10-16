@@ -2,7 +2,8 @@
 
   <div class="wrapper">
     <div class="visuallyhidden" id="progress-bar-label">{{ $tr('label') }}</div>
-    <div class="progress-bar-wrapper"
+    <div
+      class="progress-bar-wrapper"
       role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="percent"

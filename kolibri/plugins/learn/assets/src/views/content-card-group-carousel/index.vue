@@ -34,11 +34,13 @@
       @before-enter="setStartPosition"
       @enter="slide">
 
-      <div class="content-carousel-card"
+      <div
+        class="content-carousel-card"
         v-for="(content, index) in contents"
         v-if="isInThisSet(index)"
         :style="positionCalc(index)"
-        :key="content.id">
+        :key="content.id"
+      >
         <!-- uses props if scoped slot is unused -->
           <slot
             :title="content.title"
