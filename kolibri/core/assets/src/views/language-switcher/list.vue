@@ -1,4 +1,4 @@
-<template>
+  <template>
 
   <div>
     <label
@@ -25,27 +25,15 @@
       appearance="basic-link"
     />
 
-    <select
-      @input="switchLanguage($event.target.value)"
-      v-if="selectorLanguages.length"
-      class="language-list-dropdown language-list-items">
-      <option
-        disabled
-        selected
-        hidden
-      >
-        {{ $tr('showMoreLanguagesSelector') }}
-      </option>
-
-      <option
-        v-for="language in selectorLanguages"
-        :key="language.id"
-        :value="language.id"
-        class="language-list-dropdown-option"
-      >
-        {{ language.lang_name }}
-      </option>
-    </select>
+    <k-select
+      v-if="moreLanguages.length"
+      :label="$tr('showMoreLanguagesSelector')"
+      :options="moreLanguages"
+      :inline="true"
+      v-model="moreLanguagesSelection"
+      @change="switchLanguage($event.value)"
+      class="language-list-dropdown"
+    />
   </div>
 
 </template>
@@ -58,6 +46,7 @@
   import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
 
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
 
   import omit from 'lodash/omit';
 
@@ -67,14 +56,15 @@
   export default {
     name: 'languageSwitcherList',
     $trs: {
-      showMoreLanguagesSelector: 'More',
+      showMoreLanguagesSelector: 'More languages',
       selectedLanguageLabel: 'Selected language',
     },
-    components: { kButton },
+    components: { kButton, kSelect },
     mixins: [responsiveWindow, languageSwitcherMixin],
     data() {
       return {
         selectedLanguageId: currentLanguage,
+        moreLanguagesSelection: {},
       };
     },
     computed: {
@@ -104,8 +94,10 @@
       buttonLanguages() {
         return this.remainingLanguages.slice(0, this.numberOfLanguageButtons);
       },
-      selectorLanguages() {
-        return this.remainingLanguages.slice(this.numberOfLanguageButtons);
+      moreLanguages() {
+        return this.remainingLanguages.slice(this.numberOfLanguageButtons).map(lang => {
+          return { label: lang.lang_name, value: lang.id };
+        });
       },
     },
   };
@@ -150,12 +142,7 @@
     &-button-option
       color: $core-action-dark
 
-    &-dropdown
-      $k-button-styles()
-      width: 100px
-      background-color: $core-grey-200
-      &-option
-        text-transform: none
-        background-color: $core-bg-light
+  .language-list-dropdown
+    margin-bottom: 8px
 
 </style>

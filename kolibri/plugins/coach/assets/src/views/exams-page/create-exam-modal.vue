@@ -85,10 +85,9 @@
     text-align: right
 
   .channel-select
-    padding-bottom: 4rem
+    margin-bottom: 4rem
 
   >>>.ui-select__options
     max-height: 5rem
-
 
 </style>

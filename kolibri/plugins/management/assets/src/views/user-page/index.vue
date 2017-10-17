@@ -3,10 +3,8 @@
   <div class="user-roster">
 
     <div class="header">
-      <h1>
-        {{ $tr('allUsers') }}
-      </h1>
-      <span> ( {{ visibleUsers.length }} )</span>
+      <h1>{{ $tr('allUsers') }}</h1>
+      <span> ( {{ visibleUsers.length }} ) </span>
     </div>
 
     <div class="toolbar">
@@ -14,16 +12,17 @@
         <k-button
           @click="openCreateUserModal"
           :text="$tr('addNew')"
-          :primary="true" />
+          :primary="true"
+        />
       </div>
 
-      <label for="type-filter" class="visuallyhidden">{{ $tr('filterUserType') }}</label>
-      <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> {{ $tr('allUsers') }} </option>
-        <option :value="ADMIN"> {{ $tr('admins') }}</option>
-        <option :value="COACH"> {{ $tr('coaches') }} </option>
-        <option :value="LEARNER"> {{ $tr('learners') }} </option>
-      </select>
+      <k-select
+        class="kind-select"
+        :label="$tr('filterUserType')"
+        :options="userKinds"
+        :inline="true"
+        v-model="roleFilter"
+      />
 
       <k-filter-textbox
         :placeholder="$tr('searchText')"
@@ -135,6 +134,7 @@
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
 
   export default {
     name: 'userPage',
@@ -147,16 +147,34 @@
       kFilterTextbox,
       dropdownMenu,
       userRole,
+      kSelect,
     },
     data: () => ({
       searchFilter: '',
-      roleFilter: 'all',
+      roleFilter: null,
       selectedUser: null,
     }),
     computed: {
-      LEARNER: () => UserKinds.LEARNER,
-      COACH: () => UserKinds.COACH,
-      ADMIN: () => UserKinds.ADMIN,
+      userKinds() {
+        return [
+          {
+            label: this.$tr('allUsers'),
+            value: 'all',
+          },
+          {
+            label: this.$tr('learners'),
+            value: UserKinds.LEARNER,
+          },
+          {
+            label: this.$tr('coaches'),
+            value: UserKinds.COACH,
+          },
+          {
+            label: this.$tr('admins'),
+            value: UserKinds.ADMIN,
+          },
+        ];
+      },
       noUsersExist() {
         return this.users.length === 0;
       },
@@ -185,9 +203,12 @@
         return this.modalShown === constants.Modals.CREATE_USER;
       },
     },
+    beforeMount() {
+      this.roleFilter = this.userKinds[0];
+    },
     methods: {
       userMatchesRole(user) {
-        return this.roleFilter === 'all' || user.kind === this.roleFilter;
+        return this.roleFilter.value === 'all' || user.kind === this.roleFilter.value;
       },
       manageUserOptions(userId) {
         return [
@@ -228,9 +249,9 @@
       },
     },
     $trs: {
-      filterUserType: 'Filter User Type',
+      filterUserType: 'User kind',
       searchText: 'Search for a user...',
-      allUsers: 'All Users',
+      allUsers: 'All',
       admins: 'Admins',
       coaches: 'Coaches',
       learners: 'Learners',
@@ -269,16 +290,6 @@
   // Toolbar Styling
   .create
     float: right
-
-  #type-filter
-    background-color: $core-bg-light
-    border-color: $core-action-light
-    height: $toolbar-height
-    cursor: pointer
-    margin-right: 8px
-
-  #type-filter, .searchbar
-    margin-top: 5px
 
   .header h1
     display: inline-block
@@ -322,5 +333,8 @@
   .user-roster
     overflow-x: auto
     overflow-y: hidden
+
+  .kind-select
+    margin-bottom: 0
 
 </style>
