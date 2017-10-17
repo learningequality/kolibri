@@ -5,14 +5,7 @@ import sinon from 'sinon';
 import assert from 'assert';
 import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
 import { mount } from 'avoriaz';
-
-const defaultChannel = {
-  name: 'Channel Title',
-  version: 20,
-  description: 'An awesome channel',
-  total_file_size: 5000000000,
-  thumbnail: '',
-};
+import { channelFactory } from '../utils/data';
 
 function makeStore() {
   return new Vuex.Store({
@@ -21,6 +14,8 @@ function makeStore() {
     },
   });
 }
+
+const defaultChannel = channelFactory();
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;

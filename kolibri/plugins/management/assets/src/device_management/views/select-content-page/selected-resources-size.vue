@@ -22,7 +22,7 @@
     </div>
 
     <div class="remaining-space">
-      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpace) })}}
+      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpace) }) }}
     </div>
 
     <ui-alert v-if="remainingSpace<=0" type="error" :dismissable="false">
