@@ -25,7 +25,8 @@ description of how to test the changes
 
 ### References
 
-* related issues and PRs
-* related trello links
-* related mockups or specs
-* links to dependency updates
+when applicable, please provide:
+
+* references to related issues and PRs
+* links to mockups or specs for new features
+* links to the diffs for dependency updates, e.g. in iceqube or the perseus plugin
