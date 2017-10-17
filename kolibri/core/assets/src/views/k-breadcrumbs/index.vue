@@ -3,7 +3,7 @@
   <div v-show="crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-        <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
+        <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
               <li v-for="(crumb, index) in collapsedCrumbs" class="breadcrumbs-dropdown-item" :key="index">

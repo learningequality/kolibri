@@ -1,6 +1,6 @@
 <template>
 
-  <file-svg src="./icons/kolibri-logo.svg"/>
+  <file-svg src="./icons/kolibri-logo.svg" />
 
 </template>
 

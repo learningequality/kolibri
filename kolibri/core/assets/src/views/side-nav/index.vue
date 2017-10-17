@@ -5,7 +5,7 @@
       <div
         v-show="navShown"
         class="side-nav"
-        :style="{ width: `${this.width}px` }"
+        :style="{ width: `${width}px` }"
       >
         <div
           class="side-nav-header"
@@ -37,7 +37,7 @@
           />
 
           <div class="side-nav-scrollable-area-footer">
-            <logo class="side-nav-scrollable-area-footer-logo"/>
+            <logo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->

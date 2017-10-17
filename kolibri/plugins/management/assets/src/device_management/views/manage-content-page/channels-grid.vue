@@ -2,11 +2,11 @@
 
   <div>
     <transition mode="out-in">
-      <p class="core-text-alert" v-if="sortedChannels.length===0 && !this.channelsLoading">
+      <p class="core-text-alert" v-if="sortedChannels.length===0 && !channelsLoading">
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear v-else-if="this.channelsLoading" type="indefinite" color="primary"/>
+      <ui-progress-linear v-else-if="channelsLoading" type="indefinite" color="primary" />
 
       <div v-else>
         <div class="channel-list-header">
@@ -69,7 +69,7 @@
         return '';
       },
       sortedChannels() {
-        return this.channelList.sort(channel => channel.name);
+        return this.channelList.slice().sort(channel => channel.name);
       },
     },
     created() {

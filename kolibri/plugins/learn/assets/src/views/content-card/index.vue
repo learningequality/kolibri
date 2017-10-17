@@ -3,14 +3,14 @@
   <router-link :to="link" class="card">
 
     <div class="card-thumbnail" :style="cardThumbnail">
-      <content-icon v-if="!thumbnail" :kind="kind" :style="iconSize" class="card-thumbnail-backup"/>
+      <content-icon v-if="!thumbnail" :kind="kind" :style="iconSize" class="card-thumbnail-backup" />
       <div v-show="progress > 0" class="card-progress-icon-wrapper">
-        <progress-icon :progress="progress"/>
+        <progress-icon :progress="progress" />
       </div>
 
       <div class="card-content-icon-background" :class="backgroundClass"></div>
       <div class="card-content-icon-wrapper">
-        <content-icon :kind="kind" class="card-content-icon"/>
+        <content-icon :kind="kind" class="card-content-icon" />
       </div>
 
       <div class="card-progress-bar-wrapper">

@@ -9,7 +9,7 @@
       class="btn"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen"
-      :primary="true"/>
+      :primary="true" />
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 

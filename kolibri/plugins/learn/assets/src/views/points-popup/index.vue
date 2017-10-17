@@ -3,14 +3,14 @@
   <core-modal :title="$tr('niceWork')" @cancel="closePopover">
 
     <div class="progress-icon">
-      <progress-icon :progress="1"/>
+      <progress-icon :progress="1" />
     </div>
 
 
     <div class="points-wrapper">
       <!-- <h2>{{ $tr('pointsForCompletion') }}</h2> -->
       <div class="points">
-        <points-icon class="points-icon" :active="true"/>
+        <points-icon class="points-icon" :active="true" />
         <span class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</span>
       </div>
     </div>
@@ -18,14 +18,14 @@
     <div class="next-item-section">
       <h2 class="next-item-heading">{{ $tr('nextContent') }}</h2>
       <div>
-        <content-icon class="nex-item-icon" :kind="kind"/>
+        <content-icon class="nex-item-icon" :kind="kind" />
         <span class="next-item-title">{{ title }}</span>
       </div>
     </div>
 
     <div class="buttons">
-      <k-button :text="$tr('close')" @click="closePopover"/>
-      <slot name="nextItemBtn"/>
+      <k-button :text="$tr('close')" @click="closePopover" />
+      <slot name="nextItemBtn"></slot>
     </div>
 
   </core-modal>

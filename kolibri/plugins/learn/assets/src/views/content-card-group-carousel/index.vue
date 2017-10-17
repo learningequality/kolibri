@@ -8,7 +8,7 @@
           class="previous-button"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
-          :disable-ripple="true"
+          :disableRipple="true"
           icon="arrow_back"
           size="large"
         />
@@ -19,7 +19,7 @@
           class="next-button"
           v-show="!isLastSet"
           :disabled="isLastSet"
-          :disable-ripple="true"
+          :disableRipple="true"
           icon="arrow_forward"
           size="large"
         />
@@ -34,11 +34,13 @@
       @before-enter="setStartPosition"
       @enter="slide">
 
-      <div class="content-carousel-card"
+      <div
+        class="content-carousel-card"
         v-for="(content, index) in contents"
         v-if="isInThisSet(index)"
         :style="positionCalc(index)"
-        :key="content.id">
+        :key="content.id"
+      >
         <!-- uses props if scoped slot is unused -->
           <slot
             :title="content.title"
@@ -52,7 +54,7 @@
             :thumbnail="content.thumbnail"
             :kind="content.kind"
             :progress="content.progress"
-            :link="genContentLink(content.id, content.kind)"/>
+            :link="genContentLink(content.id, content.kind)" />
           </slot>
       </div>
 

@@ -21,17 +21,17 @@
       aria-controls="pdf-container"
       icon="add"
       size="large"
-      @click="zoomIn"/>
+      @click="zoomIn" />
     <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
-      @click="zoomOut"/>
+      @click="zoomOut" />
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
+      <progress-bar v-if="documentLoading" class="progress-bar" :showPercentage="true" :progress="progress" />
       <page-component
         class="pdf-page-container"
         v-for="(page, index) in pdfPages"
@@ -41,7 +41,7 @@
         :defaultHeight="pageHeight"
         :defaultWidth="pageWidth"
         :scale="scale"
-        :pageNum="index + 1"/>
+        :pageNum="index + 1" />
     </div>
   </div>
 

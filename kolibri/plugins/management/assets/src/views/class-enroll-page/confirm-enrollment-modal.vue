@@ -10,11 +10,11 @@
         <k-button
           :text="$tr('noGoBack')"
           appearance="flat-button"
-          @click="close"/>
+          @click="close" />
         <k-button
           :text="$tr('yesEnrollUsers')"
           :primary="true"
-          @click="enrollUsers"/>
+          @click="enrollUsers" />
       </div>
     </div>
   </core-modal>

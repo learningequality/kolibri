@@ -15,7 +15,7 @@
         <p>{{ localImportPrompt }}</p>
 
         <ul class="channel-list">
-          <li v-for="(channel, i) in channelList" :key="i" >
+          <li v-for="(channel, i) in channelList" :key="i">
             {{ channel.name }}
             <span v-if="coreChannel(channel.id)" class="already-installed">
               ({{ $tr('channelAlreadyInstalled') }})

@@ -3,7 +3,7 @@
   <section
     class="pdf-page-container"
     :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-    <span class="pdf-page-loading"> {{ this.$formatNumber(this.pageNum) }}</span>
+    <span class="pdf-page-loading"> {{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="active"
       class="canvas"

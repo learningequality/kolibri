@@ -3,7 +3,7 @@
   <div class="channel-list-item">
 
     <div class="thumbnail dtc">
-      <img v-if="thumbnailImg" :src="thumbnailImg" />
+      <img v-if="thumbnailImg" :src="thumbnailImg">
       <div v-else class="default-icon">
         <mat-svg category="navigation" name="apps" />
       </div>
