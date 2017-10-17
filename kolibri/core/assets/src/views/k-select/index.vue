@@ -10,7 +10,6 @@
     :disabled="disabled"
     :invalid="invalid"
     :error="invalidText"
-    :multiple="multiple"
     :name="name"
     @change="handleChange"
     @blur="$emit('blur')"
@@ -41,7 +40,7 @@
   }
 
   /**
-   * Used to filter items via a select
+   * Used to select or filter items
    */
   export default {
     name: 'kSelect',
@@ -53,21 +52,17 @@
     },
     props: {
       /**
-       * v-model
-       * Object for single selection, array of objects for multi-select
+       * Object currently selected
        */
       value: {
-        type: [Object, Array],
+        type: Object,
         required: true,
         validator(val) {
-          if (isArray(val)) {
-            return areValidOptions(val);
-          }
           return isValidOption(val);
         },
       },
       /**
-       * Array of option objects { value, label, disabled }
+       * Array of option objects { value, label, disabled }.
        * Disabled key is optional
        */
       options: {
@@ -92,7 +87,7 @@
         default: false,
       },
       /**
-       * Whether selection, or lack of, is invalid
+       * Whether invalid or not
        */
       invalid: {
         type: Boolean,
@@ -106,14 +101,7 @@
         required: false,
       },
       /**
-       * Whether or not multiple selection is allowed
-       */
-      multiple: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Whether or not to inline, preference for filters
+       * Whether or not display as inline block
        */
       inline: {
         type: Boolean,
@@ -136,6 +124,7 @@
         this.selection = inputValue;
       },
       selection(newSelection) {
+        /* Emits new selection.*/
         this.$emit('change', newSelection);
       },
     },
