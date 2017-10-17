@@ -23,6 +23,26 @@ class Command(AsyncCommand):
         # directory to be given. Another is the 'importcontent network'
         # command to be given, where we'll expect a channel.
 
+        # However, some optional arguments apply to both groups. Add them here!
+        node_ids_help_text = """
+        Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
+        Make sure to call this last in the argument list.
+
+        e.g.
+
+        kolibri manage importcontent network <channel id> --node-ids <id1> <id2> [<ids>...]
+        """
+        parser.add_argument(
+            "--node-ids", "-n",
+            # Split the comma separated string we get, into a list of strings
+            type=lambda x: x.split(","),
+            default="",
+            required=False,
+            dest="node-ids",
+            help=node_ids_help_text,
+        )
+
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(dest='command', help="The following subcommands are available.")
@@ -58,15 +78,22 @@ class Command(AsyncCommand):
         local_subparser.add_argument('channel_id', type=str)
         local_subparser.add_argument('directory', type=str)
 
-    def download_content(self, channel_id):
-        self._transfer(DOWNLOAD_METHOD, channel_id)
+    def download_content(self, channel_id, node_ids=None):
+        self._transfer(DOWNLOAD_METHOD, channel_id, node_ids=node_ids)
 
-    def copy_content(self, channel_id, path):
-        self._transfer(COPY_METHOD, channel_id, path=path)
+    def copy_content(self, channel_id, path, node_ids=None):
+        self._transfer(COPY_METHOD, channel_id, path=path, node_ids=node_ids)
 
-    def _transfer(self, method, channel_id, path=None):  # noqa: max-complexity=16
+    def _transfer(self, method, channel_id, path=None, node_ids=None):  # noqa: max-complexity=16
 
-        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False).distinct()
+        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
+
+        if node_ids:
+            files_to_download = files_to_download.filter(files__contentnode__in=node_ids)
+
+        # Make sure the files are unique, to avoid duplicating downloads
+        files_to_download = files_to_download.distinct()
+
         total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
         downloaded_files = []
@@ -128,9 +155,9 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.download_content(options["channel_id"])
+            self.download_content(options["channel_id"], node_ids=options["node-ids"])
         elif options['command'] == 'local':
-            self.copy_content(options["channel_id"], options["directory"])
+            self.copy_content(options["channel_id"], options["directory"], node_ids=options["node-ids"])
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))
