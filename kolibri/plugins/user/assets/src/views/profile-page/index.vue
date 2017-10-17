@@ -4,7 +4,7 @@
 
     <section>
       <h2>{{ $tr('points') }}</h2>
-      <points-icon class="points-icon" :active="true"/>
+      <points-icon class="points-icon" :active="true" />
       <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
     </section>
 
@@ -16,7 +16,7 @@
     <section v-if="userHasPermissions">
       <h2>{{ $tr('devicePermissions') }}</h2>
       <p>
-        <permissions-icon :permissionType="permissionType" class="permissions-icon"/>
+        <permissions-icon :permissionType="permissionType" class="permissions-icon" />
         {{ permissionTypeText }}
       </p>
       <p>

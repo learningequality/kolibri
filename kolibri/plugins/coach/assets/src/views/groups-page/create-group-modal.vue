@@ -1,7 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('newLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('newLearnerGroup')" @cancel="close">
     <div>
       <form @submit.prevent="callCreateGroup">
         <k-textbox

@@ -33,7 +33,7 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress"/>
+        @updateProgress="updateProgress" />
     </div>
 
     <div>
@@ -57,7 +57,7 @@ oriented data synchronization.
           class="question-btn"
         />
       </transition>
-      <slot/>
+      <slot></slot>
     </div>
 
     <div class="attemptprogress-container" :class="{ mobile: isMobile }">

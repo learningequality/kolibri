@@ -2,7 +2,7 @@
 
   <div class="points-slidein">
     <div class="points">
-      <points-icon class="points-icon" :active="true"/>
+      <points-icon class="points-icon" :active="true" />
       <span class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</span>
     </div>
 

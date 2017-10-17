@@ -10,8 +10,7 @@
       <k-checkbox
         label="I agree"
         :checked="true"
-      >
-      </k-checkbox>
+      />
     </show>
 
     <h2>Usage guidelines</h2>

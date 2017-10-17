@@ -8,11 +8,11 @@
     <template>
       <div class="container">
         <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true"/>
+            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
           </div>
         </div>
         <div class="question-container">
@@ -20,7 +20,7 @@
             <div class="answer-history-container column">
               <answer-history
               :questionNumber="questionNumber"
-              @goToQuestion="goToQuestion"/>
+              @goToQuestion="goToQuestion" />
             </div>
           <div class="exercise-container column">
             <content-renderer
@@ -38,13 +38,13 @@
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
-              @interaction="throttledSaveAnswer"/>
+              @interaction="throttledSaveAnswer" />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
               <div class="question-navbutton-container">
-                <k-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"/>
-                <k-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"/>
+                <k-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')" />
+                <k-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')" />
               </div>
             </div>
           </div>
@@ -52,9 +52,9 @@
       </div>
       <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
-        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal"/>
-        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
+        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}</p>
+        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal" />
+        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true" />
       </core-modal>
     </template>
   </immersive-full-screen>

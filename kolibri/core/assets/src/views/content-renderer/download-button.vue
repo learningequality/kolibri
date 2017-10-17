@@ -21,7 +21,7 @@
     props: {
       files: {
         type: Array,
-        default: [],
+        default: () => [],
       },
     },
     computed: {

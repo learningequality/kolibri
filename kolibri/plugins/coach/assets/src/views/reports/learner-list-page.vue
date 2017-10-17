@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1 v-if="!isRootLearnerPage">
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
