@@ -1,6 +1,7 @@
 import logging as logger
 import os
 
+from django.conf import settings
 from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
 
@@ -33,6 +34,14 @@ class Command(AsyncCommand):
              help="Download the database for the given channel_id."
          )
 
+        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        network_subparser.add_argument(
+            "--host",
+            type=str,
+            default=default_studio_url,
+            help="The host we will download the content from. Defaults to {}".format(default_studio_url),
+        )
+
         local_subparser = subparsers.add_parser(
             name='local',
             cmd=self,
@@ -49,21 +58,21 @@ class Command(AsyncCommand):
              help="Import content from this directory."
          )
 
-    def download_channel(self, channel_id):
+    def download_channel(self, channel_id, host):
         logging.info("Downloading data for channel id {}".format(channel_id))
-        self._transfer(DOWNLOAD_METHOD, channel_id)
+        self._transfer(DOWNLOAD_METHOD, channel_id, host)
 
     def copy_channel(self, channel_id, path):
         logging.info("Copying in data for channel id {}".format(channel_id))
         self._transfer(COPY_METHOD, channel_id, path=path)
 
-    def _transfer(self, method, channel_id, path=None):
+    def _transfer(self, method, channel_id, host=None, path=None):
 
         dest = paths.get_content_database_file_path(channel_id)
 
         # determine where we're downloading/copying from, and create appropriate transfer object
         if method == DOWNLOAD_METHOD:
-            url = paths.get_content_database_file_url(channel_id)
+            url = paths.get_content_database_file_url(channel_id, host)
             logging.debug("URL to fetch: {}".format(url))
             filetransfer = transfer.FileDownload(url, dest)
         elif method == COPY_METHOD:
@@ -98,7 +107,7 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.download_channel(options["channel_id"])
+            self.download_channel(options["channel_id"], options["host"])
         elif options['command'] == 'local':
             self.copy_channel(options["channel_id"], options["directory"])
         else:
