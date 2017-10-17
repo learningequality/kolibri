@@ -16,8 +16,9 @@
       @change="handleGroupChange(group.id, $event)"
     />
     <div class="footer">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close"/>
-      <k-button :text="$tr('update')" :primary="true" :disabled="busy" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('update')" :primary="true" :disabled="busy" @click="updateVisibility" />
+
     </div>
   </core-modal>
 

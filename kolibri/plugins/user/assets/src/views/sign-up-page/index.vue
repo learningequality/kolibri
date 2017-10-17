@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo/></ui-icon>
+        <ui-icon class="app-bar-icon"><logo /></ui-icon>
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -18,7 +18,7 @@
 
     <form class="signup-form" ref="form" @submit.prevent="signUp">
       <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
-        {{errorMessage}}
+        {{ errorMessage }}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
@@ -89,7 +89,7 @@
     </form>
 
     <div class="footer">
-      <language-switcher-footer/>
+      <language-switcher-footer />
     </div>
   </div>
 

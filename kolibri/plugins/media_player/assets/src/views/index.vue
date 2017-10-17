@@ -2,7 +2,7 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <loading-spinner/>
+      <loading-spinner />
     </div>
     <div
        v-show="!loading"
@@ -13,8 +13,14 @@
           <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang.id" :label="track.lang.lang_name" :default="isDefaultTrack(track.lang.id)"
-          :key="track.storage_url">
+          <track
+            kind="captions"
+            :src="track.storage_url"
+            :srclang="track.lang.id"
+            :label="track.lang.lang_name"
+            :default="isDefaultTrack(track.lang.id)"
+            :key="track.storage_url"
+          >
         </template>
       </video>
 

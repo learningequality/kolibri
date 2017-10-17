@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
     <report-subheading />
 
@@ -13,16 +13,16 @@
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('progress')"
             :sortable="true"
-            :column="tableColumns.CONTENT"/>
+            :column="tableColumns.CONTENT" />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -33,7 +33,7 @@
             :link="genLink(row)"
           />
           <td>
-            <progress-bar :show-percentage="false" :progress="row.contentProgress"/>
+            <progress-bar :showPercentage="false" :progress="row.contentProgress" />
             {{ progressString(row) }}
           </td>
           <activity-cell :date="row.lastActive" />

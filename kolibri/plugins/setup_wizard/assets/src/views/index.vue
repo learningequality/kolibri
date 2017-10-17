@@ -21,7 +21,7 @@
 
       <component
         :is="currentOnboardingForm"
-        :submit-text="submitText"
+        :submitText="submitText"
         :isMobile="isMobile"
         @submit="continueOnboarding"
         :class="['onboarding-body', (isMobile ? 'mobile' : '')]"

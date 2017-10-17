@@ -1,19 +1,21 @@
 <template>
 
   <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
-    <ui-progress-linear v-show="loading"/>
+    <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
-        <slot name="randomize-button"/>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+        <slot name="randomize-button"></slot>
       </div>
       <div class="exam-preview-container pure-g">
         <div class="question-selector pure-u-1-3">
           <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
-              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
-                :key="questionIndex">
+              <li
+                v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                :key="questionIndex"
+              >
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
@@ -38,7 +40,7 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false"/>
+            :allowHints="false" />
           </div>
       </div>
       </div>

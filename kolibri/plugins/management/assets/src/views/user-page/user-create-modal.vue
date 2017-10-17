@@ -63,7 +63,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting"/>
+        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting" />
       </section>
     </form>
   </core-modal>

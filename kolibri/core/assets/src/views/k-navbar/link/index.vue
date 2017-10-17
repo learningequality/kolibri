@@ -8,7 +8,7 @@
     >
 
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
-        <ui-icon :icon="icon" :ariaLabel="title" class="icon"/>
+        <ui-icon :icon="icon" :ariaLabel="title" class="icon" />
       </div>
 
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">

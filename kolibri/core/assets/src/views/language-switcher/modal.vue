@@ -15,8 +15,8 @@
         v-model="selectedLanguage"
       />
       <div class="footer">
-        <k-button :text="$tr('cancelButtonText')" :raised="false" @click="closeModal"/>
-        <k-button :text="$tr('confirmButtonText')" :primary="true" @click="setLang"/>
+        <k-button :text="$tr('cancelButtonText')" :raised="false" @click="closeModal" />
+        <k-button :text="$tr('confirmButtonText')" :primary="true" @click="setLang" />
       </div>
     </core-modal>
   </div>

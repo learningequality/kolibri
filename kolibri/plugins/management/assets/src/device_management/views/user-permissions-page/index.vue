@@ -26,12 +26,12 @@
           @change="superuserChecked=$event"
         />
         <p>
-          <permissions-icon permissionType="SUPERUSER" class="permissions-icon"/>
+          <permissions-icon permissionType="SUPERUSER" class="permissions-icon" />
           {{ $tr('makeSuperuserDetails') }}
         </p>
       </div>
 
-      <hr />
+      <hr>
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>

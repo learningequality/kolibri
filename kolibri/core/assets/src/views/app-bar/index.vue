@@ -8,14 +8,14 @@
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
     <div slot="actions">
-      <slot name="app-bar-actions"/>
+      <slot name="app-bar-actions"></slot>
 
       <ui-button
         icon="person"
         type="primary"
         color="primary"
         :ariaLabel="$tr('account')"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="accountButton"
         class="username-text"
       >

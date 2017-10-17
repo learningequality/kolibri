@@ -18,11 +18,11 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
-        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
@@ -43,7 +43,7 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
+              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
             </td>
           </tr>
         </tbody>

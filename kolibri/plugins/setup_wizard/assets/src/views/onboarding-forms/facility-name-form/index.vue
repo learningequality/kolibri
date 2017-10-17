@@ -3,7 +3,7 @@
   <onboarding-form
     :header="$tr('facilityNamingFormHeader')"
     :description="$tr('facilityNamingFormDescription')"
-    :submit-text="submitText"
+    :submitText="submitText"
     @submit="setFacilityName"
     >
     <k-textbox
@@ -11,7 +11,7 @@
       v-model="facilityName"
       @blur="validateFacilityName"
       :invalid="facilityNameIsInvalid"
-      :invalid-text="facilityNameErrorMessage"
+      :invalidText="facilityNameErrorMessage"
       ref="facilityName"
       :label="$tr('facilityNameFieldLabel')"
     />

@@ -2,7 +2,7 @@
 
   <div>
     <div>Hey I'm Empty Inside</div>
-    <slot />
+    <slot></slot>
   </div>
 
 </template>

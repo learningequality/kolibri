@@ -4,9 +4,9 @@
 
     <div v-if="isAdmin || isSuperuser">
       <div class="manage-content">
-        <top-nav/>
+        <top-nav />
       </div>
-      <component class="manage-content page" :is="currentPage"/>
+      <component class="manage-content page" :is="currentPage" />
     </div>
 
     <auth-message v-else :details="$tr('adminOrSuperuser')" />

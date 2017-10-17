@@ -46,7 +46,7 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <ui-progress-linear v-if="loading" key="progress"/>
+          <ui-progress-linear v-if="loading" key="progress" />
 
           <table v-else key="table">
             <thead>
@@ -103,10 +103,10 @@
         {{ formIsInvalidText }}
       </ui-alert>
 
-      <k-button :text="$tr('preview')" @click="preview"/>
+      <k-button :text="$tr('preview')" @click="preview" />
 
       <br>
-      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting"/>
+      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
     </div>
 
     <preview-new-exam-modal
