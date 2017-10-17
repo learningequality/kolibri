@@ -59,8 +59,6 @@
           v-model="kind"
           class="kind-select"
         />
-
-
       </section>
 
       <!-- Button Options at footer of modal -->

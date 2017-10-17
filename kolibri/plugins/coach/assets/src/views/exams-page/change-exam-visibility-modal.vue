@@ -136,11 +136,10 @@
           this.updateExamAssignments(this.examId, classCollection, groupAssignments);
         } else if (this.selectedGroups.length) {
           const unassignGroups = this.initiallySelectedGroups().filter(
-            initialGroup => !this.selectedGroups.find(newGroup => newGroup === initialGroup)
+            initialGroup => !this.selectedGroups.includes(initialGroup)
           );
           const assignGroups = this.selectedGroups.filter(
-            newGroup =>
-              !this.initiallySelectedGroups().find(initialGroup => initialGroup === newGroup)
+            newGroup => !this.initiallySelectedGroups().includes(newGroup)
           );
           if (!unassignGroups.length && !assignGroups.length) {
             this.close();
