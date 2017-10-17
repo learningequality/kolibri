@@ -6,6 +6,7 @@ const defaultChannel = {
   name: 'Channel Title',
   thumbnail: '',
   total_file_size: 5000000000,
+  total_resource_count: 5000,
   version: 20,
 };
 
