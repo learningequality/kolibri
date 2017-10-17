@@ -27,15 +27,27 @@ class Command(AsyncCommand):
             cmd=self,
             help="Download the given channel through the network."
         )
-        network_subparser.add_argument('channel_id', type=str)
+        network_subparser.add_argument(
+            'channel_id',
+             type=str,
+             help="Download the database for the given channel_id."
+         )
 
         local_subparser = subparsers.add_parser(
             name='local',
             cmd=self,
             help='Copy the content from the given folder.'
         )
-        local_subparser.add_argument('channel_id', type=str)
-        local_subparser.add_argument('directory', type=str)
+        local_subparser.add_argument(
+            'channel_id',
+            type=str,
+            help="Import this channel id from the given directory."
+        )
+        local_subparser.add_argument(
+            'directory',
+             type=str,
+             help="Import content from this directory."
+         )
 
     def download_channel(self, channel_id):
         logging.info("Downloading data for channel id {}".format(channel_id))
