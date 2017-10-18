@@ -4,34 +4,35 @@
     <div v-if="navBarNeeded" :class="`gutter-${windowSize.gutterWidth}`">
       <app-bar
         class="app-bar align-to-parent"
-        :style="appBarStyle"
-        @toggleSideNav="navShown=!navShown"
         :title="appBarTitle"
+        :height="headerHeight"
         :navShown="navShown"
-        :height="headerHeight">
+        @toggleSideNav="navShown=!navShown"
+      >
         <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"/>
+          <slot name="app-bar-actions"></slot>
         </div>
       </app-bar>
       <side-nav
-        @toggleSideNav="navShown=!navShown"
-        :topLevelPageName="topLevelPageName"
         :navShown="navShown"
         :headerHeight="headerHeight"
-        :width="navWidth"/>
+        :width="navWidth"
+        :topLevelPageName="topLevelPageName"
+        @toggleSideNav="navShown=!navShown"
+      />
       <div :style="contentStyle" class="content-container">
-        <loading-spinner v-if="loading" class="align-to-parent"/>
+        <loading-spinner v-if="loading" class="align-to-parent" />
         <template v-else>
-          <error-box v-if="error"/>
-          <slot/>
+          <error-box v-if="error" />
+          <slot></slot>
         </template>
       </div>
     </div>
     <div v-else>
-      <loading-spinner v-if="loading" class="align-to-parent"/>
+      <loading-spinner v-if="loading" class="align-to-parent" />
       <template v-else>
-        <error-box v-if="error"/>
-        <slot/>
+        <error-box v-if="error" />
+        <slot></slot>
       </template>
     </div>
   </div>
@@ -44,14 +45,18 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  const PADDING = 16;
   import appBar from './app-bar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import Vue from 'kolibri.lib.vue';
 
   export default {
+    components: {
+      appBar,
+      sideNav,
+      errorBox,
+      loadingSpinner,
+    },
     mixins: [responsiveWindow],
     props: {
       // This prop breaks the separation between core and plugins.
@@ -76,12 +81,6 @@
         default: true,
       },
     },
-    components: {
-      appBar,
-      sideNav,
-      errorBox,
-      loadingSpinner,
-    },
     vuex: {
       getters: {
         loading: state => state.core.loading,
@@ -89,24 +88,7 @@
         title: state => state.core.title,
       },
     },
-    watch: {
-      title: 'updateDocumentTitle',
-      'windowSize.breakpoint': function updateNav(newVal, oldVal) {
-        if (oldVal === 4 && newVal === 5) {
-          // Pop out the nav if transitioning from 4 to 5
-          this.navShown = true;
-        } else if (oldVal === 2 && newVal === 1) {
-          // Pop in the nav if transitioning from 2 to 1
-          this.navShown = false;
-        }
-      },
-    },
     data: () => ({ navShown: false }),
-    methods: {
-      updateDocumentTitle() {
-        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
-      },
-    },
     computed: {
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -115,24 +97,25 @@
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return this.navShown ? this.headerHeight * 4 : 0;
-      },
-      appBarStyle() {
-        const posKey = this.isRtl ? 'Right' : 'Left';
-        return this.mobile ? {} : { ['padding' + posKey]: `${this.navWidth + PADDING}px` };
+        return this.headerHeight * 4;
       },
       contentStyle() {
-        const style = { top: `${this.headerHeight}px` };
-        const posKey = this.isRtl ? 'right' : 'left';
-        style[posKey] = this.mobile ? 0 : `${this.navWidth}px`;
-        return style;
+        return {
+          top: `${this.headerHeight}px`,
+          [this.isRtl ? 'right' : 'left']: 0,
+        };
       },
+    },
+    watch: {
+      title: 'updateDocumentTitle',
     },
     created() {
       this.updateDocumentTitle();
-      if (this.mobile) {
-        this.navShown = false;
-      }
+    },
+    methods: {
+      updateDocumentTitle() {
+        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+      },
     },
   };
 

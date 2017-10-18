@@ -5,15 +5,15 @@
       <div class="lg-button-wrapper">
         <k-button
           :text="$tr('internet')"
-          @click="goForward('network')"/>
+          @click="goForward('network')" />
         <k-button
           :text="$tr('localDrives')"
-          @click="goForward('local')"/>
+          @click="goForward('local')" />
       </div>
       <k-button
         @click="cancel"
-        :raised="false"
-        :text="$tr('cancel')"/>
+        appearance="flat-button"
+        :text="$tr('cancel')" />
     </div>
   </core-modal>
 
@@ -27,6 +27,10 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'wizardImportSource',
+    components: {
+      coreModal,
+      kButton,
+    },
     $trs: {
       title: 'Please choose a source...',
       internet: 'Internet',
@@ -40,10 +44,6 @@
       cancel() {
         return this.transitionWizardPage('cancel');
       },
-    },
-    components: {
-      coreModal,
-      kButton,
     },
     vuex: {
       actions: { transitionWizardPage },

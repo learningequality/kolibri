@@ -4,11 +4,13 @@
     <div class="top-buttons pure-g">
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
-        <router-link :to="editClassLink" class="link-button">
-          <k-button
-            :text="$tr('backToClassDetails')"
-            :primary="false"/>
-        </router-link>
+        <k-router-link
+          :text="$tr('backToClassDetails')"
+          :to="editClassLink"
+          :primary="false"
+          appearance="flat-button"
+          class="link-button"
+        />
       </div>
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
@@ -31,7 +33,7 @@
       v-if="showConfirmEnrollmentModal"
       :className="className"
       :classId="classId"
-      :selectedUsers="selectedUsers"/>
+      :selectedUsers="selectedUsers" />
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
@@ -82,8 +84,12 @@
         </thead>
 
         <tbody name="row" is="transition-group">
-          <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-              @click="toggleSelection(learner.id)" :key="learner.id">
+          <tr
+            v-for="learner in visibleFilteredUsers"
+            :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            @click="toggleSelection(learner.id)"
+            :key="learner.id"
+          >
             <td class="col-checkbox">
               <k-checkbox
                 :label="$tr('selectUser')"
@@ -113,19 +119,19 @@
             :ariaLabel="$tr('previousResults')"
             :disabled="pageNum === 1"
             size="small"
-            @click="goToPage(pageNum - 1)"/>
+            @click="goToPage(pageNum - 1)" />
           <ui-icon-button
             type="primary"
             icon="chevron_right"
             :ariaLabel="$tr('nextResults')"
             :disabled="pageNum === numPages"
             size="small"
-            @click="goToPage(pageNum + 1)"/>
+            @click="goToPage(pageNum + 1)" />
         </nav>
       </div>
     </div>
 
-    <user-create-modal v-if="showCreateUserModal"/>
+    <user-create-modal v-if="showCreateUserModal" />
 
   </div>
 
@@ -140,6 +146,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
@@ -149,8 +156,20 @@
   import uiSwitch from 'keen-ui/src/UiSwitch';
   import userRole from '../user-role';
   export default {
-    mixins: [responsiveWindow],
     name: 'managementClassEnroll',
+    components: {
+      kButton,
+      kRouterLink,
+      kCheckbox,
+      uiIconButton,
+      uiIcon,
+      kFilterTextbox,
+      userCreateModal,
+      confirmEnrollmentModal,
+      uiSwitch,
+      userRole,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',
@@ -173,17 +192,6 @@
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
-    components: {
-      kButton,
-      kCheckbox,
-      uiIconButton,
-      uiIcon,
-      kFilterTextbox,
-      userCreateModal,
-      confirmEnrollmentModal,
-      uiSwitch,
-      userRole,
     },
     data: () => ({
       filterInput: '',
@@ -257,6 +265,11 @@
         return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
       },
     },
+    watch: {
+      userJustCreated(user) {
+        this.selectedUsers.push(user.id);
+      },
+    },
     methods: {
       reducePageNum() {
         while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
@@ -306,11 +319,6 @@
       },
       openConfirmEnrollmentModal() {
         this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
-      },
-    },
-    watch: {
-      userJustCreated(user) {
-        this.selectedUsers.push(user.id);
       },
     },
     vuex: {

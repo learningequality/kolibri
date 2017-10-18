@@ -1,5 +1,5 @@
-Users, Authentication, and Permissions
-======================================
+Users, auth, and permissions module
+===================================
 
 This is a core module found in ``kolibri/auth``.
 

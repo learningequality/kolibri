@@ -72,6 +72,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 if (require.main === module) {
   const program = require('commander');
   const glob = require('glob');
+  const defaultGlobPattern = './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}';
 
   program
     .version('0.0.1')
@@ -82,7 +83,7 @@ if (require.main === module) {
     .option('--prettierPath <filePath>', 'Path to prettier bin')
     .option('-v, --verbose', 'Print output to stdout', false)
     .parse(process.argv);
-  const files = program.args;
+  const files = program.args.length ? program.args : [defaultGlobPattern];
   const baseOptions = Object.assign({}, program);
   if (baseOptions.prettierPath) {
     baseOptions.prettierOptions = require(path.resolve(process.cwd(), baseOptions.prettierPath));

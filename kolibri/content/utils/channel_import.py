@@ -2,7 +2,8 @@ import logging as logger
 
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, License, LocalFile
+from kolibri.content.legacy_models import License
+from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, LocalFile
 from kolibri.utils.time import local_now
 
 from .annotation import set_leaf_node_availability_from_local_file_availability
@@ -12,14 +13,11 @@ from .sqlalchemybridge import Bridge, ClassNotFoundError
 
 logging = logger.getLogger(__name__)
 
-NO_VERSION = 'unversioned'
-
 CONTENT_APP_NAME = KolibriContentConfig.label
 
 merge_models = [
     ContentTag,
     LocalFile,
-    License,
     Language,
 ]
 
@@ -133,7 +131,10 @@ class ChannelImport(object):
         return mapper
 
     def base_table_mapper(self, SourceRecord):
-        return self.source.session.query(SourceRecord).all()
+        # If SourceRecord is none, then the source table does not exist in the DB
+        if SourceRecord:
+            return self.source.session.query(SourceRecord).all()
+        return []
 
     def generate_table_mapper(self, table_map=None):
         if table_map is None:
@@ -221,6 +222,8 @@ class NoVersionChannelImport(ChannelImport):
                 'channel_id': 'infer_channel_id_from_source',
                 'tree_id': 'get_tree_id',
                 'available': 'get_none',
+                'license_name': 'get_license_name',
+                'license_description': 'get_license_description',
             },
         },
         File: {
@@ -253,6 +256,8 @@ class NoVersionChannelImport(ChannelImport):
         },
     }
 
+    licenses = {}
+
     def get_none(self, source_object):
         return None
 
@@ -275,6 +280,28 @@ class NoVersionChannelImport(ChannelImport):
 
     def set_version_to_no_version(self, source_object):
         return NO_VERSION
+
+    def get_license(self, SourceRecord):
+        license_id = SourceRecord.license_id
+        if not license_id:
+            return None
+        if license_id not in self.licenses:
+            LicenseRecord = self.source.get_class(License)
+            license = self.source.session.query(LicenseRecord).get(license_id)
+            self.licenses[license_id] = license
+        return self.licenses[license_id]
+
+    def get_license_name(self, SourceRecord):
+        license = self.get_license(SourceRecord)
+        if not license:
+            return None
+        return license.license_name
+
+    def get_license_description(self, SourceRecord):
+        license = self.get_license(SourceRecord)
+        if not license:
+            return None
+        return license.license_description
 
 
 mappings = {

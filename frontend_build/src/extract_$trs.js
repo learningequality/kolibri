@@ -75,7 +75,7 @@ extract$trs.prototype.apply = function(compiler) {
     }
     compilation.chunks.forEach(function(chunk) {
       // Explore each module within the chunk (built inputs):
-      chunk.modules.forEach(function(module) {
+      chunk.forEachModule(function(module) {
         if (module.resource && module.resource.indexOf('.vue') === module.resource.length - 4) {
           // Inspect each source file in the chunk if it is a vue file.
           var messageNameSpace;

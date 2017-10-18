@@ -11,12 +11,12 @@
           :userName="userName"
           :questions="examAttempts"
           :completionTimestamp="new Date(completionTimestamp)"
-          :completed="closed"/>
+          :completed="closed" />
       </div>
       <div class="details-container">
         <div class="attempt-log-container">
           <attempt-log-list
-            :attempt-logs="examAttempts"
+            :attemptLogs="examAttempts"
             :selectedQuestionNumber="questionNumber"
             @select="navigateToAttempt"
           />
@@ -43,7 +43,7 @@
             :answerState="currentInteraction.answer"
             :extraFields="exercise.extra_fields"
             :interactive="false"
-            :assessment="true"/>
+            :assessment="true" />
           <content-renderer
             v-else
             class="content-renderer"
@@ -57,7 +57,7 @@
             :available="exercise.available"
             :extraFields="exercise.extra_fields"
             :interactive="false"
-            :assessment="true"/>
+            :assessment="true" />
         </div>
       </div>
     </template>

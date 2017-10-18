@@ -5,7 +5,7 @@ internal string representation in Python, you will find a
 `PEP-440 <https://www.python.org/dev/peps/pep-0440/>`__ flavor.
 
  * ``1.1.0`` (Semver)  = ``1.1`` (PEP-440).
- * ``1.0.0-alpha.1`` (Semver)  = ``1.0a1`` (PEP-440).
+ * ``1.0.0-alpha1`` (Semver)  = ``1.0a1`` (PEP-440).
 
 Here's how version numbers are generated:
 
@@ -100,46 +100,6 @@ setup.py should not depend on other packages. In case you were to have a
 package foo that depended on kolibri, and kolibri is installed as a dependency
 while foo is installing, then foo won't be able to access kolibri before after
 setuptools has completed installation of everything.
-
-
-How to tag releases
--------------------
-
-.. note::
-    Current practice is to tag releases after bumping
-    ``kolibri.VERSION``. You are allowed to have a newer version in
-    ``kolibri.VERSION``, but you are not allowed to add the tag before actually
-    bumping ``kolibri.VERSION``.
-
-Always use ``-s`` to sign your tags. Remember to push tags to remote upstream
-with ``git push <upstream> --tags``
-
-1.2.3.dev{auto-suffix} - This is normally NOT tagged, but you may::
-
-    tag -s v1.2.3-alpha0
-
-1.2.3a1{auto-suffix}::
-
-    tag -s v1.2.3-alpha1
-
-1.2.3b1{auto-suffix}::
-
-    tag -s v1.2.3-beta1
-
-1.2.3rc1 - a release candidate::
-
-    tag -s v1.2.3-final
-
-1.2.3 - a final release::
-
-    tag -s v1.2.3
-
-1.2.3 - a final release fix (in case something went wrong with an attempt to
-release a final version v1.2.3, should not contain code changes apart from
-bumping kolibri.VERSION)::
-
-    tag -s v1.2.3-post1
-
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 

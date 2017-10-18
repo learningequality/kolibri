@@ -1,7 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('renameLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('renameLearnerGroup')" @cancel="close">
     <div>
       <form @submit.prevent="callRenameGroup">
         <k-textbox
@@ -14,18 +13,20 @@
           @blur="nameBlurred = true"
           v-model.trim="name"
         />
-        <k-button
-          type="button"
-          :text="$tr('cancel')"
-          :raised="false"
-          @click="close"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('save')"
-          :primary="true"
-          :disabled="submitting"
-        />
+        <div class="ta-r">
+          <k-button
+            type="button"
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="close"
+          />
+          <k-button
+            type="submit"
+            :text="$tr('save')"
+            :primary="true"
+            :disabled="submitting"
+          />
+        </div>
       </form>
     </div>
   </core-modal>
@@ -132,4 +133,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .ta-r
+    text-align: right
+
+</style>

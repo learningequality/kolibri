@@ -9,9 +9,10 @@
       @change="deselectGroups"
     />
     <ui-select
+      v-if="classGroups.length"
       :name="$tr('group')"
-      :label="$tr('specificGroups')"
-      :placeholder="$tr('selectGroups')"
+      :label="$tr('selectGroups')"
+      :floatingLabel="true"
       :multiple="true"
       :options="groupOptions"
       v-model="groupsSelected"
@@ -19,8 +20,8 @@
       class="group-select"
     />
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility" />
     </div>
   </core-modal>
 
@@ -38,10 +39,9 @@
   export default {
     name: 'changeExamVisibilityModal',
     $trs: {
-      examVisibility: 'Exam visibility',
-      shouldBeVisible: "'{ examTitle }' should be visible to:",
+      examVisibility: 'Change exam visibility',
+      shouldBeVisible: "Make '{ examTitle }' visible to entire class or specific groups",
       group: 'group',
-      specificGroups: 'Specific groups',
       selectGroups: 'Select groups',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
@@ -178,9 +178,7 @@
     display: block
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
   .group-select
     padding-bottom: 4rem

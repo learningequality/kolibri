@@ -15,11 +15,10 @@
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
         </span>
         <k-button
-          v-if="canMove"
           class="right-margin"
           :text="$tr('moveLearners')"
           :primary="false"
-          :disabled="selectedUsers.length === 0"
+          :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
         <ui-button
@@ -27,7 +26,7 @@
           color="primary"
           ref="dropdownButton"
           size="small"
-          :has-dropdown="true"
+          :hasDropdown="true"
         >
           <ui-menu
             slot="dropdown"
@@ -106,13 +105,13 @@
       selectAll: 'Select all',
       selectLearner: 'Select learner',
     },
-    mixins: [ResponsiveElement],
     components: {
       kButton,
       kCheckbox,
       uiButton,
       uiMenu,
     },
+    mixins: [ResponsiveElement],
     props: {
       group: {
         type: Object,

@@ -177,14 +177,14 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const manageURL = urls['kolibri:managementplugin:management']();
+      const facilityURL = urls['kolibri:managementplugin:management']();
       const deviceURL = urls['kolibri:managementplugin:device_management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
       } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-        redirectBrowser(window.location.origin + manageURL);
+        redirectBrowser(window.location.origin + facilityURL);
       } else {
         redirectBrowser();
       }
@@ -205,7 +205,7 @@ function kolibriLogout(store) {
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise
-    .then(response => {
+    .then(() => {
       /* Very hacky solution to redirect a user back to Learn tab on logout*/
       redirectBrowser();
     })
@@ -269,7 +269,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
     const summaryCollectionPromise = summaryCollection.fetch({}, true);
 
     // ensure the store has finished update for summaryLog.
-    const summaryPromise = new Promise((resolve, reject) => {
+    const summaryPromise = new Promise(resolve => {
       summaryCollectionPromise.then(summary => {
         /* If a summary model exists, map that to the state */
         if (summary.length > 0) {
@@ -349,7 +349,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const sessionModelPromise = sessionModel.save();
 
   // ensure the store has finished update for sessionLog.
-  const sessionPromise = new Promise((resolve, reject) => {
+  const sessionPromise = new Promise(resolve => {
     sessionModelPromise.then(newSession => {
       store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
       resolve();
@@ -361,14 +361,16 @@ function initContentSession(store, channelId, contentId, contentKind) {
 }
 
 function setChannelInfo(store) {
-  return ChannelResource.getCollection({ available: true }).fetch().then(
-    channelsData => {
-      store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  return ChannelResource.getCollection({ available: true })
+    .fetch()
+    .then(
+      channelsData => {
+        store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 /**
@@ -386,27 +388,17 @@ function saveLogs(store) {
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
-    sessionModel
-      .save(_contentSessionModel(store))
-      .then(data => {
-        /* PLACEHOLDER */
-      })
-      .catch(error => {
-        handleApiError(store, error);
-      });
+    sessionModel.save(_contentSessionModel(store)).catch(error => {
+      handleApiError(store, error);
+    });
   }
 
   /* If a summary model exists, save it with updated values */
   if (summaryLog.id) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
-    summaryModel
-      .save(_contentSummaryModel(store))
-      .then(data => {
-        /* PLACEHOLDER */
-      })
-      .catch(error => {
-        handleApiError(store, error);
-      });
+    summaryModel.save(_contentSummaryModel(store)).catch(error => {
+      handleApiError(store, error);
+    });
   }
 }
 

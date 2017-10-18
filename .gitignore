@@ -41,9 +41,9 @@ kolibri/locale/en/
 .mr.developer.cfg
 .project
 # vscode files
-.vscode  
+.vscode
 # pycharm project file
-kolibri.iml  
+kolibri.iml
 .pydevproject
 .venv
 .idea

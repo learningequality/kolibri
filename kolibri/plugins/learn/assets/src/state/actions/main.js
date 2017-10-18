@@ -96,7 +96,7 @@ function contentState(data, nextContent, ancestors = []) {
     content_id: data.content_id,
     next_content: nextContent,
     author: data.author,
-    license: data.license,
+    license: data.license_name,
     license_description: data.license_description,
     license_owner: data.license_owner,
     parent: data.parent,
@@ -180,18 +180,20 @@ function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds }).fetch().then(channelCollection => {
-        const rootNodes = _collectionState(channelCollection);
-        rootNodes.forEach(rootNode => {
-          rootNode.thumbnail = channels.find(
-            channel => channel.id === rootNode.channel_id
-          ).thumbnail;
+      ContentNodeResource.getCollection({ ids: channelRootIds })
+        .fetch()
+        .then(channelCollection => {
+          const rootNodes = _collectionState(channelCollection);
+          rootNodes.forEach(rootNode => {
+            rootNode.thumbnail = channels.find(
+              channel => channel.id === rootNode.channel_id
+            ).thumbnail;
+          });
+          const pageState = { rootNodes };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
         });
-        const pageState = { rootNodes };
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-      });
     },
     error => {
       handleApiError(store, error);
@@ -280,12 +282,12 @@ function showTopicsContent(store, id) {
   const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
   ConditionalPromise.all([
     contentPromise,
-    channelsPromise,
     nextContentPromise,
     ancestorsPromise,
+    channelsPromise,
   ]).only(
     samePageCheckGenerator(store),
-    ([content, channels, nextContent, ancestors]) => {
+    ([content, nextContent, ancestors]) => {
       const currentChannel = getChannelObject(store.state, content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -384,20 +386,22 @@ function showExamList(store) {
     return Promise.resolve();
   }
 
-  return UserExamResource.getCollection().fetch().only(
-    samePageCheckGenerator(store),
-    exams => {
-      const pageState = {};
-      pageState.exams = exams.map(_examState);
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  return UserExamResource.getCollection()
+    .fetch()
+    .only(
+      samePageCheckGenerator(store),
+      exams => {
+        const pageState = {};
+        pageState.exams = exams.map(_examState);
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_ERROR', null);
+        store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 function calcQuestionsAnswered(attemptLogs) {
@@ -620,7 +624,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   const promise = examAttemptLogModel.save(attributes);
   return promise.then(
     newExamAttemptLog =>
-      new Promise((resolve, reject) => {
+      new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
         store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
           // prettier-ignore
@@ -644,9 +648,11 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 function closeExam(store) {
   const examLog = Object.assign({}, store.state.examLog);
   examLog.closed = true;
-  return ExamLogResource.getModel(examLog.id).save(examLog).catch(error => {
-    handleApiError(store, error);
-  });
+  return ExamLogResource.getModel(examLog.id)
+    .save(examLog)
+    .catch(error => {
+      handleApiError(store, error);
+    });
 }
 
 export {

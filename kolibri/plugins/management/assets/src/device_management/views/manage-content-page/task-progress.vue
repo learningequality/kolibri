@@ -34,10 +34,10 @@
 
     <div class="buttons dtc">
       <k-button
-        v-if="taskHasCompleted || cancellable"
+        v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="false"
-        :raised="false"
+        appearance="flat-button"
         @click="endTask()"
         :disabled="uiBlocked"
       />
@@ -80,13 +80,6 @@
         required: true,
       },
     },
-    watch: {
-      taskHasFailed(val) {
-        if (val) {
-          this.$emit('taskfailed');
-        }
-      },
-    },
     data() {
       return {
         uiBlocked: false,
@@ -109,7 +102,12 @@
           }
         }
         if (this.taskHasFailed) {
-          return this.$tr('taskHasFailed');
+          switch (this.type) {
+            case TaskTypes.DELETE_CHANNEL:
+              return this.$tr('deleteTaskHasFailed');
+            default:
+              return this.$tr('taskHasFailed');
+          }
         }
         if (this.taskHasCompleted) {
           return this.$tr('finished');
@@ -143,11 +141,7 @@
     methods: {
       endTask() {
         this.uiBlocked = true;
-        if (this.taskHasCompleted) {
-          this.$emit('taskcomplete');
-          this.refreshChannelList();
-        }
-        this.cancelTask(this.id).then(() => {
+        this.$emit('cleartask', () => {
           this.uiBlocked = false;
         });
       },
@@ -161,11 +155,12 @@
     $trs: {
       importingContent: 'Importing content…',
       exportingContent: 'Exporting content…',
-      finished: 'Finished!',
+      finished: 'Finished! Click "Close" button to see changes.',
       preparingTask: 'Preparing…',
       close: 'Close',
       cancel: 'Cancel',
       taskHasFailed: 'Transfer failed. Please try again.',
+      deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',
     },
   };

@@ -33,7 +33,7 @@ function showClassListPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CLASS_LIST);
   setClassState(store).then(
-    classes => {
+    () => {
       store.dispatch('SET_PAGE_STATE', {});
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);

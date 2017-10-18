@@ -61,7 +61,7 @@ function editProfile(store, edits, session) {
   store.dispatch('SET_PROFILE_BUSY', true);
 
   savedUserModel.save(changedValues).then(
-    userWithAttrs => {
+    () => {
       // dispatch changes to store
       coreActions.getCurrentSession(store, true);
       store.dispatch('SET_PROFILE_SUCCESS', true);

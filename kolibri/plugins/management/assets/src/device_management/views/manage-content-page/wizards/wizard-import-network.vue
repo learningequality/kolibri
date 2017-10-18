@@ -27,13 +27,13 @@
           @click="cancel"
           :text="$tr('cancel')"
           type="button"
-          :raised="false"
-          :disabled="formIsDisabled"/>
+          appearance="flat-button"
+          :disabled="formIsDisabled" />
         <k-button
           :text="$tr('import')"
           type="submit"
           :disabled="formIsDisabled"
-          :primary="true"/>
+          :primary="true" />
       </div>
     </form>
   </core-modal>

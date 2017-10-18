@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-import os
-import subprocess
 import argparse
 import imp
+import os
 import shutil
-
+import subprocess
 
 DIST_CEXT = 'kolibri/dist/cext'
 PYPI_DOWNLOAD = 'https://pypi.python.org/simple/'
@@ -38,7 +37,7 @@ def get_path_with_arch(platform, path):
     platform = platform.replace('x86-64', 'x86_64')
     platform = platform.replace('manylinux1', 'linux')
 
-    # For cryptography module, all the macosxs >= 10.9 are supported 
+    # For cryptography module, all the macosxs >= 10.9 are supported
     if 'macosx' in platform:
         platform = 'macosx'
 
@@ -56,9 +55,11 @@ def download_package(path, platform, version, implementation, abi, name):
     else:
         index_url = PYPI_DOWNLOAD
 
-    return_code = subprocess.call(['python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform, 
-        '--python-version', version, '--implementation', implementation, 
-        '--abi', abi, '-i', index_url, name])
+    return_code = subprocess.call([
+        'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
+        '--python-version', version, '--implementation', implementation,
+        '--abi', abi, '-i', index_url, name
+    ])
     return return_code
 
 
@@ -66,8 +67,10 @@ def install_package_by_wheel(path, name):
     """
     Install the package using the cached wheel files.
     """
-    return_code = subprocess.call(['python', 'kolibripip.pex', 'install', '-q', '-t', 
-        path, os.path.join(path, name)])
+    return_code = subprocess.call([
+        'python', 'kolibripip.pex', 'install', '-q', '-t',
+        path, os.path.join(path, name)
+    ])
     if return_code == 1:
         print ('Installation failed for package {}\n'.format(name))
     else:
@@ -90,14 +93,14 @@ def parse_package_page(files, pk_version):
         # If the file format is tar.gz or the package version is not the latest, ignore
         if file_name[-1].split('.')[-1] != 'whl' or file_name[1] != pk_version or file_name[2][2:] == '26':
             continue
-        
+
         print ('Installing {}...'.format(file.string))
 
         implementation = file_name[2][:2]
         python_version = file_name[2][2:]
 
         path = os.path.join(DIST_CEXT, file_name[2])
-        
+
         abi = file_name[3]
         platform = file_name[4].split('.')[0]
 
@@ -110,9 +113,10 @@ def parse_package_page(files, pk_version):
             # Package is not supported in this platform
             continue
 
-        download_return = download_package(path, platform, python_version, 
-            implementation, abi, file_name[0])
-        
+        download_return = download_package(
+            path, platform, python_version, implementation, abi, file_name[0]
+        )
+
         # Successfully downloaded package
         if download_return == 0:
             install_package_by_wheel(path, file.string)

@@ -85,7 +85,8 @@ var readBundlePlugins = function(base_dir) {
   // A bundle can specify a modification to the coreAPI.
   var coreAPISpec = (_.find(bundles, function(bundle) {
     return bundle.coreAPISpec;
-  }) || {}).coreAPISpec;
+  }) || {}
+  ).coreAPISpec;
 
   // Check that there is only one bundle modifying the coreAPI spec.
   if (

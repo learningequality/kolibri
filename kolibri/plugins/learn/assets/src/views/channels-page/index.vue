@@ -4,13 +4,13 @@
 
     <page-header :title="$tr('channels')">
       <div slot="icon">
-        <mat-svg category="navigation" name="apps"/>
+        <mat-svg category="navigation" name="apps" />
       </div>
     </page-header>
 
     <content-card-group-grid
       :contents="channels"
-      :gen-content-link="genChannelLink"
+      :genContentLink="genChannelLink"
       v-if="channels.length"
       :showContentKindFilter="false"
     />

@@ -66,7 +66,7 @@ class Command(AsyncCommand):
 
     def _transfer(self, method, channel_id, path=None):  # noqa: max-complexity=16
 
-        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
+        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False).distinct()
         total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
         downloaded_files = []

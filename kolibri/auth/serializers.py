@@ -43,7 +43,7 @@ class FacilityUserSerializer(BaseKolibriUserSerializer):
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles')
+        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):

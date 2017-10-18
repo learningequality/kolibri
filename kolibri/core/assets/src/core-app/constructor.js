@@ -8,11 +8,8 @@ import vuex from 'vuex';
 import router from 'vue-router';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
-import logger from '../logging';
 import HeartBeat from '../heartbeat';
 import { setUpIntl } from '../utils/i18n';
-
-const logging = logger.getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that

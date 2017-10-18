@@ -1,4 +1,4 @@
-Files and Directories
+Files and directories
 =====================
 
 
@@ -79,7 +79,7 @@ package.json
   javascript dependencies, helper scripts, and configuration
 
 pytest.ini
-  configuration files for `pytest <http://pytest.org/latest/>`_
+  configuration file for `pytest <http://pytest.org/latest/>`_
 
 pytest_runner-2.7.1-py2.7.egg
   ?

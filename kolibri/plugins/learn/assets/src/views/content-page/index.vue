@@ -2,8 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title">
-    </page-header>
+    <page-header :title="content.title" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -21,7 +20,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </content-renderer>
 
     <assessment-wrapper
@@ -40,7 +39,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
     <p v-html="description"></p>
@@ -51,12 +50,12 @@
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <p v-if="content.license" >
+      <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
           <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
+            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip" />
           </span>
 
           <ui-popover trigger="licensetooltip" class="license-description">
@@ -71,13 +70,13 @@
       </p>
     </div>
 
-    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
+    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
 
     <content-card-group-carousel
       v-if="showRecommended"
-      :gen-content-link="genContentLink"
+      :genContentLink="genContentLink"
       :header="recommendedText"
-      :contents="recommended"/>
+      :contents="recommended" />
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
@@ -85,11 +84,11 @@
         @close="markAsComplete"
         :kind="content.next_content.kind"
         :title="content.next_content.title">
-        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right" />
       </points-popup>
 
       <transition v-else name="slidein" appear>
-        <points-slidein @close="markAsComplete"/>
+        <points-slidein @close="markAsComplete" />
       </transition>
     </template>
 
@@ -123,7 +122,6 @@
   import uiPopover from 'keen-ui/src/UiPopover';
   import uiIcon from 'keen-ui/src/UiIcon';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -134,6 +132,18 @@
       license: 'License: {license}',
       licenseDescription: 'License description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+    },
+    components: {
+      pageHeader,
+      contentCardGroupCarousel,
+      contentRenderer,
+      downloadButton,
+      kButton,
+      assessmentWrapper,
+      pointsPopup,
+      pointsSlidein,
+      uiPopover,
+      uiIcon,
     },
     data: () => ({ wasIncomplete: false }),
     computed: {
@@ -188,17 +198,8 @@
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
-    components: {
-      pageHeader,
-      contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
-      kButton,
-      assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
-      uiPopover,
-      uiIcon,
+    beforeDestroy() {
+      this.stopTracking();
     },
     methods: {
       nextContentClicked() {
@@ -229,9 +230,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    beforeDestroy() {
-      this.stopTracking();
     },
     vuex: {
       getters: {

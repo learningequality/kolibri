@@ -21,17 +21,17 @@
       aria-controls="pdf-container"
       icon="add"
       size="large"
-      @click="zoomIn"/>
+      @click="zoomIn" />
     <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
-      @click="zoomOut"/>
+      @click="zoomOut" />
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar v-if="documentLoading" class="progress-bar" :show-percentage="true" :progress="progress"/>
+      <progress-bar v-if="documentLoading" class="progress-bar" :showPercentage="true" :progress="progress" />
       <page-component
         class="pdf-page-container"
         v-for="(page, index) in pdfPages"
@@ -41,7 +41,7 @@
         :defaultHeight="pageHeight"
         :defaultWidth="pageWidth"
         :scale="scale"
-        :pageNum="index + 1"/>
+        :pageNum="index + 1" />
     </div>
   </div>
 
@@ -78,13 +78,13 @@
 
   export default {
     name: 'pdfRender',
-    mixins: [responsiveWindow, responsiveElement],
     components: {
       kButton,
       progressBar,
       uiIconButton,
       pageComponent,
     },
+    mixins: [responsiveWindow, responsiveElement],
     props: ['defaultFile'],
     data: () => ({
       isFullscreen: false,
@@ -118,6 +118,88 @@
       documentLoading() {
         return this.progress !== 1;
       },
+    },
+    watch: {
+      scrollPos: 'checkPages',
+      scale(newScale, oldScale) {
+        // Listen to changes in scale, as we have to rerender every visible page if it changes.
+        const noChange = newScale === oldScale;
+        const firstChange = oldScale === null;
+
+        if (!noChange && !firstChange) {
+          // remove all rendered/rendering pages
+          Object.keys(this.pdfPages).forEach(pageNum => {
+            this.hidePage(Number(pageNum));
+          });
+        }
+        // find and re-render necessary pages
+        this.checkPages();
+      },
+    },
+    created() {
+      if (this.fullscreenAllowed) {
+        ScreenFull.onchange(() => {
+          this.isFullscreen = ScreenFull.isFullscreen;
+        });
+      }
+
+      const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
+
+      // pass callback to update loading bar
+      loadPdfPromise.onProgress = loadingProgress => {
+        this.progress = loadingProgress.loaded / loadingProgress.total;
+      };
+
+      this.prepComponentData = loadPdfPromise.then(pdfDocument => {
+        // Get initial info from the loaded pdf document
+        this.pdfDocument = pdfDocument;
+        this.totalPages = pdfDocument.numPages;
+        // Set pdfPages to an array of length total pages
+        this.pdfPages = Array(this.totalPages);
+
+        return this.getPage(1).then(firstPage => {
+          const pageMargin = 5;
+          const pdfPageWidth = firstPage.view[2];
+          const isDesktop = this.windowSize.breakpoint >= 5;
+
+          if (isDesktop) {
+            // if desktop, use default page's default scale size
+            this.scale = 1;
+          } else {
+            // if anything else, use max width
+            this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
+          }
+
+          // set default height and width properties, used in checkPages
+          const initialViewport = firstPage.getViewport(this.scale);
+          this.pageHeight = initialViewport.height;
+          this.pageWidth = initialViewport.width;
+          // Set the firstPage into the pdfPages object so that we do not refetch the page
+          // from PDFJS when we do our initial render
+          this.pdfPages.splice(0, 1, firstPage);
+        });
+      });
+    },
+    mounted() {
+      // Retrieve the document and its corresponding object
+      this.prepComponentData.then(() => {
+        this.$emit('startTracking');
+        this.checkPages();
+      });
+
+      // progress tracking
+      const self = this;
+      this.timeout = setTimeout(() => {
+        self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
+      }, 30000);
+    },
+    beforeDestroy() {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      this.pdfDocument.cleanup();
+      this.pdfDocument.destroy();
+      this.$emit('stopTracking');
     },
     methods: {
       toggleFullscreen() {
@@ -212,88 +294,6 @@
           }
         }
       }, renderDebounceTime),
-    },
-    watch: {
-      scrollPos: 'checkPages',
-      scale(newScale, oldScale) {
-        // Listen to changes in scale, as we have to rerender every visible page if it changes.
-        const noChange = newScale === oldScale;
-        const firstChange = oldScale === null;
-
-        if (!noChange && !firstChange) {
-          // remove all rendered/rendering pages
-          Object.keys(this.pdfPages).forEach(pageNum => {
-            this.hidePage(Number(pageNum));
-          });
-        }
-        // find and re-render necessary pages
-        this.checkPages();
-      },
-    },
-    created() {
-      if (this.fullscreenAllowed) {
-        ScreenFull.onchange(() => {
-          this.isFullscreen = ScreenFull.isFullscreen;
-        });
-      }
-
-      const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
-
-      // pass callback to update loading bar
-      loadPdfPromise.onProgress = loadingProgress => {
-        this.progress = loadingProgress.loaded / loadingProgress.total;
-      };
-
-      this.prepComponentData = loadPdfPromise.then(pdfDocument => {
-        // Get initial info from the loaded pdf document
-        this.pdfDocument = pdfDocument;
-        this.totalPages = pdfDocument.numPages;
-        // Set pdfPages to an array of length total pages
-        this.pdfPages = Array(this.totalPages);
-
-        return this.getPage(1).then(firstPage => {
-          const pageMargin = 5;
-          const pdfPageWidth = firstPage.view[2];
-          const isDesktop = this.windowSize.breakpoint >= 5;
-
-          if (isDesktop) {
-            // if desktop, use default page's default scale size
-            this.scale = 1;
-          } else {
-            // if anything else, use max width
-            this.scale = (this.elSize.width - 2 * pageMargin) / pdfPageWidth;
-          }
-
-          // set default height and width properties, used in checkPages
-          const initialViewport = firstPage.getViewport(this.scale);
-          this.pageHeight = initialViewport.height;
-          this.pageWidth = initialViewport.width;
-          // Set the firstPage into the pdfPages object so that we do not refetch the page
-          // from PDFJS when we do our initial render
-          this.pdfPages.splice(0, 1, firstPage);
-        });
-      });
-    },
-    mounted() {
-      // Retrieve the document and its corresponding object
-      this.prepComponentData.then(() => {
-        this.$emit('startTracking');
-        this.checkPages();
-      });
-
-      // progress tracking
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
-      }, 30000);
-    },
-    beforeDestroy() {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-      }
-      this.pdfDocument.cleanup();
-      this.pdfDocument.destroy();
-      this.$emit('stopTracking');
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',

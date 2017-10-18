@@ -12,7 +12,7 @@
       </router-link>
     </div>
     <div class="page-body">
-      <slot/>
+      <slot></slot>
     </div>
   </div>
 

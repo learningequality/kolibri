@@ -9,13 +9,13 @@
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.groups"><strong>{{ group.collection.name }}</strong></li>
+          <li v-for="(group, index) in examVisibility.groups" :key="index"><strong>{{ group.collection.name }}</strong></li>
         </ul>
       </span>
     </p>
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <k-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)" />
     </div>
   </core-modal>
 
@@ -78,8 +78,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>

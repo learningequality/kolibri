@@ -1,34 +1,38 @@
 <template>
 
-  <ul class="ui-menu" role="menu" :class="classes">
-    <menu-option
-      :disable-ripple="disableRipple"
-      :disabled="option[keys.disabled]"
-      :active="Boolean(option.active)"
-      :icon-props="iconProps || option[keys.iconProps]"
-      :icon="hasIcons ? option[keys.icon] : null"
-      :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
-      :secondary-text="hasSecondaryText ? option[keys.secondaryText] : null"
-      :type="option[keys.type]"
+  <div>
+    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
+    <ul class="ui-menu" role="menu" :class="classes">
+      <menu-option
+        :disableRipple="disableRipple"
+        :disabled="option[keys.disabled]"
+        :active="Boolean(option.active)"
+        :iconProps="iconProps || option[keys.iconProps]"
+        :icon="hasIcons ? option[keys.icon] : null"
+        :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
+        :secondaryText="hasSecondaryText ? option[keys.secondaryText] : null"
+        :type="option[keys.type]"
 
-      @click.native="selectOption(option)"
-      @keydown.enter.native.prevent="selectOption(option)"
-      @keydown.esc.native.esc="closeMenu"
+        @click.native="selectOption(option)"
+        @keydown.enter.native.prevent="selectOption(option)"
+        @keydown.esc.native.esc="closeMenu"
 
-      v-for="option in options"
-    >
-      <slot name="option" :option="option"></slot>
-    </menu-option>
+        v-for="(option, i) in options"
+        :key="i"
+      >
+        <slot name="option" :option="option"></slot>
+      </menu-option>
 
-    <div
-      class="ui-menu-focus-redirector"
-      tabindex="0"
+      <div
+        class="ui-menu-focus-redirector"
+        tabindex="0"
 
-      @focus="redirectFocus"
+        @focus="redirectFocus"
 
-      v-if="containFocus"
-    ></div>
-  </ul>
+        v-if="containFocus"
+      ></div>
+    </ul>
+  </div>
 
 </template>
 
@@ -40,8 +44,10 @@
   import UiMenuOption from './menu-option.vue';
 
   export default {
-    name: 'ui-menu',
-
+    name: 'uiMenu',
+    components: {
+      'menu-option': UiMenuOption,
+    },
     props: {
       options: {
         type: Array,
@@ -107,10 +113,6 @@
         this.$el.querySelector('.ui-menu-option').focus();
       },
     },
-
-    components: {
-      'menu-option': UiMenuOption,
-    },
   };
 
 </script>
@@ -150,6 +152,13 @@
   .ui-menu-focus-redirector {
       position: absolute;
       opacity: 0;
+  }
+
+  .ui-menu-header {
+    padding: 1rem;
+    border-bottom: solid 1px rgba(black, 0.08);
+    color: $primary-text-color;
+    font-size: $ui-dropdown-item-font-size;
   }
 
 </style>

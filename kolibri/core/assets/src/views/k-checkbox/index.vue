@@ -62,7 +62,7 @@
 <script>
 
   /**
-    * Used for selection
+    * Used for toggling boolean user input
     */
   export default {
     name: 'kCheckbox',

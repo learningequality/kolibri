@@ -13,13 +13,13 @@
         <ui-icon
           class="ui-menu-option-icon"
 
-          :icon-set="iconProps.iconSet"
+          :iconSet="iconProps.iconSet"
           :icon="icon"
-          :remove-text="iconProps.removeText"
-          :use-svg="iconProps.useSvg"
+          :removeText="iconProps.removeText"
+          :useSvg="iconProps.useSvg"
 
           v-if="icon"
-        ></ui-icon>
+        />
 
         <div class="ui-menu-option-text">{{ label }}</div>
 
@@ -32,7 +32,7 @@
     <ui-ripple-ink
       trigger="menuOption"
       v-if="!disabled && !isDivider && !disableRipple"
-    ></ui-ripple-ink>
+    />
   </li>
 
 </template>
@@ -46,8 +46,11 @@
   import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
 
   export default {
-    name: 'ui-menu-option',
-
+    name: 'uiMenuOption',
+    components: {
+      UiIcon,
+      UiRippleInk,
+    },
     props: {
       type: String,
       label: String,
@@ -85,11 +88,6 @@
       isDivider() {
         return this.type === 'divider';
       },
-    },
-
-    components: {
-      UiIcon,
-      UiRippleInk,
     },
   };
 

@@ -34,10 +34,7 @@ export default class ContentNodeResource extends Resource {
     this.ancestor_cache = this.ancestor_cache || {};
     const key = this.cacheKey({ id });
     if (!this.ancestor_cache[key]) {
-      const url = this.urls[`${this.name}-ancestors`](
-        ...this.resourceIds.map(resourceKey => resourceIds[resourceKey]),
-        id
-      );
+      const url = this.urls[`${this.name}-ancestors`](id);
       promise = this.client({ path: url }).then(response => {
         if (Array.isArray(response.entity)) {
           this.ancestor_cache[key] = response.entity;
@@ -59,10 +56,7 @@ export default class ContentNodeResource extends Resource {
     this.next_cache = this.next_cache || {};
     const key = this.cacheKey({ id });
     if (!this.next_cache[key]) {
-      const url = this.urls[`${this.name}_next_content`](
-        ...this.resourceIds.map(resourceKey => resourceIds[resourceKey]),
-        id
-      );
+      const url = this.urls[`${this.name}_next_content`](id);
       promise = this.client({ path: url }).then(response => {
         if (Object(response.entity) === response.entity) {
           this.next_cache[key] = response.entity;

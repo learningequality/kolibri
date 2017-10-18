@@ -1,10 +1,10 @@
 <template>
 
-  <div class="login">
-    <div id="login-container">
-      <logo class="logo"/>
+  <div class="wrapper-table">
+    <div class="main-row"><div id="main-cell">
+      <logo class="logo" />
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-      <form id="login-form" ref="form" @submit.prevent="signIn">
+      <form class="login-form" ref="form" @submit.prevent="signIn">
         <ui-alert
           v-if="invalidCredentials"
           type="error"
@@ -59,25 +59,35 @@
           />
         </transition>
         <k-button
-          id="login-btn"
+          class="login-btn"
           type="submit"
           :text="$tr('signIn')"
           :primary="true"
           :disabled="busy"
         />
       </form>
-      <div id="divid-line"></div>
+      <div class="divider"></div>
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
-          <k-button :text="$tr('createAccount')" :primary="false"/>
-        </router-link>
-        <a class="group-btn" href="/learn">
-          <k-button :text="$tr('accessAsGuest')" :primary="false"/>
-        </a>
+        <k-router-link
+          v-if="canSignUp"
+          :text="$tr('createAccount')"
+          :to="signUpPage"
+          :primary="false"
+          appearance="raised-button"
+        />
+        <k-external-link
+          :text="$tr('accessAsGuest')"
+          href="/learn"
+          :primary="false"
+          appearance="raised-button"
+        />
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
+    </div></div>
+    <div class="footer-row">
+      <language-switcher-footer class="footer-cell" />
     </div>
   </div>
 
@@ -92,10 +102,13 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import languageSwitcherFooter from '../language-switcher-footer';
 
   export default {
     name: 'signInPage',
@@ -115,10 +128,13 @@
     },
     components: {
       kButton,
+      kRouterLink,
+      kExternalLink,
       kTextbox,
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
+      languageSwitcherFooter,
     },
     data: () => ({
       username: '',
@@ -310,7 +326,7 @@
 
   $login-text = #D8D8D8
 
-  #login-container
+  #main-cell
     .ui-
       &textbox__
         &label-text
@@ -320,8 +336,13 @@
           color: $login-text
           &:autofill
             background-color: transparent
-      &button
-        background-color: $login-red
+
+    .button.secondary.raised
+      background-color: $core-text-default
+      color: $core-grey
+
+      &:hover
+        background-color: #0E0E0E
 
 </style>
 
@@ -330,83 +351,75 @@
 
   @require '~kolibri.styles.definitions'
 
-  $login-overlay = #201A21
   $login-text = #D8D8D8
 
-  .login
-    background-color: $login-overlay
-    height: 90%
-    // Fallback for older browers.
-    background: $core-bg-canvas
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
-    background-size: cover
-    overflow: hidden
+  .k-button-secondary-raised
+    background-color: $core-text-default
+    color: $core-bg-canvas
+    &:hover
+      background-color: #0E0E0E
 
-  #login-container
-    display: block
-    margin: auto
+  .wrapper-table
+    text-align: center
+    background-color: #201A21
+    height: 100%
+    width: 100%
+    display: table
+
+  .main-row
+    display: table-row
+
+  #main-cell
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center
+    background-size: cover
+    display: table-cell
+    vertical-align: middle
+    height: 100%
 
   .logo
-    position: relative
-    display: block
-    margin: auto
-    margin-top: 34px
-    width: 30%
-    height: auto
-    max-width: 120px
-    min-width: 60px
+    margin-top: 36px
+    width: 120px
 
   .login-text
     color: $login-text
 
   .title
-    font-weight: 100
     font-size: 1.3em
-    letter-spacing: 0.1em
-    text-align: center
 
-  #login-form
+  .login-form
     width: 70%
     max-width: 300px
-    margin: auto
-    margin-top: 30px
     position: relative
-
-  #password
-    margin-top: 30px
-
-  #login-btn
-    display: block
+    text-align: left
     margin: auto
-    margin-top: 38px
+
+  .login-btn
+    display: block
     width: 100%
 
-  #btn-group
-    display: table
+  .divider
     margin: auto
-    margin-top: 28px
-    margin-bottom: 20px
-    text-align: center
-
-  .group-btn
-    padding: 5px
-    display: inline-block
-    text-decoration: none
-
-  #divid-line
-    width: 412px
+    margin-top: 48px
+    margin-bottom: 36px
+    width: 100%
+    max-width: 412px
     height: 1px
     background-color: $core-text-annotation
-    background-color: $login-text
-    margin: auto
-    margin-top: 24px
 
   .version
-    text-align: center
     font-size: 0.8em
+    margin-top: 36px
+    margin-bottom: 36px
 
-  .no-account
-    text-align: center
+  .footer-row
+    display: table-row
+    background-color: $core-bg-canvas
+
+  .footer-cell
+    display: table-cell
+    vertical-align: middle
+    min-height: 50px
+    padding: 18px
 
   .sign-in-error
     color: $core-text-error

@@ -106,7 +106,7 @@ var parseBundlePlugin = function(data, base_dir) {
       : path.resolve(base_dir);
   } else {
     publicPath = path.join('/', data.static_url_root, data.name, '/');
-    outputPath = path.join(data.static_dir, data.name);
+    outputPath = path.resolve(path.join(data.static_dir, data.name));
   }
 
   bundle.plugins = bundle.plugins.concat([
