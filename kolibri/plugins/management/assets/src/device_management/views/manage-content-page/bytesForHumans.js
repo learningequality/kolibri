@@ -1,10 +1,10 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('bytesForHumansStrings', {
-  kbString: '{n, number, integer}KB',
-  mbString: '{n, number, integer}MB',
-  gbString: '{n, number, integer}GB',
-  bString: '{n, number, integer}B',
+  fileSizeInBytes: '{n, number, integer}B',
+  fileSizeInKilobytes: '{n, number, integer}KB',
+  fileSizeInMegabytes: '{n, number, integer}MB',
+  fileSizeInGigabytes: '{n, number, integer}GB',
 });
 
 const ONE_B = 1;
@@ -13,10 +13,10 @@ const ONE_MB = 1048576;
 const ONE_GB = 1073741824;
 
 const stringMap = {
-  [ONE_B]: 'bString',
-  [ONE_KB]: 'kbString',
-  [ONE_MB]: 'mbString',
-  [ONE_GB]: 'gbString',
+  [ONE_B]: 'fileSizeInBytes',
+  [ONE_KB]: 'fileSizeInKilobytes',
+  [ONE_MB]: 'fileSizeInMegabytes',
+  [ONE_GB]: 'fileSizeInGigabytes',
 };
 
 export default function bytesForHumans(bytes) {
