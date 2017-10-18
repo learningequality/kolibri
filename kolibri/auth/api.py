@@ -106,11 +106,13 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
-    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
-        Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
