@@ -106,11 +106,13 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
-    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
-        Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
@@ -162,6 +164,8 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 
 class SignUpViewSet(viewsets.ViewSet):
 
+    serializer_class = FacilityUserSerializer
+
     def extract_request_data(self, request):
         return {
             "username": request.data.get('username', ''),
@@ -175,7 +179,7 @@ class SignUpViewSet(viewsets.ViewSet):
         data = self.extract_request_data(request)
 
         # we validate the user's input, and if valid, login as user
-        serialized_user = FacilityUserSerializer(data=data)
+        serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid():
             serialized_user.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
