@@ -152,7 +152,6 @@ import subprocess
 
 from .lru_cache import lru_cache
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -364,6 +363,9 @@ def get_prerelease_version(version):
 
         # Check that the version file is consistent
         if version_file:
+
+            # Because \n may have been appended
+            version_file = version_file.strip()
 
             # If there is a '.dev', we can remove it, otherwise we check it
             # for consistency and fail if inconsistent

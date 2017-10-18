@@ -187,7 +187,8 @@ def initialize(debug=False):
         autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()
-        change_version = kolibri.__version__ != version.strip()
+        version = version.strip() if version else ""
+        change_version = kolibri.__version__ != version
         if change_version:
             # Version changed, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
