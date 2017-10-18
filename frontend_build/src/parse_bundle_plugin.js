@@ -15,6 +15,7 @@ var extract$trs = require('./extract_$trs');
 var merge = require('webpack-merge');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var WebpackRTLPlugin = require('webpack-rtl-plugin');
+var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -130,6 +131,10 @@ var parseBundlePlugin = function(data, base_dir) {
       __publicPath: JSON.stringify(publicPath),
     }),
     new extract$trs(data.locale_data_folder, data.name),
+    new LodashModuleReplacementPlugin({
+      'collections': true,
+      'paths': true
+    })
   ]);
 
   bundle = merge.smart(bundle, local_config);
