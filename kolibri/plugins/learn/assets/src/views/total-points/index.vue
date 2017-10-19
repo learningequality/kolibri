@@ -22,6 +22,7 @@
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
+
   export default {
     $trNameSpace: 'totalPoints',
     $trs: { pointsTooltip: 'You have earned { points, number } points!' },
