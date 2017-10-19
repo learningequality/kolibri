@@ -24,7 +24,6 @@
 
     <div class="card-text">
       <h3 class="card-title">{{ title }}</h3>
-      <h4 v-if="subtitle" class="card-subtitle">{{ subtitle }}</h4>
     </div>
 
   </router-link>
@@ -47,10 +46,6 @@
       title: {
         type: String,
         required: true,
-      },
-      subtitle: {
-        type: String,
-        required: false,
       },
       thumbnail: {
         type: String,
@@ -231,18 +226,11 @@
     height: $card-text-height
     color: $core-text-default
 
-  .card-title, .card-subtitle
-    margin: 0
-
   .card-title
+    margin: 0
     overflow: hidden
     line-height: ($card-width / (320 / 32))
     height: ($card-width / (320 / 64))
     font-size: ($card-width / (320 / 24))
-
-  .card-subtitle
-    padding-top: ($card-width / (320 / 16))
-    font-size: ($card-width / (320 / 14))
-    color: $core-text-annotation
 
 </style>
