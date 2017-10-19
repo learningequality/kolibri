@@ -93,7 +93,7 @@ var readBundlePlugins = function(base_dir) {
       return bundle.coreAPISpec;
     }).length > 1
   ) {
-    throw new RangeError('You have more than one coreAPISpec modification specified.');
+    logging.warn('You have more than one coreAPISpec modification specified.');
   }
 
   // One bundle is special - that is the one for the core bundle.
