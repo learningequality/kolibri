@@ -6,12 +6,13 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
-0.5.1 (unreleased)
+0.5.1
 ------------------
 
  - Python dependencies: Only bundle, do not install dependencies in system env #2299
  - Beta Android support
  - Fix 'importchannel' command #2082
+ - Small translation improvements for Spanish, French, Hindi, and Swahili
 
 
 0.5.0
