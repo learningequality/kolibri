@@ -10,4 +10,3 @@ User Guide
    coach
    learner
    faq
-   upgrade
