@@ -30,15 +30,15 @@ class Command(AsyncCommand):
 
         e.g.
 
-        kolibri manage importcontent network <channel id> --node-ids <id1> <id2> [<ids>...]
+        kolibri manage importcontent network <channel id> --node_ids <id1> <id2> [<ids>...]
         """
         parser.add_argument(
-            "--node-ids", "-n",
+            "--node_ids", "-n",
             # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(","),
             default="",
             required=False,
-            dest="node-ids",
+            dest="node_ids",
             help=node_ids_help_text,
         )
 
@@ -155,9 +155,9 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.download_content(options["channel_id"], node_ids=options["node-ids"])
+            self.download_content(options["channel_id"], node_ids=options["node_ids"])
         elif options['command'] == 'local':
-            self.copy_content(options["channel_id"], options["directory"], node_ids=options["node-ids"])
+            self.copy_content(options["channel_id"], options["directory"], node_ids=options["node_ids"])
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))
