@@ -19,6 +19,7 @@ import kolibri
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
 from tzlocal import get_localzone
+import pytz
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -155,7 +156,7 @@ LANGUAGES = [
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
-TIME_ZONE = get_localzone().zone
+TIME_ZONE = get_localzone().zone if get_localzone().zone != "local" else pytz.utc.zone
 
 USE_I18N = True
 
