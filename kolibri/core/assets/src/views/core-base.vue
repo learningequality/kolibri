@@ -103,6 +103,7 @@
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
+          padding: (this.mobile ? 16 : 32) + 'px',
         };
       },
     },
@@ -143,7 +144,5 @@
     overflow-x: hidden
     right: 0
     bottom: 0
-    padding-bottom: 40px
-    padding: 32px
 
 </style>
