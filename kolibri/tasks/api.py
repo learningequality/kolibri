@@ -96,6 +96,7 @@ class TasksViewSet(viewsets.ViewSet):
                 "The 'channel_id' field is required.")
 
         channel_id = request.data['channel_id']
+        node_ids = request.data.get("node_ids")
 
         # ensure the requested channel_id can be found on the central server, otherwise error
         status = requests.head(
@@ -106,7 +107,7 @@ class TasksViewSet(viewsets.ViewSet):
             )
 
         task_id = get_client().schedule(
-            _networkimport, channel_id, track_progress=True, cancellable=True)
+            _networkimport, channel_id, node_ids, track_progress=True, cancellable=True)
 
         id_tasktype[task_id] = REMOTE_IMPORT
 
@@ -191,7 +192,7 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(out)
 
 
-def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
+def _networkimport(channel_id, node_ids, update_progress=None, check_for_cancel=None):
     call_command(
         "importchannel",
         "network",
@@ -203,6 +204,7 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
             "importcontent",
             "network",
             channel_id,
+            node_ids=node_ids,
             update_progress=update_progress,
             check_for_cancel=check_for_cancel)
     except UserCancelledError:
