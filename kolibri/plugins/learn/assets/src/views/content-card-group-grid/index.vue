@@ -22,10 +22,11 @@
     <content-card
       v-for="content in contents"
       v-show="showContentCard(content)"
+      class="grid-item"
+      :class="{ 'mobile': isMobile }"
       :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
-      :class="{'grid-item': true, 'mobile': isMobile}"
       :kind="content.kind"
       :progress="content.progress"
       :link="genContentLink(content.id, content.kind)"
