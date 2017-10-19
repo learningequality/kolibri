@@ -70,7 +70,7 @@
 
   import * as constants from '../../constants';
   import * as actions from '../../state/actions/exam';
-  import sumBy from 'lodash/sumBy';
+  import { sumBy } from 'lodash/sumBy';
 
   export default {
     computed: {

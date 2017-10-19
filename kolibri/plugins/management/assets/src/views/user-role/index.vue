@@ -8,7 +8,7 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import values from 'lodash/values';
+  import { values } from 'lodash/values';
 
   export default {
     name: 'roleText',

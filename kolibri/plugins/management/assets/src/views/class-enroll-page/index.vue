@@ -136,9 +136,9 @@
 
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
-  import differenceWith from 'lodash/differenceWith';
+  import { differenceWith } from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import orderBy from 'lodash/orderBy';
+  import { orderBy } from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';

@@ -81,7 +81,7 @@
 <script>
 
   import escodegen from 'escodegen';
-  import CamelCase from 'lodash/camelCase';
+  import { CamelCase } from 'lodash/camelCase';
 
   export default {
     props: {

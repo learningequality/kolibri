@@ -50,8 +50,8 @@
 
   import * as groupActions from '../../state/actions/group';
   import { GroupModals } from '../../constants';
-  import differenceWith from 'lodash/differenceWith';
-  import orderBy from 'lodash/orderBy';
+  import { differenceWith } from 'lodash/differenceWith';
+  import { orderBy } from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';

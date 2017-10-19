@@ -152,8 +152,8 @@
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import shuffle from 'lodash/shuffle';
-  import random from 'lodash/random';
+  import { shuffle } from 'lodash/shuffle';
+  import { random } from 'lodash/random';
 
   export default {
     name: 'createExamPage',

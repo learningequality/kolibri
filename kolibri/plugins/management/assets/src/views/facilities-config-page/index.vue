@@ -78,7 +78,7 @@
   import notifications from './config-page-notifications';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import isEqual from 'lodash/isEqual';
+  import { isEqual } from 'lodash/isEqual';
 
   export default {
     name: 'facilityConfigPage',

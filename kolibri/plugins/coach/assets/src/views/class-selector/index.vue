@@ -16,7 +16,7 @@
 
 <script>
 
-  import orderBy from 'lodash/orderBy';
+  import { orderBy } from 'lodash/orderBy';
   import { PageNames } from '../../constants';
   import uiSelect from 'keen-ui/src/UiSelect';
   import uiIcon from 'keen-ui/src/UiIcon';

@@ -59,7 +59,7 @@
 
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
-  import orderBy from 'lodash/orderBy';
+  import { orderBy } from 'lodash/orderBy';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
