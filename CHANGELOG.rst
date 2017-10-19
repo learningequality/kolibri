@@ -13,6 +13,7 @@ Changes are ordered reverse-chronologically.
  - Add automatic sign-out when browser is closed
  - Fix search issue
  - Learner UI updates
+ - Updated Hindi translations
 
 
 0.4.5
