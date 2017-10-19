@@ -1,10 +1,10 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('bytesForHumansStrings', {
-  fileSizeInBytes: '{n, number, integer}B',
-  fileSizeInKilobytes: '{n, number, integer}KB',
-  fileSizeInMegabytes: '{n, number, integer}MB',
-  fileSizeInGigabytes: '{n, number, integer}GB',
+  fileSizeInBytes: '{n, number, integer} B',
+  fileSizeInKilobytes: '{n, number, integer} KB',
+  fileSizeInMegabytes: '{n, number, integer} MB',
+  fileSizeInGigabytes: '{n, number, integer} GB',
 });
 
 const ONE_B = 1;

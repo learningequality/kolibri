@@ -101,7 +101,7 @@ describe('channelListItem', () => {
     it('shows the file size of the Resources', () => {
       const wrapper = makeWrapper();
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      assert.equal(resourcesSizeText(), '4GB resources');
+      assert.equal(resourcesSizeText(), '4 GB resources');
       assert.deepEqual(onDevice(), []);
     });
 
