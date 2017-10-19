@@ -99,7 +99,7 @@
   "classPage.actions":"Actions",
   "classPage.noClassesExist":"No Classes Exist.",
   "channelsGrid.emptyChannelListMessage":"Aucun canal installé",
-  "channelsGrid.deleteButtonLabel":"Delete",
+  "channelsGrid.deleteButtonLabel":"Supprimer",
   "channelsGrid.lastUpdatedHeader":"Last updated",
   "channelsGrid.nameHeader":"Canal",
   "channelsGrid.numContentsHeader":"# Contents",
