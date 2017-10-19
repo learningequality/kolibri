@@ -144,5 +144,6 @@
     overflow-x: hidden
     right: 0
     bottom: 0
+    padding-bottom: 40px
 
 </style>
