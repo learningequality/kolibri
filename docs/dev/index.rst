@@ -39,6 +39,7 @@ References
 .. toctree::
   :maxdepth: 1
 
+  upgrade
   cli
   files
   glossary
