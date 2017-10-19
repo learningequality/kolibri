@@ -155,7 +155,7 @@
 
   .header
     position: relative
-    padding-right: 150px
+    padding-right: 250px
     margin-bottom: 16px
 
   .create-btn
