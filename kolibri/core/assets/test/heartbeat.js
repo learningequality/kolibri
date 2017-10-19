@@ -59,12 +59,13 @@ describe('HeartBeat', function() {
       this.heartBeat = new HeartBeat({});
       this.heartBeat.active = false;
       this.sessionfetchspy = sinon.stub();
-      this.sessionfetchspy.returns(Promise.resolve({}));
+      const session = {
+        user_id: 'test',
+      };
+      this.sessionfetchspy.returns(Promise.resolve(session));
       this.sessionModelMock = {
         fetch: this.sessionfetchspy,
-        attributes: {
-          user_id: 'test',
-        },
+        attributes: session,
       };
       this.kolibri = {
         resources: {
