@@ -61,7 +61,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import onboardingForm from '../onboarding-form';
 
-  import { omit } afrom 'lodash/omit';
+  import { omit } from 'lodash/omit';
 
   const mobileNumberOfLanguageButtons = 5;
   const desktopNumberOfLanguageButtons = 3;
