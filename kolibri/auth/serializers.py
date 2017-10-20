@@ -14,36 +14,22 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         exclude = ("dataset",)
 
-class BaseKolibriUserSerializer(serializers.ModelSerializer):
 
-    def update(self, instance, validated_data):
-        if 'password' in validated_data:
-            serializers.raise_errors_on_nested_writes('update', self, validated_data)
-            instance.set_password(validated_data['password'])
-            instance.save()
-            return instance
-        else:
-            return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
-
-    def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return value
-
-    def create(self, validated_data):
-        user = self.Meta.model(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-
-
-class FacilityUserSerializer(BaseKolibriUserSerializer):
+class FacilityUserSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
+
+
+class FacilityUserSignupSerializer(FacilityUserSerializer):
+
+    def validate_username(self, value):
+        if FacilityUser.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return value
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
