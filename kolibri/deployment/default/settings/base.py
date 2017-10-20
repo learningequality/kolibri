@@ -13,13 +13,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+import pytz
+
 # import kolibri, so we can get the path to the module.
 import kolibri
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
 from tzlocal import get_localzone
-import pytz
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -156,7 +157,12 @@ LANGUAGES = [
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
-TIME_ZONE = get_localzone().zone if get_localzone().zone != "local" else pytz.utc.zone
+TIME_ZONE = get_localzone().zone
+# Fixes https://github.com/regebro/tzlocal/issues/44
+# tzlocal 1.4 returns 'local' if unable to detect the timezone,
+# and this TZ id is invalid
+if TIME_ZONE == "local":
+    pytz.utc.zone
 
 USE_I18N = True
 
