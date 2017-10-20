@@ -2,11 +2,14 @@
 
   <div>
 
-    <div class="header">
-      <h1>{{ $tr('allClasses') }}</h1>
+    <div 
+      class="header"
+      :class="{ 'header-mobile':  windowSize.breakpoint <= 0}">
+        <h1>{{ $tr('allClasses') }}</h1>
 
       <k-button
         class="create-btn"
+        :class="{ 'create-btn-mobile':  windowSize.breakpoint <= 0}"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
         :primary="true"
@@ -66,6 +69,8 @@
   import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
   export default {
     name: 'classPage',
     components: {
@@ -104,6 +109,7 @@
         this.displayModal(constants.Modals.CREATE_CLASS);
       },
     },
+    mixins: [responsiveWindow],
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
@@ -155,12 +161,22 @@
 
   .header
     position: relative
-    padding-right: 250px
+    padding-right: 150px
     margin-bottom: 16px
+  
+  .header-mobile
+    position: relative
 
   .create-btn
     position: absolute
+    display: block
     top: 0
     right: 0
+  
+  .create-btn-mobile
+    position: relative
+    display: inline-block
+    right: 10px
+    min-width: 150px
 
 </style>
