@@ -910,6 +910,20 @@ describe('Model', function () {
           done();
         });
       });
+      it('should should call set once with the changed attributes', function (done) {
+        this.model.synced = true;
+        const payload = { somethingNew: 'new' };
+        const entity = {};
+        Object.assign(entity, this.model.attributes, payload);
+        this.response = { entity };
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model.save(payload).then(() => {
+          assert.equal(this.model.attributes.somethingNew, 'new');
+          done();
+        });
+      });
     });
     describe('if called when Model.synced = false', function () {
       describe('and the save is successful', function () {

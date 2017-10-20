@@ -6,6 +6,12 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.4.7
+-----
+
+ - Fix bug that made updating existing Django models from the frontend impossible
+
+
 0.4.6
 -----
 
