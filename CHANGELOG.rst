@@ -6,8 +6,14 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.5.2
+-----
+
+ - Release bug fix from 0.4.7
+
+
 0.5.1
-------------------
+-----
 
  - Python dependencies: Only bundle, do not install dependencies in system env #2299
  - Beta Android support
