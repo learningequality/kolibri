@@ -157,12 +157,18 @@ LANGUAGES = [
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
-TIME_ZONE = get_localzone().zone
+try:
+    TIME_ZONE = get_localzone().zone
+except pytz.UnknownTimeZoneError:
+    # Do not fail at this point because a timezone was not
+    # detected.
+    TIME_ZONE = pytz.utc.zone
+
 # Fixes https://github.com/regebro/tzlocal/issues/44
 # tzlocal 1.4 returns 'local' if unable to detect the timezone,
 # and this TZ id is invalid
 if TIME_ZONE == "local":
-    pytz.utc.zone
+    TIME_ZONE = pytz.utc.zone
 
 USE_I18N = True
 
