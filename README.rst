@@ -52,3 +52,8 @@ How can I contribute?
 ---------------------
 
 Thanks for your interest! Please see the 'contributing' section of our `online documentation <http://kolibri.readthedocs.io/>`_.
+
+
+.. image:: https://badges.greenkeeper.io/learningequality/kolibri.svg
+   :alt: Greenkeeper badge
+   :target: https://greenkeeper.io/
