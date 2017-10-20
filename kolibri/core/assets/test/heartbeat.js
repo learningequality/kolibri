@@ -44,7 +44,7 @@ describe('HeartBeat', function() {
     it('should call the setInactive method', function() {
       const spy = sinon.spy(HeartBeat.prototype, 'setInactive');
       this.test = new HeartBeat({});
-      assert.ok(spy.calledTwice);
+      assert.ok(spy.calledOnce);
       spy.restore();
     });
     it('should call the start method', function() {
@@ -58,11 +58,29 @@ describe('HeartBeat', function() {
     beforeEach(function() {
       this.heartBeat = new HeartBeat({});
       this.heartBeat.active = false;
+      this.sessionfetchspy = sinon.stub();
+      const session = {
+        user_id: 'test',
+      };
+      this.sessionfetchspy.returns(Promise.resolve(session));
+      this.sessionModelMock = {
+        fetch: this.sessionfetchspy,
+        attributes: session,
+      };
+      this.kolibri = {
+        resources: {
+          SessionResource: {
+            getModel: () => this.sessionModelMock,
+          },
+        },
+      };
+      this.heartBeat.kolibri = this.kolibri;
     });
     it('should call setInactive', function() {
       const spy = sinon.spy(this.heartBeat, 'setInactive');
       this.heartBeat.beat();
       assert.ok(spy.calledOnce);
+      spy.restore();
     });
     it('should set timerId to a setTimeout identifier', function() {
       this.heartBeat.beat();
@@ -74,23 +92,10 @@ describe('HeartBeat', function() {
     describe('and activity is detected', function() {
       beforeEach(function() {
         this.heartBeat.active = true;
-        this.fetchspy = sinon.stub();
-        this.fetchspy.returns(Promise.resolve({}));
-        this.modelMock = {
-          fetch: this.fetchspy,
-        };
-        this.kolibri = {
-          resources: {
-            SessionResource: {
-              getModel: () => this.modelMock,
-            },
-          },
-        };
-        this.heartBeat.kolibri = this.kolibri;
       });
       it('should call fetch on the session model', function() {
         this.heartBeat.beat();
-        assert.ok(this.fetchspy.calledOnce);
+        assert.ok(this.sessionfetchspy.calledOnce);
       });
       it('should call setActivityListeners', function() {
         const spy = sinon.spy(this.heartBeat, 'setActivityListeners');
