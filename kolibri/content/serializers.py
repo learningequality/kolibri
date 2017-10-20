@@ -253,6 +253,20 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         list_serializer_class = ContentNodeListSerializer
 
 
+class ContentNodeImportSerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, obj):
+        direct_children = list(obj.get_children().values('pk', 'title'))
+
+        return direct_children
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'pk', 'title', 'children',
+        )
+
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):

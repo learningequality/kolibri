@@ -157,6 +157,19 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"))
         self.assertEqual(len(response.data), 6)
 
+    def test_contentnode_import(self):
+        c2_id = content.ContentNode.objects.get(title="c2").id
+        c3_id = content.ContentNode.objects.get(title="c2c1").id
+        c4_id = content.ContentNode.objects.get(title="c2c2").id
+        c5_id = content.ContentNode.objects.get(title="c2c3").id
+        response = self.client.get(self._reverse_channel_url("contentnode_import-detail", {'pk': c2_id}))
+        self.assertEqual(
+            response.data, {
+                'pk': c2_id, 'title': 'c2', 'children': [
+                    {'pk': c3_id, 'title': 'c2c1'},
+                    {'pk': c4_id, 'title': 'c2c2'},
+                    {'pk': c5_id, 'title': 'c2c3'}]})
+
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))

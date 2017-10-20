@@ -11,6 +11,7 @@ from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework import mixins
 
 from .utils.search import fuzz
 
@@ -278,6 +279,13 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
+
+
+class ContentNodeImportViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = serializers.ContentNodeImportSerializer
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
 
 
 class ContentNodeProgressFilter(IdFilter):
