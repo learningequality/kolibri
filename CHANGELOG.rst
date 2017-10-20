@@ -23,6 +23,7 @@ Changes are ordered reverse-chronologically.
  - Crypto optimizations from C extensions
  - Deprecated support for HTML in translation strings
  - Hide thumbnails from content 'download' button
+ - Automatic database backup during upgrades. #2365
  - ... and many other updates and fixes
 
 

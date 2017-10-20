@@ -32,6 +32,8 @@ import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
 
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+
 from . import server  # noqa
 from .system import become_daemon  # noqa
 
@@ -188,6 +190,16 @@ def initialize(debug=False):
         version = version.strip() if version else ""
         change_version = kolibri.__version__ != version
         if change_version:
+            # Version changed, make a backup no matter what.
+            from kolibri.core.deviceadmin.utils import dbbackup
+            try:
+                backup = dbbackup(version)
+                logger.info(
+                    "Backed up database to: {path}".format(path=backup))
+            except IncompatibleDatabase:
+                logger.warning(
+                    "Skipped automatic database backup, not compatible with "
+                    "this DB engine.")
             enable_default_plugins()
 
         django.setup()
