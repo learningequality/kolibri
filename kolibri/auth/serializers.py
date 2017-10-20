@@ -25,19 +25,24 @@ class BaseKolibriUserSerializer(serializers.ModelSerializer):
         else:
             return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
 
-    def validate_username(self, value):
-        facility_user_query = FacilityUser.objects.filter(username__iexact=value)
-        device_owner_query = DeviceOwner.objects.filter(username__iexact=value)
+    def validate(self, data):
+        username = data.get('username', None)
+        # Only avoid checking against own username if this user already exists.
+        user_id = self.instance.id if self.instance else None
 
-        user_id = self.initial_data.get("id", None)
+        if username:
+            facility_user_query = FacilityUser.objects.filter(username__iexact=username)
+            device_owner_query = DeviceOwner.objects.filter(username__iexact=username)
 
-        if user_id:
-            facility_user_query = facility_user_query.exclude(id=user_id)
-            device_owner_query = device_owner_query.exclude(id=user_id)
+            if user_id:
+                facility_user_query = facility_user_query.exclude(id=user_id)
+                device_owner_query = device_owner_query.exclude(id=user_id)
 
-        if facility_user_query.exists() or device_owner_query.exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return value
+            if facility_user_query.exists() or device_owner_query.exists():
+                raise serializers.ValidationError({
+                    'username': _('An account with that username already exists')
+                })
+        return data
 
     def create(self, validated_data):
         user = self.Meta.model(**validated_data)
