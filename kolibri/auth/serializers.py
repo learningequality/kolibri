@@ -35,7 +35,7 @@ class BaseKolibriUserSerializer(serializers.ModelSerializer):
             facility_user_query = facility_user_query.exclude(id=user_id)
             device_owner_query = device_owner_query.exclude(id=user_id)
 
-        if facility_user_query.exists() | device_owner_query.exists():
+        if facility_user_query.exists() or device_owner_query.exists():
             raise serializers.ValidationError(_('An account with that username already exists'))
         return value
 
