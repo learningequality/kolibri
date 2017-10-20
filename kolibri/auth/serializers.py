@@ -7,6 +7,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from .constants import role_kinds
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 
+
 class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -25,7 +26,16 @@ class BaseKolibriUserSerializer(serializers.ModelSerializer):
             return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
 
     def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
+        facility_user_query = FacilityUser.objects.filter(username__iexact=value)
+        device_owner_query = DeviceOwner.objects.filter(username__iexact=value)
+
+        user_id = self.initial_data.get("id", None)
+
+        if user_id:
+            facility_user_query = facility_user_query.exclude(id=user_id)
+            device_owner_query = device_owner_query.exclude(id=user_id)
+
+        if facility_user_query.exists() | device_owner_query.exists():
             raise serializers.ValidationError(_('An account with that username already exists'))
         return value
 
