@@ -103,7 +103,8 @@
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
-          padding: (this.mobile ? 16 : 32) + 'px',
+          paddingLeft: (this.mobile ? 16 : 32) + 'px',
+          paddingRight: (this.mobile ? 16 : 32) + 'px',
         };
       },
     },
