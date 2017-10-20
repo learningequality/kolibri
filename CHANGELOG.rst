@@ -27,8 +27,14 @@ Changes are ordered reverse-chronologically.
  - ... and many other updates and fixes
 
 
+0.5.2
+-----
+
+ - Release bug fix from 0.4.7
+
+
 0.5.1
-------------------
+-----
 
  - Python dependencies: Only bundle, do not install dependencies in system env #2299
  - Beta Android support
@@ -48,6 +54,12 @@ Changes are ordered reverse-chronologically.
  - Migrate all JS linting to prettier rather than eslint
  - Merge audio_mp3_render and video_mp4_render plugins into one single media_player plugin
  - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
+
+
+0.4.7
+-----
+
+ - Fix bug that made updating existing Django models from the frontend impossible
 
 
 0.4.6

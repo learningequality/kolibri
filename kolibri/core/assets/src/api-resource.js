@@ -113,6 +113,7 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
+            this.set(payload);
           } else {
             this.set(attrs);
             payload = this.attributes;
@@ -431,7 +432,9 @@ export class Resource {
     return JSON.stringify(
       Object.assign(
         {},
-        ...Object.keys(allParams).sort().map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+        ...Object.keys(allParams)
+          .sort()
+          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
       )
     );
   }
