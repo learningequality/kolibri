@@ -104,6 +104,7 @@ class Model {
               payload[key] = attrs[key];
             }
           });
+          this.set(payload);
         } else {
           this.set(attrs);
           payload = this.attributes;
