@@ -29,6 +29,12 @@ Changes are ordered reverse-chronologically.
  - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
 
 
+0.4.7
+-----
+
+ - Fix bug that made updating existing Django models from the frontend impossible
+
+
 0.4.6
 -----
 

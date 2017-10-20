@@ -280,6 +280,14 @@ class UserUpdateTestCase(APITestCase):
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
 
+    def test_user_update_password_non_partial_with_username(self):
+        new_password = 'baz'
+        self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}),
+                          {'password': new_password, 'username': self.user.username}, format="json")
+        self.client.logout()
+        response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
+        self.assertTrue(response)
+
     def test_device_owner_update_info(self):
         self.client.patch(reverse('deviceowner-detail', kwargs={'pk': self.device_owner.pk}), {'username': 'foo'}, format="json")
         self.device_owner.refresh_from_db()
