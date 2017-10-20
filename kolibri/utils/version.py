@@ -217,9 +217,14 @@ def get_git_changeset():
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
         return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
-        return "{}-export".format(
-            datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        )
+        try:
+            # Check to see if we have a version file, if so, get the version from there.
+            # Do this by returning None, and then the get_prerelease_version code will read the VERSION file.
+            get_version_file()
+        except IOError:
+            return "{}-export".format(
+                datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            )
 
 
 def get_git_describe():
