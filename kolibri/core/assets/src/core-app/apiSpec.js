@@ -65,6 +65,7 @@ import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 
+
 export default {
   client,
   lib: {
@@ -74,6 +75,7 @@ export default {
     conditionalPromise,
     apiResource,
     seededshuffle,
+
   },
   coreVue: {
     vuex: {
