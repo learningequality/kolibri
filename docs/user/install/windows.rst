@@ -24,6 +24,5 @@ Uninstall
 3. Select Kolibri from the list of programs.
 4. Click the button **Uninstall/Change** and follow the instructions.
 
-
     
-Once you have Kolibri installed on your system, proceed to 
+Once you have Kolibri installed on your system, proceed with the :ref:`initial_setup` of your facility. 

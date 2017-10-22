@@ -19,3 +19,5 @@ Uninstall
 ---------
 
 ``TODO``
+
+Once you have Kolibri installed on your system, proceed with the :ref:`initial_setup` of your facility. 

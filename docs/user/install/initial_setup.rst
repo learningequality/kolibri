@@ -1,5 +1,18 @@
+.. _initial_setup:
+
+
 Initial Setup
 =============
+
+To do the initial setup of after the installation, follow these steps.
+
+.. note::
+  You need to do the initial setup only once, during the first run of Kolibri after the installation.
+
+#. Select the default language for Kolibri.
+    You can switch the user interface language at any time from the user menu in the upper right corner.
+
+#.   
 
 
 ``TODO - Onboarding``

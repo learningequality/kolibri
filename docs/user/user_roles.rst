@@ -30,7 +30,7 @@ Kolibri users by default can be divided in 3 different roles with respective acc
 Kolibri Super Users
 -------------------
 
-Kolibri **Super users** have all device permissions and are able to :ref:`permissions` to other users. Therefore **Super users** can:
+Kolibri **Super users** have all device permissions and are able to :ref:`assign them to other users <permissions>`. Therefore **Super users** can:
 
 +------------------------------------------------------------------------------------------------------+
 |  * View content and have their progress tracked                                                      |
@@ -48,4 +48,4 @@ Kolibri **Super users** have all device permissions and are able to :ref:`permis
 Assign Additional Permissions
 -----------------------------
 
-By default, only **Super users** can view the **Device** dashboard, **Import/Export** content channels in Kolibri and modify permissions for other users. However, according to the needs of your deployment, **Super users** can grant these permissions to other users too. Read more about how to :ref:`permissions`. 
+By default, only **Super users** can view the **Device** dashboard, import/export **Content** channels in Kolibri, and modify **Permissions** for other users. However, depending on the needs of the institution, **Super users** can also :ref:`grant these permissions <permissions>` to other users.
