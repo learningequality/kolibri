@@ -128,6 +128,7 @@ class ContentNodeTestBase(object):
 class ContentNodeTestCase(ContentNodeTestBase, TestCase):
     fixtures = ['content_test.json']
 
+
 class ContentNodeAPITestCase(APITestCase):
     """
     Testcase for content API methods

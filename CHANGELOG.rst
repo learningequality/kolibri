@@ -27,6 +27,12 @@ Changes are ordered reverse-chronologically.
  - ... and many other updates and fixes
 
 
+0.5.3
+-----
+
+ - Release timeout bug fix from 0.4.8
+
+
 0.5.2
 -----
 
@@ -54,6 +60,12 @@ Changes are ordered reverse-chronologically.
  - Migrate all JS linting to prettier rather than eslint
  - Merge audio_mp3_render and video_mp4_render plugins into one single media_player plugin
  - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
+
+
+0.4.8 (unreleased)
+------------------
+
+ - Prevent session timeout if user is still active
 
 
 0.4.7
