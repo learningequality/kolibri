@@ -26,7 +26,7 @@
         class="content-icon-bg"
         :style="contentIconBgColor"
       >
-        <polygon stroke-width="0" points="0,0 60,0 0,60"/>
+        <polygon stroke-width="0" points="0,0 60,0 0,60" />
       </svg>
       <content-icon :kind="kind" class="content-icon"/>
     </div>
@@ -52,6 +52,10 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
+    components: {
+      contentIcon,
+      progressIcon,
+    },
     props: {
       thumbnail: {
         type: String,
@@ -106,10 +110,6 @@
         }
         return {};
       },
-    },
-    components: {
-      contentIcon,
-      progressIcon,
     },
   };
 
