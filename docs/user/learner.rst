@@ -126,17 +126,17 @@ Independent of the required action (writing an answer yourself or choosing one o
 		Exercise page in Kolibri.
 
 
-Video Player options
-""""""""""""""""""""
+Video and Audio Player options
+""""""""""""""""""""""""""""""
 
-To play videos in Kolibri you have several available control buttons at the bottom of the video player screen. Move the cursor or tap on the video player screen to make appear the control buttons while playing the video.
+To play videos and listen to audio files in Kolibri you have several available control buttons at the bottom of the player screen. Move the cursor or tap on the player screen to make appear the control buttons while playing.
 
 	.. figure:: img/video.png
 		:alt: video player
 
-	Kolibri video player.
+	Kolibri video and audio player.
 
-(controls at the bottom of video player)
+(controls at the bottom of the player)
 
 * Play/Pause buttons
 * Rewind/Fast forward buttons by +/- 10 seconds
@@ -147,26 +147,8 @@ To play videos in Kolibri you have several available control buttons at the bott
 * Fullscreen button
 
 
-Use the **Download content** button below the video player to download the video and thumbnail files to your computer. Some videos will provide multiple resolution options.
+Use the **Download content** button below the player to download the video, audio and thumbnail files to your computer. Some videos will provide multiple resolution options.
 
-
-Audio Player options
-""""""""""""""""""""
-
-To play audio files in **Kolibri** you have available several control buttons:  
-
-* Play/Pause
-* Time tracker indicator with progress bar
-* Audio duration indicator
-* Replay button
-* Rewind/Fast forward buttons by +/- 20 seconds
-
-	.. figure:: img/audio.png
-		:alt: audio page
-
-		shfgh
-
-Use the **Download content** button below the audio player to download the audio and thumbnail files to your computer.
 
 
 PDF Viewer options

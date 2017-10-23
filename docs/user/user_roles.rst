@@ -44,7 +44,6 @@ Kolibri **Super users** have all device permissions and are able to :ref:`assign
 |  * View/Edit *Permissions* of other users                                                            |
 +------------------------------------------------------------------------------------------------------+
 
-
 Assign Additional Permissions
 -----------------------------
 

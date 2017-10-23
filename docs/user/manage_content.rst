@@ -6,7 +6,7 @@ Manage Content
 .. note::
   To manage Kolibri content channels you must have the appropriate permissions. 
 
-Kolibri **Content Channel** is a collection of educational resources (video, audio or document files) prepared and organized by the content curator for their use in Kolibri. Each Kolibri **Content Channel** has its own *Content Channel ID* in `Kolibri Studio <https://studio.learningequality.org/accounts/login/>`_. In order to import channels in Kolibri, you need to receive the channel ID from the content curator who assembled it.
+Kolibri **Content Channel** is a collection of educational resources (video, audio or document files) prepared and organized by the content curator for their use in Kolibri. Each Kolibri **Content Channel** has its own *Content Channel ID* in `Kolibri Studio <https://studio.learningequality.org/accounts/login/>`_. In order to import channels in Kolibri, you **need the channel ID from the content curator who assembled it**.
 
 You can import and export **Content Channels** for Kolibri in the **Content** tab of the **Device** dashboard.
 
@@ -29,7 +29,7 @@ To import **Content Channel** to Kolibri, follow these steps.
 Import Content Channel from the Internet
 ****************************************
 
-If the computer where Kolibri server is running has sufficient bandwidth, follow these steps to import content channels.  
+If the computer where Kolibri is running has an Internet connection with the sufficient bandwidth, follow these steps to import content channels.  
 
 #. Choose option for *Internet*.
 #. Enter *Content ID* for the desired channel from Kolibri Studio. 
@@ -66,14 +66,14 @@ If the computer where Kolibri server is running does not have access to Internet
 
 .. tip:: **Workaround for import from local drive on older devices.**
 
-	If Kolibri is installed on an older or low resources device, you can try the following procedure for importing content channels from a local drive.
+	If Kolibri is installed on an older or a low-resource device, you can try the following procedure for importing content channels for faster results.
 
 	#. Stop Kolibri.
 	#. Browse the local drive with the file explorer of your operating system. 
 	#. Copy the ``content`` folder located inside the ``KOLIBRI_DATA`` folder on the local drive.
-	#. Paste the copied ``content`` folder inside the ``.kolibri`` folder on your hard disk. The location will depend on your operating system (see the table below).
+	#. Paste the copied ``content`` folder inside the ``.kolibri`` folder on your hard disk. The location of the ``.kolibri`` folder will depend on your operating system (see the table below).
 	#. Confirm the merge of the two folders.
-	#. Restart Kolibri and the new channels should be available.
+	#. Restart Kolibri, and the new channels should now be available.
 
 
      +---------------------------+-----------------------------------------+
@@ -90,7 +90,7 @@ If the computer where Kolibri server is running does not have access to Internet
 Export from Kolibri to Local Drive
 ----------------------------------
 
-If you want to make available the content you have imported on your Kolibri server, with another computer where Kolibri is installed, follow these steps to export your content channels. 
+If you want to make available the content you have imported on your Kolibri server, to another computer where Kolibri is installed, follow these steps to export your content channels. 
 
 .. note::
   You must have an external drive (USB stick or hard disk) attached to your device.

@@ -12,9 +12,19 @@ Install
 #. Double-click the downloaded ``.exe`` file.
 #. Select the language for the installation.
 #. Follow the instructions in the installation wizard window.
-#. Now you can `start Kolibri server and configure other computers <../user/index>`_  in the network to access it.
+#. Once the installation finishes, Kolibri will auto-start and open in the default browser on your computer.
+#. Proceed with the :ref:`initial_setup` of your facility. 
 
-``TODO - Update links for the installer and for starting Kolibri topic.`` 
+.. warning::
+  Windows firewall will prompt you to allow the Python process needed to run Kolibri. Click **Allow access** to accept and proceed.
+
+    .. figure:: img/windows-firewall.png
+     :alt: Allow the Python process needed to run Kolibri.
+
+     Allow the Python process needed to run Kolibri.
+
+``TODO - Update links for the installer.`` 
+
 
 Uninstall
 ---------
@@ -24,5 +34,14 @@ Uninstall
 3. Select Kolibri from the list of programs.
 4. Click the button **Uninstall/Change** and follow the instructions.
 
-    
-Once you have Kolibri installed on your system, proceed with the :ref:`initial_setup` of your facility. 
+
+Upgrade
+-------
+
+To upgrade Kolibri, follow these steps.
+
+#. Download the new version of Kolibri.
+#. Double-click the downloaded ``.exe`` file.
+#. Follow the instructions in the installation wizard window.
+#. Once the installation of the upgrade is finished, Kolibri will auto-start and open in the default browser on your computer.
+#. Go explore the new and improved Kolibri features!
