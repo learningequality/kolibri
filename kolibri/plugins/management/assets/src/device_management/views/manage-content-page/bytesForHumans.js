@@ -1,33 +1,25 @@
-function bytesForHumans(bytes) {
-  // breaking down byte counts in terms of larger sizes
-  const kilobyte = 1024;
-  const megabyte = kilobyte ** 2;
-  const gigabyte = kilobyte ** 3;
+import { createTranslator } from 'kolibri.utils.i18n';
 
-  function kilobyteCalc(byteCount) {
-    const kilos = Math.floor(byteCount / kilobyte);
-    return `${kilos} KB`;
-  }
-  function megabyteCalc(byteCount) {
-    const megs = Math.floor(byteCount / megabyte);
-    return `${megs} MB`;
-  }
-  function gigabyteCalc(byteCount) {
-    const gigs = Math.floor(byteCount / gigabyte);
-    return `${gigs} GB`;
-  }
-  function chooseSize(byteCount) {
-    if (byteCount > gigabyte) {
-      return gigabyteCalc(byteCount);
-    } else if (byteCount > megabyte) {
-      return megabyteCalc(byteCount);
-    } else if (byteCount > kilobyte) {
-      return kilobyteCalc(byteCount);
-    }
-    return `${bytes} B`;
-  }
+const translator = createTranslator('bytesForHumansStrings', {
+  fileSizeInBytes: '{n, number, integer} B',
+  fileSizeInKilobytes: '{n, number, integer} KB',
+  fileSizeInMegabytes: '{n, number, integer} MB',
+  fileSizeInGigabytes: '{n, number, integer} GB',
+});
 
-  return chooseSize(bytes);
+const ONE_B = 1;
+const ONE_KB = 1024;
+const ONE_MB = 1048576;
+const ONE_GB = 1073741824;
+
+const stringMap = {
+  [ONE_B]: 'fileSizeInBytes',
+  [ONE_KB]: 'fileSizeInKilobytes',
+  [ONE_MB]: 'fileSizeInMegabytes',
+  [ONE_GB]: 'fileSizeInGigabytes',
+};
+
+export default function bytesForHumans(bytes) {
+  const unit = [ONE_GB, ONE_MB, ONE_KB].find(x => bytes >= x) || ONE_B;
+  return translator.$tr(stringMap[unit], { n: Math.floor(bytes / unit) });
 }
-
-export { bytesForHumans as default };

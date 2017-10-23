@@ -13,6 +13,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+import pytz
+
 # import kolibri, so we can get the path to the module.
 import kolibri
 # we load other utilities related to i18n
@@ -155,7 +157,18 @@ LANGUAGES = [
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
-TIME_ZONE = get_localzone().zone
+try:
+    TIME_ZONE = get_localzone().zone
+except pytz.UnknownTimeZoneError:
+    # Do not fail at this point because a timezone was not
+    # detected.
+    TIME_ZONE = pytz.utc.zone
+
+# Fixes https://github.com/regebro/tzlocal/issues/44
+# tzlocal 1.4 returns 'local' if unable to detect the timezone,
+# and this TZ id is invalid
+if TIME_ZONE == "local":
+    TIME_ZONE = pytz.utc.zone
 
 USE_I18N = True
 

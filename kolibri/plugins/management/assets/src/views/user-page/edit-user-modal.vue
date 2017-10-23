@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('editUser')"  @cancel="displayModal(false)">
+  <core-modal :title="$tr('editUser')" @cancel="displayModal(false)">
     <form @submit.prevent="submitForm">
 
       <ui-alert v-if="error" type="error" :dismissible="false">{{ error }}</ui-alert>
@@ -30,12 +30,12 @@
 
       <div>
         <label for="user-role">
-          <span class="visuallyhidden">{{$tr('userKind')}}</span>
+          <span class="visuallyhidden">{{ $tr('userKind') }}</span>
         </label>
         <select v-model="newKind" id="user-role">
-          <option :value="LEARNER"> {{$tr('learner')}} </option>
-          <option :value="COACH"> {{$tr('coach')}} </option>
-          <option :value="ADMIN"> {{$tr('admin')}} </option>
+          <option :value="LEARNER"> {{ $tr('learner') }} </option>
+          <option :value="COACH"> {{ $tr('coach') }} </option>
+          <option :value="ADMIN"> {{ $tr('admin') }} </option>
         </select>
       </div>
 
@@ -43,14 +43,14 @@
         <k-button
           :text="$tr('cancel')"
           :primary="false"
-          :raised="false"
+          appearance="flat-button"
           @click="displayModal(false)"
         />
         <k-button
           type="submit"
           :text="$tr('save')"
           :primary="true"
-          :raised="true"
+          appearance="raised-button"
           :disabled="isBusy"
         />
       </div>

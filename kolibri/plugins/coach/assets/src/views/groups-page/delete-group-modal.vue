@@ -1,20 +1,11 @@
 <template>
 
-  <core-modal :title="$tr('deleteLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('deleteLearnerGroup')" @cancel="close">
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <div class="ta-r">
-      <k-button
-        :text="$tr('cancel')"
-        :raised="false"
-        @click="close"
-      />
-      <k-button
-        :text="$tr('deleteGroup')"
-        :primary="true"
-        @click="deleteGroup(groupId)"
-      />
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('deleteGroup')" :primary="true" @click="deleteGroup(groupId)" />
     </div>
   </core-modal>
 

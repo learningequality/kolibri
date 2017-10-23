@@ -26,12 +26,12 @@
           @change="superuserChecked=$event"
         />
         <p>
-          <permissions-icon permissionType="SUPERUSER" class="permissions-icon"/>
+          <permissions-icon permissionType="SUPERUSER" class="permissions-icon" />
           {{ $tr('makeSuperuserDetails') }}
         </p>
       </div>
 
-      <hr />
+      <hr>
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>
@@ -49,14 +49,14 @@
           :text="$tr('saveButton')"
           class="no-margin"
           :primary="true"
-          :raised="true"
+          appearance="raised-button"
           @click="save()"
         />
         <k-button
           :disabled="uiBlocked"
           :text="$tr('cancelButton')"
           :primary="false"
-          :raised="false"
+          appearance="flat-button"
           @click="goBack()"
         />
       </div>

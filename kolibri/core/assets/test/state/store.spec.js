@@ -81,7 +81,10 @@ describe('Vuex store/actions for core module', () => {
         sinon.assert.called(assignStub);
       }
 
-      coreActions.kolibriLogin(store, {}).then(runAssertions).then(done, done);
+      coreActions
+        .kolibriLogin(store, {})
+        .then(runAssertions)
+        .then(done, done);
     });
 
     it('failed login (401)', done => {

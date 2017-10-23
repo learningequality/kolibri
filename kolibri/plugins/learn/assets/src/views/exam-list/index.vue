@@ -4,23 +4,23 @@
     <auth-message v-if="!isUserLoggedIn" authorizedRole="learner" />
 
     <div v-else>
-      <page-header :title="$tr('examName')"></page-header>
+      <page-header :title="$tr('examName')" />
       <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
 
       <div class="pure-g exam-row" v-for="exam in exams" :key="exam.id">
 
         <div class="exam-row-1st-col" :class="firstColClass">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
           <h2 class="exam-title">{{ exam.title }}</h2>
         </div>
 
         <template v-if="exam.closed || !exam.active">
           <div class="exam-row-2nd-col" :class="secondColClass">
-            <p>{{ $tr('howManyCorrect', { score: exam.score, outOf: exam.questionCount })}}</p>
+            <p>{{ $tr('howManyCorrect', { score: exam.score, outOf: exam.questionCount }) }}</p>
           </div>
           <div class="exam-row-3rd-col" :class="thirdColClass">
-            <p><strong>{{ $tr('percentCorrect', { pct: exam.score/exam.questionCount })}}</strong></p>
+            <p><strong>{{ $tr('percentCorrect', { pct: exam.score/exam.questionCount }) }}</strong></p>
           </div>
         </template>
 
@@ -30,11 +30,13 @@
               {{ $tr('questionsLeft', { left: exam.questionCount - exam.answerCount }) }}
             </p>
           </div>
-          <div class="exam-row-3rd-col"  :class="thirdColClass">
-            <router-link :to="generateExamLink(exam)">
-              <k-button :primary="true" v-if="exam.answerCount !== null" :text="$tr('continue')"/>
-              <k-button :primary="true" v-if="exam.answerCount === null" :text="$tr('start')"/>
-            </router-link>
+          <div class="exam-row-3rd-col" :class="thirdColClass">
+            <k-router-link
+              appearance="flat-button"
+              :text="exam.answerCount === null ? $tr('start') : $tr('continue')"
+              :to="generateExamLink(exam)"
+              :primary="true"
+            />
           </div>
         </template>
 
@@ -52,11 +54,16 @@
   import { PageNames } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import pageHeader from '../page-header';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
     name: 'examIndex',
+    components: {
+      authMessage,
+      pageHeader,
+      kRouterLink,
+    },
     mixins: [responsiveWindow],
     $trs: {
       examName: 'Exams',
@@ -67,11 +74,6 @@
       start: 'Start',
       noExams: 'You have no exams assigned',
       assignedTo: 'You have { assigned } {assigned, plural, one {exam} other {exams} } assigned',
-    },
-    components: {
-      authMessage,
-      pageHeader,
-      kButton,
     },
     computed: {
       activeExams() {

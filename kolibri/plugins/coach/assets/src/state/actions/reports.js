@@ -326,57 +326,59 @@ function _showExerciseDetailView(
   attemptLogIndex,
   interactionIndex
 ) {
-  ContentNodeResource.getModel(contentId).fetch().then(
-    exercise => {
-      Promise.all([
-        AttemptLogResource.getCollection({
-          user: userId,
-          content: exercise.content_id,
-        }).fetch(),
-        ContentSummaryLogResource.getCollection({
-          user_id: userId,
-          content_id: exercise.content_id,
-        }).fetch(),
-        FacilityUserResource.getModel(userId).fetch(),
-        ContentNodeResource.fetchAncestors(contentId),
-        setClassState(store, classId),
-      ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
-        attemptLogs.sort(
-          (attemptLog1, attemptLog2) =>
-            new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-        );
-        const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
-        // SECOND LOOP: Add their question number
-        if (exerciseQuestions && exerciseQuestions.length) {
-          attemptLogs.forEach(attemptLog => {
-            attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
-          });
-        }
+  ContentNodeResource.getModel(contentId)
+    .fetch()
+    .then(
+      exercise => {
+        Promise.all([
+          AttemptLogResource.getCollection({
+            user: userId,
+            content: exercise.content_id,
+          }).fetch(),
+          ContentSummaryLogResource.getCollection({
+            user_id: userId,
+            content_id: exercise.content_id,
+          }).fetch(),
+          FacilityUserResource.getModel(userId).fetch(),
+          ContentNodeResource.fetchAncestors(contentId),
+          setClassState(store, classId),
+        ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
+          attemptLogs.sort(
+            (attemptLog1, attemptLog2) =>
+              new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+          );
+          const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
+          // SECOND LOOP: Add their question number
+          if (exerciseQuestions && exerciseQuestions.length) {
+            attemptLogs.forEach(attemptLog => {
+              attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
+            });
+          }
 
-        const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-        const currentInteractionHistory = currentAttemptLog.interaction_history || [];
-        Object.assign(exercise, { ancestors });
-        const pageState = {
-          // because this is info returned from a collection
-          user,
-          exercise,
-          attemptLogs,
-          currentAttemptLog,
-          interactionIndex,
-          currentInteractionHistory,
-          currentInteraction: currentInteractionHistory[interactionIndex],
-          summaryLog: summaryLog[0],
-          channelId,
-          attemptLogIndex,
-        };
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+          const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
+          const currentInteractionHistory = currentAttemptLog.interaction_history || [];
+          Object.assign(exercise, { ancestors });
+          const pageState = {
+            // because this is info returned from a collection
+            user,
+            exercise,
+            attemptLogs,
+            currentAttemptLog,
+            interactionIndex,
+            currentInteractionHistory,
+            currentInteraction: currentInteractionHistory[interactionIndex],
+            summaryLog: summaryLog[0],
+            channelId,
+            attemptLogIndex,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        });
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 function clearReportSorting(store) {

@@ -2,11 +2,11 @@
 
   <div>
     <content-card-group-header
-      :header="header"/>
+      :header="header" />
 
     <content-card-group-grid
       :contents="recommendations"
-      :gen-content-link="genContentLink" />
+      :genContentLink="genContentLink" />
   </div>
 
 </template>

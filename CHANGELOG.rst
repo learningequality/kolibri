@@ -5,12 +5,24 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.7 (unreleased)
+----------------
+
+ - (adding changes here)
+
+
 0.6
 ---
 
  - Add support for RTL languages
  - Add support for frontend translation outside of Vue components
  - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
+
+
+0.5.1dev (unreleased)
+---------------------
+
+ - Python dependencies: Only bundle, do not install dependencies in system env #2299
 
 
 0.5

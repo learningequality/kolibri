@@ -11,6 +11,7 @@
             selected: isSelected(index),
             clickable: true
           }"
+          :key="index"
         >
             <mat-svg
               v-if="attemptLog.noattempt"
@@ -37,7 +38,7 @@
               name="lightbulb_outline"
             />
             <h3 class="item">
-              {{ $tr('question', {questionNumber: attemptLog.questionNumber})}}
+              {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
             </h3>
         </li>
       </template>

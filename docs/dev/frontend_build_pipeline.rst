@@ -1,5 +1,5 @@
-Front-end Asset Loading
-=======================
+Front-end build pipeline
+========================
 
 Asset pipelining is done using Webpack - this allows the use of require to import modules - as such all written code should be highly modular, individual files should be responsible for exporting a single function or object.
 

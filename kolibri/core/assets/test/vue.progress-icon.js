@@ -9,7 +9,13 @@ import assert from 'assert';
 function testIcon(wrapper, expected) {
   const { iconType, text } = expected;
   assert.equal(wrapper.first(UiIcon).getProp('icon'), iconType);
-  assert.equal(wrapper.first(UiTooltip).text().trim(), text);
+  assert.equal(
+    wrapper
+      .first(UiTooltip)
+      .text()
+      .trim(),
+    text
+  );
 }
 
 describe('ProgressIcon Component', () => {
@@ -27,7 +33,8 @@ describe('ProgressIcon Component', () => {
   });
 
   it('it should show an in-progress icon when progress is between 0 and 1', () => {
-    const wrapper = mount(ProgressIcon, { propsData: {
+    const wrapper = mount(ProgressIcon, {
+      propsData: {
         progress: 0.1,
       },
     });

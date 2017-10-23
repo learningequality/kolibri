@@ -3,8 +3,8 @@
   <core-modal :title="$tr('deleteExam')" @cancel="close">
     <p>{{ $tr('areYouSure', { examTitle }) }}</p>
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <k-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)" />
     </div>
   </core-modal>
 

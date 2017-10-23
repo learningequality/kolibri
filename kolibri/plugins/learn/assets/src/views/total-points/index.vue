@@ -1,7 +1,7 @@
 <template>
 
   <div v-if="isUserLoggedIn" class="points" ref="points">
-    <points-icon class="icon" :active="true"/>
+    <points-icon class="icon" :active="true" />
     <div class="description">
       <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
@@ -32,10 +32,10 @@
       },
       actions: { fetchPoints },
     },
+    watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
     },
-    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>

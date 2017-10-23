@@ -25,7 +25,10 @@ var lint = process.env.LINT || production;
 
 var postCSSLoader = {
   loader: 'postcss-loader',
-  options: { config: path.resolve(__dirname, '../../postcss.config.js') },
+  options: {
+    config: { path: path.resolve(__dirname, '../../postcss.config.js') },
+    sourceMap: !production,
+  },
 };
 
 var cssLoader = {
@@ -144,11 +147,25 @@ if (lint) {
     module: {
       rules: [
         {
+          test: /\.(vue|js)$/,
+          enforce: 'pre',
+          use: {
+            loader: 'eslint-loader',
+            options: {
+              failOnError: production,
+              emitError: production,
+              emitWarning: !production,
+              fix: !production,
+            },
+          },
+          exclude: /node_modules/,
+        },
+        {
           test: /\.(vue|html)/,
           enforce: 'pre',
           use: {
             loader: 'htmlhint-loader',
-            options: { failOnError: true, emitAs: 'error' },
+            options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
           },
           exclude: /node_modules/,
         },

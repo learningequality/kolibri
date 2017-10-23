@@ -315,7 +315,7 @@ export default class Mediator {
               .then(() => {
                 resolve();
               })
-              .catch(error => {
+              .catch(() => {
                 const errorText = `${kolibriModuleName} failed to load`;
                 logging.error(errorText);
                 reject(errorText);

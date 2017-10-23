@@ -3,7 +3,7 @@
   <div class="drive-list">
     <div v-if="drives.length === 0">
       <h2 class="core-text-alert">
-        <mat-svg class="error-svg" category="alert" name="error_outline"/>
+        <mat-svg class="error-svg" category="alert" name="error_outline" />
         {{ $tr('noDrivesDetected') }}
       </h2>
     </div>
@@ -58,16 +58,21 @@
         required: true,
       },
     },
+    data() {
+      return {
+        selectedDrive: '',
+      };
+    },
     computed: {
-      selectedDrive() {
-        return this.value;
-      },
       enabledDrives() {
         return this.drives.filter(drive => this.enabledDrivePred(drive));
       },
       disabledDrives() {
         return this.drives.filter(drive => !this.enabledDrivePred(drive));
       },
+    },
+    mounted() {
+      this.selectedDrive = this.value;
     },
     methods: {
       enabledDriveLabel(drive) {

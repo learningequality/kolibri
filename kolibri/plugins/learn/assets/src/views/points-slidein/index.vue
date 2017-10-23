@@ -2,7 +2,7 @@
 
   <div class="points-slidein">
     <div class="points">
-      <points-icon class="points-icon" :active="true"/>
+      <points-icon class="points-icon" :active="true" />
       <span class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</span>
     </div>
 
@@ -22,7 +22,7 @@
 <script>
 
   import { contentPoints } from 'kolibri.coreVue.vuex.getters';
-  import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
 

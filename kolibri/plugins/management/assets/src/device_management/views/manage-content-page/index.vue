@@ -3,7 +3,7 @@
   <div>
 
     <template v-if="canManageContent">
-      <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
+      <component v-if="pageState.wizardState.shown" :is="wizardComponent" />
 
       <subpage-container>
         <task-progress
@@ -13,7 +13,9 @@
         />
 
         <div class="table-title">
-          <h1 class="page-title">{{$tr('title')}}</h1>
+          <h1 class="page-title">
+            {{ $tr('title') }}
+          </h1>
           <div class="buttons" v-if="!tasksInQueue">
             <k-button
               :text="$tr('import')"
@@ -22,7 +24,7 @@
               :primary="true"
             />
             <k-button
-              v-show="deviceHasChannels"
+              v-if="deviceHasChannels"
               :text="$tr('export')"
               class="button"
               :primary="true"
@@ -31,9 +33,8 @@
           </div>
         </div>
 
-        <hr />
-
         <channels-grid />
+
       </subpage-container>
     </template>
 
@@ -76,7 +77,7 @@
   export default {
     name: 'manageContentPage',
     $trs: {
-      title: 'My channels',
+      title: 'Content',
       import: 'Import',
       export: 'Export',
       noAccessDetails:
@@ -161,14 +162,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  // Padding height that separates rows from eachother
-  $row-padding = 1.5em
-  // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
-
-  .alert-bg
-    background-color: $core-bg-warning
-
   .table-title
     margin-top: 1em
     &:after
@@ -178,7 +171,6 @@
 
   .page-title
     float: left
-    margin: 0.2em
 
   .buttons
     float: right

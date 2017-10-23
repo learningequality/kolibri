@@ -2,7 +2,7 @@
 
   <div class="wrapper-table">
     <div class="main-row"><div id="main-cell">
-      <logo class="logo"/>
+      <logo class="logo" />
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form class="login-form" ref="form" @submit.prevent="signIn">
         <ui-alert
@@ -70,17 +70,24 @@
 
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
-          <k-button :text="$tr('createAccount')" :primary="false"/>
-        </router-link>
-        <a class="group-btn" href="/learn">
-          <k-button :text="$tr('accessAsGuest')" :primary="false"/>
-        </a>
+        <k-router-link
+          v-if="canSignUp"
+          :text="$tr('createAccount')"
+          :to="signUpPage"
+          :primary="false"
+          appearance="raised-button"
+        />
+        <k-external-link
+          :text="$tr('accessAsGuest')"
+          href="/learn"
+          :primary="false"
+          appearance="raised-button"
+        />
       </div>
       <p class="login-text version">{{ versionMsg }}</p>
     </div></div>
     <div class="footer-row">
-      <language-switcher :footer="true" class="footer-cell"/>
+      <language-switcher-footer class="footer-cell" />
     </div>
   </div>
 
@@ -95,11 +102,13 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+  import languageSwitcherFooter from '../language-switcher-footer';
 
   export default {
     name: 'signInPage',
@@ -119,11 +128,13 @@
     },
     components: {
       kButton,
+      kRouterLink,
+      kExternalLink,
       kTextbox,
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
-      languageSwitcher,
+      languageSwitcherFooter,
     },
     data: () => ({
       username: '',
@@ -326,6 +337,13 @@
           &:autofill
             background-color: transparent
 
+    .button.secondary.raised
+      background-color: $core-text-default
+      color: $core-grey
+
+      &:hover
+        background-color: #0E0E0E
+
 </style>
 
 
@@ -400,6 +418,8 @@
   .footer-cell
     display: table-cell
     vertical-align: middle
+    min-height: 50px
+    padding: 18px
 
   .sign-in-error
     color: $core-text-error

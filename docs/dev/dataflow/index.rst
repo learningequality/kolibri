@@ -1,5 +1,5 @@
 
-Server-Client Communication
+Server-client communication
 ===========================
 
 Server API
@@ -169,5 +169,5 @@ If it is important to get data that has not been cached, you can call the :code:
 Data Flow Diagram
 -----------------
 
-.. image:: ./img/full_stack_data_flow.svg
+.. image:: ./full_stack_data_flow.svg
 .. Source: https://docs.google.com/drawings/d/1TLMV8FWgh4KUIL1CRQ-C5S3J3efCbG7-dkCOLzjohj4/edit

@@ -34,14 +34,16 @@ import permissionsIcon from '../views/permissions-icon';
 import coreBase from '../views/core-base';
 import coreModal from '../views/core-modal';
 import sideNav from '../views/side-nav';
-import kButton from '../views/k-button';
+import kButton from '../views/buttons-and-links/k-button';
+import kExternalLink from '../views/buttons-and-links/k-external-link';
+import kRouterLink from '../views/buttons-and-links/k-router-link';
 import kTextbox from '../views/k-textbox';
 import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
-import kNavbarButton from '../views/k-navbar/button';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
-import languageSwitcher from '../views/language-switcher';
+import languageSwitcherMixin from '../views/language-switcher/mixin.js';
+import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
 import pointsIcon from '../views/points-icon';
@@ -98,11 +100,13 @@ export default {
       coreModal,
       sideNav,
       kButton,
+      kExternalLink,
+      kRouterLink,
       kTextbox,
       dropdownMenu,
       kNavbar,
-      kNavbarButton,
       kNavbarLink,
+      languageSwitcherList,
       logo,
       immersiveFullScreen,
       elapsedTime,
@@ -112,12 +116,12 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
-      languageSwitcher,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
+      languageSwitcherMixin,
     },
   },
   resources,

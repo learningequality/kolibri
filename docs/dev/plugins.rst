@@ -1,7 +1,7 @@
 .. _dev-plugins:
 
-Plugins
-=======
+Kolibri plugin architecture
+============================
 
 The behavior of Kolibri can be extended using plugins. The following is a guide
 to developing plugins.

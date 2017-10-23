@@ -1,24 +1,27 @@
+import logging
 import os
+import pickle
 
 from django.apps import apps
 from django.conf import settings
-from sqlalchemy import ColumnDefault, MetaData, create_engine
+from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
+from sqlalchemy import ColumnDefault, create_engine
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
-ENGINES_CACHES = {}
+from .check_schema_db import DBSchemaError, db_matches_schema
 
-# Introspecting and reflecting a database is expensive, so whenever possible, we cache
-# the results of such introspections here
-BASE_CLASSES_CACHE = {}
+logger = logging.getLogger(__name__)
 
-def clear_cache():
-    global ENGINES_CACHES
-    global BASE_CLASSES_CACHE
+BASES = {}
 
-    ENGINES_CACHES = {}
-    BASE_CLASSES_CACHE = {}
+CONTENT_DB_SCHEMA_VERSIONS = [
+    CONTENT_SCHEMA_VERSION,
+    NO_VERSION,
+    V040BETA3,
+    V020BETA1,
+]
 
 class ClassNotFoundError(Exception):
     pass
@@ -30,20 +33,15 @@ def sqlite_connection_string(db_path):
 def get_engine(connection_string):
     """
     Get a SQLAlchemy engine that allows us to connect to a database.
-    We have an extra caching layer here, that may be unnecessary as SQLAlchemy
-    should consistently return the same engine for the same connection string.
     """
-    if connection_string not in ENGINES_CACHES:
-        # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-        engine = create_engine(
-            connection_string,
-            echo=False,
-            connect_args={'check_same_thread': False},
-            poolclass=QueuePool,
-            convert_unicode=True,
-        )
-        ENGINES_CACHES[connection_string] = engine
-    return ENGINES_CACHES[connection_string]
+    # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
+    return create_engine(
+        connection_string,
+        echo=False,
+        connect_args={'check_same_thread': False},
+        poolclass=QueuePool,
+        convert_unicode=True,
+    )
 
 def make_session(connection_string):
     """
@@ -103,35 +101,33 @@ def set_all_class_defaults(Base):
             pass
 
 
-def get_base(connection_string, engine, app_name=None):
+SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
+
+def prepare_bases():
+
+    for name in CONTENT_DB_SCHEMA_VERSIONS:
+
+        with open(SCHEMA_PATH_TEMPLATE.format(name=name), 'rb') as f:
+            metadata = pickle.load(f)
+        BASES[name] = prepare_base(metadata)
+
+
+def prepare_base(metadata):
     """
-    Get a Base mapping for a particular database engine and Django app
+    Create a Base mapping for models for a particular schema version of the content app
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
-    our main entrypoint for interacting with arbitrary databases without a predefined schema
+    our main entrypoint for interacting with content databases and the content app tables
+    of the default database.
     """
-    cache_key = '{connection}_{app_name}'.format(connection=connection_string, app_name=(app_name or 'all'))
-    if cache_key not in BASE_CLASSES_CACHE:
-        # Set up a metadata first so that we can restrict it to only the tables of a particular app
-        metadata = MetaData()
-        if app_name is not None:
-            app_config = apps.get_app_config(app_name)
-            table_names = [model._meta.db_table for model in app_config.models.values()]
-            # This causes the introspection to be restricted to the table names of the particular Django app
-            metadata.reflect(engine, only=table_names)
-        else:
-            # Otherwise reflect all the database tables
-            metadata.reflect(engine)
-        # Set up the base mapping using the automap_base method, using the metadata we have defined above
-        Base = automap_base(metadata=metadata)
-        # TODO map relationship backreferences using the django names
-        # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
-        # every database table that we need
-        Base.prepare()
-        # Set any Django Model defaults
-        set_all_class_defaults(Base)
-        # This all took some time, so save this for later in case we need it
-        BASE_CLASSES_CACHE[cache_key] = Base
-    return BASE_CLASSES_CACHE[cache_key]
+    # Set up the base mapping using the automap_base method, using the metadata passed in
+    Base = automap_base(metadata=metadata)
+    # TODO map relationship backreferences using the django names
+    # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
+    # every database table that we need
+    Base.prepare()
+    # Set any Django Model defaults
+    set_all_class_defaults(Base)
+    return Base
 
 
 def get_default_db_string():
@@ -152,16 +148,34 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+class SchemaNotFoundError(Exception):
+    pass
+
 class Bridge(object):
 
     def __init__(self, sqlite_file_path=None, app_name=None):
         if sqlite_file_path is None:
+            # If sqlite_file_path is None, we are referencing the Django default database
             self.connection_string = get_default_db_string()
+            self.Base = BASES[CONTENT_SCHEMA_VERSION]
         else:
+            # Otherwise, we are accessing an external content database.
+            # So we try each of our historical database schema in order to see
+            # which glass slipper fits! If none do, just turn into a pumpkin.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
+            for version in CONTENT_DB_SCHEMA_VERSIONS:
+                self.Base = BASES[version]
+                self.session, self.engine = make_session(self.connection_string)
+                try:
+                    db_matches_schema(self.Base, self.session)
+                    break
+                except DBSchemaError as e:
+                    logging.debug(e)
+            else:
+                raise SchemaNotFoundError('No matching schema found for this database')
+        # We are using scoped sessions, so should always return the same session
+        # in the same thread
         self.session, self.engine = make_session(self.connection_string)
-
-        self.Base = get_base(self.connection_string, self.engine, app_name=app_name)
 
         self.connections = []
 
@@ -181,8 +195,3 @@ class Bridge(object):
         self.session.close()
         for connection in self.connections:
             connection.close()
-        self.engine.dispose()
-        for key, engine in ENGINES_CACHES.items():
-            if engine == self.engine:
-                ENGINES_CACHES.pop(key)
-                break

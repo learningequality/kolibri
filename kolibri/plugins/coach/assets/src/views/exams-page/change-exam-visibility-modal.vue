@@ -20,8 +20,8 @@
       class="group-select"
     />
     <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility" />
     </div>
   </core-modal>
 

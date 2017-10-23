@@ -90,11 +90,11 @@
         required: true,
         validator(component) {
           if (!component.name) {
-            console.log('Component does not have a name');
+            logging.debug('Component does not have a name');
             return false;
           }
           if (!component.description) {
-            console.log('Component does not have a description');
+            logging.debug('Component does not have a description');
             return false;
           }
           return true;

@@ -26,7 +26,7 @@
           color="primary"
           ref="dropdownButton"
           size="small"
-          :has-dropdown="true"
+          :hasDropdown="true"
         >
           <ui-menu
             slot="dropdown"
@@ -105,13 +105,13 @@
       selectAll: 'Select all',
       selectLearner: 'Select learner',
     },
-    mixins: [ResponsiveElement],
     components: {
       kButton,
       kCheckbox,
       uiButton,
       uiMenu,
     },
+    mixins: [ResponsiveElement],
     props: {
       group: {
         type: Object,
