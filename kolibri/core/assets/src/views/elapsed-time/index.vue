@@ -42,14 +42,6 @@
       now: now(),
       timer: null,
     }),
-    mounted() {
-      this.timer = setInterval(() => {
-        this.now = now();
-      }, 10000);
-    },
-    beforeDestroy() {
-      clearInterval(this.timer);
-    },
     computed: {
       $trUnit() {
         return `${this.unit}Ago`;
@@ -92,6 +84,14 @@
         }
         return Math.floor(this.minutes / MINUTES_IN_YEAR);
       },
+    },
+    mounted() {
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
+    },
+    beforeDestroy() {
+      clearInterval(this.timer);
     },
   };
 

@@ -1,50 +1,59 @@
 <template>
 
-  <div>
+  <div @keydown.esc="toggleNav" ref="sideNav">
+    <transition name="side-nav">
+      <div
+        v-show="navShown"
+        class="side-nav"
+        :style="{ width: `${width}px` }"
+      >
+        <div
+          class="side-nav-header"
+          :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
+        >
+          <ui-icon-button
+            ref="toggleButton"
+            :aria-label="$tr('closeNav')"
+            type="secondary"
+            color="white"
+            size="large"
+            icon="close"
+            @click="toggleNav"
+          />
+          <span class="side-nav-header-name">Kolibri</span>
+        </div>
+
+        <div
+          class="side-nav-scrollable-area"
+          :style="{ top: `${headerHeight}px`, width: `${width}px` }"
+        >
+          <ui-menu
+            class="side-nav-scrollable-area-menu"
+            role="navigation"
+            :options="menuOptions"
+            :hasIcons="true"
+            :aria-label="$tr('navigationLabel')"
+            @select="navigate"
+          />
+
+          <div class="side-nav-scrollable-area-footer">
+            <logo class="side-nav-scrollable-area-footer-logo" />
+            <div class="side-nav-scrollable-area-footer-info">
+              <p>{{ footerMsg }}</p>
+              <!-- Not translated -->
+              <p>© 2017 Learning Equality</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </transition>
+
     <div
       v-show="navShown"
-      class="nav-wrapper"
-      :style="wrapperStyle">
-      <div class="header"
-           :style="{ height: headerHeight + 'px', paddingTop: mobile ? '4px' : '8px', width: width + 'px' }">
-        <ui-icon-button
-          @click="toggleNav"
-          type="secondary"
-          color="white"
-          size="large"
-          icon="close"
-          :aria-label="closeNav"/>
-        <ui-icon class="header-logo"><logo/></ui-icon>
-        <span class="title">Kolibri</span>
-      </div>
-      <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight}px` }">
-        <ui-menu
-          class="nav-main"
-          :options="menuOptions"
-          hasIcons
-          @select="navigate"
-          role="navigation"
-          :aria-label="ariaLabel"
-          :style="{ width: width + 'px' }">
-        </ui-menu>
-      </div>
-      <div class="footer" :style="{ width: width + 'px' }">
-        <logo
-          class="logo"
-          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
-        <div class="message-container">
-          <p class="message">{{ footerMsg }}</p>
-          <p class="message">
-            <!-- Not translated -->
-            © 2017 Learning Equality
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="navShown && mobile" class="modal-overlay"
-         @keydown.esc="toggleNav"
-         @click="toggleNav">
+      class="side-nav-backdrop"
+      @click="toggleNav"
+    >
     </div>
   </div>
 
@@ -54,17 +63,28 @@
 <script>
 
   import values from 'lodash/values';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
-  import * as actions from 'kolibri.coreVue.vuex.actions';
+  import {
+    isUserLoggedIn,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    canManageContent,
+  } from 'kolibri.coreVue.vuex.getters';
+  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import uiMenu from './keen-menu-port';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
+
   export default {
     name: 'sideNav',
+    components: {
+      uiMenu,
+      uiIconButton,
+      logo,
+    },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
       navigationLabel: 'Main user navigation',
@@ -102,54 +122,17 @@
         required: true,
       },
     },
-    methods: {
-      navigate(option) {
-        if (option.href) {
-          window.location.href = option.href;
-        } else if (option.action) {
-          option.action();
-        }
-      },
-      toggleNav() {
-        this.$emit('toggleSideNav');
-      },
-      pageIsActive(pageName) {
-        return this.topLevelPageName === pageName;
-      },
+    data() {
+      return {
+        previouslyFocusedElement: null,
+      };
     },
     computed: {
-      closeStyle() {
-        return {
-          fontSize: `${this.headerHeight / 2}px`,
-          marginLeft: `${this.width / 20}px`,
-          marginRight: `${this.width / 20}px`,
-        };
-      },
-      wrapperStyle() {
-        // Calculate min-height property by taking the number of options (minus the divider)
-        // multipying by 50 for each option, adding 173 for the divider and the footer,
-        // and finally adding this.width/2.5 for the non-mobile logo if needed.
-        return {
-          minHeight: `${(this.menuOptions.length - 1) * 50 +
-            173 +
-            (!this.mobile ? this.width / 2.5 : 0)}px`,
-          width: `${this.width}px`,
-        };
-      },
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
-      tablet() {
-        return this.windowSize.breakpoint > 1 && this.windowSize.breakpoint < 5;
-      },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
-      },
-      closeNav() {
-        return this.$tr('closeNav');
-      },
-      ariaLabel() {
-        return this.$tr('navigationLabel');
       },
       menuOptions() {
         const options = [
@@ -204,24 +187,56 @@
             href: '/user',
           });
         }
+        options.push({ type: 'divider' });
         return options;
       },
     },
-    components: {
-      uiMenu,
-      uiIcon,
-      uiIconButton,
-      logo,
+    watch: {
+      navShown(isShown) {
+        this.$nextTick(() => {
+          if (isShown) {
+            window.addEventListener('focus', this.containFocus, true);
+            this.previouslyFocusedElement = document.activeElement;
+            this.$refs.toggleButton.$el.focus();
+          } else {
+            window.removeEventListener('focus', this.containFocus, true);
+            this.previouslyFocusedElement.focus();
+          }
+        });
+      },
+    },
+    methods: {
+      navigate(option) {
+        if (option.href) {
+          window.location.href = option.href;
+        } else if (option.action) {
+          option.action();
+        }
+      },
+      toggleNav() {
+        this.$emit('toggleSideNav');
+      },
+      pageIsActive(pageName) {
+        return this.topLevelPageName === pageName;
+      },
+      containFocus(event) {
+        if (event.target === window) {
+          return;
+        }
+        if (!this.$refs.sideNav.contains(event.target)) {
+          this.$refs.toggleButton.$el.focus();
+        }
+      },
     },
     vuex: {
-      actions: { signOut: actions.kolibriLogout },
+      actions: { signOut: kolibriLogout },
       getters: {
         session: state => state.core.session,
-        isUserLoggedIn: getters.isUserLoggedIn,
-        isSuperuser: getters.isSuperuser,
-        isAdmin: getters.isAdmin,
-        isCoach: getters.isCoach,
-        canManageContent: getters.canManageContent,
+        isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
       },
     },
   };
@@ -233,81 +248,83 @@
 
   @require '~kolibri.styles.definitions'
 
-  $footerheight = 152px
+  // matches angular material's spec
+  $side-nav-box-shadow = 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
 
-  .nav-wrapper
-    top: 0
-    background: $core-bg-light
-    font-weight: 300
+  // matches keen-ui toolbar's spec
+  $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+
+  .side-nav
     position: fixed
+    top: 0
+    bottom: 0
     z-index: 16
-    font-size: 1em
-    height: 100%
-    overflow: auto
-    -webkit-overflow-scrolling: touch
-    box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
-    .header-logo
-      font-size: 3em
-      margin-right: 0.25em
-    .logo
-      margin: auto
-      display: inline-block
-
-  .nav-main
+    color: $core-text-default
     background: $core-bg-light
+    box-shadow: $side-nav-box-shadow
 
-  a.active:focus svg
-    fill: $core-bg-light
+  .side-nav-enter
+    transform: translate3D(-100%, 0, 0)
 
-  .header
-    position: absolute
-    z-index: 17
+  .side-nav-enter-active
+    transition: all 0.2s ease-in-out
+
+  .side-nav-enter-to
+    transform: translate3D(0, 0, 0)
+
+  .side-nav-leave
+    transform: translate3D(0, 0, 0)
+
+  .side-nav-leave-active
+    transition: all 0.2s ease-in-out
+
+  .side-nav-leave-to
+    transform: translate3D(-100%, 0, 0)
+
+  .side-nav-header
+    position: fixed
     top: 0
     left: 0
+    z-index: 17
     font-size: 14px
     text-transform: uppercase
-    overflow: auto
-    overflow-y: hidden
     background-color: $core-text-default
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2)
-    .close
-      float: left
-    .title, .close
-      color: $core-bg-light
-    .close
-      top: 50%
-      transform: translateY(-50%)
-      position: relative
-      border: none
-    .title
-      font-weight: bold
-      vertical-align: middle
+    box-shadow: $side-nav-header-box-shadow
 
-  .scrollable-nav
-    position: absolute
-    top: 0
+  .side-nav-header-name
+    margin-left: 8px
+    vertical-align: middle
+    color: $core-bg-light
+    font-weight: bold
+    font-size: 18px
+
+  .side-nav-scrollable-area
+    position: fixed
     left: 0
-    padding-bottom: $footerheight + 16
-    height: 100%
-    overflow: auto
-
-  .footer
-    position: absolute
-    z-index: 17
     bottom: 0
-    left: 0
-    overflow: hidden
-    background-color: $core-text-default
-    padding-top: 1em
-    padding-bottom: 1em
-    .logo
-      float: left
-    .message-container
-      .message
-        color: $core-bg-light
-        font-size: x-small
+    overflow: auto
 
-  .modal-overlay
+  .side-nav-scrollable-area-menu
+    background: $core-bg-light
+
+  .side-nav-scrollable-area-footer
+    color: $core-text-annotation
+    padding: 16px
+
+  .side-nav-scrollable-area-footer-logo
+    width: 40px
+    height: 40px
+
+  .side-nav-scrollable-area-footer-info
+    display: inline-block
+    margin-left: 8px
+    width: 140px
+    font-size: 10px
+    line-height: 16px
+    p
+      margin: 0
+
+  .side-nav-backdrop
     position: fixed
     top: 0
     left: 0
@@ -318,33 +335,40 @@
     background-attachment: fixed
     z-index: 15
 
-</style>
 
+  /* keen menu */
+  >>>.ui-menu
+    max-height: none
+    padding: 0
+    background: $core-bg-light
+    border: none
 
-<style lang="stylus">
+  >>>.ui-menu-option
+    &:not(.is-divider)
+      padding-top: 4px
+      padding-bottom: 4px
 
-  @require '~kolibri.styles.definitions'
-
-  // Customize Keen UI Menu option
-  .nav-main
-    .ui-menu-option
-      margin: 5px 0
-      &:not(.is-divider)
+      .ui-menu-option-text
+        overflow: visible
+        white-space: normal
+        color: $core-text-default
         font-size: 14px
-        &.is-active
-          .ui-menu-option-icon
-            color: $core-accent-color
+
+      .ui-menu-option-icon
+        color: $core-text-default
+        font-size: 1.2em
+
+      &.is-active
+        .ui-menu-option-text
           color: $core-accent-color
           font-weight: bold
           opacity: 1
-        .ui-menu-option-text
-          overflow: visible
+
         .ui-menu-option-icon
-          font-size: 1.2em
-      &.is_divider
-        background-color: $core-text-annotation
-    &.ui-menu
-      border: none
-      max-width: 320px
+          color: $core-accent-color
+
+    &.is-divider
+      margin-top: 0
+      margin-bottom: 0
 
 </style>

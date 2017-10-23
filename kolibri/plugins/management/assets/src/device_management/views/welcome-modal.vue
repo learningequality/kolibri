@@ -41,13 +41,13 @@
         'The admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
-    render: createElement => window.setTimeout(createElement, 750),
     components: { coreModal, kButton },
     methods: {
       emitCloseModal() {
         this.$emit('closeModal');
       },
     },
+    render: createElement => window.setTimeout(createElement, 750),
   };
 
 </script>

@@ -1,7 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('renameLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('renameLearnerGroup')" @cancel="close">
     <div>
       <form @submit.prevent="callRenameGroup">
         <k-textbox
@@ -18,7 +17,7 @@
           <k-button
             type="button"
             :text="$tr('cancel')"
-            :raised="false"
+            appearance="flat-button"
             @click="close"
           />
           <k-button

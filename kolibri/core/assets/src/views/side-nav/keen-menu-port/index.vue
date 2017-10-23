@@ -1,23 +1,24 @@
 <template>
 
   <div>
-    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
+    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
     <ul class="ui-menu" role="menu" :class="classes">
       <menu-option
-        :disable-ripple="disableRipple"
+        :disableRipple="disableRipple"
         :disabled="option[keys.disabled]"
         :active="Boolean(option.active)"
-        :icon-props="iconProps || option[keys.iconProps]"
+        :iconProps="iconProps || option[keys.iconProps]"
         :icon="hasIcons ? option[keys.icon] : null"
         :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
-        :secondary-text="hasSecondaryText ? option[keys.secondaryText] : null"
+        :secondaryText="hasSecondaryText ? option[keys.secondaryText] : null"
         :type="option[keys.type]"
 
         @click.native="selectOption(option)"
         @keydown.enter.native.prevent="selectOption(option)"
         @keydown.esc.native.esc="closeMenu"
 
-        v-for="option in options"
+        v-for="(option, i) in options"
+        :key="i"
       >
         <slot name="option" :option="option"></slot>
       </menu-option>
@@ -43,8 +44,10 @@
   import UiMenuOption from './menu-option.vue';
 
   export default {
-    name: 'ui-menu',
-
+    name: 'uiMenu',
+    components: {
+      'menu-option': UiMenuOption,
+    },
     props: {
       options: {
         type: Array,
@@ -109,10 +112,6 @@
         e.stopPropagation();
         this.$el.querySelector('.ui-menu-option').focus();
       },
-    },
-
-    components: {
-      'menu-option': UiMenuOption,
     },
   };
 

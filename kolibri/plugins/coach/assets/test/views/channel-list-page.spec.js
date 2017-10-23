@@ -2,17 +2,21 @@
 import Vue from 'vue-test';
 import Vuex from 'vuex';
 import assert from 'assert';
-import _ from 'lodash';
 import sinon from 'sinon';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
 import * as ReportConstants from '../../src/reportConstants';
+import { mount } from 'avoriaz';
 
 const initialState = () => ({
   classId: '',
   pageName: '',
   core: {
     channels: {
-      list: [{ id: 'recent_channel' }, { id: 'not_recent_channel' }, { id: 'null_channel' }],
+      list: [
+        { id: 'recent_channel', title: 'Recent Channel' },
+        { id: 'not_recent_channel', title: 'Not Recent Channel' },
+        { id: 'null_channel', title: 'Null Channel' },
+      ],
     },
   },
   pageState: {
@@ -40,21 +44,21 @@ const initialState = () => ({
   },
 });
 
-function makeVm(options = {}, state) {
+function makeWrapper(options = {}, state) {
   const store = new Vuex.Store({
     state: state || initialState(),
   });
   const components = {
-    'name-cell': '<div></div>',
     'report-subheading': '<div></div>',
+    'name-cell': '<div></div>',
   };
-  const Ctor = Vue.extend(ChannelListPage);
-  return new Ctor(Object.assign(options, { store, components })).$mount();
+  return mount(ChannelListPage, Object.assign(options, { store, components }));
 }
 
-function getElements(vm) {
+function getElements(wrapper) {
   return {
-    channelRows: () => vm.$el.querySelectorAll('tbody > tr'),
+    channelRows: () => wrapper.find('tbody > tr'),
+    header: () => wrapper.find('.header')[0],
   };
 }
 
@@ -74,13 +78,14 @@ describe('channel list page component', () => {
 
   describe('in "show everything" mode', () => {
     it('does not show the "recent activity" header', () => {
-      const vm = makeVm({}, state);
-      assert(_.isUndefined(vm.$refs.recentHeader));
+      const wrapper = makeWrapper({}, state);
+      const { header } = getElements(wrapper);
+      assert(header() === undefined);
     });
 
     it('shows all channels, regardless of activity', () => {
-      const vm = makeVm({}, state);
-      const { channelRows } = getElements(vm);
+      const wrapper = makeWrapper({}, state);
+      const { channelRows } = getElements(wrapper);
       // only checks the number of rows, not whether they are correct
       assert.equal(channelRows().length, 3);
     });
@@ -92,13 +97,14 @@ describe('channel list page component', () => {
     });
 
     it('shows the "recent activity" header', () => {
-      const vm = makeVm({}, state);
-      assert(!_.isUndefined(vm.$refs.recentHeader));
+      const wrapper = makeWrapper({}, state);
+      const { header } = getElements(wrapper);
+      assert(header().is('div'));
     });
 
     it('hides channels that have null or not-recent activity', () => {
-      const vm = makeVm({}, state);
-      const { channelRows } = getElements(vm);
+      const wrapper = makeWrapper({}, state);
+      const { channelRows } = getElements(wrapper);
       assert.equal(channelRows().length, 1);
     });
   });

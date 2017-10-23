@@ -1,25 +1,5 @@
-Project Conventions
-===================
-
-*TODO*
-
-
-Documentation
--------------
-
-*reStructuredText, docstrings, requirements for PRs to master...*
-
-
-Git Workflow
-------------
-
-*stable master, develop, feature branches, tags, releases, hot fixes, internal vs external repos...*
-
-
-Python Code
------------
-
-*PEP8, additional conventions and best practices...*
+Front-end code conventions
+==========================
 
 
 Vue.js Components
@@ -49,21 +29,6 @@ Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/comp
 - Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director.
 
 - Any user visisble interface text should be rendered translatable, see :doc:`i18n` for details.
-
-
-JavaScript Code
----------------
-
-- We use the `AirBnB Javascript Style guide <https://github.com/airbnb/javascript>`_ for client-side ES6 code in Vue components.
-- ``use strict`` is automatically inserted.
-- Use ES6 ``import``/``export`` statements, not CommonJS-style ``require`` and ``module.exports`` statements.
-- For logging statements we use a thin wrapper around the ``log-level`` JS library, that prefixes the log statements with information about the logging level and current file. To access the logger, simply include the following code snippet:
-
-.. code-block:: javascript
-
-  import logger from 'kolibri.lib.logging';
-
-  const logging = logger.getLogger(__filename);
 
 
 Stylus and CSS

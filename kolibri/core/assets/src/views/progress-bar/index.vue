@@ -2,14 +2,15 @@
 
   <div class="wrapper">
     <div class="visuallyhidden" id="progress-bar-label">{{ $tr('label') }}</div>
-    <div class="progress-bar-wrapper"
+    <div
+      class="progress-bar-wrapper"
       role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="percent"
       aria-valuemin="0"
       aria-valuemax="100"
     >
-      <div class="progress-bar-complete" :style="{ width: percent + '%',  backgroundColor: color}"></div>
+      <div class="progress-bar-complete" :style="{ width: percent + '%', backgroundColor: color}"></div>
     </div>
     <div class="progress-bar-text" v-if="showPercentage">{{ $tr('pct', [progress]) }}</div>
   </div>

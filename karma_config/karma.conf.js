@@ -3,6 +3,7 @@ const _ = require('lodash');
 const webpack_config = _.clone(require('../frontend_build/src/webpack.config.base'));
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 webpack_config.plugins.push(
   new webpack.DefinePlugin({
@@ -12,7 +13,10 @@ webpack_config.plugins.push(
     },
   })
 );
-webpack_config.devtool = '#inline-source-map';
+
+webpack_config.plugins.push(new ExtractTextPlugin('styles.css'));
+
+webpack_config.devtool = 'none';
 
 // html5media plugin requires this
 webpack_config.module.rules.push({
@@ -23,6 +27,8 @@ webpack_config.module.rules.push({
     },
   ],
 });
+
+webpack_config.stats = 'none';
 
 const aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
 aliases.testUtils = path.resolve(__dirname, './testUtils');
@@ -44,6 +50,7 @@ module.exports = function(config) {
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
       'kolibri/**/assets/test/**/*.js',
+      'kolibri/**/assets/**/*.spec.js',
     ],
 
     // list of files to exclude
@@ -53,6 +60,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'kolibri/**/assets/test/**/*.js': ['webpack', 'sourcemap'],
+      'kolibri/**/assets/**/*.spec.js': ['webpack', 'sourcemap'],
     },
 
     // test results reporter to use

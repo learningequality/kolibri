@@ -2,35 +2,39 @@
 
   <!-- Accessibility properties for the overlay -->
   <transition name="fade">
-    <div class="modal-overlay"
+    <div
+      class="modal-overlay"
       @keydown.esc="emitCancelEvent"
       @keydown.enter="emitEnterEvent"
       @click="bgClick($event)"
       ref="modal-overlay"
-      id="modal-window">
+      id="modal-window"
+    >
 
-      <div class="modal"
+      <div
+        class="modal"
         ref="modal"
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
         :class="{ mobile: windowSize.breakpoint <= 1 }"
-        :style="{ width: width, height: height }">
+        :style="{ width: width, height: height }"
+      >
 
         <div class="top-buttons" @keydown.enter.stop>
           <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
-            <mat-svg category="navigation" name="arrow_back"/>
+            <mat-svg category="navigation" name="arrow_back" />
           </button>
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
-            <mat-svg category="navigation" name="close"/>
+            <mat-svg category="navigation" name="close" />
           </button>
         </div>
 
         <!-- Modal Title -->
         <h1 v-show="!invisibleTitle" class="title" id="modal-title">
           <!-- Accessible error reporting per @radina -->
-          <span v-if="hasError" class="visuallyhidden">{{$tr('errorAlert')}}</span>
-          {{title}}
+          <span v-if="hasError" class="visuallyhidden">{{ $tr('errorAlert') }}</span>
+          {{ title }}
         </h1>
 
         <!-- Modal Content -->
@@ -97,6 +101,11 @@
         required: false,
       },
     },
+    data() {
+      return {
+        lastFocus: null,
+      };
+    },
     beforeMount() {
       this.lastFocus = document.activeElement;
     },
@@ -116,19 +125,14 @@
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       window.setTimeout(() => this.lastFocus.focus());
     },
-    data() {
-      return {
-        lastFocus: null,
-      };
-    },
     methods: {
-      emitCancelEvent(event) {
+      emitCancelEvent() {
         this.$emit('cancel');
       },
-      emitEnterEvent(event) {
+      emitEnterEvent() {
         this.$emit('enter');
       },
-      emitBackEvent(event) {
+      emitBackEvent() {
         this.$emit('back');
       },
       focusModal() {

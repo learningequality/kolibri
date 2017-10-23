@@ -74,17 +74,21 @@ class ContentNodeTestBase(object):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(parent=p, kind=content_kinds.TOPIC)
-        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=content_kinds.TOPIC)
+        actual_output = content.ContentNode.objects.get(title="root").get_children().filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
-    def test_all_str(self):
+    def test_tag_str(self):
 
         # test for ContentTag __str__
         p = content.ContentTag.objects.get(tag_name="tag_2")
         self.assertEqual(str(p), 'tag_2')
+
+    def test_lang_str(self):
         # test for Language __str__
         p = content.Language.objects.get(lang_code="en")
         self.assertEqual(str(p), 'English-Test')
+
+    def test_channelmetadata_str(self):
         # test for ChannelMetadata __str__
         p = content.ChannelMetadata.objects.get(name="testing")
         self.assertEqual(str(p), 'testing')
@@ -111,8 +115,9 @@ class ContentNodeTestBase(object):
 
     def test_delete_tree(self):
         channel = content.ChannelMetadata.objects.first()
+        channel_id = channel.id
         channel.delete_content_tree_and_files()
-        self.assertFalse(content.ContentNode.objects.all().exists())
+        self.assertFalse(content.ContentNode.objects.filter(channel_id=channel_id).exists())
         self.assertFalse(content.File.objects.all().exists())
 
 

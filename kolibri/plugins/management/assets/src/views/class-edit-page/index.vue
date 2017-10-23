@@ -11,23 +11,24 @@
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
-      <div id="edit-name" class="name-edit">{{currClass.name}}</div>
-      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
+      <div id="edit-name" class="name-edit">{{ currClass.name }}</div>
+      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true" />
     </div>
 
     <div class="header">
       <h2 class="table-title">
-        {{$tr('tableTitle')}}
+        {{ $tr('tableTitle') }}
       </h2>
     </div>
 
     <div class="toolbar">
       <div class="enroll">
-        <router-link :to="classEnrollLink">
-          <k-button
-            :text="$tr('enrollUsers')"
-            :primary="true"/>
-        </router-link>
+        <k-router-link
+          :text="$tr('enrollUsers')"
+          :to="classEnrollLink"
+          :primary="true"
+          appearance="raised-button"
+        />
       </div>
       <k-filter-textbox
         :placeholder="$tr('searchText')"
@@ -49,26 +50,26 @@
 
     <table class="roster">
 
-      <caption class="visuallyhidden">{{$tr('users')}}</caption>
+      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
+          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
-            {{user.username}}
+            {{ user.username }}
           </th>
 
           <!-- Logic for role tags -->
@@ -78,14 +79,14 @@
           <!-- Full Name field -->
           <td scope="row" class="table-cell full-name">
             <span class="table-name">
-              {{user.full_name}}
+              {{ user.full_name }}
             </span>
           </td>
 
           <!-- Edit field -->
           <td class="table-cell">
             <div class="remove-user-btn" @click="openRemoveUserModal(user)">
-              {{$tr('remove')}}
+              {{ $tr('remove') }}
             </div>
           </td>
 
@@ -110,7 +111,7 @@
   import { orderBy } from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
     name: 'classEnrollPage',
@@ -131,7 +132,7 @@
     components: {
       classRenameModal,
       userRemoveModal,
-      kButton,
+      kRouterLink,
       kFilterTextbox,
     },
     data: () => ({
@@ -159,7 +160,10 @@
       visibleUsers() {
         const searchFilter = this.searchFilter;
         function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));

@@ -19,11 +19,11 @@
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <progress-icon class="svg-icon" :progress="progress"/>
+        <progress-icon class="svg-icon" :progress="progress" />
         <span v-if="completed">
           <strong> {{ $tr('completed') }} </strong>
-          <br />
-          <elapsed-time :date="completionTimestamp"/>
+          <br>
+          <elapsed-time :date="completionTimestamp" />
         </span>
         <span v-else-if="completed !== null">
           <strong> {{ $tr('inProgress') }} </strong>
@@ -63,7 +63,7 @@
       },
       questions: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       completed: {
         type: Boolean,

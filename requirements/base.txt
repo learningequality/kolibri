@@ -21,6 +21,7 @@ https://github.com/learningequality/morango/archive/ef260d263c92a4d3689e9ae742e2
 requests-toolbelt==0.7.1
 clint==0.5.1
 tzlocal==1.4
+pytz==2017.2
 python-dateutil==2.6.0
 ifcfg==0.11b6
 sqlalchemy==1.1.12

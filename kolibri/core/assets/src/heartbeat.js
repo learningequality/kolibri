@@ -44,9 +44,12 @@ export default class HeartBeat {
   beat() {
     if (this.active) {
       logging.debug('There was activity, polling session endpoint!');
-      this.kolibri.resources.SessionResource.getModel('current').fetch({}, true).catch(error => {
-        logging.error('Periodic server polling failed, with error: ', error);
-      });
+      this.kolibri.resources.SessionResource
+        .getModel('current')
+        .fetch({}, true)
+        .catch(error => {
+          logging.error('Periodic server polling failed, with error: ', error);
+        });
       this.setActivityListeners();
     }
     this.setInactive();

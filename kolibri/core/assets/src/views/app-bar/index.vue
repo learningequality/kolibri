@@ -8,14 +8,14 @@
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
     <div slot="actions">
-      <slot name="app-bar-actions"/>
+      <slot name="app-bar-actions"></slot>
 
       <ui-button
         icon="person"
         type="primary"
         color="primary"
         :ariaLabel="$tr('account')"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="accountButton"
         class="username-text"
       >
@@ -35,8 +35,11 @@
           </template>
         </keen-menu-port>
       </ui-button>
-
-      <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
+      <language-switcher-modal
+        v-if="showLanguageModal"
+        @close="showLanguageModal = false"
+        class="override-ui-toolbar"
+      />
     </div>
   </ui-toolbar>
 
@@ -53,10 +56,17 @@
   import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
-  import languageSwitcher from '../language-switcher';
+  import languageSwitcherModal from '../language-switcher/modal';
   export default {
-    mixins: [responsiveWindow],
     name: 'appBar',
+    components: {
+      uiToolbar,
+      uiIconButton,
+      keenMenuPort,
+      uiButton,
+      languageSwitcherModal,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       account: 'Account',
       profile: 'Profile',
@@ -85,13 +95,6 @@
     data: () => ({
       showLanguageModal: false,
     }),
-    components: {
-      uiToolbar,
-      uiIconButton,
-      keenMenuPort,
-      uiButton,
-      languageSwitcher,
-    },
     computed: {
       accountMenuOptions() {
         const changeLanguage = {
@@ -146,6 +149,16 @@
   };
 
 </script>
+
+
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  .override-ui-toolbar
+    color: $core-text-default
+
+</style>
 
 
 <style lang="stylus" scoped>

@@ -105,12 +105,14 @@ var parseBundlePlugin = function(data, base_dir) {
       : path.resolve(base_dir);
   } else {
     publicPath = path.join('/', data.static_url_root, data.name, '/');
-    outputPath = path.join(data.static_dir, data.name);
+    outputPath = path.resolve(path.join(data.static_dir, data.name));
   }
 
   bundle.plugins = bundle.plugins.concat([
     new ExtractTextPlugin('[name]' + data.version + '.css'),
-    new WebpackRTLPlugin(),
+    new WebpackRTLPlugin({
+      minify: { zindex: false },
+    }),
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
     new BundleTracker({

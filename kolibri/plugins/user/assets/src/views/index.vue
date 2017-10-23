@@ -1,11 +1,16 @@
 <template>
 
   <div>
-    <core-base :navBarNeeded="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
-      <component v-if="navBarNeeded" :is="currentPage"/>
+    <!-- v-if applied to component and not core-base because it sets doc title -->
+    <core-base
+      :navBarNeeded="navBarNeeded"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+    >
+      <component :is="currentPage" v-if="navBarNeeded" />
     </core-base>
     <div v-if="!navBarNeeded" class="full-page">
-      <component :is="currentPage"/>
+      <component :is="currentPage" />
     </div>
   </div>
 

@@ -38,7 +38,7 @@ class Router {
     return this.getInstance();
   }
 
-  getInstance(options) {
+  getInstance() {
     return this._vueRouter;
   }
 

@@ -45,7 +45,7 @@ function showFacilityConfigPage(store) {
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
-    .catch(function onFailure(err) {
+    .catch(function onFailure() {
       store.dispatch('SET_PAGE_STATE', {
         facilityName: '',
         settings: null,
@@ -64,11 +64,11 @@ function saveFacilityConfig(store) {
     ),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
-    .then(function onSuccess(x) {
+    .then(function onSuccess() {
       showNotification(store, notificationTypes.SAVE_SUCCESS);
       store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
     })
-    .catch(function onFailure(err) {
+    .catch(function onFailure() {
       showNotification(store, notificationTypes.SAVE_FAILURE);
       store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
     });
