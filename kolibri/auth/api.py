@@ -228,7 +228,7 @@ class SessionViewSet(viewsets.ViewSet):
 
     def get_session(self, request):
         # Set last activity on session to the current time to prevent session timeout
-        request.session['last_activity'] = int(time.time())
+        request.session['last_session_request'] = int(time.time())
         # Default to active, only assume not active when explicitly set.
         active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
