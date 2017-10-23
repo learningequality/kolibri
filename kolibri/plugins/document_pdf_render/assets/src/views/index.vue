@@ -58,7 +58,8 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
-  import { debounce, throttle } from 'lodash';
+  import debounce from 'lodash/debounce';
+  import throttle from 'lodash/throttle';
   import pageComponent from './pageComponent';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath

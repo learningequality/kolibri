@@ -68,6 +68,8 @@
 
 <script>
 
+  import * as constants from '../../constants';
+  import * as actions from '../../state/actions/exam';
   import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';

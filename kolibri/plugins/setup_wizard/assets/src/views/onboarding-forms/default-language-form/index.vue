@@ -16,6 +16,11 @@
   import { submitDefaultLanguage } from '../../../state/actions/forms';
 
   import onboardingForm from '../onboarding-form';
+
+  import omit from 'lodash/omit';
+
+  const mobileNumberOfLanguageButtons = 5;
+  const desktopNumberOfLanguageButtons = 3;
   import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
 
   export default {
