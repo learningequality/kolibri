@@ -24,7 +24,6 @@
       v-show="showContentCard(content)"
       class="grid-item"
       :isMobile="isMobile"
-      :class="{ 'mobile': isMobile }"
       :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
@@ -191,8 +190,6 @@
   .grid-item
     margin-right: $gutters
     margin-bottom: $gutters
-    &.mobile
-      width: 100%
 
   .filter
     display: inline-block
