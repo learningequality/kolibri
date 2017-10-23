@@ -33,13 +33,12 @@ from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
-from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import DateTimeTzField, create_timezonestamp, parse_timezonestamp
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
-from morango.query import SyncableModelQuerySet
-from morango.utils.morango_mptt import MorangoMPTTModel
+from morango.utils.morango_mptt import MorangoMPTTModel, MorangoMPTTTreeManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds, facility_presets, role_kinds
@@ -49,7 +48,7 @@ from .errors import (
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
+    AllCanReadFacilityDataset, AnonUserCanReadFacilities, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
     CollectionSpecificRoleBasedPermissions, FacilityAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
@@ -68,6 +67,34 @@ class FacilityDataSyncableModel(SyncableModel):
 
     class Meta:
         abstract = True
+
+    def serialize(self):
+        opts = self._meta
+        data = {}
+
+        for f in opts.concrete_fields:
+            if f.attname in self.morango_fields_not_to_serialize:
+                continue
+            if f.attname in self._morango_internal_fields_not_to_serialize:
+                continue
+            # case if model is morango mptt
+            if f.attname in getattr(self, '_internal_mptt_fields_not_to_serialize', '_internal_fields_not_to_serialize'):
+                continue
+            if type(f) == DateTimeTzField:
+                data[f.attname] = create_timezonestamp(f.value_from_object(self))
+            else:
+                data[f.attname] = f.value_from_object(self)
+        return data
+
+    @classmethod
+    def deserialize(cls, dict_model):
+        kwargs = {}
+        for f in cls._meta.concrete_fields:
+            if type(f) == DateTimeTzField:
+                kwargs[f.attname] = parse_timezonestamp(dict_model[f.attname])
+            elif f.attname in dict_model:
+                kwargs[f.attname] = dict_model[f.attname]
+        return cls(**kwargs)
 
 
 @python_2_unicode_compatible
@@ -115,7 +142,7 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     @staticmethod
     def compute_namespaced_id(partition_value, source_id_value, model_name):
-        assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
+        # assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
         assert model_name == FacilityDataset.morango_model_name
         # we use the source_id as the ID for the FacilityDataset
         return source_id_value
@@ -513,6 +540,13 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         except ObjectDoesNotExist:
             return False
 
+    def has_morango_certificate_scope_permission(self, scope_def_id, scope_params):
+        # superusers can do full facility sync, as well as user level sync
+        if self.is_superuser:
+            if self.dataset_id == scope_params['dataset_id']:
+                    return True
+        return False
+
     @property
     def can_manage_content(self):
         return self.get_permission('can_manage_content')
@@ -671,7 +705,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
 
     # Morango syncing settings
-    morango_model_name = "collection"
+    morango_model_name = None
 
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
@@ -679,7 +713,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     permissions = (
         IsFromSameFacility(read_only=True) |
         CollectionSpecificRoleBasedPermissions() |
-        AnonUserCanReadFacilitiesThatAllowSignUps() |
+        AnonUserCanReadFacilities() |
         CoachesCanManageGroupsForTheirClasses()
     )
 
@@ -922,8 +956,7 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
 
 
-# class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):
-class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):  # should this be from_queryset or just MorangoManager
+class CollectionProxyManager(MorangoMPTTTreeManager):
     def get_queryset(self):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
@@ -1000,8 +1033,7 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
-    _morango_proxy_order = 2
-
+    _morango_model_dependencies = (Facility,)
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1056,8 +1088,7 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
-    _morango_proxy_order = 3
-
+    _morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
