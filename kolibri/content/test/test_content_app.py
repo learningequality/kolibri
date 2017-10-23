@@ -151,7 +151,7 @@ class ContentNodeTestCase(TestCase):
         try:
             shutil.rmtree(settings.CONTENT_COPY_DIR)
             shutil.rmtree(self.test_dir)
-        except:
+        except:  # noqa bare-except
             pass
         super(ContentNodeTestCase, self).tearDown()
 
