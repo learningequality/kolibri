@@ -23,6 +23,7 @@
       v-for="content in contents"
       v-show="showContentCard(content)"
       class="grid-item"
+      :isMobile="isMobile"
       :class="{ 'mobile': isMobile }"
       :key="content.id"
       :title="content.title"

@@ -1,6 +1,10 @@
 <template>
 
-  <div class="card-thumbnail" :style="thumbnailBackground">
+  <div
+    class="card-thumbnail-wrapper"
+    :class="{ 'mobile-thumbnail' : isMobile }"
+    :style="thumbnailBackground"
+  >
 
     <content-icon
       v-if="!thumbnail"
@@ -68,6 +72,10 @@
           return value >= 0.0 && value <= 1.0;
         },
       },
+      isMobile: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       isMastered() {
@@ -113,7 +121,7 @@
   @require '~kolibri.styles.definitions'
   @require './card.styl'
 
-  .card-thumbnail
+  .card-thumbnail-wrapper
     width: $thumb-width-desktop
     height: $thumb-height-desktop
     position: relative
@@ -166,5 +174,23 @@
 
   .progress-bar-progress
     background-color: $core-status-progress
+
+
+  /* MOBILE OVERRIDES */
+  .mobile-thumbnail.card-thumbnail-wrapper
+    width: $thumb-width-mobile
+    height: $thumb-height-mobile
+
+  .mobile-thumbnail
+
+    .thumbnail-icon
+      transform: translate(-50%, -50%) scale(2)
+
+    .content-icon-wrapper
+      width: 48px
+      height: 48px
+
+    .content-icon
+      font-size: 18px
 
 </style>

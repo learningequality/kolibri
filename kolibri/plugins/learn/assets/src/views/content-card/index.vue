@@ -1,12 +1,13 @@
 <template>
 
-  <router-link :to="link" class="card">
+  <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
 
     <card-thumbnail
       class="thumbnail"
       :thumbnail="thumbnail"
       :kind="kind"
       :progress="progress"
+      :isMobile="isMobile"
     />
 
     <h3 class="text">{{ title }}</h3>
@@ -89,5 +90,15 @@
     overflow: hidden
     margin: 16px
     height: 54px
+
+  .mobile-card.card
+    width: 100%
+    height: $thumb-height-mobile
+
+  .mobile-card
+    .thumbnail
+      position: absolute
+    .text
+      margin-left: $thumb-width-mobile + 16
 
 </style>
