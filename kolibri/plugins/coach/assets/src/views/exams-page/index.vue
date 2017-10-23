@@ -103,7 +103,7 @@
   import * as ExamActions from '../../state/actions/exam';
   import { Modals as ExamModals } from '../../examConstants';
   import { PageNames } from '../../constants';
-  import { orderBy } from 'lodash/orderBy';
+  import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   import examRow from './exam-row';

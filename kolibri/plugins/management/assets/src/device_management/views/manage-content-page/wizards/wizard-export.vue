@@ -58,7 +58,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import driveList from './drive-list';
-  import { sumBy } from 'lodash/sumBy';
+  import sumBy from 'lodash/sumBy';
 
   export default {
     name: 'wizardExport',

@@ -107,7 +107,7 @@
   import * as constants from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import * as actions from '../../state/actions';
-  import { orderBy } from 'lodash/orderBy';
+  import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kButton from 'kolibri.coreVue.components.kButton';

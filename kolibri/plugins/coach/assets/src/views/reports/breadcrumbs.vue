@@ -7,7 +7,7 @@
 
 <script>
 
-  import { find } from 'lodash/find';
+  import find from 'lodash/find';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import * as CoachConstants from '../../constants';
   import * as coachGetters from '../../state/getters/main';

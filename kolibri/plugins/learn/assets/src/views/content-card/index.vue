@@ -36,7 +36,7 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { values } from 'lodash/values';
+  import values from 'lodash/values';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';

@@ -70,7 +70,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
-  import { find } from 'lodash/find';
+  import find from 'lodash/find';
 
   export default {
     name: 'previewImportWizard',

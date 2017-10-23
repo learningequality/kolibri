@@ -37,7 +37,7 @@
 <script>
 
   import * as constants from '../../constants';
-  import { orderBy } from 'lodash/orderBy';
+  import orderBy from 'lodash/orderBy';
 
   export default {
     data: () => ({
