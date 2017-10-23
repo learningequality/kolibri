@@ -6,6 +6,13 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.4.8 (unreleased)
+------------------
+
+ - Prevent session timeout if user is still active
+
+
+
 0.4.7
 -----
 
