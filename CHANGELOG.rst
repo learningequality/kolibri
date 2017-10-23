@@ -5,6 +5,11 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.5.3
+-----
+
+ - Release timeout bug fix from 0.4.8
+
 
 0.5.2
 -----
