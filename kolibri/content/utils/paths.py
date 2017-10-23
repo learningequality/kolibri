@@ -92,6 +92,11 @@ def get_content_storage_url(baseurl=None):
 def get_content_storage_remote_url(filename, baseurl=None):
     return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
 
+def get_channel_lookup_url(identifier, base_url=None):
+    return urljoin(
+        base_url or settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL,
+        "/api/public/channels/lookup/{}".format(identifier)
+    )
 
 def get_content_storage_file_url(filename, baseurl=None):
     """

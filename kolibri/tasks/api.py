@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
+from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url, get_channel_lookup_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -190,6 +190,18 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
+    @list_route(methods=['get'])
+    def channelinfo(self, request):
+        """
+        Gets metadata about a channel through a token or channel id.
+        """
+        url = get_channel_lookup_url(request.data['channel_id'])
+        resp = requests.get(url)
+        if resp.status_code == 404:
+            raise Http404(
+                _("The requested channel does not exist on the content server")
+            )
+        return Response(resp.json())
 
 def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
     call_command(
