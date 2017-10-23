@@ -28,7 +28,7 @@ from . import server  # noqa
 
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
-    reload(sys)
+    reload(sys)  # noqa undefined
     sys.setdefaultencoding('utf8')
 
 USAGE = """

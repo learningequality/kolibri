@@ -1,5 +1,5 @@
 -r base.txt
-flake8
+flake8==3.5.0
 pre-commit
 tox
 django-debug-toolbar
