@@ -22,4 +22,5 @@ Please feel free to add your name on this list if you do a PR!
 * Rafael Aguayo (ralphiee22)
 * Christian Memije (christianmemije)
 * Radina Matic (radinamatic)
+* Mingqi Zhu (EmanekaT)
 * Alan Chen (alanchenz)
