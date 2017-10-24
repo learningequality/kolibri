@@ -80,8 +80,8 @@ class FacilityDataSyncableModel(SyncableModel):
             # case if model is morango mptt
             if f.attname in getattr(self, '_internal_mptt_fields_not_to_serialize', '_internal_fields_not_to_serialize'):
                 continue
-            if type(f) == DateTimeTzField:
-                data[f.attname] = create_timezonestamp(f.value_from_object(self))
+            if type(f) == DateTimeTzField and f.value_from_object(self):
+                    data[f.attname] = create_timezonestamp(f.value_from_object(self))
             else:
                 data[f.attname] = f.value_from_object(self)
         return data
@@ -90,7 +90,7 @@ class FacilityDataSyncableModel(SyncableModel):
     def deserialize(cls, dict_model):
         kwargs = {}
         for f in cls._meta.concrete_fields:
-            if type(f) == DateTimeTzField:
+            if type(f) == DateTimeTzField and dict_model.get(f.attname, None):
                 kwargs[f.attname] = parse_timezonestamp(dict_model[f.attname])
             elif f.attname in dict_model:
                 kwargs[f.attname] = dict_model[f.attname]
