@@ -5,6 +5,7 @@ import requests
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
 from django.apps.registry import AppRegistryNotReady
+from django.core.cache import cache
 from django.core.management import CommandError, call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -96,7 +97,7 @@ class TasksViewSet(viewsets.ViewSet):
                 "The 'channel_id' field is required.")
 
         # if channel_id is a token, will get actual channel_id to download channel properly
-        channel_id = self.as_view({'get': 'channelinfo'})(request).data['id']
+        channel_id = self.as_view({'post': 'channelinfo'})(request).data['id']
 
         task_id = get_client().schedule(
             _networkimport, channel_id, track_progress=True, cancellable=True)
@@ -183,17 +184,26 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
-    @list_route(methods=['get'])
+    @list_route(methods=['post'])
     def channelinfo(self, request):
         """
         Gets metadata about a channel through a token or channel id.
         """
-        url = get_channel_lookup_url(request.data['channel_id'])
+        cache_key = request.data['channel_id']
+        url = get_channel_lookup_url(cache_key)
+
+        # cache channel lookup values
+        if cache.get(cache_key):
+            return Response(cache.get(cache_key))
+
         resp = requests.get(url)
+
+        # always check response code of request and set cache
         if resp.status_code == 404:
             raise Http404(
                 _("The requested channel does not exist on the content server")
             )
+        cache.set(cache_key, resp.json(), 60 * 10)
         return Response(resp.json())
 
 def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
