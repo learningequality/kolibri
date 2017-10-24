@@ -3,7 +3,6 @@
   "description": "Media Player Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "lockr": "0.8.4",
     "video.js": "6.1.0"
   }
 }
