@@ -3,6 +3,16 @@
   <div>
     <!-- Notifications here -->
     <section class="summary">
+      <div class="updates" v-if="newVersionAvailable">
+        <div class="version-available">
+          {{ $tr('newVersionAvailable', { version: channel.version })}}
+        </div>
+        <k-button
+          :text="$tr('update')"
+          :primary="true"
+        />
+      </div>
+
       <div class="channel-header">
         <div class="thumbnail">
           <img :src="channel.thumbnail"></img>
@@ -33,8 +43,8 @@
 
         <tr class="on-device">
           <td>{{ $tr('onDeviceRow') }}</td>
-          <td></td>
-          <td></td>
+          <td>{{ $tr('resourceCount', { count: channelOnDevice.total_resource_count }) }}</td>
+          <td>{{ bytesForHumans(channelOnDevice.total_file_size) }}</td>
         </tr>
       </table>
     </section>
@@ -45,9 +55,11 @@
 
 <script>
 
+  import kButton from 'kolibri.coreVue.components.kButton';
   import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   export default {
+    name: 'selectContentPage',
     components: {
 
     },
@@ -60,13 +72,17 @@
     vuex: {
       getters: {
         channel: ({ pageState }) => pageState.channel,
+        channelOnDevice: ({ pageState }) => pageState.channelOnDevice,
+        newVersionAvailable: ({ pageState }) => pageState.channel.version > pageState.channelOnDevice.version
       },
     },
     $trs: {
+      newVersionAvailable: 'Version {version, number, integer} available',
       onDeviceRow: 'On your device',
       resourcesCol: 'Resources',
       sizeCol: 'Size',
       totalSizeRow: 'Total size',
+      update: 'Update',
       version: 'Version {version, number, integer}',
       resourceCount: '{count, number, useGrouping}',
     },
