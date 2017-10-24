@@ -4,7 +4,7 @@
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('contentLabel')"
-      icon="view_module"
+      icon="apps"
       :link="linkify(PageNames.MANAGE_CONTENT_PAGE)"
     />
     <k-navbar-link

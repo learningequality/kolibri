@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{$tr('allUsers')}}
+        {{ $tr('allUsers') }}
       </h1>
       <span> ( {{ visibleUsers.length }} )</span>
     </div>
@@ -14,15 +14,15 @@
         <k-button
           @click="openCreateUserModal"
           :text="$tr('addNew')"
-          :primary="true"/>
+          :primary="true" />
       </div>
 
-      <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
+      <label for="type-filter" class="visuallyhidden">{{ $tr('filterUserType') }}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> {{$tr('allUsers')}} </option>
-        <option :value="ADMIN"> {{$tr('admins')}}</option>
-        <option :value="COACH"> {{$tr('coaches')}} </option>
-        <option :value="LEARNER"> {{$tr('learners')}} </option>
+        <option value="all"> {{ $tr('allUsers') }} </option>
+        <option :value="ADMIN"> {{ $tr('admins') }}</option>
+        <option :value="COACH"> {{ $tr('coaches') }} </option>
+        <option :value="LEARNER"> {{ $tr('learners') }} </option>
       </select>
 
       <k-filter-textbox
@@ -37,16 +37,16 @@
 
     <table class="roster">
 
-      <caption class="visuallyhidden">{{$tr('users')}}</caption>
+      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
+          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
@@ -56,7 +56,7 @@
         <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
-            {{user.username}}
+            {{ user.username }}
           </th>
 
           <!-- Logic for role tags -->
@@ -67,7 +67,7 @@
           <!-- Full Name field -->
           <td scope="row" class="table-cell">
             <span class="table-name">
-              {{user.full_name}}
+              {{ user.full_name }}
             </span>
           </td>
 
@@ -76,6 +76,7 @@
             <dropdown-menu
               :name="$tr('manage')"
               :options="manageUserOptions(user.id)"
+              :disabled="!canEditUser(user)"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -90,7 +91,7 @@
 
 
     <!-- Modals -->
-    <user-create-modal v-if="showCreateUserModal"/>
+    <user-create-modal v-if="showCreateUserModal" />
 
     <edit-user-modal
       v-if="showEditUserModal"
@@ -133,7 +134,7 @@
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import { currentUserId } from 'kolibri.coreVue.vuex.getters';
+  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'userPage',
@@ -208,12 +209,19 @@
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
       },
+      canEditUser(user) {
+        if (!this.isSuperuser) {
+          return !user.is_superuser;
+        }
+        return true;
+      },
     },
     vuex: {
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
         currentUserId,
+        isSuperuser,
       },
       actions: {
         displayModal: actions.displayModal,

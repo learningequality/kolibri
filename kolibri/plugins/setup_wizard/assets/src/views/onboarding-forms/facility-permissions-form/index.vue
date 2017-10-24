@@ -62,32 +62,31 @@
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
-      :submit-text="submitText"
+      :submitText="submitText"
       @submit="setPermissions">
 
       <template slot="description">
         {{ $tr('facilityPermissionsSetupFormDescription') }}
-
-        <a class="permission-preset-modal-link" @click="showFacilityPermissionsDetails">
-          {{ $tr('facilityPermissionsPresetDetailsLink') }}
-        </a>
+        <k-button
+          appearance="basic-link"
+          :text="$tr('facilityPermissionsPresetDetailsLink')"
+          @click="showFacilityPermissionsDetails"
+        />
       </template>
 
-      <label
-      class="permission-preset">
-      <k-radio-button
-      class="permission-preset-radio-button"
-      v-model="selectedPreset"
-      radiovalue="informal"
-      :label="$tr('selfManagedSetupTitle')"
-      />
-      <span class="permission-preset-description">
-        {{ $tr('selfManagedSetupDescription') }}
-      </span>
-    </label>
+      <label class="permission-preset">
+        <k-radio-button
+          class="permission-preset-radio-button"
+          v-model="selectedPreset"
+          radiovalue="nonformal"
+          :label="$tr('selfManagedSetupTitle')"
+        />
+        <span class="permission-preset-description">
+          {{ $tr('selfManagedSetupDescription') }}
+        </span>
+      </label>
 
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
@@ -100,18 +99,17 @@
         </span>
       </label>
 
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          radiovalue="nonformal"
+          radiovalue="informal"
           :label="$tr('informalSetupTitle')"
         />
         <span class="permission-preset-description">
           {{ $tr('informalSetupDescription') }}
         </span>
-      </label>
+    </label>
 
     </onboarding-form>
 
@@ -131,6 +129,12 @@
 
   export default {
     name: 'selectPermissionsForm',
+    components: {
+      onboardingForm,
+      kRadioButton,
+      kButton,
+      coreModal,
+    },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
@@ -160,12 +164,6 @@
         type: String,
         required: true,
       },
-    },
-    components: {
-      onboardingForm,
-      kRadioButton,
-      kButton,
-      coreModal,
     },
     data() {
       return {
@@ -220,8 +218,6 @@
       margin-left: $margin-of-radio-button-text
 
     &-modal
-      &-link
-        cursor: pointer
       &-dismiss-button
         text-transform: uppercase
         &-wrapper
@@ -231,12 +227,12 @@
 
 
   .permission-preset-human
-    list-style: none
     margin-bottom: 8px
     &-title
       font-weight: bold
     &-detail
       line-height: 1.4em
-      margin: 0
+      display: list-item
+      margin-left: 20px
 
 </style>

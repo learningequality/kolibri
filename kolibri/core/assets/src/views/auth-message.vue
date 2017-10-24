@@ -14,14 +14,7 @@
 
 <script>
 
-  const userRoles = [
-    'admin',
-    'adminOrCoach',
-    'deviceOwner',
-    'learner',
-    'registeredUser',
-    'superuser',
-  ];
+  const userRoles = ['admin', 'adminOrCoach', 'learner', 'registeredUser', 'superuser'];
 
   export default {
     name: 'authMessage',
@@ -51,7 +44,6 @@
     $trs: {
       admin: 'an Admin',
       adminOrCoach: 'an Admin or Coach',
-      deviceOwner: 'a Device Owner',
       forgetToSignIn: 'Did you forget to sign in?',
       learner: 'a Learner',
       mustBeSignedInAsRole: 'You must be signed in as {role} to view this page',

@@ -69,7 +69,7 @@ function _userState(apiUserData) {
     if (apiUserData.roles) {
       // array of strings, where each string represents a role object
       const roleKinds = apiUserData.roles.map(roleObj => roleObj.kind);
-      if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
+      if (roleKinds.includes(UserKinds.ADMIN)) {
         return UserKinds.ADMIN;
       } else if (roleKinds.includes(UserKinds.COACH)) {
         return UserKinds.COACH;
@@ -84,6 +84,7 @@ function _userState(apiUserData) {
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: calcUserKind(apiUserData.roles),
+    is_superuser: apiUserData.is_superuser,
   };
 }
 
@@ -120,16 +121,18 @@ function createClass(store, name) {
     parent: store.state.core.session.facility_id,
   };
 
-  ClassroomResource.createModel(classData).save().then(
-    classModel => {
-      // dispatch newly created class
-      store.dispatch('ADD_CLASS', _classState(classModel));
-      displayModal(store, false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  ClassroomResource.createModel(classData)
+    .save()
+    .then(
+      classModel => {
+        // dispatch newly created class
+        store.dispatch('ADD_CLASS', _classState(classModel));
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 /**
@@ -141,15 +144,17 @@ function deleteClass(store, id) {
     // if no id passed, abort the function
     return;
   }
-  ClassroomResource.getModel(id).delete().then(
-    classModel => {
-      store.dispatch('DELETE_CLASS', id);
-      displayModal(store, false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  ClassroomResource.getModel(id)
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_CLASS', id);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 /**
@@ -188,15 +193,17 @@ function removeClassUser(store, classId, userId) {
 
   MembershipCollection.fetch().then(membership => {
     const membershipId = membership[0].id; // will always only have one item in the array.
-    MembershipResource.getModel(membershipId).delete().then(
-      response => {
-        store.dispatch('DELETE_CLASS_USER', userId);
-        displayModal(store, false);
-      },
-      error => {
-        handleApiError(store, error);
-      }
-    );
+    MembershipResource.getModel(membershipId)
+      .delete()
+      .then(
+        () => {
+          store.dispatch('DELETE_CLASS_USER', userId);
+          displayModal(store, false);
+        },
+        error => {
+          handleApiError(store, error);
+        }
+      );
   });
 }
 
@@ -323,14 +330,16 @@ function assignUserRole(user, kind) {
   };
 
   return new Promise((resolve, reject) => {
-    RoleResource.createModel(rolePayload).save().then(
-      roleModel => {
-        // add role to user's attribute here to limit API call
-        user.roles.push(roleModel);
-        resolve(user);
-      },
-      error => reject(error)
-    );
+    RoleResource.createModel(rolePayload)
+      .save()
+      .then(
+        roleModel => {
+          // add role to user's attribute here to limit API call
+          user.roles.push(roleModel);
+          resolve(user);
+        },
+        error => reject(error)
+      );
   });
 }
 
@@ -348,21 +357,23 @@ function createUser(store, stateUserData) {
   };
 
   return new Promise((resolve, reject) => {
-    FacilityUserResource.createModel(userData).save().then(
-      userModel => {
-        // only runs if there's a role to be assigned
-        if (stateUserData.kind !== UserKinds.LEARNER) {
-          assignUserRole(userModel, stateUserData.kind).then(
-            userWithRole => resolve(userWithRole),
-            error => reject(error)
-          );
-        } else {
-          // no role to assigned
-          resolve(userModel);
-        }
-      },
-      error => reject(error)
-    );
+    FacilityUserResource.createModel(userData)
+      .save()
+      .then(
+        userModel => {
+          // only runs if there's a role to be assigned
+          if (stateUserData.kind !== UserKinds.LEARNER) {
+            assignUserRole(userModel, stateUserData.kind).then(
+              userWithRole => resolve(userWithRole),
+              error => reject(error)
+            );
+          } else {
+            // no role to assigned
+            resolve(userModel);
+          }
+        },
+        error => reject(error)
+      );
   }).then(
     // dispatch newly created user
     newUser => {
@@ -459,13 +470,12 @@ function updateUser(store, userId, userUpdates) {
           const currentUser = store.state.pageState.facilityUsers.find(
             user => user.id === store.state.core.session.user_id
           );
-          if (
-            currentUser.id === userId &&
-            currentUser.kind !== UserKinds.SUPERUSER &&
-            changedValues.kind &&
-            changedValues.kind === UserKinds.LEARNER
-          ) {
-            window.location.href = window.location.origin;
+          if (currentUser.id === userId && changedValues.kind) {
+            const newCurrentUserKind = store.state.core.session.kind.filter(
+              kind => kind === UserKinds.SUPERUSER
+            );
+            newCurrentUserKind.push(changedValues.kind);
+            store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
           }
         },
         error => {
@@ -490,18 +500,20 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  FacilityUserResource.getModel(id).delete().then(
-    () => {
-      store.dispatch('DELETE_USER', id);
-      displayModal(store, false);
-      if (store.state.core.session.user_id === id) {
-        kolibriLogout();
+  FacilityUserResource.getModel(id)
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_USER', id);
+        displayModal(store, false);
+        if (store.state.core.session.user_id === id) {
+          kolibriLogout();
+        }
+      },
+      error => {
+        handleApiError(store, error);
       }
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+    );
 }
 
 // An action for setting up the initial state of the app by fetching data from the server

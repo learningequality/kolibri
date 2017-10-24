@@ -2,7 +2,7 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="false"
+    :hasError="false"
     @cancel="close"
   >
     <div>
@@ -14,7 +14,7 @@
 
         <k-button
           :text="$tr('cancel')"
-          :raised="false"
+          appearance="flat-button"
           @click="close"
         />
 

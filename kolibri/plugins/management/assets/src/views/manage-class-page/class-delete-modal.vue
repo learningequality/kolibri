@@ -2,20 +2,20 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="false"
+    :hasError="false"
     @cancel="close"
   >
     <div>
       <span v-html="formattedDeleteConfirmation"> </span>
 
-      <p>{{$tr('description')}}</p>
+      <p>{{ $tr('description') }}</p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
 
         <k-button
           :text="$tr('cancel')"
-          :raised="false"
+          appearance="flat-button"
           @click="close"
         />
 

@@ -4,3 +4,4 @@ pre-commit
 tox
 django-debug-toolbar
 django-debug-panel
+sphinx-autobuild

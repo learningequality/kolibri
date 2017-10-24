@@ -1,7 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('moveLearners')"
-    @cancel="close">
+  <core-modal :title="$tr('moveLearners')" @cancel="close">
     <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
     <k-radio-button
       v-for="group in groupsExcludingCurrent"
@@ -21,13 +20,17 @@
     </div>
 
     <div class="button-section">
-      <k-button :text="$tr('cancel')"
-        :raised="false"
-        @click="close" />
-      <k-button :text="$tr('move')"
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('move')"
         :primary="true"
         :disabled="!groupSelected"
-        @click="moveUsers" />
+        @click="moveUsers"
+      />
     </div>
   </core-modal>
 
@@ -126,5 +129,6 @@
 
   .button-section
     margin-top: 1em
+    text-align: right
 
 </style>

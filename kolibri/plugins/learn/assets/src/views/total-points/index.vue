@@ -1,7 +1,7 @@
 <template>
 
-  <div v-if="isUserLoggedIn && !isSuperuser" class="points" ref="points">
-    <points-icon class="icon" :active="true"/>
+  <div v-if="isUserLoggedIn" class="points" ref="points">
+    <points-icon class="icon" :active="true" />
     <div class="description">
       <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
@@ -13,12 +13,7 @@
 
 <script>
 
-  import {
-    totalPoints,
-    currentUserId,
-    isUserLoggedIn,
-    isSuperuser,
-  } from 'kolibri.coreVue.vuex.getters';
+  import { totalPoints, currentUserId, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
@@ -34,14 +29,13 @@
         totalPoints,
         currentUserId,
         isUserLoggedIn,
-        isSuperuser,
       },
       actions: { fetchPoints },
     },
+    watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
     },
-    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>

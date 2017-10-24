@@ -1,5 +1,5 @@
-Content
-=======
+Content database module
+=======================
 
 This is a core module found in ``kolibri/Content``.
 

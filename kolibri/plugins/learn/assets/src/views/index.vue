@@ -2,7 +2,7 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <template slot="app-bar-actions">
-      <action-bar-search-box v-if="!isWithinSearchPage"/>
+      <action-bar-search-box v-if="!isWithinSearchPage" />
     </template>
 
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
@@ -31,12 +31,12 @@
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><total-points/></a>
+      <a class="points-link" href="/user"><total-points /></a>
     </div>
 
     <div>
-      <breadcrumbs/>
-      <component :is="currentPage"/>
+      <breadcrumbs />
+      <component :is="currentPage" />
     </div>
 
   </core-base>
@@ -47,7 +47,7 @@
 <script>
 
   import store from '../state/store';
-  import { PageNames, PageModes, RecommendedPages } from '../constants';
+  import { PageNames, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -74,7 +74,6 @@
       topics: 'Topics',
       exams: 'Exams',
     },
-    mixins: [responsiveWindow],
     components: {
       channelsPage,
       topicsPage,
@@ -92,6 +91,7 @@
       totalPoints,
       actionBarSearchBox,
     },
+    mixins: [responsiveWindow],
     computed: {
       topLevelPageName() {
         return TopLevelPageNames.LEARN;

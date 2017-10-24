@@ -21,7 +21,7 @@
 
       <component
         :is="currentOnboardingForm"
-        :submit-text="submitText"
+        :submitText="submitText"
         :isMobile="isMobile"
         @submit="continueOnboarding"
         :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
@@ -49,12 +49,12 @@
 
   export default {
     name: 'onboarding',
+    components: { progressToolbar, loadingPage, errorPage },
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
     },
-    components: { progressToolbar, loadingPage, errorPage },
     data() {
       return {
         totalOnboardingSteps: 4,

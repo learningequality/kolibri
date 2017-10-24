@@ -23,8 +23,7 @@ import FacilityDatasetResource from './facilityDataset';
 import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
 import DeviceProvisionResource from './deviceProvision';
-import DevicePermissionsResource from './devicePermissions';
-import { NewDevicePermissionsResource } from './devicePermissions';
+import DevicePermissionsResource, { NewDevicePermissionsResource } from './devicePermissions';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();

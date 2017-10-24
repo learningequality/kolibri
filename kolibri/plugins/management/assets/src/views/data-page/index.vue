@@ -2,37 +2,37 @@
 
   <div class="pure-g">
 
-    <h1 class="pure-u-1-1">{{$tr('pageHeading')}}</h1>
+    <h1 class="pure-u-1-1">{{ $tr('pageHeading') }}</h1>
 
     <p class="pure-u-1-1">
-      {{$tr('pageSubHeading')}}
+      {{ $tr('pageSubHeading') }}
     </p>
 
     <div :class="columnSize">
-      <h2>{{$tr('detailsHeading')}}</h2>
+      <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
-        {{$tr('detailsSubHeading')}}
+        {{ $tr('detailsSubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog"/>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
-        <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
+        <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
       </p>
     </div>
 
     <div :class="columnSize">
-      <h2>{{$tr('summaryHeading')}}</h2>
+      <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
-        {{$tr('summarySubHeading')}}
+        {{ $tr('summarySubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog"/>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
-        <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
+        <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
       </p>
     </div>
 
@@ -49,8 +49,9 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    mixins: [responsiveWindow],
     name: 'manageData',
+    components: { kButton },
+    mixins: [responsiveWindow],
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
@@ -67,7 +68,6 @@
       note: 'Note',
       noDownload: 'Download is not supported on Android',
     },
-    components: { kButton },
     computed: {
       cannotDownload() {
         return isAndroidWebView();
