@@ -152,7 +152,6 @@ import subprocess
 
 from .lru_cache import lru_cache
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -218,9 +217,14 @@ def get_git_changeset():
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
         return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
-        return "{}-export".format(
-            datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        )
+        try:
+            # Check to see if we have a version file, if so, get the version from there.
+            # Do this by returning None, and then the get_prerelease_version code will read the VERSION file.
+            get_version_file()
+        except IOError:
+            return "{}-export".format(
+                datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            )
 
 
 def get_git_describe():
@@ -364,6 +368,9 @@ def get_prerelease_version(version):
 
         # Check that the version file is consistent
         if version_file:
+
+            # Because \n may have been appended
+            version_file = version_file.strip()
 
             # If there is a '.dev', we can remove it, otherwise we check it
             # for consistency and fail if inconsistent

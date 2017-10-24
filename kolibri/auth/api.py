@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
@@ -221,6 +223,10 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
+        # Set last activity on session to the current time to prevent session timeout
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -255,6 +261,7 @@ class SessionViewSet(viewsets.ViewSet):
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')
 
-        UserSessionLog.update_log(user)
+        if active:
+            UserSessionLog.update_log(user)
 
         return session
