@@ -121,14 +121,22 @@ class TasksViewSet(viewsets.ViewSet):
         """
         Import a channel from a local drive, and copy content to the local machine.
         """
-        # Importing django/running setup because Windows...
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError(
-                "The 'drive_id' field is required.")
+                "The 'drive_id' field is required."
+            )
+
+        if "channel_id" not in request.data:
+            raise serializers;ValidationError(
+                "The 'channel_id' field is required."
+            )
+
+        channel_id = request.data["channel_id"]
+        node_ids = request.data.get("node_ids")
 
         task_id = get_client().schedule(
-            _localimport, request.data['drive_id'], track_progress=True, cancellable=True)
+            _localimport, request.data['drive_id'], request.data['channel_id'], node_ids=node_ids, track_progress=True, cancellable=True)
 
         id_tasktype[task_id] = LOCAL_IMPORT
 
@@ -211,34 +219,39 @@ def _networkimport(channel_id, node_ids, update_progress=None, check_for_cancel=
         call_command("deletechannel", channel_id, update_progress=update_progress)
         raise
 
-def _localimport(drive_id, update_progress=None, check_for_cancel=None):
+def _localimport(drive_id, channel_id, node_ids=None, update_progress=None, check_for_cancel=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     # copy channel's db file then copy all the content files from storage dir
+
+    available_channel_ids = [c["id"] for c in drive.metadata["channels"]]
+    assert channel_id in available_channel_ids, "The given channel was not found in the drive."
+
     try:
-        for channel in drive.metadata["channels"]:
-            call_command(
-                "importchannel",
-                "local",
-                channel["id"],
-                drive.datafolder,
-                update_progress=update_progress,
-                check_for_cancel=check_for_cancel)
-            call_command(
-                "importcontent",
-                "local",
-                channel["id"],
-                drive.datafolder,
-                update_progress=update_progress,
-                check_for_cancel=check_for_cancel)
+        call_command(
+            "importchannel",
+            "local",
+            channel_id,
+            drive.datafolder,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel
+        )
+        call_command(
+            "importcontent",
+            "local",
+            channel_id,
+            drive.datafolder,
+            node_ids=node_ids,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel
+        )
     except UserCancelledError:
-        for channel in drive.metadata["channels"]:
-            channel_id = channel["id"]
-            try:
-                call_command("deletechannel", channel_id, update_progress=update_progress)
-            except CommandError:
-                pass
+        try:
+            call_command("deletechannel", channel_id, update_progress=update_progress)
+        except CommandError:
+            pass
         raise
+
 
 
 def _localexport(drive_id, update_progress=None, check_for_cancel=None):
