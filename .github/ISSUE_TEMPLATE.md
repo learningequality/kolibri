@@ -1,31 +1,38 @@
-## Summary
 
-*Briefly describe the issue and please DELETE the non applicable headings below. *
+### Observed behavior
 
-## System information
+description of the behavior that was observed, including screenshots or other references when applicable
 
-*Please specify the Kolibri version you were using and your operating system!*
+### Expected behavior
 
- - Version: ?
- - Operating system: ?
- - Browser: ?
+description of what behavior was expected but did not occur
 
-## Traceback or relevant snippet from server.log or browser console
+### User-facing consequences
+
+implications and real-world consequences for learners, coaches, admins, and other users of the application
+
+### Errors and logs
+
+Relevant errors and tracebacks from:
+
+* the command line
+* `~/.kolibri/kolibri.log`
+* the browser console
 
 ```
-INSERT TRACEBACK, LOG MESSAGES ETC. HERE
+server logs
 ```
 
-## How to reproduce
+```
+browser console logs
+```
 
-1. Steps
-1. To
-1. Reproduce
+### Steps to reproduce
 
-## Screenshots
+precise steps that someone else can follow in order to see this behavior
 
-*If applicable*
+### Context
 
-## Real-life consequences (anything community should be aware of, for instance how it affects your deployment)
-
-*If applicable*
+* Kolibri version: ?
+* Operating system: ?
+* Browser: ?

@@ -1,6 +1,6 @@
 import Vuex from 'kolibri.lib.vuex';
 import { currentLanguage } from 'kolibri.utils.i18n';
-import { findKey } from 'lodash';
+import findKey from 'lodash/findKey';
 import { permissionPresets } from './constants';
 import {
   initialState as coreInitialState,
