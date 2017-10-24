@@ -102,7 +102,7 @@ compilemessages:
 syncmessages: ensurecrowdinclient uploadmessages downloadmessages distributefrontendmessages
 
 ensurecrowdinclient:
-	ls -l crowdin-cli.jar || wget https://crowdin.com/downloads/crowdin-cli.jar # make sure we have the official crowdin cli client
+	ls -l crowdin-cli.jar || wget https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar # make sure we have the official crowdin cli client
 
 uploadmessages:
 	java -jar crowdin-cli.jar upload sources -b `git symbolic-ref HEAD | xargs basename`
