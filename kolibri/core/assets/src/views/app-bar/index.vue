@@ -7,6 +7,12 @@
     class="app-bar"
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
+
+    <div>
+      <div class="app-bar-title-icon"></div>
+      {{ title }}
+    </div>
+
     <div slot="actions">
       <slot name="app-bar-actions"/>
 
@@ -150,6 +156,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .app-bar
     overflow: hidden
 
@@ -159,5 +167,14 @@
   .role
     font-size: small
     margin-bottom: 8px
+
+  // Will display icon in app bar if variables are defined
+  .app-bar-title-icon
+    background: $app-bar-title-icon
+    height: $app-bar-title-icon-height
+    width: $app-bar-title-icon-height
+    display: inline-block
+    vertical-align: middle
+    background-size: cover
 
 </style>
