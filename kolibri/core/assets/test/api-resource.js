@@ -118,12 +118,10 @@ describe('Resource', function() {
   });
   describe('removeModel method', function() {
     it('should remove model from model cache', function() {
-      const id = 'test';
-      this.resource.models[id] = 'test';
-      this.resource.removeModel({
-        id,
-      });
-      assert.equal(typeof this.resource.models[id], 'undefined');
+      const model = new Resources.Model({ id: 'test' }, {}, this.resource);
+      this.resource.addModel(model);
+      this.resource.removeModel(model);
+      assert.equal(Object.keys(this.resource.models).length, 0);
     });
   });
   describe('unCacheModel method', function() {
@@ -869,6 +867,20 @@ describe('Model', function() {
         this.resource.client = this.client;
         this.model.save(payload).then(() => {
           assert.ok(this.client.calledOnce);
+          done();
+        });
+      });
+      it('should should call set once with the changed attributes', function(done) {
+        this.model.synced = true;
+        const payload = { somethingNew: 'new' };
+        const entity = {};
+        Object.assign(entity, this.model.attributes, payload);
+        this.response = { entity };
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model.save(payload).then(() => {
+          assert.equal(this.model.attributes.somethingNew, 'new');
           done();
         });
       });

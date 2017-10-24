@@ -273,6 +273,7 @@ function showTopicsChannel(store, id) {
 }
 
 function showTopicsContent(store, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
@@ -443,6 +444,10 @@ function showExam(store, id, questionNumber) {
     ]).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
+        if (exam.closed) {
+          router.getInstance().replace({ name: PageNames.EXAM_LIST });
+          return;
+        }
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
