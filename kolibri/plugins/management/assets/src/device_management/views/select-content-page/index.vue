@@ -48,6 +48,20 @@
         </tr>
       </table>
     </section>
+
+    <section class="selected-resources-size">
+      <selectedResourcesSize
+        mode="import"
+        :fileSize="selectedItems.total_file_size"
+        :resourceCount="selectedItems.total_resource_count"
+        :remainingSpace="remainingSpace"
+      />
+    </section>
+
+
+    <section class="resources-tree-view">
+
+    </section>
   </div>
 
 </template>
@@ -56,12 +70,14 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
+  import selectedResourcesSize from './selected-resources-size';
   import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   export default {
     name: 'selectContentPage',
     components: {
-
+      kButton,
+      selectedResourcesSize,
     },
     computed: {
 
@@ -73,7 +89,11 @@
       getters: {
         channel: ({ pageState }) => pageState.channel,
         channelOnDevice: ({ pageState }) => pageState.channelOnDevice,
-        newVersionAvailable: ({ pageState }) => pageState.channel.version > pageState.channelOnDevice.version
+        databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
+        mode: ({ pageState }) => pageState.mode,
+        newVersionAvailable: ({ pageState }) => pageState.channel.version > pageState.channelOnDevice.version,
+        remainingSpace: ({ pageState }) => pageState.remainingSpace,
+        selectedItems: ({ pageState }) => pageState.selectedItems,
       },
     },
     $trs: {

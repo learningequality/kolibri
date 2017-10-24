@@ -18,6 +18,13 @@ function makeStore() {
           total_file_size: 10000000000,
           version: 19,
         },
+        mode: 'import',
+        selectedItems: {
+          total_resource_count: 5000,
+          total_file_size: 10000000000,
+          nodes: [],
+        },
+        remainingSpace: 1000,
       },
     },
   });
