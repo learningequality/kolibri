@@ -66,6 +66,8 @@ import urls from './urls';
 import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import uiSelect from 'keen-ui/src/UiSelect';
+import uiAlert from 'keen-ui/src/UiAlert';
 
 export default {
   client,
@@ -76,6 +78,8 @@ export default {
     conditionalPromise,
     apiResource,
     seededshuffle,
+    uiSelect,
+    uiAlert
   },
   coreVue: {
     vuex: {

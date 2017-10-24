@@ -105,7 +105,7 @@
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiSelect from 'kolibri.lib.uiSelect';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
   import activateExamModal from './activate-exam-modal';

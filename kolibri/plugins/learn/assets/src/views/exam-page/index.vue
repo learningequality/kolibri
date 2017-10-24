@@ -75,7 +75,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import answerHistory from './answer-history';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.lib.uiAlert';
   export default {
     name: 'examPage',
     $trs: {

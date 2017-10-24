@@ -42,7 +42,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import some from 'lodash/some';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiSelect from 'kolibri.lib.uiSelect';
   import contentCard from '../content-card';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
