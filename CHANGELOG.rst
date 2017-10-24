@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.6.1 (unreleased)
+------------------
+
+ - Added mobile-friendly content cards
+
+
 0.6.0
 -----
 
