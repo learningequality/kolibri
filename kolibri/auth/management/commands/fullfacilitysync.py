@@ -31,6 +31,8 @@ class Command(AsyncCommand):
                     message += "{}. {}\n".format(idx + 1, f['name'])
                 idx = input(message)
                 options['dataset_id'] = facilities[int(idx-1)]['dataset']
+            elif not options['dataset_id']:
+                options['dataset_id'] = facilities[0]['dataset']
             # get servers certificates which server has a private key for
             server_certs = network_connection.get_remote_certificates(options['dataset_id'], scope_def_id='full-facility')
             if not server_certs:
