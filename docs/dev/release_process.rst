@@ -48,6 +48,12 @@ Create a release branch
 If this is a new major or minor release, you need to make a new branch as described above.
 
 
+Pin installer versions
+~~~~~~~~~~~~~~~~~~~~~~
+
+On Kolibri's ``develop`` branch, we sometimes allow the installers to track the latest development versions on github. Before releasing Kolibri, we need to pin the Buildkite configuration to a tagged version of each installer.
+
+
 Update any translation files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
