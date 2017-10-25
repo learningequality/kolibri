@@ -66,7 +66,7 @@ describe('selectedResourcesSize component', () => {
     const wrapper = makeWrapper({
       resourceCount: 10,
       fileSize: 10,
-      remainingSpace: 0,
+      remainingSpace: 9,
     });
     const { button } = getElements(wrapper);
     assert.equal(button().getProp('disabled'), true);
@@ -103,11 +103,11 @@ describe('selectedResourcesSize component', () => {
     const wrapper = makeWrapper();
     const { notification } = getElements(wrapper);
     assert.deepEqual(notification(), []);
-    wrapper.setProps({ remainingSpace: 0 });
+    wrapper.setProps({ fileSize: 100000000000000 });
     return wrapper.vm.$nextTick()
     .then(() => {
       assert(notification()[0].isVueComponent);
-      wrapper.setProps({ remainingSpace: 100 });
+      wrapper.setProps({ fileSize: 100 });
       return wrapper.vm.$nextTick();
     })
     .then(() => {

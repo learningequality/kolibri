@@ -13,3 +13,20 @@ const defaultChannel = {
 export function channelFactory(attrs = {}) {
   return {...defaultChannel, ...attrs};
 }
+
+const defaultNode = {
+  kind: 'TOPIC',
+  path: [],
+  resourcesOnDevice: 0,
+  totalResources: 1,
+  fileSize: 1,
+};
+
+export function makeNode(id, attrs = {}) {
+  return {
+    id,
+    title: `node_${id}`,
+    ...defaultNode,
+    ...attrs
+  };
+}

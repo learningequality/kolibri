@@ -22,10 +22,10 @@
     </div>
 
     <div class="remaining-space">
-      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpace) }) }}
+      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
     </div>
 
-    <ui-alert v-if="remainingSpace<=0" type="error" :dismissable="false">
+    <ui-alert v-if="remainingSpaceAfterTransfer<=0" type="error" :dismissable="false">
       {{ $tr('notEnoughSpace') }}
     </ui-alert>
   </div>
@@ -67,8 +67,11 @@
         return this.isInImportMode ? this.$tr('import') : this.$tr('export');
       },
       buttonIsDisabled() {
-        return this.resourceCount === 0 || this.remainingSpace === 0;
+        return this.resourceCount === 0 || this.remainingSpaceAfterTransfer <= 0;
       },
+      remainingSpaceAfterTransfer() {
+        return Math.max(this.remainingSpace - this.fileSize, 0);
+      }
     },
     methods: {
       bytesForHumans,

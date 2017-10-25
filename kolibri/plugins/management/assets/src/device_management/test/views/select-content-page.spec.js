@@ -54,7 +54,7 @@ function getElements(wrapper) {
     totalSizeRows: () => wrapper.find('tr.total-size td'),
     onDeviceRows: () => wrapper.find('tr.on-device td'),
     updateSection: () => wrapper.find('.updates'),
-    notification: () => wrapper.find(UiAlert),
+    notificationsSection: () => wrapper.find('section.notifications'),
     versionAvailable: () => wrapper.first('.version-available').text().trim(),
     treeView: () => wrapper.find('section.resources-tree-view'),
     resourcesSize: () => wrapper.find(SelectedResourcesSize),
@@ -63,7 +63,7 @@ function getElements(wrapper) {
 
 const fakeImage = 'data:image/png;base64,abcd1234';
 
-describe.only('selectContentPage', () => {
+describe('selectContentPage', () => {
 
   it('shows the thumbnail, title, descripton, and version of the channel', () => {
     const store = makeStore();
@@ -101,9 +101,9 @@ describe.only('selectContentPage', () => {
   it('if a new version is available, a update notification and button appear', () => {
     const store = makeStore();
     const wrapper = makeWrapper({ store });
-    const { updateSection, notification, versionAvailable } = getElements(wrapper);
+    const { updateSection, notificationsSection, versionAvailable } = getElements(wrapper);
     assert(updateSection()[0].is('div'));
-    assert(notification()[0].isVueComponent);
+    assert(!notificationsSection()[0].isEmpty());
     assert.equal(versionAvailable(), 'Version 20 available');
 
   });
@@ -116,8 +116,8 @@ describe.only('selectContentPage', () => {
     const store = makeStore();
     store.state.pageState.channelOnDevice.version = 20;
     const wrapper = makeWrapper({ store });
-    const { updateSection, notification } = getElements(wrapper)
-    assert.equal(notification()[0], undefined);
+    const { updateSection, notificationsSection } = getElements(wrapper)
+    assert(notificationsSection()[0].isEmpty());
     assert.equal(updateSection()[0], undefined);
   });
 
