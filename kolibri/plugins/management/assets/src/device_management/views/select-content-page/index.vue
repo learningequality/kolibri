@@ -60,7 +60,7 @@
       </table>
     </section>
 
-    <section class="selected-resources-size">
+    <section class="selected-resources-size" v-if="onDeviceInfoIsReady">
       <selectedResourcesSize
         mode="import"
         :fileSize="selectedItems.total_file_size"
@@ -69,8 +69,7 @@
       />
     </section>
 
-
-    <section class="resources-tree-view">
+    <section class="resources-tree-view" v-if="onDeviceInfoIsReady">
 
     </section>
   </div>
@@ -105,6 +104,7 @@
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         mode: ({ pageState }) => pageState.mode,
         newVersionAvailable: ({ pageState }) => pageState.channel.version > pageState.channelOnDevice.version,
+        onDeviceInfoIsReady: ({ pageState }) => pageState.onDeviceInfoIsReady,
         remainingSpace: ({ pageState }) => pageState.remainingSpace,
         selectedItems: ({ pageState }) => pageState.selectedItems,
       },

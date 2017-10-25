@@ -6,6 +6,7 @@ import { mount } from 'avoriaz';
 import SelectContentPage from '../../views/select-content-page';
 import { channelFactory } from '../utils/data';
 import UiAlert from 'keen-ui/src/UiAlert';
+import SelectedResourcesSize from '../../views/select-content-page/selected-resources-size';
 
 const defaultChannel = channelFactory();
 
@@ -23,9 +24,13 @@ function makeStore() {
         selectedItems: {
           total_resource_count: 5000,
           total_file_size: 10000000000,
-          nodes: [],
+          nodes: {
+            include: [],
+            omit: [],
+          },
         },
         remainingSpace: 1000,
+        onDeviceInfoIsReady: true,
       },
     },
   });
@@ -51,7 +56,9 @@ function getElements(wrapper) {
     updateSection: () => wrapper.find('.updates'),
     notification: () => wrapper.find(UiAlert),
     versionAvailable: () => wrapper.first('.version-available').text().trim(),
-  }
+    treeView: () => wrapper.find('section.resources-tree-view'),
+    resourcesSize: () => wrapper.find(SelectedResourcesSize),
+  };
 }
 
 const fakeImage = 'data:image/png;base64,abcd1234';
@@ -114,12 +121,34 @@ describe.only('selectContentPage', () => {
     assert.equal(updateSection()[0], undefined);
   });
 
-  it('if the device is undergoing database upload, then the size display and tree view are not shown', () => {
-
+  it('if on-device info is not ready, then the size display and tree view are not shown', () => {
+    const store = makeStore();
+    store.state.pageState.onDeviceInfoIsReady = false;
+    const wrapper = makeWrapper({ store });
+    const { resourcesSize, treeView } = getElements(wrapper);
+    assert.equal(resourcesSize()[0], undefined);
+    assert.equal(treeView()[0], undefined);
   });
 
-  it('the correct props are passed to the size display component', () => {
+  it('if on-device info is ready, then the size display and tree view are shown', () => {
+    const store = makeStore();
+    const wrapper = makeWrapper({ store });
+    const { resourcesSize, treeView } = getElements(wrapper);
+    assert(resourcesSize()[0].isVueComponent);
+    assert(treeView()[0].is('section'));
+  });
 
+  it('the correct props are passed to the selected resources size component', () => {
+    const store = makeStore();
+    const wrapper = makeWrapper({ store });
+    const { resourcesSize } = getElements(wrapper);
+    const props = resourcesSize()[0].vm.$props;
+    assert.deepEqual(props, {
+      mode: 'import',
+      fileSize: 10000000000,
+      resourceCount: 5000,
+      remainingSpace: 1000,
+    });
   });
 
   it('the corrct props are passed to the tree view component', () => {

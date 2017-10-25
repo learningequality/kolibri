@@ -61,6 +61,7 @@
   import { transitionWizardPage } from '../state/actions/contentWizardActions';
 
   export default {
+    name: 'availableChannelsPage',
     components: {
       channelListItem,
       immersiveFullScreen,
