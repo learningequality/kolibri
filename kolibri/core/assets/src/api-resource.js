@@ -341,6 +341,59 @@ export class Collection {
     return promise;
   }
 
+  /**
+   * Method to save data to the server for this particular collection.
+   * Can only currently be used to save new models to the server, not do bulk updates.
+   * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR successfully
+   * returns, otherwise reject is called with the response object.
+   */
+  save() {
+    const promise = new ConditionalPromise((resolve, reject) => {
+      Promise.all(this.promises).then(
+        () => {
+          if (!this.isNew) {
+            // Collection is not new so constituent models must be synced, so already saved.
+            reject('Cannot update collections, only create them');
+          }
+          this.synced = false;
+          const url = this.resource.collectionUrl();
+          const payload = this.data;
+          const clientObj = { path: url, entity: payload };
+          // Do a save on the URL.
+          this.resource.client(clientObj).then(
+            response => {
+              if (Array.isArray(response.entity)) {
+                this.clearCache();
+                this.set(response.entity);
+                // Mark that the fetch has completed.
+                this.synced = true;
+              } else {
+                // It's all gone a bit Pete Tong.
+                logging.debug('Data appears to be malformed', response.entity);
+                reject(response);
+              }
+              // Resolve the promise with the Collection.
+              resolve(this.data);
+              // Clean up the reference to this promise
+              this.promises.splice(this.promises.indexOf(promise), 1);
+            },
+            response => {
+              logging.error('An error occurred', response);
+              reject(response);
+              // Clean up the reference to this promise
+              this.promises.splice(this.promises.indexOf(promise), 1);
+            }
+          );
+        },
+        reason => {
+          reject(reason);
+        }
+      );
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
   get orderedUrlParams() {
     return this.resource.resourceIds.map(key => this.resourceIds[key]);
   }
@@ -410,6 +463,12 @@ export class Collection {
         model.synced = true;
       });
     }
+  }
+
+  get isNew() {
+    // We only say the Collection is new if it, itself, is not synced, and all its
+    // constituent models are also not synced.
+    return this.models.reduce((isNew, model) => isNew && !model.synced, !this._synced);
   }
 }
 
@@ -689,5 +748,23 @@ export class Resource {
    */
   static resourceIdentifiers() {
     return [];
+  }
+
+  // Determines if this resource can save multiple new resources at once
+  static canBulkCreate() {
+    return false;
+  }
+
+  // Determines if this resource can delete multiple resources at once
+  static canBulkDelete() {
+    return false;
+  }
+
+  get bulkCreate() {
+    return this.constructor.canBulkCreate();
+  }
+
+  get bulkDelete() {
+    return this.constructor.canBulkDelete();
   }
 }
