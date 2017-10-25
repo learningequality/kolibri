@@ -392,7 +392,7 @@ function triggerSearch(store, channelId, searchTerm) {
     store.dispatch('SET_PAGE_STATE', searchState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
-  .catch(error => { coreActions.handleApiError(store, error); });
+    .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function clearSearch(store) {
@@ -499,9 +499,9 @@ function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
   Object.keys(attemptLogs).forEach((key) => {
     Object.keys(attemptLogs[key]).forEach(
-    (innerKey) => {
-      questionsAnswered += attemptLogs[key][innerKey].answer ? 1 : 0;
-    });
+      (innerKey) => {
+        questionsAnswered += attemptLogs[key][innerKey].answer ? 1 : 0;
+      });
   });
   return questionsAnswered;
 }
@@ -606,9 +606,9 @@ function showExam(store, channelId, id, questionNumber) {
 
               const questions = shuffledQuestions.map(question => ({
                 itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                seed,
-                contentNodeMap[question.contentId]),
+                  question.assessmentItemIndex,
+                  seed,
+                  contentNodeMap[question.contentId]),
                 contentId: question.contentId
               }));
 
@@ -722,7 +722,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog);
+  const examLog = Object.assign({}, store.state.examLog, {
+    completion_timestamp: now(),
+  });
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id).save(examLog).catch(
     error => { coreActions.handleApiError(store, error); });
