@@ -98,6 +98,22 @@ class TestKolibriVersion(unittest.TestCase):
             version.get_version_file = get_version_file
 
     @mock_get_git_describe
+    def test_version_file_linebreaks(self):
+        """
+        Test that line breaks don't get included in the final version
+
+        See: https://github.com/learningequality/kolibri/issues/2464
+        """
+        # Simple mocking
+        get_version_file = version.get_version_file
+        version.get_version_file = lambda: "0.1a1\n"
+        try:
+            v = get_version((0, 1, 0, "alpha", 1))
+            self.assertIn("0.1a1", v)
+        finally:
+            version.get_version_file = get_version_file
+
+    @mock_get_git_describe
     def test_alpha_1_inconsistent_version_file(self):
         """
         Test that inconsistent file data also just fails
