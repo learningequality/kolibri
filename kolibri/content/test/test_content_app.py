@@ -2,6 +2,7 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
+import tempfile
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from kolibri.content import models as content
@@ -10,6 +11,8 @@ from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
+from mock import patch
+from django.core.management import call_command
 
 class ContentNodeTestBase(object):
     """
@@ -157,18 +160,79 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"))
         self.assertEqual(len(response.data), 6)
 
-    def test_contentnode_import(self):
-        c2_id = content.ContentNode.objects.get(title="c2").id
-        c3_id = content.ContentNode.objects.get(title="c2c1").id
-        c4_id = content.ContentNode.objects.get(title="c2c2").id
-        c5_id = content.ContentNode.objects.get(title="c2c3").id
-        response = self.client.get(self._reverse_channel_url("contentnode_import-detail", {'pk': c2_id}))
+    def test_contentnode_granular_network_import(self):
+        c1_id = content.ContentNode.objects.get(title="root").id
+        c2_id = content.ContentNode.objects.get(title="c1").id
+        c3_id = content.ContentNode.objects.get(title="c2").id
+        content.ContentNode.objects.all().update(available=False)
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import"})
         self.assertEqual(
             response.data, {
-                'pk': c2_id, 'title': 'c2', 'children': [
-                    {'pk': c3_id, 'title': 'c2c1'},
-                    {'pk': c4_id, 'title': 'c2c2'},
-                    {'pk': c5_id, 'title': 'c2c3'}]})
+                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
+                "total_resources": 4, "resources_on_device": 0, "importable": True, "children": [
+                    {
+                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
+                        "total_resources": 1, "resources_on_device": 0, "importable": True
+                    },
+                    {
+                        "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
+                        "total_resources": 3, "resources_on_device": 0, "importable": True}]})
+
+    @patch('kolibri.content.management.commands.importchannel.channel_import.import_channel_from_local_db')
+    @patch('kolibri.content.management.commands.importchannel.AsyncCommand.start_progress')
+    @patch('kolibri.content.management.commands.importchannel.paths.get_content_database_file_path')
+    @patch('kolibri.content.management.commands.importchannel.transfer.FileCopy')
+    def test_contentnode_granular_local_import(self, FileCopyMock, local_path_mock,
+        start_progress_mock, import_channel_mock):
+
+        # Call importchannel command
+        content.LocalFile.objects.update(available=False)
+        content.ContentNode.objects.update(available=False)
+        local_dest_path = tempfile.mkstemp()[1]
+        local_src_path = tempfile.mkstemp()[1]
+        local_path_mock.side_effect = [local_src_path, local_dest_path]
+        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        datafolder = tempfile.mkdtemp()
+        call_command("importchannel", "local", self.the_channel_id, datafolder)
+
+        """
+        Although we called importchannel, the datafolder doesn't have any content files.
+        So only "root" and "c2" contentnodes will be importable as topic node, but not c1.
+        """
+        c1_id = content.ContentNode.objects.get(title="root").id
+        c2_id = content.ContentNode.objects.get(title="c1").id
+        c3_id = content.ContentNode.objects.get(title="c2").id
+        response = self.client.get(
+            reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import", "datafolder": datafolder})
+        self.assertEqual(
+            response.data, {
+                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
+                "total_resources": 4, "resources_on_device": 0, "importable":True,
+                "children": [
+                    {
+                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
+                        "total_resources": 1, "resources_on_device": 0, "importable":False
+                    },
+                    {
+                        "pk": c3_id, "title": "c2", "kind": "topic", "available":False,
+                        "total_resources": 3, "resources_on_device": 0, "importable": True
+                    }]
+            })
+
+    def test_contentnode_granular_export_available(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
+        self.assertEqual(
+            response.data, {
+                "pk": c1_id, "title": "c1", "kind": "video", "available": True,
+                "total_resources": 1, "resources_on_device": 1, "importable": True,
+                "children": []})
+
+    def test_contentnode_granular_export_unavailable(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        content.ContentNode.objects.filter(title="c1").update(available=False)
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
+        self.assertEqual(response.data, {"detail": "Not found."})
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id

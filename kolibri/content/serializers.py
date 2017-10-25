@@ -1,9 +1,11 @@
+import os
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
+from kolibri.content.utils.paths import get_content_storage_file_path
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -253,19 +255,43 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         list_serializer_class = ContentNodeListSerializer
 
 
-class ContentNodeImportSerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
+class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    total_resources = serializers.SerializerMethodField()
+    resources_on_device = serializers.SerializerMethodField()
+    importable = serializers.SerializerMethodField()
 
-    def get_children(self, obj):
-        direct_children = list(obj.get_children().values('pk', 'title'))
+    def get_total_resources(self, obj):
+        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).count()
 
-        return direct_children
+        return total_resources
+
+    def get_resources_on_device(self, obj):
+        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
+
+        return available_resources
+
+    def get_importable(self, obj):
+        if 'request' not in self.context or not self.context['request'].query_params.get('datafolder', None) or obj.kind == content_kinds.TOPIC:
+            return True
+        else:
+            datafolder = self.context['request'].query_params.get('datafolder', None)
+            files = FileSerializer(obj.files.all(), many=True, read_only=True).data
+            if not files:
+                return False
+
+            importable = True
+            for f in files:
+                # If one of the files under the node is unavailable on the external drive, mark the node as unimportable
+                file_path = get_content_storage_file_path(f['download_url'].split('/')[2], datafolder)
+                importable = importable and os.path.exists(file_path)
+            return importable
 
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'children',
+            'pk', 'title', 'available', 'kind', 'total_resources', 'resources_on_device', 'importable',
         )
+
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
 
