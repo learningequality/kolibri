@@ -62,13 +62,14 @@ class AnnotationTreeRecursion(TransactionTestCase):
     def test_all_content_nodes_available(self):
         ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(available=True)
         recurse_availability_up_tree()
-        self.assertTrue(all(
-            ContentNode.objects.filter(kind=content_kinds.TOPIC).values_list('available', flat=True)))
+        self.assertTrue(ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").available)
+        self.assertTrue(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").available)
 
     def test_no_content_nodes_available(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
         recurse_availability_up_tree()
-        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 0)
+        # 2, as there are two childless topics in the fixture, these cannot exist in real databases
+        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 2)
 
     def test_one_content_node_available(self):
         ContentNode.objects.filter(id='32a941fb77c2576e8f6b294cde4c3b0c').update(available=True)
