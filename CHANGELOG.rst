@@ -11,6 +11,12 @@ Changes are ordered reverse-chronologically.
  - (adding changes here)
 
 
+0.6.1 (unreleased)
+------------------
+
+ - Added mobile-friendly content cards
+
+
 0.6.0
 -----
 
