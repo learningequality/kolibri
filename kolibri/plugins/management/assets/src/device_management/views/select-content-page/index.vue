@@ -1,11 +1,22 @@
 <template>
 
   <div>
-    <!-- Notifications here -->
+
+    <section class="notifications">
+      <ui-alert
+        v-if="newVersionAvailable"
+        type="info"
+        :removeIcon="true"
+        :dismissible="false"
+      >
+        {{ $tr('newVersionAvailableNotification') }}
+      </ui-alert>
+    </section>
+
     <section class="summary">
       <div class="updates" v-if="newVersionAvailable">
         <div class="version-available">
-          {{ $tr('newVersionAvailable', { version: channel.version })}}
+          {{ $tr('newVersionAvailable', { version: channel.version }) }}
         </div>
         <k-button
           :text="$tr('update')"
@@ -72,12 +83,14 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import selectedResourcesSize from './selected-resources-size';
   import bytesForHumans from '../manage-content-page/bytesForHumans';
+  import uiAlert from 'keen-ui/src/UiAlert';
 
   export default {
     name: 'selectContentPage',
     components: {
       kButton,
       selectedResourcesSize,
+      uiAlert,
     },
     computed: {
 
@@ -103,6 +116,7 @@
       sizeCol: 'Size',
       totalSizeRow: 'Total size',
       update: 'Update',
+      newVersionAvailableNotification: 'New channel version available. Some of your old files may be outdated or deleted.',
       version: 'Version {version, number, integer}',
       resourceCount: '{count, number, useGrouping}',
     },
