@@ -126,12 +126,23 @@ class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
+class MembershipFilter(filters.FilterSet):
+    user_ids = filters.django_filters.MethodFilter()
+
+    def filter_user_ids(self, queryset, value):
+        return queryset.filter(user_id__in=value.split(','))
+
+    class Meta:
+        model = Membership
+
+
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    filter_fields = ('user_id', 'collection_id')
+    filter_class = MembershipFilter
+    filter_fields = ['user', 'collection', 'user_ids', ]
 
 
 class RoleViewSet(viewsets.ModelViewSet):
