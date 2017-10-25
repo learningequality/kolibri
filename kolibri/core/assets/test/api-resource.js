@@ -744,6 +744,130 @@ describe('Collection', function() {
       });
     });
   });
+  describe('delete method', function() {
+    describe('if called when Collection has no getParams', function() {
+      it('should reject the promise', function(done) {
+        this.collection.getParams = {};
+        const promise = this.collection.delete();
+        promise.catch(error => {
+          assert.equal(
+            error,
+            'Can not delete unfiltered collection (collection without any GET params'
+          );
+          done();
+        });
+      });
+    });
+    describe('if called when Collection has getParams', function() {
+      beforeEach(function() {
+        this.collection.getParams = { test: 'testing' };
+      });
+      describe('and the delete is successful', function() {
+        beforeEach(function() {
+          this.resource.removeModel = sinon.spy();
+          this.resource.removeCollection = sinon.spy();
+          this.setSpy = sinon.stub(this.collection, 'set');
+          this.clearCacheSpy = sinon.stub(this.collection, 'clearCache');
+          this.client = sinon.stub();
+          this.resource.client = this.client;
+          this.client.returns(Promise.resolve());
+        });
+        afterEach(function() {
+          this.collection.set.restore();
+        });
+        it('should call the client once', function(done) {
+          this.collection.delete().then(() => {
+            assert.ok(this.client.calledOnce);
+            done();
+          });
+        });
+        it('should call the client with the DELETE method', function(done) {
+          this.collection.delete().then(() => {
+            assert.equal(this.client.args[0][0].method, 'DELETE');
+            done();
+          });
+        });
+        it('should call removeCollection on the resource', function(done) {
+          this.collection.delete().then(() => {
+            assert.ok(this.resource.removeCollection.calledWithExactly(this.collection));
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function(done) {
+          this.collection.delete().then(() => {
+            assert.deepEqual(this.collection.promises, []);
+            done();
+          });
+        });
+        it('should set every model deleted to true', function(done) {
+          this.collection.delete().then(() => {
+            this.collection.models.forEach(model => {
+              assert.ok(model.deleted);
+            });
+            done();
+          });
+        });
+        it('should call removeModel for every Model in the collection', function(done) {
+          this.collection.delete().then(() => {
+            assert.equal(this.resource.removeCollection.callCount, this.collection.models.length);
+            done();
+          });
+        });
+      });
+      describe('and the delete is not successful', function() {
+        beforeEach(function() {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function() {
+          this.logstub.restore();
+        });
+        it('should call logging.error once', function(done) {
+          this.collection.synced = false;
+          this.collection.delete().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function(done) {
+          this.collection.delete().catch(error => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function(done) {
+          this.collection.delete().catch(() => {
+            assert.deepEqual(this.collection.promises, []);
+            done();
+          });
+        });
+      });
+    });
+    describe('if called once', function() {
+      it('should add a promise to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise = this.collection.delete();
+        assert.deepEqual(this.collection.promises, [promise]);
+      });
+    });
+    describe('if called twice', function() {
+      it('should add two promises to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise1 = this.collection.delete();
+        const promise2 = this.collection.delete();
+        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+      });
+    });
+  });
   describe('set method', function() {
     beforeEach(function() {
       this.model = { id: 'test' };

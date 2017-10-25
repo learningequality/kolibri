@@ -394,6 +394,57 @@ export class Collection {
     return promise;
   }
 
+  /**
+   * Method to delete a collection.
+   * @returns {Promise} - Promise is resolved with list of collection ids
+   * returns, otherwise reject is called with the response object.
+   */
+  delete() {
+    const promise = new ConditionalPromise((resolve, reject) => {
+      Promise.all(this.promises).then(
+        () => {
+          if (!Object.keys(this.getParams).length) {
+            // Cannot do a DELETE unless we are filtering by something, to prevent dangerous bulk deletes
+            reject('Can not delete unfiltered collection (collection without any GET params');
+          } else {
+            // Otherwise, DELETE the Collection
+            const clientObj = {
+              path: this.resource.collectionUrl(),
+              method: 'DELETE',
+              params: this.getParams,
+            };
+            this.resource.client(clientObj).then(
+              () => {
+                // delete this instance
+                this.resource.removeCollection(this);
+                // delete and remove each model
+                this.models.forEach(model => {
+                  model.deleted = true;
+                  this.resource.removeModel(model);
+                });
+                // Vuex will use this id to delete the model in its state.
+                resolve(this.models.map(model => model.id));
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
+        }
+      );
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
   get orderedUrlParams() {
     return this.resource.resourceIds.map(key => this.resourceIds[key]);
   }
@@ -668,6 +719,12 @@ export class Resource {
     const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
     const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
     delete this.models[cacheKey];
+  }
+
+  removeCollection(collection) {
+    const filteredResourceIds = this.filterAndCheckResourceIds(collection.resourceIds);
+    const cacheKey = this.cacheKey(collection.getParams, filteredResourceIds);
+    delete this.collections[cacheKey];
   }
 
   /**
