@@ -485,8 +485,14 @@ export class Collection {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
       const setModel = this.resource.addModel(model, this.resourceIds);
-      if (!this._model_map[setModel.id]) {
-        this._model_map[setModel.id] = setModel;
+      let cacheKey;
+      if (setModel.id) {
+        cacheKey = setModel.id;
+      } else {
+        cacheKey = this.resource.cacheKey(setModel.attributes, setModel.resourceIds);
+      }
+      if (!this._model_map[cacheKey]) {
+        this._model_map[cacheKey] = setModel;
         this.models.push(setModel);
       }
     });
@@ -586,6 +592,19 @@ export class Resource {
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   createCollection(resourceIds = {}, getParams = {}, data = []) {
+    if (!this.hasResourceIds) {
+      if (Object.keys(resourceIds).length && Object.keys(getParams).length && data.length) {
+        throw TypeError(
+          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
+      } else if (Object.keys(resourceIds).length) {
+        if (Object.keys(getParams).length) {
+          data = getParams; // eslint-disable-line no-param-reassign
+        }
+        getParams = resourceIds; // eslint-disable-line no-param-reassign
+      }
+    }
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     const collection = new Collection(filteredResourceIds, getParams, data, this);
     const key = this.cacheKey(getParams, filteredResourceIds);

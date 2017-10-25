@@ -206,6 +206,19 @@ describe('Collection', function() {
       client: () => Promise.resolve({ entity: [] }),
       filterAndCheckResourceIds: params => params,
       resourceIds: [],
+      cacheKey: (...params) => {
+        const allParams = Object.assign({}, ...params);
+        // Sort keys in order, then assign those keys to an empty object in that order.
+        // Then stringify to create a cache key.
+        return JSON.stringify(
+          Object.assign(
+            {},
+            ...Object.keys(allParams)
+              .sort()
+              .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+          )
+        );
+      },
     };
     this.resourceIds = {};
     this.params = {};
@@ -910,6 +923,16 @@ describe('Collection', function() {
         this.collection.set([this.model, this.model]);
         assert.deepEqual(this.collection._model_map, {
           [this.model.id]: this.setModel,
+        });
+      });
+      describe('that have no ids', function() {
+        it(' should not overwrite each other in the model cache', function() {
+          const idLessModel1 = { test: 'testing' };
+          const idLessModel2 = { test: 'testing1' };
+          this.collection._model_map = {};
+          this.collection.models = [];
+          this.collection.set([idLessModel1, idLessModel2]);
+          assert.equal(this.collection.models.length, 2);
         });
       });
     });
