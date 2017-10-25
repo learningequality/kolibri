@@ -5,12 +5,20 @@ import pickle
 from django.apps import apps
 from django.conf import settings
 from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
-from sqlalchemy import ColumnDefault, create_engine
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
+from sqlalchemy import ColumnDefault, create_engine, event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from .check_schema_db import DBSchemaError, db_matches_schema
+
+
+def set_sqlite_connection_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute(CONNECTION_PRAGMAS)
+    cursor.close()
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +43,20 @@ def get_engine(connection_string):
     Get a SQLAlchemy engine that allows us to connect to a database.
     """
     # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-    return create_engine(
+    engine = create_engine(
         connection_string,
         echo=False,
         connect_args={'check_same_thread': False},
-        poolclass=QueuePool,
+        poolclass=NullPool,
         convert_unicode=True,
     )
+    if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
+        event.listen(engine, "connect", set_sqlite_connection_pragma)
+        connection = engine.connect()
+        connection.execute(START_PRAGMAS)
+        connection.close()
+
+    return engine
 
 def make_session(connection_string):
     """
@@ -51,7 +66,7 @@ def make_session(connection_string):
     when we actually commit to the database.
     """
     engine = get_engine(connection_string)
-    Session = sessionmaker(bind=engine, autoflush=False)
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     return Session(), engine
 
 def get_class(DjangoModel, Base):
