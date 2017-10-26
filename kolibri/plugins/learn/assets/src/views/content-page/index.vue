@@ -73,7 +73,7 @@
     <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
     
     <template v-if="showRecommended">
-      <h2>Recommended Content</h2>
+      <h2>{{ $tr('recommended') }}</h2>
     </template>
 
     <content-card-group-carousel
