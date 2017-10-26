@@ -6,11 +6,13 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
-0.4.8 (unreleased)
-------------------
+0.4.8
+-----
 
  - Prevent session timeout if user is still active
-
+ - Fix exam completion timestamp bug
+ - Prevent exercise attempt logging crosstalk bug
+ - Update Hindi translations
 
 
 0.4.7
