@@ -43,7 +43,7 @@ class Command(AsyncCommand):
         )
 
         local_subparser = subparsers.add_parser(
-            name='local',
+            name='disk',
             cmd=self,
             help='Copy the content from the given folder.'
         )
