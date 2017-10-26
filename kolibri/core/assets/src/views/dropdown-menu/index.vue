@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <span v-if="windowSize.breakpoint > 2">
+    <span v-if="windowSize.breakpoint > 2 || !icon">
       <ui-button
         :disabled="disabled"
         :ariaLabel="name"
