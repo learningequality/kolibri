@@ -78,6 +78,7 @@
       kButton,
       kRouterLink,
     },
+    mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
       sortedClasses() {
@@ -108,7 +109,6 @@
         this.displayModal(constants.Modals.CREATE_CLASS);
       },
     },
-    mixins: [responsiveWindow],
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
