@@ -642,8 +642,13 @@ function saveAttemptLog(store) {
 }
 
 function saveAndStoreAttemptLog(store) {
+  const attemptLogId = store.state.core.logging.attempt.id;
+  const attemptLogItem = store.state.core.logging.attempt.item;
+  const storeAttemptLog = () =>
+    !attemptLogId &&
+      attemptLogItem === store.state.core.logging.attempt.item;
   return saveAttemptLog(store).only(
-    samePageCheckGenerator(store),
+    storeAttemptLog,
     newAttemptLog => {
       // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
       store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));

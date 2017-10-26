@@ -6,9 +6,12 @@ const _ = require('lodash');
 const s = require('../../src/state/store');
 const getters = require('../../src/state/getters');
 const constants = require('../../src/constants');
-const coreActions = require('../../src/state/actions');
+const rewire = require('rewire');
+
+const coreActions = rewire('../../src/state/actions');
 const kolibri = require('kolibri');
 const sinon = require('sinon');
+const ConditionalPromise = require('../../src/conditionalPromise');
 
 Vue.use(Vuex);
 
@@ -121,6 +124,35 @@ describe('Vuex store/actions for core module', () => {
           sinon.assert.calledOnce(clearCachesSpy);
         })
         .then(done, done);
+    });
+  });
+});
+
+describe('Vuex core logging actions', () => {
+  describe('attempt log saving', () => {
+    it('saveAndStoreAttemptLog does not overwrite state if item id has changed', (done) => {
+      const store = createStore();
+      kolibri.resources = {};
+      kolibri.resources.AttemptLog = {
+        createModel: obj => ({ attributes: obj }),
+      };
+      coreActions.createAttemptLog(store, 'first');
+      let externalResolve;
+      const firstState = Object.assign({}, store.state.core.logging.attempt);
+      coreActions.__set__('saveAttemptLog', () =>
+        new ConditionalPromise((resolve) => {
+          externalResolve = resolve;
+        })
+      );
+      const promise = coreActions.saveAndStoreAttemptLog(store);
+      coreActions.createAttemptLog(store, 'second');
+      store.state.core.logging.attempt.id = 'assertion';
+      externalResolve(firstState);
+      promise.then(() => {
+        assert.equal(store.state.core.logging.attempt.id, 'assertion');
+        assert.equal(store.state.core.logging.attempt.item, 'second');
+        done();
+      });
     });
   });
 });
