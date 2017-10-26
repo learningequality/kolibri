@@ -3,13 +3,12 @@
   <div>
 
     <div 
-      class="header"
-      :class="{ 'header-mobile':  windowSize.breakpoint <= 0}">
+      class="header">
         <h1>{{ $tr('allClasses') }}</h1>
 
       <k-button
         class="create-btn"
-        :class="{ 'create-btn-mobile':  windowSize.breakpoint <= 0}"
+        :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
         :primary="true"
@@ -163,9 +162,6 @@
     position: relative
     padding-right: 150px
     margin-bottom: 16px
-  
-  .header-mobile
-    position: relative
 
   .create-btn
     position: absolute
