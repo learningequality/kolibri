@@ -21,7 +21,6 @@
 <script>
 
   import uiSelect from 'keen-ui/src/UiSelect';
-  import isArray from 'lodash/isArray';
   import isObject from 'lodash/isObject';
 
   function areValidOptions(array) {
