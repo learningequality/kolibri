@@ -100,10 +100,13 @@
         return this.headerHeight * 4;
       },
       contentStyle() {
+        const padding = (this.mobile ? 16 : 32) + 'px';
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
-          padding: (this.mobile ? 16 : 32) + 'px',
+          paddingTop: padding,
+          paddingLeft: padding,
+          paddingRight: padding,
         };
       },
     },
