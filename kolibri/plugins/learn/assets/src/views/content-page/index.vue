@@ -74,13 +74,11 @@
     
     <template v-if="showRecommended">
       <h2>{{ $tr('recommended') }}</h2>
+      <content-card-group-carousel
+        :genContentLink="genContentLink"
+        :header="recommendedText"
+        :contents="recommended" />
     </template>
-
-    <content-card-group-carousel
-      v-if="showRecommended"
-      :genContentLink="genContentLink"
-      :header="recommendedText"
-      :contents="recommended" />
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
