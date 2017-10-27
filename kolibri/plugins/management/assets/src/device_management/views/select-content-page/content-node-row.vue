@@ -7,16 +7,16 @@
       :checked="checked"
       :indeterminate="indeterminate"
       :disabled="disabled"
-      @change="$emit('changeselection')"
+      @change="$emit('changeselection', node)"
     />
 
     <div class="title">
       <content-icon :kind="node.kind" />
       <k-button
-        v-if="node.kind === 'topic'"
+        v-if="showButton"
         :text="node.title"
         appearance="basic-link"
-        @click="goToTopic(node.id)"
+        @click="$emit('selecttopic', node)"
         name="select-node"
       />
       <span v-else>
@@ -36,12 +36,15 @@
 
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'contentNodeRow',
     components: {
       contentIcon,
       kButton,
+      kCheckbox,
     },
     props: {
       node: {
@@ -65,10 +68,10 @@
         required: true,
       },
     },
-    methods: {
-      goToTopic(topicId) {
-        console.log(topicId);
-      },
+    computed: {
+      showButton() {
+        return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
+      }
     },
     $trs: {
       select: 'Select',

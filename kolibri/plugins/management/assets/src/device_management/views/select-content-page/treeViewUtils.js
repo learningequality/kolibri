@@ -34,8 +34,9 @@ export function annotateNodes(nodes, selectedNodes) {
 function annotateNode(node, selectedNodes) {
   const { resourcesOnDevice, totalResources } = node;
   const isSelected = find(selectedNodes.include, { id: node.id });
+  const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.id));
 
-  if (isSelected) {
+  if (isSelected || ancestorIsSelected) {
     const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.id));
     if (omittedDescendants.length > 0) {
       // Selected but with descendant in omit list

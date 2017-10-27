@@ -552,12 +552,13 @@ function stopTrackingProgress(store) {
 
 function saveMasteryLog(store) {
   const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
-  masteryLogModel
-    .save(_masteryLogModel(store))
-    .only(samePageCheckGenerator(store), newMasteryLog => {
-      // Update store in case an id has been set.
-      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-    });
+  return masteryLogModel.save(_masteryLogModel(store));
+}
+
+function saveAndStoreMasteryLog(store) {
+  return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
+    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+  });
 }
 
 function setMasteryLogComplete(store, completetime) {
@@ -615,12 +616,17 @@ function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item,
   });
-  const promise = attemptLogModel.save(_attemptLogModel(store));
-  promise.then(newAttemptLog => {
+  if (attemptLogModel) {
+    return attemptLogModel.save(_attemptLogModel(store));
+  }
+  return Promise.resolve();
+}
+
+function saveAndStoreAttemptLog(store) {
+  return saveAttemptLog(store).only(samePageCheckGenerator(store), newAttemptLog => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
-  return promise;
 }
 
 function createAttemptLog(store, itemId) {
@@ -722,10 +728,12 @@ export {
   samePageCheckGenerator,
   initMasteryLog,
   saveMasteryLog,
+  saveAndStoreMasteryLog,
   setMasteryLogComplete,
   createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
+  saveAndStoreAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,

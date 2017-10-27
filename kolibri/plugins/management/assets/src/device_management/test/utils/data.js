@@ -15,7 +15,7 @@ export function channelFactory(attrs = {}) {
 }
 
 const defaultNode = {
-  kind: 'TOPIC',
+  kind: 'topic',
   path: [],
   resourcesOnDevice: 0,
   totalResources: 1,

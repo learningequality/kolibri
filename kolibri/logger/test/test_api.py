@@ -8,8 +8,12 @@ import datetime
 import uuid
 
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from kolibri.core.exams.models import Exam
+from kolibri.logger.models import ExamLog
 
 from .factory_logger import (
     FacilityUserFactory, ContentSessionLogFactory,
@@ -348,3 +352,43 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+
+
+class ExamAttemptLogAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        self.exam = Exam.objects.create(title="", channel_id="", question_count=0, collection=self.facility, creator=self.user2, active=True)
+        self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
+
+        self.examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1.pk,
+            "examlog": self.examlog.pk,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+
+    def test_exam_not_active_permissions(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.exam.active = False
+        self.exam.save()
+        response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
+        self.assertEqual(response.status_code, 403)
+
+    def test_examlog_closed_permissions(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.examlog.closed = True
+        self.examlog.save()
+        response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
+        self.assertEqual(response.status_code, 403)
+
+    def tearDown(self):
+        self.client.logout()

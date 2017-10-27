@@ -86,6 +86,42 @@ describe('annotateNodes utility correctly annotates', () => {
   });
 
   // Funky cases
+  it('nodes that are not selected, but have ancestors that are', () => {
+    const descendantNode = makeNode('1_1_1_1', {
+      path: ['1', '1_1', '1_1_1'],
+      totalResources: 10,
+    });
+    const ancestorNode = makeNode('1', { path: ['1'] });
+    const selected = { include: [ancestorNode], omit: [] };
+    const annotated = annotateNodes([descendantNode], selected);
+    assert.deepEqual(annotated[0], {
+      ...descendantNode,
+      message: '10 resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+
+  it('nodes whose ancestor is selected, but who have de-selected descendants', () => {
+    const ancestorNode = makeNode('1', { path: ['1'] });
+    const middleNode = makeNode('1_1_1', {
+      path: ['1', '1_1'],
+      totalResources: 20,
+    });
+    const descendantNode = makeNode('1_1_1_1', {
+      path: ['1', '1_1', '1_1_1'],
+      totalResources: 10,
+    });
+    const selected = { include: [ancestorNode], omit: [descendantNode] };
+    const annotated = annotateNodes([middleNode], selected);
+    assert.deepEqual(annotated[0], {
+      ...middleNode,
+      message: '10 of 20 resources selected',
+      disabled: false,
+      checkboxType: 'indeterminate',
+    });
+  });
+
   it('nodes that are partially on device and selected', () => {
     const node_1 = makeNode('1');
     node_1.totalResources = 1;
