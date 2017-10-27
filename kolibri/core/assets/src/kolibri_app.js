@@ -2,7 +2,7 @@ import KolibriModule from 'kolibri_module';
 import { getCurrentSession } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
-import coreApp from 'kolibri';
+import store from 'kolibri.coreVue.vuex.store';
 
 /*
  * A class for single page apps that control routing and vuex state.
@@ -22,10 +22,10 @@ export default class KolibriApp extends KolibriModule {
     return {};
   }
   get store() {
-    return coreApp.store;
+    return store;
   }
   ready() {
-    coreApp.registerStore({
+    store.registerModule({
       state: this.initialState,
       mutations: this.mutations,
     });
@@ -34,7 +34,7 @@ export default class KolibriApp extends KolibriModule {
         Object.assign(
           {
             el: 'rootvue',
-            store: this.store,
+            store: store,
             router: router.init(this.routes),
           },
           this.RootVue
