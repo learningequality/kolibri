@@ -136,6 +136,8 @@ for instance ``v1.2.3-alpha1``.
 
 Tag the release using github's `Releases feature <https://github.com/learningequality/kolibri/releases>`_.
 
+Once a stable release is tagged, delete pre-releases (not the tags themselves) from github.
+
 Copy the entries from the changelog into Github's "Release notes".
 
 .. warning:: Always add tags in **release branches**. Otherwise, the tag
