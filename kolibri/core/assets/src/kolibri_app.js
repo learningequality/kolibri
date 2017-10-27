@@ -24,12 +24,18 @@ export default class KolibriApp extends KolibriModule {
   get store() {
     return store;
   }
+  get stateSetters() {
+    return [];
+  }
   ready() {
     store.registerModule({
       state: this.initialState,
       mutations: this.mutations,
     });
-    getCurrentSession(this.store).then(() => {
+    Promise.all([
+      getCurrentSession(store),
+      ...this.stateSetters.map(setter => setter(this.store)),
+    ]).then(() => {
       this.rootvue = new Vue(
         Object.assign(
           {
