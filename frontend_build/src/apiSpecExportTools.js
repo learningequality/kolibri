@@ -125,6 +125,7 @@ function coreAliases(localAPISpec) {
    */
   var aliasesObj = {
     kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
+    kolibri_app: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_app'),
     content_renderer_module: path.resolve(
       __dirname,
       '../../kolibri/core/assets/src/content_renderer_module'

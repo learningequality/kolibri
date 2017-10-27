@@ -10,6 +10,7 @@ import Mediator from './mediator';
 import apiSpec from './apiSpec';
 import HeartBeat from '../heartbeat';
 import { setUpIntl } from '../utils/i18n';
+import { initialState as coreState, mutations as coreMutations } from 'kolibri.coreVue.vuex.store';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -75,5 +76,16 @@ export default class CoreApp {
       this[method] = mediator[method].bind(mediator);
     });
     this.heartBeat = new HeartBeat(this);
+  }
+  registerStore({ state = {}, mutations = {} }) {
+    if (this.store) {
+      throw new Error(
+        'The store has already been initialized, dynamic initalization is not currently available'
+      );
+    }
+    this.store = new vuex.Store({
+      state: Object.assign(state, coreState),
+      mutations: Object.assign(mutations, coreMutations),
+    });
   }
 }
