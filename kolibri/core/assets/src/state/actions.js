@@ -644,11 +644,20 @@ function saveAttemptLog(store) {
 function saveAndStoreAttemptLog(store) {
   const attemptLogId = store.state.core.logging.attempt.id;
   const attemptLogItem = store.state.core.logging.attempt.item;
-  const storeAttemptLog = () =>
+  /*
+   * Create a 'same item' check instead of same page check, which only allows the resulting save
+   * payload to be set if two conditions are met: firstly, that at the time the save was
+   * initiated, the attemptlog did not have an id, we need this id for future updating saves,
+   * but no other information saved to the server needs to be persisted back into the vuex store;
+   * secondly, we check that the item id when the save has resolved is the same as when the save
+   * was initiated, ensuring that we are not overwriting the vuex attemptlog representation for a
+   * different question.
+   */
+  const sameItemAndNoLogIdCheck = () =>
     !attemptLogId &&
       attemptLogItem === store.state.core.logging.attempt.item;
   return saveAttemptLog(store).only(
-    storeAttemptLog,
+    sameItemAndNoLogIdCheck,
     newAttemptLog => {
       // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
       store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
