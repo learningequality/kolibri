@@ -48,10 +48,10 @@ describe('HeartBeat', function () {
       assert.ok(spy.calledOnce);
       spy.restore();
     });
-    it('should call the start method', function () {
+    it('should not call the start method', function () {
       const spy = sinon.spy(HeartBeat.prototype, 'start');
       this.test = new HeartBeat({});
-      assert.ok(spy.calledOnce);
+      assert.ok(!spy.calledOnce);
       spy.restore();
     });
   });
