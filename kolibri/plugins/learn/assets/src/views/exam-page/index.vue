@@ -75,7 +75,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import answerHistory from './answer-history';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import uiAlert from 'kolibri.lib.uiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
     name: 'examPage',
     $trs: {

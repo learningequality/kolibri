@@ -68,7 +68,7 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'kolibri.lib.uiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import find from 'lodash/find';
 

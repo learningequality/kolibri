@@ -35,7 +35,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import uiSelect from 'kolibri.lib.uiSelect';
+  import uiSelect from 'kolibri.coreVue.components.uiSelect';
   export default {
     name: 'changeExamVisibilityModal',
     $trs: {

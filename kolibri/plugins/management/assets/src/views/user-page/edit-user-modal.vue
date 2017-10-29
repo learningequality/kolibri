@@ -68,7 +68,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'kolibri.lib.uiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
 
   export default {
     name: 'editUserModal',

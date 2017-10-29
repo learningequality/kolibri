@@ -78,8 +78,6 @@ export default {
     conditionalPromise,
     apiResource,
     seededshuffle,
-    uiSelect,
-    uiAlert
   },
   coreVue: {
     vuex: {
@@ -118,6 +116,8 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      uiSelect,
+      uiAlert,
     },
     router,
     mixins: {

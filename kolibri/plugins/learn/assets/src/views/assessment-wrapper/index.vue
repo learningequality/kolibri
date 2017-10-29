@@ -93,7 +93,7 @@ oriented data synchronization.
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'kolibri.lib.uiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
     name: 'assessmentWrapper',
     components: {
