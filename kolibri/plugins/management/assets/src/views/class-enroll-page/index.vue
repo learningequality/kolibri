@@ -4,22 +4,22 @@
     <div class="top-buttons pure-g">
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
-        <router-link :to="editClassLink" class="link-button">
-          <icon-button
-            :text="$tr('backToClassDetails')"
-            :primary="false">
-            <mat-svg category="navigation" name="arrow_back"/>
-          </icon-button>
-        </router-link>
+        <k-router-link
+          :text="$tr('backToClassDetails')"
+          :to="editClassLink"
+          :primary="false"
+          appearance="flat-button"
+          class="link-button"
+        />
       </div>
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
-        <icon-button
+        <k-button
           :text="$tr('createNewUser')"
           :primary="false"
           @click="openCreateUserModal"
         />
-        <icon-button
+        <k-button
           :text="$tr('enrollSelectedUsers')"
           :primary="true"
           @click="openConfirmEnrollmentModal"
@@ -33,7 +33,7 @@
       v-if="showConfirmEnrollmentModal"
       :className="className"
       :classId="classId"
-      :selectedUsers="selectedUsers"/>
+      :selectedUsers="selectedUsers" />
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
@@ -44,32 +44,19 @@
 
     <div v-else>
 
-      <div class="actions-header pure-g">
+      <div class="actions-header">
 
-        <div :class="[windowSize.breakpoint <= 3 ? 'pure-u-1-1' : 'pure-u-3-4', showSelectedUsers ? 'invisible' : '']">
-          <ui-icon
-            :aria-label="$tr('search')"
-            icon="search"
-          />
-          <textbox
-            :aria-label="$tr('searchForUser')"
-            v-model.trim="filterInput"
-            type="search"
-            :placeholder="$tr('searchForUser')"
-            @input="pageNum = 1"
-            ref="searchbox"
-            class="inline-block"
-            />
-          <ui-icon-button
-            type="secondary"
-            icon="clear"
-            :class="filterInput === '' ? 'invisible' : ''"
-            @click="$refs.searchbox.reset()"
-          />
-        </div>
-        <div :class="[windowSize.breakpoint > 3 ? 'pure-u-1-4' : 'pure-u-1-1', filterInput === '' ? '' : 'invisible']">
+        <k-filter-textbox
+          class="filter"
+          :class="{ 'invisible' : showSelectedUsers }"
+          :placeholder="$tr('searchForUser')"
+          v-model.trim="filterInput"
+          @input="pageNum = 1"
+        />
+        <div class="inline-block">
           <ui-switch
             name="showSelectedUsers"
+            :class="{ 'invisible' : filterInput }"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
             v-model="showSelectedUsers"
             class="switch"
@@ -81,13 +68,14 @@
         <thead>
           <tr>
             <th class="col-checkbox">
-              <ui-checkbox
-                :name="$tr('selectAllOnPage')"
-                :value="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
+              <k-checkbox
+                :label="$tr('selectAllOnPage')"
+                :showLabel="false"
+                :checked="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
                 class="inline-block check"
-                />
+              />
             </th>
             <th class="col-username">{{ $tr('username') }}</th>
             <th class="col-role">{{ $tr('role') }}</th>
@@ -96,15 +84,21 @@
         </thead>
 
         <tbody name="row" is="transition-group">
-          <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
-              @click.prevent="toggleSelection(learner.id)" :key="learner.id">
+          <tr
+            v-for="learner in visibleFilteredUsers"
+            :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            @click="toggleSelection(learner.id)"
+            :key="learner.id"
+          >
             <td class="col-checkbox">
-              <ui-checkbox
-                :name="$tr('selectUser')"
-                :value="isSelected(learner.id)"
+              <k-checkbox
+                :label="$tr('selectUser')"
+                :showLabel="false"
+                :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
                 class="inline-block check"
-                />
+                @click.native.stop
+              />
             </td>
             <th class="col-username">{{ learner.username }}</th>
             <td class="col-role">{{ learner.kind }}</td>
@@ -125,19 +119,19 @@
             :ariaLabel="$tr('previousResults')"
             :disabled="pageNum === 1"
             size="small"
-            @click="goToPage(pageNum - 1)"/>
+            @click="goToPage(pageNum - 1)" />
           <ui-icon-button
             type="primary"
             icon="chevron_right"
             :ariaLabel="$tr('nextResults')"
             :disabled="pageNum === numPages"
             size="small"
-            @click="goToPage(pageNum + 1)"/>
+            @click="goToPage(pageNum + 1)" />
         </nav>
       </div>
     </div>
 
-    <user-create-modal v-if="showCreateUserModal"/>
+    <user-create-modal v-if="showCreateUserModal" />
 
   </div>
 
@@ -151,18 +145,31 @@
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import uiCheckbox from 'keen-ui/src/UiCheckbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import textbox from 'kolibri.coreVue.components.textbox';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiSwitch from 'keen-ui/src/UiSwitch';
   import userRole from '../user-role';
   export default {
+    name: 'managementClassEnroll',
+    components: {
+      kButton,
+      kRouterLink,
+      kCheckbox,
+      uiIconButton,
+      uiIcon,
+      kFilterTextbox,
+      userCreateModal,
+      confirmEnrollmentModal,
+      uiSwitch,
+      userRole,
+    },
     mixins: [responsiveWindow],
-    $trNameSpace: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',
@@ -185,17 +192,6 @@
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
-    components: {
-      iconButton,
-      uiCheckbox,
-      uiIconButton,
-      uiIcon,
-      textbox,
-      userCreateModal,
-      confirmEnrollmentModal,
-      uiSwitch,
-      userRole,
     },
     data: () => ({
       filterInput: '',
@@ -269,6 +265,11 @@
         return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
       },
     },
+    watch: {
+      userJustCreated(user) {
+        this.selectedUsers.push(user.id);
+      },
+    },
     methods: {
       reducePageNum() {
         while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
@@ -318,11 +319,6 @@
       },
       openConfirmEnrollmentModal() {
         this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
-      },
-    },
-    watch: {
-      userJustCreated(user) {
-        this.selectedUsers.push(user.id);
       },
     },
     vuex: {
@@ -422,5 +418,8 @@
   .row-enter, .row-leave-active
     opacity: 0
     transform: scale3d(1, 0.5, 1)
+
+  .filter
+    margin-right: 16px
 
 </style>

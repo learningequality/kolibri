@@ -113,6 +113,7 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
+            this.set(payload);
           } else {
             this.set(attrs);
             payload = this.attributes;
@@ -122,6 +123,9 @@ export class Model {
             resolve(this.attributes);
           } else {
             this.synced = false;
+            // Partial updates are currently broken, so just use dirty checking
+            // to prevent unneccessary saves for now.
+            payload = this.attributes;
             let url;
             let clientObj;
             if (this.id) {
@@ -185,11 +189,14 @@ export class Model {
             // Otherwise, DELETE the Model
             const clientObj = { path: this.url, method: 'DELETE' };
             this.resource.client(clientObj).then(
-              response => {
+              () => {
                 // delete this instance
                 this.resource.removeModel(this);
                 // Set a flag so that any collection containing this can ignore this model
                 this.deleted = true;
+                // Any collection containing this model is now probably out of date,
+                // set synced to false to ensure that they update their data on fetch
+                this.synced = false;
                 // Resolve the promise with the id.
                 // Vuex will use this id to delete the model in its state.
                 resolve(this.id);
@@ -425,7 +432,9 @@ export class Resource {
     return JSON.stringify(
       Object.assign(
         {},
-        ...Object.keys(allParams).sort().map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+        ...Object.keys(allParams)
+          .sort()
+          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
       )
     );
   }
@@ -597,7 +606,9 @@ export class Resource {
   }
 
   removeModel(model) {
-    delete this.models[model.id];
+    const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+    delete this.models[cacheKey];
   }
 
   /**

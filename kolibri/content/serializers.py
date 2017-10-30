@@ -1,24 +1,56 @@
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
-from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
+from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from .content_db_router import default_database_is_attached, get_active_content_database
 
+class ChannelMetadataSerializer(serializers.ModelSerializer):
+    root = serializers.PrimaryKeyRelatedField(read_only=True)
 
-class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        value = super(ChannelMetadataSerializer, self).to_representation(instance)
+
+        # if it has the file_size flag add extra file_size information
+        if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
+            descendants = instance.root.get_descendants()
+            total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
+
+            local_files = LocalFile.objects.filter(files__contentnode__channel_id=instance.id).distinct()
+            total_file_size = local_files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+            value.update({"total_resources": total_resources, "total_file_size": total_file_size})
+        return value
 
     class Meta:
-        model = ChannelMetadataCache
-        fields = ('root_pk', 'id', 'name', 'description', 'author', 'last_updated')
+        model = ChannelMetadata
+        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version', 'thumbnail')
+
+
+class LowerCaseField(serializers.CharField):
+
+    def to_representation(self, obj):
+        return super(LowerCaseField, self).to_representation(obj).lower()
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    id = LowerCaseField(max_length=14)
+    lang_code = LowerCaseField(max_length=3)
+    lang_subcode = LowerCaseField(max_length=10)
+
+    class Meta:
+        model = Language
+        fields = ('id', 'lang_code', 'lang_subcode', 'lang_name', 'lang_direction')
 
 
 class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
     preset = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
+    extension = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
+    lang = LanguageSerializer()
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
@@ -29,9 +61,15 @@ class FileSerializer(serializers.ModelSerializer):
     def get_download_url(self, target_node):
         return target_node.get_download_url()
 
+    def get_extension(self, target_node):
+        return target_node.get_extension()
+
+    def get_file_size(self, target_node):
+        return target_node.get_file_size()
+
     class Meta:
         model = File
-        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang',
+        fields = ('storage_url', 'id', 'priority', 'available', 'file_size', 'extension', 'preset', 'lang',
                   'supplementary', 'thumbnail', 'download_url')
 
 
@@ -50,20 +88,17 @@ def get_summary_logs(content_ids, user):
     if not content_ids:
         return ContentSummaryLog.objects.none()
     # get all summary logs for the current user that correspond to the descendant content nodes
-    if default_database_is_attached():  # if possible, do a direct join between the content and default databases
-        channel_alias = get_active_content_database()
-        return ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=content_ids)
-    else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
-        return ContentSummaryLog.objects.filter(user=user, content_id__in=list(content_ids))
+    return ContentSummaryLog.objects.filter(user=user, content_id__in=content_ids)
 
 
 def get_topic_progress_fraction(topic, user):
     leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
         kind=content_kinds.TOPIC).values_list("content_id", flat=True)
     return round(
-        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0)/(len(leaf_ids) or 1),
+        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0) / (len(leaf_ids) or 1),
         4
     )
+
 
 def get_content_progress_fraction(content, user):
     from kolibri.logger.models import ContentSummaryLog
@@ -74,11 +109,13 @@ def get_content_progress_fraction(content, user):
         return None
     return round(overall_progress, 4)
 
+
 def get_topic_and_content_progress_fraction(node, user):
     if node.kind == content_kinds.TOPIC:
         return get_topic_progress_fraction(node, user)
     else:
         return get_content_progress_fraction(node, user)
+
 
 def get_topic_and_content_progress_fractions(nodes, user):
     leaf_ids = nodes.get_descendants(include_self=True).order_by().exclude(
@@ -93,11 +130,12 @@ def get_topic_and_content_progress_fractions(nodes, user):
             leaf_ids = node.get_descendants(include_self=True).order_by().exclude(
                 kind=content_kinds.TOPIC).values_list("content_id", flat=True)
             overall_progress[node.content_id] = round(
-                sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids)/len(leaf_ids),
+                sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids) / len(leaf_ids),
                 4
-            )
+            ) if leaf_ids else 0.0
 
     return overall_progress
+
 
 def get_content_progress_fractions(nodes, user):
     if isinstance(nodes, RawQuerySet) or isinstance(nodes, list):
@@ -120,11 +158,18 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # so, first get a queryset from the Manager if needed
         data = data.all() if isinstance(data, Manager) else data
 
+        # initialize cache key
         cache_key = None
+
+        # ensure that we are filtering by the parent only
+        # this allows us to only cache results on the learn page
+        from .api import ContentNodeFilter
+        pure_parent_query = "parent" in self.context['request'].GET and \
+            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+
         # Cache parent look ups only
-        if "parent" in self.context['request'].GET:
-            cache_key = 'contentnode_list_{db}_{parent}'.format(
-                db=get_active_content_database(),
+        if pure_parent_query:
+            cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
             if cache.get(cache_key):
@@ -142,6 +187,11 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
         result = []
         topic_only = True
+
+        # Allow results to be limited after all queryset filtering has occurred
+        if self.limit:
+            data = data[:self.limit]
+
         for item in data:
             obj = self.child.to_representation(
                 item,
@@ -155,7 +205,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and cache_key:
+        if topic_only and pure_parent_query:
             cache.set(cache_key, result, 60 * 10)
 
         return result
@@ -165,8 +215,14 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
-    license = serializers.StringRelatedField(many=False)
-    license_description = serializers.SerializerMethodField()
+    lang = LanguageSerializer()
+
+    def __new__(cls, *args, **kwargs):
+        # This is overwritten to provide a ListClassSerializer for many=True
+        limit = kwargs.pop('limit', None)
+        new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
+        new.limit = limit
+        return new
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -194,20 +250,16 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    def get_license_description(self, target_node):
-        if target_node.license_id:
-            return target_node.license.license_description
-        return ''
-
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
-            'license', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata',
+            'license_name', 'license_description', 'files', 'parent', 'author',
+            'assessmentmetadata', 'lang', 'channel_id',
         )
 
         list_serializer_class = ContentNodeListSerializer
+
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
 
@@ -234,6 +286,7 @@ class ContentNodeProgressListSerializer(serializers.ListSerializer):
                 annotate_progress_fraction=False
             ) for item in iterable
         ]
+
 
 class ContentNodeProgressSerializer(serializers.Serializer):
 

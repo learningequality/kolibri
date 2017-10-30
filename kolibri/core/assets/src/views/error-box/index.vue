@@ -2,7 +2,7 @@
 
   <div class="error-box-wrapper" :class="{ hidden: isHidden }">
     <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <mat-svg category="navigation" name="close"/>
+      <mat-svg category="navigation" name="close" />
     </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <p>{{ $tr('explanation') }}</p>
@@ -18,7 +18,7 @@
 <script>
 
   export default {
-    $trNameSpace: 'error',
+    name: 'error',
     $trs: {
       errorHeader: 'Error',
       errorButtonLabel: 'Hide error',

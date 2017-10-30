@@ -1,33 +1,36 @@
 <template>
 
-  <core-modal :title="$tr('moveLearners')"
-    @cancel="close">
+  <core-modal :title="$tr('moveLearners')" @cancel="close">
     <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
-    <label v-for="group in groupsExcludingCurrent">
-    <input
-      type="radio"
-      :value="group.id"
-      v-model="groupSelected">
-      {{ group.name }}
-    </label>
+    <k-radio-button
+      v-for="group in groupsExcludingCurrent"
+      :key="group.id"
+      :radiovalue="group.id"
+      :label="group.name"
+      v-model="groupSelected"
+    />
 
     <div v-if="!isUngrouped">
       <hr>
-      <label>
-      <input type="radio"
-        value="ungrouped"
-        v-model="groupSelected">
-        Ungrouped
-      </label>
+      <k-radio-button
+        radiovalue="ungrouped"
+        :label="$tr('ungrouped')"
+        v-model="groupSelected"
+      />
     </div>
 
     <div class="button-section">
-      <icon-button :text="$tr('cancel')"
-        @click="close" />
-      <icon-button :text="$tr('move')"
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('move')"
         :primary="true"
         :disabled="!groupSelected"
-        @click="moveUsers" />
+        @click="moveUsers"
+      />
     </div>
   </core-modal>
 
@@ -38,9 +41,10 @@
 
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   export default {
-    $trNameSpace: 'moveLearnersModal',
+    name: 'moveLearnersModal',
     $trs: {
       moveLearners: 'Move Learners',
       moveThe: 'Move the',
@@ -52,7 +56,8 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
+      kRadioButton,
     },
     props: {
       groupId: {
@@ -124,5 +129,6 @@
 
   .button-section
     margin-top: 1em
+    text-align: right
 
 </style>

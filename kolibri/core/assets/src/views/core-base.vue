@@ -1,28 +1,38 @@
 <template>
 
-  <div :class="`gutter-${windowSize.gutterWidth}`">
-    <app-bar
-      class="app-bar align-to-parent"
-      :style="appBarStyle"
-      @toggleSideNav="navShown=!navShown"
-      :title="appBarTitle"
-      :navShown="navShown"
-      :height="headerHeight">
-      <div slot="app-bar-actions" class="app-bar-actions">
-        <slot name="app-bar-actions"/>
+  <div>
+    <div v-if="navBarNeeded" :class="`gutter-${windowSize.gutterWidth}`">
+      <app-bar
+        class="app-bar align-to-parent"
+        :title="appBarTitle"
+        :height="headerHeight"
+        :navShown="navShown"
+        @toggleSideNav="navShown=!navShown"
+      >
+        <div slot="app-bar-actions" class="app-bar-actions">
+          <slot name="app-bar-actions"></slot>
+        </div>
+      </app-bar>
+      <side-nav
+        :navShown="navShown"
+        :headerHeight="headerHeight"
+        :width="navWidth"
+        :topLevelPageName="topLevelPageName"
+        @toggleSideNav="navShown=!navShown"
+      />
+      <div :style="contentStyle" class="content-container">
+        <loading-spinner v-if="loading" class="align-to-parent" />
+        <template v-else>
+          <error-box v-if="error" />
+          <slot></slot>
+        </template>
       </div>
-    </app-bar>
-    <nav-bar
-      @toggleSideNav="navShown=!navShown"
-      :topLevelPageName="topLevelPageName"
-      :navShown="navShown"
-      :headerHeight="headerHeight"
-      :width="navWidth"/>
-    <div :style="contentStyle" class="content-container">
-      <loading-spinner v-if="loading" class="align-to-parent"/>
+    </div>
+    <div v-else>
+      <loading-spinner v-if="loading" class="align-to-parent" />
       <template v-else>
-        <error-box v-if="error"/>
-        <slot/>
+        <error-box v-if="error" />
+        <slot></slot>
       </template>
     </div>
   </div>
@@ -35,12 +45,18 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  const PADDING = 16;
   import appBar from './app-bar';
-  import navBar from 'kolibri.coreVue.components.navBar';
+  import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+
   export default {
+    components: {
+      appBar,
+      sideNav,
+      errorBox,
+      loadingSpinner,
+    },
     mixins: [responsiveWindow],
     props: {
       // This prop breaks the separation between core and plugins.
@@ -59,12 +75,11 @@
         type: String,
         required: false,
       },
-    },
-    components: {
-      appBar,
-      navBar,
-      errorBox,
-      loadingSpinner,
+      // Prop that determines whether to show nav components
+      navBarNeeded: {
+        type: Boolean,
+        default: true,
+      },
     },
     vuex: {
       getters: {
@@ -73,26 +88,7 @@
         title: state => state.core.title,
       },
     },
-    watch: {
-      title(newVal, oldVal) {
-        this.updateDocumentTitle(newVal);
-      },
-      'windowSize.breakpoint': function updateNav(newVal, oldVal) {
-        if (oldVal === 4 && newVal === 5) {
-          // Pop out the nav if transitioning from 4 to 5
-          this.navShown = true;
-        } else if (oldVal === 2 && newVal === 1) {
-          // Pop in the nav if transitioning from 2 to 1
-          this.navShown = false;
-        }
-      },
-    },
     data: () => ({ navShown: false }),
-    methods: {
-      updateDocumentTitle(newTitle) {
-        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
-      },
-    },
     computed: {
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -101,22 +97,29 @@
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return this.navShown ? this.headerHeight * 4 : 0;
-      },
-      appBarStyle() {
-        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
+        return this.headerHeight * 4;
       },
       contentStyle() {
-        const style = { top: `${this.headerHeight}px` };
-        style.left = this.mobile ? 0 : `${this.navWidth}px`;
-        return style;
+        const padding = (this.mobile ? 16 : 32) + 'px';
+        return {
+          top: `${this.headerHeight}px`,
+          [this.isRtl ? 'right' : 'left']: 0,
+          paddingTop: padding,
+          paddingLeft: padding,
+          paddingRight: padding,
+        };
       },
     },
-    mounted() {
-      this.updateDocumentTitle(this.title);
-      if (this.mobile) {
-        this.navShown = false;
-      }
+    watch: {
+      title: 'updateDocumentTitle',
+    },
+    created() {
+      this.updateDocumentTitle();
+    },
+    methods: {
+      updateDocumentTitle() {
+        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+      },
     },
   };
 
@@ -141,11 +144,9 @@
 
   .content-container
     position: absolute
-    overflow-y: scroll
     overflow-x: hidden
     right: 0
     bottom: 0
     padding-bottom: 40px
-    padding: 32px
 
 </style>

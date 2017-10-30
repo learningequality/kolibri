@@ -12,45 +12,14 @@
 
     <td class="col-title"><strong>{{ examTitle }}</strong></td>
 
-    <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
-      <ui-button
-        type="secondary"
-        color="default"
-        @click="emitChangeExamVisibility">
-        {{ $tr('change') }}
-      </ui-button>
-    </td>
+    <td class="col-visibility">{{ visibilityString }}</td>
 
     <td class="col-action">
-      <ui-button
-        v-if="examActive"
-        type="secondary"
-        color="red"
-        @click="emitDeactivateExam">
-        {{ $tr('deactivate') }}
-      </ui-button>
-
-      <ui-button
-        v-else
-        type="secondary"
-        color="primary"
-        @click="emitActivateExam">
-        {{ $tr('activate') }}
-      </ui-button>
-
-      <ui-icon-button
-        type="secondary"
-        color="primary"
-        :has-dropdown="true"
-        ref="dropdown"
-        icon="arrow_drop_down">
-        <ui-menu
-          slot="dropdown"
-          :options="actionOptions"
-          @select="handleSelection"
-          @close="$refs.dropdown.closeDropdown();"
-        />
-      </ui-icon-button>
+      <dropdown-menu
+        :name="$tr('options')"
+        :options="actionOptions"
+        @select="handleSelection"
+      />
     </td>
   </tr>
 
@@ -59,29 +28,30 @@
 
 <script>
 
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+
   export default {
-    $trNameSpace: 'examRow',
+    name: 'examRow',
     $trs: {
       change: 'Change',
       activate: 'Activate',
       deactivate: 'Deactivate',
       previewExam: 'Preview exam',
+      changeVisibility: 'Change visibility',
       viewReport: 'View report',
       rename: 'Rename',
       delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',
+      options: 'Options',
     },
     components: {
-      uiButton,
       uiIcon,
-      uiIconButton,
-      uiMenu,
+      dropdownMenu,
+      kButton,
     },
     props: {
       examId: {
@@ -112,7 +82,9 @@
       },
       actionOptions() {
         return [
+          { label: this.examActive ? this.$tr('deactivate') : this.$tr('activate') },
           { label: this.$tr('previewExam') },
+          { label: this.$tr('changeVisibility') },
           { label: this.$tr('viewReport') },
           { label: this.$tr('rename') },
           { label: this.$tr('delete') },
@@ -120,9 +92,6 @@
       },
     },
     methods: {
-      emitChangeExamVisibility() {
-        this.$emit('changeExamVisibility', this.examId);
-      },
       emitActivateExam() {
         this.$emit('activateExam', this.examId);
       },
@@ -131,6 +100,9 @@
       },
       emitPreviewExam() {
         this.$emit('previewExam', this.examId);
+      },
+      emitChangeExamVisibility() {
+        this.$emit('changeExamVisibility', this.examId);
       },
       emitViewReport() {
         this.$emit('viewReport');
@@ -143,8 +115,14 @@
       },
       handleSelection(optionSelected) {
         const action = optionSelected.label;
-        if (action === this.$tr('previewExam')) {
+        if (action === this.$tr('activate')) {
+          this.emitActivateExam();
+        } else if (action === this.$tr('deactivate')) {
+          this.emitDeactivateExam();
+        } else if (action === this.$tr('previewExam')) {
           this.emitPreviewExam();
+        } else if (action === this.$tr('changeVisibility')) {
+          this.emitChangeExamVisibility();
         } else if (action === this.$tr('viewReport')) {
           this.emitViewReport();
         } else if (action === this.$tr('rename')) {
@@ -163,6 +141,9 @@
 
   @require '~kolibri.styles.definitions'
 
+  .col-icon
+    width: 40px
+
   .icon-active
     color: $core-action-normal
 
@@ -170,7 +151,7 @@
     color: $core-text-annotation
 
   .col-visibility, .col-action
-    text-align: right
+    text-align: left
 
   .active-circle
     display: inline-block

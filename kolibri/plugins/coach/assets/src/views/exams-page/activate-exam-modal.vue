@@ -2,20 +2,20 @@
 
   <core-modal :title="$tr('activateExam')" @cancel="close">
     <p>
-      <span v-html="$trHtml('areYouSure', { examTitle })"></span>
+      <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('willBeVisible') }}
     </p>
     <p>
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.groups"><strong>{{ group.collection.name }}</strong></li>
+          <li v-for="(group, index) in examVisibility.groups" :key="index"><strong>{{ group.collection.name }}</strong></li>
         </ul>
       </span>
     </p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)" />
     </div>
   </core-modal>
 
@@ -26,12 +26,12 @@
 
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'activateExamModal',
+    name: 'activateExamModal',
     $trs: {
       activateExam: 'Activate exam',
-      areYouSure: 'Are you sure you want to activate <strong>{ examTitle }</strong>?',
+      areYouSure: "Are you sure you want to activate '{ examTitle }'?",
       willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
       activate: 'Activate',
@@ -39,7 +39,7 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       examId: {
@@ -78,8 +78,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>

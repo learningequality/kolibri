@@ -4,17 +4,22 @@
 
     <h3>Search</h3>
 
-    <search-box/>
+    <search-box />
 
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
       <h1 class="search-results">{{ $tr('showingResultsFor', { searchTerm }) }}</h1>
-      <p class="search-channel">{{ $tr('withinChannel', { channelName }) }}</p>
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-grid v-else :gen-link="genLink" :contents="contents" />
+      <content-card-group-grid
+        v-else
+        :genContentLink="genContentLink"
+        :contents="contents"
+        :showContentKindFilter="true"
+        :showChannelFilter="true"
+      />
 
     </template>
 
@@ -27,39 +32,35 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../../constants';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
   import contentCard from '../content-card';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupGrid from '../content-card-group-grid';
   import searchBox from '../search-box';
   export default {
-    $trNameSpace: 'learnSearch',
+    name: 'learnSearch',
     $trs: {
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',
-      withinChannel: 'Within {channelName}',
       noResultsMsg: 'No results for "{searchTerm}"',
     },
     components: {
       contentCard,
-      contentCardGrid,
+      contentCardGroupGrid,
       searchBox,
     },
     methods: {
-      genLink(id, kind) {
-        if (kind === ContentNodeKinds.TOPIC) {
+      genContentLink(contentId, contentKind) {
+        if (contentKind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.EXPLORE_TOPIC,
+            name: PageNames.TOPICS_TOPIC,
             params: {
-              id,
-              channel_id: this.channelId,
+              id: contentId,
             },
           };
         }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.TOPICS_CONTENT,
           params: {
-            id,
-            channel_id: this.channelId,
+            id: contentId,
           },
         };
       },
@@ -68,8 +69,6 @@
       getters: {
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
-        channelId: state => state.core.channels.currentId,
-        channelName: state => getCurrentChannelObject(state).title,
       },
     },
   };

@@ -7,12 +7,12 @@
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
           :kind="exercise.kind"
-          :summaryLog="summaryLog"/>
+          :summaryLog="summaryLog" />
       </div>
       <div class="details-container">
         <div class="attempt-log-container">
           <attempt-log-list
-            :attempt-logs="attemptLogs"
+            :attemptLogs="attemptLogs"
             :selectedQuestionNumber="attemptLogIndex"
             @select="navigateToNewAttempt($event)"
           />
@@ -38,7 +38,8 @@
             :channelId="channelId"
             :available="exercise.available"
             :answerState="currentInteraction.answer"
-            :extraFields="exercise.extra_fields"/>
+            :interactive="false"
+            :extraFields="exercise.extra_fields" />
         </div>
       </div>
     </template>
@@ -56,7 +57,7 @@
   import attemptLogList from '../../attempt-log-list';
   import interactionList from '../../interaction-list';
   export default {
-    $trNameSpace: 'coachExerciseRenderPage',
+    name: 'coachExerciseRenderPage',
     $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
       immersiveFullScreen,

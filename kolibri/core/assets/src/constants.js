@@ -63,14 +63,14 @@ const InteractionTypes = {
 };
 
 const MasteryModelGenerators = {
-  do_all: (assessmentIds, masteryModel) => ({
+  do_all: assessmentIds => ({
     m: assessmentIds.length,
     n: assessmentIds.length,
   }),
-  num_correct_in_a_row_10: (assessmentIds, masteryModel) => ({ m: 10, n: 10 }),
-  num_correct_in_a_row_3: (assessmentIds, masteryModel) => ({ m: 3, n: 3 }),
-  num_correct_in_a_row_5: (assessmentIds, masteryModel) => ({ m: 5, n: 5 }),
-  num_correct_in_a_row_2: (assessmentIds, masteryModel) => ({ m: 2, n: 2 }),
+  num_correct_in_a_row_10: () => ({ m: 10, n: 10 }),
+  num_correct_in_a_row_3: () => ({ m: 3, n: 3 }),
+  num_correct_in_a_row_5: () => ({ m: 5, n: 5 }),
+  num_correct_in_a_row_2: () => ({ m: 2, n: 2 }),
   m_of_n: (assessmentIds, masteryModel) => masteryModel,
 };
 
@@ -89,6 +89,7 @@ const TopLevelPageNames = {
   USER: 'USER',
   ABOUT: 'ABOUT',
   PROFILE: 'PROFILE',
+  DEVICE: 'DEVICE',
 };
 
 // How many points is a completed content item worth?
@@ -97,6 +98,11 @@ const MaxPointsPerContent = 500;
 const LoginErrors = {
   PASSWORD_MISSING: 'PASSWORD_MISSING',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+};
+
+const PermissionTypes = {
+  SUPERUSER: 'SUPERUSER',
+  LIMITED_PERMISSIONS: 'LIMITED_PERMISSIONS',
 };
 
 export {
@@ -111,4 +117,5 @@ export {
   CollectionKinds,
   MaxPointsPerContent,
   LoginErrors,
+  PermissionTypes,
 };

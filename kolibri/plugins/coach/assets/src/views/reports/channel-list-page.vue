@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" ref="recentHeader">
+    <div v-if="showRecentOnly" class="header">
       <h1>{{ $tr('recentTitle') }}</h1>
       <report-subheading />
     </div>
@@ -11,21 +11,29 @@
         <tr>
           <header-cell
             :text="$tr('channels')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
-            <name-cell :kind="CHANNEL" :title="channel.title" :link="reportLink(channel.id)"/>
-            <activity-cell :date="channel.lastActive"/>
+            <name-cell
+              :kind="CHANNEL"
+              :title="channel.title"
+              :link="reportLink(channel.id)"
+              :key="channel.id"
+            />
+            <activity-cell
+              :date="channel.lastActive"
+              :key="channel.id"
+            />
           </tr>
         </template>
       </tbody>
@@ -38,6 +46,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
@@ -46,21 +55,22 @@
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
+  import alignMixin from './align-mixin';
   export default {
-    name: 'channelList',
-    $trNameSpace: 'coachRecentPageChannelList',
-    $trs: {
-      recentTitle: 'Recent Activity',
-      channels: 'Channels',
-      channelList: 'Channel list',
-      lastActivity: 'Last active',
-    },
+    name: 'coachRecentPageChannelList',
     components: {
       reportTable,
       reportSubheading,
       headerCell,
       nameCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      recentTitle: 'Recent Activity',
+      channels: 'Channels',
+      channelList: 'Channel list',
+      lastActivity: 'Last active',
     },
     computed: {
       CHANNEL() {
@@ -88,7 +98,7 @@
     },
     vuex: {
       getters: {
-        channels: state => state.core.channels.list,
+        channels: getChannels,
         standardDataTable: reportGetters.standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,

@@ -1,13 +1,12 @@
 import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
-import * as constants from '../constants';
 
 /**
  ** pageState schemas
  **/
 
 const initialState = {
-  pageName: constants.PageNames.SCRATCHPAD,
+  pageName: undefined,
   pageState: {},
   facility: undefined,
 };
@@ -26,7 +25,7 @@ const mutations = {
   SET_PROFILE_SUCCESS(state, isSuccessful) {
     state.pageState.success = isSuccessful;
   },
-  SET_PROFILE_EROR(state, isError, errorMessage) {
+  SET_PROFILE_ERROR(state, isError, errorMessage) {
     state.pageState.error = isError;
     state.pageState.errorMessage = errorMessage;
   },

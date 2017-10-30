@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
     <report-subheading />
 
@@ -11,18 +11,18 @@
         <tr>
           <header-cell
             :text="$tr('name')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('progress')"
             :sortable="true"
-            :column="tableColumns.CONTENT"/>
+            :column="tableColumns.CONTENT" />
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -33,7 +33,7 @@
             :link="genLink(row)"
           />
           <td>
-            <progress-bar :show-percentage="false" :progress="row.contentProgress"/>
+            <progress-bar :showPercentage="false" :progress="row.contentProgress" />
             {{ progressString(row) }}
           </td>
           <activity-cell :date="row.lastActive" />
@@ -62,9 +62,20 @@
   import activityCell from './table-cells/activity-cell';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import alignMixin from './align-mixin';
   export default {
     name: 'coachRecentReports',
-    $trNameSpace: 'coachRecentReports',
+    components: {
+      breadcrumbs,
+      reportTable,
+      reportSubheading,
+      headerCell,
+      nameCell,
+      activityCell,
+      contentIcon,
+      progressBar,
+    },
+    mixins: [alignMixin],
     $trs: {
       title: 'Recent Activity',
       name: 'Name',
@@ -75,16 +86,6 @@
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
-    },
-    components: {
-      breadcrumbs,
-      reportTable,
-      reportSubheading,
-      headerCell,
-      nameCell,
-      activityCell,
-      contentIcon,
-      progressBar,
     },
     computed: {
       tableColumns() {

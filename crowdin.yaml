@@ -1,5 +1,5 @@
-project_identifier: kolibri
-api_key: <insert API key here>
+project_identifier_env: CROWDIN_PROJECT
+api_key_env: CROWDIN_API_KEY
 base_path: .
 
 files:

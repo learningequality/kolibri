@@ -4,18 +4,17 @@
     <div>
       <p>{{ $tr('areYouSure') }} <strong>{{ className }}</strong>?</p>
       <ul class="review-enroll-ul">
-        <li class="review-enroll-li" v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
+        <li class="review-enroll-li" v-for="userId in selectedUsers" :key="userId"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
-      <div>
-        <icon-button
+      <div class="modal-buttons">
+        <k-button
           :text="$tr('noGoBack')"
-          class="undo-btn"
-          @click="close"/>
-        <icon-button
+          appearance="flat-button"
+          @click="close" />
+        <k-button
           :text="$tr('yesEnrollUsers')"
-          class="confirm-btn"
           :primary="true"
-          @click="enrollUsers"/>
+          @click="enrollUsers" />
       </div>
     </div>
   </core-modal>
@@ -28,18 +27,18 @@
   import * as actions from '../../state/actions';
   import * as constants from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'confirmEnrollmentModal',
+    name: 'confirmEnrollmentModal',
     $trs: {
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',
       noGoBack: 'No, go back',
-      yesEnrollUsers: 'Yes, enroll users',
+      yesEnrollUsers: 'Yes, enroll learners',
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       className: {
@@ -68,13 +67,10 @@
         return this.facilityUsers.find(user => user.id === userId).username;
       },
       enrollUsers() {
-        this.enrollUsersInClass(this.classId, this.selectedUsers).then(
-          () => {
-            this.close();
-            this.$router.push(this.editClassLink);
-          },
-          error => {}
-        );
+        this.enrollUsersInClass(this.classId, this.selectedUsers).then(() => {
+          this.close();
+          this.$router.push(this.editClassLink);
+        });
       },
       close() {
         this.displayModal(false);
@@ -104,10 +100,7 @@
   .header
     text-align: center
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  .modal-buttons
+    text-align: right
 
 </style>

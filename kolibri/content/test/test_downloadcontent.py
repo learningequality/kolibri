@@ -4,9 +4,9 @@ import hashlib
 import mimetypes
 from django.test import TestCase, Client
 from django.test.utils import override_settings
-from kolibri.auth.models import DeviceOwner
-from kolibri.content.models import File, ContentNode
+from kolibri.content.models import File, ContentNode, LocalFile
 from kolibri.content.utils.paths import get_content_storage_file_path
+from kolibri.auth.test.helpers import provision_device
 from le_utils.constants import file_formats, format_presets
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
@@ -21,8 +21,7 @@ class DownloadContentTestCase(TestCase):
     """
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        provision_device()
 
         self.client = Client()
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
@@ -32,7 +31,8 @@ class DownloadContentTestCase(TestCase):
         self.contentnode = ContentNode(title=self.title)
         self.available = True
         self.preset = format_presets.DOCUMENT
-        self.file = File(checksum=self.hash, extension=self.extension, available=self.available,
+        self.local_file = LocalFile(id=self.hash, extension=self.extension, available=self.available)
+        self.file = File(local_file=self.local_file, available=self.available,
                          contentnode=self.contentnode, preset=self.preset)
 
         self.path = get_content_storage_file_path(self.filename)

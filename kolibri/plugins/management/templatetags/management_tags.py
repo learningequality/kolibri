@@ -31,3 +31,8 @@ def management_assets():
     :return: HTML of script tags to insert into management/management.html
     """
     return webpack_asset_render(hooks.ManagementSyncHook, async=False)
+
+
+@register.simple_tag()
+def device_management_assets():
+    return webpack_asset_render(hooks.DeviceManagementSyncHook, async=False)

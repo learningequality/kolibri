@@ -13,6 +13,8 @@ var base_config = require('./webpack.config.base');
 var _ = require('lodash');
 var extract$trs = require('./extract_$trs');
 var merge = require('webpack-merge');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var WebpackRTLPlugin = require('webpack-rtl-plugin');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -103,10 +105,14 @@ var parseBundlePlugin = function(data, base_dir) {
       : path.resolve(base_dir);
   } else {
     publicPath = path.join('/', data.static_url_root, data.name, '/');
-    outputPath = path.join(data.static_dir, data.name);
+    outputPath = path.resolve(path.join(data.static_dir, data.name));
   }
 
   bundle.plugins = bundle.plugins.concat([
+    new ExtractTextPlugin('[name]' + data.version + '.css'),
+    new WebpackRTLPlugin({
+      minify: { zindex: false },
+    }),
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
     new BundleTracker({
@@ -136,6 +142,9 @@ var parseBundlePlugin = function(data, base_dir) {
   bundle.output = {
     path: outputPath,
     filename: '[name]-' + data.version + '.js',
+    // Need to define this in order for chunks to be named
+    // Without this chunks from different bundles will likely have colliding names
+    chunkFilename: '[name]-' + data.version + '.js',
     publicPath: publicPath,
     library: library,
   };

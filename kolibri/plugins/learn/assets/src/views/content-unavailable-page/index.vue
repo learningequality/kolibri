@@ -2,8 +2,9 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isAdmin || isSuperuser" v-html="$trHtml('adminLink')"></p>
-    <p v-else>{{ $tr('notAdmin') }}</p>
+    <p>
+      <k-external-link :text="$tr('adminLink')" href="/management/device#/content" />
+    </p>
   </div>
 
 </template>
@@ -11,22 +12,16 @@
 
 <script>
 
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
 
   export default {
-    $trNameSpace: 'learnContentUnavailable',
+    name: 'learnContentUnavailable',
+    components: {
+      kExternalLink,
+    },
     $trs: {
       header: 'No content channels available',
-      adminLink:
-        'Download content channels from the <a href="/management/#/content">Content Management</a> page',
-      notAdmin:
-        'You need to sign in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
-    },
-    vuex: {
-      getters: {
-        isAdmin: getters.isAdmin,
-        isSuperuser: getters.isSuperuser,
-      },
+      adminLink: 'You can import content from the Content page if you have the proper permissions',
     },
   };
 

@@ -12,37 +12,23 @@
  *  and used as a template, with additional plugin-specific
  *  modifications made on top.
  */
-var path = require('path');
-
-/*
- * This is a filthy hack. Do as I say, not as I do.
- * Taken from: https://gist.github.com/branneman/8048520#6-the-hack
- * This forces the NODE_PATH environment variable to include the main
- * kolibri node_modules folder, so that even plugins being built outside
- * of the kolibri folder will have access to all installed loaders, etc.
- * Doing it here, rather than at command invocation, allows us to do this
- * in a cross platform way, and also to avoid having to prepend it to all
- * our commands that end up invoking webpack.
- */
-
-process.env.NODE_PATH = path.resolve(path.join(__dirname, '..', '..', 'node_modules'));
-require('module').Module._initPaths();
 
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
 
-// helps convert to older string syntax for vue-loader
-var combineLoaders = require('webpack-combine-loaders');
-
 var postCSSLoader = {
   loader: 'postcss-loader',
-  options: { config: path.resolve(__dirname, '../../postcss.config.js') },
+  options: {
+    config: { path: path.resolve(__dirname, '../../postcss.config.js') },
+    sourceMap: !production,
+  },
 };
 
 var cssLoader = {
@@ -51,16 +37,15 @@ var cssLoader = {
 };
 
 // for stylus blocks in vue files.
-// note: vue-style-loader includes postcss processing
-var vueStylusLoaders = ['vue-style-loader', cssLoader, 'stylus-loader'];
+var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader'];
 if (lint) {
   vueStylusLoaders.push('stylint-loader');
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
-  'vue-style-loader', // includes postcss processing
   cssLoader,
+  postCSSLoader,
   {
     loader: 'sass-loader',
     // prepends these variable override values to every parsed vue SASS block
@@ -79,8 +64,14 @@ var config = {
           preserveWhitespace: false,
           loaders: {
             js: 'buble-loader',
-            stylus: combineLoaders(vueStylusLoaders),
-            scss: combineLoaders(vueSassLoaders),
+            stylus: ExtractTextPlugin.extract({
+              allChunks: true,
+              use: vueStylusLoaders,
+            }),
+            scss: ExtractTextPlugin.extract({
+              allChunks: true,
+              use: vueSassLoaders,
+            }),
           },
           // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
           preLoaders: { html: 'svg-icon-inline-loader' },
@@ -93,15 +84,24 @@ var config = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', cssLoader, postCSSLoader],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader],
+        }),
       },
       {
         test: /\.styl$/,
-        use: ['style-loader', cssLoader, postCSSLoader, 'stylus-loader'],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader, 'stylus-loader'],
+        }),
       },
       {
         test: /\.s[a|c]ss$/,
-        use: ['style-loader', cssLoader, postCSSLoader, 'sass-loader'],
+        use: ExtractTextPlugin.extract({
+          allChunks: true,
+          use: [cssLoader, postCSSLoader, 'sass-loader'],
+        }),
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
@@ -130,6 +130,7 @@ var config = {
   plugins: [],
   resolve: {
     extensions: ['.js', '.vue', '.styl'],
+    alias: {},
   },
   node: {
     __filename: true,
@@ -146,11 +147,25 @@ if (lint) {
     module: {
       rules: [
         {
+          test: /\.(vue|js)$/,
+          enforce: 'pre',
+          use: {
+            loader: 'eslint-loader',
+            options: {
+              failOnError: production,
+              emitError: production,
+              emitWarning: !production,
+              fix: !production,
+            },
+          },
+          exclude: /node_modules/,
+        },
+        {
           test: /\.(vue|html)/,
           enforce: 'pre',
           use: {
             loader: 'htmlhint-loader',
-            options: { failOnError: true, emitAs: 'error' },
+            options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
           },
           exclude: /node_modules/,
         },

@@ -28,9 +28,7 @@ html
   // https://davidwalsh.name/html5-boilerplate
   font-size: 100%
   text-size-adjust: 100%
-  overflow: hidden
   box-sizing: border-box
-
   // from normalize v5
   line-height: 1.15
 
@@ -53,18 +51,8 @@ h2
 h3, h4, h5, h6
   font-size: 1em
 
-a
-  color: $core-action-normal
-  transition: color $core-time ease-out
-
-  &:hover
-    color: $core-action-dark
-
-  &:hover:focus
-    outline: $core-action-light 2px solid
-
 :focus
-  outline: $core-action-light 2px solid
+  outline: $core-outline
 
 // https://davidwalsh.name/html5-boilerplate
 img
@@ -74,46 +62,6 @@ img
 // https://davidwalsh.name/html5-boilerplate
 svg:not(:root)
   overflow: hidden
-
-button
-  // structure (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
-  display: inline-block
-  zoom: 1
-  line-height: normal
-  white-space: nowrap
-  vertical-align: middle
-  text-align: center
-  cursor: pointer
-  user-select: none
-
-  // style
-  font-size: 0.9em
-  color: $core-action-normal
-  background-color: transparent
-  border-radius: 4px
-  border-width: 2px
-  border-style: solid
-  border-color: $core-action-normal
-  transition: border-color $core-time ease-out, color $core-time ease-out
-
-  &:hover
-    color: $core-action-dark
-    border-color: $core-action-dark
-
-  &:focus
-    outline: $core-action-light 2px solid
-
-  &:disabled
-    color: $core-text-disabled
-    border-color: $core-text-disabled
-    cursor: not-allowed
-
-
-// Firefox: Get rid of the inner focus border
-// (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
-button::-moz-focus-inner
-  padding: 0
-  border: none
 
 .visuallyhidden
   border: none
@@ -177,3 +125,19 @@ url('../../../../../node_modules/material-design-icons/iconfont/MaterialIcons-Re
 .gutter-24 [class *= 'pure-u']
   padding: 12px
 
+/* Button reset for consistency. */
+button
+  background: none
+  border: none
+  display: inline-block
+  cursor: pointer
+  outline: none
+  overflow: hidden
+  text-align: center
+  text-decoration: none
+  user-select: none
+  white-space: nowrap
+  &:focus
+    outline: none
+  &::-moz-focus-inner
+    border: none

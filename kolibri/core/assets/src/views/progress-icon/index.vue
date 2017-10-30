@@ -26,10 +26,14 @@
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
   export default {
-    $trNameSpace: 'progressIcon',
+    name: 'progressIcon',
     $trs: {
       inProgress: 'In progress',
       completed: 'Completed',
+    },
+    components: {
+      uiIcon,
+      uiTooltip,
     },
     props: {
       progress: {
@@ -48,10 +52,6 @@
         return this.progress >= 1;
       },
     },
-    components: {
-      uiIcon,
-      uiTooltip,
-    },
   };
 
 </script>
@@ -65,7 +65,6 @@
     border-radius: 50%
     color: white
     cursor: default
-
 
   .inprogress
     background-color: $core-status-progress

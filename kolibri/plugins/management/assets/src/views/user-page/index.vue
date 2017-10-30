@@ -4,77 +4,59 @@
 
     <div class="header">
       <h1>
-        {{$tr('allUsers')}}
+        {{ $tr('allUsers') }}
       </h1>
       <span> ( {{ visibleUsers.length }} )</span>
     </div>
 
     <div class="toolbar">
-      <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
+      <div class="create">
+        <k-button
+          @click="openCreateUserModal"
+          :text="$tr('addNew')"
+          :primary="true" />
+      </div>
+
+      <label for="type-filter" class="visuallyhidden">{{ $tr('filterUserType') }}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> {{$tr('allUsers')}} </option>
-        <option :value="ADMIN"> {{$tr('admins')}}</option>
-        <option :value="COACH"> {{$tr('coaches')}} </option>
-        <option :value="LEARNER"> {{$tr('learners')}} </option>
+        <option value="all"> {{ $tr('allUsers') }} </option>
+        <option :value="ADMIN"> {{ $tr('admins') }}</option>
+        <option :value="COACH"> {{ $tr('coaches') }} </option>
+        <option :value="LEARNER"> {{ $tr('learners') }} </option>
       </select>
 
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
-
-      <div class="create">
-        <icon-button
-          @click="openCreateUserModal"
-          class="create-user-button"
-          :text="$tr('addNew')"
-          :primary="true">
-          <mat-svg class="add-user" category="social" name="person_add"/>
-        </icon-button>
-      </div>
+      <k-filter-textbox
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
 
     </div>
 
     <hr>
 
-    <!-- Modals -->
-    <user-edit-modal
-      v-if="showEditUserModal"
-      :userid="currentUserEdit.id"
-      :fullname="currentUserEdit.full_name"
-      :username="currentUserEdit.username"
-      :userkind="currentUserEdit.kind"
-    />
-    <user-create-modal
-      v-if="showCreateUserModal"/>
-
     <table class="roster">
 
-      <caption class="visuallyhidden">{{$tr('users')}}</caption>
+      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
-          <th class="col-header" scope="col"> {{$tr('edit')}} </th>
+          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
+          <th class="col-header" scope="col"></th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
-            {{user.username}}
+            {{ user.username }}
           </th>
 
           <!-- Logic for role tags -->
@@ -85,16 +67,18 @@
           <!-- Full Name field -->
           <td scope="row" class="table-cell">
             <span class="table-name">
-              {{user.full_name}}
+              {{ user.full_name }}
             </span>
           </td>
 
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button class="edit-user-button" @click="openEditUserModal(user)">
-              <span class="visuallyhidden">$tr('editAccountInfo')</span>
-              <mat-svg category="editor" name="mode_edit"/>
-            </icon-button>
+            <dropdown-menu
+              :name="$tr('manage')"
+              :options="manageUserOptions(user.id)"
+              :disabled="!canEditUser(user)"
+              @select="handleManageUserSelection($event, user)"
+            />
           </td>
 
         </tr>
@@ -104,6 +88,32 @@
 
     <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
     <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
+
+
+    <!-- Modals -->
+    <user-create-modal v-if="showCreateUserModal" />
+
+    <edit-user-modal
+      v-if="showEditUserModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+      :kind="selectedUser.kind"
+    />
+
+    <reset-user-password-modal
+      v-if="showResetUserPasswordModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+    />
+
+    <delete-user-modal
+      v-if="showDeleteUserModal"
+      :id="selectedUser.id"
+      :name="selectedUser.full_name"
+      :username="selectedUser.username"
+    />
 
   </div>
 
@@ -115,22 +125,33 @@
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import orderBy from 'lodash/orderBy';
   import userCreateModal from './user-create-modal';
-  import userEditModal from './user-edit-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import editUserModal from './edit-user-modal';
+  import resetUserPasswordModal from './reset-user-password-modal';
+  import deleteUserModal from './delete-user-modal';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import userRole from '../user-role';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
+  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+
   export default {
+    name: 'userPage',
     components: {
       userCreateModal,
-      userEditModal,
-      iconButton,
+      editUserModal,
+      resetUserPasswordModal,
+      deleteUserModal,
+      kButton,
+      kFilterTextbox,
+      dropdownMenu,
       userRole,
     },
     data: () => ({
-      roleFilter: 'all',
       searchFilter: '',
-      currentUserEdit: null,
+      roleFilter: 'all',
+      selectedUser: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
@@ -146,53 +167,68 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        const searchFilter = this.searchFilter;
-        const roleFilter = this.roleFilter;
-        function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
-          const fullName = user.full_name.toLowerCase();
-          const username = user.username.toLowerCase();
-          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-        }
-        function matchesRole(user) {
-          if (roleFilter === 'all') {
-            return true;
-          }
-          return user.kind === roleFilter;
-        }
-        const filteredUsers = this.users.filter(user => matchesText(user) && matchesRole(user));
-        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
+        return filterAndSortUsers(
+          this.users,
+          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
+        );
       },
       showEditUserModal() {
         return this.modalShown === constants.Modals.EDIT_USER;
+      },
+      showResetUserPasswordModal() {
+        return this.modalShown === constants.Modals.RESET_USER_PASSWORD;
+      },
+      showDeleteUserModal() {
+        return this.modalShown === constants.Modals.DELETE_USER;
       },
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
       },
     },
     methods: {
-      openEditUserModal(user) {
-        this.currentUserEdit = user;
-        this.displayModal(constants.Modals.EDIT_USER);
+      userMatchesRole(user) {
+        return this.roleFilter === 'all' || user.kind === this.roleFilter;
+      },
+      manageUserOptions(userId) {
+        return [
+          { label: this.$tr('editUser') },
+          { label: this.$tr('resetUserPassword') },
+          { label: this.$tr('deleteUser'), disabled: userId === this.currentUserId },
+        ];
+      },
+      handleManageUserSelection(selection, user) {
+        this.selectedUser = user;
+        if (selection.label === this.$tr('editUser')) {
+          this.displayModal(constants.Modals.EDIT_USER);
+        } else if (selection.label === this.$tr('resetUserPassword')) {
+          this.displayModal(constants.Modals.RESET_USER_PASSWORD);
+        } else if (selection.label === this.$tr('deleteUser')) {
+          this.displayModal(constants.Modals.DELETE_USER);
+        }
       },
       openCreateUserModal() {
         this.displayModal(constants.Modals.CREATE_USER);
+      },
+      canEditUser(user) {
+        if (!this.isSuperuser) {
+          return !user.is_superuser;
+        }
+        return true;
       },
     },
     vuex: {
       getters: {
         users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
+        currentUserId,
+        isSuperuser,
       },
       actions: {
-        deleteUser: actions.deleteUser,
         displayModal: actions.displayModal,
       },
     },
-    $trNameSpace: 'userPage',
     $trs: {
       filterUserType: 'Filter User Type',
-      editAccountInfo: 'Edit Account Information',
       searchText: 'Search for a user...',
       allUsers: 'All Users',
       admins: 'Admins',
@@ -206,6 +242,10 @@
       edit: 'Edit',
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
+      manage: 'Manage',
+      editUser: 'Edit',
+      resetUserPassword: 'Reset password',
+      deleteUser: 'Delete',
     },
   };
 
@@ -219,7 +259,7 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
+  $toolbar-height = 38px
 
   .toolbar:after
     content: ''
@@ -230,24 +270,15 @@
   .create
     float: right
 
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
   #type-filter
-    float: left
     background-color: $core-bg-light
     border-color: $core-action-light
     height: $toolbar-height
     cursor: pointer
+    margin-right: 8px
+
+  #type-filter, .searchbar
+    margin-top: 5px
 
   .header h1
     display: inline-block
@@ -261,8 +292,7 @@
     text-align: left
 
   .roster
-    width: 100%
-    word-break: break-all
+    min-width: 600px
 
   th
     text-align: inherit
@@ -279,43 +309,6 @@
     padding-bottom: $row-padding
     color: $core-text-default
 
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
-  .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
-    float: left
-    margin-left: 5px
-
-  .edit-user-button
-    border: none
-    svg
-      fill: $core-action-normal
-      cursor: pointer
-      &:hover
-        fill: $core-action-dark
-
-  .create-user-button
-    width: 100%
-
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
-
   .table-name
     $line-height = 1em
     line-height: $line-height
@@ -326,32 +319,8 @@
   .role-header
     display: none
 
-  @media print
-    .toolbar
-      display: none
-    .user-roster
-      width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create, #type-filter
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
-    .table-username
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+  .user-roster
+    overflow-x: auto
+    overflow-y: hidden
 
 </style>

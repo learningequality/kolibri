@@ -6,7 +6,7 @@
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
     :examCreation="true">
-    <icon-button slot="randomize-button" :text="$tr('randomize')" :primary="true" @click="$emit('randomize')"/>
+    <k-button slot="randomize-button" :text="$tr('randomize')" :primary="true" @click="$emit('randomize')" />
   </preview-exam-modal>
 
 </template>
@@ -16,13 +16,13 @@
 
   import * as ExamActions from '../../state/actions/exam';
   import previewExamModal from '../exams-page/preview-exam-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'previewNewExamModal',
+    name: 'previewNewExamModal',
     $trs: { randomize: 'Randomize questions' },
     components: {
       previewExamModal,
-      iconButton,
+      kButton,
     },
     props: {
       examChannelId: {

@@ -29,6 +29,14 @@ export default class TaskResource extends Resource {
     return this.client(clientObj);
   }
 
+  deleteChannel(channelId) {
+    const clientObj = {
+      path: this.deleteChannelUrl(),
+      entity: { channel_id: channelId },
+    };
+    return this.client(clientObj);
+  }
+
   localDrives() {
     const clientObj = { path: this.localDrivesUrl() };
     return this.client(clientObj);
@@ -59,6 +67,9 @@ export default class TaskResource extends Resource {
   }
   get remoteImportUrl() {
     return this.urls[`${this.name}_startremoteimport`];
+  }
+  get deleteChannelUrl() {
+    return this.urls[`${this.name}_startdeletechannel`];
   }
   get localDrivesUrl() {
     return this.urls[`${this.name}_localdrive`];

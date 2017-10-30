@@ -11,7 +11,7 @@
   import values from 'lodash/values';
 
   export default {
-    $trNameSpace: 'roleText',
+    name: 'roleText',
     $trs: {
       admin: 'Admin',
       coach: 'Coach',

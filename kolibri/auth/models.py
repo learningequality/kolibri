@@ -2,11 +2,9 @@
 We have four main abstractions: Users, Collections, Memberships, and Roles.
 
 Users represent people, like students in a school, teachers for a classroom, or volunteers setting up informal
-installations. There are two main user types, ``FacilityUser`` and ``DeviceOwner``. A ``FacilityUser`` belongs to a
-particular facility, and has permissions only with respect to other data that is associated with that facility. A
-``DeviceOwner`` is not associated with a particular facility, and has global permissions for data on the local device.
-``FacilityUser`` accounts (like other facility data) may be synced across multiple devices, whereas a DeviceOwner account
-is specific to a single installation of Kolibri.
+installations. A ``FacilityUser`` belongs to a particular facility, and has permissions only with respect to other data
+that is associated with that facility. ``FacilityUser`` accounts (like other facility data) may be synced across multiple
+devices.
 
 Collections form a hierarchy, with Collections able to belong to other Collections. Collections are subdivided
 into several pre-defined levels (``Facility`` > ``Classroom`` > ``LearnerGroup``).
@@ -24,12 +22,11 @@ user gains through the ``Role``.
 from __future__ import absolute_import, print_function, unicode_literals
 
 import logging as logger
-import uuid
 
 import six
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
@@ -39,22 +36,21 @@ from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
+from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
 from morango.query import SyncableModelQuerySet
 from morango.utils.morango_mptt import MorangoMPTTModel
-from morango.utils.uuids import UUIDField
 from mptt.models import TreeForeignKey
 
-from .constants import collection_kinds, role_kinds
+from .constants import collection_kinds, facility_presets, role_kinds
 from .errors import (
     InvalidRoleKind, UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsMemberOnlyIndirectlyThroughHierarchyError,
     UserIsNotFacilityUser, UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility,
-    CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups, CollectionSpecificRoleBasedPermissions,
-    FacilityAdminCanEditForOwnFacilityDataset
+    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
+    CollectionSpecificRoleBasedPermissions, FacilityAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -93,6 +89,8 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
+
+    preset = models.CharField(max_length=50, choices=facility_presets.choices, default=facility_presets.default)
 
     # Facility specific configuration settings
     learner_can_edit_username = models.BooleanField(default=True)
@@ -200,7 +198,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields
     we don't care about, like email.
 
-    This model is an abstract model, and is inherited by both ``FacilityUser`` and ``DeviceOwner``.
+    This model is an abstract model, and is inherited by ``FacilityUser``.
     """
 
     class Meta:
@@ -215,7 +213,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         validators=[
             validators.RegexValidator(
                 r'^\w+$',
-                _('Enter a valid username. This value may contain only letters and numbers.')
+                _('Enter a valid username. This value can contain only letters, numbers, and underscores.')
             ),
         ],
     )
@@ -225,6 +223,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     is_staff = False
     is_superuser = False
     is_facility_user = False
+
+    can_manage_content = False
 
     def get_short_name(self):
         return self.full_name.split(' ', 1)[0]
@@ -448,6 +448,28 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             return queryset.none()
 
 
+class FacilityUserModelManager(SyncableModelManager):
+
+    def create_superuser(self, username, password):
+
+        # import here to avoid circularity
+        from kolibri.core.device.models import DevicePermissions
+
+        # get the default facility
+        facility = Facility.get_default_facility()
+
+        # create the new account in that facility
+        superuser = FacilityUser(username=username, facility=facility)
+        superuser.set_password(password)
+        superuser.save()
+
+        # make the user a facility admin
+        facility.add_role(superuser, role_kinds.ADMIN)
+
+        # make the user into a superuser on this device
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -470,6 +492,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         )
     )
 
+    objects = FacilityUserModelManager()
+
     facility = models.ForeignKey("Facility")
 
     is_facility_user = True
@@ -483,6 +507,24 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         return self.facility.dataset
 
+    def get_permission(self, permission):
+        try:
+            return getattr(self.devicepermissions, 'is_superuser') or getattr(self.devicepermissions, permission)
+        except ObjectDoesNotExist:
+            return False
+
+    @property
+    def can_manage_content(self):
+        return self.get_permission('can_manage_content')
+
+    @property
+    def is_superuser(self):
+        return self.get_permission('is_superuser')
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
+
     def is_member_of(self, coll):
         if self.dataset_id != coll.dataset_id:
             return False
@@ -494,6 +536,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ).filter(id=self.id).exists()
 
     def get_roles_for_user(self, user):
+        if self.is_superuser:
+            return set([role_kinds.ADMIN])  # a superuser has admin role for all users on the device
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
@@ -504,6 +548,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def get_roles_for_collection(self, coll):
+        if self.is_superuser:
+            return set([role_kinds.ADMIN])  # a superuser has admin role for all collections on the device
         if self.dataset_id != coll.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
@@ -514,6 +560,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def has_role_for_user(self, kinds, user):
+        if self.is_superuser:
+            if isinstance(kinds, six.string_types):
+                kinds = [kinds]
+            return role_kinds.ADMIN in kinds  # a superuser has admin role for all users on the device
         if not kinds:
             return False
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
@@ -526,6 +576,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ).filter(user=self).exists()
 
     def has_role_for_collection(self, kinds, coll):
+        if self.is_superuser:
+            if isinstance(kinds, six.string_types):
+                kinds = [kinds]
+            return role_kinds.ADMIN in kinds  # a superuser has admin role for all collections on the device
         if not kinds:
             return False
         if self.dataset_id != coll.dataset_id:
@@ -538,6 +592,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ).filter(user=self).exists()
 
     def can_create_instance(self, obj):
+        if self.is_superuser:
+            return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
@@ -545,6 +601,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
 
     def can_read(self, obj):
+        if self.is_superuser:
+            return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
@@ -552,6 +610,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
 
     def can_update(self, obj):
+        # Superusers cannot update their own permissions, because they only thing they can do is make themselves
+        # not super, we all saw what happened in Superman 2, no red kryptonite here!
+        if self.is_superuser and obj != self.devicepermissions:
+            return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
@@ -559,6 +621,13 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
 
     def can_delete(self, obj):
+        # Users cannot delete themselves
+        if self == obj:
+            return False
+        # Superusers cannot update their own permissions, because they only thing they can do is make themselves
+        # not super, we all saw what happened in Superman 2, no red kryptonite here!
+        if self.is_superuser and obj != self.devicepermissions:
+            return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
@@ -566,6 +635,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
 
     def filter_readable(self, queryset):
+        if self.is_superuser:
+            return queryset
         if _has_permissions_class(queryset.model):
             return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
         else:
@@ -574,92 +645,20 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def __str__(self):
         return '"{user}"@"{facility}"'.format(user=self.full_name or self.username, facility=self.facility)
 
-
-class DeviceOwnerManager(models.Manager):
-
-    def create_superuser(self, username, password, **extra_fields):
-        if not username:
-            raise ValueError('The given username must be set')
-        user = DeviceOwner(username=username)
-        user.set_password(password)
-        user.save()
-        return user
-
-
-@python_2_unicode_compatible
-class DeviceOwner(KolibriAbstractBaseUser):
-    """
-    When a user first installs Kolibri on a device, they will be prompted to create a ``DeviceOwner``, a special kind of
-    user which is associated with that device only, and who must give permission to make broad changes to the Kolibri
-    installation on that device (such as creating a ``Facility``, or changing configuration settings).
-
-    Actions not relating to user data but specifically to a device -- like upgrading Kolibri, changing whether the
-    device is a Classroom Server or Classroom Client, or determining manually which data should be synced -- must be
-    performed by a ``DeviceOwner``.
-
-    A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
-    """
-    permissions = AnybodyCanCreateIfNoDeviceOwner()
-    objects = DeviceOwnerManager()
-
-    id = UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-
-    # DeviceOwners can access the Django admin interface
-    is_staff = True
-    is_superuser = True
-
-    def is_member_of(self, coll):
-        return False  # a DeviceOwner is not a member of any Collection
-
-    def get_roles_for_user(self, user):
-        return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all users on the device
-
-    def get_roles_for_collection(self, coll):
-        return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all collections on the device
-
-    def has_role_for_user(self, kinds, user):
-        if isinstance(kinds, six.string_types):
-            kinds = [kinds]
-        return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all users on the device
-
-    def has_role_for_collection(self, kinds, coll):
-        if isinstance(kinds, six.string_types):
-            kinds = [kinds]
-        return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
-
-    def can_create_instance(self, obj):
-        # DeviceOwners are superusers, and can do anything
-        return True
-
-    def can_read(self, obj):
-        # DeviceOwners are superusers, and can do anything
-        return True
-
-    def can_update(self, obj):
-        # DeviceOwners are superusers, and can do anything
-        return True
-
-    def can_delete(self, obj):
-        # DeviceOwners are superusers, and can do anything
-        return True
-
-    def filter_readable(self, queryset):
-        return queryset
-
-    def __str__(self):
-        return self.full_name or self.username
-
     def has_perm(self, perm, obj=None):
-        # ensure the DeviceOwner has full access to the Django admin
-        return True
+        # ensure the superuser has full access to the Django admin
+        if self.is_superuser:
+            return True
 
     def has_perms(self, perm_list, obj=None):
-        # ensure the DeviceOwner has full access to the Django admin
-        return True
+        # ensure the superuser has full access to the Django admin
+        if self.is_superuser:
+            return True
 
     def has_module_perms(self, app_label):
-        # ensure the DeviceOwner has full access to the Django admin
-        return True
+        # ensure the superuser has full access to the Django admin
+        if self.is_superuser:
+            return True
 
 
 @python_2_unicode_compatible
@@ -680,7 +679,6 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     permissions = (
         IsFromSameFacility(read_only=True) |
         CollectionSpecificRoleBasedPermissions() |
-        AnybodyCanCreateIfNoFacility() |
         AnonUserCanReadFacilitiesThatAllowSignUps() |
         CoachesCanManageGroupsForTheirClasses()
     )
@@ -937,6 +935,8 @@ class Facility(Collection):
     FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
 
     morango_model_name = "facility"
+    _morango_proxy_order = 1
+
     _KIND = collection_kinds.FACILITY
 
     objects = CollectionProxyManager()
@@ -1000,6 +1000,8 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
+    _morango_proxy_order = 2
+
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1054,6 +1056,8 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
+    _morango_proxy_order = 3
+
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()

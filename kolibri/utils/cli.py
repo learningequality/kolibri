@@ -5,6 +5,7 @@ import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
+from distutils import util
 
 # Do this before importing anything else, we need to add bundled requirements
 # from the distributed version in case it exists before importing anything
@@ -30,6 +31,8 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
 import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
+
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 from . import server  # noqa
 from .system import become_daemon  # noqa
@@ -112,8 +115,40 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 logger = logging.getLogger(__name__)
 
-KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
-VERSION_FILE = os.path.join(KOLIBRI_HOME, '.data_version')
+
+def get_cext_path(dist_path):
+    """
+    Get the directory of dist/cext.
+    """
+    # Python version of current platform
+    python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
+    dirname = os.path.join(dist_path, 'cext/' + python_version)
+
+    platform = util.get_platform()
+    # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
+    if 'linux' in platform and int(python_version[2:]) < 33:
+        dirname = os.path.join(dirname, 'linux')
+        # encode with ucs2
+        if sys.maxunicode == 65535:
+            dirname = os.path.join(dirname, python_version+'m')
+        # encode with ucs4
+        else:
+            dirname = os.path.join(dirname, python_version+'mu')
+
+    elif 'macosx' in platform:
+        platform = 'macosx'
+    dirname = os.path.join(dirname, platform)
+    sys.path = sys.path + [os.path.realpath(str(dirname))]
+
+
+# Add path for c extensions to sys.path
+get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+try:
+    import cryptography  # noqa
+except ImportError:
+    # Fallback
+    logging.warning('No C Extensions available for this platform.\n')
+    sys.path = sys.path[:-1]
 
 
 class PluginDoesNotExist(Exception):
@@ -121,6 +156,14 @@ class PluginDoesNotExist(Exception):
     This exception is local to the CLI environment in case actions are performed
     on a plugin that cannot be loaded.
     """
+
+
+def version_file():
+    """
+    During test runtime, this path may differ because KOLIBRI_HOME is
+    regenerated
+    """
+    return os.path.join(os.environ['KOLIBRI_HOME'], '.data_version')
 
 
 def initialize(debug=False):
@@ -131,7 +174,7 @@ def initialize(debug=False):
     :param: debug: Tells initialization to setup logging etc.
     """
 
-    if not os.path.isfile(VERSION_FILE):
+    if not os.path.isfile(version_file()):
         django.setup()
 
         setup_logging(debug=debug)
@@ -143,9 +186,20 @@ def initialize(debug=False):
         from kolibri.utils.conf import autoremove_unavailable_plugins, enable_default_plugins
         autoremove_unavailable_plugins()
 
-        version = open(VERSION_FILE, "r").read()
-        change_version = kolibri.__version__ != version.strip()
+        version = open(version_file(), "r").read()
+        version = version.strip() if version else ""
+        change_version = kolibri.__version__ != version
         if change_version:
+            # Version changed, make a backup no matter what.
+            from kolibri.core.deviceadmin.utils import dbbackup
+            try:
+                backup = dbbackup(version)
+                logger.info(
+                    "Backed up database to: {path}".format(path=backup))
+            except IncompatibleDatabase:
+                logger.warning(
+                    "Skipped automatic database backup, not compatible with "
+                    "this DB engine.")
             enable_default_plugins()
 
         django.setup()
@@ -167,7 +221,7 @@ def _first_run():
     Called once at least. Will not run if the .kolibri/.version file is
     found.
     """
-    if os.path.exists(VERSION_FILE):
+    if os.path.exists(version_file()):
         logger.error(
             "_first_run() called, but Kolibri is already initialized."
         )
@@ -222,8 +276,11 @@ def update():
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate", interactive=False, database="default")
 
-    with open(VERSION_FILE, "w") as f:
+    with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
+
+    from kolibri.content.utils.annotation import update_channel_metadata
+    update_channel_metadata()
 
 
 update.called = False
@@ -273,7 +330,8 @@ def start(port=None, daemon=True):
 
         kwargs = {}
         # Truncate the file
-        open(server.DAEMON_LOG, "w").truncate()
+        if os.path.isfile(server.DAEMON_LOG):
+            open(server.DAEMON_LOG, "w").truncate()
         logger.info(
             "Going to daemon mode, logging to {0}".format(server.DAEMON_LOG)
         )
@@ -579,7 +637,10 @@ def main(args=None):
     if arguments['start']:
         port = arguments['--port']
         port = int(port) if port else None
-        start(port, daemon=not arguments['--foreground'])
+        daemon = not arguments['--foreground']
+        if sys.platform == 'darwin':
+            daemon = False
+        start(port, daemon=daemon)
         return
 
     if arguments['stop']:

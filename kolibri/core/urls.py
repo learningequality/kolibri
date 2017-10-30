@@ -33,9 +33,12 @@ return the module.
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf import settings
+from django.conf.urls import url
 from django.conf.urls.static import static
 from kolibri.content.utils import paths
 from kolibri.plugins.registry import get_urls as plugin_urls
+
+from .views import set_language
 
 app_name = 'kolibri'
 
@@ -44,3 +47,5 @@ urlpatterns = plugin_urls()
 
 urlpatterns += static(paths.get_content_storage_url("/"), document_root=settings.CONTENT_STORAGE_DIR)
 urlpatterns += static(paths.get_content_database_url("/"), document_root=settings.CONTENT_DATABASE_DIR)
+
+urlpatterns += [url(r'^i18n/setlang/$', set_language, name='set_language')]

@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1>
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
@@ -22,22 +22,22 @@
         <tr>
           <header-cell
             :text="$tr('name')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('avgExerciseProgress')"
             :sortable="true"
-            :column="tableColumns.EXERCISE"/>
+            :column="tableColumns.EXERCISE" />
           <header-cell
             :text="$tr('avgContentProgress')"
             :sortable="true"
-            :column="tableColumns.CONTENT"/>
+            :column="tableColumns.CONTENT" />
           <header-cell
             :text="$tr('lastActivity')"
-            align="left"
+            :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -47,8 +47,8 @@
             •
             {{ $tr('contentCountText', {count: row.contentCount}) }}
           </name-cell>
-          <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
-          <progress-cell :num="row.contentProgress" :isExercise="false"/>
+          <progress-cell :num="row.exerciseProgress" :isExercise="true" />
+          <progress-cell :num="row.contentProgress" :isExercise="false" />
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
@@ -72,16 +72,11 @@
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
   import activityCell from './table-cells/activity-cell';
+
+  import alignMixin from './align-mixin';
+
   export default {
-    $trNameSpace: 'itemReportPage',
-    $trs: {
-      name: 'Name',
-      avgExerciseProgress: 'Avg. exercise progress',
-      avgContentProgress: 'Avg. resource progress',
-      lastActivity: 'Last activity',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-    },
+    name: 'itemReportPage',
     components: {
       contentIcon,
       breadcrumbs,
@@ -90,6 +85,20 @@
       nameCell,
       progressCell,
       activityCell,
+    },
+    mixins: [alignMixin],
+    $trs: {
+      name: 'Name',
+      avgExerciseProgress: 'Avg. exercise progress',
+      avgContentProgress: 'Avg. resource progress',
+      lastActivity: 'Last activity',
+      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+    },
+    computed: {
+      tableColumns() {
+        return reportConstants.TableColumns;
+      },
     },
     methods: {
       genRowLink(row) {
@@ -134,11 +143,6 @@
           }
         }
         return null;
-      },
-    },
-    computed: {
-      tableColumns() {
-        return reportConstants.TableColumns;
       },
     },
     vuex: {

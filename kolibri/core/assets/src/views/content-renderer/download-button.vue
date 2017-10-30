@@ -15,13 +15,13 @@
   import filesize from 'filesize';
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   export default {
+    name: 'downloadButton',
     components: { dropdownMenu },
-    $trNameSpace: 'downloadButton',
     $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
-        default: [],
+        default: () => [],
       },
     },
     computed: {

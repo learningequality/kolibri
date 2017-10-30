@@ -7,4 +7,7 @@ export default class ContentRenderer extends KolibriModule {
   get contentTypes() {
     return null;
   }
+  loadDirectionalCSS(direction) {
+    return this.Kolibri.loadDirectionalCSS(this, direction);
+  }
 }

@@ -32,16 +32,15 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import { PageNames } from '../../constants';
   import searchBox from '../search-box';
 
   export default {
-    $trNameSpace: 'actionBarSearchBar',
-    mixins: [responsiveWindow],
+    name: 'actionBarSearchBar',
     components: {
       uiIconButton,
       searchBox,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         searchQuery: this.searchTerm,
@@ -59,6 +58,14 @@
         return true;
       },
     },
+    created() {
+      window.addEventListener('click', this.handleClick);
+      window.addEventListener('focusin', this.handleFocusIn);
+    },
+    beforeDestroy() {
+      window.removeEventListener('click', this.handleClick);
+      window.removeEventListener('focusin', this.handleFocusIn);
+    },
     methods: {
       focusOnSearchBox() {
         this.$nextTick(() => {
@@ -72,7 +79,7 @@
       closeDropdownSearchBox() {
         this.searchBoxIsOpen = false;
       },
-      toggleDropdownSearchBox(event) {
+      toggleDropdownSearchBox() {
         if (this.searchBoxIsOpen) {
           this.closeDropdownSearchBox();
         } else {
@@ -89,14 +96,6 @@
           this.closeDropdownSearchBox();
         }
       },
-    },
-    created() {
-      window.addEventListener('click', this.handleClick);
-      window.addEventListener('focusin', this.handleFocusIn);
-    },
-    beforeDestroy() {
-      window.removeEventListener('click', this.handleClick);
-      window.removeEventListener('focusin', this.handleFocusIn);
     },
   };
 

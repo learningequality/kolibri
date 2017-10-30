@@ -4,29 +4,26 @@
     :title="$tr('title')"
     @cancel="handleCancel"
   >
-    <div class="tc">
+    <div>
       <p>{{ $tr('confirmationQuestion') }}</p>
       <p>{{ $tr('changesWillBeLost') }}</p>
     </div>
 
-    <div>
-      <ui-button
-        class="w-48 fl"
-        :ariaLabel="$tr('cancel')"
+    <div class="modal-buttons">
+      <k-button
+        :primary="false"
+        appearance="flat-button"
         @click="handleCancel()"
+        :text="$tr('cancel')"
         name="cancel"
-      >
-        {{ $tr('cancel') }}
-      </ui-button>
-      <ui-button
-        class="w-48 fr"
-        :ariaLabel="$tr('reset')"
+      />
+      <k-button
+        :primary="true"
+        appearance="raised-button"
         @click="handleConfirm()"
-        color="primary"
+        :text="$tr('reset')"
         name="reset"
-      >
-        {{ $tr('reset') }}
-      </ui-button>
+      />
 
     </div>
 
@@ -38,11 +35,12 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
+    name: 'confirmResetModal',
     components: {
       coreModal,
-      uiButton,
+      kButton,
     },
     methods: {
       handleConfirm() {
@@ -52,7 +50,6 @@
         this.$emit('click-cancel');
       },
     },
-    $trNameSpace: 'confirmResetModal',
     $trs: {
       cancel: 'Cancel',
       changesWillBeLost: 'Your changes will be lost',
@@ -67,16 +64,7 @@
 
 <style lang="stylus" scoped>
 
-  .tc
-    text-align: center
-
-  .fl
-    float: left
-
-  .fr
-    float: right
-
-  .w-48
-    width: 48%
+  .modal-buttons
+    text-align: right
 
 </style>

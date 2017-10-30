@@ -8,9 +8,12 @@ import datetime
 import uuid
 
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
-from kolibri.auth.models import DeviceOwner
+
+from kolibri.core.exams.models import Exam
+from kolibri.logger.models import ExamLog
 
 from .factory_logger import (
     FacilityUserFactory, ContentSessionLogFactory,
@@ -20,14 +23,16 @@ from .factory_logger import (
 
 from ..models import ContentSessionLog, ContentSummaryLog, UserSessionLog
 from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer
-from kolibri.auth.test.test_api import DeviceOwnerFactory, FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
+from kolibri.auth.test.test_api import FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
+from kolibri.auth.test.helpers import create_superuser, provision_device
 
 class ContentSessionLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -90,7 +95,7 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -118,9 +123,10 @@ class ContentSessionLogAPITestCase(APITestCase):
 class ContentSummaryLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -183,7 +189,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -211,9 +217,10 @@ class ContentSummaryLogAPITestCase(APITestCase):
 class UserSessionLogAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.superuser = create_superuser(self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
 
@@ -268,7 +275,7 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_facility_log_filtering(self):
-        response = self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
@@ -295,13 +302,19 @@ class UserSessionLogAPITestCase(APITestCase):
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
+    fixtures = ['content_test.json']
+
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        self.summary_logs = [ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c"
+        ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):
@@ -316,13 +329,19 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
 
+    fixtures = ['content_test.json']
+
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
         self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
+        self.interaction_logs = [ContentSessionLogFactory.create(
+            user=self.user,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c"
+        ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_csv_download(self):
@@ -333,3 +352,43 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+
+
+class ExamAttemptLogAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        self.exam = Exam.objects.create(title="", channel_id="", question_count=0, collection=self.facility, creator=self.user2, active=True)
+        self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
+
+        self.examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1.pk,
+            "examlog": self.examlog.pk,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+
+    def test_exam_not_active_permissions(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.exam.active = False
+        self.exam.save()
+        response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
+        self.assertEqual(response.status_code, 403)
+
+    def test_examlog_closed_permissions(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.examlog.closed = True
+        self.examlog.save()
+        response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
+        self.assertEqual(response.status_code, 403)
+
+    def tearDown(self):
+        self.client.logout()

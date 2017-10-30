@@ -5,7 +5,8 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from .constants import role_kinds
-from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
+
 
 class RoleSerializer(serializers.ModelSerializer):
 
@@ -24,10 +25,22 @@ class BaseKolibriUserSerializer(serializers.ModelSerializer):
         else:
             return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
 
-    def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return value
+    def validate(self, data):
+        username = data.get('username', None)
+        # Only avoid checking against own username if this user already exists.
+        user_id = self.instance.id if self.instance else None
+
+        if username:
+            facility_user_query = FacilityUser.objects.filter(username__iexact=username)
+
+            if user_id:
+                facility_user_query = facility_user_query.exclude(id=user_id)
+
+            if facility_user_query.exists():
+                raise serializers.ValidationError({
+                    'username': _('An account with that username already exists')
+                })
+        return data
 
     def create(self, validated_data):
         user = self.Meta.model(**validated_data)
@@ -42,7 +55,7 @@ class FacilityUserSerializer(BaseKolibriUserSerializer):
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles')
+        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
@@ -50,14 +63,6 @@ class FacilityUsernameSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityUser
         fields = ('username', )
-
-
-class DeviceOwnerSerializer(BaseKolibriUserSerializer):
-
-    class Meta:
-        model = DeviceOwner
-        exclude = ("last_login",)
-        extra_kwargs = {'password': {'write_only': True}}
 
 
 class MembershipSerializer(serializers.ModelSerializer):

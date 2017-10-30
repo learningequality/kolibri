@@ -1,9 +1,18 @@
 <template>
 
-  <core-base v-if="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
-    <component :is="currentPage"/>
-  </core-base>
-  <component v-else :is="currentPage"/>
+  <div>
+    <!-- v-if applied to component and not core-base because it sets doc title -->
+    <core-base
+      :navBarNeeded="navBarNeeded"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+    >
+      <component :is="currentPage" v-if="navBarNeeded" />
+    </core-base>
+    <div v-if="!navBarNeeded" class="full-page">
+      <component :is="currentPage" />
+    </div>
+  </div>
 
 </template>
 
@@ -17,10 +26,10 @@
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
+
   export default {
-    $trNameSpace: 'userRoot',
     $trs: { userProfileTitle: 'Profile' },
-    name: 'User-Plugin',
+    name: 'userPlugin',
     components: {
       coreBase,
       signInPage,
@@ -32,7 +41,7 @@
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         }
-        return null;
+        return '';
       },
       topLevelPageName: () => TopLevelPageNames.USER,
       currentPage() {
@@ -67,5 +76,11 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .full-page
+    position: absolute
+    top: 0
+    height: 100%
+    width: 100%
 
 </style>

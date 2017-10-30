@@ -1,59 +1,94 @@
 <template>
 
   <div class="content">
-    <ui-alert type="success" @dismiss="resetProfileState" v-if="success">
-      {{ $tr('success') }}
-    </ui-alert>
 
-    <h3>{{ $tr('role') }}</h3>
-    <p>{{ role }}</p>
+    <section>
+      <h2>{{ $tr('points') }}</h2>
+      <points-icon class="points-icon" :active="true" />
+      <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+    </section>
 
-    <template v-if="!isSuperuser">
-      <h3>{{ $tr('points') }}</h3>
+    <section>
+      <h2>{{ $tr('role') }}</h2>
+      {{ role }}
+    </section>
+
+    <section v-if="userHasPermissions">
+      <h2>{{ $tr('devicePermissions') }}</h2>
       <p>
-        <points-icon class="points-icon" :active="true"/>
-        <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+        <permissions-icon :permissionType="permissionType" class="permissions-icon" />
+        {{ permissionTypeText }}
       </p>
-    </template>
+      <p>
+        {{ $tr('youCan') }}
+        <ul class="permissions-list">
+          <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
+            {{ getPermissionString(key) }}
+          </li>
+        </ul>
+      </p>
+    </section>
 
-    <template v-if="!canEditUsername">
-      <h3>{{ $tr('username') }}</h3>
-      <p>{{ session.username }}</p>
-    </template>
+    <form @submit.prevent="submitEdits">
+      <ui-alert
+        v-if="success"
+        type="success"
+        :dismissible="false"
+      >
+        {{ $tr('success') }}
+      </ui-alert>
+      <ui-alert
+        v-if="error"
+        type="error"
+        :dismissible="false"
+      >
+        {{ errorMessage || $tr('genericError') }}
+      </ui-alert>
 
-    <template v-if="!canEditName">
-      <h3>{{ $tr('name') }}</h3>
-      <p>{{ session.full_name }}</p>
-    </template>
-
-    <form v-if="canEditUsername || canEditName" @submit.prevent="submitEdits">
-
-      <template v-if="canEditUsername">
-        <h3>{{ $tr('username') }}</h3>
-        <core-textbox
-          :disabled="busy"
-          :invalid="error"
-          :error="errorMessage"
-          v-model="username"
-          autocomplete="username"
-          type="text" />
-      </template>
-
-      <template v-if="canEditName">
-        <h3>{{ $tr('name') }}</h3>
-        <core-textbox
-          :disabled="busy"
-          v-model="full_name"
-          autocomplete="name"
-          type="text" />
-      </template>
-
-      <icon-button
+      <k-textbox
+        ref="name"
+        v-if="canEditName"
+        type="text"
+        autocomplete="name"
+        :autofocus="false"
+        :label="$tr('name')"
         :disabled="busy"
-        :primary="true"
-        :text="$tr('updateProfile')"
+        :maxlength="120"
+        :invalid="nameIsInvalid"
+        :invalidText="nameIsInvalidText"
+        v-model="name"
+      />
+      <template v-else>
+        <h2>{{ $tr('name') }}</h2>
+        <p>{{ name }}</p>
+      </template>
+
+      <k-textbox
+        ref="username"
+        v-if="canEditUsername"
+        type="text"
+        autocomplete="username"
+        :label="$tr('username')"
+        :disabled="busy"
+        :maxlength="30"
+        :invalid="usernameIsInvalid"
+        :invalidText="usernameIsInvalidText"
+        @blur="usernameBlurred = true"
+        v-model="username"
+      />
+      <template v-else>
+        <h2>{{ $tr('username') }}</h2>
+        <p>{{ session.username }}</p>
+      </template>
+
+      <k-button
+        v-if="canEditUsername || canEditName"
+        type="submit"
         class="submit"
-        type="submit" />
+        :text="$tr('updateProfile')"
+        :primary="true"
+        :disabled="busy"
+      />
     </form>
   </div>
 
@@ -62,18 +97,30 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { editProfile, resetProfileState } from '../../state/actions';
+  import {
+    facilityConfig,
+    isSuperuser,
+    isAdmin,
+    isCoach,
+    isLearner,
+    totalPoints,
+    getUserRole,
+    getUserPermissions,
+    userHasPermissions,
+  } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { totalPoints } from 'kolibri.coreVue.vuex.getters';
+  import { validateUsername } from 'kolibri.utils.validators';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import uiAlert from 'keen-ui/src/UiAlert';
+  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+
   export default {
-    name: 'profile-page',
-    $trNameSpace: 'profilePage',
+    name: 'profilePage',
     $trs: {
       genericError: 'Something went wrong',
       success: 'Profile details updated!',
@@ -83,32 +130,57 @@
       isLearner: 'Learner',
       isCoach: 'Coach',
       isAdmin: 'Admin',
-      isSuperuser: 'Device Owner',
+      isSuperuser: 'Superuser permissions ',
+      manageContent: 'Manage content',
       points: 'Points',
       role: 'Role',
+      devicePermissions: 'Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
     },
     components: {
-      iconButton,
-      coreTextbox,
+      kButton,
+      kTextbox,
       uiAlert,
       pointsIcon,
+      permissionsIcon,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         username: this.session.username,
-        full_name: this.session.full_name,
+        name: this.session.full_name,
+        usernameBlurred: false,
+        nameBlurred: false,
+        formSubmitted: false,
       };
     },
-    created() {
-      this.fetchPoints();
-    },
     computed: {
-      errorMessage() {
-        if (this.error) {
-          if (this.backendErrorMessage) {
-            return this.backendErrorMessage;
-          }
-          return this.$tr('genericError');
+      role() {
+        if (this.getUserRole === UserKinds.ADMIN) {
+          return this.$tr('isAdmin');
+        } else if (this.getUserRole === UserKinds.COACH) {
+          return this.$tr('isCoach');
+        } else if (this.getUserRole === UserKinds.LEARNER) {
+          return this.$tr('isLearner');
+        }
+        return '';
+      },
+      permissionType() {
+        if (this.isSuperuser) {
+          return PermissionTypes.SUPERUSER;
+        } else if (this.userHasPermissions) {
+          return PermissionTypes.LIMITED_PERMISSIONS;
+        }
+        return null;
+      },
+      permissionTypeText() {
+        if (this.permissionType === PermissionTypes.SUPERUSER) {
+          return this.$tr('isSuperuser');
+        } else if (this.permissionType === PermissionTypes.LIMITED_PERMISSIONS) {
+          return this.$tr('limitedPermissions');
         }
         return '';
       },
@@ -124,49 +196,86 @@
         }
         return true;
       },
-      role() {
-        if (this.isSuperuser) {
-          return this.$tr('isSuperuser');
-        } else if (this.isAdmin) {
-          return this.$tr('isAdmin');
-        } else if (this.isCoach) {
-          return this.$tr('isCoach');
-        } else if (this.isLearner) {
-          return this.$tr('isLearner');
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
         }
         return '';
       },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!validateUsername(this.username)) {
+            return this.$tr('usernameNotAlphaNumUnderscore');
+          }
+        }
+        return '';
+      },
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.usernameIsInvalid;
+      },
+    },
+    created() {
+      this.fetchPoints();
     },
     methods: {
       submitEdits() {
-        const edits = {
-          username: this.username,
-          full_name: this.full_name,
-        };
-        this.editProfile(edits, this.session);
+        this.formSubmitted = true;
+        this.resetProfileState();
+        if (this.formIsValid) {
+          const edits = {
+            username: this.username,
+            full_name: this.name,
+          };
+          this.editProfile(edits, this.session);
+        } else {
+          if (this.nameIsInvalid) {
+            this.$refs.name.focus();
+          } else if (this.usernameIsInvalid) {
+            this.$refs.username.focus();
+          }
+        }
+      },
+      getPermissionString(permission) {
+        if (permission === 'can_manage_content') {
+          return this.$tr('manageContent');
+        }
+        return permission;
       },
     },
     vuex: {
       getters: {
-        facilityConfig: getters.facilityConfig,
-        session: state => state.core.session,
-        error: state => state.pageState.error,
-        success: state => state.pageState.success,
-        busy: state => state.pageState.busy,
-        backendErrorMessage: state => state.pageState.errorMessage,
-        isSuperuser: getters.isSuperuser,
-        isAdmin: getters.isAdmin,
-        isCoach: getters.isCoach,
-        isLearner: getters.isLearner,
+        facilityConfig,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isLearner,
         totalPoints,
+        session: state => state.core.session,
+        busy: state => state.pageState.busy,
+        error: state => state.pageState.error,
+        errorMessage: state => state.pageState.errorMessage,
+        success: state => state.pageState.success,
+        getUserRole,
+        getUserPermissions,
+        userHasPermissions,
       },
       actions: {
-        editProfile: actions.editProfile,
-        resetProfileState: actions.resetProfileState,
+        editProfile,
+        resetProfileState,
         fetchPoints,
       },
     },
-    mixins: [responsiveWindow],
   };
 
 </script>
@@ -177,7 +286,7 @@
   @require '~kolibri.styles.definitions'
 
   // taken from docs, assumes 1rem = 16px
-  $vertical-page-margin = 100px
+  $vertical-page-margin = 50px
   $iphone-width = 320
 
   .content
@@ -203,5 +312,15 @@
     color: $core-status-correct
     font-size: 3em
     font-weight: bold
+    margin-left: 16px
+
+  section
+    margin-bottom: 36px
+
+  .permissions-list
+    padding-left: 37px
+
+  .permissions-icon
+    padding-right: 8px
 
 </style>

@@ -1,7 +1,10 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 from django.db.models.query import F
 from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
@@ -9,10 +12,10 @@ from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
-from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer,
-    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
+    ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, LearnerGroupSerializer,
+    MembershipSerializer, RoleSerializer
 )
 
 
@@ -105,17 +108,13 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
-    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None)
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
 
-
-class DeviceOwnerViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = DeviceOwner.objects.all()
-    serializer_class = DeviceOwnerSerializer
+    def get_queryset(self):
+        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
@@ -143,9 +142,7 @@ class FacilityViewSet(viewsets.ModelViewSet):
 class CurrentFacilityViewSet(viewsets.ViewSet):
     def list(self, request):
         logged_in_user = get_user(request)
-        if type(logged_in_user) is DeviceOwner:
-            return Response(Facility.objects.all().values_list('id', flat=True))
-        elif type(logged_in_user) is AnonymousUser:
+        if type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
             return Response([logged_in_user.facility_id])
@@ -169,6 +166,8 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 
 class SignUpViewSet(viewsets.ViewSet):
 
+    serializer_class = FacilityUserSerializer
+
     def extract_request_data(self, request):
         return {
             "username": request.data.get('username', ''),
@@ -182,7 +181,7 @@ class SignUpViewSet(viewsets.ViewSet):
         data = self.extract_request_data(request)
 
         # we validate the user's input, and if valid, login as user
-        serialized_user = FacilityUserSerializer(data=data)
+        serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid():
             serialized_user.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
@@ -206,8 +205,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
-        elif not password and (FacilityUser.objects.filter(username=username, facility=facility_id).exists() or
-                               DeviceOwner.objects.filter(username=username).exists()):
+        elif not password and FacilityUser.objects.filter(username=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password
             return Response({
                 "message": "Please provide password for user",
@@ -225,6 +223,10 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
+        # Set last activity on session to the current time to prevent session timeout
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -238,28 +240,28 @@ class SessionViewSet(viewsets.ViewSet):
         session = {'id': 'current',
                    'username': user.username,
                    'full_name': user.full_name,
-                   'user_id': user.id}
-        if isinstance(user, DeviceOwner):
-            session.update({'facility_id': getattr(Facility.get_default_facility(), 'id', None),
-                            'kind': ['superuser'],
-                            'error': '200'})
-            return session
-        else:
-            roles = Role.objects.filter(user_id=user.id)
-            if len(roles) is not 0:
-                session.update({'facility_id': user.facility_id,
-                                'kind': [],
-                                'error': '200'})
-                for role in roles:
-                    if role.kind == 'admin':
-                        session['kind'].append('admin')
-                    else:
-                        session['kind'].append('coach')
-            else:
-                session.update({'facility_id': user.facility_id,
-                                'kind': ['learner'],
-                                'error': '200'})
+                   'user_id': user.id,
+                   'can_manage_content': user.can_manage_content}
+        roles = Role.objects.filter(user_id=user.id)
 
+        if len(roles) is 0:
+            session.update({'facility_id': user.facility_id,
+                            'kind': ['learner'],
+                            'error': '200'})
+        else:
+            session.update({'facility_id': user.facility_id,
+                            'kind': [],
+                            'error': '200'})
+            for role in roles:
+                if role.kind == 'admin':
+                    session['kind'].append('admin')
+                elif role.kind == 'coach':
+                    session['kind'].append('coach')
+
+        if user.is_superuser:
+            session['kind'].insert(0, 'superuser')
+
+        if active:
             UserSessionLog.update_log(user)
 
-            return session
+        return session

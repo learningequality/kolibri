@@ -1,68 +1,24 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
+import mock
 import datetime
-import os
-import shutil
-import tempfile
+
 from django.test import TestCase
-from django.core.management import call_command
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db import connections
-from django.test.utils import override_settings
+
 from kolibri.content import models as content
-from django.conf import settings
 from le_utils.constants import content_kinds
-from ..content_db_router import set_active_content_database, using_content_database
-from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
-from kolibri.auth.models import DeviceOwner, Facility, FacilityUser
+from kolibri.auth.models import Facility, FacilityUser
+from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
-CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
-
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
-class ContentNodeTestCase(TestCase):
+class ContentNodeTestBase(object):
     """
-    Testcase for content metadata methods
+    Basecase for content metadata methods
     """
-    fixtures = ['content_test.json']
-    multi_db = True
-    the_channel_id = 'content_test'
-    connections.databases[the_channel_id] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-
-    def setUp(self):
-
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
-
-        # set the active content database for the duration of the test
-        set_active_content_database(self.the_channel_id)
-
-        # Create a temporary directory
-        self.test_dir = tempfile.mkdtemp()
-        # Create files in the temporary directory
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'wb')
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'wb')
-        # Write something to it
-        self.temp_f_1.write(('The owls are not what they seem').encode('utf-8'))
-        self.temp_f_2.write(('The owl are not what they seem').encode('utf-8'))
-
-        # Reopen the file and check if what we read back is the same
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'))
-        self.assertEqual(self.temp_f_1.read(), 'The owls are not what they seem')
-        self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
-
-    """Tests for content API methods"""
-
     def test_get_prerequisites_for(self):
         """
         test the directional characteristic of prerequisite relationship
@@ -114,126 +70,77 @@ class ContentNodeTestCase(TestCase):
     def test_descendants_of_kind(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(title__in=["c2"])
-        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
+        expected_output = content.ContentNode.objects.filter(title__in=["c1"])
+        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.VIDEO)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_top_level_topics(self):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(parent=p, kind=content_kinds.TOPIC)
-        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=content_kinds.TOPIC)
+        actual_output = content.ContentNode.objects.get(title="root").get_children().filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
-    def test_all_str(self):
+    def test_tag_str(self):
 
-        # test for File __str__
-        p = content.File.objects.get(id="725257a0570044acbd59f8cf6a68b2bf")
-        self.assertEqual(str(p), '.mp4')
         # test for ContentTag __str__
         p = content.ContentTag.objects.get(tag_name="tag_2")
         self.assertEqual(str(p), 'tag_2')
+
+    def test_lang_str(self):
         # test for Language __str__
         p = content.Language.objects.get(lang_code="en")
-        self.assertEqual(str(p), 'en')
+        self.assertEqual(str(p), 'English-Test')
+
+    def test_channelmetadata_str(self):
         # test for ChannelMetadata __str__
         p = content.ChannelMetadata.objects.get(name="testing")
         self.assertEqual(str(p), 'testing')
 
-    def tearDown(self):
-        """
-        clean up files/folders created during the test
-        """
-        # set the active content database to None now that the test is over
-        set_active_content_database(None)
-        try:
-            shutil.rmtree(settings.CONTENT_COPY_DIR)
-            shutil.rmtree(self.test_dir)
-        except:
-            pass
-        super(ContentNodeTestCase, self).tearDown()
+    def test_tags(self):
+        root_tag_count = content.ContentNode.objects.get(title='root').tags.count()
+        self.assertEqual(root_tag_count, 3)
+
+        c1_tag_count = content.ContentNode.objects.get(title='c1').tags.count()
+        self.assertEqual(c1_tag_count, 1)
+
+        c2_tag_count = content.ContentNode.objects.get(title='c2').tags.count()
+        self.assertEqual(c2_tag_count, 1)
+
+        c2c1_tag_count = content.ContentNode.objects.get(title='c2c1').tags.count()
+        self.assertEqual(c2c1_tag_count, 0)
+
+    def test_local_files(self):
+        self.assertTrue(content.LocalFile.objects.filter(id='9f9438fe6b0d42dd8e913d7d04cfb2b2').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='725257a0570044acbd59f8cf6a68b2be').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='e00699f859624e0f875ac6fe1e13d648').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='4c30dc7619f74f97ae2ccd4fffd09bf2').exists())
+        self.assertTrue(content.LocalFile.objects.filter(id='8ad3fffedf144cba9492e16daec1e39a').exists())
+
+    def test_delete_tree(self):
+        channel = content.ChannelMetadata.objects.first()
+        channel_id = channel.id
+        channel.delete_content_tree_and_files()
+        self.assertFalse(content.ContentNode.objects.filter(channel_id=channel_id).exists())
+        self.assertFalse(content.File.objects.all().exists())
 
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
-class DatabaseRoutingTests(TestCase):
-    multi_db = True
-    the_channel_id = 'content_test'
-    connections.databases[the_channel_id] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-
-    def test_accessing_node_without_active_db_throws_exception(self):
-        set_active_content_database(None)
-        with self.assertRaises(ContentModelUsedOutsideDBContext):
-            list(content.ContentNode.objects.all())
-
-    def test_accessing_data_within_context_manager_works(self):
-        with using_content_database(self.the_channel_id):
-            list(content.ContentNode.objects.all())
-
-    def test_accessing_data_within_decorated_function_works(self):
-        @using_content_database(self.the_channel_id)
-        def my_func():
-            return list(content.ContentNode.objects.all())
-        my_func()
-
-    def test_accessing_nonexistent_db_raises_error(self):
-        with self.assertRaises(KeyError):
-            with using_content_database("nonexistent_db"):
-                list(content.ContentNode.objects.all())
-
-    def test_database_on_disk_works_too(self):
-        the_other_channel_id = 'content_test_2'
-        filename = os.path.join(settings.CONTENT_DATABASE_DIR, the_other_channel_id + '.sqlite3')
-        connections.databases[the_other_channel_id] = {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': filename,
-        }
-        call_command('migrate', database=the_other_channel_id)
-        del connections.databases[the_other_channel_id]
-        with using_content_database(the_other_channel_id):
-            list(content.ContentNode.objects.all())
-
-    def test_empty_database_on_disk_throws_error(self):
-        yet_another_channel_id = 'content_test_3'
-        filename = os.path.join(settings.CONTENT_DATABASE_DIR, yet_another_channel_id + '.sqlite3')
-        open(filename, 'a').close()  # touch the file to create an empty DB
-        with self.assertRaises(KeyError):
-            with using_content_database(yet_another_channel_id):
-                list(content.ContentNode.objects.all())
-        del connections.databases[yet_another_channel_id]
+class ContentNodeTestCase(ContentNodeTestBase, TestCase):
+    fixtures = ['content_test.json']
 
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
 class ContentNodeAPITestCase(APITestCase):
     """
     Testcase for content API methods
     """
     fixtures = ['content_test.json']
-    multi_db = True
-    the_channel_id = '15137d33c49f489ebe08893bfa6b5414'
-    connections.databases[the_channel_id] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
+    the_channel_id = '6199dde695db4ee4ab392222d5af1e5c'
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
-        # set the active content database for the duration of the test
-        set_active_content_database(self.the_channel_id)
+        provision_device()
 
-    def _reverse_channel_url(self, pattern_name, extra_kwargs={}):
+    def _reverse_channel_url(self, pattern_name, kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
-        kwargs = {"channel_id": self.the_channel_id}
-        kwargs.update(extra_kwargs)
         return reverse(pattern_name, kwargs=kwargs)
 
     def test_prerequisite_for_filter(self):
@@ -252,8 +159,10 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_contentnode_list(self):
+        root = content.ContentNode.objects.get(title="root")
+        expected_output = root.get_descendants(include_self=True).filter(available=True).count()
         response = self.client.get(self._reverse_channel_url("contentnode-list"))
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), expected_output)
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -272,15 +181,17 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
         self.assertEqual(len(response.data), 2)
 
+    def test_contentnode_allcontent(self):
+        nodes = content.ContentNode.objects.exclude(kind=content_kinds.TOPIC).count()
+        response = self.client.get(self._reverse_channel_url("contentnode-all-content"))
+        self.assertEqual(len(response.data), nodes)
+
     def test_channelmetadata_list(self):
-        data = content.ChannelMetadata.objects.values()[0]
-        content.ChannelMetadataCache.objects.create(**data)
         response = self.client.get(reverse("channel-list", kwargs={}))
         self.assertEqual(response.data[0]['name'], 'testing')
 
     def test_channelmetadata_retrieve(self):
         data = content.ChannelMetadata.objects.values()[0]
-        content.ChannelMetadataCache.objects.create(**data)
         response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}))
         self.assertEqual(response.data['name'], 'testing')
 
@@ -386,10 +297,28 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(get_progress_fraction(c2), 0.4)
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
 
+    @mock.patch.object(cache, 'set')
+    def test_parent_query_cache_is_set(self, mock_cache_set):
+        id = content.ContentNode.objects.get(title="c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        self.assertTrue(mock_cache_set.called)
+
+    @mock.patch.object(cache, 'set')
+    def test_parent_query_cache_not_set(self, mock_cache_set):
+        id = content.ContentNode.objects.get(title="c2c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
+        self.assertFalse(mock_cache_set.called)
+
+    def test_parent_query_cache_hit(self):
+        id = content.ContentNode.objects.get(title="c2c3").id
+        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        with mock.patch.object(cache, 'set') as mock_cache_set:
+            self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+            self.assertFalse(mock_cache_set.called)
+
     def tearDown(self):
         """
         clean up files/folders created during the test
         """
-        # set the active content database to None now that the test is over
-        set_active_content_database(None)
+        cache.clear()
         super(ContentNodeAPITestCase, self).tearDown()

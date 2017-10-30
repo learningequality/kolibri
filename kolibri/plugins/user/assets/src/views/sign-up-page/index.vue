@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo/></ui-icon>
+        <ui-icon class="app-bar-icon"><logo /></ui-icon>
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -17,71 +17,83 @@
     </ui-toolbar>
 
     <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="errorCode">
-        {{errorMessage}}
+      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
+        {{ errorMessage }}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <core-textbox
-        :placeholder="$tr('enterName')"
-        :label="$tr('name')"
-        :aria-label="$tr('name')"
-        v-model="name"
-        autocomplete="name"
-        :autofocus="true"
-        required
+      <k-textbox
+        ref="name"
         id="name"
-        type="text" />
+        type="text"
+        autocomplete="name"
+        :label="$tr('name')"
+        :maxlength="120"
+        :autofocus="true"
+        :invalid="nameIsInvalid"
+        :invalidText="nameIsInvalidText"
+        @blur="nameBlurred = true"
+        v-model="name"
+      />
 
-      <core-textbox
-        :placeholder="$tr('enterUsername')"
-        :label="$tr('username')"
-        :aria-label="$tr('username')"
-        :invalid="usernameError"
-        v-model="username"
-        autocomplete="username"
-        required
+      <k-textbox
+        ref="username"
         id="username"
-        type="text" />
+        type="text"
+        autocomplete="username"
+        :label="$tr('username')"
+        :maxlength="30"
+        :invalid="usernameIsInvalid"
+        :invalidText="usernameIsInvalidText"
+        @blur="usernameBlurred = true"
+        @input="resetSignUpState"
+        v-model="username"
+      />
 
-      <core-textbox
+      <k-textbox
+        ref="password"
         id="password"
         type="password"
-        :placeholder="$tr('enterPassword')"
-        :aria-label="$tr('password')"
-        :label="$tr('password')"
-        v-model="password"
         autocomplete="new-password"
-        required />
+        :label="$tr('password')"
+        :invalid="passwordIsInvalid"
+        :invalidText="passwordIsInvalidText"
+        @blur="passwordBlurred = true"
+        v-model="password"
+      />
 
-      <core-textbox
+      <k-textbox
+        ref="confirmedPassword"
         id="confirmed-password"
         type="password"
-        :placeholder="$tr('confirmPassword')"
-        :aria-label="$tr('confirmPassword')"
-        :label="$tr('confirmPassword')"
-        :invalid="!passwordsMatch"
-        :error="passwordError "
-        v-model="confirmed_password"
         autocomplete="new-password"
-        required />
+        :label="$tr('reEnterPassword')"
+        :invalid="confirmedPasswordIsInvalid"
+        :invalidText="confirmedPasswordIsInvalidText"
+        @blur="confirmedPasswordBlurred = true"
+        v-model="confirmedPassword"
+      />
 
       <ui-select
         :name="$tr('selectFacility')"
         :placeholder="$tr('selectFacility')"
         :label="$tr('facility')"
-        :options="facilityOptions"
-        :invalid="selectFacilityInvalid"
-        :error="$tr('selectFacility')"
         :value="selectedFacility"
+        :options="facilityList"
+        :invalid="facilityIsInvalid"
+        :error="facilityIsInvalidText"
+        @blur="facilityBlurred = true"
         @input="updateSelection"
       />
 
-      <icon-button :disabled="busy" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
+    <div class="footer">
+      <language-switcher-footer />
+    </div>
   </div>
 
 </template>
@@ -89,111 +101,175 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import { validateUsername } from 'kolibri.utils.validators';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import uiCheckbox from 'keen-ui/src/UiCheckbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiSelect from 'keen-ui/src/UiSelect';
+  import languageSwitcherFooter from '../language-switcher-footer';
+
   export default {
-    name: 'Sign-Up-Page',
-    $trNameSpace: 'signUpPage',
+    name: 'signUpPage',
     $trs: {
       createAccount: 'Create an account',
       name: 'Full name',
-      enterName: 'Enter full name',
       username: 'Username',
-      enterUsername: 'Enter username',
       password: 'Password',
-      enterPassword: 'Enter password',
-      confirmPassword: 'Confirm password',
+      reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
       genericError: 'Something went wrong during sign up!',
+      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+      usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       finish: 'Finish',
       facility: 'Facility',
       selectFacility: 'Select a facility',
+      required: 'This field is required',
     },
     components: {
-      iconButton,
+      kButton,
       uiAlert,
-      coreTextbox,
+      kTextbox,
       uiToolbar,
-      uiCheckbox,
       logo,
       uiIcon,
       uiSelect,
+      languageSwitcherFooter,
     },
     data: () => ({
       name: '',
       username: '',
       password: '',
-      confirmed_password: '',
-      checkSelect: false,
+      confirmedPassword: '',
       selection: {},
+      nameBlurred: false,
+      usernameBlurred: false,
+      passwordBlurred: false,
+      confirmedPasswordBlurred: false,
+      facilityBlurred: false,
+      formSubmitted: false,
     }),
     computed: {
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
-      passwordsMatch() {
-        if (this.password && this.confirmed_password) {
-          return this.password === this.confirmed_password;
-        }
-        return true;
-      },
-      passwordError() {
-        if (this.passwordsMatch) {
-          return '';
-        }
-        return this.$tr('passwordMatchError');
-      },
-      usernameError() {
-        return this.errorCode === 400;
-      },
-      allFieldsPopulated() {
-        return (
-          this.name &&
-          this.username &&
-          this.password &&
-          this.confirmed_password &&
-          !this.noFacilitySelected
-        );
-      },
-      errorMessage() {
-        return this.backendErrorMessage || this.$tr('genericError');
-      },
-      facilityOptions() {
+      facilityList() {
         return this.facilities.map(facility => ({
           label: facility.name,
           id: facility.id,
         }));
       },
-      noFacilitySelected() {
-        return !this.selectedFacility.id;
-      },
-      selectFacilityInvalid() {
-        if (!this.checkSelect) {
-          return false;
-        }
-        return this.noFacilitySelected;
-      },
       selectedFacility() {
-        if (this.facilityOptions.length === 1) {
-          return this.facilityOptions[0];
+        if (this.facilityList.length === 1) {
+          return this.facilityList[0];
         }
         return this.selection;
       },
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      usernameDoesNotExistYet() {
+        if (this.errorCode === 400) {
+          return false;
+        }
+        return true;
+      },
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.$tr('required');
+          }
+          if (!validateUsername(this.username)) {
+            return this.$tr('usernameAlphaNumError');
+          }
+          if (!this.usernameDoesNotExistYet) {
+            return this.$tr('usernameAlreadyExistsError');
+          }
+        }
+        return '';
+      },
+      usernameIsInvalid() {
+        return !!this.usernameIsInvalidText;
+      },
+      passwordIsInvalidText() {
+        if (this.passwordBlurred || this.formSubmitted) {
+          if (this.password === '') {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      passwordIsInvalid() {
+        return !!this.passwordIsInvalidText;
+      },
+      confirmedPasswordIsInvalidText() {
+        if (this.confirmedPasswordBlurred || this.formSubmitted) {
+          if (this.confirmedPassword === '') {
+            return this.$tr('required');
+          }
+          if (this.confirmedPassword !== this.password) {
+            return this.$tr('passwordMatchError');
+          }
+        }
+        return '';
+      },
+      confirmedPasswordIsInvalid() {
+        return !!this.confirmedPasswordIsInvalidText;
+      },
+      noFacilitySelected() {
+        return !this.selectedFacility.id;
+      },
+      facilityIsInvalidText() {
+        if (this.facilityBlurred || this.formSubmitted) {
+          if (this.noFacilitySelected) {
+            return this.$tr('required');
+          }
+        }
+        return '';
+      },
+      facilityIsInvalid() {
+        return !!this.facilityIsInvalidText;
+      },
+      formIsValid() {
+        return (
+          !this.nameIsInvalid &&
+          !this.usernameIsInvalid &&
+          !this.passwordIsInvalid &&
+          !this.confirmedPasswordIsInvalid &&
+          !this.facilityIsInvalid
+        );
+      },
+      unknownError() {
+        if (this.errorCode) {
+          return this.errorCode !== 400;
+        }
+        return false;
+      },
+      errorMessage() {
+        return this.backendErrorMessage || this.$tr('genericError');
+      },
     },
     methods: {
+      updateSelection(selection) {
+        this.selection = selection;
+      },
       signUp() {
-        this.checkSelect = true;
-        const canSubmit = this.allFieldsPopulated && this.passwordsMatch && !this.busy;
+        this.formSubmitted = true;
+        const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
           this.signUpAction({
             facility: this.selectedFacility.id,
@@ -201,10 +277,20 @@
             username: this.username,
             password: this.password,
           });
+        } else {
+          this.focusOnInvalidField();
         }
       },
-      updateSelection(selection) {
-        this.selection = selection;
+      focusOnInvalidField() {
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        }
       },
     },
     vuex: {
@@ -216,8 +302,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: actions.signUp,
-        resetSignUpState: actions.resetSignUpState,
+        signUpAction: signUp,
+        resetSignUpState: resetSignUpState,
       },
     },
   };
@@ -271,17 +357,12 @@
     p
       margin-top: 0
 
-  #submit
-    width: 90%
-    display: block
-    margin-left: auto
-    margin-right: auto
-
-    margin-top: $vertical-page-margin
-    margin-bottom: $vertical-page-margin
-
   .app-bar-icon
     font-size: 2.5em
     margin-left: 0.25em
+
+  .footer
+    margin: 36px
+    margin-top: 96px
 
 </style>

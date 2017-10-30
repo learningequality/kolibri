@@ -1,15 +1,18 @@
 <template>
 
   <core-modal :title="$tr('examVisibility')" @cancel="close">
-    <p v-html="$trHtml('shouldBeVisible', { examTitle })"></p>
-    <label>
-      <input type="radio" :value="true" v-model="classIsSelected" @change="deselectGroups">
-      <span v-html="$trHtml('entireClass', { className })"></span>
-    </label>
+    <p>{{ $tr('shouldBeVisible', { examTitle }) }}</p>
+    <k-radio-button
+      :label="$tr('entireClass', { className })"
+      :radiovalue="true"
+      v-model="classIsSelected"
+      @change="deselectGroups"
+    />
     <ui-select
+      v-if="classGroups.length"
       :name="$tr('group')"
-      :label="$tr('specificGroups')"
-      :placeholder="$tr('selectGroups')"
+      :label="$tr('selectGroups')"
+      :floatingLabel="true"
       :multiple="true"
       :options="groupOptions"
       v-model="groupsSelected"
@@ -17,8 +20,8 @@
       class="group-select"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('update')" :primary="true" @click="updateVisibility" />
     </div>
   </core-modal>
 
@@ -30,15 +33,15 @@
   import * as examActions from '../../state/actions/exam';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import uiSelect from 'keen-ui/src/UiSelect';
   export default {
-    $trNameSpace: 'changeExamVisibilityModal',
+    name: 'changeExamVisibilityModal',
     $trs: {
-      examVisibility: 'Exam visibility',
-      shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',
+      examVisibility: 'Change exam visibility',
+      shouldBeVisible: "Make '{ examTitle }' visible to entire class or specific groups",
       group: 'group',
-      specificGroups: 'Specific groups',
       selectGroups: 'Select groups',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
@@ -46,7 +49,8 @@
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
+      kRadioButton,
       uiSelect,
     },
     props: {
@@ -174,9 +178,7 @@
     display: block
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
   .group-select
     padding-bottom: 4rem

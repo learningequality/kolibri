@@ -1,0 +1,36 @@
+{
+  "formal": {
+    "name": "Admin-managed",
+    "mappings": {
+      "learner_can_edit_username": false,
+      "learner_can_edit_name": false,
+      "learner_can_edit_password": false,
+      "learner_can_sign_up": false,
+      "learner_can_delete_account": false,
+      "learner_can_login_with_no_password": true
+    }
+  },
+  "nonformal": {
+    "name": "Self-managed",
+    "default": true,
+    "mappings": {
+      "learner_can_edit_username": true,
+      "learner_can_edit_name": true,
+      "learner_can_edit_password": true,
+      "learner_can_sign_up": true,
+      "learner_can_delete_account": true,
+      "learner_can_login_with_no_password": false
+    }
+  },
+  "informal": {
+    "name": "Informal and personal use",
+    "mappings": {
+      "learner_can_edit_username": true,
+      "learner_can_edit_name": true,
+      "learner_can_edit_password": true,
+      "learner_can_sign_up": false,
+      "learner_can_delete_account": true,
+      "learner_can_login_with_no_password": false
+    }
+  }
+}

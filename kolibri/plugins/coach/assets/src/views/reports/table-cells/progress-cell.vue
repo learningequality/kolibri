@@ -2,10 +2,10 @@
 
   <td>
     <template v-if="num !== undefined">
-      <progress-bar :progress="num"/>
+      <progress-bar :progress="num" />
       <div v-if="extraText" class="extra-text">
-        <mat-svg category="social" name="person" class="person-icon"/>
-        {{extraText}}
+        <mat-svg category="social" name="person" class="person-icon" />
+        {{ extraText }}
       </div>
     </template>
     <template v-else>–</template>
@@ -18,7 +18,7 @@
 
   import progressBar from 'kolibri.coreVue.components.progressBar';
   export default {
-    $trNameSpace: 'progressIndicator',
+    name: 'progressIndicator',
     $trs: {
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',

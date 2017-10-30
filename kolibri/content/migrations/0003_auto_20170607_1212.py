@@ -12,8 +12,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='contentnode',
-            options={'ordering': ('lft',)},
-        ),
     ]

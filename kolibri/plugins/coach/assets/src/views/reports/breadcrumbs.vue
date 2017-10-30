@@ -1,6 +1,6 @@
 <template>
 
-  <breadcrumbs  v-if="breadcrumbs.length" :items="breadcrumbs"/>
+  <k-breadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
 
 </template>
 
@@ -8,13 +8,14 @@
 <script>
 
   import find from 'lodash/find';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import * as CoachConstants from '../../constants';
   import * as coachGetters from '../../state/getters/main';
-  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
-    $trNameSpace: 'reportBreadcrumbs',
+    name: 'reportBreadcrumbs',
     $trs: { channels: 'Channels' },
-    components: { breadcrumbs },
+    components: { kBreadcrumbs },
     computed: {
       channelTitle() {
         return find(this.channels, channel => channel.id === this.pageState.channelId).title;
@@ -104,7 +105,7 @@
     },
     vuex: {
       getters: {
-        channels: state => state.core.channels.list,
+        channels: getChannels,
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,

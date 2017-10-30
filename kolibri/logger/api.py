@@ -6,9 +6,10 @@ from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
 from .models import AttemptLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
+from .permissions import ExamActivePermissions
 from .serializers import (
-    AttemptLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer,
-    MasteryLogSerializer, TotalContentProgressSerializer, UserSessionLogSerializer
+    AttemptLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer, MasteryLogSerializer,
+    TotalContentProgressSerializer, UserSessionLogSerializer
 )
 
 
@@ -17,7 +18,7 @@ class BaseLogFilter(filters.FilterSet):
     classroom = filters.django_filters.MethodFilter()
     learner_group = filters.django_filters.MethodFilter()
 
-    # Only device owner (superuser) can filter by facilities
+    # Only a superuser can filter by facilities
     def filter_facility(self, queryset, value):
         return queryset.filter(user__facility_id=value)
 
@@ -139,7 +140,7 @@ class ExamAttemptFilter(filters.FilterSet):
         fields = ['examlog', 'exam', 'user']
 
 class ExamAttemptLogViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
+    permission_classes = (ExamActivePermissions, KolibriAuthPermissions, )
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend, filters.OrderingFilter)
     queryset = ExamAttemptLog.objects.all()
     serializer_class = ExamAttemptLogSerializer

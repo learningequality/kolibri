@@ -1,13 +1,19 @@
 import { PageNames } from '../constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import { isUserLoggedIn, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
-import {
-  SignUpResource,
-  FacilityUserResource,
-  DeviceOwnerResource,
-  FacilityResource,
-} from 'kolibri.resources';
+import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const name = 'userPageTitles';
+
+const messages = {
+  userProfilePageTitle: 'User Profile',
+  userSignInPageTitle: 'User Sign In',
+  userSignUpPageTitle: 'User Sign Up',
+};
+
+const translator = createTranslator(name, messages);
 
 function redirectToHome() {
   window.location = '/';
@@ -30,9 +36,6 @@ function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
-    if (isSuperuser(store.state)) {
-      return DeviceOwnerResource.getModel(session.user_id);
-    }
     return FacilityUserResource.getModel(session.user_id);
   }
   const savedUserModel = getUserModel();
@@ -58,12 +61,12 @@ function editProfile(store, edits, session) {
   store.dispatch('SET_PROFILE_BUSY', true);
 
   savedUserModel.save(changedValues).then(
-    userWithAttrs => {
+    () => {
       // dispatch changes to store
       coreActions.getCurrentSession(store, true);
       store.dispatch('SET_PROFILE_SUCCESS', true);
       store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_EROR', false, '');
+      store.dispatch('SET_PROFILE_ERROR', false, '');
 
       // error handling
     },
@@ -80,7 +83,7 @@ function editProfile(store, edits, session) {
 
       // copying logic from user-create-modal
       store.dispatch('SET_PROFILE_SUCCESS', false);
-      store.dispatch('SET_PROFILE_EROR', true, _errorMessageHandler(error));
+      store.dispatch('SET_PROFILE_ERROR', true, _errorMessageHandler(error));
       store.dispatch('SET_PROFILE_BUSY', false);
     }
   );
@@ -108,7 +111,7 @@ function showProfile(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Profile');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userProfilePageTitle'));
   resetProfileState(store);
 }
 
@@ -124,7 +127,7 @@ function showSignIn(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Sign In');
+  store.dispatch('CORE_SET_TITLE', translator.$tr('userSignInPageTitle'));
 }
 
 function resetSignUpState(store) {
@@ -152,7 +155,7 @@ function showSignUp(store) {
     store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
-    store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+    store.dispatch('CORE_SET_TITLE', translator.$tr('userSignUpPageTitle'));
     resetSignUpState(store);
   }).catch(error => coreActions.handleApiError(store, error));
 }
@@ -161,13 +164,12 @@ function signUp(store, signUpCreds) {
   const signUpModel = SignUpResource.createModel(signUpCreds);
   const signUpPromise = signUpModel.save(signUpCreds);
 
-  store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
+  store.dispatch('SET_SIGN_UP_BUSY', true);
 
   signUpPromise
     .then(() => {
       store.dispatch('SET_SIGN_UP_ERROR', null, '');
-      store.dispatch('SET_SIGN_UP_BUSY', false);
       // TODO: Better solution?
       redirectToHome();
     })

@@ -1,3 +1,5 @@
+.. _getting_started:
+
 Getting started
 ===============
 
@@ -24,7 +26,7 @@ Install Environment Dependencies
 
 #. Install `Python <https://www.python.org/downloads/windows/>`_ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
 #. Install `pip <https://pypi.python.org/pypi/pip>`_ package installer.
-#. Install `Node <https://nodejs.org/en/>`_ (recommended version 4+).
+#. Install `Node <https://nodejs.org/en/>`_ (version 6 is required).
 #. Install Yarn according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`_.
 
    .. note::
@@ -160,6 +162,15 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
 
+.. tip::
+
+  If get an error similar to ``Node Sass could not find a binding for your current environment`` try running:
+
+  .. code-block:: bash
+
+    (kolibri)$ npm rebuild node-sass
+
+
 More advanced examples of the ``devserver`` command:
 
 .. code-block:: bash
@@ -185,48 +196,6 @@ In production, content is served through CherryPy. Static assets must be pre-bui
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
-
-
-Contributing code to Kolibri
-----------------------------
-
-* Once you've toyed around with things, read through the rest of the :doc:`index`, especially topics in :ref:`architecture` and :ref:`themes` to understand more about the Kolibri structure.
-* When you're up to speed with that, you're probably itching to make some contributions! Head over to the `issues page on GitHub <https://github.com/learningequality/kolibri/issues>`_ and take a look at the current project priorities. Try filtering by milestone. If you find a bug in your testing, please `submit your own issue <https://github.com/learningequality/kolibri/issues/new>`_
-* Once you've identified an issue and you're ready to start hacking on a solution, get ready to :ref:`pull_request`!
-
-Branching and Release Process
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``develop`` branch is reserved for active development. When we get close to releasing a new stable version/release of Kolibri, we generally fork the develop branch into a new branch (like ``release-0.1.x``). If you're working on an issue tagged for example with the ``release-0.1.x`` milestone, then you should target changes to that branch. Changes to those branches will later be pulled into ``develop`` again. If you're not sure which branch to target, ask the dev team!
-
-
-.. note::
-  At a high level, we follow the 'Gitflow' model. Some helpful references:
-  * http://nvie.com/posts/a-successful-git-branching-model/
-  * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
-
-.. _pull_request:
-
-
-Submit Pull Requests
-~~~~~~~~~~~~~~~~~~~~~
-
-The most common situation is working off of ``develop`` branch so we'll take it as an example:
-
-.. code-block:: bash
-
-  $ git checkout upstream/develop
-  $ git checkout -b name-of-your-bugfix-or-feature
-
-After making changes to the code, commit and push them to a branch on your fork:
-
-.. code-block:: bash
-
-  $ git add -A  # Add all changed and new files to the commit
-  $ git commit -m "Write here the commit message"
-  $ git push origin name-of-your-bugfix-or-feature
-
-Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`_, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the aplicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
 
 Additional Recommended Setup
@@ -289,7 +258,7 @@ Kolibri comes with a Python test suite based on ``py.test``. To run tests in you
 
 .. code-block:: bash
 
-  python setup.py test  # alternatively, "make test" does the same
+  pytest  # alternatively, "make test" does the same
 
 You can also use ``tox`` to setup a clean and disposable environment:
 
@@ -302,7 +271,7 @@ To run Python tests for all environments, lint and documentation tests, use simp
 To run Python linting tests (pep8 and static code analysis), use ``tox -e lint`` or
 ``make lint``.
 
-Note that tox, by default, reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
+Note that tox reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
 
 We strive for 100% code coverage in Kolibri. When you open a Pull Request, code coverage (and your impact on coverage) will be reported. To test code coverage locally, so that you can work to improve it, you can run the following:
 
@@ -344,6 +313,14 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
   kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
 
 
+
+To run a subset of tests, you can also run
+
+.. code-block:: bash
+
+  py.test test/test_kolibri.py
+
+
 Updating Documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -380,3 +357,26 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Consistency
 
 For more information, see the next section on :doc:`manual_testing`.
+
+
+Submitting a Pull Request
+-------------------------
+
+The most common situation is working off of ``develop`` branch so we'll take it as an example:
+
+.. code-block:: bash
+
+  $ git checkout upstream/develop
+  $ git checkout -b name-of-your-bugfix-or-feature
+
+After making changes to the code, commit and push them to a branch on your fork:
+
+.. code-block:: bash
+
+  $ git add -A  # Add all changed and new files to the commit
+  $ git commit -m "Write here the commit message"
+  $ git push origin name-of-your-bugfix-or-feature
+
+Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`_, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the applicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
+
+Learn more about our :ref:`release_process`

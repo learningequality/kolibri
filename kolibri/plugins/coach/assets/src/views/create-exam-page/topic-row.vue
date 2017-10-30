@@ -2,22 +2,23 @@
 
   <tr>
     <th class="col-checkbox">
-      <input
-        type="checkbox"
+      <k-checkbox
+        :label="$tr('selectTopic')"
+        :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
-        :indeterminate.prop="someExercisesWithinTopicSelected"
+        :indeterminate="someExercisesWithinTopicSelected"
         :disabled="!topicHasExercises"
         @change="changeSelection"
-      >
+      />
     </th>
     <td class="col-title">
-      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
+      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
       <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
       <span v-else class="disabled">{{ topicTitle }}</span>
     </td>
     <td class="col-selection">
       <template v-if="!noExercisesWithinTopicSelected">
-      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic })}}
+      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic }) }}
       </template>
     </td>
   </tr>
@@ -29,16 +30,19 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   export default {
-    $trNameSpace: 'topicRow',
+    name: 'topicRow',
     $trs: {
       exercisesSelected:
         '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
+      selectTopic: 'Select topic',
     },
     components: {
       contentIcon,
-      iconButton,
+      kButton,
+      kCheckbox,
     },
     props: {
       topicId: {

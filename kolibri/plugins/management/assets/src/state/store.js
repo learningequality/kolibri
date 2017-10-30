@@ -2,7 +2,6 @@ import Vuex from 'kolibri.lib.vuex';
 import * as coreStore from 'kolibri.coreVue.vuex.store';
 import * as constants from '../constants';
 import otherMutations from './mutations';
-import manageContentMutations from './manageContentMutations';
 
 /**
  pageState schemas
@@ -26,7 +25,16 @@ import manageContentMutations from './manageContentMutations';
 
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
-  pageState: {},
+  pageState: {
+    channelList: [],
+    wizardState: {},
+    classes: [],
+    users: [],
+    taskList: [],
+    modalShown: false,
+    error: '',
+    isBusy: false,
+  },
 };
 
 const mutations = {
@@ -36,7 +44,10 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
-
+  SET_CONTENT_PAGE_STATE(state, pageState) {
+    state.pageName = 'CONTENT_MGMT_PAGE';
+    state.pageState = pageState;
+  },
   // modal mutations
   SET_MODAL(state, modalName) {
     state.pageState.modalShown = modalName;
@@ -51,15 +62,6 @@ const mutations = {
     state.pageState.classes.forEach((classModel, index, arr) => {
       if (classModel.id === id) {
         arr[index] = updatedClass;
-      }
-    });
-  },
-
-  UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
-    // pageState has shape for 'edit class page'
-    state.pageState.classUsers.forEach(user => {
-      if (user.id === userId) {
-        user.kind = newRole;
       }
     });
   },
@@ -93,34 +95,26 @@ const mutations = {
     });
   },
 
+  SET_ERROR(state, error) {
+    state.pageState.error = error;
+  },
+
+  SET_BUSY(state, isBusy) {
+    state.pageState.isBusy = isBusy;
+  },
+
   DELETE_USER(state, id) {
     state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
   },
 
-  // content import-export-specific mutations
-  SET_CONTENT_PAGE_TASKS(state, taskList) {
-    state.pageState.taskList = taskList;
-  },
-  SET_CONTENT_PAGE_CHANNELS(state, channelList) {
-    state.pageState.channelList = channelList;
-  },
-  SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
-    state.pageState.wizardState = wizardState;
-  },
-  SET_CONTENT_PAGE_WIZARD_DRIVES(state, driveList) {
-    state.pageState.wizardState.driveList = driveList;
-  },
-  SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
-    state.pageState.wizardState.error = error;
-  },
-  SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
-    state.pageState.wizardState.busy = isBusy;
+  UPDATE_CURRENT_USER_KIND(state, newKind) {
+    state.core.session.kind = newKind;
   },
 };
 
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, otherMutations, coreStore.mutations, manageContentMutations);
+Object.assign(mutations, otherMutations, coreStore.mutations);
 
 const store = new Vuex.Store({
   state: initialState,

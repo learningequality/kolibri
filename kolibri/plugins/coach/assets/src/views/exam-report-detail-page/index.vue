@@ -11,12 +11,12 @@
           :userName="userName"
           :questions="examAttempts"
           :completionTimestamp="new Date(completionTimestamp)"
-          :completed="closed"/>
+          :completed="closed" />
       </div>
       <div class="details-container">
         <div class="attempt-log-container">
           <attempt-log-list
-            :attempt-logs="examAttempts"
+            :attemptLogs="examAttempts"
             :selectedQuestionNumber="questionNumber"
             @select="navigateToAttempt"
           />
@@ -42,7 +42,8 @@
             :available="exercise.available"
             :answerState="currentInteraction.answer"
             :extraFields="exercise.extra_fields"
-            :assessment="true"/>
+            :interactive="false"
+            :assessment="true" />
           <content-renderer
             v-else
             class="content-renderer"
@@ -55,7 +56,8 @@
             :channelId="channelId"
             :available="exercise.available"
             :extraFields="exercise.extra_fields"
-            :assessment="true"/>
+            :interactive="false"
+            :assessment="true" />
         </div>
       </div>
     </template>
@@ -73,7 +75,7 @@
   import attemptLogList from '../attempt-log-list';
   import interactionList from '../interaction-list';
   export default {
-    $trNameSpace: 'coachExamDetailPage',
+    name: 'coachExamDetailPage',
     $trs: { backTo: 'Back to exam report for { title }' },
     components: {
       immersiveFullScreen,

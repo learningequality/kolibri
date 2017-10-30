@@ -5,14 +5,11 @@
     class="container"
     :class="{ 'container-mimic-fullscreen': mimicFullscreen }"
     allowfullscreen>
-    <icon-button
+    <k-button
       class="btn"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen"
-      :primary="true">
-      <mat-svg v-if="isFullscreen" class="icon" category="navigation" name="fullscreen_exit"/>
-      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
-    </icon-button>
+      :primary="true" />
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
@@ -22,9 +19,10 @@
 <script>
 
   import ScreenFull from 'screenfull';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    components: { iconButton },
+    name: 'html5Renderer',
+    components: { kButton },
     props: {
       defaultFile: {
         type: Object,
@@ -43,6 +41,19 @@
         return !this.fullscreenAllowed && this.isFullscreen;
       },
     },
+    mounted() {
+      this.$emit('startTracking');
+      const self = this;
+      this.timeout = setTimeout(() => {
+        self.$emit('updateProgress', 1);
+      }, 15000);
+    },
+    beforeDestroy() {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      this.$emit('stopTracking');
+    },
     methods: {
       toggleFullscreen() {
         if (this.isFullscreen) {
@@ -58,20 +69,6 @@
         }
       },
     },
-    mounted() {
-      this.$emit('startTracking');
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', 1);
-      }, 15000);
-    },
-    beforeDestroy() {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-      }
-      this.$emit('stopTracking');
-    },
-    $trNameSpace: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',

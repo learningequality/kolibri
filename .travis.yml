@@ -46,10 +46,6 @@ matrix:
       env:
         - TOX_ENV=docs
         - TRAVIS_NODE_VERSION="6"
-    - python: "2.7"
-      env:
-        - TOX_ENV=bdd
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.4"
       env:
         - TOX_ENV=py3.4
@@ -72,9 +68,8 @@ matrix:
         - TRAVIS_NODE_VERSION="6"
 
 before_install:
-  - pip install -U pip
-  - pip install codecov
-  - pip install tox
+  - git describe --tags
+  - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
   - nvm install $TRAVIS_NODE_VERSION
   - nvm use $TRAVIS_NODE_VERSION
@@ -84,7 +79,7 @@ before_install:
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
-# command to run tests, e.g. python setup.py test
+# command to run tests
 script:
   - tox -e $TOX_ENV
 

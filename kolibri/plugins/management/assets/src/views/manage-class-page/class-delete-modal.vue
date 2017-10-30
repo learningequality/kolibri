@@ -2,26 +2,25 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="false"
+    :hasError="false"
     @cancel="close"
   >
     <div>
       <span v-html="formattedDeleteConfirmation"> </span>
 
-      <p>{{$tr('description')}}</p>
+      <p>{{ $tr('description') }}</p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
 
-        <icon-button
+        <k-button
           :text="$tr('cancel')"
-          class="undo-btn"
+          appearance="flat-button"
           @click="close"
         />
 
-        <icon-button
+        <k-button
           :text="$tr('delete')"
-          class="confirm-btn"
           :primary="true"
           @click="classDelete"
         />
@@ -37,10 +36,10 @@
 <script>
 
   import * as actions from '../../state/actions';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
-    $trNameSpace: 'classDeleteModal',
+    name: 'classDeleteModal',
     $trs: {
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
@@ -50,7 +49,7 @@
       deleteConfirmation: 'Are you sure you want to delete { classname }?',
     },
     components: {
-      iconButton,
+      kButton,
       coreModal,
     },
     props: {
@@ -93,11 +92,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
+  section
+    text-align: right
 
   .header
     text-align: center

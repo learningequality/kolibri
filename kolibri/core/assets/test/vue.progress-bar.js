@@ -1,35 +1,50 @@
 /* eslint-env mocha */
 import Vue from 'vue-test';
 import assert from 'assert';
-import progressBar from '../src/views/progress-bar';
+import { shallow } from 'avoriaz';
+import ProgressBar from '../src/views/progress-bar';
 
-const ProgressBarComponent = Vue.extend(progressBar);
+function testProgressBar(wrapper, expected) {
+  const { text, width } = expected;
+  assert.equal(wrapper.first('.progress-bar-text').text(), text);
+  assert(wrapper.first('.progress-bar-complete').hasStyle('width', width));
+}
 
-describe('progressBar Component', () => {
-  describe('`percent` computed property', () => {
-    let vm;
-    beforeEach(() => {
-      vm = new ProgressBarComponent({
-        propsData: {
-          progress: 0,
-        },
-      }).$mount();
+describe('ProgressBar Component', () => {
+  it('should give 0 percent for progress of < 0', () => {
+    const wrapper = shallow(ProgressBar, {
+      propsData: {
+        progress: -0.0000001,
+      },
     });
-    it('should give 0 percent for progress of < 0', () => {
-      vm.progress = -0.0000000001;
-      assert.equal(vm.percent, 0);
+    // The negative still shows up...
+    testProgressBar(wrapper, { text: '-0%', width: '0%' });
+  });
+
+  it('should give 10 percent for progress of 0.1', () => {
+    const wrapper = shallow(ProgressBar, {
+      propsData: {
+        progress: 0.1,
+      },
     });
-    it('should give 10 percent for progress of 0.1', () => {
-      vm.progress = 0.1;
-      assert.equal(vm.percent, 10);
+    testProgressBar(wrapper, { text: '10%', width: '10%' });
+  });
+
+  it('should give 100 percent for progress of 1.0', () => {
+    const wrapper = shallow(ProgressBar, {
+      propsData: {
+        progress: 1.0,
+      },
     });
-    it('should give 100 percent for progress of 1.0', () => {
-      vm.progress = 1.0;
-      assert.equal(vm.percent, 100);
+    testProgressBar(wrapper, { text: '100%', width: '100%' });
+  });
+
+  it('should give 100 percent for progress of > 1.0', () => {
+    const wrapper = shallow(ProgressBar, {
+      propsData: {
+        progress: 1.0000001,
+      },
     });
-    it('should give 100 percent for progress of > 1.0', () => {
-      vm.progress = 1.0000000001;
-      assert.equal(vm.percent, 100);
-    });
+    testProgressBar(wrapper, { text: '100%', width: '100%' });
   });
 });

@@ -23,7 +23,7 @@
     <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)">
 
       <div v-if="singleUser">
-        <progress-icon :progress="contentProgress"/>
+        <progress-icon :progress="contentProgress" />
 
         <span v-if="(kind === Kinds.VIDEO)">
           <span v-if="isCompleted">{{ $tr('watched') }}</span>
@@ -53,7 +53,7 @@
     <div v-if="kind === Kinds.DOCUMENT">
 
       <div v-if="singleUser">
-        <progress-icon :progress="contentProgress"/>
+        <progress-icon :progress="contentProgress" />
         <span v-if="isCompleted">{{ $tr('viewed') }}</span>
         <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
         <span v-else>{{ $tr('notViewed') }}</span>
@@ -76,7 +76,7 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   export default {
-    $trNameSpace: 'reportSummary',
+    name: 'reportSummary',
     $trs: {
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',
