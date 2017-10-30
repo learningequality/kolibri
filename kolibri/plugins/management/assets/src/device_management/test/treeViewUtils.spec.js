@@ -1,18 +1,19 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import { annotateNodes } from '../views/select-content-page/treeViewUtils';
+import { annotateNode } from '../views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
 
-describe('annotateNodes utility correctly annotates', () => {
-  it('completely selected nodes', () => {
+describe('annotateNode utility correctly annotates', () => {
+  // Simplest cases
+  it('nodes that are in the "include" list (100% selected)', () => {
     const node_1 = makeNode('1');
     const selected = {
       include: [node_1],
       omit: [],
     };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '1 resource selected',
       disabled: false,
@@ -20,11 +21,11 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('not-selected nodes (in neither list)', () => {
+  it('nodes that are neither selected nor omitted', () => {
     const node_1 = makeNode('1');
     const selected = { include: [], omit: [] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '',
       disabled: false,
@@ -32,11 +33,11 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('not-selected nodes (in omit list)', () => {
+  it('nodes that are in the "omit list"', () => {
     const node_1 = makeNode('1');
     const selected = { include: [], omit: [node_1] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '',
       disabled: false,
@@ -44,12 +45,13 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes that are 100% on device', () => {
+  // Nodes with resources on the device
+  it('nodes that have all resources on the device', () => {
     const node_1 = makeNode('1');
     node_1.resourcesOnDevice =  node_1.totalResources = 100;
     const selected = { include: [], omit: [] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: 'Already on your device',
       disabled: true,
@@ -57,13 +59,13 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes that are not selected, but partially on device', () => {
+  it('nodes that are not selected, but have some resources on the device', () => {
     const node_1 = makeNode('1');
     node_1.totalResources = 2000;
     node_1.resourcesOnDevice = 10;
     const selected = { include: [], omit: [] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '10 of 2,000 resources on your device',
       disabled: false,
@@ -71,13 +73,13 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes that are omitted, but partially on device', () => {
+  it('nodes that are in "omit" list, but have some resources on the device', () => {
     const node_1 = makeNode('1');
     node_1.totalResources = 2000;
     node_1.resourcesOnDevice = 10;
     const selected = { include: [], omit: [node_1] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '10 of 2,000 resources on your device',
       disabled: false,
@@ -85,50 +87,12 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  // Funky cases
-  it('nodes that are not selected, but have ancestors that are', () => {
-    const descendantNode = makeNode('1_1_1_1', {
-      path: ['1', '1_1', '1_1_1'],
-      totalResources: 10,
-    });
-    const ancestorNode = makeNode('1', { path: ['1'] });
-    const selected = { include: [ancestorNode], omit: [] };
-    const annotated = annotateNodes([descendantNode], selected);
-    assert.deepEqual(annotated[0], {
-      ...descendantNode,
-      message: '10 resources selected',
-      disabled: false,
-      checkboxType: 'checked',
-    });
-  });
-
-  it('nodes whose ancestor is selected, but who have de-selected descendants', () => {
-    const ancestorNode = makeNode('1', { path: ['1'] });
-    const middleNode = makeNode('1_1_1', {
-      path: ['1', '1_1'],
-      totalResources: 20,
-    });
-    const descendantNode = makeNode('1_1_1_1', {
-      path: ['1', '1_1', '1_1_1'],
-      totalResources: 10,
-    });
-    const selected = { include: [ancestorNode], omit: [descendantNode] };
-    const annotated = annotateNodes([middleNode], selected);
-    assert.deepEqual(annotated[0], {
-      ...middleNode,
-      message: '10 of 20 resources selected',
-      disabled: false,
-      checkboxType: 'indeterminate',
-    });
-  });
-
-  it('nodes that are partially on device and selected', () => {
-    const node_1 = makeNode('1');
-    node_1.totalResources = 1;
-    node_1.resourcesOnDevice = 0;
+  it('nodes that are in "include" and have some resources on the device', () => {
+    // ...are annotated as if included as normal (no special message about resources on device)
+    const node_1 = makeNode('1', { totalResources: 1, resourcesOnDevice: 0 });
     const selected = { include: [node_1], omit: [] };
-    const annotated = annotateNodes([node_1], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(node_1, selected);
+    assert.deepEqual(annotated, {
       ...node_1,
       message: '1 resource selected',
       disabled: false,
@@ -136,7 +100,47 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes that are partially selected (node selected, some children de-selected)', () => {
+  // Funky cases
+  it('nodes that are not in "include" list, but have ancestors that are', () => {
+    // ...are annotated as if they were selected
+    const includedAncestor = makeNode('1', { path: ['1'] });
+    const notIncludedDescendant = makeNode('1_1_1_1', {
+      path: ['1', '1_1', '1_1_1'],
+      totalResources: 10,
+    });
+    const selected = { include: [includedAncestor], omit: [] };
+    const annotated = annotateNode(notIncludedDescendant, selected);
+    assert.deepEqual(annotated, {
+      ...notIncludedDescendant,
+      message: '10 resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+
+  it('nodes with an ancestor in "include", but have descendants in "omit"', () => {
+    // ...are annotated as if they were partially selected
+    const includedAncestor = makeNode('1', { path: ['1'] });
+    const omittedDescendant = makeNode('1_1_1_1', {
+      path: ['1', '1_1', '1_1_1'],
+      totalResources: 10,
+    });
+    const partiallySelected = makeNode('1_1_1', {
+      path: ['1', '1_1'],
+      totalResources: 20,
+    });
+    const selected = { include: [includedAncestor], omit: [omittedDescendant] };
+    const annotated = annotateNode(partiallySelected, selected);
+    assert.deepEqual(annotated, {
+      ...partiallySelected,
+      message: '10 of 20 resources selected',
+      disabled: false,
+      checkboxType: 'indeterminate',
+    });
+  });
+
+  it('nodes that are in "include" but have some descendants in "omit"', () => {
+    // ...are annotated as if they are partially selected
     const includedNode = makeNode('1');
     includedNode.totalResources = 20;
     const omittedNode_1 = makeNode('1_2_1_1', {
@@ -148,8 +152,8 @@ describe('annotateNodes utility correctly annotates', () => {
       totalResources: 3,
     });
     const selected = { include: [includedNode], omit: [omittedNode_1, omittedNode_2] };
-    const annotated = annotateNodes([includedNode], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(includedNode, selected);
+    assert.deepEqual(annotated, {
       ...includedNode,
       message: '12 of 20 resources selected',
       disabled: false,
@@ -157,21 +161,14 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes that are partially selected (node not selected, some children in include)', () => {
-    const parentNode = makeNode('1', {
-      totalResources: 10,
-    });
-    const childNode_1 = makeNode('1_1', {
-      path: ['1'],
-      totalResources: 3,
-    });
-    const childNode_2 = makeNode('1_2', {
-      path: ['1'],
-      totalResources: 3,
-    });
+  it('nodes that are not in "include" but have some descendants in "include"', () => {
+    // ...are annotated as if they are partially selected
+    const parentNode = makeNode('1', { totalResources: 10 });
+    const childNode_1 = makeNode('1_1', { path: ['1'], totalResources: 3 });
+    const childNode_2 = makeNode('1_2', { path: ['1'], totalResources: 3 });
     const selected = { include: [childNode_1, childNode_2], omit: [] };
-    const annotated = annotateNodes([parentNode], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(parentNode, selected);
+    assert.deepEqual(annotated, {
       ...parentNode,
       message: '6 of 10 resources selected',
       disabled: false,
@@ -179,29 +176,36 @@ describe('annotateNodes utility correctly annotates', () => {
     });
   });
 
-  it('nodes with all descendants selected, but the actual root node is not selected', () => {
-    const parentNode = makeNode('1', {
-      totalResources: 10,
-    });
-    const childNode_1 = makeNode('1_1', {
-      path: ['1'],
-      totalResources: 3,
-    });
-    const childNode_2 = makeNode('1_2', {
-      path: ['1'],
-      totalResources: 3,
-    });
-    const childNode_3 = makeNode('1_3', {
-      path: ['1'],
-      totalResources: 4,
-    });
+  it('nodes that are not in "include" but have all descendants in "include"', () => {
+    // ...are annotated as if they are completely selected
+    const parentNode = makeNode('1', { totalResources: 10 });
+    const childNode_1 = makeNode('1_1', { path: ['1'], totalResources: 3 });
+    const childNode_2 = makeNode('1_2', { path: ['1'], totalResources: 3 });
+    const childNode_3 = makeNode('1_3', { path: ['1'], totalResources: 4 });
     const selected = { include: [childNode_1, childNode_2, childNode_3], omit: [] };
-    const annotated = annotateNodes([parentNode], selected);
-    assert.deepEqual(annotated[0], {
+    const annotated = annotateNode(parentNode, selected);
+    assert.deepEqual(annotated, {
       ...parentNode,
       message: '10 resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
+  });
+
+  it('nodes that are in "include" but have all descendants in "omit"', () => {
+    // ...are annotated as if they were completely un-selected
+    const parentNode = makeNode('1', { totalResources: 10 });
+    const childNode_1 = makeNode('1_1', { path: ['1'], totalResources: 3 });
+    const childNode_2 = makeNode('1_2', { path: ['1'], totalResources: 3 });
+    const childNode_3 = makeNode('1_3', { path: ['1'], totalResources: 4 });
+    const selected = { include: [parentNode], omit: [childNode_1, childNode_2, childNode_3] };
+    const annotated = annotateNode(parentNode, selected);
+    assert.deepEqual(annotated, {
+      ...parentNode,
+      message: '',
+      disabled: false,
+      checkboxType: 'unchecked',
+    });
+
   });
 });

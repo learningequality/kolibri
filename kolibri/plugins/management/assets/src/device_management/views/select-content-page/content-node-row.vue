@@ -16,7 +16,7 @@
         v-if="showButton"
         :text="node.title"
         appearance="basic-link"
-        @click="$emit('selecttopic', node)"
+        @click="$emit('clicktopic', node)"
         name="select-node"
       />
       <span v-else>

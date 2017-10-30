@@ -115,6 +115,20 @@ describe('availableChannelsPage', () => {
     assert.equal(channels[3].getProp('onDevice'), true);
   });
 
+  it('if in exporting flow, on device icon is not shown', () => {
+    const store = makeStore();
+    store.state.pageState.wizardState.transferType = 'localexport';
+    const wrapper = makeWrapper({ store });
+    const { channelListItems } = getElements(wrapper);
+    const channels = channelListItems();
+    assert.equal(channels[0].getProp('mode'), 'importing');
+    assert.equal(channels[0].getProp('onDevice'), false);
+    assert.equal(channels[1].getProp('onDevice'), false);
+    assert.equal(channels[2].getProp('onDevice'), false);
+    assert.equal(channels[3].getProp('onDevice'), false);
+
+  });
+
   it('with no filters, all channels appear', () => {
     const wrapper = makeWrapper();
     assert.equal(wrapper.vm.titleFilter, '');

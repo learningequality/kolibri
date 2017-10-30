@@ -12,7 +12,7 @@
       <div class="select-all">
         <k-checkbox
           :label="$tr('selectAll')"
-          :checked="selectAllIsChecked"
+          :checked="nodeIsChecked(annotatedTopicNode)"
           @change="toggleSelectAll"
         />
 
@@ -26,7 +26,8 @@
           :disabled="node.disabled"
           :message="node.message"
           :node="node"
-          @selecttopic="goToTopic(node)"
+          @clicktopic="goToTopic(node)"
+          @changeselection="toggleSelection(node)"
         />
       </div>
     </div>
@@ -46,7 +47,7 @@
 
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import contentNodeRow from './content-node-row';
-  import { annotateNodes } from './treeViewUtils';
+  import { annotateNode } from './treeViewUtils';
   import { addNodeForTransfer, removeNodeForTransfer } from '../../state/actions/contentTransferActions';
 
   export default {
@@ -57,13 +58,13 @@
     },
     computed: {
       annotatedChildNodes() {
-        return annotateNodes(this.childNodes, this.selectedNodes);
+        return this.childNodes.map(node => ({
+          ...annotateNode(node, this.selectedNodes),
+          path: [...this.topicNode.path, this.topicNode.id],
+        }))
       },
       annotatedTopicNode() {
-        return annotateNodes([this.topicNode], this.selectedNodes)[0];
-      },
-      selectAllIsChecked() {
-        return this.annotatedTopicNode.checkboxType === 'checked';
+        return annotateNode(this.topicNode, this.selectedNodes);
       },
     },
     methods: {
@@ -73,21 +74,24 @@
       nodeIsIndeterminate(node) {
         return node.checkboxType === 'indeterminate';
       },
-      goToTopic(topicNode) {
-        console.log('yoyo', topicNode);
+      goToTopic(node) {
+        console.log('yoyo', node);
       },
       toggleSelectAll() {
-        if (this.selectAllIsChecked) {
-          return this.removeNodeForTransfer(this.topicNode);
+        this.toggleSelection(this.annotatedTopicNode);
+      },
+      toggleSelection(node) {
+        if (this.nodeIsChecked(node)) {
+          return this.removeNodeForTransfer(node);
         }
-        return this.addNodeForTransfer(this.topicNode);
+        return this.addNodeForTransfer(node);
       }
     },
     vuex: {
       getters: {
-        childNodes: state => state.pageState.treeView.children,
-        selectedNodes: state => state.pageState.selectedItems.nodes,
-        topicNode: state => state.pageState.treeView.currentNode,
+        childNodes: ({ pageState }) =>pageState.treeView.children,
+        selectedNodes: ({ pageState }) =>pageState.selectedItems.nodes,
+        topicNode: ({ pageState }) =>pageState.treeView.currentNode,
       },
       actions: {
         addNodeForTransfer,

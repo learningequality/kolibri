@@ -1,13 +1,19 @@
 <template>
 
-  <immersive-full-screen backPageText="Back" :backPageLink="goBackLink">
+  <immersive-full-screen
+    backPageText="Back"
+    :backPageLink="goBackLink"
+  >
     <subpage-container withSideMargin>
       <div class="top-matter">
         <div class="channels dib">
           <h1>{{ $tr('channelsTitle') }}</h1>
           <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
         </div>
-        <div v-if="channelsAreAvailable" class="filters dib">
+        <div
+          v-if="channelsAreAvailable"
+          class="filters dib"
+        >
           <ui-select
             :options="languageFilterOptions"
             v-model="languageFilter"
@@ -22,7 +28,11 @@
         </div>
       </div>
 
-      <ui-progress-linear v-if="this.channelsAreLoading" type="indefinite" color="primary"/>
+      <ui-progress-linear
+        v-if="channelsAreLoading"
+        type="indefinite"
+        color="primary"
+      />
 
       <!-- Similar code in channels-grid -->
       <div v-if="channelsAreAvailable">

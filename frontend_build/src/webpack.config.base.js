@@ -63,7 +63,6 @@ var config = {
         options: {
           preserveWhitespace: false,
           loaders: {
-            js: 'buble-loader',
             stylus: ExtractTextPlugin.extract({
               allChunks: true,
               use: vueStylusLoaders,
@@ -72,6 +71,9 @@ var config = {
               allChunks: true,
               use: vueSassLoaders,
             }),
+          },
+          buble: {
+            objectAssign: 'Object.assign',
           },
           // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
           preLoaders: { html: 'svg-icon-inline-loader' },

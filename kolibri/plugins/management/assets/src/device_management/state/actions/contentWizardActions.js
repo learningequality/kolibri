@@ -6,6 +6,7 @@ import {
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
 } from './taskActions';
+import { showSelectContentPage } from './contentTransferActions';
 import find from 'lodash/find';
 
 export function updateWizardLocalDriveList(store) {
@@ -47,16 +48,7 @@ export function closeImportExportWizard(store) {
 }
 
 function prepareAvailableChannelsPage(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: true,
-    page: ContentWizardPages.NETWORK_AVAILABLE_CHANNELS,
-    availableChannels: [...store.state.pageState.channelList],
-    channelsOnDevice: [...store.state.pageState.channelList],
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-  });
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_PAGENAME', ContentWizardPages.NETWORK_AVAILABLE_CHANNELS);
   return Promise.resolve();
 }
 
@@ -87,29 +79,45 @@ export function transitionWizardPage(store, transition, params) {
       return showPage(ContentWizardPages.IMPORT_LOCAL);
     }
     if (transition === FORWARD && params.source === 'network') {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
+        source: {
+          type: 'NETWORK_SOURCE',
+          baseUrl: '',
+        },
+        transferType: 'remoteimport',
+      });
       return prepareAvailableChannelsPage(store);
     }
   }
 
   // At Available Channels Page
+  // params: { channel }
   if (wizardPage === ContentWizardPages.NETWORK_AVAILABLE_CHANNELS) {
     if (transition === FORWARD) {
-      console.log(params);
+      return showSelectContentPage(store, {
+        ...store.state.pageState.wizardState.meta, // { source, transferType }
+        ...params,
+      });
     }
   }
 
   // At Local Import Wizard
+  // params : { driveId }
   if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
     if (transition === BACKWARD) {
       return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
     if (transition === FORWARD) {
       const driveInfo = find(store.state.pageState.wizardState.driveList, { id: params.driveId });
-      return showPage(ContentWizardPages.LOCAL_IMPORT_PREVIEW, {
-        driveId: params.driveId,
-        driveName: driveInfo.name,
-        channelList: driveInfo.metadata.channels,
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
+        source: {
+          type: 'LOCAL_DRIVE',
+          driveId: driveInfo.id,
+          driveName: driveInfo.name,
+        },
+        transferType: 'localimport',
       });
+      return prepareAvailableChannelsPage(store);
     }
   }
 
@@ -126,9 +134,15 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   // At Export Wizard
+  // params : { driveId }
   if (wizardPage === ContentWizardPages.EXPORT) {
     if (transition === FORWARD) {
-      return triggerLocalContentExportTask(store, params.driveId);
+      // return triggerLocalContentExportTask(store, params.driveId);
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
+        source: {},
+        transferType: 'localexport',
+      });
+      return prepareAvailableChannelsPage(store);
     }
   }
 
@@ -153,4 +167,17 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   return undefined;
+}
+
+/**
+ * Prepares the Available Channels Page for import/export flows
+ *
+ * @param {Object} store -
+ * @param {Object} options -
+ * @param {string} options.transferType - localimport | remoteimport | localexport
+ * @param {Object} options.source - LocalDrive | RemoteSource
+ *
+ */
+export function showAvailableChannelsPage() {
+  return Promise.resolve();
 }

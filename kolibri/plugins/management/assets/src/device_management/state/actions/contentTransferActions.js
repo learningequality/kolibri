@@ -1,5 +1,117 @@
 import sumBy from 'lodash/sumBy';
 import { selectedNodes } from '../getters';
+import { TaskResource, ContentNodeGranularResource } from 'kolibri.resources';
+import { TaskStatuses } from '../../constants';
+
+/**
+ * Starts Task that downloads content database
+ */
+function downloadContentDatabase(options) {
+  const { transferType, channel, source } = options;
+  let promise;
+  if (transferType === 'localimport') {
+    promise = TaskResource.startLocalChannelImport({
+      channel_id: channel.id,
+      drive_id: source.driveId,
+    });
+  } else if (transferType === 'remoteimport') {
+    promise = TaskResource.startRemoteChannelImport({
+      channel_id: channel.id
+    });
+  }
+  return promise
+    .catch(() => {
+      return Promise.reject({ errorType: 'CONTENT_DB_LOADING_ERROR' });
+    });
+}
+
+/**
+ * Repeatedly polls /api/task until the task is done, then resolves
+ */
+function waitForTaskToComplete(store, taskId, interval = 1000) {
+  let shouldPoll = true;
+  return new Promise((resolve, reject) => {
+    const poller = setInterval(function pollTasks() {
+      if (shouldPoll) {
+        shouldPoll = false;
+        TaskResource.getCollection().fetch({}, true)
+          .then((tasks) => {
+            const match = tasks.find(task => task.id === taskId);
+            if (!match) {
+              clearInterval(poller);
+              reject({ errorType: 'TASK_POLLING_ERROR' });
+            } else if (match.status === TaskStatuses.COMPLETED) {
+              clearInterval(poller);
+              store.dispatch('UPDATE_SELECT_CONTENT_PAGE_TASK', match);
+              resolve();
+            } else {
+              shouldPoll = true;
+            }
+          }, () => {
+            clearInterval(poller);
+            reject({ errorType: 'TASK_POLLING_ERROR' });
+          });
+      }
+    }, interval);
+  });
+}
+
+/**
+ * Makes call to ContentNodeGranular API and gets top-level contents for a topic
+ */
+function getTopicContents(store, topicId, options) {
+    const fetchArgs = {
+      import_export: options.transferType === 'localexport' ? 'export' : 'import',
+    }
+    if (options.transferType === 'localimport') {
+      fetchArgs.datafolder = options.source.datafolder
+    }
+    return ContentNodeGranularResource.getModel(topicId).fetch(fetchArgs)
+      .catch(() => Promise.reject({ errorType: 'TREEVIEW_LOADING_ERROR' }));
+}
+
+/**
+ * Transitions the import/export wizard to the 'select-content-page'
+ *
+ * @param store - Vuex store
+ * @param {Object} options
+ * @param {Object} options.channel - { id, title, isOnDevice }
+ * @param {string} options.transferType - 'remoteimport', 'localimport', or 'localexport'
+ * @param {Object} options.source - LocalDrive { driveId, driveName, dataFolder } | RemoteSource
+ * @param {Object} options.taskPollInterval
+ *
+ */
+export function showSelectContentPage(store, options) {
+  const { channel } = options;
+  let dbPromise;
+
+  store.dispatch('ADD_TREEVIEW_BREADCRUMB', {
+    id: channel.id,
+    title: channel.title,
+  });
+
+  if (channel.isOnDevice) {
+    // If already on device, then skip the DB-download
+    dbPromise = Promise.resolve();
+  } else {
+    dbPromise = downloadContentDatabase(options)
+      .then((task) => {
+        // Wait until database is downloaded
+        return waitForTaskToComplete(store, task.id, options.taskPollInterval);
+      });
+  }
+
+  return dbPromise.then(() => {
+    return getTopicContents(store, channel.root, options);
+  })
+  .then((channelContents) => {
+    // Then hydrate pageState.treeView with the contents
+    store.dispatch('SET_TREEVIEW_CURRENTNODE', channelContents);
+  })
+  .catch(({ errorType }) => {
+    return store.dispatch('SELECT_CONTENT_PAGE_ERROR', errorType);
+  });
+}
 
 /**
  * Adds a new node to the transfer list.
@@ -58,4 +170,26 @@ function updateTransferCounts(store) {
     fileSize,
     resources
   });
+}
+
+/**
+ * Handles clicking a new topic on the tree-view
+ *
+ * @param {Object} options
+ * @param {Object} options.topic - { id, title, source }
+ * @param {Object} options.source
+ *
+ */
+export function goToTopic(store, options) {
+  const { topic } = options;
+  const { source, transferType } = store.state.pageState.wizardState;
+  return getTopicContents(store, topic, { source, transferType })
+    .then(contents => {
+      store.dispatch('SET_TREEVIEW_CURRENTNODE', contents);
+      store.dispatch('ADD_TREEVIEW_BREADCRUMB', topic);
+      store.dispatch('ADD_ID_TO_PATH', topic.id);
+    })
+    .catch(({ errorType }) => {
+      return store.dispatch('SELECT_CONTENT_PAGE_ERROR', errorType);
+    });
 }

@@ -13,3 +13,11 @@ export function SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
 export function SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
   state.pageState.wizardState.busy = isBusy;
 }
+
+export function SET_CONTENT_PAGE_WIZARD_META(state, meta) {
+  state.pageState.wizardState.meta = meta;
+}
+
+export function SET_CONTENT_PAGE_WIZARD_PAGENAME(state, meta) {
+  state.pageState.wizardState.page = meta;
+}

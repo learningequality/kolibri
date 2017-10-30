@@ -10,28 +10,17 @@ const translator = createTranslator('treeViewRowMessages', {
 });
 
 /**
- * Takes a list of nodes, plus contextual data from store,
- * then annotates them with info needed to correctly display them on tree view.
+ * Takes a nodes, plus contextual data from store,
+ * then annotates them with info needed to correctly display it on tree view.
  *
- * @param nodes {Array<Node>} - The nodes that will be listed on tree view
- * @param selectedNodes
+ * @param node {Node}
+ * @param selectedNodes {SelectedNodes}
  * @param selectedNodes.omit {Array<Node>}
  * @param selectedNodes.include {Array<Node>}
  * @returns {Array<AnnotatedNode>}
  *
  */
-export function annotateNodes(nodes, selectedNodes) {
-  return nodes.map(n => annotateNode(n, selectedNodes));
-}
-
-/**
- * Logic for annotating different nodes in different situations.
- *
- * @param node {Node}
- * @param selectedNodes {SelectedNodes}
- *
- */
-function annotateNode(node, selectedNodes) {
+export function annotateNode(node, selectedNodes) {
   const { resourcesOnDevice, totalResources } = node;
   const isSelected = find(selectedNodes.include, { id: node.id });
   const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.id));
@@ -41,6 +30,17 @@ function annotateNode(node, selectedNodes) {
     if (omittedDescendants.length > 0) {
       // Selected but with descendant in omit list
       const omittedResources = sumBy(omittedDescendants, 'totalResources');
+
+      // All descendants are omitted
+      if (omittedResources === totalResources) {
+        return {
+          ...node,
+          message: '',
+          disabled: false,
+          checkboxType: 'unchecked',
+        };
+      }
+
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {

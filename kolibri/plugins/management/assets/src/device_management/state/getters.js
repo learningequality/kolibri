@@ -1,3 +1,3 @@
 export function selectedNodes(state) {
-  return state.pageState.selectedItems.nodes;
+  return state.pageState.wizardState.selectedItems.nodes;
 }

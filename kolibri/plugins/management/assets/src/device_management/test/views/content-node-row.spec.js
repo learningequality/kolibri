@@ -45,7 +45,7 @@ describe('contentNodeRow component', () => {
     assert.equal(messageText(), 'HELLO');
   });
 
-  it('when node is a topic, title is a button that emits "selecttopic" event', () => {
+  it('when node is a topic, title is a button that emits "clicktopic" event', () => {
     const wrapper = makeWrapper();
     const { goToTopicButton } = getElements(wrapper);
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
@@ -53,7 +53,7 @@ describe('contentNodeRow component', () => {
     return wrapper.vm.$nextTick()
     .then(() => {
       sinon.assert.calledOnce(emitSpy);
-      sinon.assert.calledWith(emitSpy, 'selecttopic', wrapper.vm.node);
+      sinon.assert.calledWith(emitSpy, 'clicktopic', wrapper.vm.node);
     });
   });
 
