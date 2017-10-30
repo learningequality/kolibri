@@ -10,7 +10,7 @@ Vue.use(Vuep, { lineNumbers: false });
 class StyleGuideModule extends KolibriModule {
   ready() {
     this.rootvue = new Vue({
-      name: 'StyleGuideRoot',
+      name: 'styleGuideRoot',
       el: 'rootvue',
       render: createElement => createElement(RootVue),
       router: router.init(navMenuRoutes, {

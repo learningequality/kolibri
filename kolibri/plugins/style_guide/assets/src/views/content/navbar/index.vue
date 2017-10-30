@@ -20,20 +20,17 @@
           type="icon-and-title"
           title="Trending"
           icon="trending_up"
-          :link="a">
-        </k-navbar-link>
+          :link="a" />
         <k-navbar-link
           type="icon-and-title"
           title="Lit"
           icon="whatshot"
-          :link="b">
-        </k-navbar-link>
+          :link="b" />
         <k-navbar-link
           type="icon-and-title"
           title="Favorites"
           icon="favorite"
-          :link="c">
-        </k-navbar-link>
+          :link="c" />
       </k-navbar>
     </show>
 

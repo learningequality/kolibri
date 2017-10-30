@@ -260,6 +260,14 @@ class UserUpdateTestCase(APITestCase):
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
 
+    def test_user_update_password_non_partial_with_username(self):
+        new_password = 'baz'
+        self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}),
+                          {'password': new_password, 'username': self.user.username}, format="json")
+        self.client.logout()
+        response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
+        self.assertTrue(response)
+
 
 class UserDeleteTestCase(APITestCase):
 
@@ -319,6 +327,13 @@ class LoginLogoutTestCase(APITestCase):
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertTrue(response.data['kind'][0], 'anonymous')
+
+    def test_session_update_last_active(self):
+        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        expire_date = Session.objects.get().expire_date
+        self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
+        new_expire_date = Session.objects.get().expire_date
+        self.assertTrue(expire_date < new_expire_date)
 
 
 class AnonSignUpTestCase(APITestCase):

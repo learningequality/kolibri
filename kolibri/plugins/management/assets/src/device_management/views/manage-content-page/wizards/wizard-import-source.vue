@@ -5,15 +5,15 @@
       <div class="lg-button-wrapper">
         <k-button
           :text="$tr('internet')"
-          @click="goForward('network')"/>
+          @click="goForward('network')" />
         <k-button
           :text="$tr('localDrives')"
-          @click="goForward('local')"/>
+          @click="goForward('local')" />
       </div>
       <k-button
         @click="cancel"
         appearance="flat-button"
-        :text="$tr('cancel')"/>
+        :text="$tr('cancel')" />
     </div>
   </core-modal>
 

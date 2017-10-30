@@ -2,7 +2,7 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="false"
+    :hasError="false"
     @cancel="close"
   >
     <div>

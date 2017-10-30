@@ -6,32 +6,34 @@
     </ui-alert>
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
-        <loading-spinner id="spinner" v-if="!currentViewClass"/>
-        <component v-else :is="currentViewClass"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="itemError"
-        @interaction="interaction"
-        :files="availableFiles"
-        :defaultFile="defaultFile"
-        :itemId="itemId"
-        :answerState="answerState"
-        :allowHints="allowHints"
-        :supplementaryFiles="supplementaryFiles"
-        :thumbnailFiles="thumbnailFiles"
-        :interactive="interactive"
-        :lang="lang"
-        ref="contentView"
+        <loading-spinner id="spinner" v-if="!currentViewClass" />
+        <component
+          v-else
+          :is="currentViewClass"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          :allowHints="allowHints"
+          :supplementaryFiles="supplementaryFiles"
+          :thumbnailFiles="thumbnailFiles"
+          :interactive="interactive"
+          :lang="lang"
+          ref="contentView"
         />
       </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot/>
+    <slot></slot>
   </div>
 
 </template>

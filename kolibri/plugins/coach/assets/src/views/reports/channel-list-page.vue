@@ -13,12 +13,12 @@
             :text="$tr('channels')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME"/>
+            :column="tableColumns.NAME" />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE"/>
+            :column="tableColumns.DATE" />
         </tr>
       </thead>
       <tbody slot="tbody">

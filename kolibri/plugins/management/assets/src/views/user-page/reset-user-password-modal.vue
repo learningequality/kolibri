@@ -3,7 +3,7 @@
   <core-modal :title="$tr('resetPassword')" @cancel="displayModal(false)">
     <form @submit.prevent="submitForm">
 
-      <p>{{$tr('username')}}: <strong>{{ username}}</strong></p>
+      <p>{{ $tr('username') }}: <strong>{{ username }}</strong></p>
 
       <k-textbox
         ref="password"

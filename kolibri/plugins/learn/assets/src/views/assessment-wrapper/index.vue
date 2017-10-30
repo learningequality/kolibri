@@ -33,7 +33,7 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress"/>
+        @updateProgress="updateProgress" />
     </div>
 
     <div>
@@ -57,7 +57,7 @@ oriented data synchronization.
           class="question-btn"
         />
       </transition>
-      <slot/>
+      <slot></slot>
     </div>
 
     <div class="attemptprogress-container" :class="{ mobile: isMobile }">
@@ -209,8 +209,7 @@ oriented data synchronization.
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
     beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
+      this.saveAttemptLogMasterLog(false);
     },
     methods: {
       updateAttemptLogMasteryLog({
@@ -231,13 +230,21 @@ oriented data synchronization.
           simpleAnswer,
         });
       },
-      saveAttemptLogMasterLog() {
-        this.saveAttemptLogAction().then(() => {
-          if (this.isUserLoggedIn && this.success) {
-            this.setMasteryLogCompleteAction(now());
-            this.saveMasteryLogAction();
-          }
-        });
+      saveAttemptLogMasterLog(updateStore = true) {
+        if (updateStore) {
+          this.saveAndStoreAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.setMasteryLogCompleteAction(now());
+              this.saveAndStoreMasteryLogAction();
+            }
+          });
+        } else {
+          this.saveAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.saveMasteryLogAction();
+            }
+          });
+        }
       },
       checkAnswer() {
         if (!this.checkingAnswer) {
@@ -382,9 +389,11 @@ oriented data synchronization.
         initMasteryLogAction: actions.initMasteryLog,
         createDummyMasteryLogAction: actions.createDummyMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
+        saveAndStoreMasteryLogAction: actions.saveAndStoreMasteryLog,
         setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
+        saveAndStoreAttemptLogAction: actions.saveAndStoreAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
         updateExerciseProgress: actions.updateExerciseProgress,

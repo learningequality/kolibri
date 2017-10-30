@@ -13,7 +13,7 @@
 
     <div class="table-wrapper" v-if="!noExamData">
       <table class="roster">
-        <caption class="visuallyhidden">{{$tr('examReport')}}</caption>
+        <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('name') }}</th>

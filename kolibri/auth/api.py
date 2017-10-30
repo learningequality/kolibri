@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
@@ -106,11 +108,13 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
-    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
-        Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
@@ -162,6 +166,8 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 
 class SignUpViewSet(viewsets.ViewSet):
 
+    serializer_class = FacilityUserSerializer
+
     def extract_request_data(self, request):
         return {
             "username": request.data.get('username', ''),
@@ -175,7 +181,7 @@ class SignUpViewSet(viewsets.ViewSet):
         data = self.extract_request_data(request)
 
         # we validate the user's input, and if valid, login as user
-        serialized_user = FacilityUserSerializer(data=data)
+        serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid():
             serialized_user.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
@@ -217,6 +223,10 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
+        # Set last activity on session to the current time to prevent session timeout
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -251,6 +261,7 @@ class SessionViewSet(viewsets.ViewSet):
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')
 
-        UserSessionLog.update_log(user)
+        if active:
+            UserSessionLog.update_log(user)
 
         return session

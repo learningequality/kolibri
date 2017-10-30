@@ -75,3 +75,10 @@ In order to translate strings outside of the scope of Vue components, i.e. in Ja
 In this way, messages are namespaced, and then available off the ``$tr`` method of the translator object returned from the createTranslator function.
 
 These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
+
+.. new_language:
+Adding a new language
+---------------------
+
+In order to add a new supported language to Kolibri, the appropriate language tuple must be added to the ``LANGUAGES`` variable in ``kolibri/deployment/default/settings/base.py``. In addition, the appropriate Intl polyfill file must be added to ``kolibri/core/assets/src/utils/import-intl-locale.js``.
+

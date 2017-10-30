@@ -3,8 +3,8 @@
   <div class="table-section">
     <caption class="visuallyhidden" v-if="caption">{{ caption }}</caption>
     <table class="data-table">
-      <slot name="thead"/>
-      <slot name="tbody" is="transition-group"/>
+      <slot name="thead"></slot>
+      <slot name="tbody" is="transition-group" />
     </table>
   </div>
 

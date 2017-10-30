@@ -7,10 +7,10 @@
       :topLevelPageName="topLevelPageName"
       :appBarTitle="appBarTitle"
     >
-      <component :is="currentPage" v-if="navBarNeeded"/>
+      <component :is="currentPage" v-if="navBarNeeded" />
     </core-base>
     <div v-if="!navBarNeeded" class="full-page">
-      <component :is="currentPage"/>
+      <component :is="currentPage" />
     </div>
   </div>
 

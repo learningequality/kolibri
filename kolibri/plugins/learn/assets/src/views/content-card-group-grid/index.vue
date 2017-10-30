@@ -22,10 +22,11 @@
     <content-card
       v-for="content in contents"
       v-show="showContentCard(content)"
+      class="grid-item"
+      :isMobile="isMobile"
       :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
-      :class="{'grid-item': true, 'mobile': isMobile}"
       :kind="content.kind"
       :progress="content.progress"
       :link="genContentLink(content.id, content.kind)"
@@ -189,8 +190,6 @@
   .grid-item
     margin-right: $gutters
     margin-bottom: $gutters
-    &.mobile
-      width: 100%
 
   .filter
     display: inline-block

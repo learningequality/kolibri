@@ -16,7 +16,7 @@
     </p>
 
     <show>
-      <k-breadcrumbs :items="breadcrumbs"/>
+      <k-breadcrumbs :items="breadcrumbs" />
     </show>
 
     <h2>API</h2>

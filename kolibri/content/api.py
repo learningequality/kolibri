@@ -57,7 +57,8 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
 
     def title_description_filter(self, queryset, value):
         """
@@ -276,7 +277,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
@@ -287,9 +288,10 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
     def get_queryset(self, available=False):
         if available:
-            return models.ContentNode.objects.filter(available=True)
-
-        return models.ContentNode.objects.all()
+            queryset = models.ContentNode.objects.filter(available=True)
+        else:
+            queryset = models.ContentNode.objects.all()
+        return queryset.prefetch_related('files__local_file')
 
     def retrieve(self, request, pk):
         import_export = request.query_params.get('import_export', None)
@@ -306,10 +308,9 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         return response
 
     def _get_parent_and_children_info(self, pk, available=False):
-        instance = get_object_or_404(self.get_queryset(available).filter(pk=pk))
-        children = instance.get_children()
-        if available:
-            children = children.filter(available=True)
+        queryset = self.get_queryset(available)
+        instance = get_object_or_404(queryset, pk=pk)
+        children = queryset.filter(parent=instance)
 
         parent_serializer = self.get_serializer(instance)
         parent_data = parent_serializer.data

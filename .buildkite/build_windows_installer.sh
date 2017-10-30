@@ -4,17 +4,17 @@ set -euo pipefail
 
 PARENT_PATH=$(pwd)
 KOLIBRI_DOCKER_PATH="$PARENT_PATH/windows_installer_docker_build"
-KOLIBRI_WINDOWS_PATH="$KOLIBRI_DOCKER_PATH/kolibri-installers/windows"
+KOLIBRI_WINDOWS_PATH="$KOLIBRI_DOCKER_PATH/kolibri-installer-windows/windows"
 
 mkdir dist
 buildkite-agent artifact download 'dist/*.whl' dist/
 make writeversion
 
 # Clone kolibri windows installer base in develop branch.
-cd $KOLIBRI_DOCKER_PATH \
-    && git clone https://github.com/learningequality/kolibri-installers.git \
-    && cd kolibri-installers \
-    && git checkout develop
+cd $KOLIBRI_DOCKER_PATH
+git clone https://github.com/learningequality/kolibri-installer-windows.git
+cd kolibri-installer-windows
+git checkout develop
 
 # Copy kolbri whl file at KOLIBRI_WINDOWS_PATH path.
 cd $PARENT_PATH
