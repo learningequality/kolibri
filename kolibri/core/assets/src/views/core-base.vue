@@ -100,9 +100,13 @@
         return this.headerHeight * 4;
       },
       contentStyle() {
+        const padding = (this.mobile ? 16 : 32) + 'px';
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
+          paddingTop: padding,
+          paddingLeft: padding,
+          paddingRight: padding,
         };
       },
     },
@@ -144,6 +148,5 @@
     right: 0
     bottom: 0
     padding-bottom: 40px
-    padding: 32px
 
 </style>
