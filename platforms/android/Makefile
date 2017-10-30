@@ -18,7 +18,7 @@ replaceloadingpage:
 
 # Extract the whl file
 extractkolibriwhl:
-	unzip -q "src/kolibri*.whl" "kolibri/*" -d src/
+	unzip -q "src/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
 # Generate the andoid version
 generateversion:
