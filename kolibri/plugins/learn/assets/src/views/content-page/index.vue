@@ -71,12 +71,14 @@
     </div>
 
     <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
-
-    <content-card-group-carousel
-      v-if="showRecommended"
-      :genContentLink="genContentLink"
-      :header="recommendedText"
-      :contents="recommended" />
+    
+    <template v-if="showRecommended">
+      <h2>{{ $tr('recommended') }}</h2>
+      <content-card-group-carousel
+        :genContentLink="genContentLink"
+        :header="recommendedText"
+        :contents="recommended" />
+    </template>
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
