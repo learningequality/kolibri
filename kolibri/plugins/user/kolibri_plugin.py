@@ -9,7 +9,7 @@ class User(KolibriPluginBase):
         return urls
 
     def url_slug(self):
-        return "^user"
+        return "^user/"
 
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
