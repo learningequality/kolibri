@@ -82,6 +82,8 @@ class AsyncCommand(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         self.progresstrackers = []
+        self.update_progress = kwargs.pop("update_progress", None)
+        self.check_for_cancel = kwargs.pop("check_for_cancel", None)
         super(AsyncCommand, self).__init__(*args, **kwargs)
 
     def _update_all_progress(self, progress_fraction, progress):

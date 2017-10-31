@@ -17,6 +17,7 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         data_dir = os.path.realpath(options["destination"])
+        progress_update = options["tracker"]
         logging.info("Exporting channel database for channel id {} to {}".format(channel_id, data_dir))
 
         src = paths.get_content_database_file_path(channel_id)
@@ -24,20 +25,17 @@ class Command(AsyncCommand):
 
         logging.debug("Source file: {}".format(src))
         logging.debug("Destination file: {}".format(dest))
-
         with transfer.FileCopy(src, dest) as copy:
+            for block in copy:
+                if self.is_cancelled():
+                    copy.cancel()
+                    break
+                # logging.debug("updating {}".format(len(block)))
+                progress_update(len(block))
 
-            with self.start_progress(total=copy.total_size) as progress_update:
-
-                    for block in copy:
-                        if self.is_cancelled():
-                            copy.cancel()
-                            break
-                        progress_update(len(block))
-
-                    if self.is_cancelled():
-                        try:
-                            os.remove(dest)
-                        except IOError:
-                            pass
-                        self.cancel()
+            if self.is_cancelled():
+                try:
+                    os.remove(dest)
+                except IOError:
+                    pass
+                self.cancel()
