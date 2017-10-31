@@ -9,7 +9,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kolibriauth', '0007_auto_20171031_1410'),
         ('device', '0001_initial'),
     ]
 
