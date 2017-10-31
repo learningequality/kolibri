@@ -69,6 +69,9 @@ INSTALLED_APPS = [
     'morango',
 ] + conf.config['INSTALLED_APPS']
 
+if os.environ['KOLIBRI_DEBUG']:
+    INSTALLED_APPS += ['rest_framework_swagger']
+
 # Add in the external plugins' locale paths. Our frontend messages depends
 # specifically on the value of LOCALE_PATHS to find its catalog files.
 LOCALE_PATHS += [
