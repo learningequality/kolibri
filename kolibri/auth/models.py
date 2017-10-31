@@ -946,8 +946,8 @@ class Facility(Collection):
 
     @classmethod
     def get_default_facility(cls):
-        # temporary approach to a default facility; later, we can make this more refined
-        return cls.objects.all().first()
+        from kolibri.core.device.models import DeviceSettings
+        return DeviceSettings.objects.get().default_facility or cls.objects.all().first()
 
     def save(self, *args, **kwargs):
         if self.parent:
