@@ -6,8 +6,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import logging
 import os
+from functools import wraps
 
+import kolibri
 import pytest
+from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
 from mock import patch
 
@@ -15,6 +18,34 @@ logger = logging.getLogger(__name__)
 
 
 LOG_LOGGER = []
+
+
+def version_file_restore(func):
+    """
+    Decorator that reads contents of the version file and restores it after
+    calling ``func(orig_version='x.y', version_file='/path')``.
+
+    If a version file doesn't exist, it calls ``func(... version_file=None)``
+
+    This decorator is used for testing functions that trigger during upgrades
+    without mocking more than necessary.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        version_file = cli.version_file()
+        version_file_existed = os.path.isfile(version_file)
+        orig_version = kolibri.__version__
+        kwargs['orig_version'] = orig_version
+
+        if version_file_existed:
+            kwargs['version_file'] = version_file
+
+        func(*args, **kwargs)
+
+        if version_file_existed:
+            open(version_file, "w").write(orig_version)
+
+    return wrapper
 
 
 def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
@@ -27,6 +58,15 @@ def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
     )
     # Call the original function
     logger_instance.__log(LEVEL, msg, args, **kwargs)
+
+
+def activate_log_logger(monkeypatch):
+    """
+    Activates logging everything to ``LOG_LOGGER`` with the monkeypatch pattern
+    of py.test (test accepts a ``monkeypatch`` argument)
+    """
+    monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
+    monkeypatch.setattr(logging.Logger, '_log', log_logger)
 
 
 @pytest.fixture
@@ -121,8 +161,7 @@ def test_kolibri_listen_port_env(monkeypatch):
         def start_mock(port, *args, **kwargs):
             assert port == test_port
 
-        monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
-        monkeypatch.setattr(logging.Logger, '_log', log_logger)
+        activate_log_logger(monkeypatch)
         monkeypatch.setattr(server, 'start', start_mock)
 
         test_port = 1234
@@ -150,6 +189,61 @@ def test_kolibri_listen_port_env(monkeypatch):
         with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
             cli.stop()
         assert "Not stopped" in LOG_LOGGER[-1][1]
+
+
+@pytest.mark.django_db
+@version_file_restore
+@patch('kolibri.utils.cli.update')
+@patch('kolibri.utils.cli.plugin')
+@patch('kolibri.core.deviceadmin.utils.dbbackup')
+def test_first_run(
+        dbbackup, plugin, update, version_file=None, orig_version=None):
+    """
+    Tests that the first_run() function performs as expected
+    """
+
+    if version_file:
+        os.unlink(version_file)
+
+    cli.initialize()
+    update.assert_called_once()
+    dbbackup.assert_not_called()
+
+    # Check that it got called for each default plugin
+    from kolibri.core.settings import DEFAULT_PLUGINS
+    assert plugin.call_count == len(DEFAULT_PLUGINS)
+
+
+@pytest.mark.django_db
+@version_file_restore
+@patch('kolibri.utils.cli.update')
+def test_update(update, version_file=None, orig_version=None):
+    """
+    Tests that update() function performs as expected, creating a database
+    backup automatically when version changes
+    """
+    version_file = cli.version_file()
+    open(version_file, "w").write(orig_version + "_test")
+
+    if is_sqlite_settings():
+        with patch('kolibri.core.deviceadmin.utils.dbbackup') as dbbackup:
+            cli.initialize()
+            dbbackup.assert_called_once()
+    else:
+        cli.initialize()
+    update.assert_called_once()
+
+
+@patch('kolibri.utils.cli.update')
+@patch('kolibri.core.deviceadmin.utils.dbbackup')
+def test_update_no_version_change(dbbackup, update, orig_version=None):
+    """
+    Tests that when the version doesn't change, we are not doing things we
+    shouldn't
+    """
+    cli.initialize()
+    update.assert_not_called()
+    dbbackup.assert_not_called()
 
 
 def test_cli_usage():

@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
+    'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
     'kolibri.core.exams',
     'kolibri.core.device',
@@ -289,4 +290,4 @@ ENABLE_DATA_BOOTSTRAPPING = True
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-SESSION_COOKIE_AGE = 300
+SESSION_COOKIE_AGE = 600

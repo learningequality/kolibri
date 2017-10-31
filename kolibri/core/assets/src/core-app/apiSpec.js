@@ -64,6 +64,7 @@ import urls from './urls';
 import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import appBar from '../views/app-bar';
 
 export default {
   client,
@@ -111,6 +112,7 @@ export default {
       kRadioButton,
       kFilterTextbox,
       languageSwitcher,
+      appBar,
     },
     router,
     mixins: {

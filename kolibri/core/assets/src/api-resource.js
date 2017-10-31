@@ -113,6 +113,7 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
+            this.set(payload);
           } else {
             this.set(attrs);
             payload = this.attributes;
@@ -122,6 +123,9 @@ export class Model {
             resolve(this.attributes);
           } else {
             this.synced = false;
+            // Partial updates are currently broken, so just use dirty checking
+            // to prevent unneccessary saves for now.
+            payload = this.attributes;
             let url;
             let clientObj;
             if (this.id) {
@@ -428,7 +432,9 @@ export class Resource {
     return JSON.stringify(
       Object.assign(
         {},
-        ...Object.keys(allParams).sort().map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+        ...Object.keys(allParams)
+          .sort()
+          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
       )
     );
   }
