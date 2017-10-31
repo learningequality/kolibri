@@ -48,6 +48,12 @@ Create a release branch
 If this is a new major or minor release, you need to make a new branch as described above.
 
 
+Pin installer versions
+~~~~~~~~~~~~~~~~~~~~~~
+
+On Kolibri's ``develop`` branch, we sometimes allow the installers to track the latest development versions on github. Before releasing Kolibri, we need to pin the Buildkite configuration to a tagged version of each installer.
+
+
 Update any translation files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -129,6 +135,8 @@ tag is prefixed ``v`` and follows the Semver convention,
 for instance ``v1.2.3-alpha1``.
 
 Tag the release using github's `Releases feature <https://github.com/learningequality/kolibri/releases>`_.
+
+Once a stable release is tagged, delete pre-releases (not the tags themselves) from github.
 
 Copy the entries from the changelog into Github's "Release notes".
 
