@@ -73,6 +73,7 @@
     "facilityConfigPage.learnerCanEditPassword": "साइन इन होने पर उपयोगकर्ताओं को अपना पासवर्ड बदलने की अनुमति दें",
     "facilityConfigPage.learnerCanEditUsername": "उपयोगकर्ता (users) को अपने लिखे हुए के नाम को फिर से लिखने की अनुमति दे",
     "facilityConfigPage.learnerCanSignUp": "इस डिवाइस पर साइन-अप करने के लिए उपयोगकर्ताओं(users) को अनुमति दें",
+    "facilityConfigPage.learnerCanLoginWithNoPassword": "शिक्षार्थियों को बिना पासवर्ड के साइन इन करने की अनुमति दें",
     "facilityConfigPage.pageDescription": "कॉन्फ़िगर करें और यहाँ विभिन्न सुविधा सेटिंग्स परिवर्तित करें।",
     "facilityConfigPage.pageHeader": "सुविधा कॉन्फ़िगरेशन",
     "facilityConfigPage.resetToDefaultSettings": "डिफ़ॉल्ट सेटिंग्स को रीसेट करें",
