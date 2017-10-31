@@ -69,6 +69,7 @@ class DeviceProvisionSerializer(serializers.Serializer):
             device_settings, created = DeviceSettings.objects.get_or_create()
             device_settings.is_provisioned = True
             device_settings.language_id = language_id
+            device_settings.default_facility = facility
             device_settings.save()
             return {
                 "facility": facility,
