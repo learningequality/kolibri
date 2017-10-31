@@ -59,7 +59,7 @@
   import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
-  import languageSwitcher from '../language-switcher';
+  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
   export default {
     mixins: [responsiveWindow],
     name: 'appBar',
