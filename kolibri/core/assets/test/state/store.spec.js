@@ -2,9 +2,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import assert from 'assert';
-import _ from 'lodash';
-import * as s from '../../src/state/store';
-import * as getters from '../../src/state/getters';
+import store from '../../src/state/store';
 import * as coreActions from '../../src/state/actions';
 import * as constants from '../../src/constants';
 import sinon from 'sinon';
@@ -15,12 +13,9 @@ import * as browser from '../../src/utils/browser';
 Vue.use(Vuex);
 
 function createStore() {
-  return new Vuex.Store({
-    state: _.cloneDeep(s.initialState),
-    mutations: s.mutations,
-    getters,
-    actions: coreActions,
-  });
+  store.__initialized = false;
+  store.registerModule();
+  return store;
 }
 
 describe('Vuex store/actions for core module', () => {
@@ -103,7 +98,6 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful logout', done => {
-      const clearCachesSpy = sinon.spy();
       const getModelStub = sinon.stub().returns({
         delete: () => Promise.resolve('goodbye'),
       });

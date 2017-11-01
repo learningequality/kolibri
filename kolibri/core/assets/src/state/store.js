@@ -22,7 +22,7 @@ const baseSessionState = {
 };
 
 // core state is namespaced, and merged with a particular app's state
-const initialState = {
+export const initialState = {
   core: {
     error: '',
     loading: true,
@@ -42,7 +42,7 @@ const initialState = {
   },
 };
 
-const coreMutations = {
+export const coreMutations = {
   CORE_SET_SESSION(state, value) {
     Object.assign(state.core.session, value);
   },
@@ -178,7 +178,7 @@ const store = new Vuex.Store({});
 
 export default store;
 
-store.registerModule = ({ state = {}, mutations = {} }) => {
+store.registerModule = ({ state, mutations } = { state: {}, mutations: {} }) => {
   if (store.__initialized) {
     throw new Error(
       'The store has already been initialized, dynamic initalization is not currently available'
