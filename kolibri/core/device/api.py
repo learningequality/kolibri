@@ -59,6 +59,12 @@ class DeviceInfoView(views.APIView):
         if not urls:
             # Will not return anything when running the debug server, so at least return the current URL
             urls = [request.build_absolute_uri('/')]
+
+        filtered_urls = [url for url in urls if '127.0.0.1' not in url and 'localhost' not in url]
+
+        if filtered_urls:
+            urls = filtered_urls
+
         info['urls'] = urls
 
         if settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
