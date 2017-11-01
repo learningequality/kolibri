@@ -63,10 +63,17 @@ class Command(AsyncCommand):
             if not options['no_push']:
                 sync_client.initiate_push(Filter(options['dataset_id']))
             progress_update(1)
-            # make the user with the given credentials, a superuser for this device
-            user = FacilityUser.objects.get(username=options['username'], dataset_id=options['dataset_id'])
-            # create permissions for the authorized user
-            DevicePermissions.objects.update_or_create(user=user, defaults={'is_superuser': True, 'can_manage_content': True})
+            while not DevicePermissions.objects.filter(is_superuser=True).exists():
+                if not options['username']:
+                    options['username'] = input('Please enter username: ')
+                if not FacilityUser.objects.filter(username=options['username']).exists():
+                    print("User with username {} does not exist".format(options['username']))
+                    options['username'] = None
+                    continue
+                # make the user with the given credentials, a superuser for this device
+                user = FacilityUser.objects.get(username=options['username'], dataset_id=options['dataset_id'])
+                # create permissions for the authorized user
+                DevicePermissions.objects.update_or_create(user=user, defaults={'is_superuser': True, 'can_manage_content': True})
             # if device has not been provisioned, set it up
             if not device_provisioned():
                 device_settings, created = DeviceSettings.objects.get_or_create()
