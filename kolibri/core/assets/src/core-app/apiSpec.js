@@ -68,6 +68,8 @@ import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 import uiSelect from 'keen-ui/src/UiSelect';
 import uiAlert from 'keen-ui/src/UiAlert';
+import tetherDrop from 'tether-drop';
+import tetherTooltip from 'tether-tooltip';
 
 export default {
   client,
@@ -78,6 +80,8 @@ export default {
     conditionalPromise,
     apiResource,
     seededshuffle,
+    tetherDrop,
+    tetherTooltip,
   },
   coreVue: {
     vuex: {
