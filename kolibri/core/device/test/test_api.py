@@ -18,6 +18,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from collections import namedtuple
 
+from mock import patch
+
 DUMMY_PASSWORD = "password"
 
 class DeviceProvisionTestCase(APITestCase):
@@ -203,6 +205,16 @@ class DeviceInfoTestCase(APITestCase):
         for url in response.data['urls']:
             # Make sure each url is a valid link
             self.assertTrue(url.startswith('http://'))
+
+    @patch('kolibri.core.device.api.get_urls', return_value=(1, ['http://127.0.0.1:8000', 'http://kolibri.com']))
+    def test_no_localhost_urls_when_others_available(self, get_urls_mock):
+        response = self.client.get(reverse('deviceinfo'), format="json")
+        self.assertEqual(len(response.data['urls']), 1)
+
+    @patch('kolibri.core.device.api.get_urls', return_value=(1, ['http://127.0.0.1:8000']))
+    def test_localhost_urls_when_no_others_available(self, get_urls_mock):
+        response = self.client.get(reverse('deviceinfo'), format="json")
+        self.assertEqual(len(response.data['urls']), 1)
 
     def test_database_path(self):
         response = self.client.get(reverse('deviceinfo'), format="json")
