@@ -22,6 +22,9 @@ requirements = sqlite3,cryptography,pyopenssl,openssl,python2,pyjnius
 # (str) Icon of the application
 icon.filename = ./assets/logo.png
 
+# (list) Source files to exclude (let empty to not exclude anything)
+source.exclude_exts = whl
+
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = all
 
