@@ -106,13 +106,22 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
 
-    def perform_update(self, serializer):
+    def set_password_if_needed(self, serializer):
         with transaction.atomic():
             instance = serializer.save()
             if serializer.validated_data.get('password', ''):
                 instance.set_password(serializer.validated_data['password'])
                 instance.save()
-                update_session_auth_hash(self.request, instance)
+        return instance
+
+    def perform_update(self, serializer):
+        instance = self.set_password_if_needed(serializer)
+        # if the user is updating their own password, ensure they don't get logged out
+        if self.request.user == instance:
+            update_session_auth_hash(self.request, instance)
+
+    def perform_create(self, serializer):
+        self.set_password_if_needed(serializer)
 
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
