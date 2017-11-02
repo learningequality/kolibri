@@ -535,20 +535,22 @@ function showExamList(store, channelId) {
       router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
       return;
     }
-    UserExamResource.getCollection().fetch().only(
-      samePageCheckGenerator(store),
-      exams => {
-        const pageState = {};
-        pageState.exams = exams.map(_examState);
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
-      },
-      error => {
-        coreActions.handleApiError(store, error);
-      }
-    );
+    UserExamResource.getCollection()
+      .fetch()
+      .only(
+        samePageCheckGenerator(store),
+        exams => {
+          const pageState = {};
+          pageState.exams = exams.map(_examState);
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
+        },
+        error => {
+          coreActions.handleApiError(store, error);
+        }
+      );
   });
 }
 
@@ -798,11 +800,15 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog);
-  examLog.closed = true;
-  return ExamLogResource.getModel(examLog.id).save(examLog).catch(error => {
-    coreActions.handleApiError(store, error);
+  const examLog = Object.assign({}, store.state.examLog, {
+    completion_timestamp: now(),
   });
+  examLog.closed = true;
+  return ExamLogResource.getModel(examLog.id)
+    .save(examLog)
+    .catch(error => {
+      coreActions.handleApiError(store, error);
+    });
 }
 
 export {
