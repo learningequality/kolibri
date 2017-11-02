@@ -1,3 +1,5 @@
+import mock
+import sys
 from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.test.test_api import FacilityFactory, FacilityUserFactory
 from kolibri.auth.test.helpers import create_superuser, provision_device
@@ -8,6 +10,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from collections import namedtuple
 
 DUMMY_PASSWORD = "password"
 
@@ -123,3 +126,34 @@ class DevicePermissionsTestCase(APITestCase):
                                      {'is_superuser': False},
                                      format="json")
         self.assertEqual(response.status_code, 403)
+
+class FreeSpaceTestCase(APITestCase):
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
+
+    def test_posix_freespace(self):
+        if not sys.platform.startswith('win'):
+            with mock.patch('kolibri.utils.system.os.statvfs') as os_statvfs_mock:
+                statvfs_result = namedtuple('statvfs_result', ['f_frsize', 'f_bavail'])
+                os_statvfs_mock.return_value = statvfs_result(f_frsize=1, f_bavail=2)
+
+                response = self.client.get(reverse("freespace"), {'path': 'test'})
+
+                os_statvfs_mock.assert_called_with('test')
+                self.assertEqual(response.data, {'freespace': 2})
+
+    def test_win_freespace_fail(self):
+        if sys.platform.startswith('win'):
+            ctypes_mock = mock.MagicMock()
+            with mock.patch.dict('sys.modules', ctypes=ctypes_mock):
+                ctypes_mock.windll.kernel32.GetDiskFreeSpaceExW.return_value = 0
+                ctypes_mock.winError.side_effect = OSError
+                try:
+                    self.client.get(reverse('freespace'), {'path': 'test'})
+                except OSError:
+                    # check if ctypes.winError() has been called
+                    ctypes_mock.winError.assert_called_with()
