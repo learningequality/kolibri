@@ -28,7 +28,7 @@ export default class KolibriApp extends KolibriModule {
     return [];
   }
   ready() {
-    store.registerModule({
+    this.store.registerModule({
       state: this.initialState,
       mutations: this.mutations,
     });
