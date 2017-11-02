@@ -286,9 +286,9 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer
 
-    def get_queryset(self, available=False):
-        if available:
-            queryset = models.ContentNode.objects.filter(available=True)
+    def get_queryset(self, available=None):
+        if available is not None:
+            queryset = models.ContentNode.objects.filter(available=available)
         else:
             queryset = models.ContentNode.objects.all()
         return queryset.prefetch_related('files__local_file')
@@ -307,7 +307,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
         return response
 
-    def _get_parent_and_children_info(self, pk, available=False):
+    def _get_parent_and_children_info(self, pk, available=None):
         queryset = self.get_queryset(available)
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)

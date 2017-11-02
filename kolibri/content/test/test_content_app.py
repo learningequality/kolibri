@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
-from django.core.management import call_command
+from collections import namedtuple
 
 class ContentNodeTestBase(object):
     """
@@ -184,31 +184,21 @@ class ContentNodeAPITestCase(APITestCase):
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
                         "total_resources": 3, "resources_on_device": 0, "importable": True}]})
 
-    @mock.patch('kolibri.content.management.commands.importchannel.channel_import.import_channel_from_local_db')
-    @mock.patch('kolibri.content.management.commands.importchannel.AsyncCommand.start_progress')
-    @mock.patch('kolibri.content.management.commands.importchannel.paths.get_content_database_file_path')
-    @mock.patch('kolibri.content.management.commands.importchannel.transfer.FileCopy')
-    def test_contentnode_granular_local_import(self, FileCopyMock, local_path_mock, start_progress_mock, import_channel_mock):
+    @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
+    def test_contentnode_granular_local_import(self, drive_mock):
+        datafolder = tempfile.mkdtemp()
+        DriveData = namedtuple("DriveData", ["id", "datafolder"])
+        drive_mock.return_value = {"123": DriveData(id="123", datafolder=datafolder)}
 
-        # Call importchannel command
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
-        local_dest_path = tempfile.mkstemp()[1]
-        local_src_path = tempfile.mkstemp()[1]
-        local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
-        datafolder = tempfile.mkdtemp()
-        call_command("importchannel", "local", self.the_channel_id, datafolder)
 
-        """
-        Although we called importchannel, the datafolder doesn't have any content files.
-        So only "root" and "c2" contentnodes will be importable as topic node, but not c1.
-        """
         c1_id = content.ContentNode.objects.get(title="root").id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
+
         response = self.client.get(
-            reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import", "datafolder": datafolder})
+            reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import", "drive_id": "123"})
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
