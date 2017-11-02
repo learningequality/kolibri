@@ -5,7 +5,7 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
-0.4.8
+0.4.9
 -----
   - User experience improvements for session timeout
 
