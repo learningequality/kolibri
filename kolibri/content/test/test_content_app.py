@@ -195,6 +195,16 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}))
         self.assertEqual(response.data['name'], 'testing')
 
+    def test_channelmetadata_resource_info(self):
+        data = content.ChannelMetadata.objects.values()[0]
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        content.ContentNode.objects.filter(pk=c1_id).update(available=False)
+        response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}), {'file_sizes': True})
+        self.assertEqual(response.data['total_resources'], 4)
+        self.assertEqual(response.data['total_file_size'], 0)
+        self.assertEqual(response.data['on_device_resources'], 3)
+        self.assertEqual(response.data['on_device_file_size'], 0)
+
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
         self.assertEqual(len(response.data), 5)
