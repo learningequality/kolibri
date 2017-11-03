@@ -2,47 +2,42 @@
 
   <core-modal
     :title="$tr('title')"
-    :error="wizardState.error"
     :enableBgClickCancel="false"
-    :enableBackBtn="true"
-    @cancel="cancel"
     @enter="submit"
-    @back="goBack"
+    hideTopButtons
   >
-    <div class="main">
-      <template v-if="!drivesLoading">
-        <div class="modal-message">
-          <drive-list
-            :value="selectedDrive"
-            :drives="wizardState.driveList"
-            :enabledDrivePred="driveIsEnabled"
-            :disabledMsg="$tr('incompatible')"
-            @change="(driveId) => selectedDrive = driveId"
-          />
-        </div>
-        <div class="refresh-btn-wrapper">
-          <k-button
-            :text="$tr('refresh')"
-            @click="updateWizardLocalDriveList"
-            :disabled="wizardState.busy"
-          />
-        </div>
-      </template>
-      <loading-spinner v-else :delay="500" class="spinner" />
+    <div class="options">
+      <drive-list
+        v-if="!drivesLoading"
+        :value="selectedDrive"
+        :drives="wizardState.driveList"
+        :enabledDrivePred="driveIsEnabled"
+        :disabledMsg="$tr('incompatible')"
+        @change="(driveId) => selectedDrive = driveId"
+      />
+      <loading-spinner
+        v-else
+        :delay="500"
+        class="spinner"
+      />
     </div>
-    <div class="core-text-alert">
+
+    <ui-alert v-if="wizardState.error" type="error">
       {{ wizardState.error }}
-    </div>
-    <div class="button-wrapper">
+    </ui-alert>
+
+    <div class="buttons">
       <k-button
-        @click="cancel"
+        :text="$tr('cancel')"
         appearance="flat-button"
-        :text="$tr('cancel')" />
+        @click="cancel"
+      />
       <k-button
         :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true" />
+        :primary="true"
+      />
     </div>
   </core-modal>
 
@@ -58,6 +53,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import uiAlert from 'keen-ui/src/UiAlert';
   import driveList from './drive-list';
   export default {
     name: 'wizardLocalImport',
@@ -73,6 +69,7 @@
       kButton,
       loadingSpinner,
       driveList,
+      uiAlert,
     },
     data: () => ({ selectedDrive: '' }),
     computed: {
@@ -129,7 +126,7 @@
   .modal-message
     margin: 2em 0
 
-  .button-wrapper
+  .buttons
     margin: 1em 0
     text-align: center
 

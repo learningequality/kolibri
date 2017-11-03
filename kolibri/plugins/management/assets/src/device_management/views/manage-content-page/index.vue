@@ -56,10 +56,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import availableChannelsPage from '../available-channels-page';
   import wizardImportSource from './wizards/wizard-import-source';
-  import wizardImportNetwork from './wizards/wizard-import-network';
   import wizardImportLocal from './wizards/wizard-import-local';
   import wizardExport from './wizards/wizard-export';
-  import importPreview from './wizards/import-preview';
   import subpageContainer from '../containers/subpage-container';
   import taskProgress from './task-progress';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
@@ -69,9 +67,7 @@
     [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
     [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
     [ContentWizardPages.EXPORT]: 'wizard-export',
-    [ContentWizardPages.LOCAL_IMPORT_PREVIEW]: 'import-preview',
-    [ContentWizardPages.REMOTE_IMPORT_PREVIEW]: 'import-preview',
-    [ContentWizardPages.NETWORK_AVAILABLE_CHANNELS]: 'available-channels-page',
+    [ContentWizardPages.AVAILABLE_CHANNELS]: 'available-channels-page',
   };
 
   const POLL_DELAY = 1000;
@@ -90,11 +86,9 @@
       availableChannelsPage,
       channelsGrid,
       kButton,
-      importPreview,
       subpageContainer,
       taskProgress,
       wizardImportSource,
-      wizardImportNetwork,
       wizardImportLocal,
       wizardExport,
     },

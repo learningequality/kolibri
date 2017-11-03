@@ -1,35 +1,33 @@
-import { TaskResource } from 'kolibri.resources';
-import { ContentWizardPages } from '../../constants';
+import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
+import { ContentWizardPages, TransferTypes } from '../../constants';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
-import {
-  triggerLocalContentExportTask,
-  triggerLocalContentImportTask,
-  triggerRemoteContentImportTask,
-} from './taskActions';
 import { showSelectContentPage } from './contentTransferActions';
+import { MutationTypes as Mutations } from '../mutations/contentWizardMutations';
+import { driveChannelList, installedChannelList, wizardState } from '../getters';
 import find from 'lodash/find';
 
 export function updateWizardLocalDriveList(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_BUSY, true);
   TaskResource.localDrives()
     .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+      store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_BUSY, false);
+      store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_DRIVES, response.entity);
     })
     .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+      store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_BUSY, false);
       handleApiError(store, error);
     });
 }
 
 export function showWizardPage(store, pageName, meta = {}) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+  store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_STATE, {
     shown: Boolean(pageName),
     page: pageName || null,
     error: null,
     busy: false,
     drivesLoading: false,
-    driveList: null,
+    driveList: wizardState(store.state).driveList || [],
+    channelList: wizardState(store.state).channelList || [],
     meta,
   });
 }
@@ -47,11 +45,6 @@ export function closeImportExportWizard(store) {
   showWizardPage(store, false);
 }
 
-function prepareAvailableChannelsPage(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_PAGENAME', ContentWizardPages.NETWORK_AVAILABLE_CHANNELS);
-  return Promise.resolve();
-}
-
 /**
  * State machine for the Import/Export wizards.
  * Only handles forward, back, and cancel transitions.
@@ -59,7 +52,8 @@ function prepareAvailableChannelsPage(store) {
  * @param store - vuex store object
  * @param {string} transition - 'forward', 'backward', or 'cancel'
  * @param {Object} params - data needed to execute transition
- * @returns {undefined}
+ * @returns {Promise}
+ *
  */
 export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
@@ -73,100 +67,77 @@ export function transitionWizardPage(store, transition, params) {
     return showPage(false);
   }
 
-  // At Choose Source Wizard
+  // At Choose Import Source modal
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
-    if (transition === FORWARD && params.source === 'local') {
-      return showPage(ContentWizardPages.IMPORT_LOCAL);
-    }
-    if (transition === FORWARD && params.source === 'network') {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
-        source: {
-          type: 'NETWORK_SOURCE',
-          baseUrl: '',
-        },
-        transferType: 'remoteimport',
-      });
-      return prepareAvailableChannelsPage(store);
-    }
-  }
-
-  // At Available Channels Page
-  // params: { channel }
-  if (wizardPage === ContentWizardPages.NETWORK_AVAILABLE_CHANNELS) {
     if (transition === FORWARD) {
-      return showSelectContentPage(store, {
-        ...store.state.pageState.wizardState.meta, // { source, transferType }
-        ...params,
-      });
+      if (params.source === 'local') {
+        return showPage(ContentWizardPages.IMPORT_LOCAL);
+      }
+
+      if (params.source === 'network') {
+        return showAvailableChannelsPage(store, {
+          transferType: TransferTypes.REMOTEIMPORT,
+          source: {
+            type: 'NETWORK_SOURCE',
+            baseUrl: '',
+          },
+          destination: {},
+        });
+      }
     }
   }
 
-  // At Local Import Wizard
+  // At Choose Local Drive For Import modal
   // params : { driveId }
   if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
     if (transition === BACKWARD) {
       return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
     }
     if (transition === FORWARD) {
-      const driveInfo = find(store.state.pageState.wizardState.driveList, { id: params.driveId });
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
+      const driveInfo = find(wizardState(store.state).driveList, { id: params.driveId });
+      return showAvailableChannelsPage(store, {
+        transferType: TransferTypes.LOCALIMPORT,
         source: {
           type: 'LOCAL_DRIVE',
           driveId: driveInfo.id,
           driveName: driveInfo.name,
         },
-        transferType: 'localimport',
-      });
-      return prepareAvailableChannelsPage(store);
-    }
-  }
-
-  // At Network Import Wizard
-  if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-    }
-    if (transition === FORWARD) {
-      return showPage(ContentWizardPages.REMOTE_IMPORT_PREVIEW, {
-        channelId: params.channelId,
+        destination: {},
       });
     }
   }
 
-  // At Export Wizard
+  // At Choose Local Drive For Export modal
   // params : { driveId }
   if (wizardPage === ContentWizardPages.EXPORT) {
     if (transition === FORWARD) {
-      // return triggerLocalContentExportTask(store, params.driveId);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_META', {
+      return showAvailableChannelsPage(store, {
+        transferType: TransferTypes.LOCALEXPORT,
         source: {},
-        transferType: 'localexport',
+        destination: {
+          type: 'LOCAL_DRIVE',
+          driveId: 'drive_1',
+          driveName: 'Drive One',
+        },
       });
-      return prepareAvailableChannelsPage(store);
     }
   }
 
-  // At Local Import Preview
-  if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.IMPORT_LOCAL);
-    }
+  // At Available Channels Page
+  // params: { channel }
+  if (wizardPage === ContentWizardPages.AVAILABLE_CHANNELS) {
     if (transition === FORWARD) {
-      return triggerLocalContentImportTask(store, params.sourceId);
+      const { source, destination, transferType } = wizardState(store.state).meta;
+      return showSelectContentPage(store, {
+        source,
+        destination,
+        transferType,
+        channel: params.channel,
+      });
     }
   }
 
-  // At Network Import Preview
-  if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.IMPORT_NETWORK);
-    }
-    if (transition === FORWARD) {
-      return triggerRemoteContentImportTask(store, params.sourceId);
-    }
-  }
-
-  return undefined;
+  return Promise.resolve();
 }
 
 /**
@@ -178,6 +149,29 @@ export function transitionWizardPage(store, transition, params) {
  * @param {Object} options.source - LocalDrive | RemoteSource
  *
  */
-export function showAvailableChannelsPage() {
+export function showAvailableChannelsPage(store, options) {
+  const { transferType, source, destination } = options;
+  store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_PAGENAME, ContentWizardPages.AVAILABLE_CHANNELS);
+  store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_META, { transferType, source, destination });
+
+  // for remoteimport, get Available Channels from Kolibri Studio
+  if (transferType === TransferTypes.REMOTEIMPORT) {
+    return RemoteChannelResource.getCollection().fetch()
+      .then((publicChannels) => {
+        store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, publicChannels);
+      });
+  }
+
+  // for localimport, get Available Channels from selected drive's metadata
+  if (transferType === TransferTypes.LOCALIMPORT) {
+    const channelList = driveChannelList(store.state)(source.driveId);
+    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, channelList);
+  }
+
+  // for localimport, get Available Channels from store
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    const channelList = installedChannelList(store.state);
+    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, channelList);
+  }
   return Promise.resolve();
 }
