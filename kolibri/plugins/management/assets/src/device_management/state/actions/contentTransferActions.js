@@ -64,7 +64,7 @@ function getTopicContents(store, topicId, options) {
       import_export: options.transferType === 'localexport' ? 'export' : 'import',
     }
     if (options.transferType === 'localimport') {
-      fetchArgs.datafolder = options.source.datafolder
+      fetchArgs.drive_id = options.source.driveId
     }
     return ContentNodeGranularResource.getModel(topicId).fetch(fetchArgs)
       .catch(() => Promise.reject({ errorType: 'TREEVIEW_LOADING_ERROR' }));
@@ -77,7 +77,7 @@ function getTopicContents(store, topicId, options) {
  * @param {Object} options
  * @param {Object} options.channel - { id, title, isOnDevice }
  * @param {string} options.transferType - 'remoteimport', 'localimport', or 'localexport'
- * @param {Object} options.source - LocalDrive { driveId, driveName, dataFolder } | RemoteSource
+ * @param {Object} options.source - LocalDrive { driveId, driveName } | RemoteSource
  * @param {Object} options.taskPollInterval
  *
  */

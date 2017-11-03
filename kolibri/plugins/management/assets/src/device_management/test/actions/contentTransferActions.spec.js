@@ -44,7 +44,6 @@ const defaultOptions = {
     source: {
       type: 'LOCAL_DRIVE',
       driveId: 'drive_1',
-      datafolder: '/kolibri/stuff',
     },
     taskPollInterval: 1,
   },
@@ -126,7 +125,7 @@ describe('showSelectContentPage action', () => {
     });
   });
 
-  describe('when transfer type is "localimport"', () => {
+  describe.only('when transfer type is "localimport"', () => {
     const options = defaultOptions.localimport;
 
     it('if channel is on device, then "importchannel" is never called', () => {
@@ -164,7 +163,7 @@ describe('showSelectContentPage action', () => {
         .then(() => {
           sinon.assert.calledWith(fetchableSpy.fetch, {
             import_export: 'import',
-            datafolder: '/kolibri/stuff',
+            drive_id: 'drive_1',
           });
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
           assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
