@@ -1,9 +1,12 @@
+import os
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
+from kolibri.content.utils.paths import get_content_storage_file_path
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -268,6 +271,52 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         )
 
         list_serializer_class = ContentNodeListSerializer
+
+
+class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    total_resources = serializers.SerializerMethodField()
+    resources_on_device = serializers.SerializerMethodField()
+    importable = serializers.SerializerMethodField()
+
+    def get_total_resources(self, obj):
+        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).count()
+
+        return total_resources
+
+    def get_resources_on_device(self, obj):
+        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
+
+        return available_resources
+
+    def get_importable(self, obj):
+        if 'request' not in self.context or not self.context['request'].query_params.get('drive_id', None) or obj.kind == content_kinds.TOPIC:
+            return True
+        else:
+            # check if the external drive exists given drive id
+            drive_id = self.context['request'].query_params.get('drive_id', None)
+            drives = get_mounted_drives_with_channel_info()
+            if drive_id in drives:
+                datafolder = drives[drive_id].datafolder
+            else:
+                raise serializers.ValidationError(
+                    'The external drive with given drive id does not exist.')
+
+            files = obj.files.all()
+            if not files.exists():
+                return False
+
+            importable = True
+            for f in files:
+                # If one of the files under the node is unavailable on the external drive, mark the node as unimportable
+                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+                importable = importable and os.path.exists(file_path)
+            return importable
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'pk', 'title', 'available', 'kind', 'total_resources', 'resources_on_device', 'importable',
+        )
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
