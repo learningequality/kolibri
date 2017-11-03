@@ -33,7 +33,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-
   export default {
     name: 'changeExamVisibilityModal',
     $trs: {

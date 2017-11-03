@@ -133,7 +133,6 @@
           },
         ];
       },
-      // TODO: currently kSelect (uiSelect) does not support disabled options :(
       channelFilterOptions() {
         const channelOptions = this.channels.map(channel => {
           return {
