@@ -5,13 +5,14 @@ import requests
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
 from django.apps.registry import AppRegistryNotReady
+from django.core.cache import cache
 from django.core.management import CommandError, call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
+from kolibri.content.utils.paths import get_content_database_file_path, get_channel_lookup_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -95,15 +96,8 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError(
                 "The 'channel_id' field is required.")
 
-        channel_id = request.data['channel_id']
-
-        # ensure the requested channel_id can be found on the central server, otherwise error
-        status = requests.head(
-            get_content_database_file_url(channel_id)).status_code
-        if status == 404:
-            raise Http404(
-                _("The requested channel does not exist on the content server")
-            )
+        # if channel_id is a token, will get actual channel_id to download channel properly
+        channel_id = self.as_view({'post': 'channelinfo'})(request).data['id']
 
         task_id = get_client().schedule(
             _networkimport, channel_id, track_progress=True, cancellable=True)
@@ -190,6 +184,27 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
+    @list_route(methods=['post'])
+    def channelinfo(self, request):
+        """
+        Gets metadata about a channel through a token or channel id.
+        """
+        cache_key = request.data['channel_id']
+        url = get_channel_lookup_url(cache_key)
+
+        # cache channel lookup values
+        if cache.get(cache_key):
+            return Response(cache.get(cache_key))
+
+        resp = requests.get(url)
+
+        # always check response code of request and set cache
+        if resp.status_code == 404:
+            raise Http404(
+                _("The requested channel does not exist on the content server")
+            )
+        cache.set(cache_key, resp.json(), 60 * 10)
+        return Response(resp.json())
 
 def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
     call_command(
