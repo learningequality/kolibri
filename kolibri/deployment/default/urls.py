@@ -46,7 +46,7 @@ if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
 
-if getattr(settings, 'DEBUG', False):
+if getattr(settings, 'REST_SWAGGER', False):
     urlpatterns += [
         url(r'^api_explorer/', include('rest_framework_swagger.urls'))
     ]

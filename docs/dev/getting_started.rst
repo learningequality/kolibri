@@ -143,8 +143,13 @@ To start up the development server and build the client-side dependencies, use t
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri --debug manage devserver --webpack
+  (kolibri)$ yarn run devserver
 
+If this does not work, you can run the command that this is invoking:
+
+.. code-block:: bash
+
+  (kolibri)$ kolibri --debug manage devserver --webpack --lint --settings=kolibri.deployment.default.settings.dev
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
@@ -175,14 +180,14 @@ More advanced examples of the ``devserver`` command:
 
 .. code-block:: bash
 
-  # runs the dev server and rebuild client assets when files change
-  kolibri --debug manage devserver --webpack
+  # runs the dev server, rebuild client assets when files change, and use developer settings
+  kolibri --debug manage devserver --webpack --settings=kolibri.deployment.default.settings.dev
 
   # runs the dev server and re-run client-side tests when files changes
   kolibri --debug manage devserver --karma
 
   # runs all of the above
-  kolibri --debug manage devserver --webpack --karma
+  kolibri --debug manage devserver --webpack --karma --settings=kolibri.deployment.default.settings.dev
 
 
 Running the Production Server
