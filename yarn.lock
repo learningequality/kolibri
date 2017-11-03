@@ -3278,7 +3278,7 @@ katex@^0.6.0:
 
 "keen-ui@https://github.com/learningequality/Keen-UI/":
   version "1.0.1"
-  resolved "https://github.com/learningequality/Keen-UI/#a3aa19dc6ab83c774ec31a798bd5866b97926fe6"
+  resolved "https://github.com/learningequality/Keen-UI/#bda2ae0ae7d45b846872b0f6b0292c630a7996dd"
   dependencies:
     autosize "^3.0.20"
     deep-assign "^2.0.0"
