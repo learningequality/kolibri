@@ -2,8 +2,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import time
 
-from django.contrib.auth import authenticate, get_user, login, logout
+from django.contrib.auth import authenticate, get_user, login, logout, update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
+from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import F
 from kolibri.logger.models import UserSessionLog
@@ -14,8 +15,8 @@ from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, LearnerGroupSerializer,
-    MembershipSerializer, RoleSerializer
+    ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, FacilityUserSignupSerializer,
+    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
 )
 
 
@@ -105,6 +106,23 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
 
+    def set_password_if_needed(self, serializer):
+        with transaction.atomic():
+            instance = serializer.save()
+            if serializer.validated_data.get('password', ''):
+                instance.set_password(serializer.validated_data['password'])
+                instance.save()
+        return instance
+
+    def perform_update(self, serializer):
+        instance = self.set_password_if_needed(serializer)
+        # if the user is updating their own password, ensure they don't get logged out
+        if self.request.user == instance:
+            update_session_auth_hash(self.request, instance)
+
+    def perform_create(self, serializer):
+        self.set_password_if_needed(serializer)
+
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
@@ -166,7 +184,7 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 
 class SignUpViewSet(viewsets.ViewSet):
 
-    serializer_class = FacilityUserSerializer
+    serializer_class = FacilityUserSignupSerializer
 
     def extract_request_data(self, request):
         return {
@@ -184,6 +202,8 @@ class SignUpViewSet(viewsets.ViewSet):
         serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid():
             serialized_user.save()
+            serialized_user.instance.set_password(data['password'])
+            serialized_user.instance.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
             login(request, authenticated_user)
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
