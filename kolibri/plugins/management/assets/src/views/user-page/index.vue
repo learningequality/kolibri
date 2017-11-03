@@ -27,7 +27,7 @@
       <k-filter-textbox
         :placeholder="$tr('searchText')"
         v-model="searchFilter"
-        class="searchbar"
+        class="user-filter"
       />
 
     </div>
@@ -336,5 +336,8 @@
 
   .kind-select
     margin-bottom: 0
+
+  .user-filter
+    width: 300px
 
 </style>
