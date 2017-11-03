@@ -16,6 +16,7 @@ import {
 } from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from '../utils/browser';
 
@@ -372,23 +373,21 @@ function _setChannelState(store, currentChannelId, channelList) {
  * If channelId is null, choose it automatically
  */
 function setChannelInfo(store, channelId = null) {
-  return ChannelResource.getCollection()
-    .fetch()
-    .then(
-      channelsData => {
-        const channelList = _channelListState(channelsData);
-        let thisChannelId;
-        if (channelList.some(channel => channel.id === channelId)) {
-          thisChannelId = channelId;
-        } else {
-          thisChannelId = getDefaultChannelId(channelList);
-        }
-        _setChannelState(store, thisChannelId, channelList);
-      },
-      error => {
-        handleApiError(store, error);
+  return ChannelResource.getCollection().fetch().then(
+    channelsData => {
+      const channelList = _channelListState(channelsData);
+      let thisChannelId;
+      if (channelList.some(channel => channel.id === channelId)) {
+        thisChannelId = channelId;
+      } else {
+        thisChannelId = getDefaultChannelId(channelList);
       }
-    );
+      _setChannelState(store, thisChannelId, channelList);
+    },
+    error => {
+      handleApiError(store, error);
+    }
+  );
 }
 
 /**
@@ -439,17 +438,6 @@ function fetchPoints(store) {
   }
 }
 
-function fetchPoints(store) {
-  if (!getters.isSuperuser(store.state) && getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
-      getters.currentUserId(store.state)
-    );
-    userProgressModel.fetch().then(progress => {
-      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
-    });
-  }
-}
-
 /**
  * Helper function to handle common functionality between updateProgress and updateExerciseProgress
  * @param  {VuexStore} store        The currently active Vuex store
@@ -494,28 +482,6 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
     saveLogs(store);
   }
   return summaryProgress;
-}
-
-/**
- * Update the progress percentage
- * To be called periodically by content renderers on interval or on pause
- * Must be called after initContentSession
- * @param {float} progressPercent
- * @param {boolean} forceSave
- */
-function updateProgress(store, progressPercent, forceSave = false) {
-  /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
-
-  /* Calculate progress based on progressPercent */
-  // TODO rtibbles: Delegate this to the renderers?
-  const sessionProgress = sessionLog.progress + progressPercent;
-  const summaryProgress = summaryLog.id
-    ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
-    : 0;
-
-  return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
 }
 
 /**
@@ -678,7 +644,7 @@ function saveAttemptLog(store) {
   if (attemptLogModel) {
     return attemptLogModel.save(_attemptLogModel(store));
   }
-  return Promise.resolve();
+  return ConditionalPromise.resolve();
 }
 
 function saveAndStoreAttemptLog(store) {
