@@ -157,11 +157,10 @@ logger = logging.getLogger(__name__)
 
 def get_major_version(version=None):
     """
-    :returns: String w/ first digit part of version tuple, either x.y or x.y.z
+    :returns: String w/ first digit part of version tuple x.y.z
     """
     version = get_complete_version(version)
-    parts = 2 if version[2] == 0 else 3
-    major = '.'.join(str(x) for x in version[:parts])
+    major = '.'.join(str(x) for x in version[:3])
     return major
 
 

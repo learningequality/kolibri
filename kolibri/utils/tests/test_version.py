@@ -52,7 +52,7 @@ class TestKolibriVersion(unittest.TestCase):
         hickups with ``git describe --tag``.
         """
         v = get_version((0, 1, 0, "alpha", 0))
-        self.assertIn("0.1.dev", v)
+        self.assertIn("0.1.0.dev", v)
 
     def test_alpha_1_version(self):
         """
@@ -65,7 +65,7 @@ class TestKolibriVersion(unittest.TestCase):
         version.assert_git_version = lambda *x: True
         try:
             v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1a1", v)
+            self.assertIn("0.1.0a1", v)
         finally:
             version.assert_git_version = assert_version
 
@@ -79,7 +79,7 @@ class TestKolibriVersion(unittest.TestCase):
         version.get_version_file = lambda: None
         try:
             v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1a1", v)
+            self.assertIn("0.1.0a1", v)
         finally:
             version.get_version_file = get_version_file
 
@@ -90,10 +90,10 @@ class TestKolibriVersion(unittest.TestCase):
         """
         # Simple mocking
         get_version_file = version.get_version_file
-        version.get_version_file = lambda: "0.1a1"
+        version.get_version_file = lambda: "0.1.0a1"
         try:
             v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1a1", v)
+            self.assertIn("0.1.0a1", v)
         finally:
             version.get_version_file = get_version_file
 
@@ -106,10 +106,10 @@ class TestKolibriVersion(unittest.TestCase):
         """
         # Simple mocking
         get_version_file = version.get_version_file
-        version.get_version_file = lambda: "0.1a1\n"
+        version.get_version_file = lambda: "0.1.0a1\n"
         try:
             v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1a1", v)
+            self.assertIn("0.1.0a1", v)
         finally:
             version.get_version_file = get_version_file
 
@@ -120,7 +120,7 @@ class TestKolibriVersion(unittest.TestCase):
         """
         # Simple mocking
         get_version_file = version.get_version_file
-        version.get_version_file = lambda: "0.2a1"
+        version.get_version_file = lambda: "0.2.0a1"
         try:
             self.assertRaises(
                 AssertionError,
@@ -164,7 +164,7 @@ class TestKolibriVersion(unittest.TestCase):
         Test that the major version is set as expected on a final release
         """
         v = get_version((0, 1, 0, "final", 0))
-        self.assertEqual(v, "0.1")
+        self.assertEqual(v, "0.1.0")
 
     def test_final_patch(self):
         """
