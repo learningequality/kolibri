@@ -9,7 +9,7 @@ import * as coreActions from '../../src/state/actions';
 import * as constants from '../../src/constants';
 import sinon from 'sinon';
 import urls from 'kolibri.urls';
-import { SessionResource } from 'kolibri.resources';
+import { SessionResource, AttemptLogResource } from 'kolibri.resources';
 import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 
@@ -79,10 +79,7 @@ describe('Vuex store/actions for core module', () => {
         sinon.assert.called(assignStub);
       }
 
-      coreActions
-        .kolibriLogin(store, {})
-        .then(runAssertions)
-        .then(done, done);
+      coreActions.kolibriLogin(store, {}).then(runAssertions).then(done, done);
     });
 
     it('failed login (401)', done => {
@@ -124,20 +121,16 @@ describe('Vuex core logging actions', () => {
   describe('attempt log saving', () => {
     it('saveAndStoreAttemptLog does not overwrite state if item id has changed', done => {
       const store = createStore();
-      kolibri.resources = {};
-      kolibri.resources.AttemptLog = {
-        createModel: obj => ({ attributes: obj }),
-      };
       coreActions.createAttemptLog(store, 'first');
       let externalResolve;
       const firstState = Object.assign({}, store.state.core.logging.attempt);
-      coreActions.__set__(
-        'saveAttemptLog',
-        () =>
+      const findModelStub = sinon.stub(AttemptLogResource, 'findModel');
+      findModelStub.returns({
+        save: () =>
           new ConditionalPromise(resolve => {
             externalResolve = resolve;
-          })
-      );
+          }),
+      });
       const promise = coreActions.saveAndStoreAttemptLog(store);
       coreActions.createAttemptLog(store, 'second');
       store.state.core.logging.attempt.id = 'assertion';
