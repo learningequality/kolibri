@@ -62,6 +62,104 @@ class TasksViewSet(viewsets.ViewSet):
         # unimplemented for now.
         pass
 
+    @list_route(methods=["post"])
+    def startremotechannelimport(self, request):
+
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+
+        job_metadata = {
+            "type": "REMOTECHANNELIMPORT",
+            "started_by": request.user.pk
+        }
+
+        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl)
+        resp = _job_to_response(get_client().status(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def startremotecontentimport(self, request):
+
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        # optional arguments
+        baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        node_ids = request.data.get("node_ids", None)
+        exclude_node_ids = request.data.get("exclude_node_ids", None)
+
+        if node_ids and not isinstance(node_ids, list):
+            raise serializers.ValidationError("node_ids must be a list.")
+
+        if exclude_node_ids and not isinstance(exclude_node_ids, list):
+            raise serializers.ValidationError("exclude_node_ids must be a list.")
+
+        job_metadata = {
+            "type": "REMOTECONTENTIMPORT",
+            "started_by": request.user.pk,
+        }
+
+        job_id = get_client().schedule(
+            call_command,
+            "importcontent",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+        )
+
+        resp = _job_to_response(get_client().status(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def startdiskchannelimport(self, request):
+
+        # Load the required parameters
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        try:
+            drive_id = request.data["drive_id"]
+        except KeyError:
+            raise serializers.ValidationError("The drive_id field is required.")
+
+        try:
+            drives = get_mounted_drives_with_channel_info()
+            drive = drives[drive_id]
+        except KeyError:
+            raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+
+        job_metadata = {
+            "type": "DISKCHANNELIMPORT",
+            "started_by": request.user.pk,
+        }
+
+        job_id = get_client().schedule(
+            call_command,
+            "importchannel",
+            "disk",
+            drive.datafolder,
+            channel_id,
+        )
+
+        resp = _job_to_response(get_client().status(job_id))
+        return Response(resp)
+
+    # TODO: complete startdiskcontentimport
+
+    # TODO: complete startdiskexport
+
     @list_route(methods=['post'])
     def startdeletechannel(self, request):
         '''
@@ -78,67 +176,6 @@ class TasksViewSet(viewsets.ViewSet):
             _deletechannel, channel_id, track_progress=True)
 
         id_tasktype[task_id] = DELETE_CHANNEL
-
-        # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
-
-        return Response(resp)
-
-    @list_route(methods=['post'])
-    def startremoteimport(self, request):
-        '''
-        Download a channel's database from the main curation server, and then
-        download its content.
-        '''
-
-        if "channel_id" not in request.data:
-            raise serializers.ValidationError(
-                "The 'channel_id' field is required.")
-
-        channel_id = request.data['channel_id']
-        node_ids = request.data.get("node_ids")
-
-        # ensure the requested channel_id can be found on the central server, otherwise error
-        status = requests.head(
-            get_content_database_file_url(channel_id)).status_code
-        if status == 404:
-            raise Http404(
-                _("The requested channel does not exist on the content server")
-            )
-
-        task_id = get_client().schedule(
-            _networkimport, channel_id, node_ids, track_progress=True, cancellable=True)
-
-        id_tasktype[task_id] = REMOTE_IMPORT
-
-        # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
-
-        return Response(resp)
-
-    @list_route(methods=['post'])
-    def startlocalimport(self, request):
-        """
-        Import a channel from a local drive, and copy content to the local machine.
-        """
-
-        if "drive_id" not in request.data:
-            raise serializers.ValidationError(
-                "The 'drive_id' field is required."
-            )
-
-        if "channel_id" not in request.data:
-            raise serializers;ValidationError(
-                "The 'channel_id' field is required."
-            )
-
-        channel_id = request.data["channel_id"]
-        node_ids = request.data.get("node_ids")
-
-        task_id = get_client().schedule(
-            _localimport, request.data['drive_id'], request.data['channel_id'], node_ids=node_ids, track_progress=True, cancellable=True)
-
-        id_tasktype[task_id] = LOCAL_IMPORT
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
@@ -287,6 +324,7 @@ def _job_to_response(job):
     if not job:
         return {
             "type": None,
+            "started_by": None,
             "status": State.SCHEDULED,
             "percentage": 0,
             "progress": [],
@@ -295,7 +333,8 @@ def _job_to_response(job):
         }
     else:
         return {
-            "type": id_tasktype.get(job.job_id),
+            "type": job.extra_metadata.get("type"),
+            "started_by": job.extra_metadata.get("started_by"),
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
