@@ -2,7 +2,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.urlresolvers import reverse
 
-from kolibri.auth.models import DeviceOwner, Facility, FacilityUser
+from kolibri.auth.models import Facility, FacilityUser
+from kolibri.auth.test.helpers import provision_device
 
 from rest_framework.test import APITestCase
 
@@ -11,8 +12,7 @@ from .. import models
 class UserExamAPITestCase(APITestCase):
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        provision_device()
         self.facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="admin", facility=self.facility)
         self.exam = models.Exam.objects.create(
