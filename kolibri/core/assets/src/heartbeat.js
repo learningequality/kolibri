@@ -17,13 +17,12 @@ export default class HeartBeat {
     this.setActive = this.setActive.bind(this);
     this.beat = this.beat.bind(this);
     this.setInactive();
-    this.start();
   }
   start() {
     logging.debug('Starting heartbeat');
     this.setActivityListeners();
     // No need to start it straight away, can wait.
-    this.wait();
+    this.beat();
   }
   setActivityListeners() {
     this.events.forEach(event => {

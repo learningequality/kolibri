@@ -62,11 +62,18 @@ Changes are ordered reverse-chronologically.
  - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
 
 
-0.4.8 (unreleased)
-------------------
+0.4.9
+-----
+  - User experience improvements for session timeout
+
+
+0.4.8
+-----
 
  - Prevent session timeout if user is still active
-
+ - Fix exam completion timestamp bug
+ - Prevent exercise attempt logging crosstalk bug
+ - Update Hindi translations
 
 0.4.7
 -----
