@@ -86,7 +86,7 @@ export function showSelectContentPage(store, options) {
   let dbPromise;
 
   store.dispatch('ADD_TREEVIEW_BREADCRUMB', {
-    id: channel.id,
+    id: channel.root,
     title: channel.title,
   });
 
@@ -102,6 +102,7 @@ export function showSelectContentPage(store, options) {
   }
 
   return dbPromise.then(() => {
+    // For channels, ContentNodeGranular API requires the channel root, not the id
     return getTopicContents(store, channel.root, options);
   })
   .then((channelContents) => {

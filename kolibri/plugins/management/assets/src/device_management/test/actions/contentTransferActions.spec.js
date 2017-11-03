@@ -75,7 +75,7 @@ const defaultOptions = {
   }
 };
 
-describe('showSelectContentPage action', () => {
+describe.only('showSelectContentPage action', () => {
   let remoteChannelImportStub;
   let localChannelImportStub;
 
@@ -125,7 +125,7 @@ describe('showSelectContentPage action', () => {
     });
   });
 
-  describe.only('when transfer type is "localimport"', () => {
+  describe('when transfer type is "localimport"', () => {
     const options = defaultOptions.localimport;
 
     it('if channel is on device, then "importchannel" is never called', () => {
@@ -168,7 +168,7 @@ describe('showSelectContentPage action', () => {
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
           assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
           assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
-            { id: 'channel_1', title: 'Channel One' },
+            { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
     });
@@ -215,7 +215,7 @@ describe('showSelectContentPage action', () => {
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
           assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
           assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
-            { id: 'channel_1', title: 'Channel One' },
+            { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
     });
@@ -246,7 +246,7 @@ describe('showSelectContentPage action', () => {
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
           assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
           assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
-            { id: 'channel_1', title: 'Channel One' },
+            { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
     });

@@ -9,6 +9,12 @@ const translator = createTranslator('treeViewRowMessages', {
   fractionOfResourcesSelected: '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
 });
 
+const CheckboxTypes = {
+  CHECKED: 'checked',
+  UNCHECKED: 'unchecked',
+  INDETERMINATE: 'indeterminate',
+};
+
 /**
  * Takes a nodes, plus contextual data from store,
  * then annotates them with info needed to correctly display it on tree view.
@@ -27,8 +33,9 @@ export function annotateNode(node, selectedNodes) {
 
   if (isSelected || ancestorIsSelected) {
     const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.id));
+
+    // Selected but with some or all descendants in omit list
     if (omittedDescendants.length > 0) {
-      // Selected but with descendant in omit list
       const omittedResources = sumBy(omittedDescendants, 'totalResources');
 
       // All descendants are omitted
@@ -37,10 +44,11 @@ export function annotateNode(node, selectedNodes) {
           ...node,
           message: '',
           disabled: false,
-          checkboxType: 'unchecked',
+          checkboxType: CheckboxTypes.UNCHECKED,
         };
       }
 
+      // Not all descendants are omitted
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
@@ -48,7 +56,7 @@ export function annotateNode(node, selectedNodes) {
           total: totalResources,
         }),
         disabled: false,
-        checkboxType: 'indeterminate',
+        checkboxType: CheckboxTypes.INDETERMINATE,
       };
     }
     // Completely selected
@@ -56,7 +64,7 @@ export function annotateNode(node, selectedNodes) {
       ...node,
       message: translator.$tr('resourcesSelected', { total: totalResources }),
       disabled: false,
-      checkboxType: 'checked',
+      checkboxType: CheckboxTypes.CHECKED,
     };
   }
 
@@ -68,7 +76,7 @@ export function annotateNode(node, selectedNodes) {
         ...node,
         message: translator.$tr('alreadyOnYourDevice'),
         disabled: true,
-        checkboxType: 'checked',
+        checkboxType: CheckboxTypes.CHECKED,
       };
     } else {
       // Partially on device
@@ -79,7 +87,7 @@ export function annotateNode(node, selectedNodes) {
           total: totalResources,
         }),
         disabled: false,
-        checkboxType: 'unchecked',
+        checkboxType: CheckboxTypes.UNCHECKED,
       };
     }
   }
@@ -96,7 +104,7 @@ export function annotateNode(node, selectedNodes) {
         ...node,
         message: translator.$tr('resourcesSelected', { total: totalResources }),
         disabled: false,
-        checkboxType: 'checked',
+        checkboxType: CheckboxTypes.CHECKED,
       };
     }
 
@@ -108,7 +116,7 @@ export function annotateNode(node, selectedNodes) {
         total: totalResources,
       }),
       disabled: false,
-      checkboxType: 'indeterminate',
+      checkboxType: CheckboxTypes.INDETERMINATE,
     }
   }
 
@@ -117,7 +125,14 @@ export function annotateNode(node, selectedNodes) {
     ...node,
     message: '',
     disabled: false,
-    checkboxType: 'unchecked',
+    checkboxType: CheckboxTypes.UNCHECKED,
   };
+}
 
+/**
+ * Takes an array of breadcrumb { id, title } objects in state, and converts them
+ * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }
+ */
+export function transformBreadrumbs(breadcrumbs) {
+  return breadcrumbs;
 }
