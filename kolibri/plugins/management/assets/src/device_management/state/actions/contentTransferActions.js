@@ -1,20 +1,23 @@
 import sumBy from 'lodash/sumBy';
 import { selectedNodes } from '../getters';
 import { TaskResource, ContentNodeGranularResource } from 'kolibri.resources';
-import { TaskStatuses } from '../../constants';
+import { TaskStatuses, TransferTypes } from '../../constants';
 
 /**
  * Starts Task that downloads content database
+ *
+ * @param {Object} options - { transferType, channel, source }
+ *
  */
 function downloadContentDatabase(options) {
   const { transferType, channel, source } = options;
   let promise;
-  if (transferType === 'localimport') {
+  if (transferType === TransferTypes.LOCALIMPORT) {
     promise = TaskResource.startLocalChannelImport({
       channel_id: channel.id,
       drive_id: source.driveId,
     });
-  } else if (transferType === 'remoteimport') {
+  } else if (transferType === TransferTypes.REMOTEIMPORT) {
     promise = TaskResource.startRemoteChannelImport({
       channel_id: channel.id
     });
@@ -58,15 +61,20 @@ function waitForTaskToComplete(store, taskId, interval = 1000) {
 
 /**
  * Makes call to ContentNodeGranular API and gets top-level contents for a topic
+ *
+ * @param {Object} topic - { id }
+ * @param {Object} options - { transferType, source }
+ *
  */
-function getTopicContents(store, topicId, options) {
+function getTopicContents(store, topic, options) {
+    const { source, transferType } = options;
     const fetchArgs = {
-      import_export: options.transferType === 'localexport' ? 'export' : 'import',
+      import_export: transferType === TransferTypes.LOCALEXPORT ? 'export' : 'import',
     }
-    if (options.transferType === 'localimport') {
-      fetchArgs.drive_id = options.source.driveId
+    if (options.transferType === TransferTypes.LOCALIMPORT) {
+      fetchArgs.drive_id = source.driveId
     }
-    return ContentNodeGranularResource.getModel(topicId).fetch(fetchArgs)
+    return ContentNodeGranularResource.getModel(topic.id).fetch(fetchArgs)
       .catch(() => Promise.reject({ errorType: 'TREEVIEW_LOADING_ERROR' }));
 }
 
@@ -103,7 +111,7 @@ export function showSelectContentPage(store, options) {
 
   return dbPromise.then(() => {
     // For channels, ContentNodeGranular API requires the channel root, not the id
-    return getTopicContents(store, channel.root, options);
+    return getTopicContents(store, { id: channel.root }, options);
   })
   .then((channelContents) => {
     // Then hydrate pageState.treeView with the contents
@@ -117,36 +125,32 @@ export function showSelectContentPage(store, options) {
 /**
  * Adds a new node to the transfer list.
  *
- * @param store - Vuex store
- * @param node {Object} - node to be added
- * @param node.path {Array<String>} - path (via ids) from channel root to the node
+ * @param node {Node} - Node to be added
+ * @param node.path {Array<String>} - path (via ids) from channel root to the Node
  *
  */
-export function addNodeForTransfer(store, newNode) {
+export function addNodeForTransfer(store, node) {
   const { include } = selectedNodes(store.state);
-  // remove nodes that would be made redundant by new one
-  const deduplicatedNodes = include.filter(({ path }) => {
-    return !path.includes(newNode.id)
-  });
-  if (include.length !== deduplicatedNodes.length) {
-    store.dispatch('REPLACE_INCLUDE_LIST', deduplicatedNodes);
+  // remove nodes in "include" that would be made redundant by the new one
+  const nonRedundantNodes = include.filter(({ path }) => !path.includes(node.id));
+  if (include.length !== nonRedundantNodes.length) {
+    store.dispatch('REPLACE_INCLUDE_LIST', nonRedundantNodes);
   }
-  store.dispatch('ADD_NODE_TO_INCLUDE_LIST', newNode);
-  store.dispatch('REMOVE_NODE_FROM_OMIT_LIST', newNode);
+  store.dispatch('ADD_NODE_TO_INCLUDE_LIST', node);
+  store.dispatch('REMOVE_NODE_FROM_OMIT_LIST', node);
   updateTransferCounts(store);
 }
 
 /**
  * Removes node from transfer
  *
- * @param store - Vuex store
  * @param node {Node} - node to be removed
  *
  */
 export function removeNodeForTransfer(store, node) {
   const { include } = selectedNodes(store.state);
-  const ancestor = include.find(({ id }) => node.path.includes(id));
-  if (ancestor) {
+  const includedAncestor = include.find(({ id }) => node.path.includes(id));
+  if (includedAncestor) {
     store.dispatch('ADD_NODE_TO_OMIT_LIST', node);
   } else {
     store.dispatch('REMOVE_NODE_FROM_INCLUDE_LIST', node);
@@ -155,34 +159,26 @@ export function removeNodeForTransfer(store, node) {
 }
 
 /**
- * After selectedItems.nodes is changed, run this to update
- * selectedItems.total_file_size/total_resource_count
- *
- * @param store - Vuex store
+ * After selectedItems.nodes is changed, this function is run to update
+ * selectedItems.total_file_size/total_resource_count.
  *
  */
 function updateTransferCounts(store) {
   const { include, omit } = selectedNodes(store.state);
-  const resourcePath = 'totalResources';
-  const fileSizePath = 'fileSize';
-  const resources = sumBy(include, resourcePath) - sumBy(omit, resourcePath);
-  const fileSize = sumBy(include, fileSizePath) - sumBy(omit, fileSizePath);
+  const getDifference = path => sumBy(include, path) - sumBy(omit, path);
   store.dispatch('REPLACE_COUNTS', {
-    fileSize,
-    resources
+    fileSize: getDifference('fileSize'),
+    resources: getDifference('totalResources'),
   });
 }
 
 /**
- * Handles clicking a new topic on the tree-view
+ * Updates the treeView part of the wizardState when going to new topic.
  *
- * @param {Object} options
- * @param {Object} options.topic - { id, title, source }
- * @param {Object} options.source
+ * @param {Object} topic - { id, title }
  *
  */
-export function goToTopic(store, options) {
-  const { topic } = options;
+export function goToTopic(store, topic) {
   const { source, transferType } = store.state.pageState.wizardState;
   return getTopicContents(store, topic, { source, transferType })
     .then(contents => {

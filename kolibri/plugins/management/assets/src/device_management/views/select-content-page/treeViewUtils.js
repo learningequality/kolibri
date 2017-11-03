@@ -131,8 +131,19 @@ export function annotateNode(node, selectedNodes) {
 
 /**
  * Takes an array of breadcrumb { id, title } objects in state, and converts them
- * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }
+ * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
+ *
  */
-export function transformBreadrumbs(breadcrumbs) {
-  return breadcrumbs;
+export function transformBreadrumb({ title, id }) {
+  return {
+    text: title,
+    link: {
+      name: 'wizardtransition',
+      params: {
+        transition: 'treeview_go_to_topic',
+        id,
+        title,
+      },
+    },
+  };
 }

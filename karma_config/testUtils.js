@@ -48,7 +48,9 @@ class MockResource {
   }
 
   __getCollectionFetchReturns(payload, willReject = false) {
-    this.getCollection.returns(this.__getFetchable(payload, willReject));
+    const fetchable = this.__getFetchable(payload, willReject);
+    this.getCollection.returns(fetchable);
+    return fetchable;
   }
 }
 

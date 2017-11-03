@@ -30,3 +30,9 @@ export const TaskStatuses = {
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
 };
+
+export const TransferTypes = {
+  LOCALIMPORT: 'localimport',
+  REMOTEIMPORT: 'remoteimport',
+  LOCALEXPORT: 'localexport',
+};

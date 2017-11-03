@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import { annotateNode } from '../views/select-content-page/treeViewUtils';
+import { annotateNode, transformBreadrumb } from '../views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
 
 describe('annotateNode utility correctly annotates', () => {
@@ -207,5 +207,25 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'unchecked',
     });
 
+  });
+});
+
+describe('transformBreadrumb utility', () => {
+  it('it converts the breadcrumb correctly', () => {
+    const crumb = {
+      id: 'channel_1',
+      title: 'Channel Supremo',
+    };
+    assert.deepEqual(transformBreadrumb(crumb), {
+      text: 'Channel Supremo',
+      link: {
+        name: 'wizardtransition',
+        params: {
+          transition: 'treeview_go_to_topic',
+          id: 'channel_1',
+          title: 'Channel Supremo',
+        },
+      },
+    });
   });
 });

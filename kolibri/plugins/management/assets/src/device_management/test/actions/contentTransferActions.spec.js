@@ -25,13 +25,6 @@ function makeStore() {
   });
 }
 
-function nodeCounts(store) {
-  return {
-    files: store.state.pageState.wizardState.selectedItems.total_file_size,
-    resources: store.state.pageState.wizardState.selectedItems.total_resource_count,
-  };
-}
-
 const defaultOptions = {
   localimport: {
     transferType: 'localimport',
@@ -75,7 +68,7 @@ const defaultOptions = {
   }
 };
 
-describe.only('showSelectContentPage action', () => {
+describe('showSelectContentPage action', () => {
   let remoteChannelImportStub;
   let localChannelImportStub;
 
@@ -253,7 +246,6 @@ describe.only('showSelectContentPage action', () => {
   });
 
   describe('during content DB download (during "importchannel" task)', () => {
-
     it('wizardState.channelImportTask is updated', () => {
       const store = makeStore();
       TaskResource.getCollection.onFirstCall().returns(TaskResource.__getFetchable([
@@ -297,9 +289,14 @@ describe.only('showSelectContentPage action', () => {
 });
 
 describe('node selection actions actions', () => {
-
   const includeList = store => selectedNodes(store.state).include;
   const omitList = store => selectedNodes(store.state).omit;
+  function nodeCounts(store) {
+    return {
+      files: store.state.pageState.wizardState.selectedItems.total_file_size,
+      resources: store.state.pageState.wizardState.selectedItems.total_resource_count,
+    };
+  }
 
   describe('addNodeForTransfer action', () => {
     it('adding a single node to empty list', () => {
@@ -466,41 +463,38 @@ describe('node selection actions actions', () => {
 });
 
 describe('goToTopic action', () => {
+  let store;
   const cngPayload = contentNodeGranularPayload();
+  const topic_1 = { id: 'topic_1', title: 'Topic One' };
+  const topic_2 = { id: 'topic_2', title: 'Topic Two' };
+  const wizardState = store => store.state.pageState.wizardState;
 
   beforeEach(() => {
+    store = makeStore();
     ContentNodeGranularResource.__getModelFetchReturns(cngPayload);
-  })
+  });
 
   it('updates the current node in wizardState.treeView', () => {
-    const store = makeStore();
-    return goToTopic(store, { topic: { id: 'topic_1', title: 'Topic One' } })
+    return goToTopic(store, topic_1)
       .then(() => {
-        assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
+        assert.deepEqual(wizardState(store).treeView.currentNode, cngPayload);
       });
   });
 
   it('updates the breadcrumbs and path in wizardState', () => {
-    const store = makeStore();
-    return goToTopic(store, { topic: { id: 'topic_1', title: 'Topic One' } })
+    return goToTopic(store, topic_1)
+      .then(() => goToTopic(store, topic_2))
       .then(() => {
-        return goToTopic(store, { topic: { id: 'topic_2', title: 'Topic Two' } })
-      })
-      .then(() => {
-        assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
-          { id: 'topic_1', title: 'Topic One' },
-          { id: 'topic_2', title: 'Topic Two' },
-        ]);
-        assert.deepEqual(store.state.pageState.wizardState.path, ['topic_1', 'topic_2']);
+        assert.deepEqual(wizardState(store).treeView.breadcrumbs, [topic_1, topic_2]);
+        assert.deepEqual(wizardState(store).path, ['topic_1', 'topic_2']);
       });
   });
 
   it('handles errors from ContentNodeGranular API', () => {
-    const store = makeStore();
     ContentNodeGranularResource.__getModelFetchReturns({}, true);
-    return goToTopic(store, { topic: { id: 'topic_1', title: 'Topic One' } })
+    return goToTopic(store, topic_1)
       .then(() => {
-        assert.equal(store.state.pageState.wizardState.status, 'TREEVIEW_LOADING_ERROR');
+        assert.equal(wizardState(store).status, 'TREEVIEW_LOADING_ERROR');
       });
   });
 });
