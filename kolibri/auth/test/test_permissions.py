@@ -156,10 +156,10 @@ class FacilityPermissionsTestCase(TestCase):
             self.assertFalse(user.can_read(other_facility))
             self.assertNotIn(other_facility, user.filter_readable(Facility.objects.all()))
 
-    def test_anon_users_cannot_read_facility(self):
-        """ KolibriAnonymousUser cannot read Facility objects """
-        self.assertFalse(self.anon_user.can_read(self.data1["facility"]))
-        self.assertNotIn(self.data1["facility"], self.anon_user.filter_readable(Facility.objects.all()))
+    def test_anon_users_can_read_facility(self):
+        """ KolibriAnonymousUser can now read Facility objects """
+        self.assertTrue(self.anon_user.can_read(self.data1["facility"]))
+        self.assertIn(self.data1["facility"], self.anon_user.filter_readable(Facility.objects.all()))
 
     def test_only_facility_admins_can_update_own_facility(self):
         """ The only FacilityUser who can update a Facility is a facility admin for that Facility """
@@ -207,22 +207,6 @@ class FacilityPermissionsTestCase(TestCase):
         self.assertTrue(self.superuser.can_delete(facility))
 
         self.assertSetEqual(set(Facility.objects.all()), set(self.superuser.filter_readable(Facility.objects.all())))
-
-    def test_anon_user_can_read_facilities_that_allow_sign_ups(self):
-        can_not_sign_up_facility = self.data1['facility']
-        can_sign_up_facility = self.data2['facility']
-
-        self.assertFalse(self.anon_user.can_read(can_not_sign_up_facility))
-        self.assertTrue(self.anon_user.can_read(can_sign_up_facility))
-
-    def test_anon_user_filters_facility_datasets_that_allow_sign_ups(self):
-        sign_ups = Facility.objects.filter(dataset__learner_can_sign_up=True)
-        filtered = self.anon_user.filter_readable(Facility.objects.all())
-        self.assertEqual(set(sign_ups), set(filtered))
-
-    def test_anon_user_can_only_read_facilities_that_allow_sign_ups(self):
-        self.assertFalse(self.anon_user.can_read(self.data2['classrooms'][0]))
-        self.assertFalse(self.anon_user.can_read(self.data2['learnergroups'][0][0]))
 
 
 class ClassroomPermissionsTestCase(TestCase):
