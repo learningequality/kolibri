@@ -5,6 +5,10 @@ export default class TaskResource extends Resource {
     return 'task';
   }
 
+  startLocalChannelImport() {
+    return Promise.resolve();
+  }
+
   localExportContent(driveId) {
     const clientObj = {
       path: this.localExportUrl(),

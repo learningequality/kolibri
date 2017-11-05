@@ -9,12 +9,11 @@
     <div class="options">
       <drive-list
         v-if="!drivesLoading"
-        :value="selectedDrive"
+        v-model="selectedDrive"
         :drives="wizardState.driveList"
         :enabledDrivePred="driveIsEnabled"
         :disabledMsg="$tr('notWritable')"
         :enabledMsg="formatEnabledMsg"
-        @change="(driveId) => selectedDrive = driveId"
       />
       <loading-spinner v-else :delay="500" class="spinner" />
     </div>

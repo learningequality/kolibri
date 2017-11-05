@@ -135,6 +135,9 @@ describe.only('transitionWizardPage action', () => {
   });
 
   it('LOCALIMPORT flow correctly updates wizardState', () => {
+    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(Promise.resolve({
+      entity: []
+    }));
     const transferMeta = {
       transferType: 'localimport',
       source: {
@@ -155,7 +158,8 @@ describe.only('transitionWizardPage action', () => {
 
     // STEP 2 - choose "usb drive" from options -> go to "choose drive" modal
     transitionWizardPage(store, 'forward', { source: 'local' });
-    assert.equal(pageName(), 'IMPORT_LOCAL');
+    assert.equal(pageName(), 'SELECT_DRIVE');
+    assert.equal(meta().transferType, 'localimport');
 
     // STEP 3 - choose "drive_2" -> go to "available channels" page
     return transitionWizardPage(store, 'forward', { driveId: 'drive_2' })
@@ -169,7 +173,8 @@ describe.only('transitionWizardPage action', () => {
       })
       .then(() => {
         testShowSelectContentCall(transferMeta, channel);
-      })
+        localDrivesStub.restore();
+      });
   });
 
   it('LOCALEXPORT flow correctly updates wizardState', () => {
@@ -186,13 +191,14 @@ describe.only('transitionWizardPage action', () => {
       destination: {
         type: 'LOCAL_DRIVE',
         driveId: 'drive_1',
-        driveName: 'Drive One',
+        driveName: 'Drive Nummer Eins',
       },
     }
 
     // STEP 1 - click "export" -> open "choose drive" modal
     startExportWizard(store);
-    assert.equal(pageName(), 'EXPORT');
+    assert.equal(pageName(), 'SELECT_DRIVE');
+    assert.equal(meta().transferType, 'localexport');
 
     // STEP 2 - choose "drive_1" -> go to "Available Channels" page
     return transitionWizardPage(store, 'forward', { driveId: 'drive_1' })

@@ -4,7 +4,7 @@
     <div>
       <div class="options">
         <k-radio-button
-          :label="$tr('internet')"
+          :label="$tr('network')"
           v-model="source"
           radiovalue="network"
           autofocus
@@ -42,13 +42,13 @@
     },
     data() {
       return {
-        source: 'internet',
+        source: 'network',
       };
     },
     $trs: {
       cancel: 'Cancel',
       continue: 'Continue',
-      internet: 'Internet',
+      network: 'Kolibri Central Server',
       localDrives: 'Attached drive or memory card',
       title: 'Import from where?',
     },
@@ -72,12 +72,12 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .options
     margin: 2em 0
 
   .buttons
     text-align: right
+    button:nth-child(2)
+      margin-right: 0
 
 </style>

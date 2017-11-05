@@ -11,20 +11,12 @@
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
       <k-radio-button
-        v-for="drive in enabledDrives"
+        v-for="drive in drives"
         :key="drive.id"
         :label="enabledDriveLabel(drive)"
         :radiovalue="drive.id"
-        v-model="selectedDrive"
-        @change="$emit('change', drive.id)"
-      />
-      <k-radio-button
-        v-for="drive in disabledDrives"
-        :key="drive.id"
-        :label="disabledDriveLabel(drive)"
-        :radiovalue="drive.id"
-        :disabled="true"
-        v-model="selectedDrive"
+        :value="value"
+        @change="$emit('input', drive.id)"
       />
     </div>
   </div>
@@ -40,36 +32,19 @@
     name: 'wizardDriveList',
     components: { kRadioButton },
     props: {
-      value: {
-        type: String,
-        required: true,
-      },
       drives: {
         type: Array,
         required: true,
       },
-      enabledDrivePred: {
-        type: Function,
-        required: true,
-      },
-      enabledMsg: { type: Function },
-      disabledMsg: {
+      value: {
         type: String,
         required: true,
-      },
+      }
     },
     data() {
       return {
         selectedDrive: '',
       };
-    },
-    computed: {
-      enabledDrives() {
-        return this.drives.filter(drive => this.enabledDrivePred(drive));
-      },
-      disabledDrives() {
-        return this.drives.filter(drive => !this.enabledDrivePred(drive));
-      },
     },
     mounted() {
       this.selectedDrive = this.value;

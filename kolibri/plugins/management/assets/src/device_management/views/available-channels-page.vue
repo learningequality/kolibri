@@ -134,7 +134,7 @@
         return languageMatches && titleMatches;
       },
       goToChannel(channel) {
-        this.transitionWizardPage('forward', { id: channel.id });
+        this.transitionWizardPage('forward', { channel });
       },
     },
     vuex: {

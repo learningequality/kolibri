@@ -10,6 +10,7 @@ export const ContentWizardPages = {
   IMPORT_LOCAL: 'IMPORT_LOCAL',
   IMPORT_NETWORK: 'IMPORT_NETWORK',
   AVAILABLE_CHANNELS: 'AVAILABLE_CHANNELS',
+  SELECT_DRIVE: 'SELECT_DRIVE',
 };
 
 export const TaskTypes = {

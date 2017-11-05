@@ -1,6 +1,7 @@
 import * as manageContentMutations from './manageContentMutations';
 import * as contentWizardMutations from './contentWizardMutations';
 import * as managePermissionsMutations from './managePermissionsMutations';
+import * as contentTransferMutations from './contentTransferMutations';
 
 const mutations = {
   SET_PAGE_NAME(state, name) {
@@ -19,5 +20,6 @@ export default Object.assign(
   mutations,
   manageContentMutations,
   contentWizardMutations,
-  managePermissionsMutations
+  managePermissionsMutations,
+  contentTransferMutations
 );

@@ -28,6 +28,11 @@ export function showWizardPage(store, pageName, meta = {}) {
     drivesLoading: false,
     driveList: wizardState(store.state).driveList || [],
     channelList: wizardState(store.state).channelList || [],
+    channelsOnDevice: [],
+    availableChannels: [],
+    treeView: {
+      breadcrumbs: [],
+    },
     meta,
   });
 }
@@ -37,7 +42,9 @@ export function startImportWizard(store) {
 }
 
 export function startExportWizard(store) {
-  showWizardPage(store, ContentWizardPages.EXPORT);
+  showWizardPage(store, ContentWizardPages.SELECT_DRIVE, {
+    transferType: 'localexport',
+  });
   updateWizardLocalDriveList(store);
 }
 
@@ -58,7 +65,6 @@ export function closeImportExportWizard(store) {
 export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.page;
   const FORWARD = 'forward';
-  const BACKWARD = 'backward';
   const CANCEL = 'cancel';
 
   const showPage = showWizardPage.bind(null, store);
@@ -68,10 +74,14 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   // At Choose Import Source modal
+  // params : { source : 'local' | 'network' }
   if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
     if (transition === FORWARD) {
       if (params.source === 'local') {
-        return showPage(ContentWizardPages.IMPORT_LOCAL);
+        updateWizardLocalDriveList(store);
+        return showPage(ContentWizardPages.SELECT_DRIVE, {
+          transferType: 'localimport',
+        });
       }
 
       if (params.source === 'network') {
@@ -89,36 +99,26 @@ export function transitionWizardPage(store, transition, params) {
 
   // At Choose Local Drive For Import modal
   // params : { driveId }
-  if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-    }
-    if (transition === FORWARD) {
-      const driveInfo = find(wizardState(store.state).driveList, { id: params.driveId });
+  if (wizardPage === ContentWizardPages.SELECT_DRIVE) {
+    const { transferType } = wizardState(store.state).meta;
+    const matchingDrive = find(wizardState(store.state).driveList, { id: params.driveId });
+    const drive = {
+      type: 'LOCAL_DRIVE',
+      driveId: matchingDrive.id,
+      driveName: matchingDrive.name,
+    };
+    if (transition === FORWARD && transferType === 'localimport') {
       return showAvailableChannelsPage(store, {
         transferType: TransferTypes.LOCALIMPORT,
-        source: {
-          type: 'LOCAL_DRIVE',
-          driveId: driveInfo.id,
-          driveName: driveInfo.name,
-        },
+        source: drive,
         destination: {},
       });
     }
-  }
-
-  // At Choose Local Drive For Export modal
-  // params : { driveId }
-  if (wizardPage === ContentWizardPages.EXPORT) {
-    if (transition === FORWARD) {
+    if (transition === FORWARD && transferType === 'localexport') {
       return showAvailableChannelsPage(store, {
         transferType: TransferTypes.LOCALEXPORT,
         source: {},
-        destination: {
-          type: 'LOCAL_DRIVE',
-          driveId: 'drive_1',
-          driveName: 'Drive One',
-        },
+        destination: drive,
       });
     }
   }
@@ -156,8 +156,9 @@ export function showAvailableChannelsPage(store, options) {
 
   // for remoteimport, get Available Channels from Kolibri Studio
   if (transferType === TransferTypes.REMOTEIMPORT) {
-    return RemoteChannelResource.getCollection().fetch()
-      .then((publicChannels) => {
+    return RemoteChannelResource.getCollection()
+      .fetch()
+      .then(publicChannels => {
         store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, publicChannels);
       });
   }

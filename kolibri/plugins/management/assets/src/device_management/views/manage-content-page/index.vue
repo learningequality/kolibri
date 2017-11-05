@@ -60,6 +60,7 @@
   import wizardExport from './wizards/wizard-export';
   import subpageContainer from '../containers/subpage-container';
   import taskProgress from './task-progress';
+  import selectDriveModal from './wizards/select-drive-modal';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
 
   const pageNameComponentMap = {
@@ -68,6 +69,7 @@
     [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
     [ContentWizardPages.EXPORT]: 'wizard-export',
     [ContentWizardPages.AVAILABLE_CHANNELS]: 'available-channels-page',
+    [ContentWizardPages.SELECT_DRIVE]: 'selectDriveModal',
   };
 
   const POLL_DELAY = 1000;
@@ -86,6 +88,7 @@
       availableChannelsPage,
       channelsGrid,
       kButton,
+      selectDriveModal,
       subpageContainer,
       taskProgress,
       wizardImportSource,
