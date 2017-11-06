@@ -17,5 +17,5 @@ export function driveChannelList(state) {
 }
 
 export function installedChannelList(state) {
-  return wizardState(state).channelList;
+  return state.pageState.channelList;
 }

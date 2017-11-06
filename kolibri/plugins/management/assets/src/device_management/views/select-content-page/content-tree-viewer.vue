@@ -2,7 +2,7 @@
 
   <div>
     <div class="breadcrumbs">
-
+      <k-breadcrumbs :items="breadcrumbItems" />
     </div>
 
     <div
@@ -15,8 +15,8 @@
           :checked="nodeIsChecked(annotatedTopicNode)"
           @change="toggleSelectAll"
         />
-
       </div>
+
       <div class="content-node-rows">
         <content-node-row
           v-for="node in annotatedChildNodes"
@@ -26,7 +26,7 @@
           :disabled="node.disabled"
           :message="node.message"
           :node="node"
-          @clicktopic="goToTopic(node)"
+          @clicktopic="updateTopic(node)"
           @changeselection="toggleSelection(node)"
         />
       </div>
@@ -46,26 +46,38 @@
 <script>
 
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import contentNodeRow from './content-node-row';
-  import { annotateNode } from './treeViewUtils';
-  import { addNodeForTransfer, removeNodeForTransfer } from '../../state/actions/contentTransferActions';
+  import { annotateNode, transformBreadrumb } from './treeViewUtils';
+  import { addNodeForTransfer, removeNodeForTransfer, updateTreeViewTopic } from '../../state/actions/contentTransferActions';
+  import { wizardState } from '../../state/getters';
+  import last from 'lodash/last';
 
   export default {
     name: 'contentTreeViewer',
     components: {
       contentNodeRow,
+      kBreadcrumbs,
       kCheckbox,
     },
     computed: {
-      annotatedChildNodes() {
+      childNodesWithPath() {
         return this.childNodes.map(node => ({
-          ...annotateNode(node, this.selectedNodes),
-          path: [...this.topicNode.path, this.topicNode.id],
-        }))
+          ...node,
+          path: [...this.path, this.topicNode.pk],
+        }));
+      },
+      annotatedChildNodes() {
+        return this.childNodesWithPath.map(n => annotateNode(n, this.selectedNodes));
       },
       annotatedTopicNode() {
-        return annotateNode(this.topicNode, this.selectedNodes);
+        return annotateNode({ ...this.topicNode, path: [...this.path] }, this.selectedNodes);
       },
+      breadcrumbItems() {
+        const items = [...this.breadcrumbs];
+        delete last(items).link;
+        return items;
+      }
     },
     methods: {
       nodeIsChecked(node) {
@@ -74,8 +86,19 @@
       nodeIsIndeterminate(node) {
         return node.checkboxType === 'indeterminate';
       },
-      goToTopic(node) {
-        console.log('yoyo', node);
+      updateTopic(node) {
+        // return this.updateTreeViewTopic(node);
+        this.$router.replace({
+          name: 'treeview_update_topic',
+          query: {
+            topic: node.pk
+          },
+          params: {
+            pk: node.pk,
+            title: node.title,
+            replaceCrumbs: false,
+          },
+        })
       },
       toggleSelectAll() {
         this.toggleSelection(this.annotatedTopicNode);
@@ -89,11 +112,14 @@
     },
     vuex: {
       getters: {
-        childNodes: ({ pageState }) =>pageState.treeView.children,
-        selectedNodes: ({ pageState }) =>pageState.selectedItems.nodes,
-        topicNode: ({ pageState }) =>pageState.treeView.currentNode,
+        breadcrumbs: state => wizardState(state).treeView.breadcrumbs.map(transformBreadrumb),
+        childNodes: state => wizardState(state).treeView.currentNode.children,
+        selectedNodes: state => wizardState(state).selectedItems.nodes,
+        topicNode: state => wizardState(state).treeView.currentNode,
+        path: state => wizardState(state).path,
       },
       actions: {
+        updateTreeViewTopic,
         addNodeForTransfer,
         removeNodeForTransfer,
       },
@@ -108,5 +134,10 @@
 
 
 <style lang="stylus" scoped>
+
+  .select-all
+    .k-checkbox-container
+      margin-top: 0
+      margin-bottom: 0
 
 </style>

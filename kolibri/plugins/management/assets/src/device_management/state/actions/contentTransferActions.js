@@ -2,6 +2,7 @@ import sumBy from 'lodash/sumBy';
 import { selectedNodes } from '../getters';
 import { TaskResource, ContentNodeGranularResource } from 'kolibri.resources';
 import { TaskStatuses, TransferTypes } from '../../constants';
+import dropRightWhile from 'lodash/dropRightWhile'
 
 /**
  * Starts Task that downloads content database
@@ -19,13 +20,12 @@ function downloadContentDatabase(options) {
     });
   } else if (transferType === TransferTypes.REMOTEIMPORT) {
     promise = TaskResource.startRemoteChannelImport({
-      channel_id: channel.id
+      channel_id: channel.id,
     });
   }
-  return promise
-    .catch(() => {
-      return Promise.reject({ errorType: 'CONTENT_DB_LOADING_ERROR' });
-    });
+  return promise.catch(() => {
+    return Promise.reject({ errorType: 'CONTENT_DB_LOADING_ERROR' });
+  });
 }
 
 /**
@@ -37,23 +37,27 @@ function waitForTaskToComplete(store, taskId, interval = 1000) {
     const poller = setInterval(function pollTasks() {
       if (shouldPoll) {
         shouldPoll = false;
-        TaskResource.getCollection().fetch({}, true)
-          .then((tasks) => {
-            const match = tasks.find(task => task.id === taskId);
-            if (!match) {
+        TaskResource.getCollection()
+          .fetch({}, true)
+          .then(
+            tasks => {
+              const match = tasks.find(task => task.id === taskId);
+              if (!match) {
+                clearInterval(poller);
+                reject({ errorType: 'TASK_POLLING_ERROR' });
+              } else if (match.status === TaskStatuses.COMPLETED) {
+                clearInterval(poller);
+                store.dispatch('UPDATE_SELECT_CONTENT_PAGE_TASK', match);
+                resolve();
+              } else {
+                shouldPoll = true;
+              }
+            },
+            () => {
               clearInterval(poller);
               reject({ errorType: 'TASK_POLLING_ERROR' });
-            } else if (match.status === TaskStatuses.COMPLETED) {
-              clearInterval(poller);
-              store.dispatch('UPDATE_SELECT_CONTENT_PAGE_TASK', match);
-              resolve();
-            } else {
-              shouldPoll = true;
             }
-          }, () => {
-            clearInterval(poller);
-            reject({ errorType: 'TASK_POLLING_ERROR' });
-          });
+          );
       }
     }, interval);
   });
@@ -67,15 +71,16 @@ function waitForTaskToComplete(store, taskId, interval = 1000) {
  *
  */
 function getTopicContents(store, topic, options) {
-    const { source, transferType } = options;
-    const fetchArgs = {
-      import_export: transferType === TransferTypes.LOCALEXPORT ? 'export' : 'import',
-    }
-    if (options.transferType === TransferTypes.LOCALIMPORT) {
-      fetchArgs.drive_id = source.driveId
-    }
-    return ContentNodeGranularResource.getModel(topic.id).fetch(fetchArgs)
-      .catch(() => Promise.reject({ errorType: 'TREEVIEW_LOADING_ERROR' }));
+  const { source, transferType } = options;
+  const fetchArgs = {
+    import_export: transferType === TransferTypes.LOCALEXPORT ? 'export' : 'import',
+  };
+  if (options.transferType === TransferTypes.LOCALIMPORT) {
+    fetchArgs.drive_id = source.driveId;
+  }
+  return ContentNodeGranularResource.getModel(topic.pk)
+    .fetch(fetchArgs)
+    .catch(() => Promise.reject({ errorType: 'TREEVIEW_LOADING_ERROR' }));
 }
 
 /**
@@ -83,7 +88,7 @@ function getTopicContents(store, topic, options) {
  *
  * @param store - Vuex store
  * @param {Object} options
- * @param {Object} options.channel - { id, title, isOnDevice }
+ * @param {Object} options.channel - { id, title, root, isOnDevice }
  * @param {string} options.transferType - 'remoteimport', 'localimport', or 'localexport'
  * @param {Object} options.source - LocalDrive { driveId, driveName } | RemoteSource
  * @param {Object} options.taskPollInterval
@@ -93,33 +98,27 @@ export function showSelectContentPage(store, options) {
   const { channel } = options;
   let dbPromise;
 
-  store.dispatch('ADD_TREEVIEW_BREADCRUMB', {
-    id: channel.root,
-    title: channel.title,
-  });
-
   if (channel.isOnDevice) {
     // If already on device, then skip the DB-download
     dbPromise = Promise.resolve();
   } else {
-    dbPromise = downloadContentDatabase(options)
-      .then((task) => {
-        // Wait until database is downloaded
-        return waitForTaskToComplete(store, task.id, options.taskPollInterval);
-      });
+    dbPromise = downloadContentDatabase(options).then(task => {
+      // Wait until database is downloaded
+      return waitForTaskToComplete(store, task.id, options.taskPollInterval);
+    });
   }
 
-  return dbPromise.then(() => {
-    // For channels, ContentNodeGranular API requires the channel root, not the id
-    return getTopicContents(store, { id: channel.root }, options);
-  })
-  .then((channelContents) => {
-    // Then hydrate pageState.treeView with the contents
-    store.dispatch('SET_TREEVIEW_CURRENTNODE', channelContents);
-  })
-  .catch(({ errorType }) => {
-    return store.dispatch('SELECT_CONTENT_PAGE_ERROR', errorType);
-  });
+  return dbPromise
+    .then(() => {
+      // For channels, ContentNodeGranular API requires the channel root, not the id
+      return updateTreeViewTopic(store, { title: channel.name, pk: channel.root });
+    })
+    .then(() => {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_PAGENAME', 'SELECT_CONTENT');
+    })
+    .catch(({ errorType }) => {
+      return store.dispatch('SELECT_CONTENT_PAGE_ERROR', errorType);
+    });
 }
 
 /**
@@ -130,14 +129,17 @@ export function showSelectContentPage(store, options) {
  *
  */
 export function addNodeForTransfer(store, node) {
-  const { include } = selectedNodes(store.state);
+  const { include, omit } = selectedNodes(store.state);
   // remove nodes in "include" that would be made redundant by the new one
-  const nonRedundantNodes = include.filter(({ path }) => !path.includes(node.id));
+  const nonRedundantNodes = include.filter(({ path }) => !path.includes(node.pk));
+  const isInOmit = Boolean(omit.find(({ pk }) => node.pk === pk));
   if (include.length !== nonRedundantNodes.length) {
     store.dispatch('REPLACE_INCLUDE_LIST', nonRedundantNodes);
   }
+  if (isInOmit) {
+    store.dispatch('REMOVE_NODE_FROM_OMIT_LIST', node);
+  }
   store.dispatch('ADD_NODE_TO_INCLUDE_LIST', node);
-  store.dispatch('REMOVE_NODE_FROM_OMIT_LIST', node);
   updateTransferCounts(store);
 }
 
@@ -149,7 +151,14 @@ export function addNodeForTransfer(store, node) {
  */
 export function removeNodeForTransfer(store, node) {
   const { include } = selectedNodes(store.state);
-  const includedAncestor = include.find(({ id }) => node.path.includes(id));
+  const includedAncestor = include.find(({ pk }) => node.path.includes(pk) && pk !== node.pk);
+  // remove nodes in "include" that are descendants of `node`.
+  // sometimes nodes that would have been de-duplicated in `addNodeForTransfer`
+  // make it through at the channel level, since we use the channel.root_id instead of channel.pk
+  const filteredInclude = include.filter(({ path }) => !path.includes(node.pk));
+  if (include.length !== filteredInclude.length) {
+    store.dispatch('REPLACE_INCLUDE_LIST', filteredInclude);
+  }
   if (includedAncestor) {
     store.dispatch('ADD_NODE_TO_OMIT_LIST', node);
   } else {
@@ -167,24 +176,28 @@ function updateTransferCounts(store) {
   const { include, omit } = selectedNodes(store.state);
   const getDifference = path => sumBy(include, path) - sumBy(omit, path);
   store.dispatch('REPLACE_COUNTS', {
-    fileSize: getDifference('fileSize'),
-    resources: getDifference('totalResources'),
+    fileSize: getDifference('total_resources'),
+    resources: getDifference('total_resources'),
   });
 }
 
 /**
- * Updates the treeView part of the wizardState when going to new topic.
+ * Updates wizardState.treeView when a new topic is clicked.
  *
- * @param {Object} topic - { id, title }
+ * @param {Object} topic - { pk, title }
  *
  */
-export function goToTopic(store, topic) {
-  const { source, transferType } = store.state.pageState.wizardState;
+export function updateTreeViewTopic(store, topic, resetPath = false) {
+  const { source, transferType } = store.state.pageState.wizardState.meta;
   return getTopicContents(store, topic, { source, transferType })
     .then(contents => {
       store.dispatch('SET_TREEVIEW_CURRENTNODE', contents);
-      store.dispatch('ADD_TREEVIEW_BREADCRUMB', topic);
-      store.dispatch('ADD_ID_TO_PATH', topic.id);
+      if (resetPath) {
+        store.dispatch('PULL_PATH_BREADCRUMBS_BACK', topic.pk);
+      } else {
+        store.dispatch('ADD_TREEVIEW_BREADCRUMB', topic);
+        store.dispatch('ADD_ID_TO_PATH', topic.pk);
+      }
     })
     .catch(({ errorType }) => {
       return store.dispatch('SELECT_CONTENT_PAGE_ERROR', errorType);

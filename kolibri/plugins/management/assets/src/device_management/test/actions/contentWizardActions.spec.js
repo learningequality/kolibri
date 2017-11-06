@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
+import VueRouter from 'kolibri.coreVue.router';
 import assert from 'assert';
 import sinon from 'sinon';
 import {
@@ -31,7 +32,7 @@ function makeStore() {
   });
 }
 
-describe.only('transitionWizardPage action', () => {
+describe('transitionWizardPage action', () => {
   // Tests import/export workflow from ManageContentPage to the SelectContentPage
   // Covers integrations with showAvailableChannelsPage and showSelectContentPage
   let store;
@@ -80,7 +81,7 @@ describe.only('transitionWizardPage action', () => {
   beforeEach(() => {
     store = makeStore();
     wizardState(store.state).driveList = driveList;
-    wizardState(store.state).channelList = installedChannels;
+    store.state.pageState.channelList = installedChannels;
 
     selectContentStub = sinon.stub(contentTransferActions, 'showSelectContentPage')
       .returns(Promise.resolve());
@@ -215,4 +216,4 @@ describe.only('transitionWizardPage action', () => {
         localDrivesStub.restore();
       });
   });
-})
+});

@@ -61,6 +61,7 @@
   import subpageContainer from '../containers/subpage-container';
   import taskProgress from './task-progress';
   import selectDriveModal from './wizards/select-drive-modal';
+  import selectContentPage from '../select-content-page';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
 
   const pageNameComponentMap = {
@@ -70,6 +71,7 @@
     [ContentWizardPages.EXPORT]: 'wizard-export',
     [ContentWizardPages.AVAILABLE_CHANNELS]: 'available-channels-page',
     [ContentWizardPages.SELECT_DRIVE]: 'selectDriveModal',
+    [ContentWizardPages.SELECT_CONTENT]: 'selectContentPage',
   };
 
   const POLL_DELAY = 1000;
@@ -89,6 +91,7 @@
       channelsGrid,
       kButton,
       selectDriveModal,
+      selectContentPage,
       subpageContainer,
       taskProgress,
       wizardImportSource,

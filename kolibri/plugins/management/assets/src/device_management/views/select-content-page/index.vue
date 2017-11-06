@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <section class="notifications">
       <ui-alert
         v-if="newVersionAvailable"
@@ -54,24 +53,26 @@
 
         <tr class="on-device">
           <td>{{ $tr('onDeviceRow') }}</td>
-          <td>{{ $tr('resourceCount', { count: channelOnDevice.total_resource_count }) }}</td>
-          <td>{{ bytesForHumans(channelOnDevice.total_file_size) }}</td>
+          <td>{{ $tr('resourceCount', { count: channelOnDevice.on_device_resources }) }}</td>
+          <td>{{ bytesForHumans(channelOnDevice.on_device_file_size) }}</td>
         </tr>
       </table>
     </section>
 
-    <section class="selected-resources-size" v-if="onDeviceInfoIsReady">
-      <selectedResourcesSize
-        mode="import"
-        :fileSize="selectedItems.total_file_size"
-        :resourceCount="selectedItems.total_resource_count"
-        :remainingSpace="remainingSpace"
-      />
-    </section>
+    <template v-if="onDeviceInfoIsReady">
+      <section class="selected-resources-size">
+        <selectedResourcesSize
+          :mode="mode"
+          :fileSize="selectedItems.total_file_size"
+          :resourceCount="selectedItems.total_resource_count"
+          :remainingSpace="remainingSpace"
+        />
+      </section>
 
-    <section class="resources-tree-view" v-if="onDeviceInfoIsReady">
-
-    </section>
+      <section class="resources-tree-view">
+        <content-tree-viewer />
+      </section>
+    </template>
   </div>
 
 </template>
@@ -81,36 +82,50 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import selectedResourcesSize from './selected-resources-size';
+  import contentTreeViewer from './content-tree-viewer';
   import bytesForHumans from '../manage-content-page/bytesForHumans';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { installedChannelList, wizardState } from '../../state/getters';
 
   export default {
     name: 'selectContentPage',
     components: {
+      contentTreeViewer,
       kButton,
       selectedResourcesSize,
       uiAlert,
     },
     computed: {
-
+      channelOnDevice() {
+        const match = this.installedChannelList.find(channel => channel.id === this.channel.id);
+        return match || {
+          on_device_file_size: 0,
+          on_device_resources: 0,
+        };
+      },
+      newVersionAvailable() {
+        if (this.channelOnDevice.version) {
+          return this.channel.version > this.channelOnDevice.version;
+        }
+        return false;
+      },
     },
     methods: {
       bytesForHumans,
     },
     vuex: {
       getters: {
-        channel: ({ pageState }) => pageState.channel,
-        channelOnDevice: ({ pageState }) => pageState.channelOnDevice,
+        installedChannelList,
+        channel: state => wizardState(state).meta.channel,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
-        mode: ({ pageState }) => pageState.mode,
-        newVersionAvailable: ({ pageState }) => pageState.channel.version > pageState.channelOnDevice.version,
-        onDeviceInfoIsReady: ({ pageState }) => pageState.onDeviceInfoIsReady,
-        remainingSpace: ({ pageState }) => pageState.remainingSpace,
-        selectedItems: ({ pageState }) => pageState.selectedItems,
+        mode: state => wizardState(state).meta.transferType === 'localexport' ? 'export' : 'import',
+        onDeviceInfoIsReady: () => true,
+        remainingSpace: state => wizardState(state).remainingSpace,
+        selectedItems: state => wizardState(state).selectedItems|| {},
       },
     },
     $trs: {
-      newVersionAvailable: 'Version {version, number, integer} available',
+      newVersionAvailable: 'Version {version, number} available',
       onDeviceRow: 'On your device',
       resourcesCol: 'Resources',
       sizeCol: 'Size',

@@ -11,6 +11,7 @@ export const ContentWizardPages = {
   IMPORT_NETWORK: 'IMPORT_NETWORK',
   AVAILABLE_CHANNELS: 'AVAILABLE_CHANNELS',
   SELECT_DRIVE: 'SELECT_DRIVE',
+  SELECT_CONTENT: 'SELECT_CONTENT',
 };
 
 export const TaskTypes = {

@@ -4,7 +4,7 @@ import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
 import RootVue from './views';
 import store from './state/store';
-import { PageNames } from './constants';
+import { PageNames, ContentWizardPages } from './constants';
 import preparePage from '../state/preparePage';
 import {
   showManagePermissionsPage,
@@ -12,6 +12,8 @@ import {
 } from './state/actions/managePermissionsActions';
 import { transitionWizardPage } from './state/actions/contentWizardActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
+import { updateTreeViewTopic } from './state/actions/contentTransferActions';
+import get from 'lodash/get';
 
 function hideLoadingScreen() {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -60,6 +62,21 @@ const routes = [
         title: 'Manage User Permissions',
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+    },
+  },
+  // Special fake routes so we can use k-breadcrumbs inside of a modal
+  {
+    name: 'treeview_update_topic',
+    path: '/content/topic',
+    handler: ({ params }) => {
+      // redirect if coming into URL directly without initiating workflow
+      if (get(store.state.pageState, 'wizardState.page') !== ContentWizardPages.SELECT_CONTENT) {
+        return router.replace('/content');
+      }
+      return updateTreeViewTopic(store, {
+        pk: params.pk,
+        title: params.title,
+      }, params.replaceCrumbs);
     },
   },
   {

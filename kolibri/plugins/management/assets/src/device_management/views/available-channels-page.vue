@@ -68,6 +68,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiSelect from 'keen-ui/src/UiSelect';
   import uniqBy from 'lodash/uniqBy';
+  import { installedChannelList, wizardState } from '../state/getters';
   import { transitionWizardPage } from '../state/actions/contentWizardActions';
 
   export default {
@@ -120,6 +121,12 @@
       this.languageFilter = Object.assign({}, this.allLanguagesOption);
     },
     methods: {
+      channelIsOnDevice(channel) {
+        return Boolean(this.installedChannelList.find(({ id }) => id === channel.id));
+      },
+      goToChannel(channel) {
+        this.transitionWizardPage('forward', { channel });
+      },
       showChannel(channel) {
         let languageMatches = true;
         let titleMatches = true;
@@ -133,16 +140,11 @@
         }
         return languageMatches && titleMatches;
       },
-      goToChannel(channel) {
-        this.transitionWizardPage('forward', { channel });
-      },
     },
     vuex: {
       getters: {
-        availableChannels: ({ pageState }) => pageState.wizardState.availableChannels,
-        channelsOnDevice: ({ pageState }) => pageState.wizardState.channelsOnDevice,
-        channelIsOnDevice: ({ pageState }) => channel =>
-          Boolean(pageState.wizardState.channelsOnDevice.find(({ id }) => id === channel.id)),
+        availableChannels: (state) => wizardState(state).availableChannels,
+        installedChannelList,
       },
       actions: {
         transitionWizardPage,

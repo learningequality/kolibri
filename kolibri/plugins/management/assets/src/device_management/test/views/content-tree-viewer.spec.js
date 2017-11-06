@@ -10,21 +10,14 @@ import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 import { makeNode, selectContentsPageState } from '../utils/data';
 
 const channelNode = () => makeNode('channel_1');
-const topicNode = () => makeNode('topic_1_1', { path: [channelNode().id] });
-const subTopicNode = () => makeNode('topic_1_1_1', { path: [ channelNode().id, topicNode().id ]})
+const topicNode = () => makeNode('topic_1_1', { path: [channelNode().pk] });
 
 function makeStore() {
   const state = {
-    pageState: selectContentsPageState(),
+    pageState: {
+      wizardState: selectContentsPageState(),
+    },
   };
-
-  Object.assign(state.pageState.treeView, {
-    currentNode: topicNode(),
-    children: [
-      makeNode('topic_1_1_1', { disabled: false }),
-      makeNode('resource_1_1_1', { kind: 'video', disabled: false }),
-    ],
-  });
   return new Vuex.Store({ state });
 }
 
@@ -47,19 +40,22 @@ function getElements(wrapper) {
 }
 
 describe('contentTreeViewer component', () => {
+  let store;
+
+  beforeEach(() => {
+    store = makeStore();
+  });
+
   it('shows one content-node-row for each importable node in topic', () => {
     const wrapper = makeWrapper();
     const rows = wrapper.find(ContentNodeRow);
     assert.equal(rows.length, 2);
   });
 
-  it('if in import mode, then non-importable nodes are filtered from the list', () => {
-
-  });
+  xit('if in import mode, then non-importable nodes are filtered from the list', () => {});
 
   it('it shows an empty state if the topic has no children', () => {
-    const store = makeStore();
-    store.state.pageState.treeView.children = [];
+    store.state.pageState.wizardState.treeView.currentNode.children = [];
     const wrapper = makeWrapper({ store });
     const { contentsSection, emptyState } = getElements(wrapper);
     assert.equal(contentsSection()[0], undefined);
@@ -67,7 +63,7 @@ describe('contentTreeViewer component', () => {
   });
 
   it('when clicking a topic-title button on a row, a "go to topic" action is trigged', () => {
-    const wrapper = makeWrapper();
+    const wrapper = makeWrapper({ store });
     const { firstTopicButton } = getElements(wrapper);
     const goToTopicStub = sinon.stub(wrapper.vm, 'goToTopic');
     firstTopicButton().trigger('click');
@@ -79,14 +75,15 @@ describe('contentTreeViewer component', () => {
   });
 
   it('child nodes are annotated with the path of topic', () => {
-    const wrapper = makeWrapper();
-    const expectedPath = [channelNode().id, topicNode().id];
+    store.state.pageState.wizardState.path = ['channel_1'];
+    const wrapper = makeWrapper({ store });
+    const expectedPath = ['channel_1', 'topic_1'];
     wrapper.vm.annotatedChildNodes.forEach(n => {
       assert.deepEqual(n.path, expectedPath);
     });
   });
 
-  it('the correct breadcrumbs appear on the top', () => {
+  xit('the correct breadcrumbs appear on the top', () => {
     // TODO create breadcrumb util to convert path -> breadrumbs.items prop
   });
 
@@ -105,37 +102,35 @@ describe('contentTreeViewer component', () => {
   });
 
   describe('"select all" checkbox state', () => {
-    // These are integration tests with component and annotateNodes utility
+    // These are integration tests with component and annotateNode utility
     function checkboxIsChecked(wrapper) {
       const { selectAllCheckbox } = getElements(wrapper);
       return selectAllCheckbox().getProp('checked');
     }
 
     it('if neither topic nor any ancestor is selected, then "Select All" is unchecked', () => {
-      const wrapper = makeWrapper();
+      const wrapper = makeWrapper({ store });
       assert.equal(checkboxIsChecked(wrapper), false);
     });
 
     it('if any ancestor of the topic is selected, then "Select All" is checked', () => {
-      const store = makeStore();
-      store.state.pageState.selectedItems.nodes.include = [channelNode()];
+      store.state.pageState.wizardState.path = ['channel_1'];
+      store.state.pageState.wizardState.selectedItems.nodes.include = [makeNode('channel_1')];
       const wrapper = makeWrapper({ store });
       assert.equal(checkboxIsChecked(wrapper), true);
     });
 
     it('if the topic itself is selected, then "Select All" is checked', () => {
-      const store = makeStore();
-      store.state.pageState.selectedItems.nodes.include = [topicNode()];
+      store.state.pageState.wizardState.selectedItems.nodes.include = [makeNode('topic_1')];
       const wrapper = makeWrapper({ store });
       assert.equal(checkboxIsChecked(wrapper), true);
     });
 
-    it('if topic is selected, but one descendant is omitted, then "Select All" is unchecked', () => {
-      const store = makeStore();
-      const topic = topicNode();
-      store.state.pageState.selectedItems.nodes = {
-        include: [topic],
-        omit: [subTopicNode()],
+    it('if topic is selected, but one descendant is omitted', () => {
+      // ...then "Select All" is unchecked
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [makeNode('topic_1')],
+        omit: [makeNode('subtopic_1', { path: ['topic_1'] })],
       };
       const wrapper = makeWrapper({ store });
       assert.equal(checkboxIsChecked(wrapper), false);
@@ -144,12 +139,10 @@ describe('contentTreeViewer component', () => {
 
   describe('toggling "select all" checkbox', () => {
     it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', () => {
-      const store = makeStore();
-      const topic = topicNode();
       // Selected w/ unselected child scenario
-      store.state.pageState.selectedItems.nodes = {
-        include: [topic],
-        omit: [subTopicNode()],
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [makeNode('topic_1')],
+        omit: [makeNode('subtopic_1', { path: ['topic_1'] })],
       };
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox } = getElements(wrapper);
@@ -158,14 +151,13 @@ describe('contentTreeViewer component', () => {
       return wrapper.vm.$nextTick()
         .then(() => {
           sinon.assert.calledOnce(addNodeStub);
-          sinon.assert.calledWithMatch(addNodeStub, topic);
+          sinon.assert.calledWithMatch(addNodeStub, wrapper.vm.annotatedTopicNode);
         });
     });
 
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
-      const store = makeStore();
-      const topic = topicNode();
-      store.state.pageState.selectedItems.nodes.include = [topic];
+      const topic = makeNode('topic_1');
+      store.state.pageState.wizardState.selectedItems.nodes.include = [topic];
       const wrapper = makeWrapper({ store });
       const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer');
       const { selectAllCheckbox } = getElements(wrapper);
@@ -173,17 +165,16 @@ describe('contentTreeViewer component', () => {
       return wrapper.vm.$nextTick()
         .then(() => {
           sinon.assert.calledOnce(removeNodeStub);
-          sinon.assert.calledWithMatch(removeNodeStub, topic);
+          sinon.assert.calledWithMatch(removeNodeStub, wrapper.vm.annotatedTopicNode);
         });
     });
   });
 
   describe('toggling child node selection', () => {
     it('if a child node is checked, a "remove node" action is triggered', () => {
-      const store = makeStore();
-      const subTopic = subTopicNode();
-      store.state.pageState.treeView.children = [subTopic];
-      store.state.pageState.selectedItems.nodes.include = [subTopic];
+      const subTopic = makeNode('subtopic_1', { path: ['topic_1'] });
+      store.state.pageState.wizardState.treeView.currentNode.children = [subTopic];
+      store.state.pageState.wizardState.selectedItems.nodes.include = [subTopic];
       const wrapper = makeWrapper({ store });
       const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer');
       const topicRow = wrapper.first(ContentNodeRow);
@@ -197,9 +188,8 @@ describe('contentTreeViewer component', () => {
     });
 
     it('if a child node is unchecked, an "add node" action is triggered', () => {
-      const store = makeStore();
-      const subTopic = subTopicNode();
-      store.state.pageState.treeView.children = [subTopic];
+      const subTopic = makeNode('subtopic_1', { path: ['topic_1'] });
+      store.state.pageState.wizardState.treeView.currentNode.children = [subTopic];
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer');
       const topicRow = wrapper.first(ContentNodeRow);
@@ -213,11 +203,17 @@ describe('contentTreeViewer component', () => {
     });
 
     it('if a child node is indeterminate, an "add node" action is triggered', () => {
-      const store = makeStore();
-      const subTopic = {...subTopicNode(), totalResources: 5 };
-      const subSubTopic = makeNode('subsubtopic', { path: [subTopic.id], totalResources: 1 })
-      store.state.pageState.treeView.children = [subTopic];
-      store.state.pageState.selectedItems.nodes = {
+      const subTopic = makeNode('subtopic', {
+        total_resources: 5,
+        path: ['channel_1', 'topic_1'],
+      });
+      const subSubTopic = makeNode('subsubtopic', {
+        path: [...subTopic.path, subTopic.pk],
+        total_resources: 1
+      });
+      store.state.pageState.wizardState.path = ['channel_1'];
+      store.state.pageState.wizardState.treeView.currentNode.children = [subTopic];
+      store.state.pageState.wizardState.selectedItems.nodes = {
         include: [subSubTopic],
         omit: [],
       };

@@ -2,6 +2,7 @@
 
   <div class="row">
     <k-checkbox
+      class="checkbox display-cell"
       :label="$tr('select')"
       :showLabel="false"
       :checked="checked"
@@ -10,8 +11,11 @@
       @change="$emit('changeselection', node)"
     />
 
-    <div class="title">
-      <content-icon :kind="node.kind" />
+    <div class="title display-cell">
+      <content-icon
+        class="icon"
+        :kind="node.kind"
+      />
       <k-button
         v-if="showButton"
         :text="node.title"
@@ -24,7 +28,7 @@
       </span>
     </div>
 
-    <div class="message">
+    <div class="message display-cell">
       {{ message }}
     </div>
   </div>
@@ -81,4 +85,26 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .row
+    display: table
+    width: 100%
+    vertical-align: middle
+
+  .display-cell
+    display: table-cell
+    vertical-align: inherit
+
+  .icon
+    margin-left: 8px
+    margin-right: 4px
+
+  .title
+    width: 30%
+
+  .message
+    width: 70%
+    text-align: right
+
+</style>

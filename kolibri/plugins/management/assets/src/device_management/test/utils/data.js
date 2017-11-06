@@ -4,6 +4,8 @@ const defaultChannel = {
   language: 'English',
   language_code: 'en',
   name: 'Channel Title',
+  on_device_file_size: 95189556,
+  on_device_resources: 52,
   thumbnail: '',
   total_file_size: 5000000000,
   total_resource_count: 5000,
@@ -17,16 +19,16 @@ export function channelFactory(attrs = {}) {
 const defaultNode = {
   kind: 'topic',
   path: [],
-  resourcesOnDevice: 0,
-  totalResources: 1,
+  resources_on_device: 0,
+  total_resources: 1,
   fileSize: 1,
 };
 
 export function makeNode(id, attrs = {}) {
   return {
-    id,
-    title: `node_${id}`,
     ...defaultNode,
+    pk: id,
+    title: `node_${id}`,
     ...attrs
   };
 }
@@ -40,8 +42,16 @@ export function selectContentsPageState() {
     transferType: '',
     status: '', // content_db_{loading,error}, tree_view_{loading,error}, transfer_{started,error}
     treeView: {
-      currentNode: {},
-      breadcrumbs: [],
+      currentNode: {
+        ...makeNode('topic_1'),
+        total_resources: 100,
+        resources_on_device: 0,
+        children: [
+          makeNode('1_1'),
+          makeNode('1_2', { kind: 'video' }),
+        ],
+      },
+      breadcrumbs: [{ text: 'Topic 1', link: {} }],
     },
     path: [],
     selectedItems: {

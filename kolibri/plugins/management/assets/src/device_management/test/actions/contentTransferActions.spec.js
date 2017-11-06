@@ -3,9 +3,9 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
-import { addNodeForTransfer, removeNodeForTransfer, showSelectContentPage, goToTopic } from '../../state/actions/contentTransferActions';
+import { addNodeForTransfer, removeNodeForTransfer, showSelectContentPage, updateTreeViewTopic } from '../../state/actions/contentTransferActions';
 import * as mutations from '../../state/mutations/contentTransferMutations';
-import { selectedNodes } from '../../state/getters';
+import { selectedNodes, wizardState } from '../../state/getters';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { makeNode, contentNodeGranularPayload, selectContentsPageState } from '../utils/data';
@@ -103,7 +103,7 @@ describe('showSelectContentPage action', () => {
       // can change options to defaultOptions.remoteimport too
       return showSelectContentPage(store, defaultOptions.localimport)
         .then(() => {
-          assert.equal(store.state.pageState.wizardState.status, 'CONTENT_DB_LOADING_ERROR');
+          assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
         });
     });
 
@@ -113,7 +113,7 @@ describe('showSelectContentPage action', () => {
       // can change options to defaultOptions.localimport/localexport too
       return showSelectContentPage(store, defaultOptions.remoteimport)
         .then(() => {
-          assert.equal(store.state.pageState.wizardState.status, 'TREEVIEW_LOADING_ERROR');
+          assert.equal(wizardState(store.state).status, 'TREEVIEW_LOADING_ERROR');
         });
     });
   });
@@ -159,8 +159,8 @@ describe('showSelectContentPage action', () => {
             drive_id: 'drive_1',
           });
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
-          assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
-          assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
+          assert.deepEqual(wizardState(store.state).treeView.currentNode, cngPayload);
+          assert.deepEqual(wizardState(store.state).treeView.breadcrumbs, [
             { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
@@ -206,8 +206,8 @@ describe('showSelectContentPage action', () => {
             import_export: 'import',
           });
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
-          assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
-          assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
+          assert.deepEqual(wizardState(store.state).treeView.currentNode, cngPayload);
+          assert.deepEqual(wizardState(store.state).treeView.breadcrumbs, [
             { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
@@ -237,8 +237,8 @@ describe('showSelectContentPage action', () => {
         .then(() => {
           sinon.assert.calledWith(fetchableSpy.fetch, { import_export: 'export' });
           sinon.assert.calledWith(getModelStub, 'channel_1_root');
-          assert.deepEqual(store.state.pageState.wizardState.treeView.currentNode, cngPayload);
-          assert.deepEqual(store.state.pageState.wizardState.treeView.breadcrumbs, [
+          assert.deepEqual(wizardState(store.state).treeView.currentNode, cngPayload);
+          assert.deepEqual(wizardState(store.state).treeView.breadcrumbs, [
             { id: 'channel_1_root', title: 'Channel One' },
           ]);
         });
@@ -258,7 +258,7 @@ describe('showSelectContentPage action', () => {
       ]));
       return showSelectContentPage(store, defaultOptions.remoteimport)
         .then(() => {
-          assert.deepEqual(store.state.pageState.wizardState.channelImportTask, {
+          assert.deepEqual(wizardState(store.state).channelImportTask, {
             id: 'task_1', status: 'COMPLETED', percentage: 1.0,
           });
         });
@@ -271,7 +271,7 @@ describe('showSelectContentPage action', () => {
       return showSelectContentPage(store, defaultOptions.localimport)
         .then(() => {
           sinon.assert.notCalled(getModelStub);
-          assert.deepEqual(store.state.pageState.wizardState.status, 'TASK_POLLING_ERROR');
+          assert.deepEqual(wizardState(store.state).status, 'TASK_POLLING_ERROR');
         });
     });
 
@@ -282,19 +282,19 @@ describe('showSelectContentPage action', () => {
       return showSelectContentPage(store, defaultOptions.remoteimport)
         .then(() => {
           sinon.assert.notCalled(getModelStub);
-          assert.deepEqual(store.state.pageState.wizardState.status, 'TASK_POLLING_ERROR');
+          assert.deepEqual(wizardState(store.state).status, 'TASK_POLLING_ERROR');
         });
     });
   });
 });
 
-describe('node selection actions actions', () => {
+describe('node selection actions', () => {
   const includeList = store => selectedNodes(store.state).include;
   const omitList = store => selectedNodes(store.state).omit;
   function nodeCounts(store) {
     return {
-      files: store.state.pageState.wizardState.selectedItems.total_file_size,
-      resources: store.state.pageState.wizardState.selectedItems.total_resource_count,
+      files: wizardState(store.state).selectedItems.total_file_size,
+      resources: wizardState(store.state).selectedItems.total_resource_count,
     };
   }
 
@@ -330,7 +330,7 @@ describe('node selection actions actions', () => {
       const ancestorNode = makeNode('1_1', {
         fileSize: 3,
         path: ['1'],
-        totalResources: 3,
+        total_resources: 3,
       });
       addNodeForTransfer(store, descendantNode);
       // adding ancestorNode makes descendantNode redundant
@@ -349,7 +349,7 @@ describe('node selection actions actions', () => {
       const node_0 = makeNode('1', {
         fileSize: 100,
         path: [],
-        totalResources: 100,
+        total_resources: 100,
       });
       const node_1 = makeNode('1_1_1', { path: ['1', '1_1'] });
       const node_2 = makeNode('1_2_1', { path: ['1', '1_2'] });
@@ -369,7 +369,7 @@ describe('node selection actions actions', () => {
       const node_1 = makeNode('1_1', {
         fileSize: 5,
         path: ['1'],
-        totalResources: 5,
+        total_resources: 5,
       });
       const node_2 = makeNode('1_1_1', { path: ['1', '1_1'] });
       addNodeForTransfer(store, node_1);
@@ -404,16 +404,17 @@ describe('node selection actions actions', () => {
       });
     });
 
-    it('removing a node that is a child of an included node', () => {
+    it('removing a child/descendant of an included node', () => {
+      // ...adds descendant to 'omit', does not remove node from 'include'
       const store = makeStore();
       const ancestorNode = makeNode('1_1', {
         path: ['1'],
-        totalResources: 50,
+        total_resources: 50,
         fileSize: 50,
       });
       const descendantNode = makeNode('1_1_1', {
         path: ['1', '1_1'],
-        totalResources: 20,
+        total_resources: 20,
         fileSize: 20,
       });
       addNodeForTransfer(store, ancestorNode);
@@ -462,12 +463,11 @@ describe('node selection actions actions', () => {
   });
 });
 
-describe('goToTopic action', () => {
+describe('updateTreeViewTopic action', () => {
   let store;
   const cngPayload = contentNodeGranularPayload();
   const topic_1 = { id: 'topic_1', title: 'Topic One' };
   const topic_2 = { id: 'topic_2', title: 'Topic Two' };
-  const wizardState = store => store.state.pageState.wizardState;
 
   beforeEach(() => {
     store = makeStore();
@@ -475,24 +475,24 @@ describe('goToTopic action', () => {
   });
 
   it('updates the current node in wizardState.treeView', () => {
-    return goToTopic(store, topic_1)
+    return updateTreeViewTopic(store, topic_1)
       .then(() => {
-        assert.deepEqual(wizardState(store).treeView.currentNode, cngPayload);
+        assert.deepEqual(wizardState(store.state).treeView.currentNode, cngPayload);
       });
   });
 
   it('updates the breadcrumbs and path in wizardState', () => {
-    return goToTopic(store, topic_1)
-      .then(() => goToTopic(store, topic_2))
+    return updateTreeViewTopic(store, topic_1)
+      .then(() => updateTreeViewTopic(store, topic_2))
       .then(() => {
-        assert.deepEqual(wizardState(store).treeView.breadcrumbs, [topic_1, topic_2]);
-        assert.deepEqual(wizardState(store).path, ['topic_1', 'topic_2']);
+        assert.deepEqual(wizardState(store.state).treeView.breadcrumbs, [topic_1, topic_2]);
+        assert.deepEqual(wizardState(store.state).path, ['topic_1', 'topic_2']);
       });
   });
 
   it('handles errors from ContentNodeGranular API', () => {
     ContentNodeGranularResource.__getModelFetchReturns({}, true);
-    return goToTopic(store, topic_1)
+    return updateTreeViewTopic(store, topic_1)
       .then(() => {
         assert.equal(wizardState(store).status, 'TREEVIEW_LOADING_ERROR');
       });

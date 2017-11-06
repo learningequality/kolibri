@@ -135,6 +135,12 @@
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
       },
     },
+    watch: {
+      items(val) {
+        this.crumbs = Array.from(val);
+        this.attachSensors();
+      },
+    },
     created() {
       this.crumbs = Array.from(this.items);
     },

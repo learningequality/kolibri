@@ -69,7 +69,7 @@ function getElements(wrapper) {
   }
 }
 
-describe.only('selectDriveModal component', () => {
+describe('selectDriveModal component', () => {
   it('when importing, shows the correct title', () => {
     const wrapper = makeWrapper();
     const { titleText } = getElements(wrapper);

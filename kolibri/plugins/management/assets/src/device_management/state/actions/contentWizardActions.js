@@ -30,8 +30,19 @@ export function showWizardPage(store, pageName, meta = {}) {
     channelList: wizardState(store.state).channelList || [],
     channelsOnDevice: [],
     availableChannels: [],
+    path: [],
     treeView: {
       breadcrumbs: [],
+      currentNode: {},
+    },
+    remainingSpace: 0,
+    selectedItems: {
+      total_resource_count: 0,
+      total_file_size: 0,
+      nodes: {
+        include: [],
+        omit:[],
+      },
     },
     meta,
   });
@@ -128,11 +139,18 @@ export function transitionWizardPage(store, transition, params) {
   if (wizardPage === ContentWizardPages.AVAILABLE_CHANNELS) {
     if (transition === FORWARD) {
       const { source, destination, transferType } = wizardState(store.state).meta;
+      store.dispatch(Mutations.SET_CONTENT_PAGE_WIZARD_META, {
+        ...wizardState(store.state).meta,
+        channel: params.channel,
+      })
       return showSelectContentPage(store, {
         source,
         destination,
         transferType,
-        channel: params.channel,
+        channel: {
+          ...params.channel,
+          isOnDevice: true,
+        },
       });
     }
   }
@@ -165,14 +183,12 @@ export function showAvailableChannelsPage(store, options) {
 
   // for localimport, get Available Channels from selected drive's metadata
   if (transferType === TransferTypes.LOCALIMPORT) {
-    const channelList = driveChannelList(store.state)(source.driveId);
-    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, channelList);
+    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, driveChannelList(store.state)(source.driveId));
   }
 
-  // for localimport, get Available Channels from store
+  // for localexport, get Available Channels from store
   if (transferType === TransferTypes.LOCALEXPORT) {
-    const channelList = installedChannelList(store.state);
-    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, channelList);
+    store.dispatch(Mutations.SET_AVAILABLE_CHANNELS, [...installedChannelList(store.state)]);
   }
   return Promise.resolve();
 }

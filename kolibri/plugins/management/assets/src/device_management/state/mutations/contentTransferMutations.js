@@ -1,9 +1,11 @@
+import dropRightWhile from 'lodash/dropRightWhile';
+
 export function ADD_NODE_TO_INCLUDE_LIST(state, node) {
   state.pageState.wizardState.selectedItems.nodes.include.push(node);
 }
 
 export function REMOVE_NODE_FROM_INCLUDE_LIST(state, node) {
-  const newList = state.pageState.wizardState.selectedItems.nodes.include.filter(n => n.id !== node.id);
+  const newList = state.pageState.wizardState.selectedItems.nodes.include.filter(n => n.pk !== node.pk);
   state.pageState.wizardState.selectedItems.nodes.include = newList;
 }
 
@@ -16,7 +18,7 @@ export function ADD_NODE_TO_OMIT_LIST(state, node) {
 }
 
 export function REMOVE_NODE_FROM_OMIT_LIST(state, node) {
-  const newList = state.pageState.wizardState.selectedItems.nodes.omit.filter(n => n.id !== node.id);
+  const newList = state.pageState.wizardState.selectedItems.nodes.omit.filter(n => n.pk !== node.pk);
   state.pageState.wizardState.selectedItems.nodes.omit = newList;
 }
 
@@ -43,4 +45,11 @@ export function ADD_TREEVIEW_BREADCRUMB(state, payload) {
 
 export function ADD_ID_TO_PATH(state, newId) {
   state.pageState.wizardState.path.push(newId);
+}
+
+export function PULL_PATH_BREADCRUMBS_BACK(state, topicPk) {
+  const newPath = dropRightWhile(state.pageState.wizardState.path, pk => pk !== topicPk);
+  const newBreadCrumbs = dropRightWhile(state.pageState.wizardState.treeView.breadcrumbs, ({ pk }) => pk !== topicPk);
+  state.pageState.wizardState.path = newPath;
+  state.pageState.wizardState.treeView.breadcrumbs = newBreadCrumbs;
 }

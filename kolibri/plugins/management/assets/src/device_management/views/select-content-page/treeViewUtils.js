@@ -27,19 +27,28 @@ const CheckboxTypes = {
  *
  */
 export function annotateNode(node, selectedNodes) {
-  const { resourcesOnDevice, totalResources } = node;
-  const isSelected = find(selectedNodes.include, { id: node.id });
-  const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.id));
+  const { resources_on_device, total_resources } = node;
+  const isSelected = find(selectedNodes.include, { pk: node.pk });
+  const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.pk));
+
+  // Completely on device -> DISABLED
+  if (resources_on_device === total_resources) {
+    return {
+      ...node,
+      message: translator.$tr('alreadyOnYourDevice'),
+      disabled: true,
+      checkboxType: CheckboxTypes.CHECKED,
+    };
+  }
 
   if (isSelected || ancestorIsSelected) {
-    const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.id));
+    const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.pk));
 
-    // Selected but with some or all descendants in omit list
     if (omittedDescendants.length > 0) {
-      const omittedResources = sumBy(omittedDescendants, 'totalResources');
+      const omittedResources = sumBy(omittedDescendants, 'total_resources');
 
-      // All descendants are omitted
-      if (omittedResources === totalResources) {
+      // All descendants are omitted -> UNCHECKED
+      if (omittedResources === total_resources) {
         return {
           ...node,
           message: '',
@@ -48,79 +57,69 @@ export function annotateNode(node, selectedNodes) {
         };
       }
 
-      // Not all descendants are omitted
+      // Some (but not all) descendants are omitted -> INDETERMINATE
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
-          selected: totalResources - omittedResources,
-          total: totalResources,
+          selected: total_resources - omittedResources,
+          total: total_resources,
         }),
         disabled: false,
         checkboxType: CheckboxTypes.INDETERMINATE,
       };
     }
-    // Completely selected
+
+    // Completely selected -> CHECKED
     return {
       ...node,
-      message: translator.$tr('resourcesSelected', { total: totalResources }),
+      message: translator.$tr('resourcesSelected', { total: total_resources }),
       disabled: false,
       checkboxType: CheckboxTypes.CHECKED,
     };
   }
 
-  // Some resources on the device
-  if (resourcesOnDevice > 0) {
-    if (resourcesOnDevice === totalResources) {
-      // Completely on device
-      return {
-        ...node,
-        message: translator.$tr('alreadyOnYourDevice'),
-        disabled: true,
-        checkboxType: CheckboxTypes.CHECKED,
-      };
-    } else {
-      // Partially on device
-      return {
-        ...node,
-        message: translator.$tr('fractionOfResourcesOnDevice', {
-          onDevice: resourcesOnDevice,
-          total: totalResources,
-        }),
-        disabled: false,
-        checkboxType: CheckboxTypes.UNCHECKED,
-      };
-    }
+  if (resources_on_device > 0) {
+    // Node has some (but not all) resources on device -> UNCHECKED.
+    // Node with all resources on device handled earlier.
+    return {
+      ...node,
+      message: translator.$tr('fractionOfResourcesOnDevice', {
+        onDevice: resources_on_device,
+        total: total_resources,
+      }),
+      disabled: false,
+      checkboxType: CheckboxTypes.UNCHECKED,
+    };
   }
 
-
-  const includedDescendants = selectedNodes.include.filter(n => n.path.includes(node.id));
+  const includedDescendants = selectedNodes.include.filter(n => n.path.includes(node.pk));
 
   if (includedDescendants.length > 0) {
-    const includedDescendantsResources = sumBy(includedDescendants, 'totalResources');
+    const includedDescendantsResources = sumBy(includedDescendants, 'total_resources');
 
-    // Node is not selected, but has all children selected
-    if (includedDescendantsResources === totalResources) {
+    // Node is not selected, has all children selected -> CHECKED
+    if (includedDescendantsResources === total_resources) {
       return {
         ...node,
-        message: translator.$tr('resourcesSelected', { total: totalResources }),
+        message: translator.$tr('resourcesSelected', { total: total_resources }),
         disabled: false,
         checkboxType: CheckboxTypes.CHECKED,
       };
     }
 
-    // Node is not selected, but has some children selected
+    // Node is not selected, has some children selected -> INDETERMINATE
     return {
       ...node,
       message: translator.$tr('fractionOfResourcesSelected', {
         selected: includedDescendantsResources,
-        total: totalResources,
+        total: total_resources,
       }),
       disabled: false,
       checkboxType: CheckboxTypes.INDETERMINATE,
     }
   }
 
-  // Node is not selected at all, nor has any children, nor is on device
+  // Node is not selected, has no children, is not on device -> UNCHECKED
   return {
     ...node,
     message: '',
@@ -134,15 +133,18 @@ export function annotateNode(node, selectedNodes) {
  * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
  *
  */
-export function transformBreadrumb({ title, id }) {
+export function transformBreadrumb({ title, pk }) {
   return {
-    text: title,
+    text: title || 'No title',
     link: {
-      name: 'wizardtransition',
+      name: 'treeview_update_topic',
+      query: {
+        pk,
+      },
       params: {
-        transition: 'treeview_go_to_topic',
-        id,
+        pk,
         title,
+        replaceCrumbs: true,
       },
     },
   };
