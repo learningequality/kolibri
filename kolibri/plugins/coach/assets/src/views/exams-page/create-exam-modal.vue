@@ -24,7 +24,7 @@
   import { PageNames } from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiSelect from 'kolibri.coreVue.components.uiSelect';
   export default {
     name: 'createExamModal',
     $trs: {

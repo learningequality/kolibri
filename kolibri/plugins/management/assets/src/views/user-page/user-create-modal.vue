@@ -80,8 +80,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiAlert from 'keen-ui/src/UiAlert';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import uiSelect from 'kolibri.coreVue.components.uiSelect';
   export default {
     name: 'userCreateModal',
     $trs: {

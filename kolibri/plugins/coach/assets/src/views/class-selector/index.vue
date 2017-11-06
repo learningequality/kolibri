@@ -20,7 +20,7 @@
 
   import orderBy from 'lodash/orderBy';
   import { PageNames } from '../../constants';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import uiSelect from 'kolibri.coreVue.components.uiSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
 
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
