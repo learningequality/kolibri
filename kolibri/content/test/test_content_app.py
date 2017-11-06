@@ -193,6 +193,23 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['on_device_resources'], 3)
         self.assertEqual(response.data['on_device_file_size'], 0)
 
+    def test_channelmetadata_langfield(self):
+        data = content.ChannelMetadata.objects.first()
+        root_lang = content.Language.objects.get(pk=1)
+        data.root.lang = root_lang
+        data.root.save()
+
+        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        self.assertEqual(response.data['lang_code'], root_lang.lang_code)
+        self.assertEqual(response.data['lang_name'], root_lang.lang_name)
+
+    def test_channelmetadata_langfield_none(self):
+        data = content.ChannelMetadata.objects.first()
+
+        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        self.assertEqual(response.data['lang_code'], None)
+        self.assertEqual(response.data['lang_name'], None)
+
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
         self.assertEqual(len(response.data), 5)
