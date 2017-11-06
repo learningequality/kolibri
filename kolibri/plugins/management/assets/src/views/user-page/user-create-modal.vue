@@ -53,8 +53,7 @@
           v-model="confirmedPassword"
         />
 
-        <ui-select
-          :name="$tr('typeOfUser')"
+        <k-select
           :label="$tr('typeOfUser')"
           :options="userKinds"
           v-model="kind"
@@ -80,8 +79,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import uiSelect from 'kolibri.coreVue.components.uiSelect';
   export default {
     name: 'userCreateModal',
     $trs: {
@@ -107,7 +106,7 @@
       coreModal,
       kTextbox,
       uiAlert,
-      uiSelect,
+      kSelect,
     },
     data() {
       return {
@@ -207,7 +206,7 @@
         ];
       },
     },
-    mounted() {
+    beforeMount() {
       Object.assign(this.$data, this.$options.data());
       this.kind = {
         label: this.$tr('learner'),

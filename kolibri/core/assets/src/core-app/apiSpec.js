@@ -52,6 +52,7 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -66,7 +67,6 @@ import urls from './urls';
 import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
-import uiSelect from 'keen-ui/src/UiSelect';
 import uiAlert from 'keen-ui/src/UiAlert';
 
 export default {
@@ -116,7 +116,7 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
-      uiSelect,
+      kSelect,
       uiAlert,
     },
     router,

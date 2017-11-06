@@ -2,13 +2,20 @@
 
   <page-template title="Filters" :completed="false">
 
-    <h2><code>{{ kFilterTextboxApi.name }}</code> API</h2>
+    <h3><code>{{ kFilterTextboxApi.name }}</code> API</h3>
     <component-docs :api="kFilterTextboxApi" />
 
-    <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <h3>Code Example</h3>
+    <vue-example :code="kFilterTextboxExample" />
 
-    <h2>Guidelines</h2>
+
+    <h3><code>{{ kSelectApi.name }}</code> API</h3>
+    <component-docs :api="kSelectApi" />
+
+    <h3>Code Example</h3>
+    <vue-example :code="kSelectExample" />
+
+    <h3>Guidelines</h3>
     <h3>How they behave together</h3>
     <ul>
       <li>
@@ -122,12 +129,17 @@
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
 
-  import example from 'raw-loader!./example.html';
-  import kFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.kFilterTextbox';
-
   import FullVue from 'vue/dist/vue.common';
+
+  import kFilterTextboxExample from 'raw-loader!./k-filter-textbox-example.html';
+  import kFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.kFilterTextbox';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   FullVue.component('k-filter-textbox', kFilterTextbox);
+
+  import kSelectExample from 'raw-loader!./k-select-example.html';
+  import kSelectApi from '!vue-doc!kolibri.coreVue.components.kSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
+  FullVue.component('k-select', kSelect);
 
   export default {
     components: {
@@ -136,8 +148,10 @@
       vueExample,
     },
     data: () => ({
-      example,
+      kFilterTextboxExample,
+      kSelectExample,
       kFilterTextboxApi,
+      kSelectApi,
     }),
   };
 
