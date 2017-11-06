@@ -1,17 +1,21 @@
 from functools import reduce
 from random import sample
 
+import requests
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from django.http import Http404
+from django.utils.translation import ugettext as _
 from kolibri.content import models, serializers
+from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
-from rest_framework import filters, pagination, viewsets
+from rest_framework import filters, mixins, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import mixins
 from rest_framework.serializers import ValidationError
 
 from .utils.search import fuzz
@@ -340,3 +344,38 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class RemoteChannelViewSet(viewsets.ViewSet):
+    permissions_classes = (CanManageContent,)
+
+    http_method_names = ['get']
+
+    def _cache_kolibri_studio_channel_request(self, identifier=None):
+        cache_key = get_channel_lookup_url(identifier=identifier)
+
+        # cache channel lookup values
+        if cache.get(cache_key):
+            return Response(cache.get(cache_key))
+
+        resp = requests.get(cache_key)
+
+        # always check response code of request and set cache
+        if resp.status_code == 404:
+            raise Http404(
+                _("The requested channel does not exist on the content server")
+            )
+        cache.set(cache_key, resp.json(), 60 * 10)
+        return Response(resp.json())
+
+    def list(self, request, *args, **kwargs):
+        """
+        Gets metadata about all public channels on kolibri studio.
+        """
+        return self._cache_kolibri_studio_channel_request()
+
+    def retrieve(self, request, pk=None):
+        """
+        Gets metadata about a channel through a token or channel id.
+        """
+        return self._cache_kolibri_studio_channel_request(identifier=pk)
