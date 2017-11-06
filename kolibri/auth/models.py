@@ -540,11 +540,24 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         except ObjectDoesNotExist:
             return False
 
-    def has_morango_certificate_scope_permission(self, scope_def_id, scope_params):
-        # superusers can do full facility sync, as well as user level sync
+    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
         if self.is_superuser:
-            if self.dataset_id == scope_params['dataset_id']:
-                    return True
+            # superusers of a device always have permission to sync
+            return True
+        if scope_params.get("dataset_id") != self.dataset_id:
+            # if the request isn't for the same facility as this user, abort
+            return False
+        if scope_definition_id == "full-facility":
+            # if request is for full-facility syncing, return True only if user is a Facility Admin
+            return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
+        elif scope_definition_id == "single-user":
+            # for single-user syncing, return True if this user *is* target user, or is admin for target user
+            target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
+            if self == target_user:
+                return True
+            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+                return True
+            return False
         return False
 
     @property
