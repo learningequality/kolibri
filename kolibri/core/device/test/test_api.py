@@ -2,7 +2,7 @@ from kolibri.auth.constants.role_kinds import ADMIN
 from kolibri.auth.test.test_api import FacilityFactory, FacilityUserFactory
 from kolibri.auth.test.helpers import create_superuser, provision_device
 from kolibri.auth.models import Facility, FacilityDataset, FacilityUser, Role
-from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DevicePermissions, DeviceSettings
 
 from django.core.urlresolvers import reverse
 
@@ -102,6 +102,27 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertEqual(FacilityDataset.objects.get().learner_can_sign_up, self.dataset_data["learner_can_sign_up"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_delete_account, self.dataset_data["learner_can_delete_account"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_login_with_no_password, self.dataset_data["learner_can_login_with_no_password"])
+
+    def test_device_settings_created(self):
+        data = {
+            "superuser": self.superuser_data,
+            "facility": self.facility_data,
+            "preset": self.preset_data,
+            "language_id": self.language_id,
+        }
+        self.assertEqual(DeviceSettings.objects.count(), 0)
+        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.assertEqual(DeviceSettings.objects.count(), 1)
+
+    def test_device_settings_default_facility_set(self):
+        data = {
+            "superuser": self.superuser_data,
+            "facility": self.facility_data,
+            "preset": self.preset_data,
+            "language_id": self.language_id,
+        }
+        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.assertEqual(DeviceSettings.objects.get().default_facility, Facility.objects.get())
 
 
 class DevicePermissionsTestCase(APITestCase):
