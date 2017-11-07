@@ -7,11 +7,10 @@ from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
-from rest_framework import filters, pagination, viewsets
+from rest_framework import filters, pagination, viewsets, mixins
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import mixins
 from rest_framework.serializers import ValidationError
 
 from .utils.search import fuzz
@@ -286,12 +285,16 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer
 
-    def get_queryset(self, available=None):
+    def get_queryset(self, available=None, prefetch=True):
         if available is not None:
             queryset = models.ContentNode.objects.filter(available=available)
         else:
             queryset = models.ContentNode.objects.all()
-        return queryset.prefetch_related('files__local_file')
+
+        if prefetch:
+            return queryset.prefetch_related('files__local_file')
+
+        return queryset
 
     def retrieve(self, request, pk):
         import_export = request.query_params.get('import_export', None)
@@ -306,6 +309,27 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
                 "The 'import_export' field is required and needs to be either import or export.")
 
         return response
+
+    @detail_route(methods=['get'])
+    def filesizes(self, request, pk):
+        queryset = self.get_queryset(prefetch=False)
+        instance = get_object_or_404(queryset, pk=pk)
+        descendants = instance.get_descendants(include_self=True).prefetch_related('files__local_file')
+
+        total_file_size = 0
+        on_device_file_size = 0
+        total_files = set()
+
+        for child in descendants:
+            for f in child.files.all():
+                total_files.add(f.local_file)
+
+        for local_file in total_files:
+            total_file_size += local_file.file_size or 0
+            if local_file.available:
+                on_device_file_size += local_file.file_size or 0
+
+        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})
 
     def _get_parent_and_children_info(self, pk, available=None):
         queryset = self.get_queryset(available)
