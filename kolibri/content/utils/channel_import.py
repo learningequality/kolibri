@@ -22,6 +22,12 @@ merge_models = [
     Language,
 ]
 
+def column_not_auto_integer_pk(column):
+    """
+    A check for whether a column is an auto incrementing integer used for a primary key.
+    """
+    return not (column.autoincrement == 'auto' and column.primary_key and column.type.python_type is int)
+
 class ChannelImport(object):
     """
     The ChannelImport class has two functions:
@@ -160,7 +166,12 @@ class ChannelImport(object):
         except ClassNotFoundError:
             SourceRecord = None
 
-        columns = dest_table.columns.keys()
+        # Filter out columns that are auto-incrementing integer primary keys, as these can cause collisions in the
+        # database. As all of our content database models use UUID primary keys, the only tables using these
+        # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
+        # to these ids.
+        # By filtering them here, the database should autoset an incremented id.
+        columns = [column_name for column_name, column_obj in dest_table.columns.items() if column_not_auto_integer_pk(column_obj)]
         data_to_insert = []
         merge = model in merge_models
         for record in table_mapper(SourceRecord):
