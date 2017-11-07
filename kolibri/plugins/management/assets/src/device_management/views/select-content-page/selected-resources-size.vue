@@ -9,8 +9,8 @@
         {{ $tr('chooseContentToExport') }}
       </span>
     </div>
-    <div>
-      <div class="resources-selected-message">
+    <div class="resources-selected">
+      <div>
         {{ $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount }) }}
       </div>
 
@@ -25,7 +25,11 @@
       {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
     </div>
 
-    <ui-alert v-if="remainingSpaceAfterTransfer<=0" type="error" :dismissable="false">
+    <ui-alert
+      v-if="remainingSpaceAfterTransfer<=0"
+      type="error"
+      :dismissable="false"
+    >
       {{ $tr('notEnoughSpace') }}
     </ui-alert>
   </div>
@@ -90,4 +94,20 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .choose-message
+    padding: 8px 0
+    font-weight: bold
+
+  .resources-selected
+    margin: 8px 0
+    &> *
+      display: inline
+
+  .remaining-space
+    text-align: right
+    margin-top: -24px
+    margin-bottom: 8px
+
+</style>

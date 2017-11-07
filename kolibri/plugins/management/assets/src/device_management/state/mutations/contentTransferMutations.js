@@ -13,6 +13,10 @@ export function REPLACE_INCLUDE_LIST(state, newList) {
   state.pageState.wizardState.selectedItems.nodes.include = newList;
 }
 
+export function REPLACE_OMIT_LIST(state, newList) {
+  state.pageState.wizardState.selectedItems.nodes.omit = newList;
+}
+
 export function ADD_NODE_TO_OMIT_LIST(state, node) {
   state.pageState.wizardState.selectedItems.nodes.omit.push(node);
 }

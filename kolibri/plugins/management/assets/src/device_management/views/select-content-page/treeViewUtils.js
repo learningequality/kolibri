@@ -29,6 +29,7 @@ const CheckboxTypes = {
 export function annotateNode(node, selectedNodes) {
   const { resources_on_device, total_resources } = node;
   const isSelected = find(selectedNodes.include, { pk: node.pk });
+  const isOmitted = find(selectedNodes.omit, { pk: node. pk});
   const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.pk));
 
   // Completely on device -> DISABLED
@@ -41,14 +42,14 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  if (isSelected || ancestorIsSelected) {
+  if (!isOmitted && (isSelected || ancestorIsSelected)) {
     const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.pk));
 
     if (omittedDescendants.length > 0) {
-      const omittedResources = sumBy(omittedDescendants, 'total_resources');
+      const omittedResources = (sumBy(omittedDescendants, 'total_resources') || 0) - (sumBy(omittedDescendants, 'resources_on_device') || 0);
 
       // All descendants are omitted -> UNCHECKED
-      if (omittedResources === total_resources) {
+      if (omittedResources === total_resources - resources_on_device) {
         return {
           ...node,
           message: '',
@@ -78,27 +79,15 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  if (resources_on_device > 0) {
-    // Node has some (but not all) resources on device -> UNCHECKED.
-    // Node with all resources on device handled earlier.
-    return {
-      ...node,
-      message: translator.$tr('fractionOfResourcesOnDevice', {
-        onDevice: resources_on_device,
-        total: total_resources,
-      }),
-      disabled: false,
-      checkboxType: CheckboxTypes.UNCHECKED,
-    };
-  }
 
-  const includedDescendants = selectedNodes.include.filter(n => n.path.includes(node.pk));
+  const includedDescendants = selectedNodes.include.filter(n => n.path.includes(node.pk))
+  .filter(n => !selectedNodes.omit.find(omitted => omitted.path.includes(n.pk))) // filter out descendants with partial
 
   if (includedDescendants.length > 0) {
-    const includedDescendantsResources = sumBy(includedDescendants, 'total_resources');
+    const includedDescendantsResources = sumBy(includedDescendants, 'total_resources') - sumBy(includedDescendants, 'resources_on_device');
 
     // Node is not selected, has all children selected -> CHECKED
-    if (includedDescendantsResources === total_resources) {
+    if (includedDescendantsResources === (total_resources - resources_on_device)) {
       return {
         ...node,
         message: translator.$tr('resourcesSelected', { total: total_resources }),
@@ -117,6 +106,20 @@ export function annotateNode(node, selectedNodes) {
       disabled: false,
       checkboxType: CheckboxTypes.INDETERMINATE,
     }
+  }
+
+  if (resources_on_device > 0) {
+    // Node has some (but not all) resources on device -> UNCHECKED.
+    // Node with all resources on device handled earlier.
+    return {
+      ...node,
+      message: translator.$tr('fractionOfResourcesOnDevice', {
+        onDevice: resources_on_device,
+        total: total_resources,
+      }),
+      disabled: false,
+      checkboxType: CheckboxTypes.UNCHECKED,
+    };
   }
 
   // Node is not selected, has no children, is not on device -> UNCHECKED

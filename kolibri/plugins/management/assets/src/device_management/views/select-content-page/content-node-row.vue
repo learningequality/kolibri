@@ -3,7 +3,7 @@
   <div class="row">
     <k-checkbox
       class="checkbox display-cell"
-      :label="$tr('select')"
+      :label="node.title"
       :showLabel="false"
       :checked="checked"
       :indeterminate="indeterminate"
@@ -101,10 +101,10 @@
     margin-right: 4px
 
   .title
-    width: 30%
+    width: 60%
 
   .message
-    width: 70%
+    width: 40%
     text-align: right
 
 </style>

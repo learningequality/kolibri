@@ -1,14 +1,12 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import VueRouter from 'kolibri.coreVue.router';
 import assert from 'assert';
 import sinon from 'sinon';
 import {
   startImportWizard,
   startExportWizard,
   transitionWizardPage,
-
 } from '../../state/actions/contentWizardActions';
 import { availableChannels, wizardState } from '../../state/getters';
 import mutations from '../../state/mutations';

@@ -10,6 +10,7 @@ import ChannelListItem from '../../views/manage-content-page/channel-list-item.v
 import UiSelect from 'keen-ui/src/UiSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+import { selectContentsPageState } from '../utils/data';
 
 const router = new VueRouter({
   routes: [
@@ -17,7 +18,7 @@ const router = new VueRouter({
   ],
 });
 
-const defaultChannels = [
+const availableChannels = [
   { name: 'Awesome Channel', id: 'awesome_channel', language_code: 'en', language: 'English' },
   { name: 'Bird Channel', id: 'bird_channel' },
   { name: 'Hunden Channel', id: 'hunden_channel', language_code: 'de', language: 'German' },
@@ -33,9 +34,15 @@ function makeStore() {
   return new Vuex.Store({
     state: {
       pageState: {
+        channelList: channelsOnDevice,
         wizardState: {
-          availableChannels: defaultChannels,
-          channelsOnDevice,
+          ...selectContentsPageState(),
+          availableChannels,
+          meta: {
+            transferType: 'localimport',
+            source: {},
+            destination: {},
+          },
         },
       },
     },
@@ -61,8 +68,10 @@ function getElements(wrapper) {
     channelListItems: () => wrapper.find(ChannelListItem),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.first(UiSelect),
+    titleText: () => wrapper.first('.channels h1').text().trim(),
     titleFilter: () => wrapper.first(kFilterTextbox),
     wholePageBackLink: () => wrapper.first(ImmersiveFullScreen).getProp('backPageLink'),
+    wholePageBackText: () => wrapper.first(ImmersiveFullScreen).getProp('backPageText'),
   }
 }
 
@@ -73,7 +82,12 @@ function testChannelVisibility(wrapper, visibilities) {
   });
 }
 
-describe('availableChannelsPage', () => {
+describe.only('availableChannelsPage', () => {
+  let store;
+
+  beforeEach(() => {
+    store = makeStore();
+  });
 
   it('back button link is correct', () => {
     const wrapper = makeWrapper();
@@ -88,6 +102,40 @@ describe('availableChannelsPage', () => {
     });
   });
 
+  it('in LOCALEXPORT mode, the back link text and title are correct', () => {
+    store.state.pageState.wizardState.meta.transferType = 'localexport';
+    store.state.pageState.wizardState.meta.destination = {
+      driveId: 'f9e29616935fbff37913ed46bf20e2c0',
+      driveName: 'SANDISK (F:)',
+      type: 'LOCAL_DRIVE',
+    };
+    const wrapper = makeWrapper({ store });
+    const { wholePageBackText, titleText } = getElements(wrapper);
+    assert.equal(wholePageBackText(), 'Export to SANDISK (F:)');
+    assert.equal(titleText(), 'Your channels');
+  });
+
+  it('in LOCALIMPORT mode, the back link text and title are correct', () => {
+    store.state.pageState.wizardState.meta.transferType = 'localimport';
+    store.state.pageState.wizardState.meta.source = {
+      driveId: 'f9e29616935fbff37913ed46bf20e2c0',
+      driveName: 'SANDISK (G:)',
+      type: 'LOCAL_DRIVE',
+    };
+    const wrapper = makeWrapper({ store });
+    const { wholePageBackText, titleText } = getElements(wrapper);
+    assert.equal(wholePageBackText(), 'Import from SANDISK (G:)');
+    assert.equal(titleText(), 'SANDISK (G:)');
+  });
+
+  it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
+    store.state.pageState.wizardState.meta.transferType = 'remoteimport';
+    const wrapper = makeWrapper({ store });
+    const { wholePageBackText, titleText } = getElements(wrapper);
+    assert.equal(wholePageBackText(), 'Kolibri Central Server');
+    assert.equal(titleText(), 'Channels');
+  });
+
   it('shows the correct number of channels available message', () => {
     const wrapper = makeWrapper();
     const { channelsAvailableText, noChannels } = getElements(wrapper);
@@ -96,7 +144,6 @@ describe('availableChannelsPage', () => {
   });
 
   it('if there are no channels, then filters do not appear', () => {
-    const store = makeStore();
     store.state.pageState.wizardState.availableChannels = [];
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
@@ -108,25 +155,11 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
-    assert.equal(channels[0].getProp('mode'), 'importing');
+    assert.equal(channels[0].getProp('mode'), 'localimport');
     assert.equal(channels[0].getProp('onDevice'), true);
     assert.equal(channels[1].getProp('onDevice'), false);
     assert.equal(channels[2].getProp('onDevice'), false);
     assert.equal(channels[3].getProp('onDevice'), true);
-  });
-
-  it('if in exporting flow, on device icon is not shown', () => {
-    const store = makeStore();
-    store.state.pageState.wizardState.transferType = 'localexport';
-    const wrapper = makeWrapper({ store });
-    const { channelListItems } = getElements(wrapper);
-    const channels = channelListItems();
-    assert.equal(channels[0].getProp('mode'), 'importing');
-    assert.equal(channels[0].getProp('onDevice'), false);
-    assert.equal(channels[1].getProp('onDevice'), false);
-    assert.equal(channels[2].getProp('onDevice'), false);
-    assert.equal(channels[3].getProp('onDevice'), false);
-
   });
 
   it('with no filters, all channels appear', () => {
@@ -196,7 +229,7 @@ describe('availableChannelsPage', () => {
     return wrapper.vm.$nextTick()
     .then(() => {
       sinon.assert.calledOnce(actionStub);
-      sinon.assert.calledWith(actionStub, 'forward', { id: defaultChannels[0].id });
+      sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
     });
   });
 })

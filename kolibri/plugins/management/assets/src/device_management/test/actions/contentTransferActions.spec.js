@@ -289,8 +289,7 @@ describe('showSelectContentPage action', () => {
 });
 
 describe('node selection actions', () => {
-  const includeList = store => selectedNodes(store.state).include;
-  const omitList = store => selectedNodes(store.state).omit;
+  let store;
   function nodeCounts(store) {
     return {
       files: wizardState(store.state).selectedItems.total_file_size,
@@ -298,12 +297,18 @@ describe('node selection actions', () => {
     };
   }
 
+  beforeEach(() => {
+    store = makeStore();
+  });
+
   describe('addNodeForTransfer action', () => {
     it('adding a single node to empty list', () => {
-      const store = makeStore();
       const node_1 = makeNode('1_1_1', { path: ['1', '1_1'] });
       addNodeForTransfer(store, node_1);
-      assert.deepEqual(includeList(store), [node_1]);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node_1],
+        omit: [],
+      });
       assert.deepEqual(nodeCounts(store), {
         files: 1,
         resources: 1,
@@ -311,32 +316,34 @@ describe('node selection actions', () => {
     });
 
     it('adding nodes that are not parent/child to each other', () => {
-      const store = makeStore();
       const node_1 = makeNode('1_1_1', { path: ['1', '1_1'] });
       const node_2 = makeNode('1_2_1', { path: ['1', '1_2'] });
       addNodeForTransfer(store, node_1);
       addNodeForTransfer(store, node_2);
-      assert.deepEqual(includeList(store), [node_1, node_2]);
-      assert.deepEqual(omitList(store), []);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node_1, node_2],
+        omit: [],
+      });
       assert.deepEqual(nodeCounts(store), {
         files: 2,
         resources: 2,
       });
     });
 
-    it('nodes that are made redundant by adding ancestor node are removed', () => {
-      const store = makeStore();
-      const descendantNode = makeNode('1_1_1', { path: ['1', '1_1'] });
+    it('when a node is added, its descendants are removed from "include"', () => {
+      // ...because they are redundant
       const ancestorNode = makeNode('1_1', {
         fileSize: 3,
         path: ['1'],
         total_resources: 3,
       });
+      const descendantNode = makeNode('1_1_1', { path: ['1', '1_1'] });
       addNodeForTransfer(store, descendantNode);
-      // adding ancestorNode makes descendantNode redundant
       addNodeForTransfer(store, ancestorNode);
-      assert.deepEqual(includeList(store), [ancestorNode]);
-      assert.deepEqual(omitList(store), []);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [ancestorNode],
+        omit: [],
+      });
       // files/resources are not double counted
       assert.deepEqual(nodeCounts(store), {
         files: 3,
@@ -344,60 +351,39 @@ describe('node selection actions', () => {
       });
     });
 
-    it('adding root of the content tree makes all descendants redundant', () => {
-      const store = makeStore();
-      const node_0 = makeNode('1', {
-        fileSize: 100,
-        path: [],
-        total_resources: 100,
-      });
-      const node_1 = makeNode('1_1_1', { path: ['1', '1_1'] });
-      const node_2 = makeNode('1_2_1', { path: ['1', '1_2'] });
-      addNodeForTransfer(store, node_1);
-      addNodeForTransfer(store, node_2);
-      addNodeForTransfer(store, node_0);
-      assert.deepEqual(includeList(store), [node_0]);
-      assert.deepEqual(omitList(store), []);
-      assert.deepEqual(nodeCounts(store), {
-        files: 100,
-        resources: 100,
+    it('when a node is added, it and all its descendants are removed from "omit"', () => {
+      const node = makeNode('1', { path: [] });
+      const childNode = makeNode('1_1', { path: ['1'] });
+      const siblingNode = makeNode('1_2', { path: ['1'] });
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [],
+        omit: [node, childNode, siblingNode],
+      };
+      addNodeForTransfer(store, node);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node],
+        omit: [],
       });
     });
 
-    it('re-adding a node in "omit" removes it from that list', () => {
-      const store = makeStore();
-      const node_1 = makeNode('1_1', {
-        fileSize: 5,
-        path: ['1'],
-        total_resources: 5,
-      });
-      const node_2 = makeNode('1_1_1', { path: ['1', '1_1'] });
-      addNodeForTransfer(store, node_1);
-      removeNodeForTransfer(store, node_2);
-      // removing the parent node first, implicitly deselecting node_2
-      removeNodeForTransfer(store, node_1);
-      assert.deepEqual(includeList(store), []);
-      assert.deepEqual(omitList(store), [node_2]);
-      // adding node_2 back
-      addNodeForTransfer(store, node_2);
-      assert.deepEqual(includeList(store), [node_2]);
-      assert.deepEqual(omitList(store), []);
-      assert.deepEqual(nodeCounts(store), {
-        files: 1,
-        resources: 1,
-      });
-    });
+    // The case where all descendants of a node are selected is handled at select-content-page,
+    // since the store does not have enough information to detect when this happens.
+    // When this happens, the descendants are replaced with the ancestor node.
   });
 
   describe('removeNodeForTransfer action', () => {
     it('removing a single node', () => {
-      const store = makeStore();
       const node_1 = makeNode('1_1_1', { path: ['1', '1_1'] });
       addNodeForTransfer(store, node_1);
-      assert.deepEqual(includeList(store), [node_1]);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node_1],
+        omit: [],
+      });
       removeNodeForTransfer(store, node_1);
-      assert.deepEqual(includeList(store), []);
-      assert.deepEqual(omitList(store), []);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [],
+        omit: [],
+      });
       assert.deepEqual(nodeCounts(store), {
         files: 0,
         resources: 0,
@@ -406,21 +392,22 @@ describe('node selection actions', () => {
 
     it('removing a child/descendant of an included node', () => {
       // ...adds descendant to 'omit', does not remove node from 'include'
-      const store = makeStore();
-      const ancestorNode = makeNode('1_1', {
+      const parentNode = makeNode('1_1', {
         path: ['1'],
         total_resources: 50,
         fileSize: 50,
       });
-      const descendantNode = makeNode('1_1_1', {
+      const childNode = makeNode('1_1_1', {
         path: ['1', '1_1'],
         total_resources: 20,
         fileSize: 20,
       });
-      addNodeForTransfer(store, ancestorNode);
-      removeNodeForTransfer(store, descendantNode);
-      assert.deepEqual(includeList(store), [ancestorNode]);
-      assert.deepEqual(omitList(store), [descendantNode]);
+      addNodeForTransfer(store, parentNode);
+      removeNodeForTransfer(store, childNode);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [parentNode],
+        omit: [childNode],
+      });
       assert.deepEqual(nodeCounts(store), {
         files: 30,
         resources: 30,
@@ -428,36 +415,107 @@ describe('node selection actions', () => {
     });
 
     it('removing a sibling is same as removing single node', () => {
-      const store = makeStore();
       const node_1 = makeNode('1_1', { path: ['1'] });
       const node_2 = makeNode('1_2', { path: ['1'] });
       addNodeForTransfer(store, node_1);
       addNodeForTransfer(store, node_2);
       removeNodeForTransfer(store, node_2);
-      assert.deepEqual(includeList(store), [node_1]);
-      assert.deepEqual(omitList(store), []);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node_1],
+        omit: [],
+      });
       assert.deepEqual(nodeCounts(store), {
         files: 1,
         resources: 1,
       });
     });
 
-    it('removing root of content tree when some children are selected', () => {
-      const store = makeStore();
-      const node_0 = makeNode('1');
-      const node_1 = makeNode('1_1', { path: ['1'] });
-      const node_2 = makeNode('1_2', { path: ['1'] });
-      addNodeForTransfer(store, node_1);
-      addNodeForTransfer(store, node_2);
-      // in UI, user will toggle the channel checkbox once, selecting all of it
-      addNodeForTransfer(store, node_0);
-      // then click it again to deselect...
-      removeNodeForTransfer(store, node_0);
-      assert.deepEqual(includeList(store), []);
-      assert.deepEqual(omitList(store), []);
-      assert.deepEqual(nodeCounts(store), {
-        files: 0,
-        resources: 0,
+    it('removing a node removes it and all descendants from "include"', () => {
+      const node = makeNode('1', {
+        path: [],
+        total_resources: 15,
+        resources_on_device: 8,
+      });
+      const childNode = makeNode('1_1', {
+        path: ['1'],
+        total_resources: 10,
+        resources_on_device: 2,
+      });
+      const grandchildNode = makeNode('1_1_1', {
+        path: ['1', '1_1'],
+        total_resources: 5,
+        resources_on_device: 0,
+
+      });
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [node, childNode, grandchildNode],
+        omit: [],
+      };
+      removeNodeForTransfer(store, childNode);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [node],
+        omit: [childNode],
+      });
+    });
+
+    it('removing a node removes its descendants from "omit"', () => {
+      // ...since they are redundant
+      const topNode = makeNode('1', {
+        path: [],
+        total_resources: 15,
+        resources_on_device: 8,
+      });
+      const childNode = makeNode('1_1', {
+        path: ['1'],
+        total_resources: 10,
+        resources_on_device: 2,
+      });
+      const grandchildNode = makeNode('1_1_1', {
+        path: ['1', '1_1'],
+        total_resources: 5,
+        resources_on_device: 0,
+
+      });
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [topNode],
+        omit: [grandchildNode],
+      };
+      removeNodeForTransfer(store, childNode);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [topNode],
+        omit: [childNode],
+      });
+    });
+
+    it('when removing a node leads to an "included" node being un-selected', () => {
+      // i.e. all of its resources are omitted
+      // then remove that included node, plus all of the nodes that were omitted
+      // this keeps the array clean of unnecessary nodes
+      const topNode = makeNode('1', {
+        path: [],
+        total_resources: 25, // 25-10 = 15 transferrable resources
+        resources_on_device: 10,
+      });
+      const childNode = makeNode('1_1', {
+        path: ['1'],
+        total_resources: 15, // 10 transferrable
+        resources_on_device: 5,
+      });
+      const siblingNode = makeNode('1_2', {
+        path: ['1'],
+        total_resources: 10, // 5 transferrable
+        resources_on_device: 5,
+      });
+      // NOTE: when total_resources === resources_on_device, then that node is
+      // not selectable, so we always need to compare the difference (i.e transferrable #)
+      store.state.pageState.wizardState.selectedItems.nodes = {
+        include: [topNode],
+        omit: [childNode],
+      };
+      removeNodeForTransfer(store, siblingNode);
+      assert.deepEqual(selectedNodes(store.state), {
+        include: [],
+        omit: [],
       });
     });
   });

@@ -35,6 +35,7 @@ export function makeNode(id, attrs = {}) {
 
 export function selectContentsPageState() {
   return {
+    availableChannels: [],
     channel: {},
     channelImportTask: {},
     source: {},
@@ -54,6 +55,7 @@ export function selectContentsPageState() {
       breadcrumbs: [{ text: 'Topic 1', link: {} }],
     },
     path: [],
+    meta: {},
     selectedItems: {
       nodes: {
         include: [],

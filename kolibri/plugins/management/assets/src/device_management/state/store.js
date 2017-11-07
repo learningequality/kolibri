@@ -6,6 +6,7 @@ const initialState = {
   pageName: '',
   pageState: {},
   welcomeModalVisible: false,
+  taskList: [],
 };
 
 export default new Vuex.Store({

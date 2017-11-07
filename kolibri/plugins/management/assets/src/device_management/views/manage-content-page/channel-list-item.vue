@@ -13,11 +13,11 @@
 
       <div class="details-top">
         <div class="other-details">
-          <div v-if="inImportingMode && onDevice" class="on-device">
+          <div v-if="inImportMode && onDevice" class="on-device">
             <mat-svg category="action" name="check_circle" />
             <span>{{ $tr('onYourDevice') }}</span>
           </div>
-          <div v-if="inManagingMode" class="resources-size">
+          <div v-if="inExportMode" class="resources-size">
             <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
@@ -39,14 +39,14 @@
 
     <div class="buttons dtc">
       <k-button
-        v-if="inImportingMode"
+        v-if="inImportMode"
         @click="$emit('clickselect')"
         name="select"
         :text="$tr('selectButton')"
         primary
       />
       <k-button
-        v-if="inManagingMode"
+        v-if="inExportMode"
         @click="$emit('clickdelete')"
         name="delete"
         :text="$tr('deleteButton')"
@@ -62,9 +62,7 @@
 
   import bytesForHumans from './bytesForHumans';
   import kButton from 'kolibri.coreVue.components.kButton';
-
-  const IMPORTING = 'importing';
-  const MANAGING = 'managing';
+  import { TransferTypes } from '../../constants';
 
   export default {
     name: 'channelListItem',
@@ -86,11 +84,11 @@
       },
     },
     computed: {
-      inImportingMode() {
-        return this.mode === IMPORTING;
+      inImportMode() {
+        return this.mode === TransferTypes.LOCALIMPORT || TransferTypes.REMOTEIMPORT;
       },
-      inManagingMode() {
-        return this.mode === MANAGING;
+      inExportMode() {
+        return this.mode === TransferTypes.LOCALEXPORT;
       },
       resourcesSizeText() {
         return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.total_file_size) });

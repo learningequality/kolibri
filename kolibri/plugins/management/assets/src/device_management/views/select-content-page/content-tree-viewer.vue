@@ -52,6 +52,8 @@
   import { addNodeForTransfer, removeNodeForTransfer, updateTreeViewTopic } from '../../state/actions/contentTransferActions';
   import { wizardState } from '../../state/getters';
   import last from 'lodash/last';
+  import partition from 'lodash/partition';
+  import every from 'lodash/every';
 
   export default {
     name: 'contentTreeViewer',
@@ -71,7 +73,12 @@
         return this.childNodesWithPath.map(n => annotateNode(n, this.selectedNodes));
       },
       annotatedTopicNode() {
-        return annotateNode({ ...this.topicNode, path: [...this.path] }, this.selectedNodes);
+        // need to include disabled
+        const selectedOrDisabled = {
+          include: [...this.selectedNodes.include, ...this.annotatedChildNodes.filter(n => n.disabled)],
+          omit: [...this.selectedNodes.omit],
+        };
+        return annotateNode({ ...this.topicNode, path: [...this.path] }, selectedOrDisabled);
       },
       breadcrumbItems() {
         const items = [...this.breadcrumbs];
@@ -85,6 +92,11 @@
       },
       nodeIsIndeterminate(node) {
         return node.checkboxType === 'indeterminate';
+      },
+      nodeCompletesParent(node) {
+        // get sibling nodes and check if every one is either checked or disabled
+        const siblings = this.annotatedChildNodes.filter(({ pk }) => pk !== node.pk);
+        return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
       },
       updateTopic(node) {
         // return this.updateTreeViewTopic(node);
@@ -106,6 +118,10 @@
       toggleSelection(node) {
         if (this.nodeIsChecked(node)) {
           return this.removeNodeForTransfer(node);
+        }
+        // if the clicked node would put the parent at 100% included
+        if (this.nodeCompletesParent(node)) {
+          return this.addNodeForTransfer({...this.annotatedTopicNode});
         }
         return this.addNodeForTransfer(node);
       }

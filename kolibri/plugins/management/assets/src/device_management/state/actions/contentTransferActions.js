@@ -1,8 +1,10 @@
-import sumBy from 'lodash/sumBy';
 import { selectedNodes } from '../getters';
 import { TaskResource, ContentNodeGranularResource } from 'kolibri.resources';
 import { TaskStatuses, TransferTypes } from '../../constants';
 import dropRightWhile from 'lodash/dropRightWhile'
+import sumBy from 'lodash/sumBy';
+import partition from 'lodash/partition';
+import omit from 'lodash/omit';
 
 /**
  * Starts Task that downloads content database
@@ -121,6 +123,15 @@ export function showSelectContentPage(store, options) {
     });
 }
 
+function isDescendantOrSelf(testNode, selfNode) {
+  return testNode.pk === selfNode.pk || testNode.path.includes(selfNode.pk);
+}
+
+// removes annotations and other stuff added to nodes in UI
+function sanitizeNode(node) {
+  return omit(node, ['message', 'checkboxType', 'disabled', 'children']);
+}
+
 /**
  * Adds a new node to the transfer list.
  *
@@ -130,40 +141,56 @@ export function showSelectContentPage(store, options) {
  */
 export function addNodeForTransfer(store, node) {
   const { include, omit } = selectedNodes(store.state);
+  // remove nodes in "omit" that are either descendants of new node or the node itself
+  const [notOmitted, omitted] = partition(omit, omitNode => isDescendantOrSelf(omitNode, node));
+  if (notOmitted.length > 0) {
+    store.dispatch('REPLACE_OMIT_LIST', omitted);
+  }
   // remove nodes in "include" that would be made redundant by the new one
-  const nonRedundantNodes = include.filter(({ path }) => !path.includes(node.pk));
-  const isInOmit = Boolean(omit.find(({ pk }) => node.pk === pk));
-  if (include.length !== nonRedundantNodes.length) {
-    store.dispatch('REPLACE_INCLUDE_LIST', nonRedundantNodes);
+  const [notIncluded, included] = partition(include, includeNode => isDescendantOrSelf(includeNode, node));
+  if (notIncluded.length > 0) {
+    store.dispatch('REPLACE_INCLUDE_LIST', included);
   }
-  if (isInOmit) {
-    store.dispatch('REMOVE_NODE_FROM_OMIT_LIST', node);
-  }
-  store.dispatch('ADD_NODE_TO_INCLUDE_LIST', node);
+  store.dispatch('ADD_NODE_TO_INCLUDE_LIST', sanitizeNode(node));
   updateTransferCounts(store);
 }
 
 /**
- * Removes node from transfer
+ * Removes node from transfer list
  *
  * @param node {Node} - node to be removed
  *
  */
 export function removeNodeForTransfer(store, node) {
-  const { include } = selectedNodes(store.state);
-  const includedAncestor = include.find(({ pk }) => node.path.includes(pk) && pk !== node.pk);
-  // remove nodes in "include" that are descendants of `node`.
-  // sometimes nodes that would have been de-duplicated in `addNodeForTransfer`
-  // make it through at the channel level, since we use the channel.root_id instead of channel.pk
-  const filteredInclude = include.filter(({ path }) => !path.includes(node.pk));
-  if (include.length !== filteredInclude.length) {
-    store.dispatch('REPLACE_INCLUDE_LIST', filteredInclude);
+  const { include, omit } = selectedNodes(store.state);
+  // remove nodes in "include" that are either descendants of the removed node or the node itself
+  const [notIncluded, included] = partition(include, includeNode => isDescendantOrSelf(includeNode, node));
+  if (notIncluded.length > 0) {
+    store.dispatch('REPLACE_INCLUDE_LIST', included);
   }
-  if (includedAncestor) {
-    store.dispatch('ADD_NODE_TO_OMIT_LIST', node);
-  } else {
-    store.dispatch('REMOVE_NODE_FROM_INCLUDE_LIST', node);
+  // if the removed node's has ancestors that are selected, the removed node gets placed in "omit"
+  const includedAncestors = include.filter(includeNode => node.path.includes(includeNode.pk) && node.pk !== includeNode.pk);
+  if (includedAncestors.length > 0) {
+    // remove redundant nodes in "omit" that either descendants of the new node or the node itself
+    const [notOmitted, omitted] = partition(omit, omitNode => isDescendantOrSelf(omitNode, node));
+    if (notOmitted.length > 0) {
+      store.dispatch('REPLACE_OMIT_LIST', omitted);
+    }
+    store.dispatch('ADD_NODE_TO_OMIT_LIST', sanitizeNode(node));
   }
+
+  // loop through the ancestor list and remove any that have been completely un-selected
+  includedAncestors.forEach(ancestor => {
+    const ancestorResources = ancestor.total_resources - ancestor.resources_on_device;
+    const omitted = omit.filter(n => n.path.includes(ancestor.pk));
+    const omittedResources = sumBy(omitted, 'total_resources') - sumBy(omitted, 'resources_on_device');
+    if (ancestorResources === omittedResources) {
+      // remove the ancestor from "include"
+      store.dispatch('REPLACE_INCLUDE_LIST', include.filter(n => n.pk !== ancestor.pk));
+      // remove all desceandants from "omit"
+      store.dispatch('REPLACE_OMIT_LIST', omit.filter(n => !n.path.includes(ancestor.pk)));
+    }
+  });
   updateTransferCounts(store);
 }
 
@@ -176,8 +203,8 @@ function updateTransferCounts(store) {
   const { include, omit } = selectedNodes(store.state);
   const getDifference = path => sumBy(include, path) - sumBy(omit, path);
   store.dispatch('REPLACE_COUNTS', {
-    fileSize: getDifference('total_resources'),
-    resources: getDifference('total_resources'),
+    fileSize: getDifference('total_resources') - getDifference('resources_on_device'),
+    resources: getDifference('total_resources') - getDifference('resources_on_device'),
   });
 }
 
@@ -195,6 +222,7 @@ export function updateTreeViewTopic(store, topic, resetPath = false) {
       if (resetPath) {
         store.dispatch('PULL_PATH_BREADCRUMBS_BACK', topic.pk);
       } else {
+        // TODO combine as 'PUSH_PATH_BREADCRUMBS_FORWARD'
         store.dispatch('ADD_TREEVIEW_BREADCRUMB', topic);
         store.dispatch('ADD_ID_TO_PATH', topic.pk);
       }

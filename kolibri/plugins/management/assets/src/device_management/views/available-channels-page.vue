@@ -1,13 +1,13 @@
 <template>
 
   <immersive-full-screen
-    backPageText="Back"
+    :backPageText="backText"
     :backPageLink="goBackLink"
   >
     <subpage-container withSideMargin>
       <div class="top-matter">
         <div class="channels dib">
-          <h1>{{ $tr('channelsTitle') }}</h1>
+          <h1>{{ channelsTitle }}</h1>
           <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
         </div>
         <div
@@ -49,7 +49,7 @@
             :onDevice="channelIsOnDevice(channel)"
             @clickselect="goToChannel(channel)"
             class="channel-list-item"
-            mode="importing"
+            :mode="transferType"
           />
         </div>
       </div>
@@ -61,15 +61,17 @@
 
 <script>
 
+  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import UiSelect from 'keen-ui/src/UiSelect';
   import channelListItem from './manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import subpageContainer from './containers/subpage-container';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import uiSelect from 'keen-ui/src/UiSelect';
   import uniqBy from 'lodash/uniqBy';
   import { installedChannelList, wizardState } from '../state/getters';
   import { transitionWizardPage } from '../state/actions/contentWizardActions';
+
+  const ALL_FILTER = 'ALL';
 
   export default {
     name: 'availableChannelsPage',
@@ -78,8 +80,8 @@
       immersiveFullScreen,
       kFilterTextbox,
       subpageContainer,
-      uiProgressLinear,
-      uiSelect,
+      UiProgressLinear,
+      UiSelect,
     },
     data() {
       return {
@@ -90,6 +92,26 @@
       };
     },
     computed: {
+      backText() {
+        switch (this.transferType) {
+          case 'localexport':
+            return this.$tr('exportToDisk', { diskName: this.wizardMeta.destination.driveName });
+          case 'localimport':
+            return this.$tr('importFromDisk', { diskName: this.wizardMeta.source.driveName });
+          default:
+            return this.$tr('kolibriCentralServer');
+        }
+      },
+      channelsTitle() {
+        switch (this.transferType) {
+          case 'localexport':
+            return this.$tr('yourChannels');
+          case 'localimport':
+            return this.wizardMeta.source.driveName;
+          default:
+            return this.$tr('channels');
+        }
+      },
       languageFilterOptions() {
         const codes = uniqBy(this.availableChannels, 'language')
           .map(({ language, language_code }) => ({
@@ -113,12 +135,12 @@
       allLanguagesOption() {
         return {
           label: this.$tr('allLanguages'),
-          value: 'ALL',
+          value: ALL_FILTER,
         };
       },
     },
     mounted() {
-      this.languageFilter = Object.assign({}, this.allLanguagesOption);
+      this.languageFilter = {...this.allLanguagesOption};
     },
     methods: {
       channelIsOnDevice(channel) {
@@ -130,7 +152,7 @@
       showChannel(channel) {
         let languageMatches = true;
         let titleMatches = true;
-        if (this.languageFilter.value !== 'ALL') {
+        if (this.languageFilter.value !== ALL_FILTER) {
           languageMatches = channel.language_code === this.languageFilter.value;
         }
         if (this.titleFilter) {
@@ -143,8 +165,10 @@
     },
     vuex: {
       getters: {
-        availableChannels: (state) => wizardState(state).availableChannels,
+        availableChannels: state => wizardState(state).availableChannels,
         installedChannelList,
+        transferType: state => wizardState(state).meta.transferType,
+        wizardMeta: state => wizardState(state).meta,
       },
       actions: {
         transitionWizardPage,
@@ -155,9 +179,13 @@
       channelsAvailable:
         '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
       channelHeader: 'Channel',
-      channelsTitle: 'Channels',
+      channels: 'Channels',
+      exportToDisk: 'Export to {diskName}',
+      importFromDisk: 'Import from {diskName}',
+      kolibriCentralServer: 'Kolibri Central Server',
       languageFilterLabel: 'Language:',
       titleFilterPlaceholder: 'Search for a channel…',
+      yourChannels: 'Your channels',
     },
   };
 
@@ -169,8 +197,8 @@
   @require '~kolibri.styles.definitions'
 
   .channel-list-header
-    font-size: 0.85em
-    padding: 1em 0
+    font-size: 14px
+    padding: 16px 0
     color: $core-text-annotation
 
   .channel-list-item:first-of-type
@@ -180,7 +208,7 @@
     display: inline-block
 
   .top-matter
-    margin-bottom: 2em
+    margin-bottom: 32px
 
   .channels
     width: 30%
@@ -188,7 +216,7 @@
   .filters
     width: 70%
     vertical-align: top
-    margin: 1em 0
+    margin: 16px 0
 
   .language-filter
     width: 45%
