@@ -13,6 +13,41 @@ logging = logger.getLogger(__name__)
 class Command(AsyncCommand):
 
     def add_arguments(self, parser):
+        node_ids_help_text = """
+        Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
+        Make sure to call this near the end of the argument list.
+
+        e.g.
+
+        kolibri manage importcontent network <channel id> --node_ids <id1>,<id2>, [<ids>,...]
+        """
+        parser.add_argument(
+            "--node_ids", "-n",
+            # Split the comma separated string we get, into a list of strings
+            type=lambda x: x.split(","),
+            default="",
+            required=False,
+            dest="node_ids",
+            help=node_ids_help_text,
+        )
+
+        exclude_node_ids_help_text = """
+        Specify one or more node IDs to exclude. Files associated to those node IDs will be not be imported.
+        Make sure to call this near the end of the argument list.
+
+        e.g.
+
+        kolibri manage importcontent network <channel id> --exclude_node_ids <id1>,<id2>, [<ids>,...]
+        """
+        parser.add_argument(
+            "--exclude_node_ids",
+            type=lambda x: x.split(","),
+            default="",
+            required=False,
+            dest="exlude_node_ids",
+            help=exclude_node_ids_help_text
+        )
+
         parser.add_argument("channel_id", type=str)
         parser.add_argument("destination", type=str)
 

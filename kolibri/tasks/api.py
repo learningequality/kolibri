@@ -1,17 +1,15 @@
 import logging as logger
 import os
 
-import requests
+from django.apps.registry import AppRegistryNotReady
+from django.conf import settings
+from django.core.management import CommandError, call_command
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
-from django.apps.registry import AppRegistryNotReady
-from django.core.management import CommandError, call_command
-from django.http import Http404
-from django.utils.translation import ugettext as _
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
+from kolibri.content.utils.paths import get_content_database_file_path
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -36,6 +34,7 @@ LOCAL_EXPORT = 'localexport'
 DELETE_CHANNEL = 'deletechannel'
 
 id_tasktype = {}
+
 
 class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
@@ -72,11 +71,6 @@ class TasksViewSet(viewsets.ViewSet):
 
         baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
 
-        job_metadata = {
-            "type": "REMOTECHANNELIMPORT",
-            "started_by": request.user.pk
-        }
-
         job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl)
         resp = _job_to_response(get_client().status(job_id))
 
@@ -91,7 +85,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The channel_id field is required.")
 
         # optional arguments
-        baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        baseurl = request.data.get("base_url", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
         node_ids = request.data.get("node_ids", None)
         exclude_node_ids = request.data.get("exclude_node_ids", None)
 
@@ -101,17 +95,12 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {
-            "type": "REMOTECONTENTIMPORT",
-            "started_by": request.user.pk,
-        }
-
         job_id = get_client().schedule(
             call_command,
             "importcontent",
             "network",
             channel_id,
-            baseurl=baseurl,
+            base_url=baseurl,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
         )
@@ -140,11 +129,6 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("That drive_id was not found in the list of drives.")
 
-        job_metadata = {
-            "type": "DISKCHANNELIMPORT",
-            "started_by": request.user.pk,
-        }
-
         job_id = get_client().schedule(
             call_command,
             "importchannel",
@@ -156,7 +140,48 @@ class TasksViewSet(viewsets.ViewSet):
         resp = _job_to_response(get_client().status(job_id))
         return Response(resp)
 
-    # TODO: complete startdiskcontentimport
+    @list_route(methods=["post"])
+    def startdiskcontentimport(self, request):
+
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        try:
+            drive_id = request.data["drive_id"]
+        except KeyError:
+            raise serializers.ValidationError("The drive_id field is required.")
+
+        try:
+            drives = get_mounted_drives_with_channel_info()
+            drive = drives[drive_id]
+        except KeyError:
+            raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+
+        # optional arguments
+        node_ids = request.data.get("node_ids", None)
+        exclude_node_ids = request.data.get("exclude_node_ids", None)
+
+        if node_ids and not isinstance(node_ids, list):
+            raise serializers.ValidationError("node_ids must be a list.")
+
+        if exclude_node_ids and not isinstance(exclude_node_ids, list):
+            raise serializers.ValidationError("exclude_node_ids must be a list.")
+
+        job_id = get_client().schedule(
+            call_command,
+            "importcontent",
+            "disk",
+            channel_id,
+            drive.datafolder,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+        )
+
+        resp = _job_to_response(get_client().status(job_id))
+
+        return Response(resp)
 
     # TODO: complete startdiskexport
 
@@ -256,6 +281,7 @@ def _networkimport(channel_id, node_ids, update_progress=None, check_for_cancel=
         call_command("deletechannel", channel_id, update_progress=update_progress)
         raise
 
+
 def _localimport(drive_id, channel_id, node_ids=None, update_progress=None, check_for_cancel=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
@@ -288,7 +314,6 @@ def _localimport(drive_id, channel_id, node_ids=None, update_progress=None, chec
         except CommandError:
             pass
         raise
-
 
 
 def _localexport(drive_id, update_progress=None, check_for_cancel=None):
