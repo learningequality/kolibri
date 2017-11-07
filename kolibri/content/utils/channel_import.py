@@ -199,9 +199,11 @@ class ChannelImport(object):
                 unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
             self.destination.session.commit()
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
+            # Reraise the exception to prevent other errors occuring due to the non-completion
+            raise e
 
     def end(self):
         self.source.end()
