@@ -1,8 +1,20 @@
 <template>
 
-  <ui-icon :ariaLabel="ariaLabel">
-    <slot></slot>
-  </ui-icon>
+  <div class="k-icon-wrapper">
+    <ui-icon
+      :ariaLabel="ariaLabel"
+      ref="icon"
+    >
+      <slot></slot>
+    </ui-icon>
+
+    <ui-tooltip
+      v-if="showTooltip"
+      trigger="icon"
+    >
+      {{ ariaLabel }}
+    </ui-tooltip>
+  </div>
 
 </template>
 
@@ -37,5 +49,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .k-icon-wrapper
+    display: inline-block
 
 </style>
