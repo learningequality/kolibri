@@ -38,7 +38,7 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
     @patch('kolibri.content.utils.channel_import.get_content_database_file_path')
     def test_get_config(self, db_path_mock, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
-        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().models.values()])
+        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().get_models(include_auto_created=True)])
 
     def test_tree_id(self, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
