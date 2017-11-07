@@ -8,7 +8,10 @@
     >
 
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
-        <ui-icon :icon="icon" :ariaLabel="title" class="icon" />
+        <k-icon :ariaLabel="title">
+          <!--SVG icon-->
+          <slot></slot>
+        </k-icon>
       </div>
 
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
@@ -23,14 +26,14 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import kIcon from 'kolibri.coreVue.components.kIcon';
 
   /**
    Links for use inside the kNavbar
    */
   export default {
     name: 'kNavbarLink',
-    components: { uiIcon },
+    components: { kIcon },
     props: {
       /**
         * The type of tab. title, icon, or icon-and-title
@@ -47,14 +50,7 @@
         */
       title: {
         type: String,
-        required: false,
-      },
-      /**
-        * A material icon name
-        */
-      icon: {
-        type: String,
-        required: false,
+        required: true,
       },
       /**
         * A router link object
