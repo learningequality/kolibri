@@ -4,16 +4,18 @@
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('contentLabel')"
-      icon="apps"
       :link="linkify(PageNames.MANAGE_CONTENT_PAGE)"
-    />
+    >
+      <mat-svg name="apps" category="navigation" />
+    </k-navbar-link>
     <k-navbar-link
       v-if="isSuperuser"
       type="icon-and-title"
       :title="$tr('permissionsLabel')"
-      icon="https"
       :link="linkify(PageNames.MANAGE_PERMISSIONS_PAGE)"
-    />
+    >
+      <mat-svg name="https" category="action" />
+    </k-navbar-link>
   </k-navbar>
 
 </template>

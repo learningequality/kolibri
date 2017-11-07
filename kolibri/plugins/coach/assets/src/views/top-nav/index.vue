@@ -4,33 +4,38 @@
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('topics')"
-      icon="folder"
       :link="topicsLink"
-    />
+    >
+      <mat-svg name="folder" category="file" />
+    </k-navbar-link>
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('recent')"
-      icon="access_time"
       :link="recentLink"
-    />
+    >
+      <mat-svg name="access_time" category="device" />
+    </k-navbar-link>
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('exams')"
-      icon="assignment_late"
       :link="examsLink"
-    />
+    >
+      <mat-svg name="assignment_late" category="action" />
+    </k-navbar-link>
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('learners')"
-      icon="people"
       :link="learnersLink"
-    />
+    >
+      <mat-svg name="people" category="social" />
+    </k-navbar-link>
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('groups')"
-      icon="group_work"
       :link="groupsLink"
-    />
+    >
+      <mat-svg name="group_work" category="action" />
+    </k-navbar-link>
   </k-navbar>
 
 </template>

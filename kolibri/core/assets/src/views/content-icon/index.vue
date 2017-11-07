@@ -1,48 +1,56 @@
 <template>
 
   <span>
-    <ui-icon>
+    <k-icon :ariaLabel="kind" :showTooltip="true">
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.CHANNEL)"
         category="navigation"
         name="apps"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.TOPIC)"
         category="file"
         name="folder"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.VIDEO)"
         category="notification"
         name="ondemand_video"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.AUDIO)"
         category="image"
         name="audiotrack"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
         category="action"
         name="book"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.EXERCISE)"
         category="action"
         name="assignment"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.HTML5)"
         category="device"
         name="widgets"
-        :class="[colorClass]" />
+        :class="[colorClass]"
+      />
       <mat-svg
         v-if="is(Constants.USER)"
         category="social"
         name="person"
-        :class="[colorClass]" />
-    </ui-icon>
+        :class="[colorClass]"
+      />
+    </k-icon>
   </span>
 
 </template>
@@ -52,9 +60,9 @@
 
   import * as Constants from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import kIcon from 'kolibri.coreVue.components.kIcon';
   export default {
-    components: { uiIcon },
+    components: { kIcon },
     props: {
       kind: {
         type: String,

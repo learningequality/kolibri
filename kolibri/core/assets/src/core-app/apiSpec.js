@@ -68,6 +68,7 @@ import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 import uiAlert from 'keen-ui/src/UiAlert';
+import kIcon from '../views/k-icon';
 
 export default {
   client,
@@ -118,6 +119,7 @@ export default {
       kFilterTextbox,
       kSelect,
       uiAlert,
+      kIcon,
     },
     router,
     mixins: {

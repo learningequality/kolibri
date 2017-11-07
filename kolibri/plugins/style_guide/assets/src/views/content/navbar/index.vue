@@ -19,18 +19,26 @@
         <k-navbar-link
           type="icon-and-title"
           title="Trending"
-          icon="trending_up"
-          :link="a" />
+          :link="a"
+        >
+          <mat-svg name="trending_up" category="action" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Lit"
           icon="whatshot"
-          :link="b" />
+          :link="b"
+        >
+          <mat-svg name="whatshot" category="social" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Favorites"
           icon="favorite"
-          :link="c" />
+          :link="c"
+        >
+          <mat-svg name="favorite" category="action" />
+        </k-navbar-link>
       </k-navbar>
     </show>
 
@@ -60,8 +68,8 @@
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
   import show from '../../shell/show';
-
-  import example from 'raw-loader!./example.html';
+  // TODO: Not have to call this loader everywhere
+  import example from 'raw-loader!svg-icon-inline-loader!./example.html';
   import kNavbarApi from '!vue-doc!kolibri.coreVue.components.kNavbar';
   import kNavbarLinkApi from '!vue-doc!kolibri.coreVue.components.kNavbarLink';
 

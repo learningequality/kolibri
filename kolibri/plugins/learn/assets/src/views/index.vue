@@ -10,23 +10,26 @@
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
-          icon="forum"
           :link="recommendedLink"
-        />
+        >
+          <mat-svg name="forum" category="communication" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('topics')"
-          icon="folder"
           :link="channelsLink"
-        />
+        >
+          <mat-svg name="folder" category="file" />
+        </k-navbar-link>
         <k-navbar-link
           name="exam-link"
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
           :title="$tr('exams')"
-          icon="assignment_late"
           :link="examsLink"
-        />
+        >
+          <mat-svg name="assignment_late" category="action" />
+        </k-navbar-link>
       </k-navbar>
     </div>
 
