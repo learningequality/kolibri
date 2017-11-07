@@ -5,6 +5,7 @@ from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.legacy_models import License
 from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, LocalFile
 from kolibri.utils.time import local_now
+from sqlalchemy.exc import SQLAlchemyError
 
 from .annotation import set_leaf_node_availability_from_local_file_availability
 from .channels import read_channel_metadata_from_db_file
@@ -189,13 +190,18 @@ class ChannelImport(object):
 
         unflushed_rows = 0
 
-        for model in self.content_models:
-            mapping = self.schema_mapping.get(model, {})
-            row_mapper = self.generate_row_mapper(mapping.get('per_row'))
-            table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-            logging.info('Importing {model} data'.format(model=model.__name__))
-            unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
-        self.destination.session.commit()
+        try:
+            for model in self.content_models:
+                mapping = self.schema_mapping.get(model, {})
+                row_mapper = self.generate_row_mapper(mapping.get('per_row'))
+                table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+                logging.info('Importing {model} data'.format(model=model.__name__))
+                unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
+            self.destination.session.commit()
+
+        except SQLAlchemyError:
+            # Rollback the transaction if any error occurs during the transaction
+            self.destination.session.rollback()
 
     def end(self):
         self.source.end()
