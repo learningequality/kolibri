@@ -1,23 +1,27 @@
 <template>
 
   <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
-    <ui-progress-linear v-show="loading"/>
+    <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
-        <slot name="randomize-button"/>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+        <slot name="randomize-button"></slot>
       </div>
       <div class="exam-preview-container pure-g">
         <div class="question-selector pure-u-1-3">
-          <div v-for="(exercise, exerciseIndex) in examQuestionSources">
+          <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
-              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
-                <ui-button
+              <li
+                v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                :key="questionIndex"
+              >
+                <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  :type="isSelected(question.itemId, exercise.exercise_id) ? 'primary' : 'secondary'">
-                    {{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}
-                </ui-button>
+                  :primary="isSelected(question.itemId, exercise.exercise_id)"
+                  appearance="flat-button"
+                  :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
+                />
               </li>
             </ol>
           </div>
@@ -36,7 +40,7 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false"/>
+            :allowHints="false" />
           </div>
       </div>
       </div>
@@ -52,10 +56,10 @@
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import uiButton from 'keen-ui/src/UiButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   export default {
-    $trNameSpace: 'previewExamModal',
+    name: 'previewExamModal',
     $trs: {
       preview: 'Preview exam',
       close: 'Close',
@@ -66,7 +70,7 @@
     components: {
       coreModal,
       contentRenderer,
-      uiButton,
+      kButton,
       uiProgressLinear,
     },
     props: {
@@ -119,6 +123,18 @@
         return this.currentQuestion.itemId;
       },
     },
+    created() {
+      ContentNodeResource.getCollection({
+        ids: this.examQuestionSources.map(item => item.exercise_id),
+      })
+        .fetch()
+        .then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.pk, node);
+          });
+          this.loading = false;
+        });
+    },
     methods: {
       isSelected(questionItemId, exerciseId) {
         return (
@@ -143,19 +159,6 @@
       close() {
         this.displayExamModal(false);
       },
-    },
-    created() {
-      ContentNodeResource.getCollection(
-        { channel_id: this.examChannelId },
-        { ids: this.examQuestionSources.map(item => item.exercise_id) }
-      )
-        .fetch()
-        .then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.pk, node);
-          });
-          this.loading = false;
-        });
     },
     vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };

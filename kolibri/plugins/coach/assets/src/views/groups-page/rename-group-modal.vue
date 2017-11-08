@@ -1,23 +1,32 @@
 <template>
 
-  <core-modal :title="$tr('renameLearnerGroup')"
-    @cancel="close">
+  <core-modal :title="$tr('renameLearnerGroup')" @cancel="close">
     <div>
       <form @submit.prevent="callRenameGroup">
-        <textbox type="text"
+        <k-textbox
+          ref="name"
+          type="text"
           :label="$tr('learnerGroupName')"
-          :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
-          :required="true"
-          :invalid="duplicateName"
-          :error="$tr('duplicateName')"
-          v-model.trim="groupNameInput" />
-        <icon-button :text="$tr('cancel')"
-          type="button"
-          @click="close" />
-        <icon-button :text="$tr('save')"
-          :primary="true"
-          type="submit" />
+          :invalid="nameIsInvalid"
+          :invalidText="nameIsInvalidText"
+          @blur="nameBlurred = true"
+          v-model.trim="name"
+        />
+        <div class="ta-r">
+          <k-button
+            type="button"
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="close"
+          />
+          <k-button
+            type="submit"
+            :text="$tr('save')"
+            :primary="true"
+            :disabled="submitting"
+          />
+        </div>
       </form>
     </div>
   </core-modal>
@@ -27,29 +36,24 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import { renameGroup, displayModal } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import textbox from 'kolibri.coreVue.components.textbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'renameGroupModal',
+    name: 'renameGroupModal',
     $trs: {
       renameLearnerGroup: 'Rename Learner Group',
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
-    },
-    data() {
-      return {
-        groupNameInput: this.groupName,
-        invalid: false,
-      };
+      required: 'This field is required',
     },
     components: {
       coreModal,
-      textbox,
-      iconButton,
+      kTextbox,
+      kButton,
     },
     props: {
       groupName: {
@@ -65,24 +69,53 @@
         required: true,
       },
     },
+    data() {
+      return {
+        name: this.groupName,
+        nameBlurred: false,
+        formSubmitted: false,
+        submitting: false,
+      };
+    },
     computed: {
       duplicateName() {
-        if (this.groupNameInput === this.groupName) {
+        if (this.name === this.groupName) {
           return false;
         }
         const index = this.groups.findIndex(
-          group => group.name.toUpperCase() === this.groupNameInput.toUpperCase()
+          group => group.name.toUpperCase() === this.name.toUpperCase()
         );
         if (index === -1) {
           return false;
         }
         return true;
       },
+      nameIsInvalidText() {
+        if (this.nameBlurred || this.formSubmitted) {
+          if (this.name === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateName) {
+            return this.$tr('duplicateName');
+          }
+        }
+        return '';
+      },
+      nameIsInvalid() {
+        return !!this.nameIsInvalidText;
+      },
+      formIsValid() {
+        return !this.nameIsInvalid;
+      },
     },
     methods: {
       callRenameGroup() {
-        if (!this.duplicateName) {
-          this.renameGroup(this.groupId, this.groupNameInput);
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
+          this.renameGroup(this.groupId, this.name);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {
@@ -91,8 +124,8 @@
     },
     vuex: {
       actions: {
-        renameGroup: groupActions.renameGroup,
-        displayModal: groupActions.displayModal,
+        renameGroup,
+        displayModal,
       },
     },
   };
@@ -100,4 +133,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .ta-r
+    text-align: right
+
+</style>

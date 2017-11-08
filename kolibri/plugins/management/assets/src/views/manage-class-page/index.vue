@@ -2,11 +2,13 @@
 
   <div>
 
-    <div class="header">
-      <h1>{{ $tr('allClasses') }}</h1>
+    <div 
+      class="header">
+        <h1>{{ $tr('allClasses') }}</h1>
 
-      <icon-button
+      <k-button
         class="create-btn"
+        :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
         :primary="true"
@@ -18,11 +20,11 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
-        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
@@ -31,19 +33,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="classModel in sortedClasses">
+          <tr v-for="classModel in sortedClasses" :key="classModel.id">
             <th scope="row" class="table-text">
-              <router-link :to="classEditLink(classModel.id)" class="table-name">
-                {{classModel.name}}
-              </router-link>
+              <k-router-link
+                :text="classModel.name"
+                :to="classEditLink(classModel.id)"
+                class="table-name"
+              />
             </th>
             <td class="table-data">
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
-                {{ $tr('deleteClass') }}
-              </button>
+              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
             </td>
           </tr>
         </tbody>
@@ -64,13 +66,19 @@
   import orderBy from 'lodash/orderBy';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
   export default {
+    name: 'classPage',
     components: {
       classCreateModal,
       classDeleteModal,
-      iconButton,
+      kButton,
+      kRouterLink,
     },
+    mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
       sortedClasses() {
@@ -108,7 +116,6 @@
       },
       actions: { displayModal: actions.displayModal },
     },
-    $trNameSpace: 'classPage',
     $trs: {
       allClasses: 'All Classes',
       addNew: 'Add New Class',
@@ -158,11 +165,14 @@
 
   .create-btn
     position: absolute
+    display: block
     top: 0
     right: 0
-
-  .delete-class-button
-    color: $core-text-error
-    border: none
+  
+  .create-btn-mobile
+    position: relative
+    display: inline-block
+    right: 10px
+    min-width: 150px
 
 </style>

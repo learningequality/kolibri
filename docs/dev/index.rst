@@ -1,42 +1,14 @@
 Developer Guide
 ===============
 
-.. toctree::
-   :maxdepth: 1
-
-   getting_started
-   manual_testing
-
-.. _architecture:
-
-Architecture
-------------
+Start here
+----------
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   tests
-   stack
-   plugins
-   building
-   conventions
-   frontend
-   i18n
-
-.. _themes:
-
-Themes
-------
-
-.. toctree::
-   :maxdepth: 1
-
-   content
-   dataflow
-   uap
-   user_management
-   asset_loading
-   logger
+  getting_started
+  stack
 
 References
 ----------
@@ -44,8 +16,32 @@ References
 .. toctree::
   :maxdepth: 1
 
-  cli
+  manual_testing
+  release_process
+  i18n
+  conventions
   files
-  glossary
-  building
-  ../py_modules/modules
+
+Architecture
+------------
+
+.. toctree::
+  :maxdepth: 1
+
+  frontend_architecture
+  dataflow/index
+  content/index
+  uap/index
+  logger/index
+  plugins
+
+
+Builds
+------
+
+.. toctree::
+  :maxdepth: 1
+
+  dist_build_pipeline
+  frontend_build_pipeline
+  upgrade

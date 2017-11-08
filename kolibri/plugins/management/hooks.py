@@ -9,3 +9,8 @@ class ManagementSyncHook(webpack_hooks.WebpackInclusionHook):
     """
     class Meta:
         abstract = True
+
+
+class DeviceManagementSyncHook(webpack_hooks.WebpackInclusionHook):
+    class Meta:
+        abstract = True

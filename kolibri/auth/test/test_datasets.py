@@ -5,7 +5,7 @@ Tests related specifically to the FacilityDataset model.
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import FacilityUser, Facility, Classroom, LearnerGroup, DeviceOwner, FacilityDataset
+from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDataset
 
 class FacilityDatasetTestCase(TestCase):
 
@@ -14,16 +14,12 @@ class FacilityDatasetTestCase(TestCase):
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
 
     def test_datasets_equal(self):
         self.assertTrue(self.facility.dataset is not None)
         self.assertEqual(self.facility.dataset, self.classroom.dataset)
         self.assertEqual(self.classroom.dataset, self.learner_group.dataset)
         self.assertEqual(self.learner_group.dataset, self.facility_user.dataset)
-
-    def test_device_owner_has_no_dataset(self):
-        self.assertFalse(hasattr(self.device_owner, "dataset"))
 
     def test_cannot_create_role_across_datasets(self):
         facility2 = Facility.objects.create()

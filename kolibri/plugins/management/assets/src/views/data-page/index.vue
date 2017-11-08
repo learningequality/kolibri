@@ -2,39 +2,37 @@
 
   <div class="pure-g">
 
-    <h1 class="pure-u-1-1">{{$tr('pageHeading')}}</h1>
+    <h1 class="pure-u-1-1">{{ $tr('pageHeading') }}</h1>
 
     <p class="pure-u-1-1">
-      {{$tr('pageSubHeading')}}
+      {{ $tr('pageSubHeading') }}
     </p>
 
     <div :class="columnSize">
-      <h2>{{$tr('detailsHeading')}}</h2>
+      <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
-        {{$tr('detailsSubHeading')}}
+        {{ $tr('detailsSubHeading') }}
       </p>
-      <form :action="sessionlogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
-      </form>
+      <div>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
+        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+      </div>
       <p class="infobox">
-        <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}
+        <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
       </p>
     </div>
 
     <div :class="columnSize">
-      <h2>{{$tr('summaryHeading')}}</h2>
+      <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
-        {{$tr('summarySubHeading')}}
+        {{ $tr('summarySubHeading') }}
       </p>
-      <form :action="summarylogurl" method="get">
-        <icon-button :text="$tr('download')">
-          <mat-svg category="file" name="file_download"/>
-        </icon-button>
-      </form>
+      <div>
+        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
+        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+      </div>
       <p class="infobox">
-        <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
+        <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
       </p>
     </div>
 
@@ -46,16 +44,19 @@
 <script>
 
   import urls from 'kolibri.urls';
+  import { isAndroidWebView } from 'kolibri.utils.browser';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+
   export default {
+    name: 'manageData',
+    components: { kButton },
     mixins: [responsiveWindow],
-    $trNameSpace: 'manageData',
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
         'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
-      detailsHeading: 'Detail logs',
+      detailsHeading: 'Session logs',
       detailsSubHeading: 'Individual visits to each piece of content',
       summaryHeading: 'Summary logs',
       summarySubHeading: 'Total time/progress for each piece of content',
@@ -65,17 +66,22 @@
         'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
       download: 'Download',
       note: 'Note',
+      noDownload: 'Download is not supported on Android',
     },
-    components: { iconButton },
     computed: {
+      cannotDownload() {
+        return isAndroidWebView();
+      },
       columnSize() {
         return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
       },
-      summarylogurl() {
-        return urls['contentsummarylogcsv-list']();
+    },
+    methods: {
+      downloadSessionLog() {
+        window.location = urls['contentsessionlogcsv-list']();
       },
-      sessionlogurl() {
-        return urls['contentsessionlogcsv-list']();
+      downloadSummaryLog() {
+        window.location = urls['contentsummarylogcsv-list']();
       },
     },
   };
@@ -92,10 +98,10 @@
     border-radius: $radius
     font-size: 0.8em
     padding: 8px
-    margin-left: -8px
-    margin-right: 8px
 
-  form
-    display: inline
+  .no-dl
+    font-size: 0.8em
+    color: $core-text-annotation
+    display: inline-block
 
 </style>

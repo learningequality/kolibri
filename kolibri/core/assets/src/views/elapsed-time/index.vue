@@ -29,7 +29,6 @@
 
   export default {
     name: 'elapsedTime',
-    $trNameSpace: 'elapsedTime',
     $trs: {
       secondsAgo: '{n, number, integer} {n, plural, one {second} other {seconds} } ago',
       minutesAgo: '{n, number, integer} {n, plural, one {minute} other {minutes} } ago',
@@ -43,14 +42,6 @@
       now: now(),
       timer: null,
     }),
-    mounted() {
-      this.timer = setInterval(() => {
-        this.now = now();
-      }, 10000);
-    },
-    beforeDestroy() {
-      clearInterval(this.timer);
-    },
     computed: {
       $trUnit() {
         return `${this.unit}Ago`;
@@ -93,6 +84,14 @@
         }
         return Math.floor(this.minutes / MINUTES_IN_YEAR);
       },
+    },
+    mounted() {
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
+    },
+    beforeDestroy() {
+      clearInterval(this.timer);
     },
   };
 

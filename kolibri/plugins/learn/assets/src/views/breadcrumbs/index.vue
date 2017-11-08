@@ -1,99 +1,109 @@
 <template>
 
-  <breadcrumbs v-if="inLearn" :items="learnBreadcrumbs"/>
-  <breadcrumbs v-else-if="inExplore" :items="exploreBreadcrumbs"/>
+  <div class="learn-breadcrumbs">
+    <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
+    <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
+  </div>
 
 </template>
 
 
 <script>
 
-  import { PageNames } from '../../constants';
-  import { PageModes } from '../../constants';
-  import * as getters from '../../state/getters';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
-  import breadcrumbs from 'kolibri.coreVue.components.breadcrumbs';
+  import { PageNames, PageModes } from '../../constants';
+  import { pageMode } from '../../state/getters';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
-    $trNameSpace: 'learnBreadcrumbs',
-    $trs: { recommended: 'Recommended' },
-    components: { breadcrumbs },
+    name: 'learnBreadcrumbs',
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
+    },
+    components: { kBreadcrumbs },
     computed: {
       inLearn() {
-        return this.pageMode === PageModes.LEARN;
+        return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
       },
-      learnRootLink() {
-        return { name: PageNames.LEARN_CHANNEL };
+      inTopics() {
+        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
       },
       learnBreadcrumbs() {
-        const crumbs = [
+        return [
           {
             text: this.$tr('recommended'),
-            link: this.learnRootLink,
+            link: { name: PageNames.RECOMMENDED },
           },
+          { text: this.contentTitle },
         ];
-        if (this.pageName === PageNames.LEARN_CONTENT) {
-          crumbs.push({ text: this.contentTitle });
+      },
+      middleTopicBreadcrumbs() {
+        let crumbs = [];
+
+        // Channels have no previous topics
+        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+          return crumbs;
+        }
+
+        // Link to top-level Channel
+        crumbs.push({
+          text: this.channelTitle,
+          link: {
+            name: PageNames.TOPICS_CHANNEL,
+            params: {
+              channel_id: this.channelRootId,
+            },
+          },
+        });
+
+        // Links to previous topics
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
+        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+          crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
         }
         return crumbs;
       },
-      inExplore() {
-        return this.pageMode === PageModes.EXPLORE;
+      lastTopicBreadcrumb() {
+        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+          return { text: this.channelTitle };
+        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
+          return { text: this.contentTitle };
+        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+          return { text: this.topicTitle };
+        }
       },
-      inExploreRoot() {
-        return this.pageName === PageNames.EXPLORE_CHANNEL;
-      },
-      exploreRootLink() {
-        return { name: PageNames.EXPLORE_CHANNEL };
-      },
-      exploreBreadcrumbs() {
-        const crumbs = [
+      topicsBreadcrumbs() {
+        return [
+          // All Channels Link
           {
-            text: this.channelTitle,
-            link: this.exploreRootLink,
+            text: this.$tr('channels'),
+            link: { name: PageNames.TOPICS_ROOT },
           },
+          ...this.middleTopicBreadcrumbs,
+          this.lastTopicBreadcrumb,
         ];
-        if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          this.contentCrumbs.forEach(crumb =>
-            crumbs.push({
-              text: crumb.title,
-              link: this.topicLink(crumb.id),
-            })
-          );
-          crumbs.push({ text: this.contentTitle });
-        } else {
-          this.topicCrumbs.forEach(crumb =>
-            crumbs.push({
-              text: crumb.title,
-              link: this.topicLink(crumb.id),
-            })
-          );
-          if (!this.inExploreRoot) {
-            crumbs.push({ text: this.topicTitle });
-          }
-        }
-        return crumbs;
       },
     },
     methods: {
-      topicLink(topicId) {
-        return {
-          name: PageNames.EXPLORE_TOPIC,
-          params: {
-            channel_id: this.channelId,
-            id: topicId,
+      topicCrumbLinks(crumbs) {
+        return crumbs.map(({ title, id }) => ({
+          text: title,
+          link: {
+            name: PageNames.TOPICS_TOPIC,
+            params: { id },
           },
-        };
+        }));
       },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        pageMode: getters.pageMode,
-        channelId: state => getCurrentChannelObject(state).id,
-        channelTitle: state => getCurrentChannelObject(state).title,
-        topicTitle: state => state.pageState.topic.title,
+        pageMode,
+        channelRootId: state => (state.pageState.channel || {}).root_id,
+        channelTitle: state => (state.pageState.channel || {}).title,
+        topicTitle: state => (state.pageState.topic || {}).title,
         topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
-        contentTitle: state => state.pageState.content.title,
+        contentTitle: state => (state.pageState.content || {}).title,
         contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
       },
     },

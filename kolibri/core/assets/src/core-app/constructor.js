@@ -7,12 +7,9 @@ import vue from 'vue';
 import vuex from 'vuex';
 import router from 'vue-router';
 import Mediator from './mediator';
-import constructorExport from './constructorExport';
-import logger from '../logging';
+import apiSpec from './apiSpec';
 import HeartBeat from '../heartbeat';
-import importIntlLocale from './import-intl-locale';
-
-const logging = logger.getLogger(__filename);
+import { setUpIntl } from '../utils/i18n';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -30,6 +27,8 @@ const publicMethods = [
   'registerLanguageAssets',
   'registerContentRenderer',
   'retrieveContentRenderer',
+  'loadDirectionalCSS',
+  'scriptLoader',
 ];
 
 /**
@@ -40,7 +39,11 @@ const publicMethods = [
 
 export default class CoreApp {
   constructor() {
-    Object.assign(this, constructorExport());
+    // Assign API spec
+    Object.assign(this, apiSpec);
+
+    // Assign any overridden core API elements here
+    Object.assign(this, __coreAPISpec);
 
     const mediator = new Mediator();
 
@@ -51,10 +54,6 @@ export default class CoreApp {
     vue.use(vuex);
     vue.use(router);
 
-    this.i18n = {
-      reversed: false,
-    };
-
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
       window.location.origin = `${window.location.protocol}//${window.location.hostname}${window
@@ -63,85 +62,12 @@ export default class CoreApp {
         : ''}`;
     }
 
-    const self = this;
-
-    function setUpVueIntl() {
-      /**
-       * Use the vue-intl plugin.
-       **/
-
-      const VueIntl = require('vue-intl');
-
-      vue.use(VueIntl, { defaultLocale: 'en-us' });
-
-      function $trWrapper(formatter, messageId, args) {
-        if (args) {
-          if (!Array.isArray(args) && typeof args !== 'object') {
-            logging.error(`The $tr functions take either an array of positional
-                            arguments or an object of named options.`);
-          }
-        }
-        const defaultMessageText = this.$options.$trs[messageId];
-        const message = {
-          id: `${this.$options.$trNameSpace}.${messageId}`,
-          defaultMessage: defaultMessageText,
-        };
-        // Allow string reversal in debug mode.
-        if (process.env.NODE_ENV === 'debug') {
-          if (self.i18n.reversed) {
-            return defaultMessageText.split('').reverse().join('');
-          }
-        }
-        return formatter(message, args);
-      }
-
-      vue.prototype.$tr = function $tr(messageId, args) {
-        return $trWrapper.call(this, this.$formatMessage, messageId, args);
-      };
-      vue.prototype.$trHtml = function $trHtml(messageId, args) {
-        return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
-      };
-
-      if (global.languageCode) {
-        vue.setLocale(global.languageCode);
-        if (global.coreLanguageMessages) {
-          vue.registerMessages(global.languageCode, global.coreLanguageMessages);
-        }
-      }
-
+    const intlReady = () => {
       mediator.registerMessages();
       mediator.setReady();
-    }
+    };
 
-    /**
-     * If the browser doesn't support the Intl polyfill, we retrieve that and
-     * the modules need to wait until that happens.
-     **/
-    if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
-      Promise.all([
-        new Promise(resolve => {
-          require.ensure([], require => {
-            resolve(() => require('intl'));
-          });
-        }),
-        importIntlLocale(global.languageCode),
-      ]).then(
-        // eslint-disable-line
-        requires => {
-          // Executes function that requires 'intl'
-          requires[0]();
-          // Executes function that requires intl locale data - needs intl to have run
-          requires[1]();
-          setUpVueIntl();
-        },
-        error => {
-          logging.error(error);
-          logging.error('An error occurred trying to setup Internationalization', error);
-        }
-      );
-    } else {
-      setUpVueIntl();
-    }
+    setUpIntl().then(intlReady);
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     this.kolibri_modules = mediator._kolibriModuleRegistry;

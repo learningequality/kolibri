@@ -1,9 +1,9 @@
-import * as constants from '../../src/constants';
-import * as coreStore from 'kolibri.coreVue.vuex.store';
+import { PageNames } from '../../src/constants';
+import { initialState } from 'kolibri.coreVue.vuex.store';
 
 // parallel implementation of initialState used in testing
 const learnInitialState = {
-  pageName: constants.PageNames.EXPLORE_CHANNEL,
+  pageName: PageNames.TOPICS_CHANNEL,
   pageState: {
     topics: [],
     contents: [],
@@ -16,6 +16,6 @@ const learnInitialState = {
   examAttemptLogs: {},
 };
 
-const initialState = Object.assign({}, learnInitialState, coreStore.initialState);
+const initState = Object.assign({}, learnInitialState, initialState);
 
-export default initialState;
+export default initState;

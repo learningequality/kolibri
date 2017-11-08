@@ -9,7 +9,7 @@ oriented data synchronization.
 
 <template v-if="ready">
 
-  <div id="exercise-container">
+  <div>
     <ui-alert v-if="itemError" :dismissible="false" type="error">
       {{ $tr('itemError') }}
     </ui-alert>
@@ -33,41 +33,48 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress"/>
+        @updateProgress="updateProgress" />
     </div>
 
     <div>
-      <icon-button
-        :text="$tr('check')"
-        :primary="true"
-        v-show="!complete"
-        @click="checkAnswer"
-        class="question-btn check-answer-button"
-        :class="{shaking: shake}"
-        :disabled="checkingAnswer"
-      />
-      <transition name="delay">
-        <icon-button
+      <transition mode="out-in">
+        <k-button
+          :text="$tr('check')"
+          :primary="false"
+          appearance="raised-button"
+          v-if="!complete"
+          @click="checkAnswer"
+          class="question-btn"
+          :class="{shaking: shake}"
+          :disabled="checkingAnswer"
+        />
+        <k-button
           :text="$tr('correct')"
           :primary="true"
-          v-show="complete"
+          appearance="raised-button"
+          v-else
           @click="nextQuestion"
-          class="question-btn next-question-button"
+          class="question-btn"
         />
       </transition>
-      <slot/>
+      <slot></slot>
     </div>
 
-    <div id="attemptprogress-container">
+    <div class="attemptprogress-container" :class="{ mobile: isMobile }">
       <exercise-attempts
         class="attemptprogress"
+        :class="{ mobile: isMobile }"
         :waitingForAttempt="firstAttempt"
         :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
-      <p class="message">{{ $tr('goal', {count: totalCorrectRequiredM}) }}</p>
-      <p id="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">{{ $tr('tryAgain') }}</p>
+      <p class="message" :class="{ mobile: isMobile }">
+        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+      </p>
+      <p class="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">
+        {{ $tr('tryAgain') }}
+      </p>
     </div>
   </div>
 
@@ -76,24 +83,31 @@ oriented data synchronization.
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import * as actions from 'kolibri.coreVue.vuex.actions';
-  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import { updateContentNodeProgress } from '../../state/actions';
+  import { updateContentNodeProgress } from '../../state/actions/main';
   import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
-    $trNameSpace: 'assessmentWrapper',
+    name: 'assessmentWrapper',
+    components: {
+      exerciseAttempts,
+      contentRenderer,
+      kButton,
+      uiAlert,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
       tryAgain: 'Try again!',
-      check: 'Check answer',
+      check: 'Check',
       correct: 'Next question',
       incorrect: 'Sorry, try again',
       itemError: 'There was an error showing this item',
@@ -132,13 +146,6 @@ oriented data synchronization.
         default: () => Promise.resolve(),
       },
     },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
-    components: {
-      exerciseAttempts,
-      contentRenderer,
-      iconButton,
-      uiAlert,
-    },
     data: () => ({
       ready: false,
       itemId: '',
@@ -151,6 +158,59 @@ oriented data synchronization.
       // Attempted fix for #1725
       checkingAnswer: false,
     }),
+    computed: {
+      recentAttempts() {
+        if (!this.pastattempts) {
+          return [];
+        }
+        return this.pastattempts
+          .map(attempt => {
+            if (attempt.hinted) {
+              return 'hint';
+            }
+            return attempt.correct ? 'right' : 'wrong';
+          })
+          .reverse();
+      },
+      mOfNMasteryModel() {
+        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
+      },
+      totalCorrectRequiredM() {
+        return this.mOfNMasteryModel.m;
+      },
+      attemptsWindowN() {
+        return this.mOfNMasteryModel.n;
+      },
+      exerciseProgress() {
+        if (this.mastered) {
+          return 1;
+        }
+        if (this.pastattempts) {
+          if (this.pastattempts.length > this.attemptsWindowN) {
+            return Math.min(
+              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
+                this.totalCorrectRequiredM,
+              1
+            );
+          }
+          return Math.min(
+            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
+            1
+          );
+        }
+        return 0;
+      },
+      success() {
+        return this.exerciseProgress === 1;
+      },
+      isMobile() {
+        return this.windowSize.breakpoint <= 1;
+      },
+    },
+    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    beforeDestroy() {
+      this.saveAttemptLogMasterLog(false);
+    },
     methods: {
       updateAttemptLogMasteryLog({
         correct,
@@ -170,13 +230,21 @@ oriented data synchronization.
           simpleAnswer,
         });
       },
-      saveAttemptLogMasterLog() {
-        this.saveAttemptLogAction().then(() => {
-          if (this.canLogInteractions && this.success) {
-            this.setMasteryLogCompleteAction(now());
-            this.saveMasteryLogAction();
-          }
-        });
+      saveAttemptLogMasterLog(updateStore = true) {
+        if (updateStore) {
+          this.saveAndStoreAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.setMasteryLogCompleteAction(now());
+              this.saveAndStoreMasteryLogAction();
+            }
+          });
+        } else {
+          this.saveAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.saveMasteryLogAction();
+            }
+          });
+        }
       },
       checkAnswer() {
         if (!this.checkingAnswer) {
@@ -281,7 +349,7 @@ oriented data synchronization.
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
       },
       sessionInitialized() {
-        if (this.canLogInteractions) {
+        if (this.isUserLoggedIn) {
           this.initMasteryLog();
         } else {
           this.createDummyMasteryLogAction();
@@ -316,73 +384,21 @@ oriented data synchronization.
         this.$emit('stopTracking', ...args);
       },
     },
-    beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
-    },
-    computed: {
-      canLogInteractions() {
-        return !this.isSuperuser && this.isUserLoggedIn;
-      },
-      recentAttempts() {
-        if (!this.pastattempts) {
-          return [];
-        }
-        return this.pastattempts
-          .map(attempt => {
-            if (attempt.hinted) {
-              return 'hint';
-            }
-            return attempt.correct ? 'right' : 'wrong';
-          })
-          .reverse();
-      },
-      mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
-      },
-      totalCorrectRequiredM() {
-        return this.mOfNMasteryModel.m;
-      },
-      attemptsWindowN() {
-        return this.mOfNMasteryModel.n;
-      },
-      exerciseProgress() {
-        if (this.mastered) {
-          return 1;
-        }
-        if (this.pastattempts) {
-          if (this.pastattempts.length > this.attemptsWindowN) {
-            return Math.min(
-              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
-                this.totalCorrectRequiredM,
-              1
-            );
-          }
-          return Math.min(
-            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-            1
-          );
-        }
-        return 0;
-      },
-      success() {
-        return this.exerciseProgress === 1;
-      },
-    },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
         createDummyMasteryLogAction: actions.createDummyMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
+        saveAndStoreMasteryLogAction: actions.saveAndStoreMasteryLog,
         setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
+        saveAndStoreAttemptLogAction: actions.saveAndStoreAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
         updateExerciseProgress: actions.updateExerciseProgress,
       },
       getters: {
-        isSuperuser: getters.isSuperuser,
         isUserLoggedIn: getters.isUserLoggedIn,
         mastered: state => state.core.logging.mastery.complete,
         totalattempts: state => state.core.logging.mastery.totalattempts,
@@ -407,42 +423,46 @@ oriented data synchronization.
     color: $core-text-annotation
     padding: 16px
     font-size: 14px
-    @media screen and (max-width: $portrait-breakpoint)
-      position: relative
-      text-align: center
-      clear: both
-      top: 40px
-      font-size: 12px
-      margin-top: 0
-      padding: 0
+
+  .message.mobile
+    position: relative
+    text-align: center
+    clear: both
+    top: 40px
+    font-size: 12px
+    margin-top: 0
+    padding: 0
 
   .attemptprogress
     position: absolute
     padding-left: 14px
     top: 38px
-    @media screen and (max-width: $portrait-breakpoint)
-      top: 0
-      padding-left: 0
-      left: 50%
-      transform: translate(-50%, 0)
 
-  #attemptprogress-container
+
+  .attemptprogress.mobile
+    top: 0
+    padding-left: 0
+    left: 50%
+    transform: translate(-50%, 0)
+
+  .attemptprogress-container
     border-radius: $radius
     position: relative
     background-color: $core-bg-light
     height: 104px
-    @media screen and (max-width: $portrait-breakpoint)
-      position: fixed
-      height: 60px
-      width: 100%
-      border-radius: 0
-      bottom: 0
-      border-bottom: thin solid $core-text-annotation
-      border-top: thin solid $core-text-annotation
-      z-index: 2
-      left: 0
 
-  #try-again
+  .attemptprogress-container.mobile
+    position: fixed
+    height: 60px
+    width: 100%
+    border-radius: 0
+    bottom: 0
+    border-bottom: thin solid $core-text-annotation
+    border-top: thin solid $core-text-annotation
+    z-index: 2
+    left: 0
+
+  .try-again
     color: $core-text-error
     font-size: 14px
     font-weight: bold
@@ -450,30 +470,7 @@ oriented data synchronization.
     padding-top: 20px
 
   .question-btn
-    color: $core-bg-light
-    padding-left: 16px
-    padding-right: 16px
     margin-left: 1.5em
-
-  .check-answer-button
-    background-color: $core-action-normal
-
-  .next-question-button
-    background-color: $core-status-correct
-    &:hover
-      &:not(.is-disabled)
-        background-color: #2a7d2e
-
-  // next-question-button transition effect
-  .delay-enter-active
-    background-color: $core-status-correct
-    transition: background-color 1s
-
-  .delay-enter
-    background-color: $core-action-normal
-
-  .delay-leave-active
-    display: none
 
   // checkAnswer btn animation
   .shaking

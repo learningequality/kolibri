@@ -5,7 +5,7 @@
 
     <script>
 
-      import responsiveWindow from './responsive-window-mixin.js';
+      import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
       export default {
         mixins: [responsiveWindow],
@@ -149,7 +149,7 @@ function windowMetrics() {
 
 import { throttle } from 'frame-throttle';
 
-const windowResizeHandler = throttle(e => {
+const windowResizeHandler = throttle(() => {
   const metrics = windowMetrics();
   windowListeners.forEach(cb => cb(metrics));
 });

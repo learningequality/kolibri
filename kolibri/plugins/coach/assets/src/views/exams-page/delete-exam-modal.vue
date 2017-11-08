@@ -1,10 +1,10 @@
 <template>
 
   <core-modal :title="$tr('deleteExam')" @cancel="close">
-    <p v-html="$trHtml('areYouSure', { examTitle })"></p>
+    <p>{{ $tr('areYouSure', { examTitle }) }}</p>
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('delete')" :primary="true" @click="deleteExam(examId)" />
     </div>
   </core-modal>
 
@@ -15,19 +15,19 @@
 
   import * as examActions from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'deleteExamModal',
+    name: 'deleteExamModal',
     $trs: {
       deleteExam: 'Delete exam',
       areYouSure:
-        'Are you sure you want to delete <strong>{ examTitle }</strong>? You will lose all data for this exam.',
+        "Are you sure you want to delete '{ examTitle }'? You will lose all data for this exam.",
       cancel: 'Cancel',
       delete: 'Delete',
     },
     components: {
       coreModal,
-      iconButton,
+      kButton,
     },
     props: {
       examId: {
@@ -62,9 +62,7 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>
 

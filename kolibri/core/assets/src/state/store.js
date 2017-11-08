@@ -7,6 +7,16 @@ const baseLoggingState = {
   attempt: {},
 };
 
+const baseSessionState = {
+  id: undefined,
+  username: '',
+  full_name: '',
+  user_id: undefined,
+  facility_id: undefined,
+  kind: [UserKinds.ANONYMOUS],
+  can_manage_content: false,
+};
+
 // core state is namespaced, and merged with a particular app's state
 const initialState = {
   core: {
@@ -14,15 +24,9 @@ const initialState = {
     loading: true,
     title: '',
     pageSessionId: 0,
-    session: {
-      id: undefined,
-      username: '',
-      full_name: '',
-      user_id: undefined,
-      facility_id: undefined,
-      kind: [UserKinds.ANONYMOUS],
-    },
+    session: baseSessionState,
     loginError: null,
+    signInBusy: false,
     logging: baseLoggingState,
     totalProgress: null,
     channels: {
@@ -36,7 +40,7 @@ const initialState = {
 
 const mutations = {
   CORE_SET_SESSION(state, value) {
-    state.core.session = value;
+    Object.assign(state.core.session, value);
   },
   CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
     state.core.facilityConfig = facilityConfig;
@@ -48,15 +52,11 @@ const mutations = {
   CORE_SET_LOGIN_ERROR(state, value) {
     state.core.loginError = value;
   },
+  CORE_SET_SIGN_IN_BUSY(state, isBusy) {
+    state.core.signInBusy = isBusy;
+  },
   CORE_CLEAR_SESSION(state) {
-    state.core.session = {
-      id: undefined,
-      username: '',
-      full_name: '',
-      user_id: undefined,
-      facility_id: undefined,
-      kind: [UserKinds.ANONYMOUS],
-    };
+    Object.assign(state.core.session, baseSessionState);
   },
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
@@ -164,9 +164,6 @@ const mutations = {
   },
   SET_TOTAL_PROGRESS(state, progress) {
     state.core.totalProgress = progress;
-  },
-  SET_CORE_CURRENT_CHANNEL(state, channelId) {
-    state.core.channels.currentId = channelId;
   },
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;

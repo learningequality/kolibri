@@ -11,35 +11,31 @@
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
-      <div id="edit-name" class="name-edit">{{currClass.name}}</div>
-      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
+      <div id="edit-name" class="name-edit">{{ currClass.name }}</div>
+      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true" />
     </div>
 
     <div class="header">
       <h2 class="table-title">
-        {{$tr('tableTitle')}}
+        {{ $tr('tableTitle') }}
       </h2>
     </div>
 
     <div class="toolbar">
-      <div class="searchbar" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          id="search-field"
-          :aria-label="$tr('searchText')"
-          type="search"
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')">
-      </div>
-
       <div class="enroll">
-        <router-link :to="classEnrollLink" class="table-name">
-          <icon-button
-            class="enroll-user-button"
-            :text="$tr('enrollUsers')"
-            :primary="true"/>
-        </router-link>
+        <k-router-link
+          :text="$tr('enrollUsers')"
+          :to="classEnrollLink"
+          :primary="true"
+          appearance="raised-button"
+        />
       </div>
+      <k-filter-textbox
+        :placeholder="$tr('searchText')"
+        v-model="searchFilter"
+        class="searchbar"
+      />
+
 
     </div>
 
@@ -54,52 +50,43 @@
 
     <table class="roster">
 
-      <caption class="visuallyhidden">{{$tr('users')}}</caption>
+      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
           <th class="col-header" scope="col">
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
+          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
           <th class="col-header" scope="col"></th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <!-- Username field -->
           <th class="table-cell table-username" scope="col">
-            {{user.username}}
+            {{ user.username }}
           </th>
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <!-- <user-role :role="user.kind" :omitLearner="true" /> -->
-            <!--
-            <role-switcher
-              class="user-role-switcher"
-              :currentRole="user.kind"
-              @click-add-coach="addCoachRoleToUser(user)"
-              @click-remove-coach="removeCoachRoleFromUser(user)"
-            />
-            -->
           </td>
 
           <!-- Full Name field -->
           <td scope="row" class="table-cell full-name">
             <span class="table-name">
-              {{user.full_name}}
+              {{ user.full_name }}
             </span>
           </td>
 
           <!-- Edit field -->
           <td class="table-cell">
             <div class="remove-user-btn" @click="openRemoveUserModal(user)">
-              {{$tr('remove')}}
+              {{ $tr('remove') }}
             </div>
           </td>
 
@@ -123,14 +110,13 @@
   import * as actions from '../../state/actions';
   import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
-  import roleSwitcher from './role-switcher';
   import userRemoveModal from './user-remove-modal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import userRole from '../user-role';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
-    $trNameSpace: 'classEnrollPage',
+    name: 'classEnrollPage',
     $trs: {
-      enrollUsers: 'Enroll users',
+      enrollUsers: 'Enroll learners',
       tableTitle: 'Manage learners in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
@@ -145,10 +131,9 @@
     },
     components: {
       classRenameModal,
-      roleSwitcher,
       userRemoveModal,
-      iconButton,
-      userRole,
+      kRouterLink,
+      kFilterTextbox,
     },
     data: () => ({
       searchFilter: '',
@@ -175,7 +160,10 @@
       visibleUsers() {
         const searchFilter = this.searchFilter;
         function matchesText(user) {
-          const searchTerms = searchFilter.split(' ').filter(Boolean).map(val => val.toLowerCase());
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
           const fullName = user.full_name.toLowerCase();
           const username = user.username.toLowerCase();
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
@@ -191,18 +179,6 @@
       },
     },
     methods: {
-      addCoachRoleToUser(user) {
-        return this.addCoachRole({
-          userId: user.id,
-          classId: this.currClass.id,
-        });
-      },
-      removeCoachRoleFromUser(user) {
-        return this.removeCoachRole({
-          userId: user.id,
-          classId: this.currClass.id,
-        });
-      },
       openEditNameModal() {
         this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },
@@ -220,8 +196,6 @@
       },
       actions: {
         displayModal: actions.displayModal,
-        addCoachRole: actions.addCoachRole,
-        removeCoachRole: actions.removeCoachRole,
       },
     },
   };
@@ -237,6 +211,9 @@
   $row-padding = 1.8em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
+
+  .searchbar
+    margin-top: 5px
 
   #name-edit-box
     display: inline-block
@@ -269,18 +246,6 @@
     color: $core-text-annotation
     margin-left: 10px
 
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
   .header h2
     display: inline-block
     font-weight: normal
@@ -297,8 +262,7 @@
     background-color: $core-bg-canvas
 
   .roster
-    width: 100%
-    word-break: break-all
+    min-width: 600px
     margin-top: 20px
 
   th
@@ -325,69 +289,14 @@
   .table-cell
     color: $core-text-default
 
-  .user-role-switcher
-    display: table-cell
-    height: 1.5rem
-    margin: 5px 0
-    vertical-align: middle
-    white-space: nowrap
-
-  .searchbar .icon
-    display: inline-block
-    float: left
-    position: relative
-    fill: $core-text-annotation
-    left: 5px
-    top: 5px
-
-  .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
-    float: left
-
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
-
   .table-name
     $line-height = 1em
     line-height: $line-height
     max-height: ($line-height * 2)
     display: inline-block
 
-  @media print
-    .toolbar
-      display: none
-    .user-roster
-      width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
-    .table-username
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+  .user-roster
+    overflow-x: auto
+    overflow-y: hidden
 
 </style>

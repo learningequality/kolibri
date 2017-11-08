@@ -11,26 +11,26 @@
         <h1 class="user-name">{{ userName }}</h1>
       </div>
       <div class="exercise-name">
-        <content-icon class="svg-icon" :kind="kind"/>
+        <content-icon class="svg-icon" :kind="kind" />
         {{ exerciseTitle }}
       </div>
-      <div :class="{'in-progress': !isCompleted, 'requirements': true}" >
-        <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
+      <div :class="{'in-progress': !isCompleted, 'requirements': true}">
+        <progress-icon class="svg-icon" :progress="summaryLog.progress" />
         {{ requirementsString }}
       </div>
     </div>
     <div class="column pure-u-1-4">
       <div class="status">
-        <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
+        <progress-icon class="svg-icon" :progress="summaryLog.progress" />
         <span v-if="isCompleted">
           <strong> {{ $tr('statusMastered') }} </strong>
-          <br />
-          <elapsed-time :date="dateCompleted"/>
+          <br>
+          <elapsed-time :date="dateCompleted" />
         </span>
         <span v-else-if="isCompleted !== null">
           <strong> {{ $tr('statusInProgress') }} </strong>
-          <br />
-          <elapsed-time :date="dateLastAttempted"/>
+          <br>
+          <elapsed-time :date="dateLastAttempted" />
         </span>
         <span v-else>
           <strong> {{ $tr('notStarted') }} </strong>
@@ -48,7 +48,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
-    $trNameSpace: 'coachExercisePageStatus',
+    name: 'coachExercisePageStatus',
     $trs: {
       statusMastered: 'Completed',
       statusInProgress: 'In progress',

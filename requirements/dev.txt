@@ -1,6 +1,8 @@
 -r base.txt
-flake8
-pre-commit
-tox
-django-debug-toolbar
-django-debug-panel
+flake8==3.5.0
+pre-commit==0.14.2
+tox==2.9.1
+django-debug-panel==0.8.3
+django-debug-toolbar==1.8
+sphinx-autobuild
+django-rest-swagger==0.3.10

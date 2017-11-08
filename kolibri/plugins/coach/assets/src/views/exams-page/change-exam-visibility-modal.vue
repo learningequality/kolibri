@@ -1,24 +1,24 @@
 <template>
 
   <core-modal :title="$tr('examVisibility')" @cancel="close">
-    <p v-html="$trHtml('shouldBeVisible', { examTitle })"></p>
-    <label>
-      <input type="radio" :value="true" v-model="classIsSelected" @change="deselectGroups">
-      <span v-html="$trHtml('entireClass', { className })"></span>
-    </label>
-    <ui-select
-      :name="$tr('group')"
-      :label="$tr('specificGroups')"
-      :placeholder="$tr('selectGroups')"
-      :multiple="true"
-      :options="groupOptions"
-      v-model="groupsSelected"
-      @change="handleSelectChange"
-      class="group-select"
+    <p>{{ $tr('shouldBeVisible', { examTitle }) }}</p>
+    <k-radio-button
+      :label="$tr('entireClass', { className })"
+      :radiovalue="true"
+      v-model="classIsSelected"
+      @change="deselectGroups"
+    />
+    <k-checkbox
+      v-for="group in classGroups"
+      :key="group.id"
+      :label="group.name"
+      :checked="groupIsSelected(group.id)"
+      @change="handleGroupChange(group.id, $event)"
     />
     <div class="footer">
-      <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('update')" :primary="true" :disabled="busy" @click="updateVisibility" />
+
     </div>
   </core-modal>
 
@@ -27,18 +27,18 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import { displayExamModal, updateExamAssignments } from '../../state/actions/exam';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   export default {
-    $trNameSpace: 'changeExamVisibilityModal',
+    name: 'changeExamVisibilityModal',
     $trs: {
-      examVisibility: 'Exam visibility',
-      shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',
+      examVisibility: 'Change exam visibility',
+      shouldBeVisible: "Make '{ examTitle }' visible to entire class or specific groups",
       group: 'group',
-      specificGroups: 'Specific groups',
       selectGroups: 'Select groups',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
@@ -46,8 +46,9 @@
     },
     components: {
       coreModal,
-      iconButton,
-      uiSelect,
+      kButton,
+      kRadioButton,
+      kCheckbox,
     },
     props: {
       examId: {
@@ -77,40 +78,48 @@
     },
     data() {
       return {
-        classIsSelected: this.classInitiallySelected(),
-        groupsSelected: this.initiallySelectedGroups(),
+        classIsSelected: this.classIsInitiallySelected(),
+        selectedGroups: this.initiallySelectedGroups(),
       };
     },
-    computed: {
-      groupOptions() {
-        return this.classGroups.map(group => ({
-          label: group.name,
-          id: group.id,
-        }));
-      },
-    },
     methods: {
-      classInitiallySelected() {
+      classIsInitiallySelected() {
         if (this.examVisibility.class) {
           return true;
         }
         return false;
       },
+
       initiallySelectedGroups() {
-        return this.examVisibility.groups.map(group => ({
-          label: group.collection.name,
-          id: group.collection.id,
-        }));
+        return this.examVisibility.groups.map(group => group.collection.id);
       },
-      handleSelectChange() {
-        this.classIsSelected = !this.groupsSelected.length;
-      },
+
       deselectGroups() {
-        this.groupsSelected = [];
+        this.selectedGroups = [];
       },
+
+      groupIsSelected(groupId) {
+        return this.selectedGroups.includes(groupId);
+      },
+
+      handleGroupChange(groupId, isSelected) {
+        if (isSelected) {
+          if (!this.selectedGroups.includes(groupId)) {
+            this.selectedGroups.push(groupId);
+          }
+        } else {
+          this.selectedGroups = this.selectedGroups.filter(group => group !== groupId);
+        }
+        this.classIsSelected = !this.selectedGroups.length;
+      },
+
+      getGroupName(groupId) {
+        return this.classGroups.find(group => group.id === groupId).name;
+      },
+
       updateVisibility() {
         if (this.classIsSelected) {
-          if (this.classIsSelected === this.classInitiallySelected()) {
+          if (this.classIsSelected === this.classIsInitiallySelected()) {
             this.close();
             return;
           }
@@ -125,26 +134,25 @@
             assignment => assignment.assignmentId
           );
           this.updateExamAssignments(this.examId, classCollection, groupAssignments);
-        } else if (this.groupsSelected.length) {
+        } else if (this.selectedGroups.length) {
           const unassignGroups = this.initiallySelectedGroups().filter(
-            initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id)
+            initialGroup => !this.selectedGroups.includes(initialGroup)
           );
-          const assignGroups = this.groupsSelected.filter(
-            newGroup =>
-              !this.initiallySelectedGroups().find(initialGroup => initialGroup.id === newGroup.id)
+          const assignGroups = this.selectedGroups.filter(
+            newGroup => !this.initiallySelectedGroups().includes(newGroup)
           );
           if (!unassignGroups.length && !assignGroups.length) {
             this.close();
             return;
           }
           const assignGroupCollections = assignGroups.map(group => ({
-            id: group.id,
-            name: group.label,
+            id: group,
+            name: this.getGroupName(group),
             kind: CollectionKinds.LEARNERGROUP,
           }));
           let unassignments = unassignGroups.map(
             unassignGroup =>
-              this.examVisibility.groups.find(group => group.collection.id === unassignGroup.id)
+              this.examVisibility.groups.find(group => group.collection.id === unassignGroup)
                 .assignmentId
           );
           if (this.examVisibility.class) {
@@ -153,14 +161,18 @@
           this.updateExamAssignments(this.examId, assignGroupCollections, unassignments);
         }
       },
+
       close() {
         this.displayExamModal(false);
       },
     },
     vuex: {
       actions: {
-        displayExamModal: examActions.displayExamModal,
-        updateExamAssignments: examActions.updateExamAssignments,
+        displayExamModal,
+        updateExamAssignments,
+      },
+      getters: {
+        busy: state => state.pageState.busy,
       },
     },
   };
@@ -174,20 +186,12 @@
     display: block
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
   .group-select
     padding-bottom: 4rem
 
-</style>
-
-
-<style lang="stylus">
-
-  .group-select
-    .ui-select__options
-      max-height: 5rem
+  >>>.ui-select__options
+    max-height: 5rem
 
 </style>

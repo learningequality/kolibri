@@ -8,7 +8,6 @@ import RoleResource from './role';
 import ContentSessionLogResource from './contentSessionLog';
 import ContentSummaryLogResource from './contentSummaryLog';
 import SessionResource from './session';
-import DeviceOwnerResource from './deviceOwner';
 import FacilityResource from './facility';
 import TaskResource from './task';
 import ChannelResource from './channel';
@@ -23,7 +22,8 @@ import ExamAttemptLogResource from './examAttemptLog';
 import FacilityDatasetResource from './facilityDataset';
 import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
-import FileSummaryResource from './fileSummary';
+import DeviceProvisionResource from './deviceProvision';
+import DevicePermissionsResource, { NewDevicePermissionsResource } from './devicePermissions';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -35,7 +35,6 @@ const roleResource = new RoleResource();
 const contentSessionLogResource = new ContentSessionLogResource();
 const contentSummaryLogResource = new ContentSummaryLogResource();
 const sessionResource = new SessionResource();
-const deviceOwnerResource = new DeviceOwnerResource();
 const facilityResource = new FacilityResource();
 const taskResource = new TaskResource();
 const channelResource = new ChannelResource();
@@ -50,7 +49,9 @@ const examAttemptLogResource = new ExamAttemptLogResource();
 const facilityDatasetResource = new FacilityDatasetResource();
 const userProgressResource = new UserProgressResource();
 const contentNodeProgressResource = new ContentNodeProgressResource();
-const fileSummaryResource = new FileSummaryResource();
+const deviceProvisionResource = new DeviceProvisionResource();
+const devicePermissionsResource = new DevicePermissionsResource();
+const newDevicePermissionsResource = new NewDevicePermissionsResource();
 
 export {
   classroomResource as ClassroomResource,
@@ -63,7 +64,6 @@ export {
   contentSessionLogResource as ContentSessionLogResource,
   contentSummaryLogResource as ContentSummaryLogResource,
   sessionResource as SessionResource,
-  deviceOwnerResource as DeviceOwnerResource,
   facilityResource as FacilityResource,
   taskResource as TaskResource,
   channelResource as ChannelResource,
@@ -78,5 +78,7 @@ export {
   facilityDatasetResource as FacilityDatasetResource,
   userProgressResource as UserProgressResource,
   contentNodeProgressResource as ContentNodeProgressResource,
-  fileSummaryResource as FileSummaryResource,
+  deviceProvisionResource as DeviceProvisionResource,
+  devicePermissionsResource as DevicePermissionsResource,
+  newDevicePermissionsResource as NewDevicePermissionsResource,
 };

@@ -12,6 +12,7 @@
 
       <interaction-item
         v-for="(interaction, index) in interactions"
+        :key="index"
         @click.native="setCurrentInteractionIndex(index)"
         :selected="isSelected(index)"
         :interaction="interaction"
@@ -28,14 +29,14 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import interactionItem from './interaction-item';
   export default {
+    name: 'coachExerciseQuestionAttempt',
+    components: { interactionItem },
     mixins: [responsiveElement],
-    $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
       questionHeader: 'Question {questionNumber, number} attempts',
       noInteractions: 'No attempts made on this question',
     },
-    components: { interactionItem },
     props: {
       interactions: {
         type: Array,

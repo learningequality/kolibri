@@ -4,37 +4,40 @@ import VueRouter from 'vue-router';
 import assert from 'assert';
 import LearnIndex from '../../src/views/index.vue';
 import makeStore from '../util/makeStore';
-import coreBase from '../util/core-base.vue';
+import SlottedDiv from '../util/SlottedDiv.vue';
+import { mount } from 'avoriaz';
 
 const router = new VueRouter({
   routes: [
-    { path: '/learn', name: 'LEARN_CHANNEL' },
-    { path: '/explore', name: 'EXPLORE_CHANNEL' },
+    { path: '/recommended', name: 'RECOMMENDED' },
+    { path: '/topics', name: 'TOPICS_ROOT' },
     { path: '/exams', name: 'EXAM_LIST' },
   ],
 });
 
-function makeVm(options) {
-  const Ctor = Vue.extend(LearnIndex);
+function makeWrapper(options) {
   Object.assign(options, {
     components: {
-      coreBase,
-      'explore-page': '<div>Explore Page</div>',
-      'content-unavailable-page': '<div>Content Unavailable</div>',
+      coreBase: SlottedDiv,
+      topicsPage: '<div>Topics Page</div>',
+      contentUnavailablePage: '<div>Content Unavailable</div>',
     },
     router,
   });
-  return new Ctor(options).$mount();
+  return mount(LearnIndex, options);
 }
 
-function getElements(vm) {
+function getElements(wrapper) {
   return {
-    examLink: () => vm.$el.querySelector('li[name="exam-link"]'),
-    tabLinks: () => vm.$el.querySelector('.tab-links'),
+    // hrefs need to match the routes in the mock router above
+    examLink: () => wrapper.find('[href="#/exams"]')[0],
+    recommendedLink: () => wrapper.find('[href="#/recommended"]')[0],
+    topicsLink: () => wrapper.find('[href="#/topics"]')[0],
+    tabLinks: () => wrapper.find('.k-navbar-links')[0],
   };
 }
 
-describe('learn index', () => {
+describe('learn plugin index page', () => {
   let store;
 
   const setSessionUserKind = kind => {
@@ -53,34 +56,47 @@ describe('learn index', () => {
 
   it('there are no tabs if showing content unavailable page', () => {
     setPageName('CONTENT_UNAVAILABLE');
-    const vm = makeVm({ store });
-    const { tabLinks } = getElements(vm);
-    assert(tabLinks() === null);
+    const wrapper = makeWrapper({ store });
+    const { tabLinks } = getElements(wrapper);
+    assert(tabLinks() === undefined);
+  });
+
+  it('the recommended and channel links are always available to everybody', () => {
+    setSessionUserKind('anonymous');
+    setMemberships([]);
+    const wrapper = makeWrapper({ store });
+    const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
+    assert(tabLinks() !== undefined);
+    assert(recommendedLink() !== undefined);
+    assert(topicsLink() !== undefined);
   });
 
   it('the exam tab is available if user is logged in and has memberships', () => {
     // should work for any user 'kind' except for 'anonymous'
     setSessionUserKind('learner');
     setMemberships([{ id: 'membership_1' }]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() !== null);
+    const wrapper = makeWrapper({ store });
+    const { examLink, tabLinks } = getElements(wrapper);
+    assert(tabLinks() !== undefined);
+    assert(examLink() !== undefined);
   });
 
   it('the exam tab is not available if user is not logged in', () => {
     // in current implementation, anonymous user implies empty memberships
     setSessionUserKind('anonymous');
     setMemberships([]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() === null);
+    const wrapper = makeWrapper({ store });
+    const { examLink, tabLinks } = getElements(wrapper);
+    assert(tabLinks() !== undefined);
+    assert(examLink() === undefined);
   });
 
   it('the exam tab is not available if user has no memberships/classes', () => {
     setSessionUserKind('learner');
     setMemberships([]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() === null);
+    const wrapper = makeWrapper({ store });
+    const { examLink, tabLinks } = getElements(wrapper);
+    assert(tabLinks() !== undefined);
+    assert(examLink() === undefined);
   });
 });

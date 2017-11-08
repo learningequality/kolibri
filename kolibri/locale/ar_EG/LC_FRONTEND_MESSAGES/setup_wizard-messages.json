@@ -1,0 +1,20 @@
+{
+  "setupWizard.formHeader":"إنشاء مالك الجهاز ومكان التعليم",
+  "setupWizard.deviceOwnerSectionHeader":"مالك الجهاز",
+  "setupWizard.facilitySectionHeader":"مرفق",
+  "setupWizard.usernameInputLabel":"اسم المستخدم",
+  "setupWizard.passwordInputLabel":"كلمة المرور",
+  "setupWizard.confirmPasswordInputLabel":"تأكيد كلمة المرور",
+  "setupWizard.facilityInputLabel":"اسم مكان التعليم",
+  "setupWizard.deviceOwnerDescription":"لاستخدام كوليبري، عليك أولا إنشاء مالك جهاز. هذا الحساب سيستخدم في تكوين إعدادات فوقية للتنصيب، ومنه يمكن إنشاء حسابات المدير الأخرى",
+  "setupWizard.facilityDescription":"عليك أيضا إنشاء مكان تعليم. القصد بمكان التعليم مدرستك، أو مركز التدريب أو أي موقع تعلم آخر",
+  "setupWizard.formSubmissionButton":"الإنشاء والبدء في العمل",
+  "setupWizard.usernameFieldEmptyErrorMessage":"لا يمكن ترك حقل اسم المستخدم فارغا",
+  "setupWizard.usernameCharacterErrorMessage":"يمكن لاسم المستخدم أن يحتوي على الأحرف والأرقام فقط",
+  "setupWizard.passwordFieldEmptyErrorMessage":"لا يمكن أن يكون حقل كلمة المرور فارغا",
+  "setupWizard.passwordsMismatchErrorMessage":"كلمات المرور غير متطابقة",
+  "setupWizard.facilityFieldEmptyErrorMessage":"لا يمكن ترك خانة مكان التعليم خالية",
+  "setupWizard.cannotSubmitPageError":"رجاء حل جميع الأخطاء الظاهرة",
+  "setupWizard.genericPageError":"حدث خطأ",
+  "setupWizard.setupProgressFeedback":"إعداد جهازك..."
+}

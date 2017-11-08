@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^api/', include('kolibri.logger.api_urls')),
     url(r'^api/', include('kolibri.tasks.api_urls')),
     url(r'^api/', include('kolibri.core.exams.api_urls')),
+    url(r'^api/', include('kolibri.core.device.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
@@ -44,3 +45,8 @@ if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):
     urlpatterns = [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+
+if getattr(settings, 'REST_SWAGGER', False):
+    urlpatterns += [
+        url(r'^api_explorer/', include('rest_framework_swagger.urls'))
+    ]

@@ -8,11 +8,11 @@
     <template>
       <div class="container">
         <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late"/>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <icon-button class="submit-exam-button" @click="toggleModal" :text="$tr('submitExam')" :primary="true"></icon-button>
+            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
           </div>
         </div>
         <div class="question-container">
@@ -20,7 +20,7 @@
             <div class="answer-history-container column">
               <answer-history
               :questionNumber="questionNumber"
-              @goToQuestion="goToQuestion"/>
+              @goToQuestion="goToQuestion" />
             </div>
           <div class="exercise-container column">
             <content-renderer
@@ -38,13 +38,13 @@
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
-              @interaction="throttledSaveAnswer"/>
+              @interaction="throttledSaveAnswer" />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
               <div class="question-navbutton-container">
-                <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
-                <icon-button :disabled="questionNumber===exam.questionCount-1" alignment="right" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
+                <k-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')" />
+                <k-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')" />
               </div>
             </div>
           </div>
@@ -52,9 +52,9 @@
       </div>
       <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
         <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
-        <icon-button :text="$tr('cancel')" @click="toggleModal"/>
-        <icon-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
+        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}</p>
+        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal" />
+        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true" />
       </core-modal>
     </template>
   </immersive-full-screen>
@@ -66,18 +66,18 @@
 
   import { PageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions';
+  import * as actions from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import answerHistory from './answer-history';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
-    $trNameSpace: 'examPage',
+    name: 'examPage',
     $trs: {
       submitExam: 'Submit exam',
       backToExamList: 'Back to exam list',
@@ -94,7 +94,7 @@
     components: {
       immersiveFullScreen,
       contentRenderer,
-      iconButton,
+      kButton,
       answerHistory,
       coreModal,
       uiAlert,
@@ -118,6 +118,17 @@
       actions: {
         setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
         closeExam: actions.closeExam,
+      },
+    },
+    computed: {
+      backPageLink() {
+        return {
+          name: PageNames.EXAM_LIST,
+          params: { channel_id: this.channelId },
+        };
+      },
+      questionsUnanswered() {
+        return this.exam.questionCount - this.questionsAnswered;
       },
     },
     created() {
@@ -186,17 +197,6 @@
         });
       },
     },
-    computed: {
-      backPageLink() {
-        return {
-          name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
-        };
-      },
-      questionsUnanswered() {
-        return this.exam.questionCount - this.questionsAnswered;
-      },
-    },
   };
 
 </script>
@@ -230,9 +230,6 @@
 
   .exam-title
     display: inline-block
-
-  .submit-exam-button
-    margin-left: 10px
 
   .questions-answered
     display: inline-block

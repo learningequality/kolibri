@@ -21,6 +21,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+pip
 
 # Installer logs
 pip-log.txt
@@ -34,15 +35,15 @@ kolibrihome_test/
 
 # Translations
 *.mo
-kolibri/locale/
+kolibri/locale/en/
 
 # Mr Developer
 .mr.developer.cfg
 .project
 # vscode files
-.vscode  
+.vscode
 # pycharm project file
-kolibri.iml  
+kolibri.iml
 .pydevproject
 .venv
 .idea

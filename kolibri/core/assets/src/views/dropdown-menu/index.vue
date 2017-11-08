@@ -1,13 +1,14 @@
 <template>
 
   <span>
-    <span v-if="windowSize.breakpoint > 2">
+    <span v-if="windowSize.breakpoint > 2 || !icon">
       <ui-button
+        :disabled="disabled"
         :ariaLabel="name"
         :type="type"
         :color="color"
         :icon="icon"
-        :has-dropdown="true"
+        :hasDropdown="true"
         :class="{ appbarbutton: inAppBar }"
         ref="buttonLarge">
         {{ name }}
@@ -17,16 +18,17 @@
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.buttonLarge.closeDropdown()"
-          @select="emitSelection"/>
+          @select="emitSelection" />
       </ui-button>
     </span>
     <span v-else>
       <ui-icon-button
+        :disabled="disabled"
         :ariaLabel="name"
         :type="type"
         :color="color"
         :icon="icon"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="button">
         <ui-menu
           :options="options"
@@ -34,7 +36,7 @@
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.button.closeDropdown()"
-          @select="emitSelection"/>
+          @select="emitSelection" />
       </ui-icon-button>
     </span>
   </span>
@@ -81,6 +83,10 @@
         default: false,
       },
       displayDisabledAsSelected: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },

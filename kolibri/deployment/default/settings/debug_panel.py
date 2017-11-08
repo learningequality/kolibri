@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from .base import *  # noqa
+from .dev import *  # noqa
 
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -16,7 +16,5 @@ INSTALLED_APPS += [  # noqa
     'debug_toolbar',
     'debug_panel',
 ]
-
-ENABLE_DATA_BOOTSTRAPPING = False
 
 DEBUG_PANEL_ACTIVE = True

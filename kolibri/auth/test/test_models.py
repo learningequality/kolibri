@@ -1,5 +1,5 @@
 """
-Tests of the core auth models (Role, Membership, Collection, FacilityUser, DeviceOwner, etc).
+Tests of the core auth models (Role, Membership, Collection, FacilityUser, etc).
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
@@ -8,9 +8,13 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from kolibri.core.device.models import DeviceSettings
+
+from .helpers import create_superuser
+
 from ..constants import role_kinds, collection_kinds
-from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection, DeviceOwner
-from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser, \
+from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection
+from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError,\
     UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind, UserIsNotMemberError
 
 
@@ -37,8 +41,6 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
         self.lg = LearnerGroup.objects.create(parent=self.cr)
         self.lg.add_learner(learner)
-
-        self.device_owner = DeviceOwner.objects.create(username="blah", password="*")
 
     def test_remove_learner(self):
         self.assertTrue(self.learner.is_member_of(self.lg))
@@ -281,7 +283,6 @@ class RoleErrorTestCase(TestCase):
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
 
     def test_invalid_role_kind(self):
         with self.assertRaises(InvalidRoleKind):
@@ -290,65 +291,50 @@ class RoleErrorTestCase(TestCase):
             self.learner_group.remove_role(self.facility_user, "blahblahnonexistentroletype")
 
 
-class DeviceOwnerRoleMembershipTestCase(TestCase):
+class SuperuserRoleMembershipTestCase(TestCase):
 
     def setUp(self):
         self.facility = Facility.objects.create()
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
-        self.device_owner2 = DeviceOwner.objects.create(username="bleeh", password="#")
+        self.superuser = create_superuser(self.facility)
+        self.superuser2 = create_superuser(self.facility, username="superuser2")
 
-    def test_deviceowner_is_not_member_of_any_collection(self):
-        self.assertFalse(self.device_owner.is_member_of(self.classroom))
-        self.assertFalse(self.device_owner.is_member_of(self.facility))
-        self.assertFalse(self.device_owner.is_member_of(self.learner_group))
+    def test_superuser_is_not_member_of_any_sub_collection(self):
+        self.assertFalse(self.superuser.is_member_of(self.classroom))
+        self.assertTrue(self.superuser.is_member_of(self.facility))
+        self.assertFalse(self.superuser.is_member_of(self.learner_group))
 
-    def test_deviceowner_is_admin_for_everything(self):
-        self.assertSetEqual(self.device_owner.get_roles_for_collection(self.classroom), set([role_kinds.ADMIN]))
-        self.assertSetEqual(self.device_owner.get_roles_for_collection(self.facility), set([role_kinds.ADMIN]))
-        self.assertSetEqual(self.device_owner.get_roles_for_user(self.facility_user), set([role_kinds.ADMIN]))
-        self.assertSetEqual(self.device_owner.get_roles_for_user(self.device_owner), set([role_kinds.ADMIN]))
-        self.assertSetEqual(self.device_owner.get_roles_for_user(self.device_owner2), set([role_kinds.ADMIN]))
-        self.assertTrue(self.device_owner.has_role_for_user([role_kinds.ADMIN], self.facility_user))
-        self.assertTrue(self.device_owner.has_role_for_collection([role_kinds.ADMIN], self.facility))
-
-    def test_device_owners_cannot_be_assigned_or_removed_from_roles(self):
-        with self.assertRaises(UserIsNotFacilityUser):
-            self.classroom.add_admin(self.device_owner)
-        with self.assertRaises(UserIsNotFacilityUser):
-            self.classroom.remove_admin(self.device_owner)
-
-    def test_device_owners_cannot_be_members(self):
-        with self.assertRaises(UserIsNotFacilityUser):
-            self.classroom.add_member(self.device_owner)
-        with self.assertRaises(UserIsNotFacilityUser):
-            self.classroom.remove_member(self.device_owner)
+    def test_superuser_is_admin_for_everything(self):
+        self.assertSetEqual(self.superuser.get_roles_for_collection(self.classroom), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.superuser.get_roles_for_collection(self.facility), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.superuser.get_roles_for_user(self.facility_user), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.superuser.get_roles_for_user(self.superuser), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.superuser.get_roles_for_user(self.superuser2), set([role_kinds.ADMIN]))
+        self.assertTrue(self.superuser.has_role_for_user([role_kinds.ADMIN], self.facility_user))
+        self.assertTrue(self.superuser.has_role_for_collection([role_kinds.ADMIN], self.facility))
 
 
-class DeviceOwnerSuperuserTestCase(TestCase):
+class SuperuserTestCase(TestCase):
 
-    def test_device_owner_is_superuser(self):
-        device_owner = DeviceOwner.objects.create(username="test", password="##")
-        self.assertTrue(device_owner.is_superuser)
+    def setUp(self):
+        self.facility = Facility.objects.create()
 
-    def test_device_owner_manager_supports_superuser_creation(self):
+    def test_superuser_is_superuser(self):
+        superuser = create_superuser(self.facility)
+        self.assertTrue(superuser.is_superuser)
+
+    def test_superuser_manager_supports_superuser_creation(self):
         superusername = "boss"
-        DeviceOwner.objects.create_superuser(superusername, "password")
-        self.assertEqual(DeviceOwner.objects.get().username, superusername)
+        create_superuser(self.facility, username=superusername)
+        self.assertEqual(FacilityUser.objects.get().username, superusername)
 
-    def test_device_owner_manager_superuser_creation_fails_with_empty_username(self):
-        superusername = ""
-        with self.assertRaises(ValueError):
-            DeviceOwner.objects.create_superuser(superusername, "password")
-        self.assertEqual(DeviceOwner.objects.count(), 0)
-
-    def test_device_owner_has_all_django_perms_for_django_admin(self):
-        device_owner = DeviceOwner.objects.create(username="test", password="##")
-        self.assertTrue(device_owner.has_perm("someperm", object()))
-        self.assertTrue(device_owner.has_perms(["someperm"], object()))
-        self.assertTrue(device_owner.has_module_perms("module.someapp"))
+    def test_superuser_has_all_django_perms_for_django_admin(self):
+        superuser = create_superuser(self.facility)
+        self.assertTrue(superuser.has_perm("someperm", object()))
+        self.assertTrue(superuser.has_perms(["someperm"], object()))
+        self.assertTrue(superuser.has_module_perms("module.someapp"))
 
 class StringMethodTestCase(TestCase):
 
@@ -370,13 +356,13 @@ class StringMethodTestCase(TestCase):
         self.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=self.cr)
         self.lg.add_learner(learner)
 
-        self.device_owner = DeviceOwner.objects.create(username="blah", password="*")
+        self.superuser = create_superuser(self.facility)
 
     def test_facility_user_str_method(self):
         self.assertEqual(str(self.learner), '"foo"@"Arkham"')
 
-    def test_device_owner_str_method(self):
-        self.assertEqual(str(self.device_owner), "blah")
+    def test_superuser_str_method(self):
+        self.assertEqual(str(self.superuser), '"superuser"@"Arkham"')
 
     def test_collection_str_method(self):
         self.assertEqual(str(Collection.objects.filter(kind=collection_kinds.FACILITY)[0]), '"Arkham" (facility)')
@@ -395,3 +381,17 @@ class StringMethodTestCase(TestCase):
 
     def test_learner_group_str_method(self):
         self.assertEqual(str(self.lg), "Oodles of Fun")
+
+
+class FacilityTestCase(TestCase):
+
+    def setUp(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+
+    def test_existing_facility_becomes_default_facility(self):
+        self.assertEqual(self.device_settings.default_facility, None)
+        default_facility = Facility.get_default_facility()
+        self.assertEqual(default_facility, self.facility)
+        self.device_settings.refresh_from_db()
+        self.assertEqual(self.device_settings.default_facility, self.facility)

@@ -32,8 +32,9 @@
 <script>
 
   import { notificationTypes } from '../../constants';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
+    name: 'configPageNotifications',
     components: { uiAlert },
     props: {
       notification: {
@@ -47,7 +48,6 @@
         this.$emit('dismiss');
       },
     },
-    $trNameSpace: 'configPageNotifications',
     $trs: {
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated!',

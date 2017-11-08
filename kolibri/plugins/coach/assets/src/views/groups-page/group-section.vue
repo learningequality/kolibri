@@ -14,13 +14,11 @@
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
         </span>
-        <icon-button
-          v-if="canMove"
-          size="small"
+        <k-button
           class="right-margin"
           :text="$tr('moveLearners')"
-          :primary="true"
-          :disabled="selectedUsers.length === 0"
+          :primary="false"
+          :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
         <ui-button
@@ -28,7 +26,7 @@
           color="primary"
           ref="dropdownButton"
           size="small"
-          :has-dropdown="true"
+          :hasDropdown="true"
         >
           <ui-menu
             slot="dropdown"
@@ -44,7 +42,13 @@
       <thead>
         <tr>
           <th class="col-checkbox">
-            <input type="checkbox" :checked="allUsersAreSelected" @change="toggleSelectAll">
+            <k-checkbox
+              :label="$tr('selectAll')"
+              :showLabel="false"
+              :checked="allUsersAreSelected"
+              :indeterminate="someUsersAreSelected"
+              @change="toggleSelectAll"
+            />
           </th>
           <th class="col-name">{{ $tr('name') }}</th>
           <th class="col-username">{{ $tr('username') }}</th>
@@ -58,13 +62,13 @@
           @click="toggleSelection(user.id)"
         >
           <td class="col-checkbox">
-            <input
-              v-model="selectedUsers"
-              type="checkbox"
-              :id="user.id"
-              :value="user.id"
-              @click.stop
-            >
+            <k-checkbox
+              :label="$tr('selectLearner')"
+              :showLabel="false"
+              :checked="isSelected(user.id)"
+              @change="toggleSelection(user.id)"
+              @click.native.stop
+            />
           </td>
           <td class="col-name"><strong>{{ user.full_name }}</strong></td>
           <td class="col-username">{{ user.username }}</td>
@@ -80,13 +84,14 @@
 <script>
 
   import * as groupActions from '../../state/actions/group';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiButton from 'keen-ui/src/UiButton';
   import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
   export default {
-    $trNameSpace: 'coachGroupsTable',
+    name: 'coachGroupsTable',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
@@ -97,13 +102,16 @@
       username: 'Username',
       selected: 'Selected',
       noLearners: 'No Learners in this group',
+      selectAll: 'Select all',
+      selectLearner: 'Select learner',
     },
-    mixins: [ResponsiveElement],
     components: {
-      iconButton,
+      kButton,
+      kCheckbox,
       uiButton,
       uiMenu,
     },
+    mixins: [ResponsiveElement],
     props: {
       group: {
         type: Object,
@@ -132,6 +140,9 @@
         return (
           this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
         );
+      },
+      someUsersAreSelected() {
+        return !this.allUsersAreSelected && this.selectedUsers.length !== 0;
       },
     },
     methods: {

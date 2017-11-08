@@ -1,29 +1,25 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from kolibri.auth.models import DeviceOwner
-
+from kolibri.core.device.utils import device_provisioned
 
 ALLOWED_PATH_LIST = [
-    "facility-list",
-    "deviceowner-list",
+    "deviceprovision",
     "kolibri:setupwizardplugin:setupwizard",
-    "task-localdrive",
-    "task-startremoteimport",
-    "task-list",
+    "kolibri:set_language",
     "session-list"
 ]
 
 
 class SetupWizardMiddleware():
     """
-    display the superuser creation app if no superuser exists.
+    display the setup wizard if device is not provisioned
     """
-    deviceowner_already_created = False
+    device_provisioned = False
 
     def process_request(self, request):
-        # If a DeviceOwner has already been created, no need to do anything here
-        self.deviceowner_already_created = self.deviceowner_already_created or DeviceOwner.objects.exists()
-        if self.deviceowner_already_created:
+        # If a DevicePermissions with is_superuser has already been created, no need to do anything here
+        self.device_provisioned = self.device_provisioned or device_provisioned()
+        if self.device_provisioned:
             if request.path.startswith(reverse("kolibri:setupwizardplugin:setupwizard")):
                 return redirect(reverse("kolibri:learnplugin:learn"))
             return

@@ -36,14 +36,14 @@ const fakeItems = [
   {
     id: 'item_1',
     name: 'item one',
-    root_pk: 'pk1',
+    root: 'pk1',
     misc: 'ha ha ha',
     learner_count: 5,
   },
   {
     id: 'item_2',
     name: 'item two',
-    root_pk: 'pk2',
+    root: 'pk2',
     misc: 'ha ha ha',
     learner_count: 6,
   },

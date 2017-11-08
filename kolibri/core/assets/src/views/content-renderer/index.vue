@@ -6,30 +6,34 @@
     </ui-alert>
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
-        <loading-spinner id="spinner" v-if="!currentViewClass"/>
-        <component v-else :is="currentViewClass"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="itemError"
-        @interaction="interaction"
-        :files="availableFiles"
-        :defaultFile="defaultFile"
-        :itemId="itemId"
-        :answerState="answerState"
-        :allowHints="allowHints"
-        :supplementaryFiles="supplementaryFiles"
-        :thumbnailFiles="thumbnailFiles"
-        ref="contentView"
+        <loading-spinner id="spinner" v-if="!currentViewClass" />
+        <component
+          v-else
+          :is="currentViewClass"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          :allowHints="allowHints"
+          :supplementaryFiles="supplementaryFiles"
+          :thumbnailFiles="thumbnailFiles"
+          :interactive="interactive"
+          :lang="lang"
+          ref="contentView"
         />
       </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot/>
+    <slot></slot>
   </div>
 
 </template>
@@ -41,11 +45,16 @@
   const logging = logger.getLogger(__filename);
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
   export default {
-    $trNameSpace: 'contentRender',
+    name: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
       rendererNotAvailable: 'Kolibri is unable to render this content',
+    },
+    components: {
+      loadingSpinner,
+      uiAlert,
     },
     props: {
       id: {
@@ -86,11 +95,22 @@
         type: Function,
         default: () => Promise.resolve(),
       },
+      // Allow content renderers to display in a static mode
+      // where user interaction is not allowed
+      interactive: {
+        type: Boolean,
+        default: true,
+      },
+      lang: {
+        type: Object,
+        default: () => defaultLanguage,
+        validator: languageValidator,
+      },
     },
-    components: {
-      loadingSpinner,
-      uiAlert,
-    },
+    data: () => ({
+      currentViewClass: null,
+      noRendererAvailable: false,
+    }),
     computed: {
       extension() {
         if (this.availableFiles.length > 0) {
@@ -116,10 +136,6 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.updateRendererComponent);
     },
-    data: () => ({
-      currentViewClass: null,
-      noRendererAvailable: false,
-    }),
     methods: {
       /* Check the Kolibri core app for a content renderer module that is able to
        * handle the rendering of the current content node. This is the entrance point for changes
@@ -136,7 +152,7 @@
             this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
           ])
             .then(([session, component]) => {
-              this.$emit('sessionInitialized');
+              this.$emit('sessionInitialized', session);
               this.currentViewClass = component;
               return this.currentViewClass;
             })

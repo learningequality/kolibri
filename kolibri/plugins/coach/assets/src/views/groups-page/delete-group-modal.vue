@@ -1,14 +1,12 @@
 <template>
 
-  <core-modal :title="$tr('deleteLearnerGroup')"
-    @cancel="close">
-    <p v-html="$trHtml('areYouSure', { groupName: groupName })"></p>
+  <core-modal :title="$tr('deleteLearnerGroup')" @cancel="close">
+    <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
-    <icon-button :text="$tr('cancel')"
-      @click="close" />
-    <icon-button :text="$tr('deleteGroup')"
-      :primary="true"
-      @click="deleteGroup(groupId)" />
+    <div class="ta-r">
+      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+      <k-button :text="$tr('deleteGroup')" :primary="true" @click="deleteGroup(groupId)" />
+    </div>
   </core-modal>
 
 </template>
@@ -18,13 +16,13 @@
 
   import * as groupActions from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import textbox from 'kolibri.coreVue.components.textbox';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    $trNameSpace: 'deleteGroupModal',
+    name: 'deleteGroupModal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
-      areYouSure: 'Are you sure you want to delete <strong>{ groupName }</strong>?',
+      areYouSure: "Are you sure you want to delete '{ groupName }'?",
       learnersWillBecome: 'Learners within this group will become',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
@@ -32,8 +30,8 @@
     },
     components: {
       coreModal,
-      textbox,
-      iconButton,
+      kTextbox,
+      kButton,
     },
     props: {
       groupName: {
@@ -61,4 +59,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .ta-r
+    text-align: right
+
+</style>

@@ -7,7 +7,7 @@ Getting Started
   user/index
   dev/index
   changelog
-  contributing
+  contributing/index
   authors
 
 .. include:: ../README.rst

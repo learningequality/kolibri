@@ -7,38 +7,45 @@
     class="app-bar"
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
+
+    <div>
+      <div class="app-bar-title-icon"></div>
+      {{ title }}
+    </div>
+
     <div slot="actions">
-      <slot name="app-bar-actions"/>
+      <slot name="app-bar-actions"></slot>
+
       <ui-button
-        v-if="isUserLoggedIn"
         icon="person"
         type="primary"
         color="primary"
         :ariaLabel="$tr('account')"
-        :has-dropdown="true"
+        :hasDropdown="true"
         ref="accountButton"
-        class="username-text">
-        <template v-if="windowSize.breakpoint > 2">
-          {{ username }}
-          <template v-if="isSuperuser">({{ $tr('superuser') }})</template>
-          <template v-if="isAdmin">({{ $tr('admin') }})</template>
-          <template v-if="isCoach">({{ $tr('coach') }})</template>
-        </template>
-        <ui-menu
+        class="username-text"
+      >
+        <template v-if="isUserLoggedIn">{{ username }}</template>
+
+        <keen-menu-port
           slot="dropdown"
           :options="accountMenuOptions"
           @close="$refs.accountButton.closeDropdown()"
           @select="optionSelected"
-        />
+        >
+          <template slot="header" v-if="isUserLoggedIn">
+            <div class="role">{{ $tr('role') }}</div>
+            <div v-if="isAdmin">{{ $tr('admin') }}</div>
+            <div v-else-if="isCoach">{{ $tr('coach') }}</div>
+            <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+          </template>
+        </keen-menu-port>
       </ui-button>
-      <a v-else href="/user">
-        <ui-button
-          type="primary"
-          color="primary"
-          :ariaLabel="$tr('signIn')">
-          {{ $tr('signIn') }}
-        </ui-button>
-      </a>
+      <language-switcher-modal
+        v-if="showLanguageModal"
+        @close="showLanguageModal = false"
+        class="override-ui-toolbar"
+      />
     </div>
   </ui-toolbar>
 
@@ -48,29 +55,34 @@
 <script>
 
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
-  import {
-    isUserLoggedIn,
-    isSuperuser,
-    isAdmin,
-    isCoach,
-    isLearner,
-  } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn, isAdmin, isCoach, isLearner } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
+  import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
+  import { redirectBrowser } from 'kolibri.utils.browser';
+  import languageSwitcherModal from '../language-switcher/modal';
   export default {
+    name: 'appBar',
+    components: {
+      uiToolbar,
+      uiIconButton,
+      keenMenuPort,
+      uiButton,
+      languageSwitcherModal,
+    },
     mixins: [responsiveWindow],
-    $trNameSpace: 'appBar',
     $trs: {
       account: 'Account',
       profile: 'Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
-      superuser: 'Device owner',
+      role: 'Role',
       admin: 'Admin',
       coach: 'Coach',
+      learner: 'Learner',
+      languageSwitchMenuOption: 'Change language',
     },
     props: {
       title: {
@@ -86,37 +98,47 @@
         required: true,
       },
     },
-    components: {
-      uiToolbar,
-      uiIconButton,
-      uiMenu,
-      uiButton,
-    },
+    data: () => ({
+      showLanguageModal: false,
+    }),
     computed: {
       accountMenuOptions() {
+        const changeLanguage = {
+          id: 'language',
+          label: this.$tr('languageSwitchMenuOption'),
+        };
+        if (this.isUserLoggedIn) {
+          return [
+            {
+              id: 'profile',
+              label: this.$tr('profile'),
+            },
+            changeLanguage,
+            {
+              id: 'signOut',
+              label: this.$tr('signOut'),
+            },
+          ];
+        }
         return [
           {
-            id: 'profile',
-            label: this.$tr('profile'),
+            id: 'signIn',
+            label: this.$tr('signIn'),
           },
-          {
-            id: 'signOut',
-            label: this.$tr('signOut'),
-          },
+          changeLanguage,
         ];
       },
     },
     methods: {
       optionSelected(option) {
-        switch (option.id) {
-          case 'profile':
-            window.location = `/user`;
-            break;
-          case 'signOut':
-            this.kolibriLogout();
-            break;
-          default:
-            break;
+        if (option.id === 'profile') {
+          window.location = `/user`;
+        } else if (option.id === 'signOut') {
+          this.kolibriLogout();
+        } else if (option.id === 'signIn') {
+          redirectBrowser();
+        } else if (option.id === 'language') {
+          this.showLanguageModal = true;
         }
       },
     },
@@ -125,7 +147,6 @@
       getters: {
         username: state => state.core.session.username,
         isUserLoggedIn,
-        isSuperuser,
         isAdmin,
         isCoach,
         isLearner,
@@ -136,12 +157,37 @@
 </script>
 
 
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  .override-ui-toolbar
+    color: $core-text-default
+
+</style>
+
+
 <style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
 
   .app-bar
     overflow: hidden
 
   .username-text
     text-transform: none
+
+  .role
+    font-size: small
+    margin-bottom: 8px
+
+  // Will display icon in app bar if variables are defined
+  .app-bar-title-icon
+    background: $app-bar-title-icon
+    height: $app-bar-title-icon-height
+    width: $app-bar-title-icon-height
+    display: inline-block
+    vertical-align: middle
+    background-size: cover
 
 </style>

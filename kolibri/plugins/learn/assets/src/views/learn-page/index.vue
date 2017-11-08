@@ -1,41 +1,57 @@
 <template>
 
   <div>
-    <page-header :title="$tr('pageHeader')">
-      <mat-svg slot="icon" category="action" name="home"/>
-    </page-header>
-    <component
-      v-if="trimmedResume.length"
-      :is="recommendationDisplay"
-      :gen-link="genLink"
-      :contents="trimmedResume"
-      :header="$tr('resumeSectionHeader')"
-      :filter="false"
-      :subheader="$tr('resumeSectionSubHeader', {numOfItems: trimmedResume.length})"/>
-    <component
-      v-if="trimmedNextSteps.length"
-      :is="recommendationDisplay"
-      :gen-link="genLink"
-      :contents="trimmedNextSteps"
-      :header="$tr('suggestedNextStepsSectionHeader')"
-      :filter="false"
-      :subheader="$tr('suggestedNextStepsSectionSubHeader', {numOfItems: trimmedNextSteps.length})"/>
-    <component
-      v-if="trimmedPopular.length"
-      :is="recommendationDisplay"
-      :gen-link="genLink"
-      :contents="trimmedPopular"
-      :header="$tr('popularSectionHeader')"
-      :filter="false"
-      :subheader="$tr('popularSectionSubHeader', {numOfItems: trimmedPopular.length})"/>
-    <component
-      v-if="trimmedOverview.length"
-      :is="recommendationDisplay"
-      :showViewAll="true"
-      :gen-link="genLink"
-      :header="$tr('overviewSectionHeader')"
-      :filter="false"
-      :contents="trimmedOverview" />
+
+    <template v-if="popular.length">
+      <content-card-group-header
+        :header="$tr('popularSectionHeader')"
+        :viewMorePageLink="popularPageLink"
+        :showViewMore="popular.length > trimmedPopular.length" />
+      <component
+        :is="recommendationDisplay"
+        :genContentLink="genContentLink"
+        :filter="false"
+        :contents="trimmedPopular" />
+    </template>
+
+    <template v-if="nextSteps.length">
+      <content-card-group-header
+        :header="$tr('suggestedNextStepsSectionHeader')"
+        :viewMorePageLink="nextStepsPageLink"
+        :showViewMore="nextSteps.length > trimmedNextSteps.length" />
+      <component
+        :is="recommendationDisplay"
+        :genContentLink="genContentLink"
+        :filter="false"
+        :contents="trimmedNextSteps" />
+    </template>
+
+    <template v-if="resume.length">
+      <content-card-group-header
+        :header="$tr('resumeSectionHeader')"
+        :viewMorePageLink="resumePageLink"
+        :showViewMore="resume.length > trimmedResume.length" />
+      <component
+        :is="recommendationDisplay"
+        :genContentLink="genContentLink"
+        :filter="false"
+        :contents="trimmedResume" />
+    </template>
+
+    <template v-for="(contents, channelId) in featured" v-if="contents.length">
+      <content-card-group-header
+        :key="channelId"
+        :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
+        :viewMorePageLink="featuredPageLink(channelId)"
+        :showViewMore="contents.length > trimContent(contents).length" />
+      <component
+        :key="channelId"
+        :is="recommendationDisplay"
+        :genContentLink="genContentLink"
+        :filter="false"
+        :contents="trimContent(contents)" />
+    </template>
+
   </div>
 
 </template>
@@ -44,88 +60,97 @@
 <script>
 
   import { PageNames } from '../../constants';
-  import { getCurrentChannelObject } from 'kolibri.coreVue.vuex.getters';
-  import pageHeader from '../page-header';
-  import contentCardCarousel from '../content-card-carousel';
-  import contentCardGrid from '../content-card-grid';
+  import contentCardGroupCarousel from '../content-card-group-carousel';
+  import contentCardGroupGrid from '../content-card-group-grid';
+  import contentCardGroupHeader from '../content-card-group-header';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
 
-  const mobileCardNumber = 3;
+  const mobileCarouselLimit = 3;
+  const desktopCarouselLimit = 15;
 
   export default {
     name: 'recommendedPage',
-    $trNameSpace: 'recommendedPage',
     $trs: {
-      pageHeader: 'Recommended',
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      popularSectionSubHeader: '{numOfItems, number} popular items',
-      suggestedNextStepsSectionSubHeader: '{numOfItems, number} suggested items',
-      resumeSectionSubHeader: '{numOfItems, number} items to be resumed',
-      overviewSectionHeader: 'Overview',
+      featuredSectionHeader: 'Featured in { channelTitle }',
+    },
+    components: {
+      contentCardGroupCarousel,
+      contentCardGroupGrid,
+      contentCardGroupHeader,
     },
     mixins: [responsiveWindow],
-    components: {
-      pageHeader,
-      contentCardCarousel,
-      contentCardGrid,
-    },
     computed: {
       isMobile() {
-        return this.windowSize.breakpoint <= 2;
+        return this.windowSize.breakpoint <= 1;
       },
       recommendationDisplay() {
         if (this.isMobile) {
-          return contentCardGrid;
+          return contentCardGroupGrid;
         }
-        return contentCardCarousel;
+        return contentCardGroupCarousel;
       },
-      trimmedResume() {
-        if (this.isMobile) {
-          return this.recommendations.resume.slice(0, mobileCardNumber);
-        }
-        return this.recommendations.resume;
+      carouselLimit() {
+        return this.isMobile ? mobileCarouselLimit : desktopCarouselLimit;
       },
-      trimmedNextSteps() {
-        if (this.isMobile) {
-          return this.recommendations.nextSteps.slice(0, mobileCardNumber);
-        }
-        return this.recommendations.nextSteps;
+      popularPageLink() {
+        return {
+          name: PageNames.RECOMMENDED_POPULAR,
+        };
+      },
+      nextStepsPageLink() {
+        return {
+          name: PageNames.RECOMMENDED_NEXT_STEPS,
+        };
+      },
+      resumePageLink() {
+        return {
+          name: PageNames.RECOMMENDED_RESUME,
+        };
       },
       trimmedPopular() {
-        if (this.isMobile) {
-          return this.recommendations.popular.slice(0, mobileCardNumber);
-        }
-        return this.recommendations.popular;
+        return this.popular.slice(0, this.carouselLimit);
       },
-      trimmedOverview() {
-        if (this.isMobile) {
-          return this.all.content.slice(0, mobileCardNumber);
-        }
-        return this.all.content;
+      trimmedNextSteps() {
+        return this.nextSteps.slice(0, this.carouselLimit);
+      },
+      trimmedResume() {
+        return this.resume.slice(0, this.carouselLimit);
+      },
+      trimmedFeatured() {
+        return this.featured.slice(0, this.carouselLimit);
       },
     },
     methods: {
-      genLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: PageNames.EXPLORE_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
+      genContentLink(id) {
         return {
-          name: PageNames.LEARN_CONTENT,
-          params: { channel_id: this.channelId, id },
+          name: PageNames.RECOMMENDED_CONTENT,
+          params: { id },
         };
+      },
+      trimContent(content) {
+        return content.slice(0, this.carouselLimit);
+      },
+      featuredPageLink(channel_id) {
+        return {
+          name: PageNames.RECOMMENDED_FEATURED,
+          params: { channel_id },
+        };
+      },
+      getChannelTitle(channel_id) {
+        return this.channels.find(channel => channel.id === channel_id).title;
       },
     },
     vuex: {
       getters: {
-        all: state => state.pageState.all,
-        channelId: state => getCurrentChannelObject(state).id,
-        recommendations: state => state.pageState.recommendations,
-        channelTitle: state => state.pageState.channelTitle,
+        channels: getChannels,
+        nextSteps: state => state.pageState.nextSteps,
+        popular: state => state.pageState.popular,
+        resume: state => state.pageState.resume,
+        featured: state => state.pageState.featured,
       },
     },
   };

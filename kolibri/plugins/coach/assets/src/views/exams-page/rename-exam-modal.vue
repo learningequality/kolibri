@@ -2,17 +2,18 @@
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
     <form @submit.prevent="callRenameExam">
-      <core-textbox
+      <k-textbox
+        ref="name"
         :label="$tr('examName')"
-        :aria-label="$tr('examName')"
         :autofocus="true"
-        :required="true"
-        :invalid="duplicateTitle"
-        :error="$tr('duplicateTitle')"
-        v-model.trim="newExamTitle"/>
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        @blur="titleBlurred = true"
+        v-model.trim="newExamTitle"
+      />
       <div class="footer">
-        <icon-button :text="$tr('cancel')" type="button" @click="close"/>
-        <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
+        <k-button :text="$tr('cancel')" appearance="flat-button" type="button" @click="close" />
+        <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="submitting" />
       </div>
     </form>
   </core-modal>
@@ -22,23 +23,24 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import { displayExamModal, renameExam } from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
-  import coreTextbox from 'kolibri.coreVue.components.textbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   export default {
-    $trNameSpace: 'renameExamModal',
+    name: 'renameExamModal',
     $trs: {
       renameExam: 'Rename exam',
       examName: 'Exam name',
       cancel: 'Cancel',
       rename: 'Rename',
       duplicateTitle: 'An exam with that title already exists',
+      required: 'This field is required',
     },
     components: {
       coreModal,
-      iconButton,
-      coreTextbox,
+      kButton,
+      kTextbox,
     },
     props: {
       examId: {
@@ -59,7 +61,12 @@
       },
     },
     data() {
-      return { newExamTitle: this.examTitle };
+      return {
+        newExamTitle: this.examTitle,
+        titleBlurred: false,
+        formSubmitted: false,
+        submitting: false,
+      };
     },
     computed: {
       duplicateTitle() {
@@ -74,11 +81,32 @@
         }
         return true;
       },
+      titleIsInvalidText() {
+        if (this.titleBlurred || this.formSubmitted) {
+          if (this.newExamTitle === '') {
+            return this.$tr('required');
+          }
+          if (this.duplicateTitle) {
+            return this.$tr('duplicateTitle');
+          }
+        }
+        return '';
+      },
+      titleIsInvalid() {
+        return !!this.titleIsInvalidText;
+      },
+      formIsValid() {
+        return !this.titleIsInvalid;
+      },
     },
     methods: {
       callRenameExam() {
-        if (!this.duplicateTitle) {
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          this.submitting = true;
           this.renameExam(this.examId, this.newExamTitle);
+        } else {
+          this.$refs.name.focus();
         }
       },
       close() {
@@ -87,8 +115,8 @@
     },
     vuex: {
       actions: {
-        displayExamModal: examActions.displayExamModal,
-        renameExam: examActions.renameExam,
+        displayExamModal,
+        renameExam,
       },
     },
   };
@@ -99,8 +127,6 @@
 <style lang="stylus" scoped>
 
   .footer
-    text-align: center
-    button
-      min-width: 45%
+    text-align: right
 
 </style>

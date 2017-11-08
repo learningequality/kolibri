@@ -15,11 +15,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="cl in sortedClasses">
+          <tr v-for="cl in sortedClasses" :key="cl.id">
             <th scope="row" class="table-text">
-              <router-link :to="recentPageLink(cl.id)">
-                {{ cl.name }}
-              </router-link>
+              <k-router-link :text="cl.name" :to="recentPageLink(cl.id)" />
             </th>
             <td class="table-data">{{ cl.memberCount }}</td>
           </tr>
@@ -38,8 +36,11 @@
 
   import * as constants from '../../constants';
   import orderBy from 'lodash/orderBy';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
+    name: 'coachClassListPage',
+    components: { kRouterLink },
     data: () => ({
       currentClassDelete: null,
     }),
@@ -64,7 +65,6 @@
         classes: state => state.classList,
       },
     },
-    $trNameSpace: 'coachClassListPage',
     $trs: {
       myClasses: 'All classes',
       pageDescription: 'View learner progress and performance',

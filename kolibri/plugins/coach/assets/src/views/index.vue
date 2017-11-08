@@ -4,18 +4,13 @@
 
     <div class="content">
       <template v-if="showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
-        <top-nav/>
+        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
+        <top-nav />
       </template>
 
-      <div v-if="isCoach || isAdmin">
-        <component :is="currentPage"/>
+      <div v-if="userCanAccessPage">
+        <component :is="currentPage" />
       </div>
-      <auth-message
-        v-else-if="isSuperuser"
-        :header="$tr('superUserPrompt')"
-        :details="$tr('superUserCommand')"
-      />
       <auth-message v-else authorizedRole="adminOrCoach" />
     </div>
 
@@ -27,8 +22,8 @@
 <script>
 
   import store from '../state/store';
-  import * as Constants from '../constants';
-  import * as coreGetters from 'kolibri.coreVue.vuex.getters';
+  import { PageNames } from '../constants';
+  import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import topNav from './top-nav';
@@ -46,12 +41,9 @@
   import learnerListPage from './reports/learner-list-page';
   import classSelector from './class-selector';
   export default {
-    $trNameSpace: 'coachRoot',
+    name: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
-      superUserPrompt: 'Signed in as device owner',
-      superUserCommand:
-        'The coach tools cannot be used by a device owner. Please sign in as an administrator or coach.',
     },
     components: {
       authMessage,
@@ -75,39 +67,42 @@
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         const pageNameToComponentMap = {
-          [Constants.PageNames.CLASS_LIST]: 'class-list-page',
-          [Constants.PageNames.EXAMS]: 'exams-page',
-          [Constants.PageNames.GROUPS]: 'groups-page',
-          [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
+          [PageNames.CLASS_LIST]: 'class-list-page',
+          [PageNames.EXAMS]: 'exams-page',
+          [PageNames.GROUPS]: 'groups-page',
+          [PageNames.CREATE_EXAM]: 'create-exam-page',
           // reports
-          [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
-          [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
-          [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
-          [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
-          [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
-          [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
-          [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
-          [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
-          [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
-          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
-          [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
+          [PageNames.RECENT_CHANNELS]: 'channel-list-page',
+          [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
+          [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
+          [PageNames.TOPIC_CHANNELS]: 'channel-list-page',
+          [PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
+          [PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
+          [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
+          [PageNames.LEARNER_LIST]: 'learner-list-page',
+          [PageNames.LEARNER_CHANNELS]: 'channel-list-page',
+          [PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
+          [PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
+          [PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
+          [PageNames.EXAM_REPORT]: 'exam-report-page',
+          [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
         };
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
+        return this.pageName !== PageNames.CLASS_LIST && this.userCanAccessPage;
+      },
+      userCanAccessPage() {
+        return this.isCoach || this.isAdmin || this.isSuperuser;
       },
     },
     methods: {
       changeClass(classSelectedId) {
-        if (this.pageName === Constants.PageNames.EXAM_REPORT) {
+        if (this.pageName === PageNames.EXAM_REPORT) {
           this.$router.push({
-            name: Constants.PageNames.EXAMS,
+            name: PageNames.EXAMS,
             params: { classId: classSelectedId },
           });
         } else {
@@ -118,9 +113,9 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isSuperuser: coreGetters.isSuperuser,
-        isAdmin: coreGetters.isAdmin,
-        isCoach: coreGetters.isCoach,
+        isAdmin,
+        isCoach,
+        isSuperuser,
         classList: state => state.classList,
         classId: state => state.classId,
       },

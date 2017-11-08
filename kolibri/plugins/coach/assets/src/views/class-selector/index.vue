@@ -1,11 +1,14 @@
 <template>
 
   <div>
-    <h1 class="classes-link"><router-link :to="classListPage">{{ $tr('allClasses') }}</router-link></h1>
-    <ui-select
-      :name="$tr('selectClass')"
+    <h1 class="classes-link">
+      <k-router-link :text="$tr('allClasses')" :to="classListPage" />
+    </h1>
+    <k-select
+      :label="$tr('selectClass')"
       :value="currentClass"
       :options="classOptions"
+      :inline="true"
       @change="changeClass"
       class="class-selector"
     />
@@ -18,17 +21,20 @@
 
   import orderBy from 'lodash/orderBy';
   import { PageNames } from '../../constants';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiIcon from 'keen-ui/src/UiIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
-    $trNameSpace: 'classSelector',
+    name: 'classSelector',
     $trs: {
       allClasses: 'All classes',
       selectClass: 'Class',
     },
     components: {
-      uiSelect,
+      kSelect,
       uiIcon,
+      kRouterLink,
     },
     props: {
       classes: {
@@ -47,11 +53,11 @@
       classOptions() {
         return this.sortedClasses.map(classroom => ({
           label: classroom.name,
-          id: classroom.id,
+          value: classroom.id,
         }));
       },
       currentClass() {
-        return this.classOptions.find(classroom => classroom.id === this.currentClassId);
+        return this.classOptions.find(classroom => classroom.value === this.currentClassId);
       },
       classListPage() {
         return { name: PageNames.CLASS_LIST };
@@ -59,7 +65,7 @@
     },
     methods: {
       changeClass(classSelected) {
-        this.$emit('changeClass', classSelected.id);
+        this.$emit('changeClass', classSelected.value);
       },
     },
   };
@@ -67,21 +73,14 @@
 </script>
 
 
-<style lang="stylus">
-
-  .class-selector
-    .ui-select__display-value
-      font-size: 1.5em
-      font-weight: bold
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   .class-selector
-    display: inline-flex
     vertical-align: bottom
+
+  >>>.ui-select__display-value
+    font-size: 1.5em
+    font-weight: bold
 
   .classes-link
     display: inline-block

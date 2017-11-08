@@ -1,28 +1,49 @@
 import { UserKinds, MaxPointsPerContent } from '../constants';
-import cookiejs from 'js-cookie';
+import some from 'lodash/some';
 
-function isUserLoggedIn(state) {
-  return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
-}
-
-function isSuperuser(state) {
-  return state.core.session.kind[0] === UserKinds.SUPERUSER;
-}
-
-function isFacilityUser(state) {
-  return isUserLoggedIn(state) && !isSuperuser(state);
-}
-
+// ROLES
 function isAdmin(state) {
-  return state.core.session.kind[0] === UserKinds.ADMIN;
+  return state.core.session.kind.includes(UserKinds.ADMIN);
 }
 
 function isCoach(state) {
-  return state.core.session.kind[0] === UserKinds.COACH;
+  return state.core.session.kind.includes(UserKinds.COACH);
 }
 
 function isLearner(state) {
-  return state.core.session.kind[0] === UserKinds.LEARNER;
+  return state.core.session.kind.includes(UserKinds.LEARNER);
+}
+
+function isUserLoggedIn(state) {
+  return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
+}
+
+function getUserRole(state) {
+  if (isAdmin(state)) {
+    return UserKinds.ADMIN;
+  } else if (isCoach(state)) {
+    return UserKinds.COACH;
+  } else if (isLearner(state)) {
+    return UserKinds.LEARNER;
+  }
+  return UserKinds.ANONYMOUS;
+}
+
+// PERMISSIONS
+function canManageContent(state) {
+  return state.core.session.can_manage_content;
+}
+function isSuperuser(state) {
+  return state.core.session.kind.includes(UserKinds.SUPERUSER);
+}
+function getUserPermissions(state) {
+  const permissions = {};
+  permissions.can_manage_content = state.core.session.can_manage_content;
+  return permissions;
+}
+
+function userHasPermissions(state) {
+  return some(getUserPermissions(state));
 }
 
 function currentFacilityId(state) {
@@ -37,32 +58,15 @@ function facilityConfig(state) {
   return state.core.facilityConfig;
 }
 
+function getChannels(state) {
+  return state.core.channels.list;
+}
+
 /*
- * Returns the 'default' channel ID:
- * - if there are channels and they match the cookie, return that
- * - else if there are channels, return the first one
- * - else return null
- *
- * Not truly a 'getter' because it doesn't use vuex state
+ * Not actually a getter, as it is not pure, defined here for convenience and use in actions
  */
-function getDefaultChannelId(channelList) {
-  if (channelList && channelList.length) {
-    const cookieVal = cookiejs.get('currentChannelId');
-    if (channelList.some(channel => channel.id === cookieVal)) {
-      return cookieVal;
-    }
-    return channelList[0].id;
-  }
-  return null;
-}
-
-function getCurrentChannelId(state) {
-  return state.core.channels.currentId;
-}
-
-/* return the current channel object, according to vuex state */
-function getCurrentChannelObject(state) {
-  return state.core.channels.list.find(channel => channel.id === getCurrentChannelId(state));
+function getChannelObject(state, channelId) {
+  return getChannels(state).find(channel => channel.id === channelId);
 }
 
 function totalPoints(state) {
@@ -80,17 +84,19 @@ function sessionTimeSpent(state) {
 export {
   isUserLoggedIn,
   isSuperuser,
-  isFacilityUser,
   isAdmin,
   isCoach,
   isLearner,
-  getDefaultChannelId,
-  getCurrentChannelId,
-  getCurrentChannelObject,
+  getChannels,
+  getChannelObject,
   currentFacilityId,
   totalPoints,
   contentPoints,
   currentUserId,
   facilityConfig,
   sessionTimeSpent,
+  canManageContent,
+  getUserRole,
+  getUserPermissions,
+  userHasPermissions,
 };

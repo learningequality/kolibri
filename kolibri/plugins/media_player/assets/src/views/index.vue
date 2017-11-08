@@ -2,7 +2,7 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <loading-spinner/>
+      <loading-spinner />
     </div>
     <div
        v-show="!loading"
@@ -10,16 +10,23 @@
        :class="{ 'mimic-fullscreen': mimicFullscreen }">
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type="`video/${video.extension}`">
+          <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">
         </template>
         <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)" :default="isDefaultTrack(track.lang)">
+          <track
+            kind="captions"
+            :src="track.storage_url"
+            :srclang="track.lang.id"
+            :label="track.lang.lang_name"
+            :default="isDefaultTrack(track.lang.id)"
+            :key="track.storage_url"
+          >
         </template>
       </video>
 
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
-          <source :src="audio.storage_url" :type="`audio/${audio.extension}`">
+          <source :src="audio.storage_url" :type="`audio/${audio.extension}`" :key="audio.storage_url">
         </template>
       </audio>
     </div>
@@ -32,26 +39,48 @@
 
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
-  import LangLookup from './languagelookup';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import ScreenFull from 'screenfull';
+  import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
 
   export default {
-    $trNameSpace: 'videoRender',
+    name: 'videoRender',
     $trs: {
       replay: 'Go back 10 seconds',
+      // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: 'Go forward 10 seconds',
+      play: 'Play',
+      pause: 'Pause',
+      currentTime: 'Current time',
+      durationTime: 'Duration time',
+      loaded: 'Loaded',
+      progress: 'Progress',
+      progressBar: 'Progress bar',
+      fullscreen: 'Fullscreen',
+      nonFullscreen: 'Non-fullscreen',
+      mute: 'Mute',
+      unmute: 'Unmute',
+      playbackRate: 'Playback rate',
+      captions: 'Captions',
+      captionsOff: 'Captions off',
+      volumeLevel: 'Volume level',
+      networkError: 'A network error caused the media download to fail part-way',
+      formatError:
+        'The media could not be loaded, either because the server or network failed or because the format is not supported',
+      corruptionOrSupportError:
+        'The media playback was aborted due to a corruption problem or because the media used features your browser did not support',
+      sourceError: 'No compatible source was found for this media',
+      encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
+    components: { loadingSpinner },
 
     mixins: [ResponsiveElement],
-
-    components: { loadingSpinner },
 
     props: {
       files: {
@@ -69,20 +98,22 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
-      videoLang: GlobalLangCode,
+      videoLangCode: GlobalLangCode,
       mimicFullscreen: false,
     }),
 
     computed: {
-      posterSource() {
+      posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
-        const posterArray = this.thumbnailFiles.filter(file =>
+        return this.thumbnailFiles.filter(file =>
           posterFileExtensions.some(ext => ext === file.extension)
         );
-        if (posterArray.length === 0) {
-          return '';
+      },
+      audioPoster() {
+        if (this.posterSources.length) {
+          return this.posterSources[0].storage_url;
         }
-        return posterArray[0].storage_url;
+        return audioIconPoster;
       },
       videoSources() {
         const videoFileExtensions = ['mp4', 'webm', 'ogg'];
@@ -105,16 +136,26 @@
         return ScreenFull.enabled;
       },
     },
+    created() {
+      ReplayButton.prototype.controlText_ = this.$tr('replay');
+      ForwardButton.prototype.controlText_ = this.$tr('forward');
+      videojs.registerComponent('ReplayButton', ReplayButton);
+      videojs.registerComponent('ForwardButton', ForwardButton);
+      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
+    },
+    mounted() {
+      this.initPlayer();
+      window.addEventListener('resize', this.throttledResizePlayer);
+    },
+    beforeDestroy() {
+      this.$emit('stopTracking');
+      window.removeEventListener('resize', this.throttledResizePlayer);
+      this.player.dispose();
+    },
     methods: {
-      getLangName(langCode) {
-        if (LangLookup[langCode]) {
-          return LangLookup[langCode].native_name;
-        }
-        return langCode;
-      },
       isDefaultTrack(langCode) {
         const shortLangCode = langCode.split('-')[0];
-        const shortGlobalLangCode = this.videoLang.split('-')[0];
+        const shortGlobalLangCode = this.videoLangCode.split('-')[0];
         if (shortLangCode === shortGlobalLangCode) {
           return true;
         }
@@ -147,10 +188,41 @@
               { name: 'captionsButton' },
             ],
           },
+          language: GlobalLangCode,
+          languages: {
+            [GlobalLangCode]: {
+              Play: this.$tr('play'),
+              Pause: this.$tr('pause'),
+              'Current Time': this.$tr('currentTime'),
+              'Duration Time': this.$tr('durationTime'),
+              Loaded: this.$tr('loaded'),
+              Progress: this.$tr('progress'),
+              'Progress Bar': this.$tr('progressBar'),
+              Fullscreen: this.$tr('fullscreen'),
+              'Non-Fullscreen': this.$tr('nonFullscreen'),
+              Mute: this.$tr('mute'),
+              Unmute: this.$tr('unmute'),
+              'Playback Rate': this.$tr('playbackRate'),
+              Captions: this.$tr('captions'),
+              'captions off': this.$tr('captionsOff'),
+              'Volume Level': this.$tr('volumeLevel'),
+              'A network error caused the media download to fail part-way.': this.$tr('networkError'),
+              'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
+                'formatError'
+              ),
+              'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': this.$tr(
+                'corruptionOrSupportError'
+              ),
+              'No compatible source was found for this media.': this.$tr('sourceError'),
+              'The media is encrypted and we do not have the keys to decrypt it.': this.$tr(
+                'encryptionError'
+              ),
+            },
+          },
         };
 
         if (!this.isVideo) {
-          videojsConfig.poster = this.posterSource;
+          videojsConfig.poster = this.audioPoster;
         }
 
         // Add appropriate fullscreen button
@@ -215,7 +287,7 @@
           track => track.mode === 'showing'
         );
         if (currentTrack) {
-          Lockr.set('videoLang', currentTrack.language);
+          Lockr.set('videoLangCode', currentTrack.language);
         }
       },
 
@@ -277,22 +349,6 @@
           this.player.addClass('player-tiny');
         }
       },
-    },
-    created() {
-      ReplayButton.prototype.controlText_ = this.$tr('replay');
-      ForwardButton.prototype.controlText_ = this.$tr('forward');
-      videojs.registerComponent('ReplayButton', ReplayButton);
-      videojs.registerComponent('ForwardButton', ForwardButton);
-      this.videoLang = Lockr.get('videoLang') || this.videoLang;
-    },
-    mounted() {
-      this.initPlayer();
-      window.addEventListener('resize', this.throttledResizePlayer);
-    },
-    beforeDestroy() {
-      this.$emit('stopTracking');
-      window.removeEventListener('resize', this.throttledResizePlayer);
-      this.player.dispose();
     },
   };
 

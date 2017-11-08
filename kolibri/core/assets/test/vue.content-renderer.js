@@ -1,197 +1,180 @@
 /* eslint-env mocha */
-// The following two rules are disabled so that we can use anonymous functions with mocha
-// This allows the test instance to be properly referenced with `this`
-/* eslint prefer-arrow-callback: "off", func-names: "off" */
-
 import Vue from 'vue-test';
 import contentRenderer from '../src/views/content-renderer';
-
-const ContentRendererComponent = Vue.extend(contentRenderer);
+import { mount } from 'avoriaz';
 import assert from 'assert';
 import sinon from 'sinon';
 
-describe('contentRenderer Component', function() {
-  beforeEach(function() {
-    this.kind = 'test';
-    this.files = [
-      {
-        available: true,
-        extension: 'tst',
-      },
-    ];
-    this.id = 'testing';
-  });
-  describe('computed property', function() {
-    describe('availableFiles', function() {
-      it('should be 1 when there is one available file', function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+describe('contentRenderer Component', () => {
+  const defaultFiles = [
+    {
+      available: true,
+      extension: 'tst',
+    },
+  ];
+
+  function defaultPropsDataFromFiles(files = defaultFiles) {
+    return {
+      id: 'testing',
+      kind: 'test',
+      files,
+    };
+  }
+
+  describe('computed property', () => {
+    describe('availableFiles', () => {
+      function testAvailableFiles(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.availableFiles.length, expected);
+      }
+
+      it('should be 1 when there is one available file', () => {
+        testAvailableFiles(defaultFiles, 1);
       });
-      it('should be 1 when there is one available file and a supplementary file', function() {
-        this.files.push({
+
+      it('should be 1 when there is one available file and a supplementary file', () => {
+        const newFiles = defaultFiles.concat({
           available: true,
           supplementary: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+        testAvailableFiles(newFiles, 1);
       });
-      it('should be 1 when there is one available file and a thumbnail file', function() {
-        this.files.push({
+
+      it('should be 1 when there is one available file and a thumbnail file', () => {
+        const newFiles = defaultFiles.concat({
           available: true,
           thumbnail: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 1);
+        testAvailableFiles(newFiles, 1);
       });
-      it('should be 2 when there are two available files', function() {
-        this.files.push({
+
+      it('should be 2 when there are two available files', () => {
+        const newFiles = defaultFiles.concat({
           available: true,
           extension: 'vtt',
         });
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.availableFiles.length, 2);
+        testAvailableFiles(newFiles, 2);
       });
     });
-    describe('defaultFile', function() {
-      it('should be the file when there is one available file', function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.defaultFile, this.files[0]);
+
+    describe('defaultFile', () => {
+      function testDefaultFile(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.defaultFile, expected);
+      }
+
+      it('should be the file when there is one available file', () => {
+        testDefaultFile(defaultFiles, defaultFiles[0]);
       });
-      it('should be undefined when there are no available files', function() {
-        this.files = [];
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.defaultFile, 'undefined');
+
+      it('should be undefined when there are no available files', () => {
+        testDefaultFile([], undefined);
       });
     });
-    describe('extension', function() {
-      it("should be the file's extension when there is one available file", function() {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.extension, this.files[0].extension);
+
+    describe('extension', () => {
+      function testExtension(files, expected) {
+        const wrapper = mount(contentRenderer, {
+          propsData: defaultPropsDataFromFiles(files),
+        });
+        assert.equal(wrapper.vm.extension, expected);
+      }
+
+      it("should be the file's extension when there is one available file", () => {
+        testExtension(defaultFiles, defaultFiles[0].extension);
       });
-      it('should be undefined when there are no available files', function() {
-        this.files = [];
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.extension, 'undefined');
+
+      it('should be undefined when there are no available files', () => {
+        testExtension([], undefined);
       });
     });
   });
-  describe('method', function() {
-    describe('updateRendererComponent', function() {
-      describe('when content is available', function() {
-        beforeEach(function() {
-          this.vm = new ContentRendererComponent({
-            propsData: {
-              id: this.id,
-              kind: this.kind,
-              files: this.files,
-            },
-          }).$mount();
-          this.vm.available = true;
-          this.component = { test: 'testing' };
-          this.initSessionSpy = sinon.stub();
-          this.initSessionSpy.returns(Promise.resolve({}));
-          this.vm.initSession = this.initSessionSpy;
-          this.vm.Kolibri = {
-            retrieveContentRenderer: () => Promise.resolve(this.component),
-          };
-        });
-        it('should set currentViewClass to returned component', function() {
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(() => {
-              assert.equal(this.vm.currentViewClass, this.component);
-              resolve();
-            });
-          });
-        });
-        it('should call initSession', function() {
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(() => {
-              assert.ok(this.initSessionSpy.calledOnce);
-              resolve();
-            });
-          });
-        });
-        describe('when no renderer is available', function() {
-          it('should set noRendererAvailable to true', function() {
-            this.vm.Kolibri = {
-              retrieveContentRenderer: () => Promise.reject(),
+
+  describe('method', () => {
+    describe('updateRendererComponent', () => {
+      describe('when content is available', () => {
+        describe('when renderer is available', () => {
+          const dummyComponent = { test: 'testing' };
+          before(() => {
+            Vue.prototype.Kolibri = {
+              retrieveContentRenderer: () => Promise.resolve(dummyComponent),
             };
-            return new Promise(resolve => {
-              this.vm.updateRendererComponent().then(() => {
-                assert.equal(this.vm.noRendererAvailable, true);
-                resolve();
-              });
+          });
+
+          after(() => {
+            Vue.prototype.Kolibri = {};
+          });
+
+          it('should set currentViewClass to returned component', () => {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            return Vue.nextTick().then(() => {
+              assert.deepEqual(wrapper.vm.currentViewClass, dummyComponent);
+            });
+          });
+
+          it('should call initSession', () => {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+              initSession: sinon.stub().returns(Promise.resolve()),
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            return Vue.nextTick().then(() => {
+              assert.ok(wrapper.vm.initSession.calledOnce);
+            });
+          });
+        });
+
+        describe('when no renderer is available', () => {
+          before(() => {
+            Vue.prototype.Kolibri = {
+              retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
+            };
+          });
+
+          after(() => {
+            Vue.prototype.Kolibri = {};
+          });
+
+          it('calling updateRendererComponent should set noRendererAvailable to true', () => {
+            const props = Object.assign(defaultPropsDataFromFiles(), {
+              available: true,
+            });
+            const wrapper = mount(contentRenderer, {
+              propsData: props,
+            });
+            // 'created' hook runs it once. Running it here again for testing.
+            // TODO Look into how to do this without calling the method directly
+            return wrapper.vm.updateRendererComponent().then(() => {
+              assert.equal(wrapper.vm.noRendererAvailable, true);
             });
           });
         });
       });
-      describe('when content is not available', function() {
-        beforeEach(function() {
-          this.vm = new ContentRendererComponent({
-            propsData: {
-              id: this.id,
-              kind: this.kind,
-              files: this.files,
-            },
-          }).$mount();
-        });
-        it('should return null', function() {
-          this.vm.available = false;
-          return new Promise(resolve => {
-            this.vm.updateRendererComponent().then(component => {
-              assert.equal(component, null);
-              resolve();
-            });
+
+      describe('when content is not available', () => {
+        it('should return null', () => {
+          const props = Object.assign(defaultPropsDataFromFiles(), {
+            available: false,
+          });
+          const wrapper = mount(contentRenderer, {
+            propsData: props,
+          });
+          // 'created' hook runs it once. Running it here again for testing.
+          return wrapper.vm.updateRendererComponent().then(component => {
+            assert.equal(component, null);
           });
         });
       });

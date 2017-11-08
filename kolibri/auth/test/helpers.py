@@ -4,6 +4,25 @@ Helper functions for use across the user/auth/permission-related tests.
 
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDataset
 
+from kolibri.core.device.models import DevicePermissions, DeviceSettings
+
+
+def create_superuser(facility, username="superuser"):
+    from .test_api import DUMMY_PASSWORD
+    superuser = FacilityUser.objects.create(username=username, facility=facility)
+    superuser.set_password(DUMMY_PASSWORD)
+    superuser.save()
+    DevicePermissions.objects.create(user=superuser, is_superuser=True)
+    return superuser
+
+
+def provision_device():
+    if DeviceSettings.objects.all().exists():
+        DeviceSettings.objects.update(is_provisioned=True)
+    else:
+        DeviceSettings.objects.create(is_provisioned=True)
+
+
 def create_dummy_facility_data(allow_sign_ups=False, classroom_count=2, learnergroup_count=2):
     """
     Helper to bootstrap facility data for use in role/permission scenarios (collections, users, and roles).
@@ -30,6 +49,7 @@ def create_dummy_facility_data(allow_sign_ups=False, classroom_count=2, learnerg
         data["learnergroups"].append(lgs)
 
     # create the users
+    data["superuser"] = create_superuser(facility)
     data["facility_admin"] = FacilityUser.objects.create(username="facadmin", password="***", facility=facility)
     data["facility_coach"] = FacilityUser.objects.create(username="faccoach", password="***", facility=facility)
     data["classroom_admins"] = [

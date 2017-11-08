@@ -1,9 +1,16 @@
 <template>
 
   <tr>
-    <th class="col-checkbox"><input type="checkbox" :checked="isSelected" @change="changeSelection"></th>
+    <th class="col-checkbox">
+      <k-checkbox
+        :label="$tr('selectExercise')"
+        :showLabel="false"
+        :checked="isSelected"
+        @change="changeSelection"
+      />
+    </th>
     <td class="col-title">
-      <content-icon :kind="exercise"/>
+      <content-icon :kind="exercise" />
       <span>{{ exerciseTitle }}</span>
     </td>
     <td class="col-selection"></td>
@@ -16,12 +23,18 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import iconButton from 'kolibri.coreVue.components.iconButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+
   export default {
-    $trNameSpace: 'exerciseRow',
+    name: 'exerciseRow',
+    $trs: {
+      selectExercise: 'Select exercise',
+    },
     components: {
       contentIcon,
-      iconButton,
+      kButton,
+      kCheckbox,
     },
     props: {
       exerciseId: {
@@ -32,7 +45,7 @@
         type: String,
         required: true,
       },
-      exerciseNumAssesments: {
+      exerciseNumAssessments: {
         type: Number,
         required: true,
       },
@@ -57,13 +70,13 @@
           this.$emit('removeExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments,
+            numAssessments: this.exerciseNumAssessments,
           });
         } else {
           this.$emit('addExercise', {
             id: this.exerciseId,
             title: this.exerciseTitle,
-            numAssessments: this.exerciseNumAssesments,
+            numAssessments: this.exerciseNumAssessments,
           });
         }
       },

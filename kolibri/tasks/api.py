@@ -2,14 +2,14 @@ import logging as logger
 import os
 
 import requests
-from barbequeue.common.classes import State
-from barbequeue.exceptions import UserCancelledError
+from iceqube.common.classes import State
+from iceqube.exceptions import UserCancelledError
 from django.apps.registry import AppRegistryNotReady
-from django.core.management import call_command
-from django.db import connections
+from django.core.management import CommandError, call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
-from kolibri.content.models import ChannelMetadataCache
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path, get_content_database_file_url
 from rest_framework import serializers, viewsets
@@ -17,7 +17,6 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .client import get_client
-from .permissions import IsDeviceOwnerOnly
 
 try:
     from django.apps import apps
@@ -34,11 +33,12 @@ logging = logger.getLogger(__name__)
 REMOTE_IMPORT = 'remoteimport'
 LOCAL_IMPORT = 'localimport'
 LOCAL_EXPORT = 'localexport'
+DELETE_CHANNEL = 'deletechannel'
 
 id_tasktype = {}
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (IsDeviceOwnerOnly,)
+    permission_classes = (CanManageContent,)
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
@@ -61,6 +61,28 @@ class TasksViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
+
+    @list_route(methods=['post'])
+    def startdeletechannel(self, request):
+        '''
+        Delete a channel and all its associated content from the server
+        '''
+
+        if "channel_id" not in request.data:
+            raise serializers.ValidationError(
+                "The 'channel_id' field is required.")
+
+        channel_id = request.data['channel_id']
+
+        task_id = get_client().schedule(
+            _deletechannel, channel_id, track_progress=True)
+
+        id_tasktype[task_id] = DELETE_CHANNEL
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _job_to_response(get_client().status(task_id))
+
+        return Response(resp)
 
     @list_route(methods=['post'])
     def startremoteimport(self, request):
@@ -184,14 +206,8 @@ def _networkimport(channel_id, update_progress=None, check_for_cancel=None):
             update_progress=update_progress,
             check_for_cancel=check_for_cancel)
     except UserCancelledError:
-        connections.close_all()  # close all DB connections (FIX for #1818)
-        try:
-            os.remove(get_content_database_file_path(channel_id))
-        except OSError:
-            pass
-        ChannelMetadataCache.objects.filter(id=channel_id).delete()
+        call_command("deletechannel", channel_id, update_progress=update_progress)
         raise
-    connections.close_all()  # close all DB connections (FIX for #1818)
 
 def _localimport(drive_id, update_progress=None, check_for_cancel=None):
     drives = get_mounted_drives_with_channel_info()
@@ -214,23 +230,19 @@ def _localimport(drive_id, update_progress=None, check_for_cancel=None):
                 update_progress=update_progress,
                 check_for_cancel=check_for_cancel)
     except UserCancelledError:
-        connections.close_all()  # close all DB connections (FIX for #1818)
         for channel in drive.metadata["channels"]:
             channel_id = channel["id"]
             try:
-                os.remove(get_content_database_file_path(channel_id))
-            except OSError:
+                call_command("deletechannel", channel_id, update_progress=update_progress)
+            except CommandError:
                 pass
-            ChannelMetadataCache.objects.filter(id=channel_id).delete()
-        connections.close_all()  # close all DB connections (FIX for #1818)s
         raise
-    connections.close_all()  # close all DB connections (FIX for #1818)
 
 
 def _localexport(drive_id, update_progress=None, check_for_cancel=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
-    for channel in ChannelMetadataCache.objects.all():
+    for channel in ChannelMetadata.objects.all():
         call_command(
             "exportchannel",
             channel.id,
@@ -249,9 +261,11 @@ def _localexport(drive_id, update_progress=None, check_for_cancel=None):
                 os.remove(get_content_database_file_path(channel.id, datafolder=drive.datafolder))
             except OSError:
                 pass
-            connections.close_all()  # close all DB connections (FIX for #1818)
             raise
-    connections.close_all()  # close all DB connections (FIX for #1818)
+
+
+def _deletechannel(channel_id, update_progress=None):
+    call_command("deletechannel", channel_id, update_progress=update_progress)
 
 
 def _job_to_response(job):
@@ -262,6 +276,7 @@ def _job_to_response(job):
             "percentage": 0,
             "progress": [],
             "id": None,
+            "cancellable": False,
         }
     else:
         return {
@@ -271,4 +286,5 @@ def _job_to_response(job):
             "traceback": str(job.traceback),
             "percentage": job.percentage_progress,
             "id": job.job_id,
+            "cancellable": job.cancellable,
         }

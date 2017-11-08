@@ -1,4 +1,4 @@
-Files and Directories
+Files and directories
 =====================
 
 
@@ -78,8 +78,8 @@ MANIFEST.in
 package.json
   javascript dependencies, helper scripts, and configuration
 
-pytest.bdd.ini, pytest.ini
-  configuration files for `pytest <http://pytest.org/latest/>`_
+pytest.ini
+  configuration file for `pytest <http://pytest.org/latest/>`_
 
 pytest_runner-2.7.1-py2.7.egg
   ?

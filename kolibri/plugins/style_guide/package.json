@@ -1,0 +1,14 @@
+{
+  "name": "style_guide",
+  "description": "Kolibri's living style guide",
+  "private": true,
+  "dependencies": {
+    "@vuedoc/parser": "https://github.com/vuedoc/parser",
+    "codemirror": "^5.26.0",
+    "escodegen": "^1.8.1",
+    "vuep": "^0.7.0"
+  },
+  "devDependencies": {
+    "raw-loader": "0.5.1"
+  }
+}

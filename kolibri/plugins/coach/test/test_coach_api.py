@@ -4,14 +4,13 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import datetime
 import tempfile
 from django.core.urlresolvers import reverse
-from django.db import connections
 from django.test.utils import override_settings
 from django.utils import timezone
 from kolibri.auth.constants import collection_kinds, role_kinds
 from kolibri.content import models as content
-from kolibri.content.content_db_router import set_active_content_database
 from rest_framework.test import APITestCase
-from kolibri.auth.models import DeviceOwner, Facility, FacilityUser, Role
+from kolibri.auth.models import Facility, FacilityUser, Role
+from kolibri.auth.test.helpers import provision_device
 from kolibri.logger.models import ContentSummaryLog
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
@@ -27,18 +26,10 @@ class ContentReportAPITestCase(APITestCase):
     Testcase for content API methods
     """
     fixtures = ['content_test.json']
-    multi_db = True
-    the_channel_id = '15137d33c49f489ebe08893bfa6b5414'
-    connections.databases[the_channel_id] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
-        # create DeviceOwner to pass the setup_wizard middleware check
-        DeviceOwner.objects.create(username='test-device-owner', password=123)
-        # set the active content database for the duration of the test
-        set_active_content_database(self.the_channel_id)
+        provision_device()
 
     def _reverse_channel_url(self, pattern_name, extra_kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
@@ -99,7 +90,7 @@ class ContentReportAPITestCase(APITestCase):
             [{'log_count_complete': 0, 'log_count_total': 1, 'total_progress': 0.5}]
         ])
 
-    def test_contentreport_time_filtering(self):
+    def test_recentreport_time_filtering(self):
 
         # set up data for testing time filtering on content node endpoint
         facility = Facility.objects.create(name="MyFac")
@@ -143,10 +134,52 @@ class ContentReportAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['pk'], c2c3.pk)
 
-    def tearDown(self):
-        """
-        clean up files/folders created during the test
-        """
-        # set the active content database to None now that the test is over
-        set_active_content_database(None)
-        super(ContentReportAPITestCase, self).tearDown()
+    def test_recentreport_unique_filtering(self):
+
+        # set up data for testing time filtering on content node endpoint
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="learner", facility=facility)
+        user.set_password("pass")
+        user.save()
+
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password("pass")
+        admin.save()
+
+        Role.objects.create(user=admin, collection=facility, kind=role_kinds.ADMIN)
+        root = content.ContentNode.objects.get(title="root")
+        c2c1 = content.ContentNode.objects.get(title="c2c1")
+        new_id = c2c1.id[:-1] + '1'
+        content.ContentNode.objects.create(
+            id=new_id,
+            content_id=c2c1.content_id,
+            kind=c2c1.kind,
+            channel_id=c2c1.channel_id,
+            parent=root,
+            available=True,
+            title=c2c1.title,
+
+        )
+
+        start_date = datetime.datetime(2000, 1, 1)
+
+        date = timezone.now() - datetime.timedelta(6)
+
+        ContentSummaryLog.objects.create(
+            user=user,
+            content_id=c2c1.content_id,
+            progress=1.0,
+            kind=c2c1.kind,
+            channel_id=self.the_channel_id,
+            start_timestamp=start_date,
+            end_timestamp=date,
+        )
+
+        # check that only the log less than 7 days ago returns from recent report
+        self.client.login(username="admin", password="pass", facility=facility)
+        response = self.client.get(self._reverse_channel_url("kolibri:coach:recentreport-list", {
+            'content_node_id': root.id,
+            'collection_kind': collection_kinds.FACILITY,
+            'collection_id': facility.id,
+        }))
+        self.assertEqual(len(response.data), 1)

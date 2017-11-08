@@ -2,12 +2,12 @@
 
   <th scope="row">
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"/>
-      <router-link v-if="link" :to="link" class="link">{{ title }}</router-link>
+      <content-icon :kind="kind" class="icon" />
+      <k-router-link v-if="link" :text="title" :to="link" class="link" />
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper">
-      <slot name="details" />
+      <slot name="details"></slot>
     </div>
   </th>
 
@@ -16,10 +16,12 @@
 
 <script>
 
-  import validateLinkObject from 'kolibri.utils.validateLinkObject';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
-    components: { contentIcon },
+    components: { contentIcon, kRouterLink },
     props: {
       kind: {
         type: String,

@@ -5,12 +5,14 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey">
     <div class="search-box-row">
+      <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
         v-model="searchQuery"
+        id="searchfield"
         type="search"
         class="search-input"
         ref="searchInput"
-        :placeholder="$tr('search')"
+        :placeholder="$tr('searchBoxLabel')"
       >
       <div class="search-buttons-wrapper">
         <ui-icon-button
@@ -19,7 +21,7 @@
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
-          :ariaLabel="$tr('clear')"
+          :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
         />
 
@@ -29,7 +31,7 @@
             color="white"
             class="search-submit-button"
             :icon="icon"
-            :ariaLabel="$tr('search')"
+            :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
           />
         </div>
@@ -46,10 +48,11 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    $trNameSpace: 'searchBox',
+    name: 'searchBox',
     $trs: {
-      search: 'Search',
-      clear: 'Clear',
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
     },
     components: {
       uiIconButton,
@@ -64,6 +67,11 @@
       return {
         searchQuery: this.searchTerm,
       };
+    },
+    watch: {
+      searchTerm(val) {
+        this.searchQuery = val || '';
+      },
     },
     methods: {
       handleEscKey() {
@@ -80,11 +88,6 @@
             query: { query: this.searchQuery },
           });
         }
-      },
-    },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
       },
     },
     vuex: {
@@ -116,7 +119,6 @@
   .search-input
     display: table-cell
     width: 100%
-    height: 36px
     margin: 0
     padding: 0
     padding-left: 8px
