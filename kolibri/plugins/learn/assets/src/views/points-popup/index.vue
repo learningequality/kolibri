@@ -15,6 +15,14 @@
       </div>
     </div>
 
+    <ui-alert
+      v-if="!isUserLoggedIn"
+      :dismissible="false"
+      type="warning"
+    >
+      {{ $tr('signIn') }}
+    </ui-alert>
+
     <div class="next-item-section">
       <h2 class="next-item-heading">{{ $tr('nextContent') }}</h2>
       <div>
@@ -35,13 +43,15 @@
 
 <script>
 
-  import { contentPoints } from 'kolibri.coreVue.vuex.getters';
+  import { contentPoints, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import uiAlert from 'keen-ui/src/UiAlert';
+
   export default {
     name: 'pointsPopup',
     $trs: {
@@ -57,6 +67,7 @@
       item: 'Item',
       close: 'Close',
       pointsForCompletion: 'Points for completion',
+      signIn: 'Sign in or create an account to save points you earn',
     },
     components: {
       pointsIcon,
@@ -64,8 +75,14 @@
       progressIcon,
       coreModal,
       kButton,
+      uiAlert,
     },
-    vuex: { getters: { contentPoints } },
+    vuex: {
+      getters: {
+        contentPoints,
+        isUserLoggedIn,
+      },
+    },
     props: {
       kind: { type: String },
       title: { type: String },
