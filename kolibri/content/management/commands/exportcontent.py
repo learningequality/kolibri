@@ -25,7 +25,7 @@ class Command(AsyncCommand):
             "--node_ids", "-n",
             # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(","),
-            default="",
+            default=[],
             required=False,
             dest="node_ids",
             help=node_ids_help_text,
@@ -42,9 +42,9 @@ class Command(AsyncCommand):
         parser.add_argument(
             "--exclude_node_ids",
             type=lambda x: x.split(","),
-            default="",
+            default=[],
             required=False,
-            dest="exlude_node_ids",
+            dest="exclude_node_ids",
             help=exclude_node_ids_help_text
         )
 

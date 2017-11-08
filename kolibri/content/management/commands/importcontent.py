@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
@@ -27,17 +28,16 @@ class Command(AsyncCommand):
         # However, some optional arguments apply to both groups. Add them here!
         node_ids_help_text = """
         Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
-        Make sure to call this near the end of the argument list.
 
         e.g.
 
-        kolibri manage importcontent network <channel id> --node_ids <id1>,<id2>, [<ids>,...]
+        kolibri manage importcontent --node_ids <id1>,<id2>, [<ids>,...] {network, disk} <channel id>
         """
         parser.add_argument(
             "--node_ids", "-n",
             # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(","),
-            default="",
+            default=[],
             required=False,
             dest="node_ids",
             help=node_ids_help_text,
@@ -45,26 +45,19 @@ class Command(AsyncCommand):
 
         exclude_node_ids_help_text = """
         Specify one or more node IDs to exclude. Files associated to those node IDs will be not be imported.
-        Make sure to call this near the end of the argument list.
 
         e.g.
 
-        kolibri manage importcontent network <channel id> --exclude_node_ids <id1>,<id2>, [<ids>,...]
+        kolibri manage importcontent --exclude_node_ids <id1>,<id2>, [<ids>,...] {network, disk} <channel id>
         """
         parser.add_argument(
             "--exclude_node_ids",
+            # Split the comma separated string we get, into a list of string
             type=lambda x: x.split(","),
-            default="",
+            default=[],
             required=False,
-            dest="exlude_node_ids",
+            dest="exclude_node_ids",
             help=exclude_node_ids_help_text
-        )
-
-        parser.add_argument(
-            "--base_url",
-            type=str,
-            default=None,
-            dest="base_url",
         )
 
         # to implement these two groups of commands and their corresponding
@@ -84,31 +77,33 @@ class Command(AsyncCommand):
         network_subparser = subparsers.add_parser(
             name='network',
             cmd=self,
-            help="Download the given channel through the network."
+            help="Download the given channel through the network.",
         )
         network_subparser.add_argument('channel_id', type=str)
+
+        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
         network_subparser.add_argument(
-            'content_id',
-            nargs="*",  # 0 or more arguments of content_id can be passed in.
+            "--baseurl",
             type=str,
-            default=[],
+            default=default_studio_url,
+            dest="baseurl",
         )
 
-        local_subparser = subparsers.add_parser(
+        disk_subparser = subparsers.add_parser(
             name='disk',
             cmd=self,
             help='Copy the content from the given folder.'
         )
-        local_subparser.add_argument('channel_id', type=str)
-        local_subparser.add_argument('directory', type=str)
+        disk_subparser.add_argument('channel_id', type=str)
+        disk_subparser.add_argument('directory', type=str)
 
-    def download_content(self, channel_id, node_ids=None, exclude_node_ids=None, base_url=None):
-        self._transfer(DOWNLOAD_METHOD, channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, base_url=base_url)
+    def download_content(self, channel_id, node_ids=None, exclude_node_ids=None, baseurl=None):
+        self._transfer(DOWNLOAD_METHOD, channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, baseurl=baseurl)
 
     def copy_content(self, channel_id, path, node_ids=None, exclude_node_ids=None):
         self._transfer(COPY_METHOD, channel_id, path=path, node_ids=node_ids, exclude_node_ids=exclude_node_ids)
 
-    def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, base_url=None):  # noqa: max-complexity=16
+    def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None):  # noqa: max-complexity=16
 
         files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
 
@@ -144,7 +139,7 @@ class Command(AsyncCommand):
 
                 # determine where we're downloading/copying from, and create appropriate transfer object
                 if method == DOWNLOAD_METHOD:
-                    url = paths.get_content_storage_remote_url(filename, base_url=base_url)
+                    url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
                     filetransfer = transfer.FileDownload(url, dest)
                 elif method == COPY_METHOD:
                     srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
@@ -182,7 +177,10 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.download_content(options["channel_id"], node_ids=options["node_ids"], base_url=options["base_url"])
+            self.download_content(options["channel_id"],
+                                  node_ids=options["node_ids"],
+                                  exclude_node_ids=options['exclude_node_ids'],
+                                  baseurl=options["baseurl"])
         elif options['command'] == 'disk':
             self.copy_content(options["channel_id"], options["directory"], node_ids=options["node_ids"])
         else:
