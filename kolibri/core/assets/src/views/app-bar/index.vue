@@ -7,6 +7,12 @@
     class="app-bar"
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
+
+    <div>
+      <div class="app-bar-title-icon"></div>
+      {{ title }}
+    </div>
+
     <div slot="actions">
       <slot name="app-bar-actions"/>
 
@@ -53,7 +59,7 @@
   import keenMenuPort from '../side-nav/keen-menu-port';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
-  import languageSwitcher from '../language-switcher';
+  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
   export default {
     mixins: [responsiveWindow],
     name: 'appBar',
@@ -150,6 +156,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .app-bar
     overflow: hidden
 
@@ -159,5 +167,14 @@
   .role
     font-size: small
     margin-bottom: 8px
+
+  // Will display icon in app bar if variables are defined
+  .app-bar-title-icon
+    background: $app-bar-title-icon
+    height: $app-bar-title-icon-height
+    width: $app-bar-title-icon-height
+    display: inline-block
+    vertical-align: middle
+    background-size: cover
 
 </style>
