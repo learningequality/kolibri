@@ -48,6 +48,16 @@ class DeviceProvisionTestCase(APITestCase):
         self.client.post(reverse('deviceprovision'), data, format="json")
         self.assertEqual(FacilityUser.objects.get().username, self.superuser_data["username"])
 
+    def test_superuser_password_set_correctly(self):
+        data = {
+            "superuser": self.superuser_data,
+            "facility": self.facility_data,
+            "preset": self.preset_data,
+            "language_id": self.language_id,
+        }
+        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.assertTrue(FacilityUser.objects.get().check_password(self.superuser_data["password"]))
+
     def test_superuser_device_permissions_created(self):
         data = {
             "superuser": self.superuser_data,
