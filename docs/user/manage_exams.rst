@@ -6,7 +6,7 @@ Manage Exams
 
 You can view, create and delete exams, as well as assign them to learners, using the **Exams** tab in your **Coach** dashboard. Default view displays the list of all exams in a selected class, with a series of options to set the visibility, (de)activate when required, and view report of students who took them.
 
-.. image:: img/manage_exams.png
+.. image:: img/manage-exams.png
   :alt: manage exams home page
 
 .. note::
@@ -18,14 +18,14 @@ Create New Exam
 
 To create a new exam, follow these steps.
 
-#. Click **+ New exam** button.
+#. Click **New exam** button.
 #. Select the content channel from which you wish to select questions for the exam.
 #. Click **Create exam** to confirm, or **Cancel** to exit the confirmation window.
 #. Fill in the field for exam title.
 #. Fill in the field for number of questions you want exam to contain.
 #. Navigate through the topic tree and select checkboxes of those exercises you want to include in the exam.
 
-    .. image:: img/add_content_exam.png
+    .. image:: img/add-content-exam.png
       :alt: add content to your exam
 
 
@@ -33,7 +33,7 @@ To create a new exam, follow these steps.
 
 #. Click **Preview** button to view the result in overlay window.
 
-    .. image:: img/preview_exam.png
+    .. image:: img/preview-exam.png
       :alt: preview the content of your exam
 
 
@@ -52,7 +52,7 @@ Newly created exam will be visible to entire class. To change exam visibility, m
 #. Select the group(s) of learners to whom you wish to assign the exam.
 #. Click **Update** to confirm, or **Cancel** to exit the confirmation window.
 
-.. image:: img/exam_visibility.png
+.. image:: img/exam-visibility.png
   :alt: assign exam to groups
 
 
@@ -73,19 +73,19 @@ To view the report on learners who have taken the exam, follow these steps.
 #. Click down arrow near the **Activate** button for the desired exam from the list.
 #. Select **View report** in the drop-down menu.
 
-    .. image:: img/exam_menu.png
+    .. image:: img/exam-menu.png
       :alt: open the exam report from the drop-down selector
 
 
 #. Click the name of the learner to view the detailed report with preview of results for each question.
 
-    .. image:: img/exam_report.png
+    .. image:: img/exam-report.png
       :alt: view the exam report for the whole group or class
 
 
 #. Click each of the questions to preview it and understand better which question learners answered correctly in the exam and those they struggled with.
 
-    .. image:: img/exam_report_detail.png
+    .. image:: img/exam-report-detail.png
       :alt: view the detailed exam report for the selected learner
 
 
