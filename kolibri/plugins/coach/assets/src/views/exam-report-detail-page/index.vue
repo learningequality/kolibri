@@ -10,7 +10,7 @@
           :contentName="exam.title"
           :userName="userName"
           :questions="examAttempts"
-          :completionTimestamp="new Date(completionTimestamp)"
+          :completionTimestamp="completionTimestamp"
           :completed="closed" />
       </div>
       <div class="details-container">

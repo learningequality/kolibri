@@ -9,8 +9,9 @@ import * as coreActions from '../../src/state/actions';
 import * as constants from '../../src/constants';
 import sinon from 'sinon';
 import urls from 'kolibri.urls';
-import { SessionResource } from 'kolibri.resources';
+import { SessionResource, AttemptLogResource } from 'kolibri.resources';
 import * as browser from '../../src/utils/browser';
+import ConditionalPromise from '../../src/conditionalPromise';
 
 Vue.use(Vuex);
 
@@ -103,7 +104,6 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful logout', done => {
-      const clearCachesSpy = sinon.spy();
       const getModelStub = sinon.stub().returns({
         delete: () => Promise.resolve('goodbye'),
       });
@@ -118,6 +118,33 @@ describe('Vuex store/actions for core module', () => {
           sinon.assert.called(assignStub);
         })
         .then(done, done);
+    });
+  });
+});
+
+describe('Vuex core logging actions', () => {
+  describe('attempt log saving', () => {
+    it('saveAndStoreAttemptLog does not overwrite state if item id has changed', done => {
+      const store = createStore();
+      coreActions.createAttemptLog(store, 'first');
+      let externalResolve;
+      const firstState = Object.assign({}, store.state.core.logging.attempt);
+      const findModelStub = sinon.stub(AttemptLogResource, 'findModel');
+      findModelStub.returns({
+        save: () =>
+          new ConditionalPromise(resolve => {
+            externalResolve = resolve;
+          }),
+      });
+      const promise = coreActions.saveAndStoreAttemptLog(store);
+      coreActions.createAttemptLog(store, 'second');
+      store.state.core.logging.attempt.id = 'assertion';
+      externalResolve(firstState);
+      promise.then(() => {
+        assert.equal(store.state.core.logging.attempt.id, 'assertion');
+        assert.equal(store.state.core.logging.attempt.item, 'second');
+        done();
+      });
     });
   });
 });

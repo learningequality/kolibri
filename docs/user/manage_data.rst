@@ -4,10 +4,10 @@ Manage Data
 ~~~~~~~~~~~
 
 .. note::
-  To manage Kolibri usage data you must be logged-in as **Device Owner** or **Admin**. 
+  To manage Kolibri users you must sign-in as **Super user** or **Admin**.
 
 
-You can download Kolibri *Detail* and *Summary* logs usage data and export in the CSV format from the **Data** tab in your **Manage** dashboard.
+You can download Kolibri *Detail* and *Summary* logs usage data and export in the CSV format from the **Data** tab in your **Facility** dashboard.
 
-.. image:: img/export_usage_data.png
+.. image:: img/export-usage-data.png
   :alt: options for exporting usage data 

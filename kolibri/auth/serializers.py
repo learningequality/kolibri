@@ -14,48 +14,22 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         exclude = ("dataset",)
 
-class BaseKolibriUserSerializer(serializers.ModelSerializer):
 
-    def update(self, instance, validated_data):
-        if 'password' in validated_data:
-            serializers.raise_errors_on_nested_writes('update', self, validated_data)
-            instance.set_password(validated_data['password'])
-            instance.save()
-            return instance
-        else:
-            return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
-
-    def validate(self, data):
-        username = data.get('username', None)
-        # Only avoid checking against own username if this user already exists.
-        user_id = self.instance.id if self.instance else None
-
-        if username:
-            facility_user_query = FacilityUser.objects.filter(username__iexact=username)
-
-            if user_id:
-                facility_user_query = facility_user_query.exclude(id=user_id)
-
-            if facility_user_query.exists():
-                raise serializers.ValidationError({
-                    'username': _('An account with that username already exists')
-                })
-        return data
-
-    def create(self, validated_data):
-        user = self.Meta.model(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-
-
-class FacilityUserSerializer(BaseKolibriUserSerializer):
+class FacilityUserSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
+
+
+class FacilityUserSignupSerializer(FacilityUserSerializer):
+
+    def validate_username(self, value):
+        if FacilityUser.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return value
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):

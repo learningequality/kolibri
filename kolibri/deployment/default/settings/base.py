@@ -263,6 +263,11 @@ LOGGING = {
         'kolibri': {
             'handlers': ['console', 'mail_admins', 'file', 'file_debug'],
             'level': 'INFO',
+        },
+        'iceqube': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
         }
     }
 }
