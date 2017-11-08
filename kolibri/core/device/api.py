@@ -12,7 +12,7 @@ from rest_framework import mixins, status, views, viewsets
 from rest_framework.response import Response
 
 from .models import DevicePermissions
-from .permissions import NotProvisionedCanPost
+from .permissions import NotProvisionedCanPost, UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer, DeviceProvisionSerializer
 
 
@@ -49,6 +49,8 @@ class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class DeviceInfoView(views.APIView):
+
+    permission_classes = (UserHasAnyDevicePermissions, )
 
     def get(self, request, format=None):
         info = {}

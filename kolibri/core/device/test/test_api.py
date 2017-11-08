@@ -194,6 +194,9 @@ class DeviceInfoTestCase(APITestCase):
     def setUp(self):
         provision_device()
         DatabaseIDModel.objects.create()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_has_version(self):
         response = self.client.get(reverse('deviceinfo'), format="json")
@@ -242,3 +245,22 @@ class DeviceInfoTestCase(APITestCase):
     def test_free_space(self):
         response = self.client.get(reverse('deviceinfo'), format="json")
         self.assertEqual(type(response.data['content_storage_free_space']), int)
+
+    def test_superuser_permissions(self):
+        response = self.client.get(reverse('deviceinfo'), format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_permissions(self):
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.logout()
+        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('deviceinfo'), format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_user_with_permissions(self):
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        DevicePermissions.objects.create(user=self.user, can_manage_content=True)
+        self.client.logout()
+        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('deviceinfo'), format="json")
+        self.assertEqual(response.status_code, 200)
