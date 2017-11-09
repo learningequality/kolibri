@@ -418,6 +418,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             "total_resource_count": studioresp.get("total_resource_count", 0),
             "version": studioresp.get("version", 0),
             "included_languages": included_languages,
+            "last_updated": studioresp.get("last_published"),
         }
 
         return resp
