@@ -28,12 +28,6 @@ except AppRegistryNotReady:
 
 logging = logger.getLogger(__name__)
 
-REMOTE_IMPORT = 'remoteimport'
-LOCAL_IMPORT = 'localimport'
-LOCAL_EXPORT = 'localexport'
-DELETE_CHANNEL = 'deletechannel'
-
-id_tasktype = {}
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -41,11 +35,6 @@ class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
-        ids = [job["id"] for job in jobs_response]
-        # Clean up old job tasktypes
-        keys_to_pop = [key for key in id_tasktype.keys() if key not in ids]
-        for key in keys_to_pop:
-            id_tasktype.pop(key)
 
         return Response(jobs_response)
 
@@ -71,7 +60,12 @@ class TasksViewSet(viewsets.ViewSet):
 
         baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
 
-        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl)
+        job_metadata = {
+            "type": "REMOTECHANNELIMPORT",
+            "started_by": request.user.pk,
+        }
+
+        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl, extra_metadata=job_metadata,)
         resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)
@@ -95,6 +89,11 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
+        job_metadata = {
+            "type": "REMOTECONTENTIMPORT",
+            "started_by": request.user.pk,
+        }
+
         job_id = get_client().schedule(
             call_command,
             "importcontent",
@@ -103,6 +102,7 @@ class TasksViewSet(viewsets.ViewSet):
             base_url=baseurl,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
+            extra_metadata=job_metadata,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -129,12 +129,18 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("That drive_id was not found in the list of drives.")
 
+        job_metadata = {
+            "type": "DISKCHANNELIMPORT",
+            "started_by": request.user.pk,
+        }
+
         job_id = get_client().schedule(
             call_command,
             "importchannel",
             "disk",
-            drive.datafolder,
             channel_id,
+            drive.datafolder,
+            extra_metadata=job_metadata,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -169,6 +175,11 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
+        job_metadata = {
+            "type": "DISKCONTENTIMPORT",
+            "started_by": request.user.pk,
+        }
+
         job_id = get_client().schedule(
             call_command,
             "importcontent",
@@ -177,6 +188,7 @@ class TasksViewSet(viewsets.ViewSet):
             drive.datafolder,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
+            extra_metadata=job_metadata,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -197,10 +209,17 @@ class TasksViewSet(viewsets.ViewSet):
 
         channel_id = request.data['channel_id']
 
-        task_id = get_client().schedule(
-            _deletechannel, channel_id, track_progress=True)
+        job_metadata = {
+            "type": "DELETECHANNEL",
+            "started_by": request.user.pk,
+        }
 
-        id_tasktype[task_id] = DELETE_CHANNEL
+        task_id = get_client().schedule(
+            call_command,
+            "deletechannel",
+            channel_id,
+            track_progress=True,
+            extra_metadata=job_metadata,)
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
@@ -208,20 +227,48 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
     @list_route(methods=['post'])
-    def startlocalexport(self, request):
+    def startdiskexport(self, request):
         '''
         Export a channel to a local drive, and copy content to the drive.
 
         '''
 
-        if "drive_id" not in request.data:
-            raise serializers.ValidationError(
-                "The 'drive_id' field is required.")
+        # Load the required parameters
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        try:
+            drive_id = request.data["drive_id"]
+        except KeyError:
+            raise serializers.ValidationError("The drive_id field is required.")
+
+        # optional arguments
+        node_ids = request.data.get("node_ids", None)
+        exclude_node_ids = request.data.get("exclude_node_ids", None)
+
+        if node_ids and not isinstance(node_ids, list):
+            raise serializers.ValidationError("node_ids must be a list.")
+
+        if exclude_node_ids and not isinstance(exclude_node_ids, list):
+            raise serializers.ValidationError("exclude_node_ids must be a list.")
+
+        job_metadata = {
+            "type": "DISKEXPORT",
+            "started_by": request.user.pk,
+        }
 
         task_id = get_client().schedule(
-            _localexport, request.data['drive_id'], track_progress=True, cancellable=True)
-
-        id_tasktype[task_id] = LOCAL_EXPORT
+            _localexport,
+            channel_id,
+            drive_id,
+            track_progress=True,
+            cancellable=True,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            extra_metadata=job_metadata,
+        )
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
@@ -316,29 +363,31 @@ def _localimport(drive_id, channel_id, node_ids=None, update_progress=None, chec
         raise
 
 
-def _localexport(drive_id, update_progress=None, check_for_cancel=None):
+def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=None, node_ids=None, exclude_node_ids=None, extra_metadata=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
-    for channel in ChannelMetadata.objects.all():
+
+    call_command(
+        "exportchannel",
+        channel_id,
+        drive.datafolder,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel)
+    try:
         call_command(
-            "exportchannel",
-            channel.id,
+            "exportcontent",
+            channel_id,
             drive.datafolder,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
             update_progress=update_progress,
             check_for_cancel=check_for_cancel)
+    except UserCancelledError:
         try:
-            call_command(
-                "exportcontent",
-                channel.id,
-                drive.datafolder,
-                update_progress=update_progress,
-                check_for_cancel=check_for_cancel)
-        except UserCancelledError:
-            try:
-                os.remove(get_content_database_file_path(channel.id, datafolder=drive.datafolder))
-            except OSError:
-                pass
-            raise
+            os.remove(get_content_database_file_path(channel_id, datafolder=drive.datafolder))
+        except OSError:
+            pass
+        raise
 
 
 def _deletechannel(channel_id, update_progress=None):
