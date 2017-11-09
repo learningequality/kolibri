@@ -182,7 +182,10 @@ class Command(AsyncCommand):
                                   exclude_node_ids=options['exclude_node_ids'],
                                   baseurl=options["baseurl"])
         elif options['command'] == 'disk':
-            self.copy_content(options["channel_id"], options["directory"], node_ids=options["node_ids"])
+            self.copy_content(options["channel_id"],
+                              options["directory"],
+                              node_ids=options["node_ids"],
+                              exclude_node_ids=options["exclude_node_ids"])
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))

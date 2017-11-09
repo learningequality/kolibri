@@ -54,9 +54,18 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         data_dir = os.path.realpath(options["destination"])
+        node_ids = options["node_ids"]
+        exclude_node_ids = options["exclude_node_ids"]
         logging.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
 
         files = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=True)
+
+        if node_ids:
+            files = files.filter(files__contentnode__in=node_ids)
+
+        if exclude_node_ids:
+            files = files.exclude(files__contentnode__in=exclude_node_ids)
+
         total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
 
         exported_files = []
