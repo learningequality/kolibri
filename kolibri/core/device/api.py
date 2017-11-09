@@ -1,5 +1,3 @@
-import platform
-
 import kolibri
 from django.conf import settings
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
@@ -73,9 +71,11 @@ class DeviceInfoView(views.APIView):
             # If any other database backend, will not be file backed, so no database path to return
             info['database_path'] = settings.DATABASES['default']['NAME']
 
-        info['device_name'] = platform.node()
-        info['device_id'] = InstanceIDModel.get_or_create_current_instance()[0].id
-        info['os'] = platform.platform()
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
+        info['device_name'] = instance_model.hostname
+        info['device_id'] = instance_model.id
+        info['os'] = instance_model.platform
 
         info['content_storage_free_space'] = get_free_space()
 

@@ -213,11 +213,13 @@ class DeviceInfoTestCase(APITestCase):
     def test_no_localhost_urls_when_others_available(self, get_urls_mock):
         response = self.client.get(reverse('deviceinfo'), format="json")
         self.assertEqual(len(response.data['urls']), 1)
+        self.assertEqual(response.data['urls'][0], 'http://kolibri.com')
 
     @patch('kolibri.core.device.api.get_urls', return_value=(1, ['http://127.0.0.1:8000']))
     def test_localhost_urls_when_no_others_available(self, get_urls_mock):
         response = self.client.get(reverse('deviceinfo'), format="json")
         self.assertEqual(len(response.data['urls']), 1)
+        self.assertEqual(response.data['urls'][0], 'http://127.0.0.1:8000')
 
     def test_database_path(self):
         response = self.client.get(reverse('deviceinfo'), format="json")
