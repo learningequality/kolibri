@@ -385,13 +385,15 @@ class StringMethodTestCase(TestCase):
 
 class FacilityTestCase(TestCase):
 
-    def setUp(self):
+    def test_existing_facility_becomes_default_facility(self):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
-
-    def test_existing_facility_becomes_default_facility(self):
         self.assertEqual(self.device_settings.default_facility, None)
         default_facility = Facility.get_default_facility()
         self.assertEqual(default_facility, self.facility)
         self.device_settings.refresh_from_db()
         self.assertEqual(self.device_settings.default_facility, self.facility)
+
+    def test_default_facility_returns_none_when_no_settings(self):
+        default_facility = Facility.get_default_facility()
+        self.assertEqual(default_facility, None)
