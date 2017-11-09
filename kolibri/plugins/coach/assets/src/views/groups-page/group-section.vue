@@ -26,7 +26,7 @@
           color="primary"
           ref="dropdownButton"
           size="small"
-          :has-dropdown="true"
+          :hasDropdown="true"
         >
           <ui-menu
             slot="dropdown"

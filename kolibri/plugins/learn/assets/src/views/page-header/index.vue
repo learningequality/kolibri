@@ -4,10 +4,10 @@
     <div class="header">
       <h1 class="title">
         {{ title }}
-        <progress-icon :progress="progress"/>
+        <progress-icon :progress="progress" />
       </h1>
       <div class="end">
-        <slot name="end-header"/>
+        <slot name="end-header"></slot>
       </div>
     </div>
   </div>

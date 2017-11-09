@@ -1,9 +1,12 @@
+import os
 from django.core.cache import cache
 from django.db.models import Manager, Sum
 from django.db.models.query import RawQuerySet
 from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
+from kolibri.content.utils.paths import get_content_storage_file_path
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -14,13 +17,22 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
-            descendants = instance.root.get_descendants()
-            total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
-
+            descendants = instance.root.get_descendants().exclude(kind=content_kinds.TOPIC)
+            total_resources = descendants.count()
             local_files = LocalFile.objects.filter(files__contentnode__channel_id=instance.id).distinct()
             total_file_size = local_files.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
-            value.update({"total_resources": total_resources, "total_file_size": total_file_size})
+            on_device_resources = descendants.filter(available=True).count()
+            on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+            value.update(
+                {
+                    "total_resources": total_resources,
+                    "total_file_size": total_file_size,
+                    "on_device_resources": on_device_resources,
+                    "on_device_file_size": on_device_file_size
+                })
+
         return value
 
     class Meta:
@@ -132,7 +144,7 @@ def get_topic_and_content_progress_fractions(nodes, user):
             overall_progress[node.content_id] = round(
                 sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids) / len(leaf_ids),
                 4
-            )
+            ) if leaf_ids else 0.0
 
     return overall_progress
 
@@ -158,9 +170,17 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # so, first get a queryset from the Manager if needed
         data = data.all() if isinstance(data, Manager) else data
 
+        # initialize cache key
         cache_key = None
+
+        # ensure that we are filtering by the parent only
+        # this allows us to only cache results on the learn page
+        from .api import ContentNodeFilter
+        pure_parent_query = "parent" in self.context['request'].GET and \
+            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+
         # Cache parent look ups only
-        if "parent" in self.context['request'].GET:
+        if pure_parent_query:
             cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
@@ -197,7 +217,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and cache_key:
+        if topic_only and pure_parent_query:
             cache.set(cache_key, result, 60 * 10)
 
         return result
@@ -251,6 +271,52 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         )
 
         list_serializer_class = ContentNodeListSerializer
+
+
+class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    total_resources = serializers.SerializerMethodField()
+    resources_on_device = serializers.SerializerMethodField()
+    importable = serializers.SerializerMethodField()
+
+    def get_total_resources(self, obj):
+        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).count()
+
+        return total_resources
+
+    def get_resources_on_device(self, obj):
+        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
+
+        return available_resources
+
+    def get_importable(self, obj):
+        if 'request' not in self.context or not self.context['request'].query_params.get('drive_id', None) or obj.kind == content_kinds.TOPIC:
+            return True
+        else:
+            # check if the external drive exists given drive id
+            drive_id = self.context['request'].query_params.get('drive_id', None)
+            drives = get_mounted_drives_with_channel_info()
+            if drive_id in drives:
+                datafolder = drives[drive_id].datafolder
+            else:
+                raise serializers.ValidationError(
+                    'The external drive with given drive id does not exist.')
+
+            files = obj.files.all()
+            if not files.exists():
+                return False
+
+            importable = True
+            for f in files:
+                # If one of the files under the node is unavailable on the external drive, mark the node as unimportable
+                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+                importable = importable and os.path.exists(file_path)
+            return importable
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'pk', 'title', 'available', 'kind', 'total_resources', 'resources_on_device', 'importable',
+        )
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

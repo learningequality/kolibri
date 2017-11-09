@@ -15,12 +15,13 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.0.11
-kolibri_exercise_perseus_plugin==0.7.1
+kolibri_exercise_perseus_plugin==0.7.2
 jsonfield==2.0.1
 https://github.com/learningequality/morango/archive/ef260d263c92a4d3689e9ae742e25b57b52656e2.zip#egg=morango
 requests-toolbelt==0.7.1
 clint==0.5.1
 tzlocal==1.4
+pytz==2017.2
 python-dateutil==2.6.0
 ifcfg==0.11b6
 sqlalchemy==1.1.12

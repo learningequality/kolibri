@@ -46,7 +46,7 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <ui-progress-linear v-if="loading" key="progress"/>
+          <ui-progress-linear v-if="loading" key="progress" />
 
           <table v-else key="table">
             <thead>
@@ -103,10 +103,10 @@
         {{ formIsInvalidText }}
       </ui-alert>
 
-      <k-button :text="$tr('preview')" @click="preview"/>
+      <k-button :text="$tr('preview')" @click="preview" />
 
       <br>
-      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting"/>
+      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
     </div>
 
     <preview-new-exam-modal
@@ -147,18 +147,16 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiSelect from 'keen-ui/src/UiSelect';
   import uiSnackbar from 'keen-ui/src/UiSnackbar';
   import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
 
   export default {
     name: 'createExamPage',
     components: {
-      uiSelect,
       uiSnackbar,
       uiSnackbarContainer,
       uiProgressLinear,

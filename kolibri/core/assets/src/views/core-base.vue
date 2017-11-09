@@ -10,7 +10,7 @@
         @toggleSideNav="navShown=!navShown"
       >
         <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"/>
+          <slot name="app-bar-actions"></slot>
         </div>
       </app-bar>
       <side-nav
@@ -21,18 +21,18 @@
         @toggleSideNav="navShown=!navShown"
       />
       <div :style="contentStyle" class="content-container">
-        <loading-spinner v-if="loading" class="align-to-parent"/>
+        <loading-spinner v-if="loading" class="align-to-parent" />
         <template v-else>
-          <error-box v-if="error"/>
-          <slot/>
+          <error-box v-if="error" />
+          <slot></slot>
         </template>
       </div>
     </div>
     <div v-else>
-      <loading-spinner v-if="loading" class="align-to-parent"/>
+      <loading-spinner v-if="loading" class="align-to-parent" />
       <template v-else>
-        <error-box v-if="error"/>
-        <slot/>
+        <error-box v-if="error" />
+        <slot></slot>
       </template>
     </div>
   </div>
@@ -100,9 +100,13 @@
         return this.headerHeight * 4;
       },
       contentStyle() {
+        const padding = (this.mobile ? 16 : 32) + 'px';
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
+          paddingTop: padding,
+          paddingLeft: padding,
+          paddingRight: padding,
         };
       },
     },
@@ -144,6 +148,5 @@
     right: 0
     bottom: 0
     padding-bottom: 40px
-    padding: 32px
 
 </style>

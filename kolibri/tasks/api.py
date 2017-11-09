@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.management import CommandError, call_command
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
-from kolibri.content.models import ChannelMetadata
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
@@ -25,10 +24,7 @@ except AppRegistryNotReady:
 
     django.setup()
 
-
 logging = logger.getLogger(__name__)
-
-
 
 class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)

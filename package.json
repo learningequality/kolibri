@@ -18,7 +18,8 @@
     "clean": "node ./frontend_build/src/clean.js",
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
     "lint-js": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
-    "lint-js:fix": "yarn run lint-js -- -w"
+    "lint-js:fix": "yarn run lint-js -- -w",
+    "devserver": "kolibri --debug manage devserver --webpack --lint --settings=kolibri.deployment.default.settings.dev"
   },
   "repository": {
     "type": "git",
@@ -40,7 +41,8 @@
     "frame-throttle": "^2.0.1",
     "intl": "^1.2.4",
     "js-cookie": "^2.1.2",
-    "keen-ui": "^1.0.1",
+    "keen-ui": "https://github.com/learningequality/Keen-UI/",
+    "lockr": "0.8.4",
     "lodash": "^4.17.4",
     "loglevel": "^1.4.1",
     "markdown-it": "^8.3.1",

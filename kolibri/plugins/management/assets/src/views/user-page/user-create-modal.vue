@@ -53,8 +53,7 @@
           v-model="confirmedPassword"
         />
 
-        <ui-select
-          :name="$tr('typeOfUser')"
+        <k-select
           :label="$tr('typeOfUser')"
           :options="userKinds"
           v-model="kind"
@@ -64,7 +63,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting"/>
+        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting" />
       </section>
     </form>
   </core-modal>
@@ -80,8 +79,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiAlert from 'keen-ui/src/UiAlert';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
     name: 'userCreateModal',
     $trs: {
@@ -107,7 +106,7 @@
       coreModal,
       kTextbox,
       uiAlert,
-      uiSelect,
+      kSelect,
     },
     data() {
       return {
@@ -207,7 +206,7 @@
         ];
       },
     },
-    mounted() {
+    beforeMount() {
       Object.assign(this.$data, this.$options.data());
       this.kind = {
         label: this.$tr('learner'),

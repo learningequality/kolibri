@@ -11,6 +11,8 @@ from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework import mixins
+from rest_framework.serializers import ValidationError
 
 from .utils.search import fuzz
 
@@ -55,7 +57,8 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
 
     def title_description_filter(self, queryset, value):
         """
@@ -274,10 +277,47 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
+
+
+class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = serializers.ContentNodeGranularSerializer
+
+    def get_queryset(self, available=None):
+        if available is not None:
+            queryset = models.ContentNode.objects.filter(available=available)
+        else:
+            queryset = models.ContentNode.objects.all()
+        return queryset.prefetch_related('files__local_file')
+
+    def retrieve(self, request, pk):
+        import_export = request.query_params.get('import_export', None)
+        if import_export == 'import':
+            response = self._get_parent_and_children_info(pk)
+
+        elif import_export == 'export':
+            response = self._get_parent_and_children_info(pk, True)
+
+        else:
+            raise ValidationError(
+                "The 'import_export' field is required and needs to be either import or export.")
+
+        return response
+
+    def _get_parent_and_children_info(self, pk, available=None):
+        queryset = self.get_queryset(available)
+        instance = get_object_or_404(queryset, pk=pk)
+        children = queryset.filter(parent=instance)
+
+        parent_serializer = self.get_serializer(instance)
+        parent_data = parent_serializer.data
+        child_serializer = self.get_serializer(children, many=True)
+        parent_data['children'] = child_serializer.data
+
+        return Response(parent_data)
 
 
 class ContentNodeProgressFilter(IdFilter):

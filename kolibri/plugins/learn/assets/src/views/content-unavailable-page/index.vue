@@ -12,8 +12,13 @@
 
 <script>
 
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
+
   export default {
     name: 'learnContentUnavailable',
+    components: {
+      kExternalLink,
+    },
     $trs: {
       header: 'No content channels available',
       adminLink: 'You can import content from the Content page if you have the proper permissions',

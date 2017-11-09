@@ -118,12 +118,10 @@ describe('Resource', function() {
   });
   describe('removeModel method', function() {
     it('should remove model from model cache', function() {
-      const id = 'test';
-      this.resource.models[id] = 'test';
-      this.resource.removeModel({
-        id,
-      });
-      assert.equal(typeof this.resource.models[id], 'undefined');
+      const model = new Resources.Model({ id: 'test' }, {}, this.resource);
+      this.resource.addModel(model);
+      this.resource.removeModel(model);
+      assert.equal(Object.keys(this.resource.models).length, 0);
     });
   });
   describe('unCacheModel method', function() {
@@ -208,6 +206,19 @@ describe('Collection', function() {
       client: () => Promise.resolve({ entity: [] }),
       filterAndCheckResourceIds: params => params,
       resourceIds: [],
+      cacheKey: (...params) => {
+        const allParams = Object.assign({}, ...params);
+        // Sort keys in order, then assign those keys to an empty object in that order.
+        // Then stringify to create a cache key.
+        return JSON.stringify(
+          Object.assign(
+            {},
+            ...Object.keys(allParams)
+              .sort()
+              .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+          )
+        );
+      },
     };
     this.resourceIds = {};
     this.params = {};
@@ -534,7 +545,7 @@ describe('Collection', function() {
         });
         it('should call logging.error once', function(done) {
           this.collection.synced = false;
-          this.collection.fetch().catch(error => {
+          this.collection.fetch().catch(() => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -548,7 +559,7 @@ describe('Collection', function() {
         });
         it('should leave no promises in promises property', function(done) {
           this.collection.synced = false;
-          this.collection.fetch().catch(error => {
+          this.collection.fetch().catch(() => {
             assert.deepEqual(this.collection.promises, []);
             done();
           });
@@ -586,6 +597,286 @@ describe('Collection', function() {
         this.collection.synced = false;
         const promise1 = this.collection.fetch();
         const promise2 = this.collection.fetch();
+        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+      });
+    });
+  });
+  describe('save method', function() {
+    describe('if called when Collection.new = false', function() {
+      it('should reject the promise', function(done) {
+        this.collection.synced = true;
+        const promise = this.collection.save();
+        promise.catch(error => {
+          assert.equal(error, 'Cannot update collections, only create them');
+          done();
+        });
+      });
+    });
+    describe('if called when Collection.new = true', function() {
+      describe('and the save is successful', function() {
+        beforeEach(function() {
+          this.setSpy = sinon.stub(this.collection, 'set');
+          this.clearCacheSpy = sinon.stub(this.collection, 'clearCache');
+          this.client = sinon.stub();
+          this.resource.client = this.client;
+          this.client.returns(Promise.resolve());
+        });
+        afterEach(function() {
+          this.collection.set.restore();
+        });
+        describe('and the returned data is an array', function() {
+          beforeEach(function() {
+            this.response = { entity: [{ testing: 'testing' }] };
+            this.client.returns(Promise.resolve(this.response));
+          });
+          it('should call the client once', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              assert.ok(this.client.calledOnce);
+              done();
+            });
+          });
+          it('should call set once', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              assert.ok(this.setSpy.calledOnce);
+              done();
+            });
+          });
+          it('should call set with the response entity', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+              done();
+            });
+          });
+          it('should set synced to true', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              assert.ok(this.collection.synced);
+              done();
+            });
+          });
+          it('should leave no promises in promises property', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              assert.deepEqual(this.collection.promises, []);
+              done();
+            });
+          });
+          it('should set every model synced to true', function(done) {
+            this.collection.synced = false;
+            this.collection.save().then(() => {
+              this.collection.models.forEach(model => {
+                assert.ok(model.synced);
+              });
+              done();
+            });
+          });
+        });
+        describe('and the returned data is malformed', function() {
+          beforeEach(function() {
+            this.response = {};
+            this.client = sinon.stub();
+            this.client.returns(Promise.resolve(this.response));
+            this.resource.client = this.client;
+            this.logstub = sinon.stub(Resources.logging, 'debug');
+          });
+          afterEach(function() {
+            this.logstub.restore();
+          });
+          it('should call the client once', function(done) {
+            this.collection.synced = false;
+            this.collection.save().catch(() => {
+              assert.ok(this.client.calledOnce);
+              done();
+            });
+          });
+          it('should call logging.debug once', function(done) {
+            this.collection.synced = false;
+            this.collection.save().catch(() => {
+              assert.ok(this.logstub.calledOnce);
+              done();
+            });
+          });
+        });
+      });
+      describe('and the save is not successful', function() {
+        beforeEach(function() {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function() {
+          this.logstub.restore();
+        });
+        it('should call logging.error once', function(done) {
+          this.collection.synced = false;
+          this.collection.save().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function(done) {
+          this.collection.synced = false;
+          this.collection.save().catch(error => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function(done) {
+          this.collection.synced = false;
+          this.collection.save().catch(() => {
+            assert.deepEqual(this.collection.promises, []);
+            done();
+          });
+        });
+      });
+    });
+    describe('if called once', function() {
+      it('should add a promise to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise = this.collection.save();
+        assert.deepEqual(this.collection.promises, [promise]);
+      });
+    });
+    describe('if called twice', function() {
+      it('should add two promises to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise1 = this.collection.save();
+        const promise2 = this.collection.save();
+        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+      });
+    });
+  });
+  describe('delete method', function() {
+    describe('if called when Collection has no getParams', function() {
+      it('should reject the promise', function(done) {
+        this.collection.getParams = {};
+        const promise = this.collection.delete();
+        promise.catch(error => {
+          assert.equal(
+            error,
+            'Can not delete unfiltered collection (collection without any GET params'
+          );
+          done();
+        });
+      });
+    });
+    describe('if called when Collection has getParams', function() {
+      beforeEach(function() {
+        this.collection.getParams = { test: 'testing' };
+      });
+      describe('and the delete is successful', function() {
+        beforeEach(function() {
+          this.resource.removeModel = sinon.spy();
+          this.resource.removeCollection = sinon.spy();
+          this.setSpy = sinon.stub(this.collection, 'set');
+          this.clearCacheSpy = sinon.stub(this.collection, 'clearCache');
+          this.client = sinon.stub();
+          this.resource.client = this.client;
+          this.client.returns(Promise.resolve());
+        });
+        afterEach(function() {
+          this.collection.set.restore();
+        });
+        it('should call the client once', function(done) {
+          this.collection.delete().then(() => {
+            assert.ok(this.client.calledOnce);
+            done();
+          });
+        });
+        it('should call the client with the DELETE method', function(done) {
+          this.collection.delete().then(() => {
+            assert.equal(this.client.args[0][0].method, 'DELETE');
+            done();
+          });
+        });
+        it('should call removeCollection on the resource', function(done) {
+          this.collection.delete().then(() => {
+            assert.ok(this.resource.removeCollection.calledWithExactly(this.collection));
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function(done) {
+          this.collection.delete().then(() => {
+            assert.deepEqual(this.collection.promises, []);
+            done();
+          });
+        });
+        it('should set every model deleted to true', function(done) {
+          this.collection.delete().then(() => {
+            this.collection.models.forEach(model => {
+              assert.ok(model.deleted);
+            });
+            done();
+          });
+        });
+        it('should call removeModel for every Model in the collection', function(done) {
+          this.collection.delete().then(() => {
+            assert.equal(this.resource.removeCollection.callCount, this.collection.models.length);
+            done();
+          });
+        });
+      });
+      describe('and the delete is not successful', function() {
+        beforeEach(function() {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.stub(Resources.logging, 'error');
+        });
+        afterEach(function() {
+          this.logstub.restore();
+        });
+        it('should call logging.error once', function(done) {
+          this.collection.synced = false;
+          this.collection.delete().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function(done) {
+          this.collection.delete().catch(error => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function(done) {
+          this.collection.delete().catch(() => {
+            assert.deepEqual(this.collection.promises, []);
+            done();
+          });
+        });
+      });
+    });
+    describe('if called once', function() {
+      it('should add a promise to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise = this.collection.delete();
+        assert.deepEqual(this.collection.promises, [promise]);
+      });
+    });
+    describe('if called twice', function() {
+      it('should add two promises to the promises property', function() {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.collection.synced = false;
+        const promise1 = this.collection.delete();
+        const promise2 = this.collection.delete();
         assert.deepEqual(this.collection.promises, [promise1, promise2]);
       });
     });
@@ -632,6 +923,16 @@ describe('Collection', function() {
         this.collection.set([this.model, this.model]);
         assert.deepEqual(this.collection._model_map, {
           [this.model.id]: this.setModel,
+        });
+      });
+      describe('that have no ids', function() {
+        it(' should not overwrite each other in the model cache', function() {
+          const idLessModel1 = { test: 'testing' };
+          const idLessModel2 = { test: 'testing1' };
+          this.collection._model_map = {};
+          this.collection.models = [];
+          this.collection.set([idLessModel1, idLessModel2]);
+          assert.equal(this.collection.models.length, 2);
         });
       });
     });
@@ -788,7 +1089,7 @@ describe('Model', function() {
         });
         it('should call logging.error once', function(done) {
           this.model.synced = false;
-          this.model.fetch().catch(error => {
+          this.model.fetch().catch(() => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -802,7 +1103,7 @@ describe('Model', function() {
         });
         it('should leave no promises in promises property', function(done) {
           this.model.synced = false;
-          this.model.fetch().catch(error => {
+          this.model.fetch().catch(() => {
             assert.deepEqual(this.model.promises, []);
             done();
           });
@@ -872,6 +1173,20 @@ describe('Model', function() {
           done();
         });
       });
+      it('should should call set once with the changed attributes', function(done) {
+        this.model.synced = true;
+        const payload = { somethingNew: 'new' };
+        const entity = {};
+        Object.assign(entity, this.model.attributes, payload);
+        this.response = { entity };
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model.save(payload).then(() => {
+          assert.equal(this.model.attributes.somethingNew, 'new');
+          done();
+        });
+      });
     });
     describe('if called when Model.synced = false', function() {
       describe('and the save is successful', function() {
@@ -935,7 +1250,7 @@ describe('Model', function() {
         });
         it('should call logging.error once', function(done) {
           this.model.synced = false;
-          this.model.save().catch(error => {
+          this.model.save().catch(() => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -1078,7 +1393,7 @@ describe('Model', function() {
           this.logstub.restore();
         });
         it('should call logging.error once', function(done) {
-          this.model.delete().catch(error => {
+          this.model.delete().catch(() => {
             assert.ok(this.logstub.calledOnce);
             done();
           });
@@ -1090,7 +1405,7 @@ describe('Model', function() {
           });
         });
         it('should leave no promises in promises property', function(done) {
-          this.model.delete().catch(error => {
+          this.model.delete().catch(() => {
             assert.deepEqual(this.model.promises, []);
             done();
           });

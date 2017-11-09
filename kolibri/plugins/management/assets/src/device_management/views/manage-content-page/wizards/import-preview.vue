@@ -15,7 +15,7 @@
         <p>{{ localImportPrompt }}</p>
 
         <ul class="channel-list">
-          <li v-for="(channel, i) in channelList" :key="i" >
+          <li v-for="(channel, i) in channelList" :key="i">
             {{ channel.name }}
             <span v-if="coreChannel(channel.id)" class="already-installed">
               ({{ $tr('channelAlreadyInstalled') }})
@@ -68,7 +68,7 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import find from 'lodash/find';
 

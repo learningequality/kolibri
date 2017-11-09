@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs/>
+    <breadcrumbs />
     <h1 v-if="!isRootLearnerPage">
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
@@ -11,8 +11,8 @@
       {{ pageState.contentScopeSummary.title }}
     </h1>
     <report-subheading />
-
-    <report-table>
+    <p v-if="!standardDataTable.length" class="center-text"><strong>{{ $tr('noLearners') }}</strong></p>
+    <report-table v-else>
       <thead slot="thead">
         <tr>
           <header-cell
@@ -103,6 +103,7 @@
       lastActivity: 'Last activity',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      noLearners: 'You do not have any learners registered yet',
     },
     computed: {
       isExercisePage() {

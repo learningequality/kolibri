@@ -3,7 +3,7 @@
   <onboarding-form
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
-    :submit-text="submitText"
+    :submitText="submitText"
     @submit="setSuperuserCredentials">
 
       <k-textbox

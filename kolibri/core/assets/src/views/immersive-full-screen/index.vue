@@ -12,7 +12,7 @@
       </router-link>
     </div>
     <div class="page-body">
-      <slot/>
+      <slot></slot>
     </div>
   </div>
 
@@ -85,6 +85,6 @@
     top: 0
     bottom: 0
     overflow-y: auto
-    background-color: $core-bg-canvas
+    background-color: $core-bg-light
 
 </style>

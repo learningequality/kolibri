@@ -156,6 +156,7 @@ function showExamsPage(store, classId) {
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams),
         examModalShown: false,
+        busy: false,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -220,6 +221,7 @@ function _removeAssignment(assignmentId) {
 }
 
 function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
+  store.dispatch('SET_BUSY', true);
   const assignPromises = collectionsToAssign.map(collection => _assignExamTo(examId, collection));
   const unassignPromises = assignmentsToRemove.map(assignment => _removeAssignment(assignment));
   const assignmentPromises = assignPromises.concat(unassignPromises);
@@ -258,9 +260,13 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       exams[examIndex].visibility = examVisibility;
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_BUSY', false);
       displayExamModal(store, false);
     },
-    error => CoreActions.handleError(store, error)
+    error => {
+      store.dispatch('SET_BUSY', false);
+      CoreActions.handleError(store, error);
+    }
   );
 }
 

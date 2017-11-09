@@ -62,7 +62,7 @@
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
-      :submit-text="submitText"
+      :submitText="submitText"
       @submit="setPermissions">
 
       <template slot="description">

@@ -1,9 +1,12 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.db.models.query import F
+from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
 from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
@@ -50,9 +53,17 @@ class KolibriAuthPermissions(permissions.BasePermission):
 
         # as `has_object_permission` isn't called for POST/create, we need to check here
         if request.method == "POST" and request.data:
+            if type(request.data) is list:
+                data = request.data
+            else:
+                data = [request.data]
+
             model = view.serializer_class.Meta.model
-            validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
-            return request.user.can_create(model, validated_data)
+
+            def validate(datum):
+                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(datum))
+                return request.user.can_create(model, validated_data)
+            return all(validate(datum) for datum in data)
 
         # for other methods, we return True, as their permissions get checked below
         return True
@@ -106,19 +117,32 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
-    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
-        Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
 
+    def get_queryset(self):
+        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
-class MembershipViewSet(viewsets.ModelViewSet):
+
+class MembershipFilter(filters.FilterSet):
+    user_ids = filters.django_filters.MethodFilter()
+
+    def filter_user_ids(self, queryset, value):
+        return queryset.filter(user_id__in=value.split(','))
+
+    class Meta:
+        model = Membership
+
+
+class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    filter_fields = ('user_id', 'collection_id')
+    filter_class = MembershipFilter
+    filter_fields = ['user', 'collection', 'user_ids', ]
 
 
 class RoleViewSet(viewsets.ModelViewSet):
@@ -162,6 +186,8 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 
 class SignUpViewSet(viewsets.ViewSet):
 
+    serializer_class = FacilityUserSerializer
+
     def extract_request_data(self, request):
         return {
             "username": request.data.get('username', ''),
@@ -175,7 +201,7 @@ class SignUpViewSet(viewsets.ViewSet):
         data = self.extract_request_data(request)
 
         # we validate the user's input, and if valid, login as user
-        serialized_user = FacilityUserSerializer(data=data)
+        serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid():
             serialized_user.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
@@ -217,6 +243,10 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
+        # Set last activity on session to the current time to prevent session timeout
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -251,6 +281,7 @@ class SessionViewSet(viewsets.ViewSet):
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')
 
-        UserSessionLog.update_log(user)
+        if active:
+            UserSessionLog.update_log(user)
 
         return session

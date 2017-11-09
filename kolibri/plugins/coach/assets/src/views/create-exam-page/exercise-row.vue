@@ -10,7 +10,7 @@
       />
     </th>
     <td class="col-title">
-      <content-icon :kind="exercise"/>
+      <content-icon :kind="exercise" />
       <span>{{ exerciseTitle }}</span>
     </td>
     <td class="col-selection"></td>

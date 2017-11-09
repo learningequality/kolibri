@@ -2,11 +2,13 @@
 
   <div>
 
-    <div class="header">
-      <h1>{{ $tr('allClasses') }}</h1>
+    <div 
+      class="header">
+        <h1>{{ $tr('allClasses') }}</h1>
 
       <k-button
         class="create-btn"
+        :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
         :primary="true"
@@ -18,11 +20,11 @@
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses"/>
+    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <table class="roster">
-        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
         <thead class="table-header">
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
@@ -43,7 +45,7 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')"/>
+              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
             </td>
           </tr>
         </tbody>
@@ -66,6 +68,8 @@
   import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+
   export default {
     name: 'classPage',
     components: {
@@ -74,6 +78,7 @@
       kButton,
       kRouterLink,
     },
+    mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
       sortedClasses() {
@@ -160,7 +165,14 @@
 
   .create-btn
     position: absolute
+    display: block
     top: 0
     right: 0
+  
+  .create-btn-mobile
+    position: relative
+    display: inline-block
+    right: 10px
+    min-width: 150px
 
 </style>
