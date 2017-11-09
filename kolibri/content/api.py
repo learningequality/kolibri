@@ -1,3 +1,4 @@
+import logging
 from functools import reduce
 from random import sample
 
@@ -11,7 +12,7 @@ from kolibri.content import models, serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
-from le_utils.constants import content_kinds
+from le_utils.constants import content_kinds, languages
 from rest_framework import filters, mixins, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
@@ -19,6 +20,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
 from .utils.search import fuzz
+
+logger = logging.getLogger(__name__)
 
 
 class ChannelMetadataFilter(filters.FilterSet):
@@ -366,7 +369,58 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 _("The requested channel does not exist on the content server")
             )
         cache.set(cache_key, resp.json(), 60 * 10)
-        return Response(resp.json())
+
+        kolibri_mapped_response = []
+        for channel in resp.json():
+            kolibri_mapped_response.append(self._studio_response_to_kolibri_response(channel))
+
+        cache.set(cache_key, kolibri_mapped_response, 60 * 10)
+
+        return Response(kolibri_mapped_response)
+
+    @staticmethod
+    def _get_lang_native_name(code):
+        try:
+            lang_name = languages.getlang(code).native_name
+        except AttributeError:
+            logger.warning("Did not find language code {} in our le_utils.constants!".format(code))
+            lang_name = None
+
+        return lang_name
+
+
+    @classmethod
+    def _studio_response_to_kolibri_response(cls, studioresp):
+        """
+        This modifies the JSON response returned by Kolibri Studio,
+        and then transforms its keys that are more in line with the keys
+        we return with /api/channels.
+        """
+
+        # See the spec at:
+        # https://docs.google.com/document/d/1FGR4XBEu7IbfoaEy-8xbhQx2PvIyxp0VugoPrMfo4R4/edit#
+
+        # Go through the channel's included_languages and add in the native name
+        # for each language
+        included_languages = {}
+        for code in studioresp.get("included_languages", []):
+            included_languages[code] = cls._get_lang_native_name(code)
+
+        channel_lang_name = cls._get_lang_native_name(studioresp.get("language"))
+
+        resp = {
+            "id": studioresp["id"],
+            "name": studioresp["name"],
+            "lang_code": studioresp.get("language"),
+            "lang_name": channel_lang_name,
+            "thumbnail": studioresp.get("icon_encoding"),
+            "public": studioresp.get("public", True),
+            "total_resource_count": studioresp.get("total_resource_count", 0),
+            "version": studioresp.get("version", 0),
+            "included_languages": included_languages,
+        }
+
+        return resp
 
     def list(self, request, *args, **kwargs):
         """
