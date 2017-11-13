@@ -1,21 +1,26 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
-import tempfile
-import mock
 import datetime
+import tempfile
+from collections import namedtuple
 
-from django.test import TestCase
+import mock
+import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-
-from kolibri.content import models as content
-from le_utils.constants import content_kinds
-from rest_framework.test import APITestCase
+from django.test import TestCase
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.test.helpers import provision_device
+from kolibri.content import models as content
+from kolibri.core.device.models import DevicePermissions, DeviceSettings
 from kolibri.logger.models import ContentSummaryLog
-from collections import namedtuple
+from le_utils.constants import content_kinds
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+DUMMY_PASSWORD = "password"
+
 
 class ContentNodeTestBase(object):
     """
@@ -412,3 +417,54 @@ class ContentNodeAPITestCase(APITestCase):
         """
         cache.clear()
         super(ContentNodeAPITestCase, self).tearDown()
+
+
+def mock_patch_decorator(func):
+
+    def wrapper(*args, **kwargs):
+        mock_object = mock.Mock()
+        mock_object.json.return_value = [{'id': 1, 'name': 'studio'}]
+        with mock.patch.object(requests, 'get', return_value=mock_object):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+class KolibriStudioAPITestCase(APITestCase):
+
+    def setUp(self):
+        DeviceSettings.objects.create(is_provisioned=True)
+        facility = Facility.objects.create(name='facility')
+        superuser = FacilityUser.objects.create(username='superuser', facility=facility)
+        superuser.set_password(DUMMY_PASSWORD)
+        superuser.save()
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+        self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
+
+    @mock_patch_decorator
+    def test_channel_list(self):
+        response = self.client.get(reverse('remotechannel-list'), format='json')
+        self.assertEqual(response.data[0]['id'], 1)
+
+    @mock_patch_decorator
+    def test_channel_retrieve(self):
+        response = self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        self.assertEqual(response.data[0]['name'], 'studio')
+
+    @mock_patch_decorator
+    def test_channel_info_cache(self):
+        self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        with mock.patch.object(cache, 'set') as mock_cache_set:
+            self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+            self.assertFalse(mock_cache_set.called)
+
+    @mock_patch_decorator
+    def test_channel_info_404(self):
+        mock_object = mock.Mock()
+        mock_object.status_code = 404
+        requests.get.return_value = mock_object
+        response = self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def tearDown(self):
+        cache.clear()

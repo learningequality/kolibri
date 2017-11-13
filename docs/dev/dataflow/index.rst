@@ -28,6 +28,8 @@ Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the
       url(r'^content/(?P<channel_id>[^/.]+)/', include(content_router.urls)),
   ]
 
+To explore the server REST APIs, visit `/api_explorer/` on the Kolibri server while running with developer settings.
+
 
 Client Resource Layer
 ---------------------

@@ -946,8 +946,22 @@ class Facility(Collection):
 
     @classmethod
     def get_default_facility(cls):
-        # temporary approach to a default facility; later, we can make this more refined
-        return cls.objects.all().first()
+        from kolibri.core.device.models import DeviceSettings
+        try:
+            device_settings = DeviceSettings.objects.get()
+            default_facility = device_settings.default_facility
+        except DeviceSettings.DoesNotExist:
+            # device has not been provisioned yet, so just return None in this case
+            return None
+        if not default_facility:
+            # Legacy databases will not have this explicitly set.
+            # Set this here to ensure future default facility queries are
+            # predictable, even if incorrect.
+            default_facility = cls.objects.all().first()
+            if default_facility:
+                device_settings.default_facility = default_facility
+                device_settings.save()
+        return default_facility
 
     def save(self, *args, **kwargs):
         if self.parent:
