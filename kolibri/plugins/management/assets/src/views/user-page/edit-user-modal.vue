@@ -28,16 +28,12 @@
         v-model="newUsername"
       />
 
-      <div>
-        <label for="user-role">
-          <span class="visuallyhidden">{{ $tr('userKind') }}</span>
-        </label>
-        <select v-model="newKind" id="user-role">
-          <option :value="LEARNER"> {{ $tr('learner') }} </option>
-          <option :value="COACH"> {{ $tr('coach') }} </option>
-          <option :value="ADMIN"> {{ $tr('admin') }} </option>
-        </select>
-      </div>
+      <k-select
+        class="kind-select"
+        :label="$tr('userKind')"
+        :options="userKinds"
+        v-model="newKind"
+      />
 
       <div class="ta-r">
         <k-button
@@ -68,6 +64,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
 
   export default {
@@ -89,6 +86,7 @@
       kButton,
       coreModal,
       kTextbox,
+      kSelect,
       uiAlert,
     },
     props: {
@@ -113,16 +111,29 @@
       return {
         newName: this.name,
         newUsername: this.username,
-        newKind: this.kind,
+        newKind: null,
         nameBlurred: false,
         usernameBlurred: false,
         formSubmitted: false,
       };
     },
     computed: {
-      LEARNER: () => UserKinds.LEARNER,
-      COACH: () => UserKinds.COACH,
-      ADMIN: () => UserKinds.ADMIN,
+      userKinds() {
+        return [
+          {
+            label: this.$tr('learner'),
+            value: UserKinds.LEARNER,
+          },
+          {
+            label: this.$tr('coach'),
+            value: UserKinds.COACH,
+          },
+          {
+            label: this.$tr('admin'),
+            value: UserKinds.ADMIN,
+          },
+        ];
+      },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.newName === '') {
@@ -152,6 +163,9 @@
         return !this.nameIsInvalid && !this.usernameIsInvalid;
       },
     },
+    beforeMount() {
+      this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+    },
     methods: {
       submitForm() {
         this.formSubmitted = true;
@@ -163,14 +177,14 @@
           if (this.newName !== this.name) {
             userUpdates.full_name = this.newName;
           }
-          if (this.newKind !== this.kind) {
-            userUpdates.kind = this.newKind;
+          if (this.newKind.value !== this.kind) {
+            userUpdates.kind = this.newKind.value;
           }
           this.updateUser(this.id, userUpdates);
           if (
             this.currentUserId === this.id &&
             this.currentUserKind !== UserKinds.SUPERUSER &&
-            this.newKind === UserKinds.LEARNER
+            this.newKind.value === UserKinds.LEARNER
           ) {
             window.location.href = window.location.origin;
           }
@@ -204,11 +218,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  select
-    width: 100%
-    background-color: transparent
-    margin-top: 16px
-    margin-bottom: 16px
+  .kind-select
+    margin-bottom: 32px
 
   .ta-r
     text-align: right

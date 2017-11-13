@@ -173,7 +173,6 @@ def initialize(debug=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-
     if not os.path.isfile(version_file()):
         django.setup()
 

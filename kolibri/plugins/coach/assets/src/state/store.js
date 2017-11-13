@@ -7,6 +7,7 @@ const initialState = {
   pageState: {},
   classId: null,
   classList: [],
+  busy: false,
 };
 
 const mutations = {
@@ -77,6 +78,10 @@ const mutations = {
   // etc
   SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;
+  },
+
+  SET_BUSY(state, isBusy) {
+    state.pageState.busy = isBusy;
   },
 };
 

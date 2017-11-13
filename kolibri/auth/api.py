@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.db.models.query import F
+from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
 from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
@@ -52,9 +53,17 @@ class KolibriAuthPermissions(permissions.BasePermission):
 
         # as `has_object_permission` isn't called for POST/create, we need to check here
         if request.method == "POST" and request.data:
+            if type(request.data) is list:
+                data = request.data
+            else:
+                data = [request.data]
+
             model = view.serializer_class.Meta.model
-            validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
-            return request.user.can_create(model, validated_data)
+
+            def validate(datum):
+                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(datum))
+                return request.user.can_create(model, validated_data)
+            return all(validate(datum) for datum in data)
 
         # for other methods, we return True, as their permissions get checked below
         return True
@@ -117,12 +126,23 @@ class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
-class MembershipViewSet(viewsets.ModelViewSet):
+class MembershipFilter(filters.FilterSet):
+    user_ids = filters.django_filters.MethodFilter()
+
+    def filter_user_ids(self, queryset, value):
+        return queryset.filter(user_id__in=value.split(','))
+
+    class Meta:
+        model = Membership
+
+
+class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    filter_fields = ('user_id', 'collection_id')
+    filter_class = MembershipFilter
+    filter_fields = ['user', 'collection', 'user_ids', ]
 
 
 class RoleViewSet(viewsets.ModelViewSet):
