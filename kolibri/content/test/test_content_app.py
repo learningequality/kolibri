@@ -307,6 +307,21 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['lang_code'], None)
         self.assertEqual(response.data['lang_name'], None)
 
+    def test_channelmetadata_content_available_filter_true(self):
+        content.ContentNode.objects.filter(title="c1").update(available=False)
+        response = self.client.get(reverse("channel-list"), {"available": True})
+        self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
+
+    def test_channelmetadata_content_available_filter_false(self):
+        content.ContentNode.objects.filter(title="c1").update(available=False)
+        response = self.client.get(reverse("channel-list"), {"available": False})
+        self.assertEqual(response.data, [])
+
+    def test_channelmetadata_content_unavailable_filter_false(self):
+        content.ContentNode.objects.all().update(available=False)
+        response = self.client.get(reverse("channel-list"), {"available": False})
+        self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
+
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
         self.assertEqual(len(response.data), 5)
