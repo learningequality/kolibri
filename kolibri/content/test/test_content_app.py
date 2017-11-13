@@ -408,7 +408,7 @@ def mock_patch_decorator(func):
 
     def wrapper(*args, **kwargs):
         mock_object = mock.Mock()
-        mock_object.json.return_value = {'good': 'response'}
+        mock_object.json.return_value = [{'id': 1, 'name': 'studio'}]
         with mock.patch.object(requests, 'get', return_value=mock_object):
             return func(*args, **kwargs)
 
@@ -429,12 +429,12 @@ class KolibriStudioAPITestCase(APITestCase):
     @mock_patch_decorator
     def test_channel_list(self):
         response = self.client.get(reverse('remotechannel-list'), format='json')
-        self.assertEqual(response.data['good'], 'response')
+        self.assertEqual(response.data[0]['id'], 1)
 
     @mock_patch_decorator
     def test_channel_retrieve(self):
         response = self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
-        self.assertEqual(response.data['good'], 'response')
+        self.assertEqual(response.data[0]['name'], 'studio')
 
     @mock_patch_decorator
     def test_channel_info_cache(self):

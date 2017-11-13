@@ -388,7 +388,6 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         return lang_name
 
-
     @classmethod
     def _studio_response_to_kolibri_response(cls, studioresp):
         """
