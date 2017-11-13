@@ -63,6 +63,13 @@ class FacilitySerializer(serializers.ModelSerializer):
         exclude = ("dataset", "kind", "parent")
 
 
+class PublicFacilitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Facility
+        fields = ('dataset', 'name')
+
+
 class ClassroomSerializer(serializers.ModelSerializer):
     learner_count = serializers.SerializerMethodField()
     coach_count = serializers.SerializerMethodField()
@@ -87,6 +94,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
                 fields=('parent', 'name')
             )
         ]
+
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 

@@ -210,6 +210,10 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(models.Facility.objects.filter(id=self.facility1.id).count(), 0)
 
+    def test_public_facility_endpoint(self):
+        response = self.client.get(reverse('publicfacility-list'))
+        self.assertEqual(models.Facility.objects.all().count(), len(response.data))
+
 
 class UserCreationTestCase(APITestCase):
 
