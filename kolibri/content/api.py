@@ -285,16 +285,12 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer
 
-    def get_queryset(self, available=None, prefetch=False):
+    def get_queryset(self, available=None):
         if available is not None:
             queryset = models.ContentNode.objects.filter(available=available)
         else:
             queryset = models.ContentNode.objects.all()
-
-        if prefetch:
-            return queryset.prefetch_related('files__local_file')
-
-        return queryset
+        return queryset.prefetch_related('files__local_file')
 
     def retrieve(self, request, pk):
         import_export = request.query_params.get('import_export', None)
@@ -310,18 +306,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
         return response
 
-    @detail_route(methods=['get'])
-    def filesizes(self, request, pk):
-        instance = self.get_object()
-
-        files = models.LocalFile.objects.filter(files__contentnode__in=instance.get_descendants(include_self=True)).distinct()
-        total_file_size = files.aggregate(Sum('file_size'))['file_size__sum'] or 0
-        on_device_file_size = files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
-
-        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})
-
     def _get_parent_and_children_info(self, pk, available=None):
-        queryset = self.get_queryset(available, prefetch=True)
+        queryset = self.get_queryset(available)
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
 
@@ -353,3 +339,19 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ContentNodeGranularSerializer
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
+
+    def retrieve(self, request, pk):
+        instance = self.get_object()
+
+        files = models.LocalFile.objects.filter(files__contentnode__in=instance.get_descendants(include_self=True)).distinct()
+        total_file_size = files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+        on_device_file_size = files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})
