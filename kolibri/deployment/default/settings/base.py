@@ -138,7 +138,7 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://192.168.1.44:8080"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://192.168.1.45:8080"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
