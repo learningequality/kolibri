@@ -17,6 +17,11 @@ const baseSessionState = {
   can_manage_content: false,
 };
 
+const baseConnectionState = {
+  connected: true,
+  reconnectTime: null,
+};
+
 // core state is namespaced, and merged with a particular app's state
 const initialState = {
   core: {
@@ -35,6 +40,7 @@ const initialState = {
     },
     facilityConfig: {},
     facilities: [],
+    connection: baseConnectionState,
   },
 };
 
@@ -70,6 +76,12 @@ const mutations = {
   },
   CORE_SET_TITLE(state, title) {
     state.core.title = title;
+  },
+  CORE_SET_CONNECTED(state, connected) {
+    state.core.connection.connected = connected;
+  },
+  CORE_SET_RECONNECT_TIME(state, reconnectTime) {
+    state.core.connection.reconnectTime = reconnectTime;
   },
   SET_LOGGING_SUMMARY_STATE(state, summaryState) {
     state.core.logging.summary = summaryState;
