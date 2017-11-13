@@ -11,6 +11,7 @@ import UiSelect from 'keen-ui/src/UiSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
 import { selectContentsPageState } from '../utils/data';
+import ChannelTokenModal from '../../views/available-channels-page/channel-token-modal';
 
 const router = new VueRouter({
   routes: [
@@ -66,10 +67,12 @@ function getElements(wrapper) {
     channelsList: () => wrapper.find('.channels-list'),
     channelsAvailableText: () => wrapper.first('.channels p').text().trim(),
     channelListItems: () => wrapper.find(ChannelListItem),
+    channelTokenModal: () => wrapper.first(ChannelTokenModal),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.first(UiSelect),
     titleText: () => wrapper.first('.channels h1').text().trim(),
     titleFilter: () => wrapper.first(kFilterTextbox),
+    unlistedChannelsSection: () => wrapper.find('section.unlisted-channels'),
     wholePageBackLink: () => wrapper.first(ImmersiveFullScreen).getProp('backPageLink'),
     wholePageBackText: () => wrapper.first(ImmersiveFullScreen).getProp('backPageText'),
   }
@@ -89,6 +92,10 @@ describe.only('availableChannelsPage', () => {
     store = makeStore();
   });
 
+  function setTransferType(transferType) {
+    store.state.pageState.wizardState.meta.transferType = transferType;
+  }
+
   it('back button link is correct', () => {
     const wrapper = makeWrapper();
     const { wholePageBackLink } = getElements(wrapper);
@@ -102,8 +109,28 @@ describe.only('availableChannelsPage', () => {
     });
   });
 
+  it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
+    // ...and clicking it opens the channel token modal
+    setTransferType('remoteimport');
+    const wrapper = makeWrapper({ store });
+    const { unlistedChannelsSection, channelTokenModal } = getElements(wrapper);
+    const button = unlistedChannelsSection()[0].first('button');
+    button.trigger('click');
+    return wrapper.vm.$nextTick()
+      .then(() => {
+        assert(channelTokenModal().isVueComponent);
+      });
+  });
+
+  it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
+    setTransferType('localexport');
+    const wrapper = makeWrapper({ store });
+    const { unlistedChannelsSection } = getElements(wrapper);
+    assert.deepEqual(unlistedChannelsSection(), []);
+  });
+
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
-    store.state.pageState.wizardState.meta.transferType = 'localexport';
+    setTransferType('localexport');
     store.state.pageState.wizardState.meta.destination = {
       driveId: 'f9e29616935fbff37913ed46bf20e2c0',
       driveName: 'SANDISK (F:)',
@@ -116,7 +143,7 @@ describe.only('availableChannelsPage', () => {
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
-    store.state.pageState.wizardState.meta.transferType = 'localimport';
+    setTransferType('localimport');
     store.state.pageState.wizardState.meta.source = {
       driveId: 'f9e29616935fbff37913ed46bf20e2c0',
       driveName: 'SANDISK (G:)',
@@ -129,7 +156,7 @@ describe.only('availableChannelsPage', () => {
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
-    store.state.pageState.wizardState.meta.transferType = 'remoteimport';
+    setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
     assert.equal(wholePageBackText(), 'Kolibri Central Server');

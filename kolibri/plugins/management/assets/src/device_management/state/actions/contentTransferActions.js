@@ -1,7 +1,6 @@
 import { selectedNodes } from '../getters';
 import { TaskResource, ContentNodeGranularResource } from 'kolibri.resources';
 import { TaskStatuses, TransferTypes } from '../../constants';
-import dropRightWhile from 'lodash/dropRightWhile'
 import sumBy from 'lodash/sumBy';
 import partition from 'lodash/partition';
 import omit from 'lodash/omit';

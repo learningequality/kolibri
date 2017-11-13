@@ -53,6 +53,24 @@
           />
         </div>
       </div>
+
+      <section
+        class="unlisted-channels"
+        v-if="showUnlistedChannels"
+      >
+        <channel-token-modal
+          v-if="showTokenModal"
+          @closemodal="showTokenModal=false"
+        />
+        <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
+
+        <k-button
+          :text="$tr('channelTokenButtonLabel')"
+          appearance="basic-link"
+          name="showtokenmodal"
+          @click="showTokenModal=true"
+        />
+      </section>
     </subpage-container>
   </immersive-full-screen>
 
@@ -66,6 +84,8 @@
   import channelListItem from './manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import channelTokenModal from './available-channels-page/channel-token-modal';
   import subpageContainer from './containers/subpage-container';
   import uniqBy from 'lodash/uniqBy';
   import { installedChannelList, wizardState } from '../state/getters';
@@ -77,7 +97,9 @@
     name: 'availableChannelsPage',
     components: {
       channelListItem,
+      channelTokenModal,
       immersiveFullScreen,
+      kButton,
       kFilterTextbox,
       subpageContainer,
       UiProgressLinear,
@@ -89,6 +111,7 @@
         // Initialized with this filter, but localized label is added after mount
         languageFilter: { value: 'ALL' },
         titleFilter: '',
+        showTokenModal: false,
       };
     },
     computed: {
@@ -123,6 +146,9 @@
       },
       channelsAreAvailable() {
         return this.availableChannels.length > 0;
+      },
+      showUnlistedChannels() {
+        return this.channelsAreAvailable && this.transferType === 'remoteimport';
       },
       goBackLink() {
         return {
@@ -186,6 +212,8 @@
       languageFilterLabel: 'Language:',
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
+      channelTokenButtonLabel: 'Try adding a token',
+      channelNotListedExplanation: 'Don\'t see your channel listed?',
     },
   };
 
