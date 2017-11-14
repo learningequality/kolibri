@@ -4,13 +4,13 @@
 Manage Groups
 ~~~~~~~~~~~~~
 
-You can create and delete groups, as well as assign learners to them from the **Groups** tab in your **Coach** dashboard. Default view displays the list of all groups for the selected class, with the list of assigned learners for each group.
+In case you need to further divide learners inside classes, for example to address the different progress needs or levels, you can use the **Groups** feature. Create and delete groups, as well as assign learners to them from the **Groups** tab in your **Coach** dashboard. Default view displays the list of all groups for the selected class, with the list of assigned learners for each group.
 
-.. image:: img/groups.png
-  :alt: manage learner groups
+	.. image:: img/groups.png
+	  :alt: manage learner groups
 
 .. note::
-  To manage groups of learners in Kolibri class you must be logged-in as **Coach** or **Admin**.
+  To manage Kolibri users you must sign-in as **Super user**, **Admin** or **Coach**.
 
 
 Create a New Group
@@ -33,8 +33,8 @@ Below existing groups there is a list with all learners currently **NOT** assign
 #. Select the group to which you want to assign the selected learners in the confirmation window.
 #. Click **Move** to proceed, or **Cancel** to exit without assigning.
 
-.. image:: img/move_learners.png
-  :alt: move ungrouped learners
+	.. image:: img/move-learners.png
+	  :alt: move ungrouped learners
 
 
 Move learners between groups
@@ -45,8 +45,8 @@ Move learners between groups
 #. Select the group to which you want to move the selected learners, or the **Ungrouped** option if you want to remove them from the origin group without assigning to a new one.
 #. Click **Move** to proceed, or **Cancel** to exit without moving.
 
-.. image:: img/move_learners2.png
-  :alt: move learners from one group to another
+	.. image:: img/move-learners2.png
+	  :alt: move learners from one group to another
 
 
 Rename Group

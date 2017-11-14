@@ -38,7 +38,7 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
     @patch('kolibri.content.utils.channel_import.get_content_database_file_path')
     def test_get_config(self, db_path_mock, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
-        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().models.values()])
+        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().get_models(include_auto_created=True)])
 
     def test_tree_id(self, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
@@ -191,7 +191,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
     def test_no_merge_records_bulk_insert_no_flush(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*100, 0)
         channel_import.destination.session.bulk_insert_mappings.assert_has_calls([call(record_mock, [{'test_attr': 'test_val'}]*100)])
@@ -200,7 +200,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
     def test_no_merge_records_bulk_insert_flush(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
         channel_import.destination.session.bulk_insert_mappings.assert_has_calls([call(record_mock, [{'test_attr': 'test_val'}]*10000)])
@@ -211,7 +211,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         from kolibri.content.utils.channel_import import merge_models
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = MagicMock()
         merge_models.append(model_mock)
@@ -224,7 +224,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         from kolibri.content.utils.channel_import import merge_models
         channel_import = ChannelImport('test')
         record_mock = Mock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = Mock()
         merge_models.append(model_mock)
