@@ -1,62 +1,58 @@
-import KolibriModule from 'kolibri_module';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import router from 'kolibri.coreVue.router';
-
-import Vue from 'kolibri.lib.vue';
+import KolibriApp from 'kolibri_app';
 
 import RootVue from './views';
 import * as actions from './state/actions';
-import store from './state/store';
+import { initialState, mutations } from './state/store';
 import { PageNames } from './constants';
+import store from 'kolibri.coreVue.vuex.store';
 
-class UserModule extends KolibriModule {
-  ready() {
-    coreActions
-      .getCurrentSession(store)
-      .then(() => coreActions.getFacilityConfig(store))
-      .then(() => {
-        const routes = [
-          {
-            name: PageNames.ROOT,
-            path: '/',
-            handler: () => {
-              actions.showRoot(store);
-            },
-          },
-          {
-            name: PageNames.SIGN_IN,
-            path: '/signin',
-            handler: () => {
-              actions.showSignIn(store);
-            },
-          },
-          {
-            name: PageNames.SIGN_UP,
-            path: '/create_account',
-            handler: () => {
-              actions.showSignUp(store);
-            },
-          },
-          {
-            name: PageNames.PROFILE,
-            path: '/profile',
-            handler: () => {
-              actions.showProfile(store);
-            },
-          },
-          {
-            path: '*',
-            redirect: '/',
-          },
-        ];
+const routes = [
+  {
+    name: PageNames.ROOT,
+    path: '/',
+    handler: () => {
+      actions.showRoot(store);
+    },
+  },
+  {
+    name: PageNames.SIGN_IN,
+    path: '/signin',
+    handler: () => {
+      actions.showSignIn(store);
+    },
+  },
+  {
+    name: PageNames.SIGN_UP,
+    path: '/create_account',
+    handler: () => {
+      actions.showSignUp(store);
+    },
+  },
+  {
+    name: PageNames.PROFILE,
+    path: '/profile',
+    handler: () => {
+      actions.showProfile(store);
+    },
+  },
+  {
+    path: '*',
+    redirect: '/',
+  },
+];
 
-        this.rootvue = new Vue({
-          name: 'userRoot',
-          el: 'rootvue',
-          render: createElement => createElement(RootVue),
-          router: router.init(routes),
-        });
-      });
+class UserModule extends KolibriApp {
+  get routes() {
+    return routes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get initialState() {
+    return initialState;
+  }
+  get mutations() {
+    return mutations;
   }
 }
 

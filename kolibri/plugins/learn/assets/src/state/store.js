@@ -1,8 +1,6 @@
 import * as constants from '../constants';
-import Vuex from 'kolibri.lib.vuex';
-import * as coreStore from 'kolibri.coreVue.vuex.store';
 
-const initialState = {
+export const initialState = {
   pageName: constants.PageNames.TOPICS_CHANNEL,
   pageState: {
     topics: [],
@@ -16,7 +14,7 @@ const initialState = {
   examAttemptLogs: {},
 };
 
-const mutations = {
+export const mutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
@@ -52,14 +50,3 @@ const mutations = {
     });
   },
 };
-
-// assigns core state and mutations
-Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, coreStore.mutations);
-
-const store = new Vuex.Store({
-  state: initialState,
-  mutations,
-});
-
-export { store as default };

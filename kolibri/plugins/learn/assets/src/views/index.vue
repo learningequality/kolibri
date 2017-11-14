@@ -46,7 +46,6 @@
 
 <script>
 
-  import store from '../state/store';
   import { PageNames, RecommendedPages } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
@@ -166,7 +165,6 @@
         isUserLoggedIn,
       },
     },
-    store,
   };
 
 </script>

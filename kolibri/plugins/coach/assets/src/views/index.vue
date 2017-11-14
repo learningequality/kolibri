@@ -21,7 +21,6 @@
 
 <script>
 
-  import store from '../state/store';
   import { PageNames } from '../constants';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -120,7 +119,6 @@
         classId: state => state.classId,
       },
     },
-    store,
   };
 
 </script>
