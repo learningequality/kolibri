@@ -19,7 +19,7 @@
             v-for="channel in sortedChannels"
             :key="channel.id"
             :channel="channel"
-            mode="managing"
+            mode="MANAGE"
             @clickdelete="selectedChannelId=channel.id"
           />
         </div>

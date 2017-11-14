@@ -2,7 +2,10 @@
 
   <div>
     <div class="breadcrumbs">
-      <k-breadcrumbs :items="breadcrumbItems" :showAllCrumbs="true" />
+      <k-breadcrumbs
+        :items="breadcrumbs"
+        :showAllCrumbs="true"
+      />
     </div>
 
     <div
@@ -49,10 +52,13 @@
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import contentNodeRow from './content-node-row';
   import { annotateNode, transformBreadrumb } from './treeViewUtils';
-  import { addNodeForTransfer, removeNodeForTransfer, updateTreeViewTopic } from '../../state/actions/contentTransferActions';
+  import {
+    addNodeForTransfer,
+    removeNodeForTransfer,
+    updateTreeViewTopic,
+  } from '../../state/actions/contentTransferActions';
   import { wizardState } from '../../state/getters';
   import last from 'lodash/last';
-  import partition from 'lodash/partition';
   import every from 'lodash/every';
 
   export default {
@@ -75,7 +81,10 @@
       annotatedTopicNode() {
         // need to include disabled
         const selectedOrDisabled = {
-          include: [...this.selectedNodes.include, ...this.annotatedChildNodes.filter(n => n.disabled)],
+          include: [
+            ...this.selectedNodes.include,
+            ...this.annotatedChildNodes.filter(n => n.disabled),
+          ],
           omit: [...this.selectedNodes.omit],
         };
         return annotateNode({ ...this.topicNode, path: [...this.path] }, selectedOrDisabled);
@@ -84,7 +93,7 @@
         const items = [...this.breadcrumbs];
         delete last(items).link;
         return items;
-      }
+      },
     },
     methods: {
       nodeIsChecked(node) {
@@ -103,14 +112,14 @@
         this.$router.replace({
           name: 'treeview_update_topic',
           query: {
-            topic: node.pk
+            topic: node.pk,
           },
           params: {
             pk: node.pk,
             title: node.title,
             replaceCrumbs: false,
           },
-        })
+        });
       },
       toggleSelectAll() {
         this.toggleSelection(this.annotatedTopicNode);
@@ -121,10 +130,10 @@
         }
         // if the clicked node would put the parent at 100% included
         if (this.nodeCompletesParent(node)) {
-          return this.addNodeForTransfer({...this.annotatedTopicNode});
+          return this.addNodeForTransfer({ ...this.annotatedTopicNode });
         }
         return this.addNodeForTransfer(node);
-      }
+      },
     },
     vuex: {
       getters: {

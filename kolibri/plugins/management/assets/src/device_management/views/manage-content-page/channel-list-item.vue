@@ -3,9 +3,18 @@
   <div class="channel-list-item">
 
     <div class="thumbnail dtc">
-      <img v-if="thumbnailImg" :src="thumbnailImg">
-      <div v-else class="default-icon">
-        <mat-svg category="navigation" name="apps" />
+      <img
+        v-if="thumbnailImg"
+        :src="thumbnailImg"
+      >
+      <div
+        v-else
+        class="default-icon"
+      >
+        <mat-svg
+          category="navigation"
+          name="apps"
+        />
       </div>
     </div>
 
@@ -13,11 +22,20 @@
 
       <div class="details-top">
         <div class="other-details">
-          <div v-if="inImportMode && onDevice" class="on-device">
-            <mat-svg category="action" name="check_circle" />
+          <div
+            v-if="inImportMode && onDevice"
+            class="on-device"
+          >
+            <mat-svg
+              category="action"
+              name="check_circle"
+            />
             <span>{{ $tr('onYourDevice') }}</span>
           </div>
-          <div v-if="inExportMode" class="resources-size">
+          <div
+            v-if="inExportMode || inManageMode"
+            class="resources-size"
+          >
             <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
@@ -39,14 +57,15 @@
 
     <div class="buttons dtc">
       <k-button
-        v-if="inImportMode"
+        v-if="inImportMode || inExportMode"
         @click="$emit('clickselect')"
         name="select"
         :text="$tr('selectButton')"
         primary
+        :disabled="tasksInQueue"
       />
       <k-button
-        v-if="inExportMode"
+        v-if="inManageMode"
         @click="$emit('clickdelete')"
         name="delete"
         :text="$tr('deleteButton')"
@@ -62,7 +81,12 @@
 
   import bytesForHumans from './bytesForHumans';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { TransferTypes } from '../../constants';
+
+  const Modes = {
+    IMPORT: 'IMPORT',
+    EXPORT: 'EXPORT',
+    MANAGE: 'MANAGE',
+  };
 
   export default {
     name: 'channelListItem',
@@ -75,7 +99,7 @@
         required: true,
       },
       mode: {
-        type: String,
+        type: String, // 'IMPORT' | 'EXPORT' | 'MANAGE'
         required: true,
       },
       onDevice: {
@@ -85,10 +109,13 @@
     },
     computed: {
       inImportMode() {
-        return this.mode === TransferTypes.LOCALIMPORT || TransferTypes.REMOTEIMPORT;
+        return this.mode === Modes.IMPORT;
       },
       inExportMode() {
-        return this.mode === TransferTypes.LOCALEXPORT;
+        return this.mode === Modes.EXPORT;
+      },
+      inManageMode() {
+        return this.mode === Modes.MANAGE;
       },
       resourcesSizeText() {
         return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.total_file_size) });

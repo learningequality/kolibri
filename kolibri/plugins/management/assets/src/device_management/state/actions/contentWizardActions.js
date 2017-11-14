@@ -138,7 +138,7 @@ export function transitionWizardPage(store, transition, params) {
         transferType,
         channel: {
           ...params.channel,
-          isOnDevice: true,
+          isOnDevice: false,
         },
       });
     }

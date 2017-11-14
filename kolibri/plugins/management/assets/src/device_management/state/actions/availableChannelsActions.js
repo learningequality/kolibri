@@ -52,3 +52,14 @@ export function showAvailableChannelsPage(store, options) {
   }
   return Promise.resolve();
 }
+
+/**
+ * Makes request to RemoteChannel API with a token. Does not actually interact
+ * with Vuex store.
+ *
+ * @param {string} token -
+ * @returns Promise
+ */
+export function getRemoteChannelByToken(token) {
+  return RemoteChannelResource.getModel(token).fetch()._promise;
+}

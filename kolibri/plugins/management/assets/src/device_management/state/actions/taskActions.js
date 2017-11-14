@@ -3,6 +3,8 @@ import { TaskResource } from 'kolibri.resources';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import logger from 'kolibri.lib.logging';
 import { closeImportExportWizard } from './contentWizardActions';
+import isEqual from 'lodash/isEqual';
+import pick from 'lodash/fp/pick';
 
 const logging = logger.getLogger(__filename);
 
@@ -68,6 +70,30 @@ export function triggerChannelDeleteTask(store, channelId) {
   return triggerTask(store, TaskResource.deleteChannel(channelId));
 }
 
+function taskList(state) {
+  return state.pageState.taskList;
+}
+
+/**
+ * Basically, a simplified version of pollTasks.
+ *
+ */
+export function refreshTaskList(store) {
+  // need to convert observable to plain Object to make it deep-comparable
+  const simplifyTask = pick(['id', 'status', 'percentage']);
+  return TaskResource.getCollection().fetch({}, true)
+    .then(tasks => {
+      const storeTasks = taskList(store.state);
+      const lengthDiffers = tasks.length !== storeTasks.length;
+      const storeTask = simplifyTask(storeTasks[0] || {});
+      const fetchedTask = simplifyTask(tasks[0] || {});
+      const firstTaskDiffers = !isEqual(storeTask, fetchedTask);
+      if (lengthDiffers || firstTaskDiffers) {
+        updateTasks(store, tasks);
+      }
+    });
+}
+
 export function pollTasks(store) {
   const samePageCheck = samePageCheckGenerator(store);
   TaskResource.getCollection()
@@ -78,7 +104,7 @@ export function pollTasks(store) {
       taskList => {
         updateTasks(store, taskList);
         if (taskList.length && store.state.pageState.wizardState.shown) {
-          closeImportExportWizard(store);
+          // closeImportExportWizard(store);
         }
       },
       error => {

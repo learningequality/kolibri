@@ -48,7 +48,7 @@
 <script>
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-  import { pollTasks, cancelTask } from '../../state/actions/taskActions';
+  import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
   import { startImportWizard, startExportWizard } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -118,7 +118,7 @@
     },
     mounted() {
       if (this.canManageContent) {
-        this.intervalId = setInterval(this.pollTasks, POLL_DELAY);
+        this.intervalId = setInterval(this.refreshTaskList, POLL_DELAY);
       }
     },
     destroyed() {
@@ -150,7 +150,7 @@
       },
       actions: {
         cancelTask,
-        pollTasks,
+        refreshTaskList,
         refreshChannelList,
         startExportWizard,
         startImportWizard,

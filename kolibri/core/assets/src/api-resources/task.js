@@ -5,8 +5,32 @@ export default class TaskResource extends Resource {
     return 'task';
   }
 
-  startLocalChannelImport() {
-    return Promise.resolve();
+  /**
+   * Initiates a Task that imports a Channel Metadata DB from a remote source
+   */
+  startRemoteChannelImport(channel_id) {
+    return this.client({
+      path: this.urls[`${this.name}_startremotechannelimport`](),
+      method: 'POST',
+      entity: {
+        channel_id,
+      },
+    });
+  }
+
+
+  /**
+   * Initiates a Task that imports a Channel Metadata DB from a local drive
+   */
+  startDiskChannelImport({ channel_id, drive_id }) {
+    return this.client({
+      path: this.urls[`${this.name}_startdiskchannelimport`](),
+      method: 'POST',
+      entity: {
+        channel_id,
+        drive_id,
+      },
+    });
   }
 
   localExportContent(driveId) {

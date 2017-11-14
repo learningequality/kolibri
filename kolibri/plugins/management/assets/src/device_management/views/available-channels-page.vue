@@ -49,7 +49,7 @@
             :onDevice="channelIsOnDevice(channel)"
             @clickselect="goToChannel(channel)"
             class="channel-list-item"
-            :mode="transferType"
+            :mode="channelListItemMode"
           />
         </div>
       </div>
@@ -61,6 +61,7 @@
         <channel-token-modal
           v-if="showTokenModal"
           @closemodal="showTokenModal=false"
+          @channelfound="goToChannel"
         />
         <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
@@ -90,6 +91,7 @@
   import uniqBy from 'lodash/uniqBy';
   import { installedChannelList, wizardState } from '../state/getters';
   import { transitionWizardPage } from '../state/actions/contentWizardActions';
+  import { TransferTypes } from '../constants';
 
   const ALL_FILTER = 'ALL';
 
@@ -115,11 +117,17 @@
       };
     },
     computed: {
+      channelListItemMode() {
+        if (this.transferType === TransferTypes.LOCALEXPORT) {
+          return 'EXPORT';
+        }
+        return 'IMPORT';
+      },
       backText() {
         switch (this.transferType) {
-          case 'localexport':
+          case TransferTypes.LOCALEXPORT:
             return this.$tr('exportToDisk', { diskName: this.wizardMeta.destination.driveName });
-          case 'localimport':
+          case TransferTypes.LOCALIMPORT:
             return this.$tr('importFromDisk', { diskName: this.wizardMeta.source.driveName });
           default:
             return this.$tr('kolibriCentralServer');
@@ -127,9 +135,9 @@
       },
       channelsTitle() {
         switch (this.transferType) {
-          case 'localexport':
+          case TransferTypes.LOCALEXPORT:
             return this.$tr('yourChannels');
-          case 'localimport':
+          case TransferTypes.LOCALIMPORT:
             return this.wizardMeta.source.driveName;
           default:
             return this.$tr('channels');
@@ -148,7 +156,7 @@
         return this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.transferType === 'remoteimport';
+        return this.channelsAreAvailable && this.transferType === TransferTypes.REMOTEIMPORT;
       },
       goBackLink() {
         return {
@@ -166,7 +174,7 @@
       },
     },
     mounted() {
-      this.languageFilter = {...this.allLanguagesOption};
+      this.languageFilter = { ...this.allLanguagesOption };
     },
     methods: {
       channelIsOnDevice(channel) {
@@ -213,7 +221,7 @@
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
-      channelNotListedExplanation: 'Don\'t see your channel listed?',
+      channelNotListedExplanation: "Don't see your channel listed?",
     },
   };
 
@@ -253,5 +261,8 @@
     width: 50%
     float: right
     margin-top: 10px
+
+  .unlisted-channels
+    padding: 16px 0
 
 </style>

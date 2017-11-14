@@ -20,20 +20,25 @@
         v-model.trim="token"
         :invalid="!tokenIsValid"
         :invalidText="$tr('invalidTokenMessage')"
+        autofocus
         @blur="tokenIsBlurred=true"
+        :disabled="formIsDisabled"
       />
 
       <div class="buttons">
         <k-button
-          type="button"
           :text="$tr('cancel')"
           name="cancel"
           appearance="flat-button"
           @click="$emit('closemodal')"
+          :disabled="formIsDisabled"
         />
         <k-button
+          class="submit"
           type="submit"
           :text="$tr('confirm')"
+          :primary="true"
+          :disabled="formIsDisabled"
         />
       </div>
     </form>
@@ -48,6 +53,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
 
   export default {
     name: 'channelTokenModal',
@@ -59,8 +65,9 @@
     },
     data() {
       return {
-        token: '',
+        formIsDisabled: false,
         formIsSubmitted: false,
+        token: '',
         tokenIsBlurred: false,
         tokenLookupFailed: false,
         tokenNetworkError: false,
@@ -76,31 +83,29 @@
     },
     methods: {
       submitForm() {
+        this.tokenLookupFailed = false;
         this.formIsSubmitted = true;
         if (this.tokenIsValid) {
+          this.formIsDisabled = true;
           return this.lookupToken(this.token)
-            .then((channel) => {
-              this.transitionWizardPage('forward', { channel })
+            .then(([channel]) => {
+              this.$emit('channelfound', channel);
             })
-            .catch((error) => {
-              if (error.status.code === 400) {
+            .catch(error => {
+              if (error.status.code === 404) {
                 this.tokenLookupFailed = true;
               } else {
                 this.tokenNetworkError = true;
               }
+            })
+            .then(() => {
+              this.formIsDisabled = false;
             });
         }
         return Promise.resolve();
       },
-    },
-    vuex: {
-      actions: {
-        lookupToken() {
-
-        },
-        transitionWizardPage() {
-
-        },
+      lookupToken(token) {
+        return getRemoteChannelByToken(token);
       },
     },
     $trs: {
@@ -117,4 +122,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .buttons
+    text-align: right
+
+  .submit
+    margin-right: 0
+
+</style>

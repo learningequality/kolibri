@@ -85,7 +85,7 @@ function testChannelVisibility(wrapper, visibilities) {
   });
 }
 
-describe.only('availableChannelsPage', () => {
+describe('availableChannelsPage', () => {
   let store;
 
   beforeEach(() => {

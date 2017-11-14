@@ -34,7 +34,7 @@
 
         <div class="channel-header">
           <div class="thumbnail">
-            <img :src="channel.thumbnail"></img>
+            <img :src="channel.thumbnail">
           </div>
           <h2 class="title">
             {{ channel.name }}
@@ -78,7 +78,7 @@
           />
         </section>
 
-        <hr></hr>
+        <hr>
 
         <section class="resources-tree-view">
           <content-tree-viewer />
@@ -100,6 +100,7 @@
   import uiAlert from 'keen-ui/src/UiAlert';
   import subpageContainer from '../containers/subpage-container';
   import { installedChannelList, wizardState } from '../../state/getters';
+  import isEmpty from 'lodash/isEmpty';
 
   export default {
     name: 'selectContentPage',
@@ -114,10 +115,12 @@
     computed: {
       channelOnDevice() {
         const match = this.installedChannelList.find(channel => channel.id === this.channel.id);
-        return match || {
-          on_device_file_size: 0,
-          on_device_resources: 0,
-        };
+        return (
+          match || {
+            on_device_file_size: 0,
+            on_device_resources: 0,
+          }
+        );
       },
       newVersionAvailable() {
         if (this.channelOnDevice.version) {
@@ -142,10 +145,10 @@
         installedChannelList,
         channel: state => wizardState(state).meta.channel,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
-        mode: state => wizardState(state).meta.transferType === 'localexport' ? 'export' : 'import',
-        onDeviceInfoIsReady: () => true,
+        mode: state => (wizardState(state).meta.transferType === 'localexport' ? 'export' : 'import'),
+        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).treeView.currentNode),
         remainingSpace: state => wizardState(state).remainingSpace,
-        selectedItems: state => wizardState(state).selectedItems|| {},
+        selectedItems: state => wizardState(state).selectedItems || {},
       },
     },
     $trs: {
@@ -156,11 +159,12 @@
       sizeCol: 'Size',
       totalSizeRow: 'Total size',
       update: 'Update',
-      newVersionAvailableNotification: 'New channel version available. Some of your old files may be outdated or deleted.',
+      newVersionAvailableNotification:
+        'New channel version available. Some of your old files may be outdated or deleted.',
       version: 'Version {version, number, integer}',
       resourceCount: '{count, number, useGrouping}',
     },
-  }
+  };
 
 </script>
 
