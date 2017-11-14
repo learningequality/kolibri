@@ -4,7 +4,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -433,3 +433,18 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         Gets metadata about a channel through a token or channel id.
         """
         return self._cache_kolibri_studio_channel_request(identifier=pk)
+
+
+class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ContentNodeGranularSerializer
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
+
+    def retrieve(self, request, pk):
+        instance = self.get_object()
+        files = models.LocalFile.objects.filter(files__contentnode__in=instance.get_descendants(include_self=True)).distinct()
+        total_file_size = files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+        on_device_file_size = files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})
