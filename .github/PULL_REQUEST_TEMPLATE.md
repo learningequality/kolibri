@@ -1,5 +1,20 @@
 # Details
 
+<!--
+Using the template:
+
+ 1. Leave all headlines in place
+ 2. Replace instructional texts with your own words
+ 3. Tick of completed checklist items as you complete them
+ 4. If you intentionally skip a checklist item, see below instruction
+
+Skipping items in checklists:
+
+Tick the item checkbox, ~strikethrough item text~, and write why it was skipped, example:
+
+- [x] ~Skipped item~ This is a documentation fix
+-->
+
 ### Summary
 
 * description of the change
@@ -22,6 +37,7 @@ when applicable, please provide:
 
 - [ ] PR has the correct target milestone
 - [ ] PR has the appropriate labels
+- [ ] Changes in the PR do not introduce accessibility regressions ([confimed by testing with one of the recommended tools](http://kolibri.readthedocs.io/en/develop/dev/manual_testing.html#accessibility-a11y-testing)) 
 - [ ] If PR is ready for review, it has been assigned or requests review from someone
 - [ ] Documentation is updated as necessary
 - [ ] External dependency files are updated (`yarn` and `pip`)
@@ -29,7 +45,6 @@ when applicable, please provide:
 - [ ] Screenshots of any front-end changes are in the PR description
 - [ ] CHANGELOG.rst is updated for high-level changes
 - [ ] You've added yourself to AUTHORS.rst if you're not there
-- [ ] Deleted any part of the PR template that you didn’t edit, except for checkboxes, which you should diligently check as necessary
 
 # Reviewer Checklist
 

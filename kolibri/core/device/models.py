@@ -4,6 +4,11 @@ from kolibri.auth.models import Facility, FacilityUser
 
 from .permissions import UserCanManageDevicePermissions
 
+device_permissions_fields = [
+    'is_superuser',
+    'can_manage_content',
+]
+
 
 class DevicePermissions(models.Model):
     """

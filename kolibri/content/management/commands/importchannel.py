@@ -1,6 +1,7 @@
 import logging as logger
 import os
 
+from django.conf import settings
 from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
 
@@ -27,31 +28,51 @@ class Command(AsyncCommand):
             cmd=self,
             help="Download the given channel through the network."
         )
-        network_subparser.add_argument('channel_id', type=str)
+        network_subparser.add_argument(
+            'channel_id',
+            type=str,
+            help="Download the database for the given channel_id."
+        )
+
+        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        network_subparser.add_argument(
+            "--baseurl",
+            type=str,
+            default=default_studio_url,
+            help="The host we will download the content from. Defaults to {}".format(default_studio_url),
+        )
 
         local_subparser = subparsers.add_parser(
-            name='local',
+            name='disk',
             cmd=self,
             help='Copy the content from the given folder.'
         )
-        local_subparser.add_argument('channel_id', type=str)
-        local_subparser.add_argument('directory', type=str)
+        local_subparser.add_argument(
+            'channel_id',
+            type=str,
+            help="Import this channel id from the given directory."
+        )
+        local_subparser.add_argument(
+            'directory',
+            type=str,
+            help="Import content from this directory."
+        )
 
-    def download_channel(self, channel_id):
+    def download_channel(self, channel_id, baseurl):
         logging.info("Downloading data for channel id {}".format(channel_id))
-        self._transfer(DOWNLOAD_METHOD, channel_id)
+        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl)
 
     def copy_channel(self, channel_id, path):
         logging.info("Copying in data for channel id {}".format(channel_id))
         self._transfer(COPY_METHOD, channel_id, path=path)
 
-    def _transfer(self, method, channel_id, path=None):
+    def _transfer(self, method, channel_id, baseurl=None, path=None):
 
         dest = paths.get_content_database_file_path(channel_id)
 
         # determine where we're downloading/copying from, and create appropriate transfer object
         if method == DOWNLOAD_METHOD:
-            url = paths.get_content_database_file_url(channel_id)
+            url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
             logging.debug("URL to fetch: {}".format(url))
             filetransfer = transfer.FileDownload(url, dest)
         elif method == COPY_METHOD:
@@ -86,8 +107,8 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.download_channel(options["channel_id"])
-        elif options['command'] == 'local':
+            self.download_channel(options["channel_id"], options["baseurl"])
+        elif options['command'] == 'disk':
             self.copy_channel(options["channel_id"], options["directory"])
         else:
             self._parser.print_help()
