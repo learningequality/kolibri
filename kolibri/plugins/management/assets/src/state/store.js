@@ -1,5 +1,3 @@
-import Vuex from 'kolibri.lib.vuex';
-import * as coreStore from 'kolibri.coreVue.vuex.store';
 import * as constants from '../constants';
 import otherMutations from './mutations';
 
@@ -23,7 +21,7 @@ import otherMutations from './mutations';
 
  **/
 
-const initialState = {
+export const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
   pageState: {
     channelList: [],
@@ -37,7 +35,7 @@ const initialState = {
   },
 };
 
-const mutations = {
+export const mutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
@@ -110,15 +108,5 @@ const mutations = {
   UPDATE_CURRENT_USER_KIND(state, newKind) {
     state.core.session.kind = newKind;
   },
+  ...otherMutations,
 };
-
-// assigns core state and mutations
-Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, otherMutations, coreStore.mutations);
-
-const store = new Vuex.Store({
-  state: initialState,
-  mutations,
-});
-
-export { store as default };

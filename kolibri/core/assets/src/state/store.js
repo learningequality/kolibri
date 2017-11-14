@@ -1,4 +1,8 @@
 import { UserKinds } from '../constants';
+import Vuex from 'vuex';
+import Vue from 'vue';
+
+Vue.use(Vuex);
 
 const baseLoggingState = {
   summary: { progress: 0 },
@@ -17,8 +21,13 @@ const baseSessionState = {
   can_manage_content: false,
 };
 
+const baseConnectionState = {
+  connected: true,
+  reconnectTime: null,
+};
+
 // core state is namespaced, and merged with a particular app's state
-const initialState = {
+export const initialState = {
   core: {
     error: '',
     loading: true,
@@ -35,10 +44,11 @@ const initialState = {
     },
     facilityConfig: {},
     facilities: [],
+    connection: baseConnectionState,
   },
 };
 
-const mutations = {
+export const coreMutations = {
   CORE_SET_SESSION(state, value) {
     Object.assign(state.core.session, value);
   },
@@ -70,6 +80,12 @@ const mutations = {
   },
   CORE_SET_TITLE(state, title) {
     state.core.title = title;
+  },
+  CORE_SET_CONNECTED(state, connected) {
+    state.core.connection.connected = connected;
+  },
+  CORE_SET_RECONNECT_TIME(state, reconnectTime) {
+    state.core.connection.reconnectTime = reconnectTime;
   },
   SET_LOGGING_SUMMARY_STATE(state, summaryState) {
     state.core.logging.summary = summaryState;
@@ -170,4 +186,17 @@ const mutations = {
   },
 };
 
-export { initialState, mutations };
+const store = new Vuex.Store({});
+
+export default store;
+
+store.registerModule = ({ state, mutations } = { state: {}, mutations: {} }) => {
+  if (store.__initialized) {
+    throw new Error(
+      'The store has already been initialized, dynamic initalization is not currently available'
+    );
+  }
+  store.hotUpdate({ mutations: Object.assign(mutations, coreMutations) });
+  store.replaceState(Object.assign(state, initialState));
+  store.__initialized = true;
+};

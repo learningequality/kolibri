@@ -21,7 +21,6 @@
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import topNavigation from './device-top-nav';
-  import store from '../state/store';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
   import userPermissionsPage from './user-permissions-page';
@@ -49,7 +48,6 @@
         return pageNameComponentMap[this.pageName];
       },
     },
-    store,
     vuex: {
       getters: {
         pageName: ({ pageName }) => pageName,

@@ -1,21 +1,26 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
-import tempfile
-import mock
 import datetime
+import tempfile
+from collections import namedtuple
 
-from django.test import TestCase
+import mock
+import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-
-from kolibri.content import models as content
-from le_utils.constants import content_kinds
-from rest_framework.test import APITestCase
+from django.test import TestCase
 from kolibri.auth.models import Facility, FacilityUser
 from kolibri.auth.test.helpers import provision_device
+from kolibri.content import models as content
+from kolibri.core.device.models import DevicePermissions, DeviceSettings
 from kolibri.logger.models import ContentSummaryLog
-from collections import namedtuple
+from le_utils.constants import content_kinds
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+DUMMY_PASSWORD = "password"
+
 
 class ContentNodeTestBase(object):
     """
@@ -229,6 +234,21 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
         self.assertEqual(response.data, {"detail": "Not found."})
 
+    def test_contentnodefilesize_resourcenode(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        content.LocalFile.objects.filter(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2").update(file_size=2)
+        content.LocalFile.objects.filter(pk="725257a0570044acbd59f8cf6a68b2be").update(file_size=1, available=False)
+        response = self.client.get(reverse("contentnodefilesize-detail", kwargs={"pk": c1_id}))
+        self.assertEqual(response.data, {"total_file_size": 3, "on_device_file_size": 2})
+
+    def test_contentnodefilesize_topicnode(self):
+        root_id = content.ContentNode.objects.get(title="root").id
+        content.LocalFile.objects.filter(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2").update(file_size=2)
+        content.LocalFile.objects.filter(pk="725257a0570044acbd59f8cf6a68b2be").update(file_size=1, available=False)
+        content.LocalFile.objects.filter(pk="e00699f859624e0f875ac6fe1e13d648").update(file_size=3)
+        response = self.client.get(reverse("contentnodefilesize-detail", kwargs={"pk": root_id}))
+        self.assertEqual(response.data, {"total_file_size": 6, "on_device_file_size": 5})
+
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
@@ -397,3 +417,54 @@ class ContentNodeAPITestCase(APITestCase):
         """
         cache.clear()
         super(ContentNodeAPITestCase, self).tearDown()
+
+
+def mock_patch_decorator(func):
+
+    def wrapper(*args, **kwargs):
+        mock_object = mock.Mock()
+        mock_object.json.return_value = [{'id': 1, 'name': 'studio'}]
+        with mock.patch.object(requests, 'get', return_value=mock_object):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+class KolibriStudioAPITestCase(APITestCase):
+
+    def setUp(self):
+        DeviceSettings.objects.create(is_provisioned=True)
+        facility = Facility.objects.create(name='facility')
+        superuser = FacilityUser.objects.create(username='superuser', facility=facility)
+        superuser.set_password(DUMMY_PASSWORD)
+        superuser.save()
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+        self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
+
+    @mock_patch_decorator
+    def test_channel_list(self):
+        response = self.client.get(reverse('remotechannel-list'), format='json')
+        self.assertEqual(response.data[0]['id'], 1)
+
+    @mock_patch_decorator
+    def test_channel_retrieve(self):
+        response = self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        self.assertEqual(response.data[0]['name'], 'studio')
+
+    @mock_patch_decorator
+    def test_channel_info_cache(self):
+        self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        with mock.patch.object(cache, 'set') as mock_cache_set:
+            self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+            self.assertFalse(mock_cache_set.called)
+
+    @mock_patch_decorator
+    def test_channel_info_404(self):
+        mock_object = mock.Mock()
+        mock_object.status_code = 404
+        requests.get.return_value = mock_object
+        response = self.client.get(reverse('remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def tearDown(self):
+        cache.clear()

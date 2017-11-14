@@ -36,6 +36,10 @@ aliases['vue-test'] = path.resolve(__dirname, './vueLocal');
 
 webpack_config.resolve.alias = aliases;
 
+webpack_config.externals = {
+  kolibri: 'kolibriGlobal',
+};
+
 module.exports = function(config) {
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -47,6 +51,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load
     files: [
+      './karma_config/globals.js',
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
       'kolibri/**/assets/test/**/*.js',

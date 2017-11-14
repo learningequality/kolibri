@@ -53,7 +53,7 @@ class ImportChannelTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importchannel", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importchannel", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
         # Check that the FileCopy initiated
@@ -151,7 +151,7 @@ class ImportContentTestCase(TestCase):
     def test_local_cancel_immediately(self, is_cancelled_mock, cancel_mock, FileCopyMock, annotation_mock):
         # Local version of test above
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         is_cancelled_mock.assert_has_calls([call(), call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
@@ -170,7 +170,7 @@ class ImportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])

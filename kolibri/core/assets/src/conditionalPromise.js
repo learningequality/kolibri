@@ -54,4 +54,10 @@ export default class ConditionalPromise {
     conditionalPromise._promise = Promise.all(promises);
     return conditionalPromise;
   }
+
+  static resolve(value) {
+    const conditionalPromise = new ConditionalPromise();
+    conditionalPromise._promise = Promise.resolve(value);
+    return conditionalPromise;
+  }
 }

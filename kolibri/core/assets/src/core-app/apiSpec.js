@@ -70,6 +70,7 @@ import * as browser from '../utils/browser';
 import uiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
+import appBar from '../views/app-bar';
 
 export default {
   client,
@@ -122,6 +123,7 @@ export default {
       kFilterTextbox,
       kSelect,
       uiAlert,
+      appBar,
     },
     router,
     mixins: {
