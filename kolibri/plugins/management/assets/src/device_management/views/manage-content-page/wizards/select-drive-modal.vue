@@ -6,11 +6,18 @@
     hideTopButtons
   >
     <div
-      v-if="driveListLoading"
+      v-if="driveStatus==='LOADING'"
       class="drive-list-loading"
     >
       {{ $tr('findingLocalDrives') }}
     </div>
+
+    <ui-alert
+      v-if="driveStatus==='ERROR'"
+      type="error"
+    >
+      {{ $tr('problemFindingLocalDrives') }}
+    </ui-alert>
 
     <drive-list
       v-else
@@ -25,9 +32,10 @@
         appearance="flat-button"
       />
       <k-button
+        class="forward-button"
         :text="$tr('continue')"
         @click="goForward"
-        :disabled="continueDisabled"
+        :disabled="continueIsDisabled"
         :primary="true"
       />
     </div>
@@ -40,9 +48,12 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { wizardState } from '../../../state/getters';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import driveList from './drive-list';
+  import { refreshDriveList } from '../../../state/actions/taskActions';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
+  import { wizardState } from '../../../state/getters';
+  import { TransferTypes } from '../../../constants';
 
   export default {
     name: 'selectDriveModal',
@@ -50,17 +61,20 @@
       coreModal,
       driveList,
       kButton,
+      UiAlert,
     },
     data() {
       return {
+        driveStatus: '',
         selectedDriveId: '',
+        showError: false,
       };
     },
     computed: {
       inImportMode() {
-        return this.transferType === 'localimport';
+        return this.transferType === TransferTypes.LOCALIMPORT;
       },
-      continueDisabled() {
+      continueIsDisabled() {
         return this.selectedDriveId === '';
       },
       title() {
@@ -71,7 +85,17 @@
       },
       enabledDrives() {
         return this.driveList.filter(this.driveIsEnabled);
-      }
+      },
+    },
+    mounted() {
+      this.driveStatus = 'LOADING';
+      this.refreshDriveList()
+        .catch(() => {
+          this.driveStatus = 'ERROR';
+        })
+        .then(() => {
+          this.driveStatus = '';
+        });
     },
     methods: {
       driveIsEnabled(drive) {
@@ -91,18 +115,19 @@
     },
     vuex: {
       getters: {
-        driveListLoading: state => wizardState(state).driveListLoading,
         driveList: state => wizardState(state).driveList,
-        transferType: state => wizardState(state).meta.transferType,
+        transferType: state => wizardState(state).transferType,
       },
       actions: {
         transitionWizardPage,
-      }
+        refreshDriveList,
+      },
     },
     $trs: {
       cancel: 'Cancel',
       continue: 'Continue',
       findingLocalDrives: 'Finding local drives…',
+      problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',
       selectExportDestination: 'Select an export destination',
     },
@@ -115,7 +140,8 @@
 
   .buttons
     text-align: right
-    button:nth-child(2)
-      margin-right: 0
+
+  .forward-button
+    margin-right: 0
 
 </style>

@@ -12,7 +12,7 @@ function makeWrapper(props = {}) {
     mode: 'import',
     resourceCount: 10,
     fileSize: 10000000,
-    remainingSpace: 5000000000,
+    spaceOnDrive: 5000000000,
   };
 
   return mount(SelectedResourcesSize, {
@@ -66,7 +66,7 @@ describe('selectedResourcesSize component', () => {
     const wrapper = makeWrapper({
       resourceCount: 10,
       fileSize: 10,
-      remainingSpace: 9,
+      spaceOnDrive: 9,
     });
     const { button } = getElements(wrapper);
     assert.equal(button().getProp('disabled'), true);

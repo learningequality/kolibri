@@ -1,29 +1,7 @@
 /* eslint-env node */
 import { TaskResource } from 'kolibri.resources';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import logger from 'kolibri.lib.logging';
-import { closeImportExportWizard } from './contentWizardActions';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-
-const logging = logger.getLogger(__filename);
-
-function transformTasks(tasks) {
-  return tasks.map(task => ({
-    id: task.id,
-    type: task.type,
-    status: task.status,
-    metadata: task.metadata,
-    percentage: task.percentage,
-    cancellable: task.cancellable,
-  }));
-}
-
-export function fetchCurrentTasks() {
-  return TaskResource.getCollection()
-    .fetch()
-    .then(transformTasks);
-}
 
 export function cancelTask(store, taskId) {
   return TaskResource.cancelTask(taskId).then(function onSuccess() {
@@ -32,7 +10,7 @@ export function cancelTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  store.dispatch('SET_CONTENT_PAGE_TASKS', transformTasks(tasks));
+  store.dispatch('SET_CONTENT_PAGE_TASKS', tasks);
 }
 
 function triggerTask(store, taskPromise) {
@@ -40,7 +18,6 @@ function triggerTask(store, taskPromise) {
   return taskPromise
     .then(function onSuccess(task) {
       updateTasks(store, [task.entity]);
-      closeImportExportWizard(store);
     })
     .catch(function onFailure(error) {
       let errorText;
@@ -54,61 +31,44 @@ function triggerTask(store, taskPromise) {
     });
 }
 
-export function triggerLocalContentImportTask(store, driveId) {
-  return triggerTask(store, TaskResource.localImportContent(driveId));
-}
-
-export function triggerLocalContentExportTask(store, driveId) {
-  return triggerTask(store, TaskResource.localExportContent(driveId));
-}
-
-export function triggerRemoteContentImportTask(store, channelId) {
-  return triggerTask(store, TaskResource.remoteImportContent(channelId));
-}
-
 export function triggerChannelDeleteTask(store, channelId) {
   return triggerTask(store, TaskResource.deleteChannel(channelId));
 }
 
-function taskList(state) {
-  return state.pageState.taskList;
+// need to convert observable Task to plain Object to make it deep-comparable
+const simplifyTask = pick(['id', 'status', 'percentage']);
+
+function _taskListShouldUpdate(state, newTasks) {
+    const oldTasks = state.pageState.taskList;
+    const oldTask = simplifyTask(oldTasks[0] || {});
+    const newTask = simplifyTask(newTasks[0] || {});
+    return (
+      newTasks.length !== oldTasks.length ||
+      !isEqual(oldTask, newTask)
+    );
 }
 
 /**
- * Basically, a simplified version of pollTasks.
+ * Updates pageState.taskList, but only if there is a change.
  *
  */
 export function refreshTaskList(store) {
-  // need to convert observable to plain Object to make it deep-comparable
-  const simplifyTask = pick(['id', 'status', 'percentage']);
-  return TaskResource.getCollection().fetch({}, true)
-    .then(tasks => {
-      const storeTasks = taskList(store.state);
-      const lengthDiffers = tasks.length !== storeTasks.length;
-      const storeTask = simplifyTask(storeTasks[0] || {});
-      const fetchedTask = simplifyTask(tasks[0] || {});
-      const firstTaskDiffers = !isEqual(storeTask, fetchedTask);
-      if (lengthDiffers || firstTaskDiffers) {
-        updateTasks(store, tasks);
+  return TaskResource.getCollection()
+    .fetch({}, true)
+    .then(newTasks => {
+      if (_taskListShouldUpdate(store.state, newTasks)) {
+        updateTasks(store, newTasks);
       }
     });
 }
 
-export function pollTasks(store) {
-  const samePageCheck = samePageCheckGenerator(store);
-  TaskResource.getCollection()
-    .fetch({}, true)
-    .only(
-      // don't handle response if we've switched pages or if we're in the middle of another operation
-      () => samePageCheck() && !store.state.pageState.wizardState.busy,
-      taskList => {
-        updateTasks(store, taskList);
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          // closeImportExportWizard(store);
-        }
-      },
-      error => {
-        logging.error(`poll error: ${error}`);
-      }
-    );
+/**
+ * Updates pageState.wizardState.driveList
+ *
+ */
+export function refreshDriveList(store) {
+  return TaskResource.localDrives()
+    .then(({ entity }) => {
+      store.dispatch('SET_DRIVE_LIST', entity);
+    });
 }

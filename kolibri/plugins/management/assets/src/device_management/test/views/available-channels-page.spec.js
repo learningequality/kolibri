@@ -5,13 +5,13 @@ import VueRouter from 'vue-router';
 import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from 'avoriaz';
-import AvailableChannelsPage from '../../views/available-channels-page.vue';
+import AvailableChannelsPage from '../../views/available-channels-page';
 import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
 import UiSelect from 'keen-ui/src/UiSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-import { selectContentsPageState } from '../utils/data';
 import ChannelTokenModal from '../../views/available-channels-page/channel-token-modal';
+import { importExportWizardState } from '../../state/wizardState';
 
 const router = new VueRouter({
   routes: [
@@ -37,13 +37,10 @@ function makeStore() {
       pageState: {
         channelList: channelsOnDevice,
         wizardState: {
-          ...selectContentsPageState(),
+          ...importExportWizardState(),
           availableChannels,
-          meta: {
-            transferType: 'localimport',
-            source: {},
-            destination: {},
-          },
+          transferType: 'localimport',
+          status: '',
         },
       },
     },
@@ -93,7 +90,7 @@ describe('availableChannelsPage', () => {
   });
 
   function setTransferType(transferType) {
-    store.state.pageState.wizardState.meta.transferType = transferType;
+    store.state.pageState.wizardState.transferType = transferType;
   }
 
   it('back button link is correct', () => {
@@ -131,7 +128,7 @@ describe('availableChannelsPage', () => {
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
     setTransferType('localexport');
-    store.state.pageState.wizardState.meta.destination = {
+    store.state.pageState.wizardState.selectedDrive = {
       driveId: 'f9e29616935fbff37913ed46bf20e2c0',
       driveName: 'SANDISK (F:)',
       type: 'LOCAL_DRIVE',
@@ -144,7 +141,7 @@ describe('availableChannelsPage', () => {
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
     setTransferType('localimport');
-    store.state.pageState.wizardState.meta.source = {
+    store.state.pageState.wizardState.selectedDrive = {
       driveId: 'f9e29616935fbff37913ed46bf20e2c0',
       driveName: 'SANDISK (G:)',
       type: 'LOCAL_DRIVE',
@@ -182,7 +179,7 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
-    assert.equal(channels[0].getProp('mode'), 'localimport');
+    assert.equal(channels[0].getProp('mode'), 'IMPORT');
     assert.equal(channels[0].getProp('onDevice'), true);
     assert.equal(channels[1].getProp('onDevice'), false);
     assert.equal(channels[2].getProp('onDevice'), false);

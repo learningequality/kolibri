@@ -43,7 +43,7 @@
           {{ channel.name }}
         </div>
         <div class="version">
-          {{ $tr('version', { version: channel.version }) }}
+          {{ $tr('version', { version: versionNumber }) }}
         </div>
       </div>
 
@@ -80,6 +80,7 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
+  import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   const Modes = {
@@ -127,10 +128,18 @@
         const { taskList = [] } = this.pageState;
         return taskList.length > 0;
       },
+      versionNumber() {
+        const installed = this.channelIsInstalled(this.channel.id);
+        if (installed) {
+          return installed.version;
+        }
+        return this.channel.version;
+      },
     },
     vuex: {
       getters: {
         pageState: ({ pageState }) => pageState,
+        channelIsInstalled,
       },
     },
     $trs: {

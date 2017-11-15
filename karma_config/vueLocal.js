@@ -4,6 +4,9 @@ import router from 'vue-router';
 import vueintl from 'vue-intl';
 import 'intl';
 import 'intl/locale-data/jsonp/en.js';
+import kRouter from 'kolibri.coreVue.router';
+
+kRouter.init([]);
 
 vue.prototype.Kolibri = {};
 vue.config.silent = true;

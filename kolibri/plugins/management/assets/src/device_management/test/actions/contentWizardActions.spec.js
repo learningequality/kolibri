@@ -3,26 +3,52 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
-import {
-  startImportWizard,
-  startExportWizard,
-  transitionWizardPage,
-} from '../../state/actions/contentWizardActions';
+import { transitionWizardPage } from '../../state/actions/contentWizardActions';
 import { availableChannels, wizardState } from '../../state/getters';
 import mutations from '../../state/mutations';
-import * as contentTransferActions from '../../state/actions/contentTransferActions';
+import * as selectContentActions from '../../state/actions/selectContentActions';
 import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
+import { importExportWizardState } from '../../state/wizardState';
 
 mockResource(RemoteChannelResource);
+
+const installedChannels = [
+  { id: 'installed_channel_1', name: 'Installed Channel One' },
+  { id: 'installed_channel_2', name: 'Installed Channel Two' },
+];
+
+const driveList = [
+  {
+    id: 'drive_1',
+    name: 'Drive Nummer Eins',
+    metadata: {
+      channels: [
+        { id: 'drive_1_channel_1', name: 'Drive 1 Channel One' },
+        { id: 'drive_1_channel_2', name: 'Drive 1 Channel Two' },
+      ],
+    },
+  },
+  {
+    id: 'drive_2',
+    name: 'Drive Nummer Zwei',
+    metadata: {
+      channels: [
+        { id: 'drive_2_channel_1', name: 'Drive 2 Channel One' },
+        { id: 'drive_2_channel_2', name: 'Drive 2 Channel Two' },
+      ],
+    },
+  },
+];
 
 function makeStore() {
   return new Vuex.Store({
     state: {
       pageState: {
+        channelList: [...installedChannels],
         wizardState: {
-          availableChannels: [],
-          meta: {},
+          ...importExportWizardState(),
+          driveList: [...driveList],
         },
       },
     },
@@ -34,59 +60,21 @@ describe('transitionWizardPage action', () => {
   // Tests import/export workflow from ManageContentPage to the SelectContentPage
   // Covers integrations with showAvailableChannelsPage and showSelectContentPage
   let store;
-  let selectContentStub;
+  let showSelectContentPageStub;
 
-  const pageName = () => wizardState(store.state).page;
-  const meta = () => wizardState(store.state).meta;
-
-  const installedChannels = [
-    { id: 'installed_channel_1', name: 'Installed Channel One' },
-    { id: 'installed_channel_2', name: 'Installed Channel Two' },
-  ];
-
-  const driveList = [
-    {
-      id: 'drive_1',
-      name: 'Drive Nummer Eins',
-      metadata: {
-        channels: [
-          { id: 'drive_1_channel_1', name: 'Drive 1 Channel One' },
-          { id: 'drive_1_channel_2', name: 'Drive 1 Channel Two' },
-        ],
-      },
-    },
-    {
-      id: 'drive_2',
-      name: 'Drive Nummer Zwei',
-      metadata: {
-        channels: [
-          { id: 'drive_2_channel_1', name: 'Drive 2 Channel One' },
-          { id: 'drive_2_channel_2', name: 'Drive 2 Channel Two' },
-        ],
-      },
-    },
-  ];
-
-  function testShowSelectContentCall(transferMeta, channel) {
-    // test handoff of data to showSelectContentPage
-    sinon.assert.calledOnce(selectContentStub);
-    sinon.assert.calledWithMatch(selectContentStub, sinon.match.any, {
-      ...transferMeta,
-      channel,
-    });
-  }
+  const pageName = () => wizardState(store.state).pageName;
+  const transferType = () => wizardState(store.state).transferType;
+  const selectedDrive = () => wizardState(store.state).selectedDrive;
 
   beforeEach(() => {
     store = makeStore();
-    wizardState(store.state).driveList = driveList;
-    store.state.pageState.channelList = installedChannels;
 
-    selectContentStub = sinon.stub(contentTransferActions, 'showSelectContentPage')
+    showSelectContentPageStub = sinon.stub(selectContentActions, 'showSelectContentPage')
       .returns(Promise.resolve());
   });
 
   afterEach(() => {
-    selectContentStub.restore();
+    showSelectContentPageStub.restore();
   });
 
   it('REMOTEIMPORT flow correctly updates wizardState', () => {
@@ -96,39 +84,31 @@ describe('transitionWizardPage action', () => {
     ];
     // makes call to RemoteChannel API
     const fetchSpy = RemoteChannelResource.__getCollectionFetchReturns(publicChannels).fetch;
-    const transferMeta = {
-      transferType: 'remoteimport',
-      source: {
-        type: 'NETWORK_SOURCE',
-        baseUrl: '',
-      },
-      destination: {},
-    };
-    // flow will be the same even if channel is unlisted with a token
-    const channel = {
-      ...publicChannels[0],
-      onDevice: false,
-      token: '',
-    };
 
-    // STEP 1 - click "import" -> open "choose source" modal
-    startImportWizard(store);
-    assert.equal(pageName(), 'CHOOSE_IMPORT_SOURCE');
+    // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
+    transitionWizardPage(store, 'forward', { import: true });
+    assert.equal(pageName(), 'SELECT_IMPORT_SOURCE');
 
-    // STEP 2 - choose "internet" from options -> go to "available channels" page
+    // STEP 2 - choose "internet" from options -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { source: 'network' })
       .then(() => {
         assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.deepEqual(meta(), transferMeta);
+        assert.equal(transferType(), 'remoteimport');
+
+        // Calls from inside showAvailableChannelsPage
         sinon.assert.calledOnce(RemoteChannelResource.getCollection);
         sinon.assert.calledOnce(fetchSpy);
         assert.equal(availableChannels(store.state), publicChannels);
 
-        // STEP 3 - pick first channel -> go to "select content" page
-        return transitionWizardPage(store, 'forward', { channel });
+        // STEP 3 - pick first channel -> SELECT_CONTENT
+        return transitionWizardPage(store, 'forward', {
+          channel: {
+            id: 'public_channel_1',
+          },
+        });
       })
       .then(() => {
-        testShowSelectContentCall(transferMeta, channel);
+        sinon.assert.calledOnce(showSelectContentPageStub);
         RemoteChannelResource.__resetMocks();
       });
   });
@@ -137,41 +117,32 @@ describe('transitionWizardPage action', () => {
     const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(Promise.resolve({
       entity: []
     }));
-    const transferMeta = {
-      transferType: 'localimport',
-      source: {
-        type: 'LOCAL_DRIVE',
-        driveId: 'drive_2',
-        driveName: 'Drive Nummer Zwei',
-      },
-      destination: {},
-    };
+    const selectedUsbDrive = driveList[1];
     const channel = {
-      ...driveList[1].metadata.channels[0],
-      onDevice: false,
+      ...selectedUsbDrive.metadata.channels[0],
     };
 
-    // STEP 1 - click "import" -> open "choose source" modal
-    startImportWizard(store);
-    assert.equal(pageName(), 'CHOOSE_IMPORT_SOURCE');
+    // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
+    transitionWizardPage(store, 'forward', { import: true });
+    assert.equal(pageName(), 'SELECT_IMPORT_SOURCE');
 
-    // STEP 2 - choose "usb drive" from options -> go to "choose drive" modal
+    // STEP 2 - choose "usb drive" from options -> SELECT_DRIVE
     transitionWizardPage(store, 'forward', { source: 'local' });
     assert.equal(pageName(), 'SELECT_DRIVE');
-    assert.equal(meta().transferType, 'localimport');
+    assert.equal(transferType(), 'localimport');
 
-    // STEP 3 - choose "drive_2" -> go to "available channels" page
+    // STEP 3 - choose "drive_2" -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { driveId: 'drive_2' })
       .then(() => {
         assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.deepEqual(meta(), transferMeta);
-        assert.deepEqual(availableChannels(store.state), driveList[1].metadata.channels);
+        assert.deepEqual(selectedDrive(), selectedUsbDrive);
+        assert.deepEqual(availableChannels(store.state), selectedUsbDrive.metadata.channels);
 
         // STEP 4 - pick the first channel -> go to "select content" page
         return transitionWizardPage(store, 'forward', { channel });
       })
       .then(() => {
-        testShowSelectContentCall(transferMeta, channel);
+        sinon.assert.calledOnce(showSelectContentPageStub);
         localDrivesStub.restore();
       });
   });
@@ -182,35 +153,24 @@ describe('transitionWizardPage action', () => {
     }));
     const channel = {
       ...installedChannels[0],
-      onDevice: true,
     };
-    const transferMeta = {
-      transferType: 'localexport',
-      source: {},
-      destination: {
-        type: 'LOCAL_DRIVE',
-        driveId: 'drive_1',
-        driveName: 'Drive Nummer Eins',
-      },
-    }
 
-    // STEP 1 - click "export" -> open "choose drive" modal
-    startExportWizard(store);
+    // STEP 1 - click "export" -> SELECT_DRIVE
+    transitionWizardPage(store, 'forward', { import: false });
     assert.equal(pageName(), 'SELECT_DRIVE');
-    assert.equal(meta().transferType, 'localexport');
+    assert.equal(transferType(), 'localexport');
 
-    // STEP 2 - choose "drive_1" -> go to "Available Channels" page
+    // STEP 2 - choose "drive_1" -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { driveId: 'drive_1' })
       .then(() => {
         assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.deepEqual(meta(), transferMeta);
         assert.deepEqual(availableChannels(store.state), installedChannels);
 
-        // STEP 3 - pick a channel, go to "Select Content" page
+        // STEP 3 - pick a channel -> SELECT_CONTENT
         return transitionWizardPage(store, 'forward', { channel });
       })
       .then(() => {
-        testShowSelectContentCall(transferMeta, channel);
+        sinon.assert.calledOnce(showSelectContentPageStub);
         localDrivesStub.restore();
       });
   });

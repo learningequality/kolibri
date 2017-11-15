@@ -1,4 +1,5 @@
 import { Resource } from '../api-resource';
+import pickBy from 'lodash/pickBy';
 
 export default class TaskResource extends Resource {
   static resourceName() {
@@ -7,8 +8,11 @@ export default class TaskResource extends Resource {
 
   /**
    * Initiates a Task that imports a Channel Metadata DB from a remote source
+   *
+   * @param {string} channel_id -
+   *
    */
-  startRemoteChannelImport(channel_id) {
+  startRemoteChannelImport({ channel_id }) {
     return this.client({
       path: this.urls[`${this.name}_startremotechannelimport`](),
       method: 'POST',
@@ -18,9 +22,12 @@ export default class TaskResource extends Resource {
     });
   }
 
-
   /**
    * Initiates a Task that imports a Channel Metadata DB from a local drive
+   *
+   * @param {string} params.channel_id -
+   * @param {string} params.drive_id -
+   *
    */
   startDiskChannelImport({ channel_id, drive_id }) {
     return this.client({
@@ -33,28 +40,59 @@ export default class TaskResource extends Resource {
     });
   }
 
-  localExportContent(driveId) {
-    const clientObj = {
-      path: this.localExportUrl(),
-      entity: { drive_id: driveId },
-    };
-    return this.client(clientObj);
+  /**
+   * Initiates a Task that imports Channel Content from a remote source
+   *
+   * @param {string} params.channel_id -
+   * @param {string} [params.baseurl] - URL of remote source (defaults to Kolibri Studio)
+   * @param {string} [params.node_ids] - comma-separated node ids/pks
+   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
+   * @returns {Promise}
+   *
+   */
+  startRemoteContentImport(params) {
+    return this.client({
+      path: this.urls[`${this.name}_startremotecontentimport`](),
+      method: 'POST',
+      entity: pickBy(params),
+    });
   }
 
-  localImportContent(driveId) {
-    const clientObj = {
-      path: this.localImportUrl(),
-      entity: { drive_id: driveId },
-    };
-    return this.client(clientObj);
+  /**
+   * Initiates a Task that imports Channel Content from a local drive
+   *
+   * @param {string} params.channel_id -
+   * @param {string} params.drive_id -
+   * @param {string} [params.node_ids]- comma-separated node ids/pks
+   * @param {string} [params.exclude_node_ids]- comma-separated node ids/pks
+   * @returns {Promise}
+   *
+   */
+  startDiskContentImport(params) {
+    return this.client({
+      path: this.urls[`${this.name}_startdiskcontentimport`](),
+      method: 'POST',
+      entity: pickBy(params),
+    });
   }
 
-  remoteImportContent(channelId) {
-    const clientObj = {
-      path: this.remoteImportUrl(),
-      entity: { channel_id: channelId },
-    };
-    return this.client(clientObj);
+  /**
+   * Initiates a Task that exports Channel Content to a local drive
+   *
+   * @param {string} params.channel_id -
+   * @param {string} params.drive_id -
+   * @param {string} [params.node_ids] - comma-separated node ids/pks
+   * @param {string} [params.exclude_node_ids]- comma-separated node ids/pks
+   * @returns {Promise}
+   *
+   */
+  startDiskContentExport(params) {
+    // Not naming it after URL to keep internal consistency
+    return this.client({
+      path: this.urls[`${this.name}_startdiskexport`](),
+      method: 'POST',
+      entity: pickBy(params),
+    });
   }
 
   deleteChannel(channelId) {
@@ -85,16 +123,6 @@ export default class TaskResource extends Resource {
       entity: {},
     };
     return this.client(clientObj);
-  }
-
-  get localExportUrl() {
-    return this.urls[`${this.name}_startlocalexport`];
-  }
-  get localImportUrl() {
-    return this.urls[`${this.name}_startlocalimport`];
-  }
-  get remoteImportUrl() {
-    return this.urls[`${this.name}_startremoteimport`];
   }
   get deleteChannelUrl() {
     return this.urls[`${this.name}_startdeletechannel`];

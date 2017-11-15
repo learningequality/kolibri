@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <section class="content-tree-viewer">
     <div class="breadcrumbs">
       <k-breadcrumbs
         :items="breadcrumbs"
@@ -16,6 +16,7 @@
         <k-checkbox
           :label="$tr('selectAll')"
           :checked="nodeIsChecked(annotatedTopicNode)"
+          :disabled="annotatedTopicNode.disabled"
           @change="toggleSelectAll"
         />
       </div>
@@ -23,25 +24,25 @@
       <div class="content-node-rows">
         <content-node-row
           v-for="node in annotatedChildNodes"
-          :key="node.id"
           :checked="nodeIsChecked(node)"
-          :indeterminate="nodeIsIndeterminate(node)"
           :disabled="node.disabled"
+          :indeterminate="nodeIsIndeterminate(node)"
+          :key="node.id"
           :message="node.message"
           :node="node"
-          @clicktopic="updateTopic(node)"
+          @clicktopic="updateCurrentTopicNode(node)"
           @changeselection="toggleSelection(node)"
         />
       </div>
     </div>
+
     <div
       v-else
       class="no-contents"
     >
       {{ $tr('topicHasNoContents') }}
     </div>
-
-  </div>
+  </section>
 
 </template>
 
@@ -51,15 +52,21 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import contentNodeRow from './content-node-row';
-  import { annotateNode, transformBreadrumb } from './treeViewUtils';
+  import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import {
     addNodeForTransfer,
     removeNodeForTransfer,
-    updateTreeViewTopic,
-  } from '../../state/actions/contentTransferActions';
+  } from '../../state/actions/contentTreeViewerActions';
   import { wizardState } from '../../state/getters';
   import last from 'lodash/last';
   import every from 'lodash/every';
+  import omit from 'lodash/omit';
+  import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+
+  // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
+  function sanitizeNode(node) {
+    return omit(node, ['message', 'checkboxType', 'disabled', 'children']);
+  }
 
   export default {
     name: 'contentTreeViewer',
@@ -72,22 +79,30 @@
       childNodesWithPath() {
         return this.childNodes.map(node => ({
           ...node,
-          path: [...this.path, this.topicNode.pk],
+          path: [
+            ...this.path,
+            {
+              pk: node.pk,
+              title: node.title,
+            },
+          ],
         }));
       },
       annotatedChildNodes() {
-        return this.childNodesWithPath.map(n => annotateNode(n, this.selectedNodes));
+        return this.childNodesWithPath.map(n => annotateNode(n, this.nodesForTransfer));
       },
       annotatedTopicNode() {
-        // need to include disabled
-        const selectedOrDisabled = {
-          include: [
-            ...this.selectedNodes.include,
+        // For the purposes of annotating the parent topic node, we need to add
+        // the disabled child nodes to the "include" list. So if all the non-disabled
+        // nodes are selected, then the parent topic's checkbox will be checked.
+        const selections = {
+          included: [
+            ...this.nodesForTransfer.included,
             ...this.annotatedChildNodes.filter(n => n.disabled),
           ],
-          omit: [...this.selectedNodes.omit],
+          omitted: [...this.nodesForTransfer.omitted],
         };
-        return annotateNode({ ...this.topicNode, path: [...this.path] }, selectedOrDisabled);
+        return annotateNode({ ...this.topicNode, path: [...this.path] }, selections);
       },
       breadcrumbItems() {
         const items = [...this.breadcrumbs];
@@ -97,54 +112,45 @@
     },
     methods: {
       nodeIsChecked(node) {
-        return node.checkboxType === 'checked';
+        return node.checkboxType === CheckboxTypes.CHECKED;
       },
       nodeIsIndeterminate(node) {
-        return node.checkboxType === 'indeterminate';
+        return node.checkboxType === CheckboxTypes.INDETERMINATE;
       },
       nodeCompletesParent(node) {
-        // get sibling nodes and check if every one is either checked or disabled
+        // Get sibling nodes and check if every one is either checked or disabled
         const siblings = this.annotatedChildNodes.filter(({ pk }) => pk !== node.pk);
         return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
       },
-      updateTopic(node) {
-        // return this.updateTreeViewTopic(node);
-        this.$router.replace({
-          name: 'treeview_update_topic',
-          query: {
-            topic: node.pk,
-          },
-          params: {
-            pk: node.pk,
-            title: node.title,
-            replaceCrumbs: false,
-          },
-        });
+      updateCurrentTopicNode(node) {
+        return navigateToTopicUrl.call(this, node);
       },
       toggleSelectAll() {
         this.toggleSelection(this.annotatedTopicNode);
       },
       toggleSelection(node) {
+        // When the clicked node would put the parent at 100% included,
+        // add the parent (as a side effect, all the children are removed from "include").
+        const sanitized = sanitizeNode(node);
         if (this.nodeIsChecked(node)) {
-          return this.removeNodeForTransfer(node);
+          return this.removeNodeForTransfer(sanitized);
+        } else {
+          if (this.nodeCompletesParent(node)) {
+            return this.addNodeForTransfer(sanitizeNode(this.annotatedTopicNode));
+          }
+          return this.addNodeForTransfer(sanitized);
         }
-        // if the clicked node would put the parent at 100% included
-        if (this.nodeCompletesParent(node)) {
-          return this.addNodeForTransfer({ ...this.annotatedTopicNode });
-        }
-        return this.addNodeForTransfer(node);
       },
     },
     vuex: {
       getters: {
-        breadcrumbs: state => wizardState(state).treeView.breadcrumbs.map(transformBreadrumb),
-        childNodes: state => wizardState(state).treeView.currentNode.children,
-        selectedNodes: state => wizardState(state).selectedItems.nodes,
-        topicNode: state => wizardState(state).treeView.currentNode,
+        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
+        childNodes: state => wizardState(state).currentTopicNode.children,
         path: state => wizardState(state).path,
+        nodesForTransfer: state => wizardState(state).nodesForTransfer,
+        topicNode: state => wizardState(state).currentTopicNode,
       },
       actions: {
-        updateTreeViewTopic,
         addNodeForTransfer,
         removeNodeForTransfer,
       },

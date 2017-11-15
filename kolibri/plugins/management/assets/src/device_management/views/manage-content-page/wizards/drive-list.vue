@@ -39,7 +39,7 @@
       value: {
         type: String,
         required: true,
-      }
+      },
     },
     data() {
       return {
@@ -63,6 +63,7 @@
     },
     $trs: {
       drivesFound: 'Drives found',
+      // TODO add message for export and import modes, explaining what counts as a valid drive
       noDrivesDetected: 'No drives were detected',
     },
   };

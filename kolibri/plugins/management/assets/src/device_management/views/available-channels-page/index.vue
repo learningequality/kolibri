@@ -5,15 +5,15 @@
     :backPageLink="goBackLink"
   >
     <subpage-container withSideMargin>
-      <div class="top-matter">
+      <div
+        v-if="channelsAreAvailable"
+        class="top-matter"
+      >
         <div class="channels dib">
           <h1>{{ channelsTitle }}</h1>
           <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
         </div>
-        <div
-          v-if="channelsAreAvailable"
-          class="filters dib"
-        >
+        <div class="filters dib">
           <ui-select
             :options="languageFilterOptions"
             v-model="languageFilter"
@@ -82,16 +82,16 @@
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import UiSelect from 'keen-ui/src/UiSelect';
-  import channelListItem from './manage-content-page/channel-list-item';
+  import channelListItem from '../manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import channelTokenModal from './available-channels-page/channel-token-modal';
-  import subpageContainer from './containers/subpage-container';
+  import channelTokenModal from '../available-channels-page/channel-token-modal';
+  import subpageContainer from '../containers/subpage-container';
   import uniqBy from 'lodash/uniqBy';
-  import { installedChannelList, wizardState } from '../state/getters';
-  import { transitionWizardPage } from '../state/actions/contentWizardActions';
-  import { TransferTypes } from '../constants';
+  import { installedChannelList, wizardState } from '../../state/getters';
+  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
+  import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
 
@@ -109,7 +109,6 @@
     },
     data() {
       return {
-        channelsAreLoading: false,
         // Initialized with this filter, but localized label is added after mount
         languageFilter: { value: 'ALL' },
         titleFilter: '',
@@ -123,12 +122,15 @@
         }
         return 'IMPORT';
       },
+      channelsAreLoading() {
+        return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
+      },
       backText() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { diskName: this.wizardMeta.destination.driveName });
+            return this.$tr('exportToDisk', { driveName: this.selectedDrive.driveName });
           case TransferTypes.LOCALIMPORT:
-            return this.$tr('importFromDisk', { diskName: this.wizardMeta.source.driveName });
+            return this.$tr('importFromDisk', { driveName: this.selectedDrive.driveName });
           default:
             return this.$tr('kolibriCentralServer');
         }
@@ -138,7 +140,7 @@
           case TransferTypes.LOCALEXPORT:
             return this.$tr('yourChannels');
           case TransferTypes.LOCALIMPORT:
-            return this.wizardMeta.source.driveName;
+            return this.selectedDrive.driveName;
           default:
             return this.$tr('channels');
         }
@@ -153,7 +155,7 @@
         return [this.allLanguagesOption, ...codes];
       },
       channelsAreAvailable() {
-        return this.availableChannels.length > 0;
+        return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
         return this.channelsAreAvailable && this.transferType === TransferTypes.REMOTEIMPORT;
@@ -200,9 +202,10 @@
     vuex: {
       getters: {
         availableChannels: state => wizardState(state).availableChannels,
+        selectedDrive: state => wizardState(state).selectedDrive,
         installedChannelList,
-        transferType: state => wizardState(state).meta.transferType,
-        wizardMeta: state => wizardState(state).meta,
+        transferType: state => wizardState(state).transferType,
+        wizardStatus: state => wizardState(state).status,
       },
       actions: {
         transitionWizardPage,
@@ -214,8 +217,8 @@
         '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
       channelHeader: 'Channel',
       channels: 'Channels',
-      exportToDisk: 'Export to {diskName}',
-      importFromDisk: 'Import from {diskName}',
+      exportToDisk: 'Export to {driveName}',
+      importFromDisk: 'Import from {driveName}',
       kolibriCentralServer: 'Kolibri Central Server',
       languageFilterLabel: 'Language:',
       titleFilterPlaceholder: 'Search for a channel…',

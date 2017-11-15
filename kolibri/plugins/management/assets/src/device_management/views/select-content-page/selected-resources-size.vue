@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <section class="selected-resources-size">
     <div class="choose-message">
       <span v-if="isInImportMode">
         {{ $tr('chooseContentToImport') }}
@@ -10,7 +10,7 @@
       </span>
     </div>
     <div class="resources-selected">
-      <div>
+      <div class="resources-selected-message">
         {{ $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount }) }}
       </div>
 
@@ -32,7 +32,7 @@
     >
       {{ $tr('notEnoughSpace') }}
     </ui-alert>
-  </div>
+  </section>
 
 </template>
 
@@ -56,12 +56,12 @@
         type: String,
         required: true,
         validator(val) {
-          return val === 'import' || val ==='export';
-        }
+          return val === 'import' || val === 'export';
+        },
       },
       fileSize: RequiredNumber,
       resourceCount: RequiredNumber,
-      remainingSpace: RequiredNumber
+      spaceOnDrive: RequiredNumber,
     },
     computed: {
       isInImportMode() {
@@ -74,8 +74,8 @@
         return this.resourceCount === 0 || this.remainingSpaceAfterTransfer <= 0;
       },
       remainingSpaceAfterTransfer() {
-        return Math.max(this.remainingSpace - this.fileSize, 0);
-      }
+        return Math.max(this.spaceOnDrive - this.fileSize, 0);
+      },
     },
     methods: {
       bytesForHumans,
@@ -89,7 +89,7 @@
       remainingSpace: 'Your remaining space: {space}',
       resourcesSelected: 'Resources selected: {resources, number, integer} ({fileSize})',
     },
-  }
+  };
 
 </script>
 
@@ -102,8 +102,11 @@
 
   .resources-selected
     margin: 8px 0
-    &> *
+    &-message
       display: inline
+    button
+      display: inline
+
 
   .remaining-space
     text-align: right

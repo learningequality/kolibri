@@ -1,0 +1,90 @@
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
+import { ContentNodeGranularResource } from 'kolibri.resources';
+import { ContentWizardPages, TransferTypes } from '../../constants';
+import { channelIsInstalled, wizardState } from '../getters';
+import { downloadChannelMetadata } from './contentTransferActions';
+import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+
+/**
+ * Transitions the import/export wizard to the 'select-content-page'
+ *
+ */
+export function showSelectContentPage(store) {
+  let dbPromise;
+  // const channel = store.state.pageState.wizardState.transferChannel;
+  const { transferChannel } = wizardState(store.state);
+  const channelOnDevice = channelIsInstalled(store.state)(transferChannel.id);
+  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
+
+  // Downloading the Content Metadata DB
+  if (channelOnDevice) {
+    // If already on device, then skip the DB download, and use on-device
+    // Channel metadata, since it has root id.
+    dbPromise = Promise.resolve(channelOnDevice);
+  } else {
+    dbPromise = downloadChannelMetadata(store);
+  }
+
+  // Hydrating the store with the Channel Metadata
+  return dbPromise
+    .then(channel => {
+      // The channel objects are not consistent if they come from different workflows.
+      // Replacing them here with canonical type from ChannelResource.
+      store.dispatch('REPLACE_CHANNEL', channel);
+      navigateToTopicUrl({ title: channel.name, pk: channel.root });
+    })
+    .catch(({ errorType }) => {
+      store.dispatch('SET_WIZARD_STATUS', errorType);
+    });
+}
+
+/**
+ * Updates wizardState.treeView when a new topic is clicked.
+ *
+ * @param {Object} topic - { pk, title, path }
+ * @param {boolean} resetPath - If action is used to make a jump (e.g. through breadcrumb click)
+ *
+ */
+export function updateTreeViewTopic(store, topic) {
+  const { transferType, selectedDrive } = wizardState(store.state);
+  const fetchArgs = {
+    import_export: transferType === TransferTypes.LOCALEXPORT ? 'export' : 'import',
+  };
+  if (transferType === TransferTypes.LOCALIMPORT) {
+    fetchArgs.drive_id = selectedDrive.driveId;
+  }
+  return (
+    ContentNodeGranularResource.getModel(topic.pk)
+      // Need to force fetch, since cached values are used even with different
+      // query params
+      .fetch(fetchArgs, true)
+      .then(contents => {
+        store.dispatch('SET_CURRENT_TOPIC_NODE', contents);
+        store.dispatch('UPDATE_PATH_BREADCRUMBS', topic);
+      })
+      .catch(() => {
+        store.dispatch('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+      })
+  );
+}
+
+/**
+ * Makes a call to freespace API and places result in the store
+ * @param {string} path - Path to the Kolibri data folder. If empty, defaults to server's KOLIBRI_HOME.
+ * @returns {Promise}
+ */
+export function getAvailableSpaceOnDrive(store, path = '') {
+  const params = path ? { path } : {};
+  return client({
+    path: `${urls['freespace']()}`,
+    params,
+  })
+    .then(({ entity }) => {
+      return store.dispatch('SET_AVAILABLE_SPACE', entity.freespace);
+    })
+    .catch(() => {
+      // UI will handle this gracefully with something instead of throwing an error
+      return store.dispatch('SET_AVAILABLE_SPACE', -1);
+    });
+}

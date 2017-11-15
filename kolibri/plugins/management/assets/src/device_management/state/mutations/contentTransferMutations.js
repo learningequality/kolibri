@@ -1,59 +1,75 @@
-import dropRightWhile from 'lodash/dropRightWhile';
+import omit from 'lodash/fp/omit';
+import { cachedTopicPath, nodesForTransfer } from '../getters';
 
 export function ADD_NODE_TO_INCLUDE_LIST(state, node) {
-  state.pageState.wizardState.selectedItems.nodes.include.push(node);
+  nodesForTransfer(state).included.push(node);
 }
 
 export function REMOVE_NODE_FROM_INCLUDE_LIST(state, node) {
-  const newList = state.pageState.wizardState.selectedItems.nodes.include.filter(n => n.pk !== node.pk);
-  state.pageState.wizardState.selectedItems.nodes.include = newList;
+  const newList = nodesForTransfer(state).included.filter(
+    n => n.pk !== node.pk
+  );
+  nodesForTransfer(state).included = newList;
 }
 
 export function REPLACE_INCLUDE_LIST(state, newList) {
-  state.pageState.wizardState.selectedItems.nodes.include = newList;
-}
-
-export function REPLACE_OMIT_LIST(state, newList) {
-  state.pageState.wizardState.selectedItems.nodes.omit = newList;
+  nodesForTransfer(state).included = newList;
 }
 
 export function ADD_NODE_TO_OMIT_LIST(state, node) {
-  state.pageState.wizardState.selectedItems.nodes.omit.push(node);
+  nodesForTransfer(state).omitted.push(node);
 }
 
 export function REMOVE_NODE_FROM_OMIT_LIST(state, node) {
-  const newList = state.pageState.wizardState.selectedItems.nodes.omit.filter(n => n.pk !== node.pk);
-  state.pageState.wizardState.selectedItems.nodes.omit = newList;
+  const newList = nodesForTransfer(state).omitted.filter(
+    n => n.pk !== node.pk
+  );
+  nodesForTransfer(state).omitted = newList;
 }
 
-export function REPLACE_COUNTS(state, newCounts) {
-  state.pageState.wizardState.selectedItems.total_file_size = newCounts.fileSize;
-  state.pageState.wizardState.selectedItems.total_resource_count = newCounts.resources;
+export function REPLACE_OMIT_LIST(state, newList) {
+  nodesForTransfer(state).omitted = newList;
 }
 
 export function SELECT_CONTENT_PAGE_ERROR(state, errorType) {
   state.pageState.wizardState.status = errorType;
 }
 
-export function UPDATE_SELECT_CONTENT_PAGE_TASK(state, task) {
-  state.pageState.wizardState.channelImportTask = task;
-}
-
 export function SET_TREEVIEW_CURRENTNODE(state, payload) {
   state.pageState.wizardState.treeView.currentNode = payload;
 }
 
-export function ADD_TREEVIEW_BREADCRUMB(state, payload) {
-  state.pageState.wizardState.treeView.breadcrumbs.push(payload);
+export function SET_CURRENT_TOPIC_NODE(state, currentTopicNode) {
+  state.pageState.wizardState.currentTopicNode = currentTopicNode;
 }
 
-export function ADD_ID_TO_PATH(state, newId) {
-  state.pageState.wizardState.path.push(newId);
+export function ADD_PATH_TO_CACHE(state, { node, path }) {
+  state.pageState.wizardState.pathCache[node.pk] = path;
 }
 
-export function PULL_PATH_BREADCRUMBS_BACK(state, topicPk) {
-  const newPath = dropRightWhile(state.pageState.wizardState.path, pk => pk !== topicPk);
-  const newBreadCrumbs = dropRightWhile(state.pageState.wizardState.treeView.breadcrumbs, ({ pk }) => pk !== topicPk);
-  state.pageState.wizardState.path = newPath;
-  state.pageState.wizardState.treeView.breadcrumbs = newBreadCrumbs;
+export function UPDATE_PATH_BREADCRUMBS(state, topic) {
+  const omitPath = omit('path');
+  const cached = cachedTopicPath(state)(topic.pk);
+  if (cached) {
+    state.pageState.wizardState.path = cached;
+  } else {
+    let newCachedPath;
+    // This only happens in showSelectChannel page when hydrating with channel node
+    if (!topic.path) {
+      newCachedPath = [omitPath(topic)];
+    } else {
+      // Every time else, path should be annotated by UI
+      newCachedPath = topic.path.map(omitPath);
+    }
+    ADD_PATH_TO_CACHE(state, { node: topic, path: newCachedPath });
+    UPDATE_PATH_BREADCRUMBS(state, topic);
+  }
+}
+
+export function SET_AVAILABLE_SPACE(state, space) {
+  state.pageState.wizardState.availableSpace = space;
+}
+
+export function REPLACE_CHANNEL(state, channel) {
+  state.pageState.wizardState.transferChannel = channel;
 }

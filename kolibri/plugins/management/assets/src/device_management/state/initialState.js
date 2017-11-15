@@ -1,5 +1,9 @@
+import { manageContentPageState } from './wizardState';
+
 export default {
   pageName: '',
-  pageState: {},
+  pageState: {
+    ...manageContentPageState(),
+  },
   welcomeModalVisible: false,
 };

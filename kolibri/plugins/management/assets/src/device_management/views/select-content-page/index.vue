@@ -1,10 +1,24 @@
 <template>
 
   <immersive-full-screen
-    backPageText="Back"
+    :backPageText="$tr('selectContent')"
     :backPageLink="goBackLink"
   >
     <subpage-container withSideMargin>
+      <task-progress
+        v-if="showUpdateProgressBar"
+        type="UPDATING_CHANNEL"
+        status="QUEUED"
+        :percentage="0"
+        :cancellable="false"
+      />
+      <task-progress
+        v-if="tasksInQueue"
+        type="UPDATING_CHANNEL"
+        v-bind="firstTask"
+        :cancellable="false"
+      />
+
       <section class="notifications">
         <ui-alert
           v-if="newVersionAvailable"
@@ -16,73 +30,40 @@
         </ui-alert>
       </section>
 
-      <section class="summary">
-        <div class="updates">
-          <template v-if="newVersionAvailable">
-            <span>
-              {{ $tr('newVersionAvailable', { version: channel.version }) }}
-            </span>
-            <k-button
-              :text="$tr('update')"
-              :primary="true"
-            />
-          </template>
-          <template v-else>
-            <span>{{ $tr('channelUpToDate') }}</span>
-          </template>
+      <section class="updates">
+        <div
+          class="updates-available"
+          v-if="newVersionAvailable"
+        >
+          <span>
+            {{ $tr('newVersionAvailable', { version: channel.version }) }}
+          </span>
+          <k-button
+            :text="$tr('update')"
+            :primary="true"
+            name="update"
+            @click="updateChannelMetadata()"
+          />
         </div>
-
-        <div class="channel-header">
-          <div class="thumbnail">
-            <img :src="channel.thumbnail">
-          </div>
-          <h2 class="title">
-            {{ channel.name }}
-          </h2>
-          <p class="version">
-            {{ $tr('version', { version: channel.version }) }}
-          </p>
-          <p class="description">
-            {{ channel.description }}
-          </p>
-        </div>
-
-        <table class="channel-statistics">
-          <tr class="headers">
-            <th></th>
-            <th>{{ $tr('resourcesCol') }}</th>
-            <th>{{ $tr('sizeCol') }}</th>
-          </tr>
-
-          <tr class="total-size">
-            <td>{{ $tr('totalSizeRow') }}</td>
-            <td>{{ $tr('resourceCount', { count: channel.total_resource_count }) }}</td>
-            <td>{{ bytesForHumans(channel.total_file_size) }}</td>
-          </tr>
-
-          <tr class="on-device">
-            <td>{{ $tr('onDeviceRow') }}</td>
-            <td>{{ $tr('resourceCount', { count: channelOnDevice.on_device_resources }) }}</td>
-            <td>{{ bytesForHumans(channelOnDevice.on_device_file_size) }}</td>
-          </tr>
-        </table>
+        <span v-else>{{ $tr('channelUpToDate') }}</span>
       </section>
 
+      <channel-contents-summary
+        :channel="channel"
+        :channelOnDevice="channelOnDevice"
+      />
+
       <template v-if="onDeviceInfoIsReady">
-        <section class="selected-resources-size">
-          <selected-resources-size
-            :mode="mode"
-            :fileSize="selectedItems.total_file_size"
-            :resourceCount="selectedItems.total_resource_count"
-            :remainingSpace="remainingSpace"
-          />
-        </section>
-
+        <!-- Contains size estimates + submit button -->
+        <selected-resources-size
+          :mode="mode"
+          :fileSize="total_file_size"
+          :resourceCount="total_resource_count"
+          :spaceOnDrive="availableSpace"
+          @clickconfirm="startTransferringContent()"
+        />
         <hr>
-
-        <section class="resources-tree-view">
-          <content-tree-viewer />
-        </section>
+        <content-tree-viewer />
       </template>
     </subpage-container>
   </immersive-full-screen>
@@ -96,27 +77,42 @@
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import selectedResourcesSize from './selected-resources-size';
   import contentTreeViewer from './content-tree-viewer';
-  import bytesForHumans from '../manage-content-page/bytesForHumans';
+  import channelContentsSummary from './channel-contents-summary';
   import uiAlert from 'keen-ui/src/UiAlert';
   import subpageContainer from '../containers/subpage-container';
-  import { installedChannelList, wizardState } from '../../state/getters';
+  import { channelIsInstalled, wizardState } from '../../state/getters';
   import isEmpty from 'lodash/isEmpty';
+  import { getAvailableSpaceOnDrive } from '../../state/actions/selectContentActions';
+  import {
+    downloadChannelMetadata,
+    transferChannelContent,
+    waitForTaskToComplete,
+  } from '../../state/actions/contentTransferActions';
+  import taskProgress from '../manage-content-page/task-progress';
+  import { WizardTransitions } from '../../wizardTransitionRoutes';
 
   export default {
     name: 'selectContentPage',
     components: {
+      channelContentsSummary,
       contentTreeViewer,
       immersiveFullScreen,
       kButton,
       selectedResourcesSize,
       subpageContainer,
+      taskProgress,
       uiAlert,
+    },
+    data() {
+      return {
+        showUpdateProgressBar: false,
+      };
     },
     computed: {
       channelOnDevice() {
-        const match = this.installedChannelList.find(channel => channel.id === this.channel.id);
+        const installedChannel = this.channelIsInstalled(this.channel.id);
         return (
-          match || {
+          installedChannel || {
             on_device_file_size: 0,
             on_device_resources: 0,
           }
@@ -130,39 +126,55 @@
       },
       goBackLink() {
         return {
-          name: 'wizardtransition',
-          params: {
-            transition: 'cancel',
-          },
+          name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
         };
       },
     },
+    mounted() {
+      this.getAvailableSpaceOnDrive();
+    },
     methods: {
-      bytesForHumans,
+      updateChannelMetadata() {
+        // NOTE: This only updates the metadata, not the underlying content.
+        // This could produced unexpected behavior for users.
+        this.showUpdateProgressBar = true;
+        return this.downloadChannelMetadata().then(() => {
+          this.showUpdateProgressBar = false;
+        });
+      },
+      startTransferringContent() {
+        return this.transferChannelContent();
+      },
     },
     vuex: {
       getters: {
-        installedChannelList,
-        channel: state => wizardState(state).meta.channel,
+        availableSpace: state => wizardState(state).availableSpace || 0,
+        channel: state => wizardState(state).transferChannel,
+        channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
-        mode: state => (wizardState(state).meta.transferType === 'localexport' ? 'export' : 'import'),
-        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).treeView.currentNode),
-        remainingSpace: state => wizardState(state).remainingSpace,
-        selectedItems: state => wizardState(state).selectedItems || {},
+        firstTask: ({ pageState }) => pageState.taskList[0],
+        mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
+        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
+        selectedItems: state => wizardState(state).nodesForTransfer || {},
+        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
+        total_file_size: () => 0,
+        total_resource_count: () => 0,
+        wizardStatus: state => wizardState(state).status,
+      },
+      actions: {
+        downloadChannelMetadata,
+        getAvailableSpaceOnDrive,
+        transferChannelContent,
+        waitForTaskToComplete,
       },
     },
     $trs: {
       channelUpToDate: 'Channel up-to-date',
       newVersionAvailable: 'Version {version, number} available',
-      onDeviceRow: 'On your device',
-      resourcesCol: 'Resources',
-      sizeCol: 'Size',
-      totalSizeRow: 'Total size',
-      update: 'Update',
       newVersionAvailableNotification:
-        'New channel version available. Some of your old files may be outdated or deleted.',
-      version: 'Version {version, number, integer}',
-      resourceCount: '{count, number, useGrouping}',
+        'New channel version available. Some of your files may be outdated or deleted.',
+      selectContent: 'Select content',
+      update: 'Update',
     },
   };
 
@@ -171,45 +183,13 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .summary
+  .updates
     position: relative
 
-  .updates
+  .updates-available
     position: absolute
     right: 0
     button
       margin-left: 16px
-
-  .title
-    font-size: 32px
-    font-weight: bold
-
-  .version
-    font-size: 14px
-    margin-bottom: 32px
-
-  .channel-statistics
-    margin: 36px 0
-
-  tr.headers > th
-    padding: 8px 0
-    text-align: right
-    font-weight: normal
-    min-width: 125px
-    &:nth-child(1)
-      min-width: 175px
-
-  tr.total-size, tr.on-device
-    td
-      text-align: right
-      padding: 8px 0
-      &:first-of-type
-        text-align: left
-  hr
-    background-color: $core-grey
-    height: 1px
-    border: none
 
 </style>

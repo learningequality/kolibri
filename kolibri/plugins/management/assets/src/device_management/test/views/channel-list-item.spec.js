@@ -5,13 +5,16 @@ import sinon from 'sinon';
 import assert from 'assert';
 import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
 import { mount } from 'avoriaz';
-import { channelFactory } from '../utils/data';
+import { defaultChannel } from '../utils/data';
 
 function makeStore() {
   return new Vuex.Store({
     state: {
       pageState: {
         taskList: [],
+        channelList: [
+          { id: 'installed', name: 'Installed Channel', version: 11 },
+        ],
       },
     },
     mutations: {
@@ -21,8 +24,6 @@ function makeStore() {
     },
   });
 }
-
-const defaultChannel = channelFactory();
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
@@ -58,7 +59,7 @@ function getElements(wrapper) {
 
 const fakeImage = 'data:image/png;base64,abcd1234';
 
-describe.only('channelListItem', () => {
+describe('channelListItem', () => {
   let importWrapper;
   let exportWrapper;
   let manageWrapper;
@@ -107,6 +108,30 @@ describe.only('channelListItem', () => {
       }
       testAll(test);
     });
+  });
+
+  it('if the channel is installed, the version number is of the installed channel', () => {
+    importWrapper.setProps({
+      onDevice: true,
+      channel: {
+        id: 'installed',
+        version: 20,
+      },
+    });
+    const { version } = getElements(importWrapper);
+    assert.equal(version(), 'Version 11');
+  });
+
+  it('if the channel is not installed, the version number is of the remote channel', () => {
+    importWrapper.setProps({
+      onDevice: true,
+      channel: {
+        id: 'not_installed',
+        version: 20,
+      },
+    });
+    const { version } = getElements(importWrapper);
+    assert.equal(version(), 'Version 20');
   });
 
   it('in MANAGE/EXPORT shows the file sizes of Resources', () => {

@@ -1,6 +1,8 @@
 import find from 'lodash/find';
-import sumBy from 'lodash/sumBy';
+import flip from 'lodash/flip';
+import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { updateTopicLinkObject } from '../../wizardTransitionRoutes';
 
 const translator = createTranslator('treeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
@@ -13,11 +15,19 @@ const translator = createTranslator('treeViewRowMessages', {
   noTitle: 'No title',
 });
 
-const CheckboxTypes = {
+export const CheckboxTypes = {
   CHECKED: 'checked',
   UNCHECKED: 'unchecked',
   INDETERMINATE: 'indeterminate',
 };
+
+// One-liner utilities for annotateNode
+// isAncestorOf(a, b) is truthy if a is an ancestor of b
+const isAncestorOf = (a, b) => find(b.path, { pk: a.pk });
+const isDescedantOf = flip(isAncestorOf);
+const sumTotalResources = sumBy('total_resources');
+// TODO name change!!!
+const sumOnDeviceResources = sumBy('resources_on_device');
 
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
@@ -25,19 +35,20 @@ const CheckboxTypes = {
  *
  * @param node {Node}
  * @param selectedNodes {SelectedNodes}
- * @param selectedNodes.omit {Array<Node>}
- * @param selectedNodes.include {Array<Node>}
+ * @param selectedNodes.omitted {Array<Node>}
+ * @param selectedNodes.included {Array<Node>}
  * @returns {AnnotatedNode} - annotations are message, disabled, and checkboxType
  *
  */
 export function annotateNode(node, selectedNodes) {
-  const { resources_on_device, total_resources } = node;
-  const isIncluded = find(selectedNodes.include, { pk: node.pk });
-  const isOmitted = find(selectedNodes.omit, { pk: node.pk });
-  const ancestorIsIncluded = find(selectedNodes.include, n => node.path.includes(n.pk));
+  // TODO needs to be renamed!!!
+  const { resources_on_device: on_device_resources, total_resources } = node;
+  const isIncluded = find(selectedNodes.included, { pk: node.pk });
+  const isOmitted = find(selectedNodes.omitted, { pk: node.pk });
+  const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));
 
   // Completely on device -> DISABLED
-  if (resources_on_device === total_resources) {
+  if (on_device_resources === total_resources) {
     return {
       ...node,
       message: translator.$tr('alreadyOnYourDevice'),
@@ -48,16 +59,16 @@ export function annotateNode(node, selectedNodes) {
 
   // TODO see if !isOmitted is unnecessary after fixes to add/remove Node actions
   if (!isOmitted && (isIncluded || ancestorIsIncluded)) {
-    const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.pk));
+    const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
       const omittedResources =
-        (sumBy(omittedDescendants, 'total_resources') || 0) -
-        (sumBy(omittedDescendants, 'resources_on_device') || 0);
+        (sumTotalResources(omittedDescendants) || 0) -
+        (sumOnDeviceResources(omittedDescendants) || 0);
 
       // All descendants are omitted -> UNCHECKED
-      if (omittedResources === total_resources - resources_on_device) {
+      if (omittedResources === total_resources - on_device_resources) {
         return {
           ...node,
           message: '',
@@ -70,7 +81,7 @@ export function annotateNode(node, selectedNodes) {
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
-          selected: total_resources - omittedResources,
+          selected: total_resources - sumTotalResources(omittedDescendants),
           total: total_resources,
         }),
         disabled: false,
@@ -87,19 +98,17 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  //
-  const includedDescendants = selectedNodes.include
-    .filter(n => n.path.includes(node.pk))
-    .filter(n => !selectedNodes.omit.find(omitted => omitted.path.includes(n.pk))); // filter out descendants with partial
+  const fullyIncludedDescendants = selectedNodes.included
+    .filter(iNode => isDescedantOf(iNode, node))
+    .filter(iNode => !selectedNodes.omitted.find(oNode => isDescedantOf(oNode, iNode)));
 
-  if (includedDescendants.length > 0) {
-    const includedDescendantsResources =
-      sumBy(includedDescendants, 'total_resources') -
-      sumBy(includedDescendants, 'resources_on_device');
+  if (fullyIncludedDescendants.length > 0) {
+    const fullIncludedDescendantsResources =
+      sumTotalResources(fullyIncludedDescendants) -
+      sumOnDeviceResources(fullyIncludedDescendants);
 
     // Node is not selected, has all children selected -> CHECKED
-    // TODO this may be dead code since UI will automatically infer when a Node has all children selected
-    if (includedDescendantsResources === total_resources - resources_on_device) {
+    if (fullIncludedDescendantsResources === total_resources - on_device_resources) {
       return {
         ...node,
         message: translator.$tr('resourcesSelected', { total: total_resources }),
@@ -112,7 +121,7 @@ export function annotateNode(node, selectedNodes) {
     return {
       ...node,
       message: translator.$tr('fractionOfResourcesSelected', {
-        selected: includedDescendantsResources,
+        selected: fullIncludedDescendantsResources,
         total: total_resources,
       }),
       disabled: false,
@@ -120,13 +129,13 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  if (resources_on_device > 0) {
+  if (on_device_resources > 0) {
     // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
     // Node with all resources on device handled at top of this function.
     return {
       ...node,
       message: translator.$tr('fractionOfResourcesOnDevice', {
-        onDevice: resources_on_device,
+        onDevice: on_device_resources,
         total: total_resources,
       }),
       disabled: false,
@@ -148,19 +157,9 @@ export function annotateNode(node, selectedNodes) {
  * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
  *
  */
-export function transformBreadrumb({ title, pk }) {
+export function transformBreadrumb(node) {
   return {
-    text: title || translator.$tr('noTitle'),
-    link: {
-      name: 'treeview_update_topic',
-      query: {
-        pk,
-      },
-      params: {
-        pk,
-        title,
-        replaceCrumbs: true,
-      },
-    },
+    text: node.title || translator.$tr('noTitle'),
+    link: updateTopicLinkObject(node),
   };
 }

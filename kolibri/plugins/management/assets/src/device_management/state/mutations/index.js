@@ -15,11 +15,10 @@ const mutations = {
   },
 };
 
-export default Object.assign(
-  {},
-  mutations,
-  manageContentMutations,
-  contentWizardMutations,
-  managePermissionsMutations,
-  contentTransferMutations
-);
+export default {
+  ...mutations,
+  ...manageContentMutations,
+  ...contentWizardMutations,
+  ...managePermissionsMutations,
+  ...contentTransferMutations
+}

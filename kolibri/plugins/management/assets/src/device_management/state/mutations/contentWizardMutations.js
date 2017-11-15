@@ -1,37 +1,34 @@
-export function SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
-  state.pageState.wizardState = wizardState;
+import set from 'lodash/set';
+import { getDriveById } from '../getters';
+
+function setWizardState(state, path, value) {
+  set(state.pageState.wizardState, path, value);
 }
 
-export function SET_CONTENT_PAGE_WIZARD_DRIVES(state, driveList) {
-  state.pageState.wizardState.driveList = driveList;
+export function SET_WIZARD_PAGENAME(state, pageName) {
+  setWizardState(state, 'pageName', pageName);
 }
 
-export function SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
-  state.pageState.wizardState.error = error;
+export function SET_DRIVE_LIST(state, driveList) {
+  setWizardState(state, 'driveList', driveList);
 }
 
-export function SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
-  state.pageState.wizardState.busy = isBusy;
+export function SET_AVAILABLE_CHANNELS(state, availableChannels) {
+  setWizardState(state, 'availableChannels', availableChannels);
 }
 
-export function SET_CONTENT_PAGE_WIZARD_META(state, meta) {
-  state.pageState.wizardState.meta = meta;
+export function SET_SELECTED_DRIVE(state, driveId) {
+  setWizardState(state, 'selectedDrive', getDriveById(state)(driveId));
 }
 
-export function SET_CONTENT_PAGE_WIZARD_PAGENAME(state, meta) {
-  state.pageState.wizardState.page = meta;
+export function SET_TRANSFER_CHANNEL(state, transferChannel) {
+  setWizardState(state, 'transferChannel', transferChannel);
 }
 
-export function SET_AVAILABLE_CHANNELS(state, channels) {
-  state.pageState.wizardState.availableChannels = channels;
+export function SET_TRANSFER_TYPE(state, transferType) {
+  setWizardState(state, 'transferType', transferType);
 }
 
-export const MutationTypes = {
-  [SET_CONTENT_PAGE_WIZARD_STATE.name]: SET_CONTENT_PAGE_WIZARD_STATE.name,
-  [SET_CONTENT_PAGE_WIZARD_DRIVES.name]: SET_CONTENT_PAGE_WIZARD_DRIVES.name,
-  [SET_CONTENT_PAGE_WIZARD_ERROR.name]: SET_CONTENT_PAGE_WIZARD_ERROR.name,
-  [SET_CONTENT_PAGE_WIZARD_BUSY.name]: SET_CONTENT_PAGE_WIZARD_BUSY.name,
-  [SET_CONTENT_PAGE_WIZARD_META.name]: SET_CONTENT_PAGE_WIZARD_META.name,
-  [SET_CONTENT_PAGE_WIZARD_PAGENAME.name]: SET_CONTENT_PAGE_WIZARD_PAGENAME.name,
-  [SET_AVAILABLE_CHANNELS.name]: SET_AVAILABLE_CHANNELS.name,
-};
+export function SET_WIZARD_STATUS(state, status) {
+  setWizardState(state, 'status', status);
+}

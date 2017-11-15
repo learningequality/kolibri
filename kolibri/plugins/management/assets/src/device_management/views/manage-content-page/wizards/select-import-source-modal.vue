@@ -1,25 +1,34 @@
 <template>
 
-  <core-modal :title="$tr('title')" hideTopButtons>
-    <div>
-      <div class="options">
-        <k-radio-button
-          :label="$tr('network')"
-          v-model="source"
-          radiovalue="network"
-          autofocus
-        />
-        <k-radio-button
-          :label="$tr('localDrives')"
-          v-model="source"
-          radiovalue="local"
-        />
-      </div>
+  <core-modal
+    :title="$tr('title')"
+    hideTopButtons
+  >
+    <div class="options">
+      <k-radio-button
+        :label="$tr('network')"
+        v-model="source"
+        radiovalue="network"
+        autofocus
+      />
+      <k-radio-button
+        :label="$tr('localDrives')"
+        v-model="source"
+        radiovalue="local"
+      />
+    </div>
 
-      <div class="buttons">
-        <k-button @click="cancel" appearance="flat-button" :text="$tr('cancel')" />
-        <k-button @click="goForward" primary :text="$tr('continue')" />
-      </div>
+    <div class="buttons">
+      <k-button
+        @click="cancel"
+        appearance="flat-button"
+        :text="$tr('cancel')"
+      />
+      <k-button
+        @click="goForward"
+        primary
+        :text="$tr('continue')"
+      />
     </div>
   </core-modal>
 
@@ -28,13 +37,13 @@
 
 <script>
 
-  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
 
   export default {
-    name: 'wizardImportSource',
+    name: 'selectImportSourceModal',
     components: {
       coreModal,
       kButton,

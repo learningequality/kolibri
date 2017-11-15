@@ -1,9 +1,11 @@
 <template>
 
   <div>
-
     <template v-if="canManageContent">
-      <component v-if="pageState.wizardState.shown" :is="wizardComponent" />
+      <component
+        v-if="wizardPageName!==''"
+        :is="wizardComponent"
+      />
 
       <subpage-container>
         <task-progress
@@ -16,7 +18,10 @@
           <h1 class="page-title">
             {{ $tr('title') }}
           </h1>
-          <div class="buttons" v-if="!tasksInQueue">
+          <div
+            class="buttons"
+            v-if="!tasksInQueue"
+          >
             <k-button
               :text="$tr('import')"
               class="button"
@@ -38,7 +43,10 @@
       </subpage-container>
     </template>
 
-    <auth-message v-else :details="$tr('noAccessDetails')" />
+    <auth-message
+      v-else
+      :details="$tr('noAccessDetails')"
+    />
 
   </div>
 
@@ -49,15 +57,13 @@
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
-  import { startImportWizard, startExportWizard } from '../../state/actions/contentWizardActions';
+  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';
   import availableChannelsPage from '../available-channels-page';
-  import wizardImportSource from './wizards/wizard-import-source';
-  import wizardImportLocal from './wizards/wizard-import-local';
-  import wizardExport from './wizards/wizard-export';
+  import selectImportSource from './wizards/select-import-source-modal';
   import subpageContainer from '../containers/subpage-container';
   import taskProgress from './task-progress';
   import selectDriveModal from './wizards/select-drive-modal';
@@ -65,12 +71,9 @@
   import { refreshChannelList } from '../../state/actions/manageContentActions';
 
   const pageNameComponentMap = {
-    [ContentWizardPages.CHOOSE_IMPORT_SOURCE]: 'wizard-import-source',
-    [ContentWizardPages.IMPORT_NETWORK]: 'wizard-import-network',
-    [ContentWizardPages.IMPORT_LOCAL]: 'wizard-import-local',
-    [ContentWizardPages.EXPORT]: 'wizard-export',
-    [ContentWizardPages.AVAILABLE_CHANNELS]: 'available-channels-page',
+    [ContentWizardPages.SELECT_IMPORT_SOURCE]: 'selectImportSource',
     [ContentWizardPages.SELECT_DRIVE]: 'selectDriveModal',
+    [ContentWizardPages.AVAILABLE_CHANNELS]: 'availableChannelsPage',
     [ContentWizardPages.SELECT_CONTENT]: 'selectContentPage',
   };
 
@@ -94,9 +97,7 @@
       selectContentPage,
       subpageContainer,
       taskProgress,
-      wizardImportSource,
-      wizardImportLocal,
-      wizardExport,
+      selectImportSource,
     },
     data: () => ({
       intervalId: undefined,
@@ -104,7 +105,7 @@
     }),
     computed: {
       wizardComponent() {
-        return pageNameComponentMap[this.pageState.wizardState.page];
+        return pageNameComponentMap[this.wizardPageName];
       },
     },
     watch: {
@@ -127,9 +128,9 @@
     methods: {
       openWizard(action) {
         if (action === 'import') {
-          return this.startImportWizard();
+          return this.transitionWizardPage('forward', { import: true });
         }
-        return this.startExportWizard();
+        return this.transitionWizardPage('forward', { import: false });
       },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
@@ -143,6 +144,7 @@
     vuex: {
       getters: {
         canManageContent,
+        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
@@ -152,8 +154,7 @@
         cancelTask,
         refreshTaskList,
         refreshChannelList,
-        startExportWizard,
-        startImportWizard,
+        transitionWizardPage,
       },
     },
   };

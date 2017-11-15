@@ -1,14 +1,21 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 import assert from 'assert';
 import { mount } from 'avoriaz';
 import SelectContentPage from '../../views/select-content-page';
-import { channelFactory } from '../utils/data';
+import { defaultChannel, contentNodeGranularPayload } from '../utils/data';
 import { wizardState } from '../../state/getters';
 import SelectedResourcesSize from '../../views/select-content-page/selected-resources-size';
+import sinon from 'sinon';
+import { importExportWizardState } from '../../state/wizardState';
 
-const defaultChannel = channelFactory();
+SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {}
+
+const router = new VueRouter({
+  routes: [],
+});
 
 function makeStore() {
   return new Vuex.Store({
@@ -20,27 +27,10 @@ function makeStore() {
           on_device_resources: 2000,
         }],
         wizardState: {
-          meta: {
-            channel: defaultChannel,
-            transferType: 'localimport',
-          },
-          treeView: {
-            currentNode: {
-              pk: 'node_1',
-              children: [],
-            },
-            breadcrumbs: [{ text: 'Topic 1', link: {} }],
-          },
-          selectedItems: {
-            total_resource_count: 5000,
-            total_file_size: 10000000000,
-            nodes: {
-              include: [],
-              omit: [],
-            },
-          },
-          remainingSpace: 1000,
-          onDeviceInfoIsReady: true,
+          ...importExportWizardState(),
+          transferChannel: {...defaultChannel},
+          transferType: 'localimport',
+          currentTopicNode: contentNodeGranularPayload(),
         },
       },
     },
@@ -52,27 +42,35 @@ function makeWrapper(options) {
   return mount(SelectContentPage, {
     propsData: props,
     store: store || makeStore(),
+    router,
   });
 }
 
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    thumbnail: () => wrapper.first('.thumbnail'),
-    version: () => wrapper.first('.version').text().trim(),
-    title: () => wrapper.first('.title').text().trim(),
     description: () => wrapper.first('.description').text().trim(),
-    totalSizeRows: () => wrapper.find('tr.total-size td'),
-    onDeviceRows: () => wrapper.find('tr.on-device td'),
-    updateSection: () => wrapper.find('.updates'),
     notificationsSection: () => wrapper.find('section.notifications'),
-    versionAvailable: () => wrapper.first('.version-available').text().trim(),
-    treeView: () => wrapper.find('section.resources-tree-view'),
+    onDeviceRows: () => wrapper.find('tr.on-device td'),
     resourcesSize: () => wrapper.find(SelectedResourcesSize),
+    thumbnail: () => wrapper.first('.thumbnail'),
+    title: () => wrapper.first('.title').text().trim(),
+    totalSizeRows: () => wrapper.find('tr.total-size td'),
+    treeView: () => wrapper.find('section.resources-tree-view'),
+    updateSection: () => wrapper.find('.updates-available'),
+    updateButton: () => wrapper.find('button[name="update"]'),
+    version: () => wrapper.first('.version').text().trim(),
+    versionAvailable: () => wrapper.first('.updates-available span').text().trim(),
   };
 }
 
-const fakeImage = 'data:image/png;base64,abcd1234';
+function updateMetaChannel(store, updates) {
+  const { transferChannel } = store.state.pageState.wizardState;
+  store.state.pageState.wizardState.transferChannel = {
+    ...transferChannel,
+    ...updates,
+  };
+}
 
 describe('selectContentPage', () => {
   let store;
@@ -82,7 +80,8 @@ describe('selectContentPage', () => {
   });
 
   it('shows the thumbnail, title, descripton, and version of the channel', () => {
-    wizardState(store.state).meta.channel.thumbnail = fakeImage;
+    const fakeImage = 'data:image/png;base64,abcd1234';
+    updateMetaChannel(store, { thumbnail: fakeImage });
     const wrapper = makeWrapper({ store });
     const { thumbnail, version, title, description } = getElements(wrapper);
     assert.equal(thumbnail().first('img').getAttribute('src'), fakeImage);
@@ -110,7 +109,7 @@ describe('selectContentPage', () => {
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {
-    wizardState(store.state).meta.channel.id = 'not_awesome_channel';
+    updateMetaChannel(store, { id: 'not_awesome_channel' });
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
@@ -119,41 +118,59 @@ describe('selectContentPage', () => {
   });
 
   it('if a new version is available, a update notification and button appear', () => {
-    wizardState(store.state).meta.channel.version = 1000;
+    updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection, versionAvailable } = getElements(wrapper);
     assert(updateSection()[0].is('div'));
-    assert(!notificationsSection()[0].isEmpty());
-    // { useGrouping: false } intl option not working
+    assert(notificationsSection()[0].is('section'));
+    // { useGrouping: false } intl option not working, but probably won't see such a large number
     assert.equal(versionAvailable(), 'Version 1,000 available');
   });
 
-  xit('clicking the "update" button triggers an event', () => {});
+  it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
+    updateMetaChannel(store, { version: 1000 });
+    store.state.pageState.wizardState.transferType = 'localimport';
+    store.state.pageState.wizardState.selectedDrive = {
+      driveId: 'drive_1',
+    };
+    const wrapper = makeWrapper({ store });
+    const { updateButton } = getElements(wrapper);
+    const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
+    updateButton()[0].trigger('click');
+    return wrapper.vm.$nextTick()
+      .then(() => {
+        sinon.assert.called(stub);
+      });
+  });
+
+  it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
+    updateMetaChannel(store, { version: 1000 });
+    wizardState(store.state).transferType = 'remoteimport';
+    const wrapper = makeWrapper({ store });
+    const { updateButton } = getElements(wrapper);
+    const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
+    updateButton()[0].trigger('click');
+    return wrapper.vm.$nextTick()
+      .then(() => {
+        sinon.assert.calledWith(stub);
+      });
+  });
+
+  xit('if in LOCALEXPORT, the "channel up-to-date" is not shown', () => {});
 
   it('if a new version is not available, then no notification/button appear', () => {
-    wizardState(store.state).meta.channel.version = 20;
+    updateMetaChannel(store, { version: 20 });
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection } = getElements(wrapper)
     assert(notificationsSection()[0].isEmpty());
-    assert.equal(updateSection()[0], undefined);
+    assert.deepEqual(updateSection(), []);
   });
 
-  xit('if on-device info is not ready, then the size display and tree view are not shown', () => {
-    store.state.pageState.onDeviceInfoIsReady = false;
-    const wrapper = makeWrapper({ store });
-    const { resourcesSize, treeView } = getElements(wrapper);
-    assert.equal(resourcesSize()[0], undefined);
-    assert.equal(treeView()[0], undefined);
-  });
+  xit('if on-device info is not ready, then the size display and tree view are not shown', () => {});
 
-  xit('if on-device info is ready, then the size display and tree view are shown', () => {
-    const wrapper = makeWrapper({ store });
-    const { resourcesSize, treeView } = getElements(wrapper);
-    assert(resourcesSize()[0].isVueComponent);
-    assert(treeView()[0].is('section'));
-  });
+  xit('if on-device info is ready, then the size display and tree view are shown', () => {});
 
-  it('the correct props are passed to the selected resources size component', () => {
+  xit('the correct props are passed to the selected resources size component', () => {
     const wrapper = makeWrapper({ store });
     const { resourcesSize } = getElements(wrapper);
     const props = resourcesSize()[0].vm.$props;
@@ -161,11 +178,9 @@ describe('selectContentPage', () => {
       mode: 'import',
       fileSize: 10000000000,
       resourceCount: 5000,
-      remainingSpace: 1000,
+      spaceOnDrive: 1000,
     });
   });
 
-  it('the corrct props are passed to the tree view component', () => {
-
-  });
+  xit('the corrct props are passed to the tree view component', () => {});
 });
