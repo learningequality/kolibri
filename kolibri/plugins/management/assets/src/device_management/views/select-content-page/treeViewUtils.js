@@ -4,9 +4,13 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('treeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
-  fractionOfResourcesOnDevice: '{onDevice, number, useGrouping} of {total, number, useGrouping} resources on your device',
-  resourcesSelected: '{total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
-  fractionOfResourcesSelected: '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
+  fractionOfResourcesOnDevice:
+    '{onDevice, number, useGrouping} of {total, number, useGrouping} resources on your device',
+  resourcesSelected:
+    '{total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
+  fractionOfResourcesSelected:
+    '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
+  noTitle: 'No title',
 });
 
 const CheckboxTypes = {
@@ -16,21 +20,21 @@ const CheckboxTypes = {
 };
 
 /**
- * Takes a nodes, plus contextual data from store,
- * then annotates them with info needed to correctly display it on tree view.
+ * Takes a Node, plus contextual data from store, then annotates them with info
+ * needed to correctly display it on tree view.
  *
  * @param node {Node}
  * @param selectedNodes {SelectedNodes}
  * @param selectedNodes.omit {Array<Node>}
  * @param selectedNodes.include {Array<Node>}
- * @returns {Array<AnnotatedNode>}
+ * @returns {AnnotatedNode} - annotations are message, disabled, and checkboxType
  *
  */
 export function annotateNode(node, selectedNodes) {
   const { resources_on_device, total_resources } = node;
-  const isSelected = find(selectedNodes.include, { pk: node.pk });
-  const isOmitted = find(selectedNodes.omit, { pk: node. pk});
-  const ancestorIsSelected = find(selectedNodes.include, n => node.path.includes(n.pk));
+  const isIncluded = find(selectedNodes.include, { pk: node.pk });
+  const isOmitted = find(selectedNodes.omit, { pk: node.pk });
+  const ancestorIsIncluded = find(selectedNodes.include, n => node.path.includes(n.pk));
 
   // Completely on device -> DISABLED
   if (resources_on_device === total_resources) {
@@ -42,11 +46,15 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  if (!isOmitted && (isSelected || ancestorIsSelected)) {
+  // TODO see if !isOmitted is unnecessary after fixes to add/remove Node actions
+  if (!isOmitted && (isIncluded || ancestorIsIncluded)) {
     const omittedDescendants = selectedNodes.omit.filter(n => n.path.includes(node.pk));
 
+    // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
-      const omittedResources = (sumBy(omittedDescendants, 'total_resources') || 0) - (sumBy(omittedDescendants, 'resources_on_device') || 0);
+      const omittedResources =
+        (sumBy(omittedDescendants, 'total_resources') || 0) -
+        (sumBy(omittedDescendants, 'resources_on_device') || 0);
 
       // All descendants are omitted -> UNCHECKED
       if (omittedResources === total_resources - resources_on_device) {
@@ -79,15 +87,19 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-
-  const includedDescendants = selectedNodes.include.filter(n => n.path.includes(node.pk))
-  .filter(n => !selectedNodes.omit.find(omitted => omitted.path.includes(n.pk))) // filter out descendants with partial
+  //
+  const includedDescendants = selectedNodes.include
+    .filter(n => n.path.includes(node.pk))
+    .filter(n => !selectedNodes.omit.find(omitted => omitted.path.includes(n.pk))); // filter out descendants with partial
 
   if (includedDescendants.length > 0) {
-    const includedDescendantsResources = sumBy(includedDescendants, 'total_resources') - sumBy(includedDescendants, 'resources_on_device');
+    const includedDescendantsResources =
+      sumBy(includedDescendants, 'total_resources') -
+      sumBy(includedDescendants, 'resources_on_device');
 
     // Node is not selected, has all children selected -> CHECKED
-    if (includedDescendantsResources === (total_resources - resources_on_device)) {
+    // TODO this may be dead code since UI will automatically infer when a Node has all children selected
+    if (includedDescendantsResources === total_resources - resources_on_device) {
       return {
         ...node,
         message: translator.$tr('resourcesSelected', { total: total_resources }),
@@ -105,12 +117,12 @@ export function annotateNode(node, selectedNodes) {
       }),
       disabled: false,
       checkboxType: CheckboxTypes.INDETERMINATE,
-    }
+    };
   }
 
   if (resources_on_device > 0) {
-    // Node has some (but not all) resources on device -> UNCHECKED.
-    // Node with all resources on device handled earlier.
+    // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
+    // Node with all resources on device handled at top of this function.
     return {
       ...node,
       message: translator.$tr('fractionOfResourcesOnDevice', {
@@ -138,7 +150,7 @@ export function annotateNode(node, selectedNodes) {
  */
 export function transformBreadrumb({ title, pk }) {
   return {
-    text: title || 'No title',
+    text: title || translator.$tr('noTitle'),
     link: {
       name: 'treeview_update_topic',
       query: {
