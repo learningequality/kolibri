@@ -13,9 +13,7 @@
  *  modifications made on top.
  */
 
-var fs = require('fs');
 var path = require('path');
-var webpack = require('webpack');
 var merge = require('webpack-merge');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');

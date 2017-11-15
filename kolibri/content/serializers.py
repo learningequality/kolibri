@@ -11,6 +11,8 @@ from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
+    lang_code = serializers.SerializerMethodField()
+    lang_name = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
@@ -44,17 +46,31 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         return value
 
+    def get_lang_code(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_code
+
+    def get_lang_name(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_name
+
     class Meta:
         model = ChannelMetadata
         fields = (
-            'root',
-            'id',
-            'name',
-            'description',
             'author',
+            'description',
+            'id',
             'last_updated',
+            'lang_code',
+            'lang_name',
+            'name',
+            'root',
+            'thumbnail',
             'version',
-            'thumbnail'
         )
 
 

@@ -651,7 +651,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog);
+  const examLog = Object.assign({}, store.state.examLog, {
+    completion_timestamp: now(),
+  });
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id)
     .save(examLog)

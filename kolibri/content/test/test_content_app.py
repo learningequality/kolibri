@@ -234,6 +234,21 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
         self.assertEqual(response.data, {"detail": "Not found."})
 
+    def test_contentnodefilesize_resourcenode(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        content.LocalFile.objects.filter(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2").update(file_size=2)
+        content.LocalFile.objects.filter(pk="725257a0570044acbd59f8cf6a68b2be").update(file_size=1, available=False)
+        response = self.client.get(reverse("contentnodefilesize-detail", kwargs={"pk": c1_id}))
+        self.assertEqual(response.data, {"total_file_size": 3, "on_device_file_size": 2})
+
+    def test_contentnodefilesize_topicnode(self):
+        root_id = content.ContentNode.objects.get(title="root").id
+        content.LocalFile.objects.filter(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2").update(file_size=2)
+        content.LocalFile.objects.filter(pk="725257a0570044acbd59f8cf6a68b2be").update(file_size=1, available=False)
+        content.LocalFile.objects.filter(pk="e00699f859624e0f875ac6fe1e13d648").update(file_size=3)
+        response = self.client.get(reverse("contentnodefilesize-detail", kwargs={"pk": root_id}))
+        self.assertEqual(response.data, {"total_file_size": 6, "on_device_file_size": 5})
+
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
@@ -274,6 +289,23 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['total_file_size'], 0)
         self.assertEqual(response.data['on_device_resources'], 3)
         self.assertEqual(response.data['on_device_file_size'], 0)
+
+    def test_channelmetadata_langfield(self):
+        data = content.ChannelMetadata.objects.first()
+        root_lang = content.Language.objects.get(pk=1)
+        data.root.lang = root_lang
+        data.root.save()
+
+        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        self.assertEqual(response.data['lang_code'], root_lang.lang_code)
+        self.assertEqual(response.data['lang_name'], root_lang.lang_name)
+
+    def test_channelmetadata_langfield_none(self):
+        data = content.ChannelMetadata.objects.first()
+
+        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        self.assertEqual(response.data['lang_code'], None)
+        self.assertEqual(response.data['lang_name'], None)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))

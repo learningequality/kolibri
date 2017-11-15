@@ -45,7 +45,7 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import appBar from './app-bar';
+  import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';

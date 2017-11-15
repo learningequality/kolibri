@@ -1,9 +1,7 @@
-import KolibriModule from 'kolibri_module';
-import { getCurrentSession } from 'kolibri.coreVue.vuex.actions';
-import router from 'kolibri.coreVue.router';
-import Vue from 'kolibri.lib.vue';
+import KolibriApp from 'kolibri_app'; // eslint-disable-line
 import RootVue from './views';
-import store from './state/store';
+import mutations from './state/mutations';
+import initialState from './state/initialState';
 import { PageNames, ContentWizardPages } from './constants';
 import preparePage from '../state/preparePage';
 import {
@@ -12,8 +10,10 @@ import {
 } from './state/actions/managePermissionsActions';
 import { transitionWizardPage } from './state/actions/contentWizardActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
-import { updateTreeViewTopic } from './state/actions/contentTransferActions';
+import store from 'kolibri.coreVue.vuex.store';
 import get from 'lodash/get';
+import router from 'kolibri.coreVue.router';
+import { updateTreeViewTopic } from './state/actions/contentTransferActions';
 
 function hideLoadingScreen() {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -91,15 +91,18 @@ const routes = [
   },
 ];
 
-class DeviceManagementModule extends KolibriModule {
-  ready() {
-    getCurrentSession(store).then(() => {
-      this.rootvue = new Vue({
-        el: 'rootvue',
-        render: createElement => createElement(RootVue),
-        router: router.init(routes),
-      });
-    });
+class DeviceManagementModule extends KolibriApp {
+  get routes() {
+    return routes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get initialState() {
+    return initialState;
+  }
+  get mutations() {
+    return mutations;
   }
 }
 
