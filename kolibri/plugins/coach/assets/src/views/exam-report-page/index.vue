@@ -116,7 +116,7 @@
       averageScore: 'Average Score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
-      remaining: '{ num, number } questions remaining',
+      remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
       notstarted: 'Not started',
       name: 'Name',
       status: 'Status',
