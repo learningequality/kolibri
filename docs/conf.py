@@ -88,11 +88,6 @@ def process_docstring(app, what, name, obj, options, lines):
     return lines
 
 
-def setup(app):
-    # Register the docstring processor with sphinx
-    app.connect('autodoc-process-docstring', process_docstring)
-
-
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -214,16 +209,27 @@ html_logo = 'logo.png'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# Wide, responsive tables not supported until this is merged
+# https://github.com/rtfd/sphinx_rtd_theme/pull/432
 
-# This should be commented back in for wide tables
-# See: https://github.com/rtfd/readthedocs.org/issues/2116
-# and: https://github.com/rtfd/sphinx_rtd_theme/pull/432
-
+# Approach 1, broken because of....
+# https://github.com/rtfd/readthedocs.org/issues/2116
 # html_context = {
 #     'css_files': [
 #         '_static/theme_overrides.css',  # override wide tables in RTD theme
 #     ],
 # }
+
+# Approach 2 for custom stylesheet:
+# adapted from: http://rackerlabs.github.io/docs-rackspace/tools/rtd-tables.html
+# and https://github.com/altair-viz/altair/pull/418/files
+# https://github.com/rtfd/sphinx_rtd_theme/issues/117
+def setup(app):
+    # Register the docstring processor with sphinx
+    app.connect('autodoc-process-docstring', process_docstring)
+    # Add our custom CSS overrides
+    app.add_stylesheet('theme_overrides.css')
+
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
