@@ -11,7 +11,9 @@
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimmedPopular"/>
+        :contents="trimmedPopular"
+        :showContentKindFilter="false"
+      />
     </template>
 
     <template v-if="nextSteps.length">
@@ -23,7 +25,9 @@
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimmedNextSteps"/>
+        :contents="trimmedNextSteps"
+        :showContentKindFilter="false"
+        />
     </template>
 
     <template v-if="resume.length">
@@ -35,7 +39,9 @@
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimmedResume"/>
+        :contents="trimmedResume"
+        :showContentKindFilter="false"
+        />
     </template>
 
     <template v-for="(contents, channelId) in featured" v-if="contents.length">
@@ -49,7 +55,9 @@
         :is="recommendationDisplay"
         :gen-content-link="genContentLink"
         :filter="false"
-        :contents="trimContent(contents)"/>
+        :contents="trimContent(contents)"
+        :showContentKindFilter="false"
+        />
     </template>
 
   </div>
