@@ -304,11 +304,11 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         return available_resources
 
     def get_importable(self, obj):
-        if 'request' not in self.context or not self.context['request'].query_params.get('drive_id', None) or obj.kind == content_kinds.TOPIC:
+        if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
             return True
         else:
             # check if the external drive exists given drive id
-            drive_id = self.context['request'].query_params.get('drive_id', None)
+            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
             drives = get_mounted_drives_with_channel_info()
             if drive_id in drives:
                 datafolder = drives[drive_id].datafolder

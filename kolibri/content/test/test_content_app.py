@@ -2,7 +2,6 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
-import tempfile
 from collections import namedtuple
 
 import mock
@@ -176,7 +175,7 @@ class ContentNodeAPITestCase(APITestCase):
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         content.ContentNode.objects.all().update(available=False)
-        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import"})
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
@@ -191,9 +190,8 @@ class ContentNodeAPITestCase(APITestCase):
 
     @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
-        datafolder = tempfile.mkdtemp()
         DriveData = namedtuple("DriveData", ["id", "datafolder"])
-        drive_mock.return_value = {"123": DriveData(id="123", datafolder=datafolder)}
+        drive_mock.return_value = {"123": DriveData(id="123", datafolder="test/")}
 
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
@@ -203,7 +201,7 @@ class ContentNodeAPITestCase(APITestCase):
         c3_id = content.ContentNode.objects.get(title="c2").id
 
         response = self.client.get(
-            reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "import", "drive_id": "123"})
+            reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
@@ -221,7 +219,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_granular_export_available(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "c1", "kind": "video", "available": True,
@@ -231,8 +229,12 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_granular_export_unavailable(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(title="c1").update(available=False)
-        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"import_export": "export"})
-        self.assertEqual(response.data, {"detail": "Not found."})
+        response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
+        self.assertEqual(
+            response.data, {
+                "pk": c1_id, "title": "c1", "kind": "video", "available": False,
+                "total_resources": 1, "resources_on_device": 0, "importable": True,
+                "children": []})
 
     def test_contentnodefilesize_resourcenode(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
