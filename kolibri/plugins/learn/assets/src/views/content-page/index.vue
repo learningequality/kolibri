@@ -55,13 +55,16 @@
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
-          <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
-          </span>
-
-          <ui-popover trigger="licensetooltip" class="license-description">
+          <ui-icon-button
+            :icon="showLicenceDescription ? 'expand_less' : 'expand_more'"
+            :ariaLabel="$tr('licenseDescription')"
+            size="small"
+            type="secondary"
+            @click="showLicenceDescription=!showLicenceDescription"
+          />
+          <p v-if="showLicenceDescription">
             {{ content.license_description }}
-          </ui-popover>
+          </p>
         </template>
 
       </p>
@@ -120,8 +123,7 @@
   import assessmentWrapper from '../assessment-wrapper';
   import pointsPopup from '../points-popup';
   import pointsSlidein from '../points-slidein';
-  import uiPopover from 'keen-ui/src/UiPopover';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
@@ -135,7 +137,7 @@
       licenseDescription: 'License description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
-    data: () => ({ wasIncomplete: false }),
+    data: () => ({ wasIncomplete: false, showLicenceDescription: false }),
     computed: {
       canDownload() {
         if (this.content) {
@@ -197,8 +199,7 @@
       assessmentWrapper,
       pointsPopup,
       pointsSlidein,
-      uiPopover,
-      uiIcon,
+      uiIconButton,
     },
     methods: {
       nextContentClicked() {
@@ -271,15 +272,5 @@
 
   .download-button
     display: block
-
-  .license-tooltip
-    cursor: pointer
-    font-size: 1.25em
-    color: $core-action-dark
-
-  .license-description
-    max-width: 300px
-    padding: 1em
-    font-size: smaller
 
 </style>
