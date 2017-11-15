@@ -14,12 +14,12 @@ export default class ConditionalPromise {
   }
 
   catch(...args) {
-    this._promise.catch(...args);
+    this._promise = this._promise.catch(...args);
     return this;
   }
 
   then(...args) {
-    this._promise.then(...args);
+    this._promise = this._promise.then(...args);
     return this;
   }
 
