@@ -212,8 +212,7 @@
         }
 
         this.$nextTick(() => {
-          this.player = videojs(this.$refs.player, videojsConfig);
-          this.player.on('loadedmetadata', this.handleReadyPlayer);
+          this.player = videojs(this.$refs.player, videojsConfig, this.handleReadyPlayer);
         });
       },
       handleReadyPlayer() {
