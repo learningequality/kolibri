@@ -2,6 +2,7 @@
 
   <div>
     <h1>{{ className }} {{ $tr('exams') }}</h1>
+    <report-subheading />   
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
@@ -113,6 +114,7 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
+  import reportSubheading from '../reports/report-subheading';
 
   export default {
     name: 'coachExamsPage',
@@ -137,6 +139,7 @@
       previewExamModal,
       renameExamModal,
       deleteExamModal,
+      reportSubheading,
     },
     data() {
       return {

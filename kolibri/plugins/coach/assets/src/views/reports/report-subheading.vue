@@ -1,9 +1,14 @@
 <template>
 
-  <div v-if="showRecentOnly">
-    <sub v-if="standardDataTable.length">{{ $tr('subHeading', { threshold }) }}</sub>
-    <sub v-else>{{ $tr('noRecentProgress', { threshold }) }}</sub>
-  </div>
+  <!-- <div v-if="showRecentOnly"> -->
+    <div>
+      <!-- <sub v-if="standardDataTable.length">{{ $tr('subHeading', { threshold }) }}</sub>
+      <sub v-else>{{ $tr('noRecentProgress', { threshold }) }}</sub> -->
+      <p>this is a test for map property</p>
+    </div>
+    
+  <!-- </div> -->
+  <!-- VAMOS A QUITAR ESE IF PORQUE NO DEPENDE SOO DE ESA CONDICION DEBE SER UN COMPONENTE GENERICO - MAUREEN -->
 
 </template>
 

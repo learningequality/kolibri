@@ -2,7 +2,8 @@
 
   <div>
     <h1 class="header">{{ $tr('classGroups') }}</h1>
-
+    <report-subheading />   
+    
     <k-button
       :text="$tr('newGroup')"
       :primary="true"
@@ -68,6 +69,8 @@
   import renameGroupModal from './rename-group-modal';
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
+  import reportSubheading from '../reports/report-subheading';
+
   export default {
     name: 'coachGroupsPage',
     $trs: {
@@ -82,6 +85,7 @@
       renameGroupModal,
       deleteGroupModal,
       moveLearnersModal,
+      reportSubheading,
     },
     data() {
       return {

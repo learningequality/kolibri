@@ -14,12 +14,12 @@ export default class ConditionalPromise {
   }
 
   catch(...args) {
-    this._promise.catch(...args);
+    this._promise = this._promise.catch(...args);
     return this;
   }
 
   then(...args) {
-    this._promise.then(...args);
+    this._promise = this._promise.then(...args);
     return this;
   }
 
@@ -52,6 +52,12 @@ export default class ConditionalPromise {
   static all(promises) {
     const conditionalPromise = new ConditionalPromise();
     conditionalPromise._promise = Promise.all(promises);
+    return conditionalPromise;
+  }
+
+  static resolve(value) {
+    const conditionalPromise = new ConditionalPromise();
+    conditionalPromise._promise = Promise.resolve(value);
     return conditionalPromise;
   }
 }

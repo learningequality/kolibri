@@ -81,6 +81,14 @@ function sessionTimeSpent(state) {
   return state.core.logging.session.time_spent;
 }
 
+function connected(state) {
+  return state.core.connection.connected;
+}
+
+function reconnectTime(state) {
+  return state.core.connection.reconnectTime;
+}
+
 export {
   isUserLoggedIn,
   isSuperuser,
@@ -99,4 +107,6 @@ export {
   getUserRole,
   getUserPermissions,
   userHasPermissions,
+  connected,
+  reconnectTime,
 };

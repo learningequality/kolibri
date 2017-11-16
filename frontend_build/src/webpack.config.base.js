@@ -13,9 +13,7 @@
  *  modifications made on top.
  */
 
-var fs = require('fs');
 var path = require('path');
-var webpack = require('webpack');
 var merge = require('webpack-merge');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -63,7 +61,12 @@ var config = {
         options: {
           preserveWhitespace: false,
           loaders: {
-            js: 'buble-loader',
+            js: {
+              loader: 'buble-loader',
+              query: {
+                objectAssign: 'Object.assign',
+              },
+            },
             stylus: ExtractTextPlugin.extract({
               allChunks: true,
               use: vueStylusLoaders,
@@ -81,6 +84,9 @@ var config = {
         test: /\.js$/,
         loader: 'buble-loader',
         exclude: /node_modules\/(?!(keen-ui)\/).*/,
+        query: {
+          objectAssign: 'Object.assign',
+        },
       },
       {
         test: /\.css$/,

@@ -2,10 +2,9 @@
 
   <div>
     <div v-if="showRecentOnly" class="header">
-      <h1>{{ $tr('recentTitle') }}</h1>
-      <report-subheading />
-    </div>
-
+      <h1>{{ $tr('recentTitle') }}</h1>  
+    </div> 
+    <report-subheading /> 
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>

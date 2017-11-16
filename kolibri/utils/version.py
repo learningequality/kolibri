@@ -4,8 +4,8 @@ We follow semantic versioning 2.0.0 according to
 internal string representation in Python, you will find a
 `PEP-440 <https://www.python.org/dev/peps/pep-0440/>`__ flavor.
 
- * ``1.1.0`` (Semver)  = ``1.1`` (PEP-440).
- * ``1.0.0-alpha1`` (Semver)  = ``1.0a1`` (PEP-440).
+ * ``1.1.0`` (Semver)  = ``1.1.0`` (PEP-440).
+ * ``1.0.0-alpha1`` (Semver)  = ``1.0.0a1`` (PEP-440).
 
 Here's how version numbers are generated:
 
@@ -32,48 +32,48 @@ Here's how version numbers are generated:
 Confused? Here's a table:
 
 
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| Release type | ``kolibri.VERSION`` | ``kolibri/VERSION`` | Git data                  | Examples                          |
-+==============+=====================+=====================+===========================+===================================+
-| Final        | Canonical, only     | N/A                 | N/A                       | 0.1, 0.2.2,                       |
-|              | information used    |                     |                           | 0.2.post1                         |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| dev release  | (1, 2, 3, 'alpha',  | Fallback            | timestamp of latest       | 0.4.dev020170605181124-f1234567   |
-| (alpha0)     | 0), 0th alpha = a   |                     | commit + hash             |                                   |
-|              | dev release! Never  |                     |                           |                                   |
-|              | used as a canonical |                     |                           |                                   |
-|              |                     |                     |                           |                                   |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| alpha1+      | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                       |
-|              | 1)                  |                     |                           | 1.2.3a1,                          |
-|              |                     |                     |                           | Changes                           |
-|              |                     |                     |                           | since tag:                        |
-|              |                     |                     |                           | 1.2.3a1.dev123-f1234567           |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| beta1+       | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                       |
-|              | 1)                  |                     |                           | 1.2.3b1,                          |
-|              |                     |                     |                           | Changes                           |
-|              |                     |                     |                           | since tag:                        |
-|              |                     |                     |                           | 1.2.3b1.dev123-f1234567           |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| rc1+         | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                       |
-| (release     | 1)                  |                     |                           | 1.2.3rc1,                         |
-| candidate)   |                     |                     |                           | Changes                           |
-|              |                     |                     |                           | since tag:                        |
-|              |                     |                     |                           | 1.2.3rc1.dev123-f1234567          |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
-| beta0, rc0,  | Not recommended,    | Fallback            | timestamp of latest       | 0.4b0.dev020170605181124-f1234567 |
-| post0, x.y.0 | but if you use it,  |                     | commit + hash             |                                   |
-|              | your release        |                     |                           |                                   |
-|              | transforms into a   |                     |                           |                                   |
-|              | X.Yb0.dev{suffix}   |                     |                           |                                   |
-|              | release, which in   |                     |                           |                                   |
-|              | most cases should   |                     |                           |                                   |
-|              | be assigned to the  |                     |                           |                                   |
-|              | preceding release   |                     |                           |                                   |
-|              | type.               |                     |                           |                                   |
-|              |                     |                     |                           |                                   |
-+--------------+---------------------+---------------------+---------------------------+-----------------------------------+
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| Release type | ``kolibri.VERSION`` | ``kolibri/VERSION`` | Git data                  | Examples                            |
++==============+=====================+=====================+===========================+=====================================+
+| Final        | Canonical, only     | N/A                 | N/A                       | 0.1.0, 0.2.2,                       |
+|              | information used    |                     |                           | 0.2.post1                           |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| dev release  | (1, 2, 3, 'alpha',  | Fallback            | timestamp of latest       | 0.4.0.dev020170605181124-f1234567   |
+| (alpha0)     | 0), 0th alpha = a   |                     | commit + hash             |                                     |
+|              | dev release! Never  |                     |                           |                                     |
+|              | used as a canonical |                     |                           |                                     |
+|              |                     |                     |                           |                                     |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| alpha1+      | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
+|              | 1)                  |                     |                           | 1.2.3a1,                            |
+|              |                     |                     |                           | Changes                             |
+|              |                     |                     |                           | since tag:                          |
+|              |                     |                     |                           | 1.2.3a1.dev123-f1234567             |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| beta1+       | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
+|              | 1)                  |                     |                           | 1.2.3b1,                            |
+|              |                     |                     |                           | Changes                             |
+|              |                     |                     |                           | since tag:                          |
+|              |                     |                     |                           | 1.2.3b1.dev123-f1234567             |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| rc1+         | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
+| (release     | 1)                  |                     |                           | 1.2.3rc1,                           |
+| candidate)   |                     |                     |                           | Changes                             |
+|              |                     |                     |                           | since tag:                          |
+|              |                     |                     |                           | 1.2.3rc1.dev123-f1234567            |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
+| beta0, rc0,  | Not recommended,    | Fallback            | timestamp of latest       | 0.4.0b0.dev020170605181124-f1234567 |
+| post0, x.y.0 | but if you use it,  |                     | commit + hash             |                                     |
+|              | your release        |                     |                           |                                     |
+|              | transforms into a   |                     |                           |                                     |
+|              | X.Y.0b0.dev{suffix} |                     |                           |                                     |
+|              | release, which in   |                     |                           |                                     |
+|              | most cases should   |                     |                           |                                     |
+|              | be assigned to the  |                     |                           |                                     |
+|              | preceding release   |                     |                           |                                     |
+|              | type.               |                     |                           |                                     |
+|              |                     |                     |                           |                                     |
++--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 
 
 **Fallback**: ``kolibri/VERSION`` is auto-generated with ``make writeversion``
@@ -117,11 +117,10 @@ logger = logging.getLogger(__name__)
 
 def get_major_version(version=None):
     """
-    :returns: String w/ first digit part of version tuple, either x.y or x.y.z
+    :returns: String w/ first digit part of version tuple x.y.z
     """
     version = get_complete_version(version)
-    parts = 2 if version[2] == 0 else 3
-    major = '.'.join(str(x) for x in version[:parts])
+    major = '.'.join(str(x) for x in version[:3])
     return major
 
 
@@ -360,7 +359,7 @@ def get_version(version=None):
     This is important to read from PEP-404 (which this function is compliant
     with):
 
-    Within a numeric release ( 1.0 , 2.7.3 ), the following suffixes are
+    Within a numeric release ( 1.0.0 , 2.7.3 ), the following suffixes are
     permitted and MUST be ordered as shown:
 
     .devN, aN, bN, rcN, <no suffix>, .postN

@@ -63,6 +63,8 @@ class DeviceProvisionSerializer(serializers.Serializer):
             superuser_data = validated_data.pop('superuser')
             superuser_data['facility'] = facility
             superuser = FacilityUserSerializer(data=superuser_data).create(superuser_data)
+            superuser.set_password(superuser_data["password"])
+            superuser.save()
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
             language_id = validated_data.pop('language_id')
