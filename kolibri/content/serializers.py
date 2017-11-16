@@ -290,7 +290,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     total_resources = serializers.SerializerMethodField()
-    resources_on_device = serializers.SerializerMethodField()
+    on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
     def get_total_resources(self, obj):
@@ -298,7 +298,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
         return total_resources
 
-    def get_resources_on_device(self, obj):
+    def get_on_device_resources(self, obj):
         available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
 
         return available_resources
@@ -330,7 +330,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'available', 'kind', 'total_resources', 'resources_on_device', 'importable',
+            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable',
         )
 
 
