@@ -456,10 +456,10 @@ oriented data synchronization.
 
   .attemptprogress-container
     position: relative
-    background-color: $core-bg-light
 
   .attemptprogress-container.mobile
     border-top: thin solid $core-text-annotation
+    background-color: $core-bg-light
     position: fixed
     width: 100%
     height: 80px // if changed, also change `bottomSpaceReserved` in top-level index
