@@ -66,8 +66,8 @@
     $trs: {
       account: 'Account',
       profile: 'Profile',
-      signOut: 'Sign Out',
-      signIn: 'Sign In',
+      signOut: 'Sign out',
+      signIn: 'Sign in',
       role: 'Role',
       admin: 'Admin',
       coach: 'Coach',

@@ -15,8 +15,8 @@
         />
         <k-navbar-link
           type="icon-and-title"
-          :title="$tr('topics')"
-          icon="folder"
+          :title="$tr('channels')"
+          icon="apps"
           :link="channelsLink"
         />
         <k-navbar-link
@@ -71,7 +71,7 @@
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
-      topics: 'Topics',
+      channels: 'Channels',
       exams: 'Exams',
     },
     mixins: [responsiveWindow],

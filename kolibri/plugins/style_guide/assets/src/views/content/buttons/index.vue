@@ -62,7 +62,7 @@
 
     <h2>Known exceptions</h2>
     <ul>
-      <li>On the sign-in page, the "Sign In" button has a non-standard width for aesthetic reasons</li>
+      <li>On the sign-in page, the "Sign in" button has a non-standard width for aesthetic reasons</li>
     </ul>
 
   </page-template>
