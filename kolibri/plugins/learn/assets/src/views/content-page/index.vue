@@ -56,13 +56,13 @@
 
         <template v-if="content.license_description">
           <ui-icon-button
-            :icon="showLicenceDescription ? 'expand_less' : 'expand_more'"
-            :ariaLabel="$tr('licenseDescription')"
+            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
+            :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
-            @click="showLicenceDescription=!showLicenceDescription"
+            @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <p v-if="showLicenceDescription">
+          <p v-if="licenceDescriptionIsVisible">
             {{ content.license_description }}
           </p>
         </template>
@@ -125,7 +125,6 @@
   import pointsSlidein from '../points-slidein';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -134,10 +133,24 @@
       nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
-      licenseDescription: 'License description',
+      toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
-    data: () => ({ wasIncomplete: false, showLicenceDescription: false }),
+    components: {
+      pageHeader,
+      contentCardGroupCarousel,
+      contentRenderer,
+      downloadButton,
+      kButton,
+      assessmentWrapper,
+      pointsPopup,
+      pointsSlidein,
+      uiIconButton,
+    },
+    data: () => ({
+      wasIncomplete: false,
+      licenceDescriptionIsVisible: false,
+    }),
     computed: {
       canDownload() {
         if (this.content) {
@@ -190,16 +203,8 @@
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
-    components: {
-      pageHeader,
-      contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
-      kButton,
-      assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
-      uiIconButton,
+    beforeDestroy() {
+      this.stopTracking();
     },
     methods: {
       nextContentClicked() {
@@ -230,9 +235,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    beforeDestroy() {
-      this.stopTracking();
     },
     vuex: {
       getters: {
