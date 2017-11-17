@@ -14,7 +14,7 @@
     <div
       class="placeholder"
       v-for="i in numSpaces"
-      :class="{'placeholder-empty': i === 0 && waitingForAttempt}"
+      :class="{ 'placeholder-first': i === 1 }"
     ></div>
   </div>
 
@@ -127,7 +127,7 @@
     border-bottom: 1px solid $core-text-annotation
     transition: border-bottom 0.1s linear
 
-  .placeholder-empty
+  .placeholder-first
     border-bottom: 3px solid $core-text-annotation
 
 </style>
