@@ -2,7 +2,6 @@
 
   <li
     class="ui-menu-option"
-    ref="menuOption"
     role="menu-item"
 
     :class="classes"
@@ -29,10 +28,7 @@
       </div>
     </slot>
 
-    <ui-ripple-ink
-      trigger="menuOption"
-      v-if="!disabled && !isDivider && !disableRipple"
-    ></ui-ripple-ink>
+    <ui-ripple-ink v-if="!disabled && !isDivider && !disableRipple"></ui-ripple-ink>
   </li>
 
 </template>
