@@ -17,30 +17,35 @@
       <slot name="app-bar-actions"/>
 
       <ui-button
+        ref="userMenuButton"
         icon="person"
         type="primary"
         color="primary"
-        :ariaLabel="$tr('account')"
-        :has-dropdown="true"
-        ref="accountButton"
-        class="username-text"
+        class="user-menu-button"
+        :ariaLabel="$tr('userMenu')"
+        @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
       >
         <template v-if="isUserLoggedIn">{{ username }}</template>
-
-        <keen-menu-port
-          slot="dropdown"
-          :options="accountMenuOptions"
-          @close="$refs.accountButton.closeDropdown()"
-          @select="optionSelected"
-        >
-          <template slot="header" v-if="isUserLoggedIn">
-            <div class="role">{{ $tr('role') }}</div>
-            <div v-if="isAdmin">{{ $tr('admin') }}</div>
-            <div v-else-if="isCoach">{{ $tr('coach') }}</div>
-            <div v-else-if="isLearner">{{ $tr('learner') }}</div>
-          </template>
-        </keen-menu-port>
+        <mat-svg name="arrow_drop_down" category="navigation" />
       </ui-button>
+
+      <custom-ui-menu
+        v-show="userMenuDropdownIsOpen"
+        ref="userMenuDropdown"
+        class="user-menu-dropdown"
+        :options="userMenuOptions"
+        :raised="true"
+        :containFocus="true"
+        @select="optionSelected"
+        @close="userMenuDropdownIsOpen = false"
+      >
+        <template slot="header" v-if="isUserLoggedIn">
+          <div class="role">{{ $tr('role') }}</div>
+          <div v-if="isAdmin">{{ $tr('admin') }}</div>
+          <div v-else-if="isCoach">{{ $tr('coach') }}</div>
+          <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+        </template>
+      </custom-ui-menu>
 
       <language-switcher :modalOpen="showLanguageModal" @close="showLanguageModal=false"/>
     </div>
@@ -56,7 +61,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import keenMenuPort from '../side-nav/keen-menu-port';
+  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
@@ -73,6 +78,7 @@
       coach: 'Coach',
       learner: 'Learner',
       languageSwitchMenuOption: 'Change language',
+      userMenu: 'User menu',
     },
     props: {
       title: {
@@ -90,16 +96,17 @@
     },
     data: () => ({
       showLanguageModal: false,
+      userMenuDropdownIsOpen: false,
     }),
     components: {
       uiToolbar,
       uiIconButton,
-      keenMenuPort,
+      customUiMenu,
       uiButton,
       languageSwitcher,
     },
     computed: {
-      accountMenuOptions() {
+      userMenuOptions() {
         const changeLanguage = {
           id: 'language',
           label: this.$tr('languageSwitchMenuOption'),
@@ -126,6 +133,12 @@
         ];
       },
     },
+    created() {
+      window.addEventListener('click', this.handleClick);
+    },
+    beforeDestroy() {
+      window.removeEventListener('click', this.handleClick);
+    },
     methods: {
       optionSelected(option) {
         if (option.id === 'profile') {
@@ -136,6 +149,15 @@
           redirectBrowser();
         } else if (option.id === 'language') {
           this.showLanguageModal = true;
+        }
+      },
+      handleClick(event) {
+        if (
+          !this.$refs.userMenuDropdown.$el.contains(event.target) &&
+          !this.$refs.userMenuButton.$el.contains(event.target) &&
+          this.userMenuDropdownIsOpen
+        ) {
+          this.userMenuDropdownIsOpen = false;
         }
       },
     },
@@ -161,8 +183,15 @@
   .app-bar
     overflow: hidden
 
-  .username-text
+  .user-menu-button
     text-transform: none
+    svg
+      fill: white
+
+  .user-menu-dropdown
+    position: fixed
+    right: 0
+    z-index: 8
 
   .role
     font-size: small

@@ -65,6 +65,7 @@ import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 import appBar from '../views/app-bar';
+import customUiMenu from '../views/custom-ui-menu';
 
 export default {
   client,
@@ -113,6 +114,7 @@ export default {
       kFilterTextbox,
       languageSwitcher,
       appBar,
+      customUiMenu,
     },
     router,
     mixins: {
