@@ -104,7 +104,7 @@ oriented data synchronization.
     mixins: [responsiveWindow],
     $trs: {
       goal:
-        'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
+        'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up:',
       tryAgain: 'Try again!',
       correct: 'Correct!',
       check: 'Check',
@@ -444,15 +444,13 @@ oriented data synchronization.
 
   .mobile
     .message
-      text-align: center
-      font-size: 12px
-      margin: 4px
-    .status
-      text-align: center
       margin: 0
       font-size: 12px
-    .attemptprogress
-      text-align: center
+    .status
+      margin: 0
+      font-size: 12px
+    .try-again
+      margin: 0
 
   .attemptprogress-container
     position: relative
@@ -460,6 +458,7 @@ oriented data synchronization.
   .attemptprogress-container.mobile
     border-top: thin solid $core-text-annotation
     background-color: $core-bg-light
+    padding: 4px
     position: fixed
     width: 100%
     height: 80px // if changed, also change `bottomSpaceReserved` in top-level index
