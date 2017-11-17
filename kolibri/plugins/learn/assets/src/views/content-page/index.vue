@@ -39,6 +39,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
+      :hasPrimaryButton="!showNextBtn"
       :initSession="initSession">
       <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
     </assessment-wrapper>

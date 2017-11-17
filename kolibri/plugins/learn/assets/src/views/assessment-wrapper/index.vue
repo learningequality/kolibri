@@ -40,7 +40,7 @@ oriented data synchronization.
       <transition mode="out-in">
         <k-button
           :text="$tr('check')"
-          :primary="false"
+          :primary="hasPrimaryButton"
           :raised="true"
           v-if="!complete"
           @click="checkAnswer"
@@ -143,6 +143,10 @@ oriented data synchronization.
       initSession: {
         type: Function,
         default: () => Promise.resolve(),
+      },
+      hasPrimaryButton: {
+        type: Boolean,
+        default: false,
       },
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
