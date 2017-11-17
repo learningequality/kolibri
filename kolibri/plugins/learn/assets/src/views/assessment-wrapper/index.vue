@@ -460,7 +460,7 @@ oriented data synchronization.
     bottom: 0
     border-bottom: thin solid $core-text-annotation
     border-top: thin solid $core-text-annotation
-    z-index: 2
+    z-index: 3 // material - Quick entry / Search bar (scrolled state)
     left: 0
 
   .try-again
