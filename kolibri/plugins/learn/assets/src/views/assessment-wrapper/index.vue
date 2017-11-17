@@ -49,7 +49,7 @@ oriented data synchronization.
           :disabled="checkingAnswer"
         />
         <k-button
-          :text="$tr('correct')"
+          :text="$tr('next')"
           :primary="true"
           :raised="true"
           v-else
@@ -71,8 +71,13 @@ oriented data synchronization.
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
-      <p class="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">
-        {{ $tr('tryAgain') }}
+      <p class="status">
+        <span class="try-again" v-if="!correct && !firstAttempt && !onlyHinted">
+          {{ $tr('tryAgain') }}
+        </span>
+        <span class="correct" v-if="correct && !firstAttempt && !onlyHinted">
+          {{ $tr('correct') }}
+        </span>
       </p>
     </div>
   </div>
@@ -101,9 +106,9 @@ oriented data synchronization.
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
       tryAgain: 'Try again!',
+      correct: 'Correct!',
       check: 'Check',
-      correct: 'Next question',
-      incorrect: 'Sorry, try again',
+      next: 'Next question',
       itemError: 'There was an error showing this item',
     },
     props: {
@@ -423,17 +428,22 @@ oriented data synchronization.
     color: $core-text-annotation
     font-size: 14px
 
-  .try-again
-    color: $core-text-error
+  .status
     font-size: 14px
     font-weight: bold
+
+  .try-again
+    color: $core-status-wrong
+
+  .correct
+    color: $core-status-correct
 
   .mobile
     .message
       text-align: center
       font-size: 12px
       margin: 4px
-    .try-again
+    .status
       text-align: center
       margin: 0
       font-size: 12px
