@@ -39,7 +39,7 @@
     transition: transform $core-time ease-in
 
   .yes
-    fill: $core-action-normal
+    fill: $core-status-correct
 
   .yes.yay
     transform: scale(1.5)
