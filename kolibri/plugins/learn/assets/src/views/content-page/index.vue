@@ -55,13 +55,16 @@
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
-          <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
-          </span>
-
-          <ui-popover trigger="licensetooltip" class="license-description">
+          <ui-icon-button
+            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
+            :ariaLabel="$tr('toggleLicenseDescription')"
+            size="small"
+            type="secondary"
+            @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
+          />
+          <p v-if="licenceDescriptionIsVisible">
             {{ content.license_description }}
-          </ui-popover>
+          </p>
         </template>
 
       </p>
@@ -120,10 +123,8 @@
   import assessmentWrapper from '../assessment-wrapper';
   import pointsPopup from '../points-popup';
   import pointsSlidein from '../points-slidein';
-  import uiPopover from 'keen-ui/src/UiPopover';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'learnContent',
@@ -132,10 +133,24 @@
       nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
-      licenseDescription: 'License description',
+      toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
-    data: () => ({ wasIncomplete: false }),
+    components: {
+      pageHeader,
+      contentCardGroupCarousel,
+      contentRenderer,
+      downloadButton,
+      kButton,
+      assessmentWrapper,
+      pointsPopup,
+      pointsSlidein,
+      uiIconButton,
+    },
+    data: () => ({
+      wasIncomplete: false,
+      licenceDescriptionIsVisible: false,
+    }),
     computed: {
       canDownload() {
         if (this.content) {
@@ -188,17 +203,8 @@
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
     },
-    components: {
-      pageHeader,
-      contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
-      kButton,
-      assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
-      uiPopover,
-      uiIcon,
+    beforeDestroy() {
+      this.stopTracking();
     },
     methods: {
       nextContentClicked() {
@@ -229,9 +235,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    beforeDestroy() {
-      this.stopTracking();
     },
     vuex: {
       getters: {
@@ -271,15 +274,5 @@
 
   .download-button
     display: block
-
-  .license-tooltip
-    cursor: pointer
-    font-size: 1.25em
-    color: $core-action-dark
-
-  .license-description
-    max-width: 300px
-    padding: 1em
-    font-size: smaller
 
 </style>
