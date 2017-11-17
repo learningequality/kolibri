@@ -23,6 +23,9 @@ lib
 lib64
 pip
 
+# Build configurations
+kolibri/utils/build_config
+
 # Installer logs
 pip-log.txt
 

@@ -31,6 +31,8 @@ clean-build:
 	rm -fr .cache
 	rm -r kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
+	rm -r kolibri/util/build_config/* || true # remove everything
+	git checkout -- kolibri/util/build_config # restore __init__.py
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +

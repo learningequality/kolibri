@@ -19,9 +19,14 @@ sys.path = sys.path + [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
 ]
 
+try:
+    from .build_config.default_settings import settings_path
+except ImportError:
+    settings_path = "kolibri.deployment.default.settings.base"
+
 # Set default env
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+    "DJANGO_SETTINGS_MODULE", settings_path
 )
 os.environ.setdefault(
     "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
