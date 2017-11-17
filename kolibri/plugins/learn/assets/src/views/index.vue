@@ -164,7 +164,7 @@
         const isAssessment =
           this.currentPage === 'content-page' && this.content && this.content.assessment;
         // height of .attemptprogress-container.mobile in assessment-wrapper
-        return isAssessment && this.windowSize.breakpoint <= 1 ? 60 : 0;
+        return isAssessment && this.windowSize.breakpoint <= 1 ? 80 : 0;
       },
     },
 

@@ -61,17 +61,16 @@ oriented data synchronization.
     </div>
 
     <div class="attemptprogress-container" :class="{ mobile: isMobile }">
+      <p class="message">
+        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+      </p>
       <exercise-attempts
         class="attemptprogress"
-        :class="{ mobile: isMobile }"
         :waitingForAttempt="firstAttempt"
         :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
-      <p class="message" :class="{ mobile: isMobile }">
-        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-      </p>
       <p class="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">
         {{ $tr('tryAgain') }}
       </p>
@@ -422,53 +421,37 @@ oriented data synchronization.
 
   .message
     color: $core-text-annotation
-    padding: 16px
     font-size: 14px
-
-  .message.mobile
-    position: relative
-    text-align: center
-    clear: both
-    top: 40px
-    font-size: 12px
-    margin-top: 0
-    padding: 0
-
-  .attemptprogress
-    position: absolute
-    padding-left: 14px
-    top: 38px
-
-
-  .attemptprogress.mobile
-    top: 0
-    padding-left: 0
-    left: 50%
-    transform: translate(-50%, 0)
-
-  .attemptprogress-container
-    border-radius: $radius
-    position: relative
-    background-color: $core-bg-light
-    height: 104px
-
-  .attemptprogress-container.mobile
-    position: fixed
-    height: 60px // if changed, also change `bottomSpaceReserved` in top-level index
-    width: 100%
-    border-radius: 0
-    bottom: 0
-    border-bottom: thin solid $core-text-annotation
-    border-top: thin solid $core-text-annotation
-    z-index: 3 // material - Quick entry / Search bar (scrolled state)
-    left: 0
 
   .try-again
     color: $core-text-error
     font-size: 14px
     font-weight: bold
-    padding: 16px
-    padding-top: 20px
+
+  .mobile
+    .message
+      text-align: center
+      font-size: 12px
+      margin: 4px
+    .try-again
+      text-align: center
+      margin: 0
+      font-size: 12px
+    .attemptprogress
+      text-align: center
+
+  .attemptprogress-container
+    position: relative
+    background-color: $core-bg-light
+
+  .attemptprogress-container.mobile
+    border-top: thin solid $core-text-annotation
+    position: fixed
+    width: 100%
+    height: 80px // if changed, also change `bottomSpaceReserved` in top-level index
+    z-index: 3 // material - Quick entry / Search bar (scrolled state)
+    bottom: 0
+    left: 0
 
   .question-btn
     margin-left: 1.5em
