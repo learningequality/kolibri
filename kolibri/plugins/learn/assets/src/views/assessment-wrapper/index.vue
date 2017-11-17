@@ -454,7 +454,7 @@ oriented data synchronization.
 
   .attemptprogress-container.mobile
     position: fixed
-    height: 60px
+    height: 60px // if changed, also change `bottomSpaceReserved` in top-level index
     width: 100%
     border-radius: 0
     bottom: 0
