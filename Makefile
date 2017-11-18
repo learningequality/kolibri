@@ -82,12 +82,15 @@ staticdeps:
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 
+setrequirements:
+	python build_tools/customize_requirements.py
+
 buildconfig:
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: buildconfig writeversion staticdeps assets compilemessages
+dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static

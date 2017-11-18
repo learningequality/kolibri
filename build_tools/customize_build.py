@@ -1,10 +1,10 @@
-import imp
 import os
+import sys
 import tempfile
 
 import requests
 
-conf = imp.load_source('conf', os.path.join(os.path.dirname(__file__), '../kolibri/utils/conf.py'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 os.environ.setdefault(
     "BUILD_TIME_PLUGINS", os.path.join(os.path.dirname(__file__), "default_plugins.txt")
@@ -20,7 +20,7 @@ Other environment variables:
 DEFAULT_SETTINGS_MODULE, which should be a Python module path to a settings file that will
 be used by default at load time.
 
-UNBUILT_PLUGINS, which should be a txt file git repo urls for unbuilt plugins.
+EXTRA_REQUIREMENTS, which should be a txt file git repo urls for unbuilt plugins.
 These plugins will be built and added to the requirements for the built file.
 """
 
@@ -37,7 +37,7 @@ def load_plugins_from_file(file_path):
                 f.write(r.content)
             file_path = path
         with open(file_path, 'r') as f:
-            plugins_cache[file_path] = [plugin.strip() for plugin in f.readlines() if f]
+            plugins_cache[file_path] = [plugin.strip() for plugin in f.readlines() if plugin.strip()]
     return plugins_cache[file_path]
 
 
@@ -58,7 +58,9 @@ def set_build_time_plugins():
         build_plugins = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
         # For now, we still need to enable these plugins in order to build them
         # When the build system has been decoupled, this list of plugins can be used for that instead
-
+        # Import CLI to set kolibri defaults
+        from kolibri.utils import cli  # noqa
+        from kolibri.utils import conf
         # First disable all plugins, and then enable the plugins listed
         conf.config['INSTALLED_APPS'] = build_plugins
         conf.save()
