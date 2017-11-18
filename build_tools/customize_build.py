@@ -1,8 +1,10 @@
+import imp
 import os
 import tempfile
 
 import requests
-from kolibri.utils import conf
+
+conf = imp.load_source('conf', os.path.join(os.path.dirname(__file__), '../kolibri/utils/conf.py'))
 
 os.environ.setdefault(
     "BUILD_TIME_PLUGINS", os.path.join(os.path.dirname(__file__), "default_plugins.txt")
@@ -48,7 +50,7 @@ def set_default_settings_module():
         default_settings_path = os.environ["DEFAULT_SETTINGS_MODULE"]
         with open(os.path.join(build_config_path, "default_settings.py"), 'w') as f:
             # Just write out settings_path = '<settings_path>'
-            f.write(run_time_plugin_template.format(path=default_settings_path))
+            f.write(default_settings_template.format(path=default_settings_path))
 
 
 def set_build_time_plugins():
