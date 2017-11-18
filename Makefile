@@ -128,7 +128,7 @@ dockerenvbuild: writeversion
 	docker image build -t learningequality/kolibri:$$(cat kolibri/VERSION) -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
 
 kolibripippex:
 	git clone https://github.com/learningequality/pip.git
