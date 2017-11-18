@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('welcomeModalHeader')"
     :enableBgClickCancel="false"
+    @cancel="emitCloseModal"
     @keyup.enter="emitCloseModal"
   >
     <p class="welcome-modal-description">
