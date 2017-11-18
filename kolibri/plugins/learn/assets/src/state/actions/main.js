@@ -6,7 +6,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import { getChannelObject, isUserLoggedIn, getChannels } from 'kolibri.coreVue.vuex.getters';
 import {
   setChannelInfo,
   handleError,
@@ -156,12 +156,18 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
 }
 
 function setAndCheckChannels(store) {
-  return setChannelInfo(store).then(channels => {
-    if (!channels.length) {
-      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+  return setChannelInfo(store).then(
+    () => {
+      const channels = getChannels(store.state);
+      if (!channels.length) {
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+      }
+      return channels;
+    },
+    error => {
+      handleApiError(store, error);
     }
-    return channels;
-  });
+  );
 }
 
 /**
