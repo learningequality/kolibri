@@ -3,7 +3,7 @@
   <core-modal
     :title="$tr('welcomeModalHeader')"
     :enableBgClickCancel="false"
-    @cancel="emitCloseModal"
+    @keyup.enter="emitCloseModal"
   >
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalContentDescription') }}
@@ -42,6 +42,9 @@
       welcomeButtonDismissText: 'OK',
     },
     components: { coreModal, kButton },
+    created: function() {
+      window.addEventListener('keyup', this.emitCloseModal);
+    },
     methods: {
       emitCloseModal() {
         this.$emit('closeModal');
