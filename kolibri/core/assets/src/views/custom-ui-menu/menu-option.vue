@@ -2,8 +2,7 @@
 
   <li
     class="ui-menu-option"
-    role="menu-item"
-
+    role="menuitem"
     :class="classes"
     :tabindex="(isDivider || disabled) ? null : '0'"
   >
