@@ -66,15 +66,15 @@ oriented data synchronization.
       </p>
       <exercise-attempts
         class="attemptprogress"
-        :waitingForAttempt="firstAttempt"
+        :waitingForAttempt="firstAttemptAtQuestion"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
       <p class="status">
-        <span class="try-again" v-if="!correct && !firstAttempt && !onlyHinted">
+        <span class="try-again" v-if="!correct && !firstAttemptAtQuestion && !hintWasTaken">
           {{ $tr('tryAgain') }}
         </span>
-        <span class="correct" v-if="correct && !firstAttempt && !onlyHinted">
+        <span class="correct" v-if="correct && !firstAttemptAtQuestion && !hintWasTaken">
           {{ $tr('correct') }}
         </span>
       </p>
@@ -160,11 +160,11 @@ oriented data synchronization.
       ready: false,
       itemId: '',
       shake: false,
-      firstAttempt: true,
+      firstAttemptAtQuestion: true,
       complete: false,
       correct: 0,
       itemError: false,
-      onlyHinted: false,
+      hintWasTaken: false,
       // Attempted fix for #1725
       checkingAnswer: false,
     }),
@@ -214,7 +214,7 @@ oriented data synchronization.
         }
       },
       answerGiven({ correct, answerState, simpleAnswer }) {
-        this.onlyHinted = false;
+        this.hintWasTaken = false;
         correct = Number(correct);
         this.correct = correct;
         if (correct < 1) {
@@ -231,8 +231,8 @@ oriented data synchronization.
           correct,
         });
         this.complete = correct === 1;
-        if (this.firstAttempt) {
-          this.firstAttempt = false;
+        if (this.firstAttemptAtQuestion) {
+          this.firstAttemptAtQuestion = false;
           this.updateAttemptLogMasteryLog({
             correct,
             complete: this.complete,
@@ -257,7 +257,7 @@ oriented data synchronization.
           type: InteractionTypes.hint,
           answer: answerState,
         });
-        if (this.firstAttempt) {
+        if (this.firstAttemptAtQuestion) {
           this.updateAttemptLogMasteryLog({
             correct: 0,
             complete: false,
@@ -266,8 +266,8 @@ oriented data synchronization.
             answerState,
             simpleAnswer: '',
           });
-          this.firstAttempt = false;
-          this.onlyHinted = true;
+          this.firstAttemptAtQuestion = false;
+          this.hintWasTaken = true;
           // Only save if this was the first attempt to capture this
           this.saveAttemptLogMasterLog();
         }
@@ -287,7 +287,7 @@ oriented data synchronization.
       nextQuestion() {
         this.complete = false;
         this.shake = false;
-        this.firstAttempt = true;
+        this.firstAttemptAtQuestion = true;
         this.correct = 0;
         this.itemError = false;
         this.setItemId();
@@ -320,13 +320,13 @@ oriented data synchronization.
           type: InteractionTypes.error,
         });
         this.complete = true;
-        if (this.firstAttempt) {
+        if (this.firstAttemptAtQuestion) {
           this.updateAttemptLogMasteryLog({
             correct: 1,
             complete: this.complete,
             firstAttempt: true,
           });
-          this.firstAttempt = false;
+          this.firstAttemptAtQuestion = false;
         } else {
           this.updateAttemptLogMasteryLog({ complete: this.complete });
         }
