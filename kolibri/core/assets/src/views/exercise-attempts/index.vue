@@ -8,7 +8,7 @@
         :style="styleForIndex(index, item.originalIndex)"
         :key="item.originalIndex"
       >
-        <answer-icon :answer="item.answer" :success="success"/>
+        <answer-icon :answer="item.answer" />
       </div>
     </transition-group>
     <div
@@ -28,11 +28,6 @@
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
-        type: Boolean,
-        required: true,
-      },
-      // Visually indicate that the user has succeeded
-      success: {
         type: Boolean,
         required: true,
       },

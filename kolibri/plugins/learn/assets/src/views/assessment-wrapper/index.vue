@@ -67,7 +67,6 @@ oriented data synchronization.
       <exercise-attempts
         class="attemptprogress"
         :waitingForAttempt="firstAttempt"
-        :success="success"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
