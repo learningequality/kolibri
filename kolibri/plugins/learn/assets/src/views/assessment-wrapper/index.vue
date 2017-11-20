@@ -462,6 +462,8 @@ oriented data synchronization.
     position: fixed
     width: 100%
     height: 80px // if changed, also change `bottomSpaceReserved` in top-level index
+    overflow-x: auto
+    overflow-y: hidden
     z-index: 3 // material - Quick entry / Search bar (scrolled state)
     bottom: 0
     left: 0
