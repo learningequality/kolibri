@@ -24,7 +24,6 @@ import * as actions from '../state/actions';
 import * as store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
-import exerciseAttempts from '../views/exercise-attempts';
 import downloadButton from '../views/content-renderer/download-button';
 import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
@@ -86,7 +85,6 @@ export default {
     },
     components: {
       contentRenderer,
-      exerciseAttempts,
       downloadButton,
       loadingSpinner,
       progressBar,

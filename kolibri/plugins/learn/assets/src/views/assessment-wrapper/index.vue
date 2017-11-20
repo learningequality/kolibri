@@ -94,10 +94,11 @@ oriented data synchronization.
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
   import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
+  import exerciseAttempts from './exercise-attempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert';
+
   export default {
     name: 'assessmentWrapper',
     mixins: [responsiveWindow],
