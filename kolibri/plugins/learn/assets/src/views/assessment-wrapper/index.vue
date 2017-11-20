@@ -435,6 +435,7 @@ oriented data synchronization.
   .status
     font-size: 14px
     font-weight: bold
+    min-height: 14px
 
   .try-again
     color: $core-status-wrong
