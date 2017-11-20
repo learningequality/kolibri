@@ -1,14 +1,15 @@
 <template>
 
   <div>
-    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
     <ul class="ui-menu" role="menu" :class="classes">
+      <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
       <menu-option
         :disable-ripple="disableRipple"
         :disabled="option[keys.disabled]"
         :active="Boolean(option.active)"
         :icon-props="iconProps || option[keys.iconProps]"
         :icon="hasIcons ? option[keys.icon] : null"
+        :key="index"
         :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
         :secondary-text="hasSecondaryText ? option[keys.secondaryText] : null"
         :type="option[keys.type]"
@@ -17,7 +18,7 @@
         @keydown.enter.native.prevent="selectOption(option)"
         @keydown.esc.native.esc="closeMenu"
 
-        v-for="option in options"
+        v-for="(option, index) in options"
       >
         <slot name="option" :option="option"></slot>
       </menu-option>
