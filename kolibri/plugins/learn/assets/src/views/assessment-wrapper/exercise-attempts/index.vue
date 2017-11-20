@@ -1,16 +1,16 @@
 <template>
 
   <div class="wrapper">
-    <transition-group name="fade">
-      <div
-        class="answer"
-        v-for="(item, index) in itemsToRender"
-        :style="styleForIndex(index, item.originalIndex)"
-        :key="item.originalIndex"
-      >
+    <div
+      class="answer"
+      v-for="(item, index) in itemsToRender"
+      :style="styleForIndex(index, item.originalIndex)"
+      :key="item.originalIndex"
+    >
+      <transition name="fade">
         <answer-icon :answer="item.answer" />
-      </div>
-    </transition-group>
+      </transition>
+    </div>
     <div
       class="placeholder"
       v-for="i in numSpaces"
