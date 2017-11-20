@@ -40,7 +40,7 @@ oriented data synchronization.
       <transition mode="out-in">
         <k-button
           :text="$tr('check')"
-          :primary="hasPrimaryButton"
+          :primary="checkButtonIsPrimary"
           :raised="true"
           v-if="!complete"
           @click="checkAnswer"
@@ -144,7 +144,7 @@ oriented data synchronization.
         type: Function,
         default: () => Promise.resolve(),
       },
-      hasPrimaryButton: {
+      checkButtonIsPrimary: {
         type: Boolean,
         default: false,
       },
