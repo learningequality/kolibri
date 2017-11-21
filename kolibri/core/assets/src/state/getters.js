@@ -89,6 +89,10 @@ function reconnectTime(state) {
   return state.core.connection.reconnectTime;
 }
 
+function currentSnackbar(state) {
+  return state.core.currentSnackbar;
+}
+
 export {
   isUserLoggedIn,
   isSuperuser,
@@ -109,4 +113,5 @@ export {
   userHasPermissions,
   connected,
   reconnectTime,
+  currentSnackbar,
 };

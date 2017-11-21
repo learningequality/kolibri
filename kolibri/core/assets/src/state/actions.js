@@ -724,6 +724,10 @@ function updateMasteryAttemptState(
   });
 }
 
+function clearSnackbar(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
+}
+
 export {
   handleError,
   handleApiError,
@@ -751,4 +755,5 @@ export {
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
+  clearSnackbar,
 };

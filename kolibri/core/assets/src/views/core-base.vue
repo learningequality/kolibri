@@ -35,6 +35,8 @@
         <slot></slot>
       </template>
     </div>
+
+    <connection-snackbars />
   </div>
 
 </template>
@@ -49,6 +51,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import connectionSnackbars from './connection-snackbars';
 
   export default {
     components: {
@@ -56,6 +59,7 @@
       sideNav,
       errorBox,
       loadingSpinner,
+      connectionSnackbars,
     },
     mixins: [responsiveWindow],
     props: {

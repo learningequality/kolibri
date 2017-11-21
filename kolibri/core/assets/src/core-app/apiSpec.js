@@ -71,6 +71,7 @@ import uiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import appBar from '../views/app-bar';
+import coreSnackbar from '../views/core-snackbar';
 
 export default {
   client,
@@ -124,6 +125,7 @@ export default {
       kSelect,
       uiAlert,
       appBar,
+      coreSnackbar,
     },
     router,
     mixins: {

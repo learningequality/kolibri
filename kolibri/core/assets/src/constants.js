@@ -105,6 +105,12 @@ const PermissionTypes = {
   LIMITED_PERMISSIONS: 'LIMITED_PERMISSIONS',
 };
 
+const ConnectionStates = {
+  DISCONNECTED: 'DISCONNECTED',
+  TRYING_TO_RECONNECT: 'TRYING_TO_RECONNECT',
+  SUCCESSFULLY_RECONNECTED: 'SUCCESSFULLY_RECONNECTED',
+};
+
 export {
   UserKinds,
   ContentNodeKinds,
@@ -118,4 +124,5 @@ export {
   MaxPointsPerContent,
   LoginErrors,
   PermissionTypes,
+  ConnectionStates,
 };

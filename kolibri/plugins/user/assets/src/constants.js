@@ -6,4 +6,6 @@ const PageNames = {
   PROFILE: 'PROFILE',
 };
 
-export { PageNames };
+const signedOutDueToInactivity = 'SIGNED_OUT_DUE_TO_INACTIVITY';
+
+export { PageNames, signedOutDueToInactivity };
