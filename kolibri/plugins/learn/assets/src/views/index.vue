@@ -1,6 +1,10 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="$tr('learnTitle')"
+    :bottomMargin="bottomSpaceReserved"
+  >
     <template slot="app-bar-actions">
       <action-bar-search-box v-if="!isWithinSearchPage"/>
     </template>
@@ -66,6 +70,9 @@
   import examPage from './exam-page';
   import totalPoints from './total-points';
   import actionBarSearchBox from './action-bar-search-box';
+
+  const BOTTOM_SPACED_RESERVED = 88;
+
   export default {
     name: 'learn',
     $trs: {
@@ -156,6 +163,12 @@
           name: PageNames.EXAM_LIST,
         };
       },
+      bottomSpaceReserved() {
+        const isAssessment =
+          this.currentPage === 'content-page' && this.content && this.content.assessment;
+        // height of .attemptprogress-container.mobile in assessment-wrapper
+        return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
+      },
     },
 
     vuex: {
@@ -164,6 +177,7 @@
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
+        content: state => state.pageState.content,
       },
     },
     store,
