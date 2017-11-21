@@ -187,7 +187,7 @@
         // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
-        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const gutters = this.contentSetSize * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? -1 : 1;
 
@@ -200,7 +200,7 @@
         // direction depends on `leftToRight`
         const originalPosition = parseInt(el.style.left, 10);
         const cards = this.contentSetSize * contentCardWidth;
-        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const gutters = this.contentSetSize * gutterWidth;
         const carouselContainerOffset = cards + gutters;
         const sign = this.leftToRight ? 1 : -1;
 
