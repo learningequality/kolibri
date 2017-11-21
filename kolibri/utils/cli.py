@@ -220,6 +220,14 @@ def initialize(debug=False):
             )
             update()
 
+def _migrate_databases():
+    """
+    Try to migrate all active databases. This should not be called unless Django has
+    been initialized.
+    """
+    from django.conf import settings
+    for database in settings.DATABASES:
+        call_command("migrate", interactive=False, database=database)
 
 def _first_run():
     """
@@ -242,7 +250,7 @@ def _first_run():
     # We need to migrate the database before enabling plugins, because they
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -279,7 +287,7 @@ def update():
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
