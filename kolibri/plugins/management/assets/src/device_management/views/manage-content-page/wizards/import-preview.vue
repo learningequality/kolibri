@@ -139,7 +139,7 @@
       channelAlreadyInstalled: 'Already installed',
       confirmButtonLabel: 'Import',
       localImportPrompt:
-        'You are about to import {numChannels, number} {numChannels, plural, one {Channel} other {Channels}} on {driveName}',
+        'You are about to import {numChannels, number} {numChannels, plural, one {channel} other {channels}} on {driveName}',
       localImportTitle: 'Import from local drive',
       remoteImportPrompt: 'You are about to import 1 channel',
       remoteImportTitle: 'Import from internet',

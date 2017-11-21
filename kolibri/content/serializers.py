@@ -11,6 +11,8 @@ from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
+    lang_code = serializers.SerializerMethodField()
+    lang_name = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
@@ -35,9 +37,22 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         return value
 
+    def get_lang_code(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_code
+
+    def get_lang_name(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_name
+
     class Meta:
         model = ChannelMetadata
-        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version', 'thumbnail')
+        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version', 'thumbnail',
+                  'lang_code', 'lang_name')
 
 
 class LowerCaseField(serializers.CharField):
@@ -289,11 +304,11 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         return available_resources
 
     def get_importable(self, obj):
-        if 'request' not in self.context or not self.context['request'].query_params.get('drive_id', None) or obj.kind == content_kinds.TOPIC:
+        if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
             return True
         else:
             # check if the external drive exists given drive id
-            drive_id = self.context['request'].query_params.get('drive_id', None)
+            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
             drives = get_mounted_drives_with_channel_info()
             if drive_id in drives:
                 datafolder = drives[drive_id].datafolder
