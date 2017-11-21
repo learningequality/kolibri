@@ -430,12 +430,12 @@ oriented data synchronization.
 
   .message
     color: $core-text-annotation
-    font-size: 14px
+    margin: 0
 
   .status
-    font-size: 14px
     font-weight: bold
     min-height: 14px
+    margin: 0
 
   .try-again
     color: $core-status-wrong
@@ -443,26 +443,19 @@ oriented data synchronization.
   .correct
     color: $core-status-correct
 
-  .mobile
-    .message
-      margin: 0
-      font-size: 12px
-    .status
-      margin: 0
-      font-size: 12px
-    .try-again
-      margin: 0
-
   .attemptprogress-container
     position: relative
+    margin-top: 8px
 
   .attemptprogress-container.mobile
+    font-size: smaller
     border-top: thin solid $core-text-annotation
     background-color: $core-bg-light
-    padding: 4px
+    margin: 0
+    padding: 8px
     position: fixed
     width: 100%
-    height: 80px // if changed, also change `bottomSpaceReserved` in top-level index
+    height: 88px // if changed, also change BOTTOM_SPACED_RESERVED in top-level index
     overflow-x: auto
     overflow-y: hidden
     z-index: 3 // material - Quick entry / Search bar (scrolled state)
