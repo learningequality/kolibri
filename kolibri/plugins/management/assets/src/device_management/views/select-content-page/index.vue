@@ -56,7 +56,23 @@
         :channelOnDevice="channelOnDevice"
       />
 
+      <!-- Assuming that if wizardState.status is truthy, it's an error -->
+      <ui-alert
+        v-if="wizardStatus!==''"
+        type="error"
+        :dismissible="false"
+      >
+        {{ $tr('problemFetchingChannel') }}
+      </ui-alert>
+
       <template v-if="onDeviceInfoIsReady">
+        <ui-alert
+          v-if="contentTransferError"
+          type="error"
+          :dismissible="false"
+        >
+          {{ $tr('problemTransferringContents') }}
+        </ui-alert>
         <!-- Contains size estimates + submit button -->
         <selected-resources-size
           :mode="mode"
@@ -93,6 +109,7 @@
   } from '../../state/actions/contentTransferActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'selectContentPage',
@@ -109,6 +126,7 @@
     data() {
       return {
         showUpdateProgressBar: false,
+        contentTransferError: false,
       };
     },
     computed: {
@@ -146,7 +164,14 @@
         });
       },
       startTransferringContent() {
-        return this.transferChannelContent();
+        this.contentTransferError = false;
+        return this.transferChannelContent()
+          .then(() => {
+            this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
+          })
+          .catch(() => {
+            this.contentTransferError = true;
+          });
       },
     },
     vuex: {
@@ -175,6 +200,8 @@
       newVersionAvailable: 'Version {version, number} available',
       newVersionAvailableNotification:
         'New channel version available. Some of your files may be outdated or deleted.',
+      problemFetchingChannel: 'There was a problem getting the contents of this channel',
+      problemTransferringContents: 'There was a problem transferring the selected contents',
       selectContent: 'Select content',
       update: 'Update',
     },

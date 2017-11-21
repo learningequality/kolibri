@@ -57,15 +57,12 @@ export default [
     name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
     path: '/content/wizard/availablechannels',
     handler: () => {
-      if (!get(store.state.pageState, 'wizardState.page')) {
+      if (!get(store.state.pageState, 'wizardState.pageName')) {
         return router.replace('/content');
       }
       // Only changes wizardState.page; does not change any other metadata.
       // TODO adjust tests to account for this flow (they assume fresh start from /content).
-      return store.dispatch(
-        'SET_CONTENT_PAGE_WIZARD_PAGENAME',
-        ContentWizardPages.AVAILABLE_CHANNELS
-      );
+      return store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
     },
   },
   {

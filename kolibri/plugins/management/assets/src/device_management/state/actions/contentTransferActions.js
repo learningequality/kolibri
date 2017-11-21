@@ -42,6 +42,8 @@ export function downloadChannelMetadata(store) {
     });
 }
 
+const combinePks = nodes => nodes.map(({ pk }) => pk);
+
 /**
  * Starts a Task that transfers Channel ContentNodes to/from a drive
  *
@@ -53,8 +55,8 @@ export function transferChannelContent(store) {
   );
   const params = {
     channel_id: transferChannel.id,
-    node_ids: nodesForTransfer.included.join(','),
-    exclude_node_ids: nodesForTransfer.omitted.join(','),
+    node_ids: combinePks(nodesForTransfer.included),
+    exclude_node_ids: combinePks(nodesForTransfer.omitted),
   };
   switch (transferType) {
     case TransferTypes.REMOTEIMPORT:
