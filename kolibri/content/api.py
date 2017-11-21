@@ -27,7 +27,7 @@ class ChannelMetadataFilter(filters.FilterSet):
     available = filters.django_filters.MethodFilter()
 
     def filter_available(self, queryset, value):
-        if value == "True":
+        if value == "true":
             value = True
         else:
             value = False
