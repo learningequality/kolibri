@@ -25,6 +25,8 @@ pip
 
 # Build configurations
 kolibri/utils/build_config
+# This can be dynamically changed at build time, and it should never change otherwise
+requirements.txt
 
 # Installer logs
 pip-log.txt

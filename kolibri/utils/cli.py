@@ -446,8 +446,8 @@ def setup_logging(debug=False):
         settings.DEBUG = True
         LOGGING['handlers']['console']['level'] = 'DEBUG'
         LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
+        logger.debug("Debug mode is on!")
     logging.config.dictConfig(LOGGING)
-    logger.debug("Debug mode is on!")
 
 
 def manage(cmd, args=[]):

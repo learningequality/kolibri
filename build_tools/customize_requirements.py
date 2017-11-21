@@ -1,3 +1,9 @@
+"""
+This module defines a function for customizing the requirements used at Kolibri build time
+and hence bundled into the dist folder.
+
+For more detail see the documentation in __init__.py
+"""
 import os
 import tempfile
 
@@ -19,7 +25,7 @@ def add_requirements_to_base():
             with open(file_path, 'r') as f:
                 requirements = [requirement.strip() for requirement in f.readlines() if requirement.strip()]
             if requirements:
-                with open(os.path.join(os.path.dirname(__file__), '../requirements/base.txt'), 'a') as f:
+                with open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'a') as f:
                     f.writelines(requirements)
         except IOError:
             pass

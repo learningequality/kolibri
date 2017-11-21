@@ -33,6 +33,8 @@ clean-build:
 	git checkout -- kolibri/dist # restore __init__.py
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
+	rm -r requirements.txt || true # remove requirements.txt
+	git checkout -- requirements.txt # restore requirements.txt
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -83,6 +85,8 @@ writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 
 setrequirements:
+	rm -r requirements.txt || true # remove requirements.txt
+	git checkout -- requirements.txt # restore requirements.txt
 	python build_tools/customize_requirements.py
 
 buildconfig:

@@ -1,3 +1,10 @@
+"""
+This module defines functions for customizing the plugins used at Kolibri build time
+the default plugins used at Kolibri run time, and the default value for
+the DJANGO_SETTINGS_MODULE environment variable.
+
+For more detail see the documentation in __init__.py
+"""
 import os
 import sys
 import tempfile
@@ -13,16 +20,6 @@ os.environ.setdefault(
 os.environ.setdefault(
     "RUN_TIME_PLUGINS", os.path.join(os.path.dirname(__file__), "default_plugins.txt")
 )
-
-"""
-Other environment variables:
-
-DEFAULT_SETTINGS_MODULE, which should be a Python module path to a settings file that will
-be used by default at load time.
-
-EXTRA_REQUIREMENTS, which should be a txt file git repo urls for unbuilt plugins.
-These plugins will be built and added to the requirements for the built file.
-"""
 
 plugins_cache = {}
 

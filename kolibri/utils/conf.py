@@ -40,6 +40,10 @@ if not os.path.exists(KOLIBRI_HOME):
 config = {}
 
 try:
+    # The default list for this is populated from build_tools/default_plugins.txt
+    # in the root of the Kolibri repository. The default list is identical to the list below,
+    # except that the style_guide plugin is not enabled in production builds.
+    # Caveat: this list may have been changed at build time to specify a different list of plugins.
     from .build_config.default_plugins import plugins
     DEFAULT_PLUGINS = plugins
 except ImportError:
