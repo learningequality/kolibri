@@ -72,6 +72,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
+  contentCard.mixins = [responsiveElement];
+
   const contentCardWidth = 210;
   const gutterWidth = 20;
 
