@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
 
+import logging
+import os
+
 from django.apps import AppConfig
 from django.db.backends.signals import connection_created
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
 
+logger = logging.getLogger(__name__)
 
 class KolibriCoreConfig(AppConfig):
     name = 'kolibri.core'
@@ -14,6 +18,11 @@ class KolibriCoreConfig(AppConfig):
         """
         connection_created.connect(self.activate_pragmas_per_connection)
         self.activate_pragmas_on_start()
+        # Log the settings file that we are running Kolibri with.
+        # Do this logging here, as this will be after Django has done its processing of
+        # Any environment variables or --settings command line arguments.
+        logger.info("Running Kolibri with the following settings: {settings}".format(
+            settings=os.environ["DJANGO_SETTINGS_MODULE"]))
 
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):
