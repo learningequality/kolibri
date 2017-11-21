@@ -31,7 +31,7 @@ function makeStore() {
   });
 }
 
-describe('contentTreeViewer actions', () => {
+describe.only('contentTreeViewer actions', () => {
   let store;
 
   function assertIncludeEquals(expected) {
@@ -94,10 +94,10 @@ describe('contentTreeViewer actions', () => {
       // ...the descendants are removed from `include`, because they are made redundant by the Node
       const ancestorNode = makeNode('1_1', {
         path: simplePath('1'),
-        on_device_file_size: 50,
+        on_device_file_size: 40,
         on_device_resources: 3,
-        total_file_size: 4,
-        total_resources: 3,
+        total_file_size: 50,
+        total_resources: 10,
       });
       const descendantNode_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const descendantNode_2 = makeNode('1_1_1_1', { path: simplePath('1', '1_1', '1_1_1') });
@@ -107,7 +107,7 @@ describe('contentTreeViewer actions', () => {
       assertIncludeEquals([ancestorNode]);
       assertOmitEquals([]);
       // files/resources are not double counted
-      assertFilesResourcesEqual(50, 3);
+      assertFilesResourcesEqual(50, 10);
     });
 
     it('when a Node in `omit` is re-added', () => {
@@ -153,7 +153,7 @@ describe('contentTreeViewer actions', () => {
       const childNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
         total_resources: 20,
-        total_file_size: 10,
+        total_file_size: 20,
         on_device_resources: 10,
         on_device_file_size: 10,
       });
@@ -161,7 +161,7 @@ describe('contentTreeViewer actions', () => {
       removeNodeForTransfer(store, childNode);
       assertIncludeEquals([parentNode]);
       assertOmitEquals([childNode]);
-      assertFilesResourcesEqual(10, 10);
+      assertFilesResourcesEqual(30, 30);
     });
 
     it('removing a sibling is same as removing single Node', () => {
@@ -232,7 +232,7 @@ describe('contentTreeViewer actions', () => {
       removeNodeForTransfer(store, childNode);
       assertIncludeEquals([topNode]);
       assertOmitEquals([childNode]);
-      assertFilesResourcesEqual(60 ,6);
+      assertFilesResourcesEqual(120, 5);
     });
 
     it('when removing a Node leads to an included parent Node being un-selected', () => {

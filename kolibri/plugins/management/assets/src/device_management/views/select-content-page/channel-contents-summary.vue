@@ -26,14 +26,14 @@
 
       <tr class="total-size">
         <td>{{ $tr('totalSizeRow') }}</td>
-        <td>{{ $tr('resourceCount', { count: channel.total_resources }) }}</td>
-        <td>{{ bytesForHumans(channel.total_file_size) }}</td>
+        <td>{{ $tr('resourceCount', { count: channel.total_resources || 0 }) }}</td>
+        <td>{{ bytesForHumans(channel.total_file_size || 0) }}</td>
       </tr>
 
       <tr class="on-device">
         <td>{{ $tr('onDeviceRow') }}</td>
-        <td>{{ $tr('resourceCount', { count: channelOnDevice.on_device_resources }) }}</td>
-        <td>{{ bytesForHumans(channelOnDevice.on_device_file_size) }}</td>
+        <td>{{ $tr('resourceCount', { count: channelOnDevice.on_device_resources || 0 }) }}</td>
+        <td>{{ bytesForHumans(channelOnDevice.on_device_file_size || 0) }}</td>
       </tr>
     </table>
   </section>
@@ -45,6 +45,7 @@
   import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   export default {
+    name: 'channelContentsSummary',
     components: {},
     props: {
       channel: {

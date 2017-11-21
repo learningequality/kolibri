@@ -10,6 +10,7 @@ import { wizardState } from '../../state/getters';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { importExportWizardState } from '../../state/wizardState';
+import { defaultChannel } from '../utils/data';
 
 mockResource(ChannelResource);
 mockResource(ContentNodeGranularResource);
@@ -26,6 +27,7 @@ function makeStore() {
         wizardState: {
           ...importExportWizardState(),
           pageName: 'SELECT_CONTENT',
+          transferChannel: { ...defaultChannel },
         },
       },
     },

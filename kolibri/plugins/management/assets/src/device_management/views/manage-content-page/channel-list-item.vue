@@ -179,6 +179,7 @@
     color: $core-text-annotation
 
   .description
+    width: 66%
     padding: 1em 0
 
   .thumbnail

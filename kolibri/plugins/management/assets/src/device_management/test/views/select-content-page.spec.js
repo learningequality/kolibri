@@ -26,6 +26,7 @@ function makeStore() {
           on_device_file_size: 2200000000,
           on_device_resources: 2000,
         }],
+        taskList: [],
         wizardState: {
           ...importExportWizardState(),
           transferChannel: {...defaultChannel},
@@ -182,5 +183,5 @@ describe('selectContentPage', () => {
     });
   });
 
-  xit('the corrct props are passed to the tree view component', () => {});
+  xit('when there is an error, a ui-alert appears', () => {});
 });

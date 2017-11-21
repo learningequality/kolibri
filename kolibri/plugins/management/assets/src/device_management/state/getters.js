@@ -52,9 +52,10 @@ export function getDriveById(state) {
 
 export function nodeTransferCounts(state) {
   const { included, omitted } = selectedNodes(state);
-  const getDifference = key => sumBy(included, key) - sumBy(omitted, key);
+  const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
   return {
-    resources: getDifference('on_device_resources'),
-    fileSize: getDifference('on_device_file_size'),
+    // TODO name change!!!
+    resources: getDifference('total_resources'),
+    fileSize: getDifference('total_file_size'),
   };
 }

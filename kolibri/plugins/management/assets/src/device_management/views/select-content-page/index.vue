@@ -30,7 +30,10 @@
         </ui-alert>
       </section>
 
-      <section class="updates">
+      <section
+        v-if="channelOnDevice.version"
+        class="updates"
+      >
         <div
           class="updates-available"
           v-if="newVersionAvailable"
@@ -57,8 +60,8 @@
         <!-- Contains size estimates + submit button -->
         <selected-resources-size
           :mode="mode"
-          :fileSize="total_file_size"
-          :resourceCount="total_resource_count"
+          :fileSize="nodeTransferCounts.fileSize"
+          :resourceCount="nodeTransferCounts.resources"
           :spaceOnDrive="availableSpace"
           @clickconfirm="startTransferringContent()"
         />
@@ -80,7 +83,7 @@
   import channelContentsSummary from './channel-contents-summary';
   import uiAlert from 'keen-ui/src/UiAlert';
   import subpageContainer from '../containers/subpage-container';
-  import { channelIsInstalled, wizardState } from '../../state/getters';
+  import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
   import isEmpty from 'lodash/isEmpty';
   import { getAvailableSpaceOnDrive } from '../../state/actions/selectContentActions';
   import {
@@ -154,11 +157,10 @@
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         firstTask: ({ pageState }) => pageState.taskList[0],
         mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
+        nodeTransferCounts,
         onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
         selectedItems: state => wizardState(state).nodesForTransfer || {},
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
-        total_file_size: () => 0,
-        total_resource_count: () => 0,
         wizardStatus: state => wizardState(state).status,
       },
       actions: {
@@ -184,12 +186,6 @@
 <style lang="stylus" scoped>
 
   .updates
-    position: relative
-
-  .updates-available
-    position: absolute
-    right: 0
-    button
-      margin-left: 16px
+    text-align: right
 
 </style>
