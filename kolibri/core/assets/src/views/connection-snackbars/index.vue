@@ -3,7 +3,7 @@
   <div>
     <core-snackbar
       v-if="disconnected"
-      :text="$tr('disconnected')"
+      :text="$tr('disconnected', { seconds: reconnectTime} )"
       :actionText="$tr('tryNow')"
       :backdrop="true"
       @actionClicked="tryToReconnect"
@@ -27,6 +27,7 @@
 
   import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import { connected, reconnectTime, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
+  import { tryToReconnect } from 'kolibri.coreVue.vuex.actions';
   import { ConnectionStates } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -57,6 +58,9 @@
         connected,
         reconnectTime: reconnectTime || 0,
         currentSnackbar,
+      },
+      actions: {
+        tryToReconnect,
       },
     },
   };

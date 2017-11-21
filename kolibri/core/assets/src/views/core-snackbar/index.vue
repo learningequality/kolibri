@@ -10,7 +10,7 @@
       class="snackbar"
       :message="text"
       :action="actionText"
-      @actionClick="$emit('actionClicked')"
+      @action-click="$emit('actionClicked')"
     />
   </div>
 

@@ -1,95 +1,96 @@
 <template>
 
-  <div class="wrapper-table">
-    <div class="main-row"><div id="main-cell">
-      <logo class="logo" />
-      <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-      <form class="login-form" ref="form" @submit.prevent="signIn">
-        <ui-alert
-          v-if="invalidCredentials"
-          type="error"
-          class="alert"
-          :dismissible="false"
-        >
-          {{ $tr('signInError') }}
-        </ui-alert>
-        <transition name="textbox">
-          <k-textbox
-            ref="username"
-            id="username"
-            autocomplete="username"
-            :autofocus="true"
-            :label="$tr('username')"
-            :invalid="usernameIsInvalid"
-            :invalidText="usernameIsInvalidText"
-            @blur="handleUsernameBlur"
-            @input="showDropdown = true"
-            @keydown="handleKeyboardNav"
-            v-model="username"
-          />
-        </transition>
-        <transition name="list">
-          <ul
-            v-if="simpleSignIn && suggestions.length"
-            v-show="showDropdown"
-            class="suggestions"
+  <div>
+    <div class="wrapper-table">
+      <div class="main-row"><div id="main-cell">
+        <logo class="logo" />
+        <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
+        <form class="login-form" ref="form" @submit.prevent="signIn">
+          <ui-alert
+            v-if="invalidCredentials"
+            type="error"
+            class="alert"
+            :dismissible="false"
           >
-            <ui-autocomplete-suggestion
-              v-for="(suggestion, i) in suggestions"
-              :key="i"
-              :suggestion="suggestion"
-              :class="{ highlighted: highlightedIndex === i }"
-              @click.native="fillUsername(suggestion)"
+            {{ $tr('signInError') }}
+          </ui-alert>
+          <transition name="textbox">
+            <k-textbox
+              ref="username"
+              id="username"
+              autocomplete="username"
+              :autofocus="true"
+              :label="$tr('username')"
+              :invalid="usernameIsInvalid"
+              :invalidText="usernameIsInvalidText"
+              @blur="handleUsernameBlur"
+              @input="showDropdown = true"
+              @keydown="handleKeyboardNav"
+              v-model="username"
             />
-          </ul>
-        </transition>
-        <transition name="textbox">
-          <k-textbox
-            v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
-            ref="password"
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            :label="$tr('password')"
-            :autofocus="simpleSignIn"
-            :invalid="passwordIsInvalid"
-            :invalidText="passwordIsInvalidText"
-            @blur="passwordBlurred = true"
-            v-model="password"
+          </transition>
+          <transition name="list">
+            <ul
+              v-if="simpleSignIn && suggestions.length"
+              v-show="showDropdown"
+              class="suggestions"
+            >
+              <ui-autocomplete-suggestion
+                v-for="(suggestion, i) in suggestions"
+                :key="i"
+                :suggestion="suggestion"
+                :class="{ highlighted: highlightedIndex === i }"
+                @click.native="fillUsername(suggestion)"
+              />
+            </ul>
+          </transition>
+          <transition name="textbox">
+            <k-textbox
+              v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+              ref="password"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              :label="$tr('password')"
+              :autofocus="simpleSignIn"
+              :invalid="passwordIsInvalid"
+              :invalidText="passwordIsInvalidText"
+              @blur="passwordBlurred = true"
+              v-model="password"
+            />
+          </transition>
+          <k-button
+            class="login-btn"
+            type="submit"
+            :text="$tr('signIn')"
+            :primary="true"
+            :disabled="busy"
           />
-        </transition>
-        <k-button
-          class="login-btn"
-          type="submit"
-          :text="$tr('signIn')"
-          :primary="true"
-          :disabled="busy"
-        />
-      </form>
-      <div class="divider"></div>
+        </form>
+        <div class="divider"></div>
 
-      <p class="login-text no-account">{{ $tr('noAccount') }}</p>
-      <div id="btn-group">
-        <k-router-link
-          v-if="canSignUp"
-          :text="$tr('createAccount')"
-          :to="signUpPage"
-          :primary="false"
-          appearance="raised-button"
-        />
-        <k-external-link
-          :text="$tr('accessAsGuest')"
-          href="/learn"
-          :primary="false"
-          appearance="raised-button"
-        />
+        <p class="login-text no-account">{{ $tr('noAccount') }}</p>
+        <div id="btn-group">
+          <k-router-link
+            v-if="canSignUp"
+            :text="$tr('createAccount')"
+            :to="signUpPage"
+            :primary="false"
+            appearance="raised-button"
+          />
+          <k-external-link
+            :text="$tr('accessAsGuest')"
+            href="/learn"
+            :primary="false"
+            appearance="raised-button"
+          />
+        </div>
+        <p class="login-text version">{{ versionMsg }}</p>
+      </div></div>
+      <div class="footer-row">
+        <language-switcher-footer class="footer-cell" />
       </div>
-      <p class="login-text version">{{ versionMsg }}</p>
-    </div></div>
-    <div class="footer-row">
-      <language-switcher-footer class="footer-cell" />
     </div>
-
     <core-snackbar
       v-if="signedOutDueToInactivity"
       :text="$tr('signedOut')"

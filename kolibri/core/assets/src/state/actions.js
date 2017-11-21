@@ -1,6 +1,12 @@
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
-import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
+import {
+  MasteryLoggingMap,
+  AttemptLoggingMap,
+  InteractionTypes,
+  LoginErrors,
+  ConnectionStates,
+} from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -724,6 +730,10 @@ function updateMasteryAttemptState(
   });
 }
 
+function tryToReconnect(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.TRYING_TO_RECONNECT);
+}
+
 function clearSnackbar(store) {
   store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
 }
@@ -756,4 +766,5 @@ export {
   updateAttemptLogInteractionHistory,
   fetchPoints,
   clearSnackbar,
+  tryToReconnect,
 };
