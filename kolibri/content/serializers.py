@@ -17,15 +17,6 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
-        # Get root node to get language code
-        root_node_lang = ContentNode.objects.get(pk=instance.root.id).lang
-
-        if root_node_lang is not None:
-            value.update({
-                "language_code": root_node_lang.lang_code,
-                "language": root_node_lang.lang_name
-            })
-
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
             descendants = instance.root.get_descendants().exclude(kind=content_kinds.TOPIC)

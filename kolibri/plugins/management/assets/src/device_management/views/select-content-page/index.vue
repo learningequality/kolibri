@@ -177,7 +177,7 @@
     vuex: {
       getters: {
         availableSpace: state => wizardState(state).availableSpace || 0,
-        channel: state => wizardState(state).transferChannel,
+        channel: state => wizardState(state).transferredChannel,
         channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         firstTask: ({ pageState }) => pageState.taskList[0],

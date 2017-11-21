@@ -13,16 +13,16 @@ export const ErrorTypes = {
  *
  */
 export function downloadChannelMetadata(store) {
-  const { transferType, transferChannel, selectedDrive } = wizardState(store.state);
+  const { transferType, transferredChannel, selectedDrive } = wizardState(store.state);
   let promise;
   if (transferType === TransferTypes.LOCALIMPORT) {
     promise = TaskResource.startDiskChannelImport({
-      channel_id: transferChannel.id,
+      channel_id: transferredChannel.id,
       drive_id: selectedDrive.driveId,
     });
   } else if (transferType === TransferTypes.REMOTEIMPORT) {
     promise = TaskResource.startRemoteChannelImport({
-      channel_id: transferChannel.id,
+      channel_id: transferredChannel.id,
     });
   }
   promise = promise.catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }));
@@ -35,7 +35,7 @@ export function downloadChannelMetadata(store) {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.cancelTask(taskId).then(() => {
-          return ChannelResource.getModel(transferChannel.id).fetch({ file_sizes: true })._promise;
+          return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })._promise;
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });
@@ -50,11 +50,11 @@ const combinePks = nodes => nodes.map(({ pk }) => pk);
  */
 export function transferChannelContent(store) {
   let promise;
-  const { transferType, transferChannel, selectedDrive, nodesForTransfer } = wizardState(
+  const { transferType, transferredChannel, selectedDrive, nodesForTransfer } = wizardState(
     store.state
   );
   const params = {
-    channel_id: transferChannel.id,
+    channel_id: transferredChannel.id,
     node_ids: combinePks(nodesForTransfer.included),
     exclude_node_ids: combinePks(nodesForTransfer.omitted),
   };
@@ -74,10 +74,7 @@ export function transferChannelContent(store) {
         drive_id: selectedDrive.driveId,
       });
   }
-
-  return promise.then(() => {
-    // Redirect to /content page
-  });
+  return promise;
 }
 
 /**

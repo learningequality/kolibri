@@ -31,10 +31,6 @@ export function REPLACE_OMIT_LIST(state, newList) {
   nodesForTransfer(state).omitted = newList;
 }
 
-export function SELECT_CONTENT_PAGE_ERROR(state, errorType) {
-  state.pageState.wizardState.status = errorType;
-}
-
 export function SET_TREEVIEW_CURRENTNODE(state, payload) {
   state.pageState.wizardState.treeView.currentNode = payload;
 }
@@ -71,5 +67,5 @@ export function SET_AVAILABLE_SPACE(state, space) {
 }
 
 export function REPLACE_CHANNEL(state, channel) {
-  state.pageState.wizardState.transferChannel = channel;
+  state.pageState.wizardState.transferredChannel = channel;
 }

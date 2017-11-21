@@ -27,7 +27,7 @@ function makeStore() {
         wizardState: {
           ...importExportWizardState(),
           pageName: 'SELECT_CONTENT',
-          transferChannel: { ...defaultChannel },
+          transferredChannel: { ...defaultChannel },
         },
       },
     },
@@ -88,13 +88,13 @@ describe('showSelectContentPage action', () => {
     store.state.pageState.wizardState.selectedDrive = {
       driveId: `${transferType}_specs_drive`,
     };
-    store.state.pageState.wizardState.transferChannel = {
+    store.state.pageState.wizardState.transferredChannel = {
       id: `${transferType}_brand_new_channel`,
     };
   }
 
   function useInstalledChannel() {
-    store.state.pageState.wizardState.transferChannel = { id: 'channel_1' };
+    store.state.pageState.wizardState.transferredChannel = { id: 'channel_1' };
   }
 
   // Tests for common behavior

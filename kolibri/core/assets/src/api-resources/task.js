@@ -63,8 +63,8 @@ export default class TaskResource extends Resource {
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
-   * @param {string} [params.node_ids]- comma-separated node ids/pks
-   * @param {string} [params.exclude_node_ids]- comma-separated node ids/pks
+   * @param {string} [params.node_ids] - comma-separated node ids/pks
+   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
    * @returns {Promise}
    *
    */
@@ -82,7 +82,7 @@ export default class TaskResource extends Resource {
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
    * @param {string} [params.node_ids] - comma-separated node ids/pks
-   * @param {string} [params.exclude_node_ids]- comma-separated node ids/pks
+   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
    * @returns {Promise}
    *
    */

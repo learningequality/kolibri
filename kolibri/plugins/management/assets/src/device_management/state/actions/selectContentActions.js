@@ -12,9 +12,8 @@ import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
  */
 export function showSelectContentPage(store) {
   let dbPromise;
-  // const channel = store.state.pageState.wizardState.transferChannel;
-  const { transferChannel } = wizardState(store.state);
-  const channelOnDevice = channelIsInstalled(store.state)(transferChannel.id);
+  const { transferredChannel } = wizardState(store.state);
+  const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
 
   // Downloading the Content Metadata DB
@@ -43,7 +42,6 @@ export function showSelectContentPage(store) {
  * Updates wizardState.treeView when a new topic is clicked.
  *
  * @param {Object} topic - { pk, title, path }
- * @param {boolean} resetPath - If action is used to make a jump (e.g. through breadcrumb click)
  *
  */
 export function updateTreeViewTopic(store, topic) {

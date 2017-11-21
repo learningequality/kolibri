@@ -33,7 +33,6 @@ export function triggerChannelDeleteTask(store, channelId) {
   return triggerTask(store, TaskResource.deleteChannel(channelId));
 }
 
-// need to convert observable Task to plain Object to make it deep-comparable
 const simplifyTask = pick(['id', 'status', 'percentage']);
 
 function _taskListShouldUpdate(state, newTasks) {
@@ -43,9 +42,10 @@ function _taskListShouldUpdate(state, newTasks) {
 
 /**
  * Updates pageState.taskList, but only if there is a change.
- *
  */
 export function refreshTaskList(store) {
+  // This uses TaskResource.getTasks instead of .getCollection because
+  // .getCollection mutates values in store.state such that _taskListShouldUpdate doesn't work
   return TaskResource.getTasks().then(({ entity: newTasks }) => {
     if (_taskListShouldUpdate(store.state, newTasks)) {
       updateTasks(store, newTasks);

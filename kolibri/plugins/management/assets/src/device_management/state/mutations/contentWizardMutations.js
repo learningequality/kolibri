@@ -21,8 +21,8 @@ export function SET_SELECTED_DRIVE(state, driveId) {
   setWizardState(state, 'selectedDrive', getDriveById(state)(driveId));
 }
 
-export function SET_TRANSFER_CHANNEL(state, transferChannel) {
-  setWizardState(state, 'transferChannel', transferChannel);
+export function SET_TRANSFER_CHANNEL(state, transferredChannel) {
+  setWizardState(state, 'transferredChannel', transferredChannel);
 }
 
 export function SET_TRANSFER_TYPE(state, transferType) {

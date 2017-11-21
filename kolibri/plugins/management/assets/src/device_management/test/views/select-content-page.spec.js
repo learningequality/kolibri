@@ -29,7 +29,7 @@ function makeStore() {
         taskList: [],
         wizardState: {
           ...importExportWizardState(),
-          transferChannel: {...defaultChannel},
+          transferredChannel: {...defaultChannel},
           transferType: 'localimport',
           currentTopicNode: contentNodeGranularPayload(),
         },
@@ -66,9 +66,9 @@ function getElements(wrapper) {
 }
 
 function updateMetaChannel(store, updates) {
-  const { transferChannel } = store.state.pageState.wizardState;
-  store.state.pageState.wizardState.transferChannel = {
-    ...transferChannel,
+  const { transferredChannel } = store.state.pageState.wizardState;
+  store.state.pageState.wizardState.transferredChannel = {
+    ...transferredChannel,
     ...updates,
   };
 }

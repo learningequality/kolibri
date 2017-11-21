@@ -31,7 +31,7 @@ function makeStore() {
   });
 }
 
-describe.only('contentTreeViewer actions', () => {
+describe('contentTreeViewer actions', () => {
   let store;
 
   function assertIncludeEquals(expected) {
