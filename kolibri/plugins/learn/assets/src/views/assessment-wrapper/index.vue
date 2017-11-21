@@ -449,7 +449,7 @@ oriented data synchronization.
 
   .attemptprogress-container.mobile
     font-size: smaller
-    border-top: thin solid $core-text-annotation
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.6)
     background-color: $core-bg-light
     margin: 0
     padding: 8px
