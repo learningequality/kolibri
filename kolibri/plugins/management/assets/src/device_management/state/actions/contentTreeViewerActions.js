@@ -3,11 +3,25 @@ import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
 import { selectedNodes } from '../getters';
+import { ContentNodeGranularResource } from 'kolibri.resources';
 
 const pluckPks = map('pk');
 
 function isDescendantOrSelf(testNode, selfNode) {
   return testNode.pk === selfNode.pk || find(testNode.path, { pk: selfNode.pk });
+}
+
+/**
+ * Queries the server for a ContentNode's file sizes
+ *
+ * @param node {Node} - (sanitized) Node, which has resource, but not file sizes
+ * @returns {Promise<{total_file_size, on_device_file_size}>}
+ *
+ */
+export function getContentNodeFileSize(node) {
+  return ContentNodeGranularResource.getFileSizes(node.pk).then(({ entity }) => {
+    return entity;
+  });
 }
 
 /**
@@ -31,7 +45,12 @@ export function addNodeForTransfer(store, node) {
   if (notToIncluded.length > 0) {
     store.dispatch('REPLACE_INCLUDE_LIST', toInclude);
   }
-  store.dispatch('ADD_NODE_TO_INCLUDE_LIST', node);
+  return getContentNodeFileSize(node).then(fileSizes => {
+    store.dispatch('ADD_NODE_TO_INCLUDE_LIST', {
+      ...node,
+      ...fileSizes,
+    });
+  });
 }
 
 /**
@@ -41,6 +60,7 @@ export function addNodeForTransfer(store, node) {
  *
  */
 export function removeNodeForTransfer(store, node) {
+  let promise = Promise.resolve();
   const { included, omitted } = selectedNodes(store.state);
   // remove nodes in "include" that are either descendants of the removed node or the node itself
   const [notToInclude, toInclude] = partition(included, includeNode =>
@@ -59,26 +79,35 @@ export function removeNodeForTransfer(store, node) {
     if (notToOmit.length > 0) {
       store.dispatch('REPLACE_OMIT_LIST', toOmit);
     }
-    store.dispatch('ADD_NODE_TO_OMIT_LIST', node);
+    promise = getContentNodeFileSize(node)
+      .then(fileSizes => {
+        store.dispatch('ADD_NODE_TO_OMIT_LIST', {
+          ...node,
+          ...fileSizes,
+        });
+      })
+      .then(() => {
+        // loop through the ancestor list and remove any that have been completely un-selected
+        includedAncestors.forEach(ancestor => {
+          const ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
+          const toOmit = omitted.filter(n => pluckPks(n.path).includes(ancestor.pk));
+          // When total_resources === on_device_resources, then that node is not selectable.
+          // So we need to compare the difference (i.e  # of transferrable nodes) when
+          // deciding whether parent is fully omitted.
+          const omittedResources =
+            sumBy(toOmit, 'total_resources') - sumBy(omitted, 'on_device_resources');
+          if (ancestorResources === omittedResources) {
+            // remove the ancestor from "include"
+            store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.pk !== ancestor.pk));
+            // remove all desceandants from "omit"
+            store.dispatch(
+              'REPLACE_OMIT_LIST',
+              omitted.filter(n => !pluckPks(n.path).includes(ancestor.pk))
+            );
+          }
+        });
+      });
   }
 
-  // loop through the ancestor list and remove any that have been completely un-selected
-  includedAncestors.forEach(ancestor => {
-    const ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
-    const toOmit = omitted.filter(n => pluckPks(n.path).includes(ancestor.pk));
-    // When total_resources === on_device_resources, then that node is not selectable.
-    // So we need to compare the difference (i.e  # of transferrable nodes) when
-    // deciding whether parent is fully omitted.
-    const omittedResources =
-      sumBy(toOmit, 'total_resources') - sumBy(omitted, 'on_device_resources');
-    if (ancestorResources === omittedResources) {
-      // remove the ancestor from "include"
-      store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.pk !== ancestor.pk));
-      // remove all desceandants from "omit"
-      store.dispatch(
-        'REPLACE_OMIT_LIST',
-        omitted.filter(n => !pluckPks(n.path).includes(ancestor.pk))
-      );
-    }
-  });
+  return promise;
 }

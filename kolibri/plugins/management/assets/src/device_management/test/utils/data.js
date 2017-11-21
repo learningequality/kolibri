@@ -19,18 +19,18 @@ export const defaultChannel = {
 
 const defaultNode = {
   kind: 'topic',
-  [ON_DEVICE_FILE_SIZE]: 1,
+  // [ON_DEVICE_FILE_SIZE]: 1,
   [ON_DEVICE_RESOURCES]: 1,
   path: [],
-  [TOTAL_FILE_SIZE]: 1,
+  // [TOTAL_FILE_SIZE]: 1,
   [TOTAL_RESOURCES]: 1,
 };
 
-export function makeNode(id, attrs = {}) {
+export function makeNode(pk, attrs = {}) {
   return {
     ...defaultNode,
-    pk: id,
-    title: `node_${id}`,
+    pk,
+    title: `node_${pk}`,
     ...attrs
   };
 }

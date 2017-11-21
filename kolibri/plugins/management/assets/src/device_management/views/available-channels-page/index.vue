@@ -128,9 +128,9 @@
       backText() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { driveName: this.selectedDrive.driveName });
+            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.LOCALIMPORT:
-            return this.$tr('importFromDisk', { driveName: this.selectedDrive.driveName });
+            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
           default:
             return this.$tr('kolibriCentralServer');
         }
@@ -140,7 +140,7 @@
           case TransferTypes.LOCALEXPORT:
             return this.$tr('yourChannels');
           case TransferTypes.LOCALIMPORT:
-            return this.selectedDrive.driveName;
+            return this.selectedDrive.name;
           default:
             return this.$tr('channels');
         }

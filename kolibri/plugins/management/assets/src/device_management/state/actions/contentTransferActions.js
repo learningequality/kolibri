@@ -18,7 +18,7 @@ export function downloadChannelMetadata(store) {
   if (transferType === TransferTypes.LOCALIMPORT) {
     promise = TaskResource.startDiskChannelImport({
       channel_id: transferredChannel.id,
-      drive_id: selectedDrive.driveId,
+      drive_id: selectedDrive.id,
     });
   } else if (transferType === TransferTypes.REMOTEIMPORT) {
     promise = TaskResource.startRemoteChannelImport({
@@ -35,7 +35,8 @@ export function downloadChannelMetadata(store) {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.cancelTask(taskId).then(() => {
-          return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })._promise;
+          return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })
+            ._promise;
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });
@@ -65,13 +66,13 @@ export function transferChannelContent(store) {
     case TransferTypes.LOCALIMPORT:
       promise = TaskResource.startDiskContentImport({
         ...params,
-        drive_id: selectedDrive.driveId,
+        drive_id: selectedDrive.id,
       });
       break;
     case TransferTypes.LOCALEXPORT:
       promise = TaskResource.startDiskContentExport({
         ...params,
-        drive_id: selectedDrive.driveId,
+        drive_id: selectedDrive.id,
       });
   }
   return promise;

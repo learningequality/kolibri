@@ -86,7 +86,7 @@ describe('showSelectContentPage action', () => {
   function setUpStateForTransferType(transferType) {
     store.state.pageState.wizardState.transferType = transferType;
     store.state.pageState.wizardState.selectedDrive = {
-      driveId: `${transferType}_specs_drive`,
+      id: `${transferType}_specs_drive`,
     };
     store.state.pageState.wizardState.transferredChannel = {
       id: `${transferType}_brand_new_channel`,

@@ -2,6 +2,7 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
+import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import mutations from '../../state/mutations';
@@ -35,11 +36,12 @@ describe('contentTreeViewer actions', () => {
   let store;
 
   function assertIncludeEquals(expected) {
-    assert.deepEqual(nodesForTransfer(store.state).included, expected);
+    // HACK add the hard-coded file sizes to the expected array
+    assert.deepEqual(nodesForTransfer(store.state).included, expected.map(addFileSizes));
   }
 
   function assertOmitEquals(expected) {
-    assert.deepEqual(nodesForTransfer(store.state).omitted, expected);
+    assert.deepEqual(nodesForTransfer(store.state).omitted, expected.map(addFileSizes));
   }
 
   function assertFilesResourcesEqual(expectedFiles, expectedResources) {
@@ -50,16 +52,40 @@ describe('contentTreeViewer actions', () => {
   }
 
   function setIncludedNodes(nodes) {
-    nodesForTransfer(store.state).included = nodes;
+    nodesForTransfer(store.state).included = nodes.map(addFileSizes);
   }
 
   function setOmittedNodes(nodes) {
-    nodesForTransfer(store.state).omitted = nodes;
+    nodesForTransfer(store.state).omitted = nodes.map(addFileSizes);
   }
+
+  before(() => {
+    ContentNodeGranularResource.getFileSizes = sinon.stub();
+  });
 
   beforeEach(() => {
     store = makeStore();
+    // For now, just keep it simple and make the file size result 0/1
+    // TODO extend this mock to return arbitrary file sizes
+    ContentNodeGranularResource.getFileSizes.returns(Promise.resolve({
+      entity: {
+        total_file_size: 1,
+        on_device_file_size: 0,
+      },
+    }));
   });
+
+  afterEach(() => {
+    ContentNodeGranularResource.getFileSizes.reset();
+  });
+
+  function addFileSizes(node) {
+    return {
+      ...node,
+      total_file_size: 1,
+      on_device_file_size: 0,
+    }
+  }
 
   /**
    * Notes:
@@ -73,41 +99,48 @@ describe('contentTreeViewer actions', () => {
     it('adding a single Node to empty list', () => {
       // ...straightforwardly adds it to `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      addNodeForTransfer(store, node_1);
-      assertIncludeEquals([node_1]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(1, 1);
+      return addNodeForTransfer(store, node_1)
+        .then(() => {
+          assertIncludeEquals([node_1]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(1, 1);
+        });
     });
 
     it('adding Nodes that are not parent/child to each other', () => {
       // ...straightforwardly adds both to `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const node_2 = makeNode('2_2_1', { path: simplePath('2', '2_2') });
-      addNodeForTransfer(store, node_1);
-      addNodeForTransfer(store, node_2);
-      assertIncludeEquals([node_1, node_2]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(2, 2);
+      return addNodeForTransfer(store, node_1)
+      .then(() => {
+        return addNodeForTransfer(store, node_2);
+      })
+      .then(() => {
+        assertIncludeEquals([node_1, node_2]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(2, 2);
+      });
+      // console.log(store.state.pageState.wizardState.nodesForTransfer.included);
     });
 
     it('when a Node with descendants in `include` is added', () => {
       // ...the descendants are removed from `include`, because they are made redundant by the Node
       const ancestorNode = makeNode('1_1', {
         path: simplePath('1'),
-        on_device_file_size: 40,
         on_device_resources: 3,
-        total_file_size: 50,
         total_resources: 10,
       });
       const descendantNode_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const descendantNode_2 = makeNode('1_1_1_1', { path: simplePath('1', '1_1', '1_1_1') });
-      addNodeForTransfer(store, descendantNode_1);
-      addNodeForTransfer(store, descendantNode_2);
-      addNodeForTransfer(store, ancestorNode);
-      assertIncludeEquals([ancestorNode]);
-      assertOmitEquals([]);
-      // files/resources are not double counted
-      assertFilesResourcesEqual(50, 10);
+      return addNodeForTransfer(store, descendantNode_1)
+        .then(() => addNodeForTransfer(store, descendantNode_2))
+        .then(() => addNodeForTransfer(store, ancestorNode))
+        .then(() => {
+          assertIncludeEquals([ancestorNode]);
+          assertOmitEquals([]);
+          // files/resources are not double counted
+          assertFilesResourcesEqual(1, 10);
+        });
     });
 
     it('when a Node in `omit` is re-added', () => {
@@ -117,10 +150,12 @@ describe('contentTreeViewer actions', () => {
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
       setIncludedNodes([]);
       setOmittedNodes([node, childNode, siblingNode])
-      addNodeForTransfer(store, node);
-      assertIncludeEquals([node]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(1, 1);
+      return addNodeForTransfer(store, node)
+        .then(() => {
+          assertIncludeEquals([node]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(1, 1);
+        });
     });
 
     // The case where all descendants of a node are selected is handled at select-content-page,
@@ -132,13 +167,17 @@ describe('contentTreeViewer actions', () => {
     it('removing a single Node that was originally in `include`', () => {
       // ...straightforwardly removes it from `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      addNodeForTransfer(store, node_1);
-      assertIncludeEquals([node_1]);
-      assertOmitEquals([]);
-      removeNodeForTransfer(store, node_1);
-      assertIncludeEquals([]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(0 ,0);
+      return addNodeForTransfer(store, node_1)
+        .then(() => {
+          assertIncludeEquals([node_1]);
+          assertOmitEquals([]);
+          return removeNodeForTransfer(store, node_1);
+        })
+        .then(() => {
+          assertIncludeEquals([]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(0 ,0);
+        });
     });
 
     it('removing a descendant of an included Node', () => {
@@ -146,33 +185,39 @@ describe('contentTreeViewer actions', () => {
       const parentNode = makeNode('1_1', {
         path: simplePath('1'),
         total_resources: 50,
-        total_file_size: 50,
         on_device_resources: 20,
-        on_device_file_size: 20,
       });
       const childNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
         total_resources: 20,
-        total_file_size: 20,
         on_device_resources: 10,
-        on_device_file_size: 10,
       });
-      addNodeForTransfer(store, parentNode);
-      removeNodeForTransfer(store, childNode);
-      assertIncludeEquals([parentNode]);
-      assertOmitEquals([childNode]);
-      assertFilesResourcesEqual(30, 30);
+      return addNodeForTransfer(store, parentNode)
+        .then(() => {
+          return removeNodeForTransfer(store, childNode);
+        })
+        .then(() => {
+          assertIncludeEquals([parentNode]);
+          assertOmitEquals([childNode]);
+          assertFilesResourcesEqual(0, 30);
+        });
     });
 
     it('removing a sibling is same as removing single Node', () => {
       const node_1 = makeNode('1_1', { path: simplePath('1') });
       const node_2 = makeNode('1_2', { path: simplePath('1') });
-      addNodeForTransfer(store, node_1);
-      addNodeForTransfer(store, node_2);
-      removeNodeForTransfer(store, node_2);
-      assertIncludeEquals([node_1]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(1 ,1);
+      return addNodeForTransfer(store, node_1)
+        .then(() => {
+          return addNodeForTransfer(store, node_2);
+        })
+        .then(() => {
+          removeNodeForTransfer(store, node_2);
+        })
+        .then(() => {
+          assertIncludeEquals([node_1]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(1, 1);
+        });
     });
 
     it('removing a Node removes it and all descendants from `include`', () => {
@@ -195,33 +240,29 @@ describe('contentTreeViewer actions', () => {
       // May need to remove or rewrite this test.
       setIncludedNodes([node, childNode, grandchildNode]);
       setOmittedNodes([])
-      removeNodeForTransfer(store, node);
-      assertIncludeEquals([]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(0 ,0);
+      return removeNodeForTransfer(store, node)
+        .then(() => {
+          assertIncludeEquals([]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(0, 0);
+        });
     });
 
     it('removing a Node removes its descendants from `omit`', () => {
       // ...since they are redundant
       const topNode = makeNode('1', {
         path: simplePath(),
-        on_device_file_size: 80,
         on_device_resources: 8,
-        total_file_size: 160,
         total_resources: 15,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
-        on_device_file_size: 20,
         on_device_resources: 2,
-        total_file_size: 40,
         total_resources: 10,
       });
       const grandchildNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
-        on_device_file_size: 50,
         on_device_resources: 0,
-        total_file_size: 100,
         total_resources: 5,
       });
       setIncludedNodes([topNode]);
@@ -229,10 +270,12 @@ describe('contentTreeViewer actions', () => {
       // Not sure this is possible in practice. On UI, childNode will
       // be indeterminate, so user will need to click it once, making it selected
       // which will then remove grandchildNode. After then, they can de-select it.
-      removeNodeForTransfer(store, childNode);
-      assertIncludeEquals([topNode]);
-      assertOmitEquals([childNode]);
-      assertFilesResourcesEqual(120, 5);
+      return removeNodeForTransfer(store, childNode)
+        .then(() => {
+          assertIncludeEquals([topNode]);
+          assertOmitEquals([childNode]);
+          assertFilesResourcesEqual(0, 5);
+        });
     });
 
     it('when removing a Node leads to an included parent Node being un-selected', () => {
@@ -257,10 +300,12 @@ describe('contentTreeViewer actions', () => {
       });
       setIncludedNodes([topNode]);
       setOmittedNodes([childNode])
-      removeNodeForTransfer(store, siblingNode);
-      assertIncludeEquals([]);
-      assertOmitEquals([]);
-      assertFilesResourcesEqual(0 ,0);
+      return removeNodeForTransfer(store, siblingNode)
+        .then(() => {
+          assertIncludeEquals([]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(0, 0);
+        });
     });
   });
 });

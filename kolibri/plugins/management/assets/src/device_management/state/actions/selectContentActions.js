@@ -46,11 +46,9 @@ export function showSelectContentPage(store) {
  */
 export function updateTreeViewTopic(store, topic) {
   const { transferType, selectedDrive } = wizardState(store.state);
-  const fetchArgs = {
-    import_export: transferType === TransferTypes.LOCALEXPORT ? 'export' : 'import',
-  };
+  const fetchArgs = {};
   if (transferType === TransferTypes.LOCALIMPORT) {
-    fetchArgs.drive_id = selectedDrive.driveId;
+    fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
   return (
     ContentNodeGranularResource.getModel(topic.pk)
@@ -73,13 +71,21 @@ export function updateTreeViewTopic(store, topic) {
  * @returns {Promise}
  */
 export function getAvailableSpaceOnDrive(store, path = '') {
-  const params = path ? { path } : {};
-  return client({
-    path: `${urls['freespace']()}`,
-    params,
-  })
-    .then(({ entity }) => {
-      return store.dispatch('SET_AVAILABLE_SPACE', entity.freespace);
+  const { transferType, selectedDrive } = wizardState(store.state);
+  let promise;
+
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    promise = Promise.resolve(selectedDrive.freespace);
+  } else {
+    const params = path ? { path } : {};
+    promise = client({
+      path: `${urls['freespace']()}`,
+      params,
+    }).then(({ entity }) => entity.freespace);
+  }
+  return promise
+    .then(freespace => {
+      return store.dispatch('SET_AVAILABLE_SPACE', freespace);
     })
     .catch(() => {
       // UI will handle this gracefully with something instead of throwing an error

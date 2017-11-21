@@ -129,9 +129,8 @@ describe('availableChannelsPage', () => {
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
     setTransferType('localexport');
     store.state.pageState.wizardState.selectedDrive = {
-      driveId: 'f9e29616935fbff37913ed46bf20e2c0',
-      driveName: 'SANDISK (F:)',
-      type: 'LOCAL_DRIVE',
+      id: 'f9e29616935fbff37913ed46bf20e2c0',
+      name: 'SANDISK (F:)',
     };
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
@@ -142,9 +141,8 @@ describe('availableChannelsPage', () => {
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
     setTransferType('localimport');
     store.state.pageState.wizardState.selectedDrive = {
-      driveId: 'f9e29616935fbff37913ed46bf20e2c0',
-      driveName: 'SANDISK (G:)',
-      type: 'LOCAL_DRIVE',
+      id: 'f9e29616935fbff37913ed46bf20e2c0',
+      name: 'SANDISK (G:)',
     };
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);

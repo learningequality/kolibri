@@ -16,7 +16,7 @@
         <k-checkbox
           :label="$tr('selectAll')"
           :checked="nodeIsChecked(annotatedTopicNode)"
-          :disabled="annotatedTopicNode.disabled"
+          :disabled="disableAll || annotatedTopicNode.disabled"
           @change="toggleSelectAll"
         />
       </div>
@@ -25,9 +25,9 @@
         <content-node-row
           v-for="node in annotatedChildNodes"
           :checked="nodeIsChecked(node)"
-          :disabled="node.disabled"
+          :disabled="disableAll || node.disabled"
           :indeterminate="nodeIsIndeterminate(node)"
-          :key="node.id"
+          :key="node.pk"
           :message="node.message"
           :node="node"
           @clicktopic="updateCurrentTopicNode(node)"
@@ -74,6 +74,11 @@
       contentNodeRow,
       kBreadcrumbs,
       kCheckbox,
+    },
+    data() {
+      return {
+        disableAll: false,
+      };
     },
     computed: {
       childNodesWithPath() {
@@ -132,14 +137,20 @@
         // When the clicked node would put the parent at 100% included,
         // add the parent (as a side effect, all the children are removed from "include").
         const sanitized = sanitizeNode(node);
+        this.disableAll = true;
+        let promise;
         if (this.nodeIsChecked(node)) {
-          return this.removeNodeForTransfer(sanitized);
+          promise = this.removeNodeForTransfer(sanitized);
         } else {
           if (this.nodeCompletesParent(node)) {
-            return this.addNodeForTransfer(sanitizeNode(this.annotatedTopicNode));
+            promise = this.addNodeForTransfer(sanitizeNode(this.annotatedTopicNode));
           }
-          return this.addNodeForTransfer(sanitized);
+          promise = this.addNodeForTransfer(sanitized);
         }
+        return promise.then(() => {
+          this.disableAll = false;
+          this.$forceUpdate();
+        });
       },
     },
     vuex: {
