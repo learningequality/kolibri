@@ -40,8 +40,6 @@
       tryNow: 'Try now',
       tryingToReconnect: 'Trying to reconnect...',
       successfullyReconnected: 'Successfully reconnected!',
-      signedOut: 'You were automatically signed out due to inactivity',
-      dismiss: 'Dismiss',
     },
     computed: {
       disconnected() {
