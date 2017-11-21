@@ -5,24 +5,32 @@
     :enableBgClickCancel="false"
     hideTopButtons
   >
-    <div
-      v-if="driveStatus==='LOADING'"
-      class="drive-list-loading"
-    >
-      {{ $tr('findingLocalDrives') }}
-    </div>
+    <transition mode="out-in">
+      <ui-alert
+        v-if="driveStatus==='LOADING'"
+        type="info"
+        :dismissible="false"
+      >
+        <span class="finding-local-drives">
+          {{ $tr('findingLocalDrives') }}
+        </span>
+      </ui-alert>
 
-    <ui-alert
-      v-if="driveStatus==='ERROR'"
-      type="error"
-    >
-      {{ $tr('problemFindingLocalDrives') }}
-    </ui-alert>
+      <ui-alert
+        v-else-if="driveStatus==='ERROR'"
+        type="error"
+        :dismissible="false"
+      >
+        {{ $tr('problemFindingLocalDrives') }}
+      </ui-alert>
+
+    </transition>
 
     <drive-list
-      v-else
+      v-if="driveStatus===''"
       v-model="selectedDriveId"
       :drives="enabledDrives"
+      :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
     />
 
     <div class="buttons">

@@ -7,6 +7,7 @@ import sinon from 'sinon';
 import SelectDriveModal from '../../views/manage-content-page/wizards/select-drive-modal';
 import { wizardState } from '../../state/getters';
 import coreModal from 'kolibri.coreVue.components.coreModal';
+import UiAlert from 'keen-ui/src/UiAlert';
 
 SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
 
@@ -64,6 +65,8 @@ function getElements(wrapper) {
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
     cancelButton: () => wrapper.find('.buttons button')[0],
     continueButton: () => wrapper.find('.buttons button')[1],
+    UiAlerts: () => wrapper.find(UiAlert),
+    findingLocalDrives: () => wrapper.find('.finding-local-drives'),
   }
 }
 
@@ -96,12 +99,11 @@ describe('selectDriveModal component', () => {
 
   it('when drive list is loading, show a message', () => {
     const wrapper = makeWrapper({ store });
-    const { driveListLoadingText } = getElements(wrapper);
-    // need to wait for next tick, since driveStatus is assigned during mounting
     return wrapper.vm.$nextTick()
       .then(() => {
-        assert.equal(driveListLoadingText(), 'Finding local drives…');
-      });
+        const alert = wrapper.find(UiAlert)[0];
+        assert.equal(alert.text().trim(), 'Finding local drives…');
+    });
   });
 
   it('when drive list is loaded, it shows the drive-list component ', () => {
@@ -109,7 +111,6 @@ describe('selectDriveModal component', () => {
     const { driveListContainer, driveListLoading } = getElements(wrapper);
     return wrapper.vm.$nextTick()
       .then(() => {
-        // maybe have to wait another tick for refreshDrive list to resolve...
         return wrapper.vm.$nextTick();
       })
       .then(() => {
@@ -119,6 +120,7 @@ describe('selectDriveModal component', () => {
   });
 
   it('in import mode, drive-list only shows the drives with content', () => {
+    setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
     assert(writableImportableRadio()[0].is('input'));
@@ -135,18 +137,21 @@ describe('selectDriveModal component', () => {
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
+    setTransferType('localimport');
     wizardState(store.state).driveList.forEach(d => { d.metadata.channels = []; });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find('.drive-list h2');
-    assert.equal(driveListText[0].text().trim(), 'No drives were detected');
+    const driveListText = wrapper.find(UiAlert);
+    const expectedMessage = 'No drives with Kolibri content are connected to the server';
+    assert.equal(driveListText[0].text().trim(), expectedMessage);
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
     setTransferType('localexport');
     wizardState(store.state).driveList.forEach(d => { d.writable = false; });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find('.drive-list h2');
-    assert.equal(driveListText[0].text().trim(), 'No drives were detected');
+    const driveListText = wrapper.find(UiAlert);
+    const expectedMessage = 'No drives that can be written to are connected to the server';
+    assert.equal(driveListText[0].text().trim(), expectedMessage);
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {

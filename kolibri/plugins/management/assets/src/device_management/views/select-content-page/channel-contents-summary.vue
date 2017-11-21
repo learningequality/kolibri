@@ -1,4 +1,5 @@
 <template>
+
   <section>
     <div class="channel-header">
       <img
@@ -37,6 +38,7 @@
       </tr>
     </table>
   </section>
+
 </template>
 
 

@@ -2,10 +2,12 @@
 
   <div class="drive-list">
     <div v-if="drives.length === 0">
-      <h2 class="core-text-alert">
-        <mat-svg class="error-svg" category="alert" name="error_outline" />
-        {{ $tr('noDrivesDetected') }}
-      </h2>
+      <ui-alert
+        type="info"
+        :dismissible="false"
+      >
+        {{ noDrivesText }}
+      </ui-alert>
     </div>
 
     <div v-else>
@@ -27,13 +29,21 @@
 <script>
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import UiAlert from 'keen-ui/src/UiAlert';
 
   export default {
     name: 'wizardDriveList',
-    components: { kRadioButton },
+    components: {
+      kRadioButton,
+      UiAlert,
+    },
     props: {
       drives: {
         type: Array,
+        required: true,
+      },
+      mode: {
+        type: String,
         required: true,
       },
       value: {
@@ -45,6 +55,14 @@
       return {
         selectedDrive: '',
       };
+    },
+    computed: {
+      noDrivesText() {
+        if (this.mode === 'IMPORT') {
+          return this.$tr('noImportableDrives');
+        }
+        return this.$tr('noExportableDrives');
+      },
     },
     mounted() {
       this.selectedDrive = this.value;
@@ -63,8 +81,8 @@
     },
     $trs: {
       drivesFound: 'Drives found',
-      // TODO add message for export and import modes, explaining what counts as a valid drive
-      noDrivesDetected: 'No drives were detected',
+      noImportableDrives: 'No drives with Kolibri content are connected to the server',
+      noExportableDrives: 'No drives that can be written to are connected to the server',
     },
   };
 

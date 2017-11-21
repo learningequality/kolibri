@@ -28,7 +28,7 @@
     <ui-alert
       v-if="remainingSpaceAfterTransfer<=0"
       type="error"
-      :dismissable="false"
+      :dismissible="false"
     >
       {{ $tr('notEnoughSpace') }}
     </ui-alert>
