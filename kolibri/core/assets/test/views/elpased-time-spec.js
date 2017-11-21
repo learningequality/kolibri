@@ -128,7 +128,7 @@ describe('elapsed time component', () => {
     assert.equal(/day/.test(timeText), true);
   });
 
-  it('should use week if the date passed is 7 days ago', () => {
+  it('should use weeks if the date passed is 7 days ago', () => {
     const date7DaysAgo = new Date(DUMMY_CURRENT_DATE);
     date7DaysAgo.setDate(date7DaysAgo.getDate() - 7);
     const wrapper = makeWrapper({
@@ -143,7 +143,7 @@ describe('elapsed time component', () => {
     assert.equal(/week/.test(timeText), true);
   });
 
-  it('should use week if the date passed is 1 week ago', () => {
+  it('should use weeks if the date passed is 1 week ago', () => {
     const date1WeekAgo = new Date(DUMMY_CURRENT_DATE);
     date1WeekAgo.setDate(date1WeekAgo.getDate() - 7);
     const wrapper = makeWrapper({
@@ -159,7 +159,7 @@ describe('elapsed time component', () => {
     assert.equal(/week/.test(timeText), true);
   });
 
-  it('should use month if the date passed is 4 weeks ago', () => {
+  it('should use months if the date passed is 4 weeks ago', () => {
     const date4WeeksAgo = new Date(DUMMY_CURRENT_DATE);
     date4WeeksAgo.setMonth(date4WeeksAgo.getMonth() - 1);
     const wrapper = makeWrapper({
@@ -174,7 +174,7 @@ describe('elapsed time component', () => {
     assert.equal(/month/.test(timeText), true);
   });
 
-  it('should use month if the date passed is 1 month ago', () => {
+  it('should use months if the date passed is 1 month ago', () => {
     const date1MonthAgo = new Date(DUMMY_CURRENT_DATE);
     date1MonthAgo.setMonth(date1MonthAgo.getMonth() - 1);
     const wrapper = makeWrapper({
@@ -189,7 +189,7 @@ describe('elapsed time component', () => {
     assert.equal(/month/.test(timeText), true);
   });
 
-  it('should use year if the date passed is 12 months ago', () => {
+  it('should use years if the date passed is 12 months ago', () => {
     const date12MonthsAgo = new Date(DUMMY_CURRENT_DATE);
     date12MonthsAgo.setMonth(date12MonthsAgo.getMonth() - 12);
     const wrapper = makeWrapper({
@@ -204,7 +204,7 @@ describe('elapsed time component', () => {
     assert.equal(/year/.test(timeText), true);
   });
 
-  it('should use year if the date passed is 1 year ago', () => {
+  it('should use years if the date passed is 1 year ago', () => {
     const date1YearAgo = new Date(DUMMY_CURRENT_DATE);
     date1YearAgo.setYear(date1YearAgo.getYear() - 1);
     const wrapper = makeWrapper({
