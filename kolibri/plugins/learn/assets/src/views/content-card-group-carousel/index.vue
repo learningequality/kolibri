@@ -50,11 +50,12 @@
             :id="content.id">
 
             <content-card
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :kind="content.kind"
-            :progress="content.progress"
-            :link="genContentLink(content.id, content.kind)" />
+              class="content-card-component"
+              :title="content.title"
+              :thumbnail="content.thumbnail"
+              :kind="content.kind"
+              :progress="content.progress"
+              :link="genContentLink(content.id, content.kind)" />
           </slot>
       </div>
 
@@ -107,6 +108,8 @@
         leftToRight: false,
         // tracks whether the carousel has been interacted with
         interacted: false,
+        contentCardWidth,
+        gutterWidth,
       };
     },
     computed: {
