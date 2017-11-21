@@ -95,6 +95,17 @@ export default class TaskResource extends Resource {
     });
   }
 
+  /**
+   * Gets all the Tasks outside of the Resource Layer mechanism
+   *
+   */
+  getTasks() {
+    return this.client({
+      path: this.urls[`${this.name}_list`](),
+      method: 'GET',
+    });
+  }
+
   deleteChannel(channelId) {
     const clientObj = {
       path: this.deleteChannelUrl(),

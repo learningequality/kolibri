@@ -46,6 +46,7 @@ export function annotateNode(node, selectedNodes) {
   const isIncluded = find(selectedNodes.included, { pk: node.pk });
   const isOmitted = find(selectedNodes.omitted, { pk: node.pk });
   const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));
+  const ancestorIsOmitted = find(selectedNodes.omitted, oNode => isAncestorOf(oNode, node));
 
   // Completely on device -> DISABLED
   if (on_device_resources === total_resources) {
@@ -57,8 +58,7 @@ export function annotateNode(node, selectedNodes) {
     };
   }
 
-  // TODO see if !isOmitted is unnecessary after fixes to add/remove Node actions
-  if (!isOmitted && (isIncluded || ancestorIsIncluded)) {
+  if (!(isOmitted || ancestorIsOmitted) && (isIncluded || ancestorIsIncluded)) {
     const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
@@ -104,8 +104,7 @@ export function annotateNode(node, selectedNodes) {
 
   if (fullyIncludedDescendants.length > 0) {
     const fullIncludedDescendantsResources =
-      sumTotalResources(fullyIncludedDescendants) -
-      sumOnDeviceResources(fullyIncludedDescendants);
+      sumTotalResources(fullyIncludedDescendants) - sumOnDeviceResources(fullyIncludedDescendants);
 
     // Node is not selected, has all children selected -> CHECKED
     if (fullIncludedDescendantsResources === total_resources - on_device_resources) {

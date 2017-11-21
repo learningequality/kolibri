@@ -14,7 +14,7 @@
       />
       <task-progress
         v-if="tasksInQueue"
-        type="UPDATING_CHANNEL"
+        type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="firstTask"
         :cancellable="false"
       />

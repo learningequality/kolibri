@@ -14,7 +14,6 @@ function updateTasks(store, tasks) {
 }
 
 function triggerTask(store, taskPromise) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   return taskPromise
     .then(function onSuccess(task) {
       updateTasks(store, [task.entity]);
@@ -27,7 +26,6 @@ function triggerTask(store, taskPromise) {
         errorText = error.status.text;
       }
       store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
     });
 }
 
@@ -39,13 +37,8 @@ export function triggerChannelDeleteTask(store, channelId) {
 const simplifyTask = pick(['id', 'status', 'percentage']);
 
 function _taskListShouldUpdate(state, newTasks) {
-    const oldTasks = state.pageState.taskList;
-    const oldTask = simplifyTask(oldTasks[0] || {});
-    const newTask = simplifyTask(newTasks[0] || {});
-    return (
-      newTasks.length !== oldTasks.length ||
-      !isEqual(oldTask, newTask)
-    );
+  const oldTasks = state.pageState.taskList;
+  return !isEqual(oldTasks.map(simplifyTask), newTasks.map(simplifyTask));
 }
 
 /**
@@ -53,13 +46,11 @@ function _taskListShouldUpdate(state, newTasks) {
  *
  */
 export function refreshTaskList(store) {
-  return TaskResource.getCollection()
-    .fetch({}, true)
-    .then(newTasks => {
-      if (_taskListShouldUpdate(store.state, newTasks)) {
-        updateTasks(store, newTasks);
-      }
-    });
+  return TaskResource.getTasks().then(({ entity: newTasks }) => {
+    if (_taskListShouldUpdate(store.state, newTasks)) {
+      updateTasks(store, newTasks);
+    }
+  });
 }
 
 /**
@@ -67,8 +58,7 @@ export function refreshTaskList(store) {
  *
  */
 export function refreshDriveList(store) {
-  return TaskResource.localDrives()
-    .then(({ entity }) => {
-      store.dispatch('SET_DRIVE_LIST', entity);
-    });
+  return TaskResource.localDrives().then(({ entity }) => {
+    store.dispatch('SET_DRIVE_LIST', entity);
+  });
 }
