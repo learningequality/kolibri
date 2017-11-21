@@ -19,6 +19,7 @@
   {% endif %}
 </head>
 <body>
+{% if supported_browser %}
 <rootvue>
   <style>
     .loading-spinner-wrapper-base{
@@ -76,5 +77,10 @@
 
 {% endblock %}
 
+{% else %}
+
+Sorry, mate. Use a better browser.
+
+{% endif %}
 </body>
 </html>
