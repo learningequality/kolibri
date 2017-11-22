@@ -5,6 +5,23 @@ To install and subscribe to updates for Debian/Ubuntu/Raspbian, visit our PPA:
 
 `https://launchpad.net/~learningequality/+archive/ubuntu/kolibri <https://launchpad.net/~learningequality/+archive/ubuntu/kolibri`__
 
+
+Development roadmap
+-------------------
+
+Pending decisions:
+
+* This is Python 3 ONLY for now.
+* All dependencies are bundled.
+* ``python3-cryptography`` is a suggested dependency, but is quite important
+* How do we get rid of bundled c-extensions upstream (in Python pkg) and replace them with real dependencies
+
+Upcoming changes:
+
+* Startup service
+* A package with Nginx proxy config for static media and video streaming
+
+
 Installation instructions
 -------------------------
 
