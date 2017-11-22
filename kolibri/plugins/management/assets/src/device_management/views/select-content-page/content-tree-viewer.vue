@@ -144,8 +144,9 @@
         } else {
           if (this.nodeCompletesParent(node)) {
             promise = this.addNodeForTransfer(sanitizeNode(this.annotatedTopicNode));
+          } else {
+            promise = this.addNodeForTransfer(sanitized);
           }
-          promise = this.addNodeForTransfer(sanitized);
         }
         return promise.then(() => {
           this.disableAll = false;

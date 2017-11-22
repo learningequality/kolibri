@@ -31,7 +31,7 @@
       </section>
 
       <section
-        v-if="channelOnDevice.version"
+        v-if="channelOnDevice.on_device_resources > 0"
         class="updates"
       >
         <div

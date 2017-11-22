@@ -26,7 +26,6 @@ export const CheckboxTypes = {
 const isAncestorOf = (a, b) => find(b.path, { pk: a.pk });
 const isDescedantOf = flip(isAncestorOf);
 const sumTotalResources = sumBy('total_resources');
-// TODO name change!!!
 const sumOnDeviceResources = sumBy('on_device_resources');
 
 /**
@@ -41,7 +40,6 @@ const sumOnDeviceResources = sumBy('on_device_resources');
  *
  */
 export function annotateNode(node, selectedNodes) {
-  // TODO needs to be renamed!!!
   const { on_device_resources, total_resources } = node;
   const isIncluded = find(selectedNodes.included, { pk: node.pk });
   const isOmitted = find(selectedNodes.omitted, { pk: node.pk });
