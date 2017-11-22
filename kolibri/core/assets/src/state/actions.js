@@ -731,7 +731,19 @@ function updateMasteryAttemptState(
 }
 
 function tryToReconnect(store) {
+  showTryingToReconnectSnackbar(store);
+}
+
+function showDisconnectedSnackbar(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.DISCONNECTED);
+}
+
+function showTryingToReconnectSnackbar(store) {
   store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.TRYING_TO_RECONNECT);
+}
+
+function showSuccessfullyReconnectedSnackbar(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.SUCCESSFULLY_RECONNECTED);
 }
 
 function clearSnackbar(store) {
@@ -765,6 +777,9 @@ export {
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
-  clearSnackbar,
   tryToReconnect,
+  showDisconnectedSnackbar,
+  showTryingToReconnectSnackbar,
+  showSuccessfullyReconnectedSnackbar,
+  clearSnackbar,
 };

@@ -3,6 +3,7 @@
   <div>
     <core-snackbar
       v-if="disconnected"
+      class="disconnected-snackbar"
       :text="$tr('disconnected', { remainingTime } )"
       :actionText="$tr('tryNow')"
       :backdrop="true"
@@ -10,11 +11,13 @@
     />
     <core-snackbar
       v-if="tryingToReconnect"
+      class="trying-to-reconnect-snackbar"
       :text="$tr('tryingToReconnect')"
       :backdrop="true"
     />
     <core-snackbar
       v-if="successfullyReconnected"
+      class="successfully-reconnected-snackbar"
       :text="$tr('successfullyReconnected')"
       :autoDismiss="true"
     />
