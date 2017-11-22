@@ -27,6 +27,11 @@ class ChannelMetadataFilter(filters.FilterSet):
     available = filters.django_filters.MethodFilter()
 
     def filter_available(self, queryset, value):
+        if value == "true":
+            value = True
+        else:
+            value = False
+
         return queryset.filter(root__available=value)
 
     class Meta:
@@ -395,7 +400,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             "lang_name": channel_lang_name,
             "thumbnail": studioresp.get("icon_encoding"),
             "public": studioresp.get("public", True),
-            "total_resource_count": studioresp.get("total_resource_count", 0),
+            "total_resources": studioresp.get("total_resource_count", 0),
             "version": studioresp.get("version", 0),
             "included_languages": included_languages,
             "last_updated": studioresp.get("last_published"),

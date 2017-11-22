@@ -84,6 +84,11 @@
         type: Boolean,
         default: true,
       },
+      // reserve space at the bottom for floating widgets
+      bottomMargin: {
+        type: Number,
+        default: 0,
+      },
     },
     vuex: {
       getters: {
@@ -111,6 +116,7 @@
           paddingTop: padding,
           paddingLeft: padding,
           paddingRight: padding,
+          marginBottom: this.bottomMargin + 'px',
         };
       },
     },

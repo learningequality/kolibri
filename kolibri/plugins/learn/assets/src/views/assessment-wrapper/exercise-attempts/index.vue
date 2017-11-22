@@ -1,20 +1,20 @@
 <template>
 
   <div class="wrapper">
-    <transition-group name="fade">
-      <div
-        class="answer"
-        v-for="(item, index) in itemsToRender"
-        :style="styleForIndex(index, item.originalIndex)"
-        :key="item.originalIndex"
-      >
-        <answer-icon :answer="item.answer" :success="success" />
-      </div>
-    </transition-group>
+    <div
+      class="answer"
+      v-for="(item, index) in itemsToRender"
+      :style="styleForIndex(index, item.originalIndex)"
+      :key="item.originalIndex"
+    >
+      <transition name="fade">
+        <answer-icon :answer="item.answer" />
+      </transition>
+    </div>
     <div
       class="placeholder"
       v-for="i in numSpaces"
-      :class="{'placeholder-empty': i === 0 && waitingForAttempt}"
+      :class="{ 'placeholder-first': i === 1 }"
       :key="i"
     ></div>
   </div>
@@ -30,11 +30,6 @@
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
-        type: Boolean,
-        required: true,
-      },
-      // Visually indicate that the user has succeeded
-      success: {
         type: Boolean,
         required: true,
       },
@@ -128,7 +123,7 @@
     border-bottom: 1px solid $core-text-annotation
     transition: border-bottom 0.1s linear
 
-  .placeholder-empty
+  .placeholder-first
     border-bottom: 3px solid $core-text-annotation
 
 </style>

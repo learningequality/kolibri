@@ -43,7 +43,7 @@ const routes = [
   },
   {
     name: PageNames.FACILITY_CONFIG_PAGE,
-    path: '/configuration',
+    path: '/settings',
     handler: () => {
       actions.showFacilityConfigPage(store);
     },

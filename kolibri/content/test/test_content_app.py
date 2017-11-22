@@ -179,14 +179,14 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 4, "resources_on_device": 0, "importable": True, "children": [
+                "total_resources": 4, "on_device_resources": 0, "importable": True, "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "resources_on_device": 0, "importable": True
+                        "total_resources": 1, "on_device_resources": 0, "importable": True
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 3, "resources_on_device": 0, "importable": True}]})
+                        "total_resources": 3, "on_device_resources": 0, "importable": True}]})
 
     @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
@@ -205,15 +205,15 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 4, "resources_on_device": 0, "importable": True,
+                "total_resources": 4, "on_device_resources": 0, "importable": True,
                 "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "resources_on_device": 0, "importable": False
+                        "total_resources": 1, "on_device_resources": 0, "importable": False
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 3, "resources_on_device": 0, "importable": True
+                        "total_resources": 3, "on_device_resources": 0, "importable": True
                     }]
             })
 
@@ -223,7 +223,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "c1", "kind": "video", "available": True,
-                "total_resources": 1, "resources_on_device": 1, "importable": True,
+                "total_resources": 1, "on_device_resources": 1, "importable": True,
                 "children": []})
 
     def test_contentnode_granular_export_unavailable(self):
@@ -233,7 +233,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "c1", "kind": "video", "available": False,
-                "total_resources": 1, "resources_on_device": 0, "importable": True,
+                "total_resources": 1, "on_device_resources": 0, "importable": True,
                 "children": []})
 
     def test_contentnodefilesize_resourcenode(self):
@@ -308,6 +308,19 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
         self.assertEqual(response.data['lang_code'], None)
         self.assertEqual(response.data['lang_name'], None)
+
+    def test_channelmetadata_content_available_filter_lowercase_true(self):
+        response = self.client.get(reverse("channel-list"), {"available": "true"})
+        self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
+
+    def test_channelmetadata_content_available_filter_uppercase_true(self):
+        response = self.client.get(reverse("channel-list"), {"available": True})
+        self.assertEqual(response.data, [])
+
+    def test_channelmetadata_content_unavailable_filter_false(self):
+        content.ContentNode.objects.filter(title="root").update(available=False)
+        response = self.client.get(reverse("channel-list"), {"available": False})
+        self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))

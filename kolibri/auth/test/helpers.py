@@ -8,9 +8,8 @@ from kolibri.core.device.models import DevicePermissions, DeviceSettings
 
 
 def create_superuser(facility, username="superuser"):
-    from .test_api import DUMMY_PASSWORD
     superuser = FacilityUser.objects.create(username=username, facility=facility)
-    superuser.set_password(DUMMY_PASSWORD)
+    superuser.set_password("password")
     superuser.save()
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser

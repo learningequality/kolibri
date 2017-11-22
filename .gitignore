@@ -23,6 +23,11 @@ lib
 lib64
 pip
 
+# Build configurations
+kolibri/utils/build_config
+# This can be dynamically changed at build time, and it should never change otherwise
+requirements.txt
+
 # Installer logs
 pip-log.txt
 
@@ -54,12 +59,11 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+docs-developer/_build
 
 # api-docs
-docs/py_modules/kolibri*rst
-docs/py_modules/modules.rst
-docs/kolibri*rst # old location
-docs/modules.rst # old location
+docs-developer/py_modules/kolibri*rst
+docs-developer/py_modules/modules.rst
 
 # node
 node_modules
