@@ -74,7 +74,7 @@
     components: {
       uiToolbar,
       uiIconButton,
-      keenMenuPort,
+      customUiMenu,
       uiButton,
       languageSwitcherModal,
     },
@@ -109,16 +109,6 @@
       showLanguageModal: false,
       userMenuDropdownIsOpen: false,
     }),
-<<<<<<< HEAD
-=======
-    components: {
-      uiToolbar,
-      uiIconButton,
-      customUiMenu,
-      uiButton,
-      languageSwitcher,
-    },
->>>>>>> le/release-v0.6.x
     computed: {
       userMenuOptions() {
         const changeLanguage = {

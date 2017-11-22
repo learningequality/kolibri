@@ -2,7 +2,7 @@
 
   <div>
     <ul class="ui-menu" role="menu" :class="classes">
-      <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
+      <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
       <menu-option
         :disableRipple="disableRipple"
         :disabled="option[keys.disabled]"

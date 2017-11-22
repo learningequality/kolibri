@@ -3,7 +3,7 @@
   <div>
     <mat-svg v-if="answer === 'right'" category="navigation" name="check" class="yes" />
     <mat-svg v-else-if="answer === 'wrong'" category="navigation" name="close" class="no" />
-    <mat-svg v-else-if="answer === 'hint'" category="action" name="lightbulb_outline"  class="no" />
+    <mat-svg v-else-if="answer === 'hint'" category="action" name="lightbulb_outline" class="no" />
   </div>
 
 </template>
