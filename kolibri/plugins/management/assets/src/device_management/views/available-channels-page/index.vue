@@ -180,7 +180,8 @@
     },
     methods: {
       channelIsOnDevice(channel) {
-        return Boolean(this.installedChannelList.find(({ id }) => id === channel.id));
+        const match = this.installedChannelList.find(({ id }) => id === channel.id);
+        return match && match.on_device_resources > 0;
       },
       goToChannel(channel) {
         this.transitionWizardPage('forward', { channel });

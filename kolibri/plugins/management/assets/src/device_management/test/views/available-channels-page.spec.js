@@ -12,22 +12,49 @@ import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
 import ChannelTokenModal from '../../views/available-channels-page/channel-token-modal';
 import { importExportWizardState } from '../../state/wizardState';
+import cloneDeep from 'lodash/cloneDeep';
 
 const router = new VueRouter({
   routes: [{ path: '', name: 'wizardtransition' }],
 });
 
 const availableChannels = [
-  { name: 'Awesome Channel', id: 'awesome_channel', language_code: 'en', language: 'English' },
-  { name: 'Bird Channel', id: 'bird_channel' },
-  { name: 'Hunden Channel', id: 'hunden_channel', language_code: 'de', language: 'German' },
-  { name: 'Kaetze Channel', id: 'kaetze_channel', language_code: 'de', language: 'German' },
+  {
+    name: 'Awesome Channel',
+    id: 'awesome_channel',
+    language_code: 'en',
+    language: 'English',
+    total_resources: 100,
+  },
+  {
+    name: 'Bird Channel',
+    id: 'bird_channel',
+    total_resources: 100,
+  },
+  {
+    name: 'Hunden Channel',
+    id: 'hunden_channel',
+    language_code: 'de',
+    language: 'German',
+    total_resources: 100,
+  },
+  {
+    name: 'Kaetze Channel',
+    id: 'kaetze_channel',
+    language_code: 'de',
+    language: 'German',
+    total_resources: 100,
+  },
 ];
 
-const channelsOnDevice = [
-  { name: 'Awesome Channel', id: 'awesome_channel' },
-  { name: 'Kaetze Channel', id: 'kaetze_channel', language_code: 'de' },
-];
+const channelsOnDevice = cloneDeep(availableChannels);
+
+// Pretending that metadata has been downloaded previously for Bird & Hunden channel,
+// but no resources. Awesome & Kaetze channel have some resources.
+channelsOnDevice[0].on_device_resources = 90;
+channelsOnDevice[1].on_device_resources = 0;
+channelsOnDevice[2].on_device_resources = 0;
+channelsOnDevice[3].on_device_resources = 90;
 
 function makeStore() {
   return new Vuex.Store({
@@ -169,8 +196,7 @@ describe('availableChannelsPage', () => {
     assert.deepEqual(filters(), []);
   });
 
-  it('channel item (not) on device has the correct props', () => {
-    // on import mode
+  it('in LOCALIMPORT/REMOTEIMPORT, channel item (not) on device has the correct props', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();

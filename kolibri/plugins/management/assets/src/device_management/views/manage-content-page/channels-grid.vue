@@ -17,6 +17,7 @@
           <channel-list-item
             class="channel-list-item"
             v-for="channel in sortedChannels"
+            v-show="channel.on_device_resources > 0"
             :key="channel.id"
             :channel="channel"
             mode="MANAGE"
