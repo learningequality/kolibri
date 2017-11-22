@@ -9,7 +9,7 @@
           v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
-          icon="arrow_back"
+          :icon="isRtl ? 'arrow_forward' : 'arrow_back'"
           size="large"
         />
       </div>
@@ -20,7 +20,7 @@
           v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
-          icon="arrow_forward"
+          :icon="isRtl ? 'arrow_back' : 'arrow_forward'"
           size="large"
         />
       </div>
@@ -34,30 +34,17 @@
       @before-enter="setStartPosition"
       @enter="slide">
 
-      <div
+      <content-card
         class="content-carousel-card"
         v-for="(content, index) in contents"
         v-if="isInThisSet(index)"
         :style="positionCalc(index)"
         :key="content.id"
-      >
-        <!-- uses props if scoped slot is unused -->
-          <slot
-            :title="content.title"
-            :thumbnail="content.thumnail"
-            :kind="content.kind"
-            :progress="content.progress"
-            :id="content.id">
-
-            <content-card
-              class="content-card-component"
-              :title="content.title"
-              :thumbnail="content.thumbnail"
-              :kind="content.kind"
-              :progress="content.progress"
-              :link="genContentLink(content.id, content.kind)" />
-          </slot>
-      </div>
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :link="genContentLink(content.id, content.kind)" />
 
     </transition-group>
 
@@ -105,7 +92,7 @@
         // flag marks holds the index (in contents array, prop) of first item in carousel
         contentSetStart: 0,
         // flag that marks when the slide animation will be going start at left
-        leftToRight: false,
+        panBackwards: false,
         // tracks whether the carousel has been interacted with
         interacted: false,
         contentCardWidth,
@@ -113,6 +100,9 @@
       };
     },
     computed: {
+      animationAttr() {
+        return this.isRtl ? 'right' : 'left';
+      },
       contentSetSize() {
         if (this.elSize.width > 2 * contentCardWidth) {
           const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
@@ -167,11 +157,11 @@
       contentSetSize(newSetSize, oldSetSize) {
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
-        this.leftToRight = removingCards;
+        this.panBackwards = removingCards;
 
         if (this.isLastSet && addingCards && !this.isFirstSet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
-          this.leftToRight = true;
+          this.panBackwards = true;
         }
       },
     },
@@ -180,44 +170,45 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return { left: `${cardOffset + gutterOffset}px` };
+        return { [this.animationAttr]: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
-        // sets the initial spot from which cards will be sliding into place from
-        // direction depends on `leftToRight`
-        const originalPosition = parseInt(el.style.left, 10);
-        const cards = this.contentSetSize * contentCardWidth;
-        const gutters = this.contentSetSize * gutterWidth;
-        const carouselContainerOffset = cards + gutters;
-        const sign = this.leftToRight ? -1 : 1;
-
         if (this.interacted) {
-          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+          // sets the initial spot from which cards will be sliding into place from
+          // direction depends on `panBackwards`
+          const originalPosition = parseInt(el.style[this.animationAttr], 10);
+          const cards = this.contentSetSize * contentCardWidth;
+          const gutters = this.contentSetSize * gutterWidth;
+          const carouselContainerOffset = cards + gutters;
+          const sign = this.panBackwards ? -1 : 1;
+
+          el.style[this.animationAttr] = `${sign * carouselContainerOffset + originalPosition}px`;
         }
       },
       slide(el) {
-        // moves cards from their starting point by their offset
-        // direction depends on `leftToRight`
-        const originalPosition = parseInt(el.style.left, 10);
-        const cards = this.contentSetSize * contentCardWidth;
-        const gutters = this.contentSetSize * gutterWidth;
-        const carouselContainerOffset = cards + gutters;
-        const sign = this.leftToRight ? 1 : -1;
-
         if (this.interacted) {
-          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+          // moves cards from their starting point by their offset
+          // direction depends on `panBackwards`
+          const originalPosition = parseInt(el.style[this.animationAttr], 10);
+          const cards = this.contentSetSize * contentCardWidth;
+          const gutters = this.contentSetSize * gutterWidth;
+          const carouselContainerOffset = cards + gutters;
+          const sign = this.panBackwards ? 1 : -1;
+
+          el.style[this.animationAttr] = `${sign * carouselContainerOffset + originalPosition}px`;
         }
       },
       isInThisSet(index) {
+        console.log('belongs');
         return this.contentSetStart <= index && index <= this.contentSetEnd;
       },
       nextSet() {
         this.contentSetStart += this.contentSetSize;
-        this.leftToRight = false;
+        this.panBackwards = false;
       },
       previousSet() {
         this.contentSetStart -= this.contentSetSize;
-        this.leftToRight = true;
+        this.panBackwards = true;
       },
     },
   };
@@ -283,6 +274,7 @@
       overflow-y: visible
 
     &-card
+      left: 0
       transition: left 0.4s linear
       position: absolute
 
