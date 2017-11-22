@@ -182,8 +182,18 @@ describe('availableChannelsPage', () => {
     assert.equal(titleText(), 'Channels');
   });
 
-  it('shows the correct number of channels available message', () => {
-    const wrapper = makeWrapper();
+  it('in LOCALEXPORT shows the correct number of channels available message', () => {
+    setTransferType('localexport');
+    store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
+    const wrapper = makeWrapper({ store });
+    const { channelsAvailableText, noChannels } = getElements(wrapper);
+    assert.equal(channelsAvailableText(), '2 channels available');
+    assert.deepEqual(noChannels(), []);
+  });
+
+  it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
+    setTransferType('localimport');
+    const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
     assert.equal(channelsAvailableText(), '4 channels available');
     assert.deepEqual(noChannels(), []);
@@ -207,11 +217,20 @@ describe('availableChannelsPage', () => {
     assert.equal(channels[3].getProp('onDevice'), true);
   });
 
-  it('with no filters, all channels appear', () => {
-    const wrapper = makeWrapper();
+  it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
+    setTransferType('localexport');
+    store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
+    const wrapper = makeWrapper({ store });
     assert.equal(wrapper.vm.titleFilter, '');
     assert.equal(wrapper.vm.languageFilter.value, 'ALL');
-    // v-show = true for all
+    testChannelVisibility(wrapper, [true, false, false, true]);
+  });
+
+  it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
+    setTransferType('localimport');
+    const wrapper = makeWrapper({ store });
+    assert.equal(wrapper.vm.titleFilter, '');
+    assert.equal(wrapper.vm.languageFilter.value, 'ALL');
     testChannelVisibility(wrapper, [true, true, true, true]);
   });
 

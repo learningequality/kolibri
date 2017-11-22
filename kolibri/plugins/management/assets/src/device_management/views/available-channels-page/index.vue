@@ -11,7 +11,7 @@
       >
         <div class="channels dib">
           <h1>{{ channelsTitle }}</h1>
-          <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
+          <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
         </div>
         <div class="filters dib">
           <ui-select
@@ -154,6 +154,12 @@
           .filter(x => x.value);
         return [this.allLanguagesOption, ...codes];
       },
+      numberOfAvailableChannels() {
+        if (this.transferType === TransferTypes.LOCALEXPORT) {
+          return this.availableChannels.filter(this.channelIsOnDevice).length;
+        }
+        return this.availableChannels.length;
+      },
       channelsAreAvailable() {
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
@@ -189,6 +195,10 @@
       showChannel(channel) {
         let languageMatches = true;
         let titleMatches = true;
+        let isOnDevice = true;
+        if (this.transferType === TransferTypes.LOCALEXPORT) {
+          isOnDevice = this.channelIsOnDevice(channel);
+        }
         if (this.languageFilter.value !== ALL_FILTER) {
           languageMatches = channel.language_code === this.languageFilter.value;
         }
@@ -197,11 +207,13 @@
           const tokens = this.titleFilter.split(/\s+/).map(val => val.toLowerCase());
           titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
         }
-        return languageMatches && titleMatches;
+        return languageMatches && titleMatches && isOnDevice;
       },
     },
     vuex: {
       getters: {
+        // TODO do correct filtering for LOCALEXPORT. Possible that languages and
+        // other things might still leak out from unavailable channels.
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
         installedChannelList,
