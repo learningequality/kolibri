@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('confirmEnrollment')" @cancel="close" class="confirm-modal">
     <div>
-      <p>{{ $tr('areYouSure') }} <strong>{{ className }}</strong>?</p>
+      <p>{{ $tr('areYouSure', {className}) }}</p>
       <ul class="review-enroll-ul">
         <li class="review-enroll-li" v-for="userId in selectedUsers" :key="userId"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
@@ -32,7 +32,7 @@
     name: 'confirmEnrollmentModal',
     $trs: {
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
-      areYouSure: 'Are you sure you want to enroll the following users into',
+      areYouSure: 'Are you sure you want to enroll the following users into {className}?',
       noGoBack: 'No, go back',
       yesEnrollUsers: 'Yes, enroll learners',
     },

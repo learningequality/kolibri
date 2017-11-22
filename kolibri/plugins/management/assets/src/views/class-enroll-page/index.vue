@@ -35,7 +35,7 @@
       :classId="classId"
       :selectedUsers="selectedUsers" />
 
-    <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
+    <h1>{{ $tr('selectLearners', { className }) }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
 
     <p v-if="facilityUsers.length === 0">{{ $tr('noUsersExist') }}</p>
@@ -173,7 +173,7 @@
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',
-      selectLearners: 'Select users to enroll in',
+      selectLearners: 'Select users to enroll in {className}',
       showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
       createNewUser: 'New user account',
