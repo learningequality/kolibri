@@ -53,7 +53,7 @@ output/*.html
 output/*/index.html
 
 # Sphinx
-docs/_build
+docs/**/_build
 
 # api-docs
 docs/developer/py_modules/kolibri*rst
