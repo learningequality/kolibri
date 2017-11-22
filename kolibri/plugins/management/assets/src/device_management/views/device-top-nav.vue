@@ -2,6 +2,7 @@
 
   <k-navbar>
     <k-navbar-link
+      v-if="canManageContent"
       type="icon-and-title"
       :title="$tr('contentLabel')"
       icon="apps"
@@ -14,6 +15,13 @@
       icon="https"
       :link="linkify(PageNames.MANAGE_PERMISSIONS_PAGE)"
     />
+    <k-navbar-link
+      v-if="isSuperuser"
+      type="icon-and-title"
+      :title="$tr('infoLabel')"
+      icon="perm_device_information"
+      :link="linkify(PageNames.DEVICE_INFO_PAGE)"
+    />
   </k-navbar>
 
 </template>
@@ -23,7 +31,7 @@
 
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { canManageContent, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
 
   export default {
@@ -42,12 +50,14 @@
     },
     vuex: {
       getters: {
+        canManageContent,
         isSuperuser,
       },
     },
     $trs: {
       contentLabel: 'Content',
       permissionsLabel: 'Permissions',
+      infoLabel: 'Info',
     },
   };
 

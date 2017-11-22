@@ -9,6 +9,7 @@ import {
   showUserPermissionsPage,
 } from './state/actions/managePermissionsActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
+import { showDeviceInfoPage } from './state/actions/deviceInfoActions';
 import store from 'kolibri.coreVue.vuex.store';
 
 function hideLoadingScreen() {
@@ -58,6 +59,17 @@ const routes = [
         title: 'Manage User Permissions',
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+    },
+  },
+  {
+    name: PageNames.DEVICE_INFO_PAGE,
+    path: '/info',
+    handler: ({ name }) => {
+      preparePage(store.dispatch, {
+        name,
+        title: 'Device info',
+      });
+      showDeviceInfoPage(store).then(hideLoadingScreen);
     },
   },
 ];
