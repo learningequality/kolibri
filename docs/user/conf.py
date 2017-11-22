@@ -5,6 +5,10 @@
 # This file is execfile()d with the current directory set to its containing dir.
 
 
+from datetime import datetime
+import os
+import kolibri
+
 
 # -- General configuration -----------------------------------------------------
 
