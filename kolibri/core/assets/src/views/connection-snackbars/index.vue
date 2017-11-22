@@ -4,7 +4,7 @@
     <core-snackbar
       v-if="disconnected"
       class="disconnected-snackbar"
-      :text="$tr('disconnected', { remainingTime } )"
+      :text="$tr('disconnected', { remainingTime })"
       :actionText="$tr('tryNow')"
       :backdrop="true"
       @actionClicked="tryToReconnect"
@@ -41,7 +41,7 @@
     $trs: {
       disconnected: 'Disconnected from server. Will try to reconnect in { remainingTime }',
       tryNow: 'Try now',
-      tryingToReconnect: 'Trying to reconnect...',
+      tryingToReconnect: 'Trying to reconnect…',
       successfullyReconnected: 'Successfully reconnected!',
     },
     computed: {
