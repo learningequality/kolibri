@@ -106,19 +106,24 @@ describe('showSelectContentPage action', () => {
       });
   }
 
+  let pushStub;
+
+  before(() => {
+    pushStub = sinon.stub(router, 'push');
+  });
 
   function testUpdateTopicUrlIsCorrect(store, { pk, title }) {
     // To test the end of this action, we spy router.push. Production code for
     // router-based tree view updater relies on the kolibri.store singleton, while these tests
     // stub store with fresh Vuex.Store instance.
-    const pushStub = sinon.stub(router, 'push');
+    pushStub.restore();
     return showSelectContentPage(store)
       .then(() => {
         sinon.assert.calledWithMatch(pushStub, {
+          name: 'GOTO_TOPIC_TREEVIEW',
           params: { node: { pk, title } },
           query: { pk },
         });
-        pushStub.restore();
       });
   }
 
@@ -135,7 +140,7 @@ describe('showSelectContentPage action', () => {
     it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
       return testUpdateTopicUrlIsCorrect(store, {
         pk: 'channel_1_root',
-        title: 'Channel One',
+        title: 'Installed Channel',
       });
     });
 
@@ -170,9 +175,9 @@ describe('showSelectContentPage action', () => {
     });
 
     it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      testUpdateTopicUrlIsCorrect(store, {
+      return testUpdateTopicUrlIsCorrect(store, {
         pk: 'channel_1_root',
-        title: 'Channel One',
+        title: 'Installed Channel',
       });
     });
 
@@ -207,9 +212,9 @@ describe('showSelectContentPage action', () => {
     });
 
     it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      testUpdateTopicUrlIsCorrect(store, {
+      return testUpdateTopicUrlIsCorrect(store, {
         pk: 'channel_1_root',
-        title: 'Channel One',
+        title: 'Installed Channel',
       });
     });
   })

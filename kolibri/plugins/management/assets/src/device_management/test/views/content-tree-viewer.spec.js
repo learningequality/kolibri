@@ -175,7 +175,7 @@ describe('contentTreeViewer component', () => {
       setOmittedNodes([makeNode('subtopic_1', { path: [{ pk: 'topic_1', title: '' }] })])
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox } = getElements(wrapper);
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer');
+      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       selectAllCheckbox().trigger('click');
       return wrapper.vm.$nextTick()
         .then(() => {
@@ -188,7 +188,7 @@ describe('contentTreeViewer component', () => {
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
       setIncludedNodes([makeNode('topic_1')]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer');
+      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer').returns(Promise.resolve());
       const { selectAllCheckbox } = getElements(wrapper);
       selectAllCheckbox().trigger('click');
       return wrapper.vm.$nextTick()
@@ -206,7 +206,7 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer');
+      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), true);
       topicRow.first('input[type="checkbox"]').trigger('click');
@@ -223,7 +223,7 @@ describe('contentTreeViewer component', () => {
       const subTopic2 = makeNode('subtopic_2', { path: [{ pk: "subtopic_1", title: "node_subtopic_1" }] });
       setChildren([subTopic, subTopic2]);
       const wrapper = makeWrapper({ store });
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer');
+      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), false);
       topicRow.first('input[type="checkbox"]').trigger('click');
@@ -252,7 +252,7 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic, subTopic2]);
       setIncludedNodes([subSubTopic]);
       const wrapper = makeWrapper({ store });
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer');
+      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), false);
       assert.equal(topicRow.getProp('indeterminate'), true);
