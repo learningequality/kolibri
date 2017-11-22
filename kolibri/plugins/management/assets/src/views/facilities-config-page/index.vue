@@ -143,7 +143,7 @@
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       pageDescription: 'Configure and change different Facility settings here.',
-      pageHeader: 'Facility Configuration',
+      pageHeader: 'Facility Settings',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
       settingsHeader: 'Facility Settings',
