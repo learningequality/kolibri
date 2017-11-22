@@ -15,6 +15,7 @@ class ContextProcessorTestCase(APITestCase):
     def setUp(self):
         self.request = mock.Mock()
         self.request.session = {}
+        self.request.META = {}
         self.template = Template("My name is...")
         self.context = RequestContext(self.request)
 
