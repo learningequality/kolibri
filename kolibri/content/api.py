@@ -32,7 +32,7 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all()
+        return models.ChannelMetadata.objects.all().order_by('-last_updated')
 
 
 class IdFilter(filters.FilterSet):
