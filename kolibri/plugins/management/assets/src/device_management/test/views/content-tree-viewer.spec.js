@@ -81,6 +81,8 @@ describe('contentTreeViewer component', () => {
 
   xit('if in import mode, then non-importable nodes are filtered from the list', () => {});
 
+  xit('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {});
+
   it('it shows an empty state if the topic has no children', () => {
     setChildren([]);
     const wrapper = makeWrapper({ store });

@@ -24,6 +24,7 @@
       <div class="content-node-rows">
         <content-node-row
           v-for="node in annotatedChildNodes"
+          v-if="showNode(node)"
           :checked="nodeIsChecked(node)"
           :disabled="disableAll || node.disabled"
           :indeterminate="nodeIsIndeterminate(node)"
@@ -62,6 +63,7 @@
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+  import { TransferTypes } from '../../constants';
 
   // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
   function sanitizeNode(node) {
@@ -127,6 +129,12 @@
         const siblings = this.annotatedChildNodes.filter(({ pk }) => pk !== node.pk);
         return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
       },
+      showNode(node) {
+        if (this.transferType === TransferTypes.LOCALEXPORT) {
+          return node.available;
+        }
+        return true;
+      },
       updateCurrentTopicNode(node) {
         return navigateToTopicUrl.call(this, node);
       },
@@ -161,6 +169,7 @@
         path: state => wizardState(state).path,
         nodesForTransfer: state => wizardState(state).nodesForTransfer,
         topicNode: state => wizardState(state).currentTopicNode,
+        transferType: state => wizardState(state).transferType,
       },
       actions: {
         addNodeForTransfer,
