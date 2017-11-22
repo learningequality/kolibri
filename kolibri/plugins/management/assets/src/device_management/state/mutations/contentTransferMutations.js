@@ -62,6 +62,6 @@ export function SET_AVAILABLE_SPACE(state, space) {
   state.pageState.wizardState.availableSpace = space;
 }
 
-export function REPLACE_CHANNEL(state, channel) {
+export function SET_TRANSFERRED_CHANNEL(state, channel) {
   state.pageState.wizardState.transferredChannel = channel;
 }

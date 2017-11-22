@@ -54,7 +54,6 @@ export function nodeTransferCounts(state) {
   const { included, omitted } = selectedNodes(state);
   const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
   return {
-    // TODO name change!!!
     resources: getDifference('total_resources'),
     fileSize: getDifference('total_file_size'),
   };

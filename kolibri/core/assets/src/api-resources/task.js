@@ -45,8 +45,8 @@ export default class TaskResource extends Resource {
    *
    * @param {string} params.channel_id -
    * @param {string} [params.baseurl] - URL of remote source (defaults to Kolibri Studio)
-   * @param {string} [params.node_ids] - comma-separated node ids/pks
-   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
+   * @param {Array<string>} [params.node_ids] -
+   * @param {Array<string>} [params.exclude_node_ids] -
    * @returns {Promise}
    *
    */
@@ -63,8 +63,8 @@ export default class TaskResource extends Resource {
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
-   * @param {string} [params.node_ids] - comma-separated node ids/pks
-   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
+   * @param {Array<string>} [params.node_ids] -
+   * @param {Array<string>} [params.exclude_node_ids] -
    * @returns {Promise}
    *
    */
@@ -81,8 +81,8 @@ export default class TaskResource extends Resource {
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
-   * @param {string} [params.node_ids] - comma-separated node ids/pks
-   * @param {string} [params.exclude_node_ids] - comma-separated node ids/pks
+   * @param {Array<string>} [params.node_ids] -
+   * @param {Array<string>} [params.exclude_node_ids] -
    * @returns {Promise}
    *
    */

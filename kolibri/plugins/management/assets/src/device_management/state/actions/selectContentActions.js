@@ -30,7 +30,7 @@ export function showSelectContentPage(store) {
     .then(channel => {
       // The channel objects are not consistent if they come from different workflows.
       // Replacing them here with canonical type from ChannelResource.
-      store.dispatch('REPLACE_CHANNEL', channel);
+      store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
       navigateToTopicUrl({ title: channel.name, pk: channel.root });
     })
     .catch(({ errorType }) => {
@@ -66,9 +66,12 @@ export function updateTreeViewTopic(store, topic) {
 }
 
 /**
- * Makes a call to freespace API and places result in the store
+ * Makes a call to freespace API and places result in the store.
+ * If transfer type is LOCALEXPORT, it gets the selected drive's freespace.
+ *
  * @param {string} path - Path to the Kolibri data folder. If empty, defaults to server's KOLIBRI_HOME.
  * @returns {Promise}
+ *
  */
 export function getAvailableSpaceOnDrive(store, path = '') {
   const { transferType, selectedDrive } = wizardState(store.state);

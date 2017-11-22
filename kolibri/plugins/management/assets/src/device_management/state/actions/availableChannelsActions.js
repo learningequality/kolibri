@@ -1,6 +1,6 @@
 import { RemoteChannelResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
-import { driveChannelList, installedChannelList } from '../getters';
+import { driveChannelList, installedChannelList, wizardState } from '../getters';
 import router from 'kolibri.coreVue.router';
 
 /**
@@ -12,7 +12,7 @@ export function showAvailableChannelsPage(store) {
     name: 'GOTO_AVAILABLE_CHANNELS_PAGE',
   });
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
-  const { transferType, selectedDrive } = store.state.pageState.wizardState;
+  const { transferType, selectedDrive } = wizardState(store.state);
   const setAvailableChannels = store.dispatch.bind(null, 'SET_AVAILABLE_CHANNELS');
 
   // REMOTEIMPORT -> get Available Channels from RemoteChannel API
