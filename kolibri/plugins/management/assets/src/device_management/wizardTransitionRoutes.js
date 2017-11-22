@@ -60,7 +60,9 @@ export default [
       if (!get(store.state.pageState, 'wizardState.pageName')) {
         return router.replace('/content');
       }
-      // Only changes wizardState.page; does not change any other metadata.
+      // This action should maintain most of the state, except for nodesForTransfer
+      store.dispatch('REPLACE_INCLUDE_LIST', []);
+      store.dispatch('REPLACE_OMIT_LIST', []);
       // TODO adjust tests to account for this flow (they assume fresh start from /content).
       return store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
     },
