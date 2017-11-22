@@ -27,7 +27,7 @@ const isAncestorOf = (a, b) => find(b.path, { pk: a.pk });
 const isDescedantOf = flip(isAncestorOf);
 const sumTotalResources = sumBy('total_resources');
 // TODO name change!!!
-const sumOnDeviceResources = sumBy('resources_on_device');
+const sumOnDeviceResources = sumBy('on_device_resources');
 
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
@@ -42,7 +42,7 @@ const sumOnDeviceResources = sumBy('resources_on_device');
  */
 export function annotateNode(node, selectedNodes) {
   // TODO needs to be renamed!!!
-  const { resources_on_device: on_device_resources, total_resources } = node;
+  const { on_device_resources, total_resources } = node;
   const isIncluded = find(selectedNodes.included, { pk: node.pk });
   const isOmitted = find(selectedNodes.omitted, { pk: node.pk });
   const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));

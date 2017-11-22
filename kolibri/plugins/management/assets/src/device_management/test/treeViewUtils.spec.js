@@ -14,8 +14,7 @@ function assertAnnotationsEqual(annotated, expected) {
 }
 
 function makeNodeWithResources(id, total = 1, onDevice = 0) {
-  // TODO rename resources_on_device!!!
-  return makeNode(id, { total_resources: total, resources_on_device: onDevice });
+  return makeNode(id, { total_resources: total, on_device_resources: onDevice });
 }
 
 function makeNodesForTransfer(included, omitted) {

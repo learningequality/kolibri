@@ -202,13 +202,18 @@ describe('contentTreeViewer component', () => {
 
   describe('selecting child nodes', () => {
     it('clicking a checked child node triggers a "remove node" action', () => {
-      const subTopic = makeNode('subtopic_1', { path: [{ pk: "subtopic_1", title: "node_subtopic_1" }] });
+      const subTopic = makeNode('subtopic_1', {
+        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        total_resources: 100,
+        on_device_resources: 50,
+      });
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
       const wrapper = makeWrapper({ store });
       const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), true);
+      assert.equal(topicRow.getProp('disabled'), false);
       topicRow.first('input[type="checkbox"]').trigger('click');
       return wrapper.vm.$nextTick()
         .then(() => {
@@ -219,8 +224,16 @@ describe('contentTreeViewer component', () => {
 
     it('clicking an unchecked child node triggers an "add node" action', () => {
       // Need to add at least two children, so clicking subtopic doesn't complete the topic
-      const subTopic = makeNode('subtopic_1', { path: [{ pk: "subtopic_1", title: "node_subtopic_1" }] });
-      const subTopic2 = makeNode('subtopic_2', { path: [{ pk: "subtopic_1", title: "node_subtopic_1" }] });
+      const subTopic = makeNode('subtopic_1', {
+        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        total_resources: 100,
+        on_device_resources: 50,
+      });
+      const subTopic2 = makeNode('subtopic_2', {
+        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        total_resources: 100,
+        on_device_resources: 50,
+      });
       setChildren([subTopic, subTopic2]);
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());

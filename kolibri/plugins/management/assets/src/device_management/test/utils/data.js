@@ -43,7 +43,7 @@ export function contentNodeGranularPayload() {
     importable: true,
     kind: 'topic',
     total_resources: 2,
-    resources_on_device: 0,
+    [ON_DEVICE_RESOURCES]: 0,
     children: [
       {
         pk: 'ee73cfd40eec4260a1f302157dda69d4',
@@ -52,7 +52,7 @@ export function contentNodeGranularPayload() {
         importable: true,
         kind: 'topic',
         total_resources: 1,
-        resources_on_device: 0,
+        [ON_DEVICE_RESOURCES]: 0,
       },
       {
         pk: 'f3cb61172a114c21a32982d1316ec786',
@@ -60,7 +60,7 @@ export function contentNodeGranularPayload() {
         available: false,
         kind: 'video',
         total_resources: 1,
-        resources_on_device: 0,
+        [ON_DEVICE_RESOURCES]: 0,
         importable: false
       }
     ],
