@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
     <ul class="ui-menu" role="menu" :class="classes">
+      <div class="ui-menu-header" v-if="$slots.header"><slot name="header"/></div>
       <menu-option
         :disableRipple="disableRipple"
         :disabled="option[keys.disabled]"
@@ -17,8 +17,8 @@
         @keydown.enter.native.prevent="selectOption(option)"
         @keydown.esc.native.esc="closeMenu"
 
-        v-for="(option, i) in options"
-        :key="i"
+        v-for="(option, index) in options"
+        :key="index"
       >
         <slot name="option" :option="option"></slot>
       </menu-option>

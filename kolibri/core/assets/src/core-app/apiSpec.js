@@ -24,7 +24,6 @@ import * as actions from '../state/actions';
 import * as store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
-import exerciseAttempts from '../views/exercise-attempts';
 import downloadButton from '../views/content-renderer/download-button';
 import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
@@ -71,6 +70,7 @@ import uiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import appBar from '../views/app-bar';
+import customUiMenu from '../views/custom-ui-menu';
 
 export default {
   client,
@@ -94,7 +94,6 @@ export default {
     },
     components: {
       contentRenderer,
-      exerciseAttempts,
       downloadButton,
       loadingSpinner,
       progressBar,
@@ -124,6 +123,7 @@ export default {
       kSelect,
       uiAlert,
       appBar,
+      customUiMenu,
     },
     router,
     mixins: {
