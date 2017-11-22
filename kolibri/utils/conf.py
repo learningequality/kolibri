@@ -39,21 +39,26 @@ if not os.path.exists(KOLIBRI_HOME):
 #: Set defaults before updating the dict
 config = {}
 
-DEFAULT_PLUGINS = [
-    # Note from Devon -
-    # Temporarily adding these here to get things working for most devs.
-    # It's not clear to me where the correct place to add them is.
-    "kolibri.plugins.management",
-    "kolibri.plugins.learn",
-    "kolibri.plugins.document_pdf_render",
-    "kolibri.plugins.html5_app_renderer",
-    "kolibri.plugins.media_player",
-    "kolibri.plugins.setup_wizard",
-    "kolibri.plugins.coach",
-    "kolibri.plugins.user",
-    "kolibri.plugins.style_guide",  # TODO - remove before merging in to a release branch
-    "kolibri_exercise_perseus_plugin"
-]
+try:
+    # The default list for this is populated from build_tools/default_plugins.txt
+    # in the root of the Kolibri repository. The default list is identical to the list below,
+    # except that the style_guide plugin is not enabled in production builds.
+    # Caveat: this list may have been changed at build time to specify a different list of plugins.
+    from .build_config.default_plugins import plugins
+    DEFAULT_PLUGINS = plugins
+except ImportError:
+    DEFAULT_PLUGINS = [
+        "kolibri.plugins.management",
+        "kolibri.plugins.learn",
+        "kolibri.plugins.document_pdf_render",
+        "kolibri.plugins.html5_app_renderer",
+        "kolibri.plugins.media_player",
+        "kolibri.plugins.setup_wizard",
+        "kolibri.plugins.coach",
+        "kolibri.plugins.user",
+        "kolibri_exercise_perseus_plugin",
+        "kolibri.plugins.style_guide",
+    ]
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
 config['INSTALLED_APPS'] = DEFAULT_PLUGINS
