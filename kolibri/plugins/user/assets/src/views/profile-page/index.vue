@@ -295,12 +295,6 @@
     margin-right: auto
     width: ($iphone-width - 20)px
 
-  .submit
-    margin-left: auto
-    margin-right: auto
-    display: block
-
-
   .points-icon, .points-num
     display: inline-block
 

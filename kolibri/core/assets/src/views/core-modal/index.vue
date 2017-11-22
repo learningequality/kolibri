@@ -212,6 +212,9 @@
     color: $core-text-default
     border: none
     position: absolute
+    &:focus
+      background-color: $core-grey-300
+      outline: none
 
   .btn-back
     left: -10px
