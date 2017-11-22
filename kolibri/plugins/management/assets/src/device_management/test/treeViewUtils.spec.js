@@ -108,7 +108,7 @@ describe('annotateNode utility correctly annotates', () => {
     const onDeviceDescendant = {
       ...makeNodeWithResources('1_1', 1, 1),
       path: simplePath(['1']),
-    }
+    };
     const selected = makeNodesForTransfer([includedAncestor], []);
     const annotated = annotateNode(onDeviceDescendant, selected);
     assertAnnotationsEqual(annotated, {
@@ -140,13 +140,13 @@ describe('annotateNode utility correctly annotates', () => {
     // All descendants except the omitted one will be imported
     const includedAncestor = makeNode('1', { path: simplePath(['1']) });
     const omittedDescendant = {
-      ...makeNodeWithResources('1_1_1_1', 10 ,2),
+      ...makeNodeWithResources('1_1_1_1', 10, 2),
       path: simplePath(['1', '1_1', '1_1_1']),
-    }
+    };
     const partiallySelected = {
       ...makeNodeWithResources('1_1_1', 20, 3),
       path: simplePath(['1', '1_1']),
-    }
+    };
     const selected = makeNodesForTransfer([includedAncestor], [omittedDescendant]);
     const annotated = annotateNode(partiallySelected, selected);
     assertAnnotationsEqual(annotated, {
@@ -163,11 +163,11 @@ describe('annotateNode utility correctly annotates', () => {
     const omittedNode_1 = {
       ...makeNodeWithResources('1_2_1_1', 5, 1),
       path: simplePath(['1', '1_2', '1_2_1']),
-    }
+    };
     const omittedNode_2 = {
       ...makeNodeWithResources('1_3', 3, 1),
       path: simplePath(['1']),
-    }
+    };
     const selected = makeNodesForTransfer([includedNode], [omittedNode_1, omittedNode_2]);
     const annotated = annotateNode(includedNode, selected);
     assertAnnotationsEqual(annotated, {

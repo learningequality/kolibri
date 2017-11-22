@@ -20,5 +20,5 @@ export default {
   ...manageContentMutations,
   ...contentWizardMutations,
   ...managePermissionsMutations,
-  ...contentTransferMutations
-}
+  ...contentTransferMutations,
+};

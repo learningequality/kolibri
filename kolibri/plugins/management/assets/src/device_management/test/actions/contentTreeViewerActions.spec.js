@@ -7,13 +7,16 @@ import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import mutations from '../../state/mutations';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
-import { addNodeForTransfer, removeNodeForTransfer } from '../../state/actions/contentTreeViewerActions';
+import {
+  addNodeForTransfer,
+  removeNodeForTransfer,
+} from '../../state/actions/contentTreeViewerActions';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../state/getters';
 import { updateTreeViewTopic } from '../../state/actions/selectContentActions';
 import { importExportWizardState } from '../../state/wizardState';
 
-const simplePath = (...pks) => pks.map(pk => ({ pk, title: `node_${pk}`}))
+const simplePath = (...pks) => pks.map(pk => ({ pk, title: `node_${pk}` }));
 
 mockResource(ChannelResource);
 mockResource(ContentNodeGranularResource);
@@ -67,12 +70,14 @@ describe('contentTreeViewer actions', () => {
     store = makeStore();
     // For now, just keep it simple and make the file size result 0/1
     // TODO extend this mock to return arbitrary file sizes
-    ContentNodeGranularResource.getFileSizes.returns(Promise.resolve({
-      entity: {
-        total_file_size: 1,
-        on_device_file_size: 0,
-      },
-    }));
+    ContentNodeGranularResource.getFileSizes.returns(
+      Promise.resolve({
+        entity: {
+          total_file_size: 1,
+          on_device_file_size: 0,
+        },
+      })
+    );
   });
 
   afterEach(() => {
@@ -84,7 +89,7 @@ describe('contentTreeViewer actions', () => {
       ...node,
       total_file_size: 1,
       on_device_file_size: 0,
-    }
+    };
   }
 
   /**
@@ -99,12 +104,11 @@ describe('contentTreeViewer actions', () => {
     it('adding a single Node to empty list', () => {
       // ...straightforwardly adds it to `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      return addNodeForTransfer(store, node_1)
-        .then(() => {
-          assertIncludeEquals([node_1]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(1, 1);
-        });
+      return addNodeForTransfer(store, node_1).then(() => {
+        assertIncludeEquals([node_1]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(1, 1);
+      });
     });
 
     it('adding Nodes that are not parent/child to each other', () => {
@@ -112,14 +116,14 @@ describe('contentTreeViewer actions', () => {
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const node_2 = makeNode('2_2_1', { path: simplePath('2', '2_2') });
       return addNodeForTransfer(store, node_1)
-      .then(() => {
-        return addNodeForTransfer(store, node_2);
-      })
-      .then(() => {
-        assertIncludeEquals([node_1, node_2]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(2, 2);
-      });
+        .then(() => {
+          return addNodeForTransfer(store, node_2);
+        })
+        .then(() => {
+          assertIncludeEquals([node_1, node_2]);
+          assertOmitEquals([]);
+          assertFilesResourcesEqual(2, 2);
+        });
       // console.log(store.state.pageState.wizardState.nodesForTransfer.included);
     });
 
@@ -149,13 +153,12 @@ describe('contentTreeViewer actions', () => {
       const childNode = makeNode('1_1', { path: simplePath('1') });
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
       setIncludedNodes([]);
-      setOmittedNodes([node, childNode, siblingNode])
-      return addNodeForTransfer(store, node)
-        .then(() => {
-          assertIncludeEquals([node]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(1, 1);
-        });
+      setOmittedNodes([node, childNode, siblingNode]);
+      return addNodeForTransfer(store, node).then(() => {
+        assertIncludeEquals([node]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(1, 1);
+      });
     });
 
     // The case where all descendants of a node are selected is handled at select-content-page,
@@ -176,7 +179,7 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(0 ,0);
+          assertFilesResourcesEqual(0, 0);
         });
     });
 
@@ -239,13 +242,12 @@ describe('contentTreeViewer actions', () => {
       // Not sure how this state can happen in practice.
       // May need to remove or rewrite this test.
       setIncludedNodes([node, childNode, grandchildNode]);
-      setOmittedNodes([])
-      return removeNodeForTransfer(store, node)
-        .then(() => {
-          assertIncludeEquals([]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(0, 0);
-        });
+      setOmittedNodes([]);
+      return removeNodeForTransfer(store, node).then(() => {
+        assertIncludeEquals([]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(0, 0);
+      });
     });
 
     it('removing a Node removes its descendants from `omit`', () => {
@@ -266,16 +268,15 @@ describe('contentTreeViewer actions', () => {
         total_resources: 5,
       });
       setIncludedNodes([topNode]);
-      setOmittedNodes([grandchildNode])
+      setOmittedNodes([grandchildNode]);
       // Not sure this is possible in practice. On UI, childNode will
       // be indeterminate, so user will need to click it once, making it selected
       // which will then remove grandchildNode. After then, they can de-select it.
-      return removeNodeForTransfer(store, childNode)
-        .then(() => {
-          assertIncludeEquals([topNode]);
-          assertOmitEquals([childNode]);
-          assertFilesResourcesEqual(0, 5);
-        });
+      return removeNodeForTransfer(store, childNode).then(() => {
+        assertIncludeEquals([topNode]);
+        assertOmitEquals([childNode]);
+        assertFilesResourcesEqual(0, 5);
+      });
     });
 
     it('when removing a Node leads to an included parent Node being un-selected', () => {
@@ -299,13 +300,12 @@ describe('contentTreeViewer actions', () => {
         on_device_resources: 5,
       });
       setIncludedNodes([topNode]);
-      setOmittedNodes([childNode])
-      return removeNodeForTransfer(store, siblingNode)
-        .then(() => {
-          assertIncludeEquals([]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(0, 0);
-        });
+      setOmittedNodes([childNode]);
+      return removeNodeForTransfer(store, siblingNode).then(() => {
+        assertIncludeEquals([]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(0, 0);
+      });
     });
   });
 });
@@ -323,7 +323,7 @@ describe('updateTreeViewTopic action', () => {
   topic_1.path = []; // like a channel
   topic_2.path = [topic_1];
   topic_3.path = [...topic_2.path, topic_2];
-  topic_4.path = [...topic_3.path, topic_3]
+  topic_4.path = [...topic_3.path, topic_3];
 
   beforeEach(() => {
     store = makeStore();
@@ -335,8 +335,7 @@ describe('updateTreeViewTopic action', () => {
   }
 
   it('moving forward by one topic', () => {
-    return updateTreeViewTopic(store, topic_1)
-      .then(() => assertPathEquals([]));
+    return updateTreeViewTopic(store, topic_1).then(() => assertPathEquals([]));
   });
 
   it('moving forward by more than one topic', () => {

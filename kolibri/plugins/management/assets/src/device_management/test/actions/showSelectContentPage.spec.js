@@ -21,9 +21,7 @@ function makeStore() {
     state: {
       pageState: {
         taskList: [],
-        channelList: [
-          { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root' },
-        ],
+        channelList: [{ id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root' }],
         wizardState: {
           ...importExportWizardState(),
           pageName: 'SELECT_CONTENT',
@@ -99,11 +97,10 @@ describe('showSelectContentPage action', () => {
 
   // Tests for common behavior
   function testNoChannelsAreImported(store, options) {
-    return showSelectContentPage(store, options)
-      .then(() => {
-        sinon.assert.notCalled(TaskResource.startDiskChannelImport);
-        sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
-      });
+    return showSelectContentPage(store, options).then(() => {
+      sinon.assert.notCalled(TaskResource.startDiskChannelImport);
+      sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
+    });
   }
 
   let pushStub;
@@ -117,14 +114,13 @@ describe('showSelectContentPage action', () => {
     // router-based tree view updater relies on the kolibri.store singleton, while these tests
     // stub store with fresh Vuex.Store instance.
     pushStub.restore();
-    return showSelectContentPage(store)
-      .then(() => {
-        sinon.assert.calledWithMatch(pushStub, {
-          name: 'GOTO_TOPIC_TREEVIEW',
-          params: { node: { pk, title } },
-          query: { pk },
-        });
+    return showSelectContentPage(store).then(() => {
+      sinon.assert.calledWithMatch(pushStub, {
+        name: 'GOTO_TOPIC_TREEVIEW',
+        params: { node: { pk, title } },
+        query: { pk },
       });
+    });
   }
 
   describe('during LOCALIMPORT only', () => {
@@ -145,29 +141,27 @@ describe('showSelectContentPage action', () => {
     });
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
-      return showSelectContentPage(store)
-        .then(() => {
-          sinon.assert.calledWith(TaskResource.startDiskChannelImport, {
-            channel_id: 'localimport_brand_new_channel',
-            drive_id: 'localimport_specs_drive',
-          });
-          sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
+      return showSelectContentPage(store).then(() => {
+        sinon.assert.calledWith(TaskResource.startDiskChannelImport, {
+          channel_id: 'localimport_brand_new_channel',
+          drive_id: 'localimport_specs_drive',
         });
+        sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
+      });
     });
 
     it('errors from startDiskChannelImport are handled', () => {
       TaskResource.startDiskChannelImport.returns(Promise.reject());
-      return showSelectContentPage(store)
-        .then(() => {
-          assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
-        });
+      return showSelectContentPage(store).then(() => {
+        assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
+      });
     });
   });
 
   describe('during REMOTEIMPORT only', () => {
     beforeEach(() => {
       setUpStateForTransferType('remoteimport');
-    })
+    });
 
     it('if channel is already installed, then "startremotechannelimport" is *not* called', () => {
       useInstalledChannel();
@@ -182,21 +176,19 @@ describe('showSelectContentPage action', () => {
     });
 
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
-      return showSelectContentPage(store)
-        .then(() => {
-          sinon.assert.calledWith(TaskResource.startRemoteChannelImport, {
-            channel_id: 'remoteimport_brand_new_channel'
-          });
-          sinon.assert.notCalled(TaskResource.startDiskChannelImport);
+      return showSelectContentPage(store).then(() => {
+        sinon.assert.calledWith(TaskResource.startRemoteChannelImport, {
+          channel_id: 'remoteimport_brand_new_channel',
         });
+        sinon.assert.notCalled(TaskResource.startDiskChannelImport);
+      });
     });
 
     it('errors from startRemoteChannelImport are handled', () => {
       TaskResource.startRemoteChannelImport.returns(Promise.reject());
-      return showSelectContentPage(store)
-        .then(() => {
-          assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
-        });
+      return showSelectContentPage(store).then(() => {
+        assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
+      });
     });
   });
 
@@ -205,10 +197,10 @@ describe('showSelectContentPage action', () => {
       setUpStateForTransferType('localexport');
       // In principle, only channels already on the device can be exported
       useInstalledChannel();
-    })
+    });
 
     it('"startdiskchannelimport" and "startremotechannelimport" are not called', () => {
-      return testNoChannelsAreImported(store );
+      return testNoChannelsAreImported(store);
     });
 
     it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
@@ -217,7 +209,7 @@ describe('showSelectContentPage action', () => {
         title: 'Installed Channel',
       });
     });
-  })
+  });
 
   // Not tested:
   // * When channel import Tasks fail

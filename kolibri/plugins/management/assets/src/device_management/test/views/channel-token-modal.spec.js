@@ -32,20 +32,18 @@ describe('channelTokenModal component', () => {
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    return wrapper.vm.$nextTick()
-      .then(() => {
-        sinon.assert.calledWith(emitSpy, 'closemodal');
-      });
+    return wrapper.vm.$nextTick().then(() => {
+      sinon.assert.calledWith(emitSpy, 'closemodal');
+    });
   });
 
   describe('submitting a token', () => {
     function inputToken(wrapper, token) {
       const textbox = getElements(wrapper).tokenTextbox();
       textbox.vm.$emit('input', token);
-      return wrapper.vm.$nextTick()
-        .then(() => {
-          assert.equal(textbox.getProp('value'), token.trim());
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        assert.equal(textbox.getProp('value'), token.trim());
+      });
     }
 
     function assertTextboxInvalid(wrapper) {

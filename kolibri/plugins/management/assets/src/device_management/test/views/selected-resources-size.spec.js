@@ -16,7 +16,7 @@ function makeWrapper(props = {}) {
   };
 
   return mount(SelectedResourcesSize, {
-    propsData: {...defaultProps, ...props},
+    propsData: { ...defaultProps, ...props },
   });
 }
 
@@ -77,8 +77,7 @@ describe('selectedResourcesSize component', () => {
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     const { button } = getElements(wrapper);
     button().trigger('click');
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       sinon.assert.calledOnce(emitSpy);
       sinon.assert.calledWith(emitSpy, 'clickconfirm');
     });
@@ -104,15 +103,16 @@ describe('selectedResourcesSize component', () => {
     const { notification } = getElements(wrapper);
     assert.deepEqual(notification(), []);
     wrapper.setProps({ fileSize: 100000000000000 });
-    return wrapper.vm.$nextTick()
-    .then(() => {
-      assert(notification()[0].isVueComponent);
-      wrapper.setProps({ fileSize: 100 });
-      return wrapper.vm.$nextTick();
-    })
-    .then(() => {
-      // Then disappears if it goes back above zero
-      assert.deepEqual(notification(), []);
-    });
+    return wrapper.vm
+      .$nextTick()
+      .then(() => {
+        assert(notification()[0].isVueComponent);
+        wrapper.setProps({ fileSize: 100 });
+        return wrapper.vm.$nextTick();
+      })
+      .then(() => {
+        // Then disappears if it goes back above zero
+        assert.deepEqual(notification(), []);
+      });
   });
 });

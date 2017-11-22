@@ -34,7 +34,7 @@ function makeStore() {
 }
 
 function makeWrapper(options = {}) {
-  const { props = {}, store } = options
+  const { props = {}, store } = options;
   return mount(ContentTreeViewer, {
     propsData: props,
     store: store || makeStore(),
@@ -45,13 +45,13 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () => wrapper.find(kCheckbox).find(el => el.getProp('label') === 'Select all'),
+    selectAllCheckbox: () =>
+      wrapper.find(kCheckbox).find(el => el.getProp('label') === 'Select all'),
     emptyState: () => wrapper.first('.no-contents'),
     contentsSection: () => wrapper.find('.contents'),
     firstTopicButton: () => wrapper.find(ContentNodeRow)[0].first('button'),
-  }
+  };
 }
-
 
 describe('contentTreeViewer component', () => {
   let store;
@@ -94,11 +94,10 @@ describe('contentTreeViewer component', () => {
     const { firstTopicButton } = getElements(wrapper);
     const updateTopicStub = sinon.stub(wrapper.vm, 'updateCurrentTopicNode');
     firstTopicButton().trigger('click');
-    return wrapper.vm.$nextTick()
-      .then(() => {
-        sinon.assert.calledOnce(updateTopicStub);
-        sinon.assert.calledWith(updateTopicStub, wrapper.vm.annotatedChildNodes[0]);
-      });
+    return wrapper.vm.$nextTick().then(() => {
+      sinon.assert.calledOnce(updateTopicStub);
+      sinon.assert.calledWith(updateTopicStub, wrapper.vm.annotatedChildNodes[0]);
+    });
   });
 
   it('child nodes are annotated with their full path', () => {
@@ -122,17 +121,11 @@ describe('contentTreeViewer component', () => {
   });
 
   describe('loading and error states', () => {
-    it('shows loading screen when loading', () => {
+    it('shows loading screen when loading', () => {});
 
-    });
+    it('removes loading screen when loaded', () => {});
 
-    it('removes loading screen when loaded', () => {
-
-    });
-
-    it('shows an error state if there was an error loading node', () => {
-
-    });
+    it('shows an error state if there was an error loading node', () => {});
   });
 
   describe('"select all" checkbox state', () => {
@@ -161,8 +154,8 @@ describe('contentTreeViewer component', () => {
 
     it('if topic is selected, but one descendant is omitted', () => {
       // ...then "Select All" is unchecked
-      setIncludedNodes([makeNode('topic_1')])
-      setOmittedNodes([makeNode('subtopic_1', { path: [{ pk: 'topic_1' }] })])
+      setIncludedNodes([makeNode('topic_1')]);
+      setOmittedNodes([makeNode('subtopic_1', { path: [{ pk: 'topic_1' }] })]);
       const wrapper = makeWrapper({ store });
       assert.equal(checkboxIsChecked(wrapper), false);
     });
@@ -171,66 +164,77 @@ describe('contentTreeViewer component', () => {
   describe('toggling "select all" checkbox', () => {
     it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', () => {
       // Selected w/ unselected child scenario
-      setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })])
-      setOmittedNodes([makeNode('subtopic_1', { path: [{ pk: 'topic_1', title: '' }] })])
+      setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })]);
+      setOmittedNodes([makeNode('subtopic_1', { path: [{ pk: 'topic_1', title: '' }] })]);
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox } = getElements(wrapper);
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       selectAllCheckbox().trigger('click');
-      return wrapper.vm.$nextTick()
-        .then(() => {
-          const sanitized = omit(wrapper.vm.annotatedTopicNode, ['message', 'checkboxType', 'disabled', 'children']);
-          sinon.assert.calledOnce(addNodeStub);
-          sinon.assert.calledWithMatch(addNodeStub, sanitized);
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        const sanitized = omit(wrapper.vm.annotatedTopicNode, [
+          'message',
+          'checkboxType',
+          'disabled',
+          'children',
+        ]);
+        sinon.assert.calledOnce(addNodeStub);
+        sinon.assert.calledWithMatch(addNodeStub, sanitized);
+      });
     });
 
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
       setIncludedNodes([makeNode('topic_1')]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer').returns(Promise.resolve());
+      const removeNodeStub = sinon
+        .stub(wrapper.vm, 'removeNodeForTransfer')
+        .returns(Promise.resolve());
       const { selectAllCheckbox } = getElements(wrapper);
       selectAllCheckbox().trigger('click');
-      return wrapper.vm.$nextTick()
-        .then(() => {
-          const sanitized = omit(wrapper.vm.annotatedTopicNode, ['message', 'checkboxType', 'disabled', 'children']);
-          sinon.assert.calledOnce(removeNodeStub);
-          sinon.assert.calledWithMatch(removeNodeStub, sanitized);
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        const sanitized = omit(wrapper.vm.annotatedTopicNode, [
+          'message',
+          'checkboxType',
+          'disabled',
+          'children',
+        ]);
+        sinon.assert.calledOnce(removeNodeStub);
+        sinon.assert.calledWithMatch(removeNodeStub, sanitized);
+      });
     });
   });
 
   describe('selecting child nodes', () => {
     it('clicking a checked child node triggers a "remove node" action', () => {
       const subTopic = makeNode('subtopic_1', {
-        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        path: [{ pk: 'subtopic_1', title: 'node_subtopic_1' }],
         total_resources: 100,
         on_device_resources: 50,
       });
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon.stub(wrapper.vm, 'removeNodeForTransfer').returns(Promise.resolve());
+      const removeNodeStub = sinon
+        .stub(wrapper.vm, 'removeNodeForTransfer')
+        .returns(Promise.resolve());
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), true);
       assert.equal(topicRow.getProp('disabled'), false);
       topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick()
-        .then(() => {
-            sinon.assert.calledOnce(removeNodeStub);
-            sinon.assert.calledWithMatch(removeNodeStub, subTopic);
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        sinon.assert.calledOnce(removeNodeStub);
+        sinon.assert.calledWithMatch(removeNodeStub, subTopic);
+      });
     });
 
     it('clicking an unchecked child node triggers an "add node" action', () => {
       // Need to add at least two children, so clicking subtopic doesn't complete the topic
       const subTopic = makeNode('subtopic_1', {
-        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        path: [{ pk: 'subtopic_1', title: 'node_subtopic_1' }],
         total_resources: 100,
         on_device_resources: 50,
       });
       const subTopic2 = makeNode('subtopic_2', {
-        path: [{ pk: "subtopic_1", title: "node_subtopic_1" }],
+        path: [{ pk: 'subtopic_1', title: 'node_subtopic_1' }],
         total_resources: 100,
         on_device_resources: 50,
       });
@@ -240,11 +244,10 @@ describe('contentTreeViewer component', () => {
       const topicRow = wrapper.first(ContentNodeRow);
       assert.equal(topicRow.getProp('checked'), false);
       topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick()
-        .then(() => {
-            sinon.assert.calledOnce(addNodeStub);
-            sinon.assert.calledWithMatch(addNodeStub, subTopic);
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        sinon.assert.calledOnce(addNodeStub);
+        sinon.assert.calledWithMatch(addNodeStub, subTopic);
+      });
     });
 
     it('clicking an indeterminate child node triggers an "add node" action', () => {
@@ -270,11 +273,10 @@ describe('contentTreeViewer component', () => {
       assert.equal(topicRow.getProp('checked'), false);
       assert.equal(topicRow.getProp('indeterminate'), true);
       topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick()
-        .then(() => {
-            sinon.assert.calledOnce(addNodeStub);
-            sinon.assert.calledWithMatch(addNodeStub, { pk: 'subtopic' });
-        });
+      return wrapper.vm.$nextTick().then(() => {
+        sinon.assert.calledOnce(addNodeStub);
+        sinon.assert.calledWithMatch(addNodeStub, { pk: 'subtopic' });
+      });
     });
   });
 

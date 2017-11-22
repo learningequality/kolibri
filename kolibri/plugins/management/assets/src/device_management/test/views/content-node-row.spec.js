@@ -18,18 +18,26 @@ const defaultProps = {
 
 function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
-    propsData: {...defaultProps, ...props},
+    propsData: { ...defaultProps, ...props },
   });
 }
 
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.first('.title').text().trim(),
-    messageText: () => wrapper.first('.message').text().trim(),
+    titleText: () =>
+      wrapper
+        .first('.title')
+        .text()
+        .trim(),
+    messageText: () =>
+      wrapper
+        .first('.message')
+        .text()
+        .trim(),
     goToTopicButton: () => wrapper.find('button[name="select-node"]'),
     checkbox: () => wrapper.first('input[type="checkbox"]'),
     kCheckbox: () => wrapper.first(kCheckbox),
-  }
+  };
 }
 
 describe('contentNodeRow component', () => {
@@ -50,8 +58,7 @@ describe('contentNodeRow component', () => {
     const { goToTopicButton } = getElements(wrapper);
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     goToTopicButton()[0].trigger('click');
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       sinon.assert.calledOnce(emitSpy);
       sinon.assert.calledWith(emitSpy, 'clicktopic', wrapper.vm.node);
     });
@@ -81,8 +88,7 @@ describe('contentNodeRow component', () => {
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // have to "click" the inner checkbox to trigger "change" on whole component
     checkbox().trigger('click');
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       sinon.assert.calledOnce(emitSpy);
       sinon.assert.calledWith(emitSpy, 'changeselection', wrapper.vm.node);
     });
@@ -97,7 +103,7 @@ describe('contentNodeRow component', () => {
   it('when props.checked, the checkbox is checked', () => {
     const wrapper = makeWrapper({
       disabled: true,
-      checked: true
+      checked: true,
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
     const { kCheckbox } = getElements(wrapper);

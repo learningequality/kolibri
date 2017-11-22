@@ -31,7 +31,7 @@ export function makeNode(pk, attrs = {}) {
     ...defaultNode,
     pk,
     title: `node_${pk}`,
-    ...attrs
+    ...attrs,
   };
 }
 
@@ -61,8 +61,8 @@ export function contentNodeGranularPayload() {
         kind: 'video',
         total_resources: 1,
         [ON_DEVICE_RESOURCES]: 0,
-        importable: false
-      }
+        importable: false,
+      },
     ],
   };
 }

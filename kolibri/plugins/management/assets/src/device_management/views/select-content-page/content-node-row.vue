@@ -75,12 +75,12 @@
     computed: {
       showButton() {
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
-      }
+      },
     },
     $trs: {
       select: 'Select',
     },
-  }
+  };
 
 </script>
 

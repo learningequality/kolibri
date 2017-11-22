@@ -12,9 +12,7 @@ function makeStore() {
     state: {
       pageState: {
         taskList: [],
-        channelList: [
-          { id: 'installed', name: 'Installed Channel', version: 11 },
-        ],
+        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11 }],
       },
     },
     mutations: {
@@ -36,7 +34,7 @@ function makeWrapper(options = {}) {
     onDevice: false,
   };
   return mount(ChannelListItem, {
-    propsData: {...defaultProps, ...props},
+    propsData: { ...defaultProps, ...props },
     store: store || makeStore(),
   });
 }
@@ -135,35 +133,34 @@ describe('channelListItem', () => {
   });
 
   it('in MANAGE/EXPORT shows the file sizes of Resources', () => {
-      // ...and does not show the "On Device" indicator
-      function test(wrapper) {
-        const { resourcesSizeText, onDevice } = getElements(wrapper);
-        assert.equal(resourcesSizeText(), '4 GB resources');
-        assert.deepEqual(onDevice(), []);
-      }
-      test(manageWrapper);
-      test(exportWrapper);
+    // ...and does not show the "On Device" indicator
+    function test(wrapper) {
+      const { resourcesSizeText, onDevice } = getElements(wrapper);
+      assert.equal(resourcesSizeText(), '4 GB resources');
+      assert.deepEqual(onDevice(), []);
+    }
+    test(manageWrapper);
+    test(exportWrapper);
   });
 
   it('in MANAGE mode only, clicking "delete" triggers a "clickdelete" event', () => {
-      const wrapper = manageWrapper;
-      const { deleteButton, selectButton } = getElements(wrapper);
-      const emitSpy = sinon.spy(wrapper.vm, '$emit');
-      // Select button is not shown
-      assert.deepEqual(selectButton(), []);
-      deleteButton()[0].trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        sinon.assert.calledOnce(emitSpy);
-        sinon.assert.calledWith(emitSpy, 'clickdelete');
-      });
+    const wrapper = manageWrapper;
+    const { deleteButton, selectButton } = getElements(wrapper);
+    const emitSpy = sinon.spy(wrapper.vm, '$emit');
+    // Select button is not shown
+    assert.deepEqual(selectButton(), []);
+    deleteButton()[0].trigger('click');
+    return wrapper.vm.$nextTick().then(() => {
+      sinon.assert.calledOnce(emitSpy);
+      sinon.assert.calledWith(emitSpy, 'clickdelete');
+    });
   });
 
   it('in MANAGE mode only, delete button is disabled when tasks in queue', () => {
     const wrapper = manageWrapper;
     const { deleteButton, addTaskMutation } = getElements(wrapper);
     addTaskMutation({ id: 'task_1' });
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       assert.equal(deleteButton()[0].getAttribute('disabled'), 'disabled');
     });
   });
@@ -178,25 +175,18 @@ describe('channelListItem', () => {
         sinon.assert.calledWith(emitSpy, 'clickselect');
       });
     }
-    return Promise.all([
-      test(importWrapper),
-      test(exportWrapper),
-    ]);
+    return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
 
   it('in IMPORT/EXPORT mode, "select" button is disabled when tasks in queue', () => {
     function test(wrapper) {
       const { selectButton, addTaskMutation } = getElements(wrapper);
       addTaskMutation({ id: 'task_1' });
-      return wrapper.vm.$nextTick()
-      .then(() => {
+      return wrapper.vm.$nextTick().then(() => {
         assert.equal(selectButton()[0].getAttribute('disabled'), 'disabled');
       });
     }
-    return Promise.all([
-      test(importWrapper),
-      test(exportWrapper),
-    ]);
+    return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
 
   it('in IMPORT mode only, shows an "on device" indicator if channel is installed', () => {

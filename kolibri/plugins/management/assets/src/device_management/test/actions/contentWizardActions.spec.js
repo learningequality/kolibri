@@ -69,7 +69,8 @@ describe('transitionWizardPage action', () => {
   beforeEach(() => {
     store = makeStore();
 
-    showSelectContentPageStub = sinon.stub(selectContentActions, 'showSelectContentPage')
+    showSelectContentPageStub = sinon
+      .stub(selectContentActions, 'showSelectContentPage')
       .returns(Promise.resolve());
   });
 
@@ -114,9 +115,11 @@ describe('transitionWizardPage action', () => {
   });
 
   it('LOCALIMPORT flow correctly updates wizardState', () => {
-    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(Promise.resolve({
-      entity: []
-    }));
+    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(
+      Promise.resolve({
+        entity: [],
+      })
+    );
     const selectedUsbDrive = driveList[1];
     const channel = {
       ...selectedUsbDrive.metadata.channels[0],
@@ -148,9 +151,11 @@ describe('transitionWizardPage action', () => {
   });
 
   it('LOCALEXPORT flow correctly updates wizardState', () => {
-    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(Promise.resolve({
-      entity: [],
-    }));
+    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(
+      Promise.resolve({
+        entity: [],
+      })
+    );
     const channel = {
       ...installedChannels[0],
     };

@@ -14,9 +14,7 @@ import ChannelTokenModal from '../../views/available-channels-page/channel-token
 import { importExportWizardState } from '../../state/wizardState';
 
 const router = new VueRouter({
-  routes: [
-    { path: '', name: 'wizardtransition' }
-  ],
+  routes: [{ path: '', name: 'wizardtransition' }],
 });
 
 const availableChannels = [
@@ -51,7 +49,7 @@ function makeWrapper(options = {}) {
   const { store, props = {} } = options;
   const defaultProps = {};
   return mount(AvailableChannelsPage, {
-    propsData: {...defaultProps, ...props },
+    propsData: { ...defaultProps, ...props },
     store: store || makeStore(),
     router,
   });
@@ -113,10 +111,9 @@ describe('availableChannelsPage', () => {
     const { unlistedChannelsSection, channelTokenModal } = getElements(wrapper);
     const button = unlistedChannelsSection()[0].first('button');
     button.trigger('click');
-    return wrapper.vm.$nextTick()
-      .then(() => {
-        assert(channelTokenModal().isVueComponent);
-      });
+    return wrapper.vm.$nextTick().then(() => {
+      assert(channelTokenModal().isVueComponent);
+    });
   });
 
   it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
@@ -200,7 +197,7 @@ describe('availableChannelsPage', () => {
       { label: 'All Languages', value: 'ALL' },
       { label: 'English', value: 'en' },
       { label: 'German', value: 'de' },
-    ]
+    ];
     assert.deepEqual(languageFilter().getProp('options'), expected);
   });
 
@@ -210,8 +207,7 @@ describe('availableChannelsPage', () => {
     const filter = languageFilter();
     // Can't seem to trigger the event, so calling setValue method directly
     filter.vm.setValue({ label: 'English', value: 'en' });
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       testChannelVisibility(wrapper, [true, false, false, false]);
     });
   });
@@ -222,22 +218,20 @@ describe('availableChannelsPage', () => {
     const filter = titleFilter();
     // Can't trigger 'input' event; need to set new value manually
     filter.vm.model = 'bir ch';
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       assert.equal(wrapper.vm.titleFilter, 'bir ch');
-      testChannelVisibility(wrapper, [false, true, false, false])
+      testChannelVisibility(wrapper, [false, true, false, false]);
     });
   });
 
   it('with both filters, the correct channels appear', () => {
     const wrapper = makeWrapper();
-    const { languageFilter , titleFilter } = getElements(wrapper);
+    const { languageFilter, titleFilter } = getElements(wrapper);
     const lFilter = languageFilter();
     const tFilter = titleFilter();
     lFilter.vm.setValue({ label: 'German', value: 'de' });
     tFilter.vm.model = 'hund';
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       testChannelVisibility(wrapper, [false, false, true, false]);
     });
   });
@@ -248,10 +242,9 @@ describe('availableChannelsPage', () => {
     const actionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const channels = channelListItems();
     channels[0].first('button').trigger('click');
-    return wrapper.vm.$nextTick()
-    .then(() => {
+    return wrapper.vm.$nextTick().then(() => {
       sinon.assert.calledOnce(actionStub);
       sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
     });
   });
-})
+});

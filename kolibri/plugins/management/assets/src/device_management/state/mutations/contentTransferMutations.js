@@ -6,9 +6,7 @@ export function ADD_NODE_TO_INCLUDE_LIST(state, node) {
 }
 
 export function REMOVE_NODE_FROM_INCLUDE_LIST(state, node) {
-  const newList = nodesForTransfer(state).included.filter(
-    n => n.pk !== node.pk
-  );
+  const newList = nodesForTransfer(state).included.filter(n => n.pk !== node.pk);
   nodesForTransfer(state).included = newList;
 }
 
@@ -21,9 +19,7 @@ export function ADD_NODE_TO_OMIT_LIST(state, node) {
 }
 
 export function REMOVE_NODE_FROM_OMIT_LIST(state, node) {
-  const newList = nodesForTransfer(state).omitted.filter(
-    n => n.pk !== node.pk
-  );
+  const newList = nodesForTransfer(state).omitted.filter(n => n.pk !== node.pk);
   nodesForTransfer(state).omitted = newList;
 }
 

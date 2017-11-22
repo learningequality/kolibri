@@ -11,7 +11,7 @@ import SelectedResourcesSize from '../../views/select-content-page/selected-reso
 import sinon from 'sinon';
 import { importExportWizardState } from '../../state/wizardState';
 
-SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {}
+SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {};
 
 const router = new VueRouter({
   routes: [],
@@ -21,15 +21,17 @@ function makeStore() {
   return new Vuex.Store({
     state: {
       pageState: {
-        channelList: [{
-          ...defaultChannel,
-          on_device_file_size: 2200000000,
-          on_device_resources: 2000,
-        }],
+        channelList: [
+          {
+            ...defaultChannel,
+            on_device_file_size: 2200000000,
+            on_device_resources: 2000,
+          },
+        ],
         taskList: [],
         wizardState: {
           ...importExportWizardState(),
-          transferredChannel: {...defaultChannel},
+          transferredChannel: { ...defaultChannel },
           transferType: 'localimport',
           currentTopicNode: contentNodeGranularPayload(),
         },
@@ -85,7 +87,12 @@ describe('selectContentPage', () => {
     updateMetaChannel(store, { thumbnail: fakeImage });
     const wrapper = makeWrapper({ store });
     const { thumbnail, version, title, description } = getElements(wrapper);
-    assert.equal(thumbnail().first('img').getAttribute('src'), fakeImage);
+    assert.equal(
+      thumbnail()
+        .first('img')
+        .getAttribute('src'),
+      fakeImage
+    );
     assert.equal(title(), 'Channel Title');
     assert.equal(version(), 'Version 20');
     assert.equal(description(), 'An awesome channel');
@@ -138,10 +145,9 @@ describe('selectContentPage', () => {
     const { updateButton } = getElements(wrapper);
     const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
     updateButton()[0].trigger('click');
-    return wrapper.vm.$nextTick()
-      .then(() => {
-        sinon.assert.called(stub);
-      });
+    return wrapper.vm.$nextTick().then(() => {
+      sinon.assert.called(stub);
+    });
   });
 
   it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
@@ -151,10 +157,9 @@ describe('selectContentPage', () => {
     const { updateButton } = getElements(wrapper);
     const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
     updateButton()[0].trigger('click');
-    return wrapper.vm.$nextTick()
-      .then(() => {
-        sinon.assert.calledWith(stub);
-      });
+    return wrapper.vm.$nextTick().then(() => {
+      sinon.assert.calledWith(stub);
+    });
   });
 
   xit('if in LOCALEXPORT, the "channel up-to-date" is not shown', () => {});
@@ -162,7 +167,7 @@ describe('selectContentPage', () => {
   it('if a new version is not available, then no notification/button appear', () => {
     updateMetaChannel(store, { version: 20 });
     const wrapper = makeWrapper({ store });
-    const { updateSection, notificationsSection } = getElements(wrapper)
+    const { updateSection, notificationsSection } = getElements(wrapper);
     assert(notificationsSection()[0].isEmpty());
     assert.deepEqual(updateSection(), []);
   });

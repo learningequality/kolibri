@@ -117,7 +117,7 @@
       showAllCrumbs: {
         type: Boolean,
         default: false,
-      }
+      },
     },
 
     data: () => ({
