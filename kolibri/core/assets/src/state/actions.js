@@ -5,7 +5,7 @@ import {
   AttemptLoggingMap,
   InteractionTypes,
   LoginErrors,
-  ConnectionStates,
+  ConnectionSnackbars,
 } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
@@ -735,15 +735,15 @@ function tryToReconnect(store) {
 }
 
 function showDisconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.DISCONNECTED);
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
 }
 
 function showTryingToReconnectSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.TRYING_TO_RECONNECT);
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.TRYING_TO_RECONNECT);
 }
 
 function showSuccessfullyReconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionStates.SUCCESSFULLY_RECONNECTED);
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.SUCCESSFULLY_RECONNECTED);
 }
 
 function clearSnackbar(store) {

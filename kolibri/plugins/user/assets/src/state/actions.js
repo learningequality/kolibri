@@ -1,4 +1,5 @@
-import { PageNames, signedOutDueToInactivity } from '../constants';
+import { PageNames } from '../constants';
+import { SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
@@ -125,9 +126,9 @@ function showSignIn(store) {
     return;
   }
 
-  if (Lockr.get(signedOutDueToInactivity)) {
-    store.dispatch('CORE_SET_CURRENT_SNACKBAR', signedOutDueToInactivity);
-    Lockr.set(signedOutDueToInactivity, null);
+  if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
+    store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
+    Lockr.set(SignedOutDueToInactivitySnackbar, null);
   }
 
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);

@@ -31,7 +31,7 @@
   import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import { connected, reconnectTime, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
   import { tryToReconnect } from 'kolibri.coreVue.vuex.actions';
-  import { ConnectionStates } from 'kolibri.coreVue.vuex.constants';
+  import { ConnectionSnackbars } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'connectionSnackbars',
@@ -46,13 +46,13 @@
     },
     computed: {
       disconnected() {
-        return this.currentSnackbar === ConnectionStates.DISCONNECTED;
+        return this.currentSnackbar === ConnectionSnackbars.DISCONNECTED;
       },
       tryingToReconnect() {
-        return this.currentSnackbar === ConnectionStates.TRYING_TO_RECONNECT;
+        return this.currentSnackbar === ConnectionSnackbars.TRYING_TO_RECONNECT;
       },
       successfullyReconnected() {
-        return this.currentSnackbar === ConnectionStates.SUCCESSFULLY_RECONNECTED;
+        return this.currentSnackbar === ConnectionSnackbars.SUCCESSFULLY_RECONNECTED;
       },
       remainingTime() {
         return new Date(1000 * this.reconnectTime).toISOString().substr(14, 5);

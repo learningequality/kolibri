@@ -105,11 +105,13 @@ const PermissionTypes = {
   LIMITED_PERMISSIONS: 'LIMITED_PERMISSIONS',
 };
 
-const ConnectionStates = {
+const ConnectionSnackbars = {
   DISCONNECTED: 'DISCONNECTED',
   TRYING_TO_RECONNECT: 'TRYING_TO_RECONNECT',
   SUCCESSFULLY_RECONNECTED: 'SUCCESSFULLY_RECONNECTED',
 };
+
+const SignedOutDueToInactivitySnackbar = 'SIGNED_OUT_DUE_TO_INACTIVITY';
 
 export {
   UserKinds,
@@ -124,5 +126,6 @@ export {
   MaxPointsPerContent,
   LoginErrors,
   PermissionTypes,
-  ConnectionStates,
+  ConnectionSnackbars,
+  SignedOutDueToInactivitySnackbar,
 };

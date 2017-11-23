@@ -92,7 +92,7 @@
       </div>
     </div>
     <core-snackbar
-      v-if="signedOutDueToInactivity"
+      v-if="SignedOutDueToInactivitySnackbar"
       :text="$tr('signedOut')"
       :actionText="$tr('dismiss')"
       @actionClicked="clearSnackbar"
@@ -105,10 +105,10 @@
 <script>
 
   import { kolibriLogin, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames, signedOutDueToInactivity } from '../../constants';
+  import { PageNames } from '../../constants';
   import { facilityConfig, currentFacilityId, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
+  import { LoginErrors, SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
@@ -216,8 +216,8 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-      signedOutDueToInactivity() {
-        return this.currentSnackbar === signedOutDueToInactivity;
+      SignedOutDueToInactivitySnackbar() {
+        return this.currentSnackbar === SignedOutDueToInactivitySnackbar;
       },
     },
     watch: { username: 'setSuggestionTerm' },
