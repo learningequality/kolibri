@@ -7,7 +7,27 @@
 
 from datetime import datetime
 import os
-import kolibri
+import sys
+
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+cwd = os.getcwd()
+parent = os.path.dirname(cwd)
+sys.path.insert(0, os.path.abspath(parent))
+
+# This import *must* come after the path insertion, otherwise sphinx won't be able to find the kolibri module
+import kolibri  # noqa
+
+builddir = os.path.join(cwd, '_build')
+
+# When we start loading stuff from kolibri, we're gonna need this
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
+os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
+
+if not os.path.exists(os.environ["KOLIBRI_HOME"]):
+    os.mkdir(os.environ["KOLIBRI_HOME"])
 
 
 # -- General configuration -----------------------------------------------------

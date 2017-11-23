@@ -192,8 +192,8 @@
     left: 50%
     transform: translate(-50%, -50%)
     background: #fff
-    max-width: 100%
-    max-height: 100%
+    max-width: 90%
+    max-height: 90%
     overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
@@ -205,7 +205,6 @@
 
   .modal.mobile
     width: 85%
-    top: 45%
 
   .top-buttons
     position: relative
@@ -216,6 +215,9 @@
     color: $core-text-default
     border: none
     position: absolute
+    &:focus
+      background-color: $core-grey-300
+      outline: none
 
   .btn-back
     left: -10px

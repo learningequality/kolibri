@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ className }} {{ $tr('exams') }}</h1>
+    <h1>{{ $tr('classExams', {className}) }}</h1>
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
@@ -118,6 +118,7 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
+      classExams: '{className} Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',

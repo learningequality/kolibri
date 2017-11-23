@@ -10,6 +10,7 @@ from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
 from rest_framework import serializers, viewsets
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
@@ -25,6 +26,13 @@ except AppRegistryNotReady:
     django.setup()
 
 logging = logger.getLogger(__name__)
+
+
+NETWORK_ERROR_STRING = _("There was a network error.")
+
+DISK_IO_ERROR_STRING = _("There was a disk access error.")
+
+CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
 class TasksViewSet(viewsets.ViewSet):
