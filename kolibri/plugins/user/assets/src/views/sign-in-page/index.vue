@@ -1,94 +1,102 @@
 <template>
 
-  <div class="wrapper-table">
-    <div class="main-row"><div id="main-cell">
-      <logo class="logo" />
-      <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-      <form class="login-form" ref="form" @submit.prevent="signIn">
-        <ui-alert
-          v-if="invalidCredentials"
-          type="error"
-          class="alert"
-          :dismissible="false"
-        >
-          {{ $tr('signInError') }}
-        </ui-alert>
-        <transition name="textbox">
-          <k-textbox
-            ref="username"
-            id="username"
-            autocomplete="username"
-            :autofocus="true"
-            :label="$tr('username')"
-            :invalid="usernameIsInvalid"
-            :invalidText="usernameIsInvalidText"
-            @blur="handleUsernameBlur"
-            @input="showDropdown = true"
-            @keydown="handleKeyboardNav"
-            v-model="username"
-          />
-        </transition>
-        <transition name="list">
-          <ul
-            v-if="simpleSignIn && suggestions.length"
-            v-show="showDropdown"
-            class="suggestions"
+  <div>
+    <div class="wrapper-table">
+      <div class="main-row"><div id="main-cell">
+        <logo class="logo" />
+        <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
+        <form class="login-form" ref="form" @submit.prevent="signIn">
+          <ui-alert
+            v-if="invalidCredentials"
+            type="error"
+            class="alert"
+            :dismissible="false"
           >
-            <ui-autocomplete-suggestion
-              v-for="(suggestion, i) in suggestions"
-              :key="i"
-              :suggestion="suggestion"
-              :class="{ highlighted: highlightedIndex === i }"
-              @click.native="fillUsername(suggestion)"
+            {{ $tr('signInError') }}
+          </ui-alert>
+          <transition name="textbox">
+            <k-textbox
+              ref="username"
+              id="username"
+              autocomplete="username"
+              :autofocus="true"
+              :label="$tr('username')"
+              :invalid="usernameIsInvalid"
+              :invalidText="usernameIsInvalidText"
+              @blur="handleUsernameBlur"
+              @input="showDropdown = true"
+              @keydown="handleKeyboardNav"
+              v-model="username"
             />
-          </ul>
-        </transition>
-        <transition name="textbox">
-          <k-textbox
-            v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
-            ref="password"
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            :label="$tr('password')"
-            :autofocus="simpleSignIn"
-            :invalid="passwordIsInvalid"
-            :invalidText="passwordIsInvalidText"
-            @blur="passwordBlurred = true"
-            v-model="password"
+          </transition>
+          <transition name="list">
+            <ul
+              v-if="simpleSignIn && suggestions.length"
+              v-show="showDropdown"
+              class="suggestions"
+            >
+              <ui-autocomplete-suggestion
+                v-for="(suggestion, i) in suggestions"
+                :key="i"
+                :suggestion="suggestion"
+                :class="{ highlighted: highlightedIndex === i }"
+                @click.native="fillUsername(suggestion)"
+              />
+            </ul>
+          </transition>
+          <transition name="textbox">
+            <k-textbox
+              v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+              ref="password"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              :label="$tr('password')"
+              :autofocus="simpleSignIn"
+              :invalid="passwordIsInvalid"
+              :invalidText="passwordIsInvalidText"
+              @blur="passwordBlurred = true"
+              v-model="password"
+            />
+          </transition>
+          <k-button
+            class="login-btn"
+            type="submit"
+            :text="$tr('signIn')"
+            :primary="true"
+            :disabled="busy"
           />
-        </transition>
-        <k-button
-          class="login-btn"
-          type="submit"
-          :text="$tr('signIn')"
-          :primary="true"
-          :disabled="busy"
-        />
-      </form>
-      <div class="divider"></div>
+        </form>
+        <div class="divider"></div>
 
-      <p class="login-text no-account">{{ $tr('noAccount') }}</p>
-      <div id="btn-group">
-        <k-router-link
-          v-if="canSignUp"
-          :text="$tr('createAccount')"
-          :to="signUpPage"
-          :primary="false"
-          appearance="raised-button"
-        />
-        <k-external-link
-          :text="$tr('accessAsGuest')"
-          href="/learn"
-          :primary="false"
-          appearance="raised-button"
-        />
+        <p class="login-text no-account">{{ $tr('noAccount') }}</p>
+        <div id="btn-group">
+          <k-router-link
+            v-if="canSignUp"
+            :text="$tr('createAccount')"
+            :to="signUpPage"
+            :primary="false"
+            appearance="raised-button"
+          />
+          <k-external-link
+            :text="$tr('accessAsGuest')"
+            href="/learn"
+            :primary="false"
+            appearance="raised-button"
+          />
+        </div>
+        <p class="login-text version">{{ versionMsg }}</p>
+      </div></div>
+      <div class="footer-row">
+        <language-switcher-footer class="footer-cell" />
       </div>
-      <p class="login-text version">{{ versionMsg }}</p>
-    </div></div>
-    <div class="footer-row">
-      <language-switcher-footer class="footer-cell" />
     </div>
+    <core-snackbar
+      v-if="showSignedOutDueToInactivitySnackbar"
+      :text="$tr('signedOut')"
+      :actionText="$tr('dismiss')"
+      @actionClicked="clearSnackbar"
+    />
   </div>
 
 </template>
@@ -96,11 +104,11 @@
 
 <script>
 
-  import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
+  import { kolibriLogin, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig, currentFacilityId, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
+  import { LoginErrors, SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
@@ -109,6 +117,7 @@
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import languageSwitcherFooter from '../language-switcher-footer';
+  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
 
   export default {
     name: 'signInPage',
@@ -125,6 +134,8 @@
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      signedOut: 'You were automatically signed out due to inactivity',
+      dismiss: 'Dismiss',
     },
     components: {
       kButton,
@@ -135,6 +146,7 @@
       uiAutocompleteSuggestion,
       uiAlert,
       languageSwitcherFooter,
+      coreSnackbar,
     },
     data: () => ({
       username: '',
@@ -203,6 +215,9 @@
       },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
+      },
+      showSignedOutDueToInactivitySnackbar() {
+        return this.currentSnackbar === SignedOutDueToInactivitySnackbar;
       },
     },
     watch: { username: 'setSuggestionTerm' },
@@ -312,8 +327,12 @@
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
+        currentSnackbar,
       },
-      actions: { kolibriLogin },
+      actions: {
+        kolibriLogin,
+        clearSnackbar,
+      },
     },
   };
 

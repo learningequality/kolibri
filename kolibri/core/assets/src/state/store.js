@@ -45,6 +45,7 @@ export const initialState = {
     facilityConfig: {},
     facilities: [],
     connection: baseConnectionState,
+    currentSnackbar: null,
   },
 };
 
@@ -183,6 +184,10 @@ export const coreMutations = {
   },
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;
+  },
+
+  CORE_SET_CURRENT_SNACKBAR(state, snackbar) {
+    state.core.currentSnackbar = snackbar;
   },
 };
 

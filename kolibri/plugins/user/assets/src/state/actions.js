@@ -1,9 +1,11 @@
 import { PageNames } from '../constants';
+import { SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import Lockr from 'lockr';
 
 const name = 'userPageTitles';
 
@@ -123,6 +125,12 @@ function showSignIn(store) {
     });
     return;
   }
+
+  if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
+    store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
+    Lockr.set(SignedOutDueToInactivitySnackbar, null);
+  }
+
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
