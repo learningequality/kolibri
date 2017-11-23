@@ -209,6 +209,8 @@
 
   .content-wrapper
     height: 100%
+    overflow-x: scroll
+    background-color: $core-bg-light
 
   #spinner
     height: 160px
