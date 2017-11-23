@@ -8,8 +8,10 @@ Kolibri
   :target: https://travis-ci.org/learningequality/kolibri
 .. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
   :target: http://codecov.io/github/learningequality/kolibri?branch=master
-.. image:: https://readthedocs.org/projects/kolibri/badge/?version=latest
+.. image:: https://img.shields.io/badge/docs-user-ff69b4.svg
   :target: http://kolibri.readthedocs.org/en/latest/
+.. image:: https://img.shields.io/badge/docs-developer-69ffb4.svg
+  :target: http://kolibri-dev.readthedocs.org/en/developer/
 .. image:: https://img.shields.io/badge/support-on%20discourse-blue.svg
   :target: https://community.learningequality.org/
 .. image:: https://img.shields.io/badge/irc-%23kolibri%20on%20freenode-blue.svg
