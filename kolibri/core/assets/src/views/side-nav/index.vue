@@ -27,7 +27,7 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
-          <ui-menu
+          <custom-ui-menu
             class="side-nav-scrollable-area-menu"
             role="navigation"
             :options="menuOptions"
@@ -74,14 +74,14 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import uiMenu from './keen-menu-port';
+  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
 
   export default {
     name: 'sideNav',
     components: {
-      uiMenu,
+      customUiMenu,
       uiIconButton,
       logo,
     },

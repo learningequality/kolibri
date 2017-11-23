@@ -10,6 +10,7 @@ from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
 from rest_framework import serializers, viewsets
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
@@ -25,6 +26,14 @@ except AppRegistryNotReady:
     django.setup()
 
 logging = logger.getLogger(__name__)
+
+
+NETWORK_ERROR_STRING = _("There was a network error.")
+
+DISK_IO_ERROR_STRING = _("There was a disk access error.")
+
+CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
+
 
 class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
@@ -61,7 +70,14 @@ class TasksViewSet(viewsets.ViewSet):
             "started_by": request.user.pk,
         }
 
-        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl, extra_metadata=job_metadata,)
+        job_id = get_client().schedule(
+            call_command,
+            "importchannel",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+        )
         resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)

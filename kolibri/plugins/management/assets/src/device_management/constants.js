@@ -6,12 +6,10 @@ export const PageNames = {
 };
 
 export const ContentWizardPages = {
-  CHOOSE_IMPORT_SOURCE: 'CHOOSE_IMPORT_SOURCE',
-  EXPORT: 'EXPORT',
-  IMPORT_LOCAL: 'IMPORT_LOCAL',
-  IMPORT_NETWORK: 'IMPORT_NETWORK',
-  LOCAL_IMPORT_PREVIEW: 'LOCAL_IMPORT_PREVIEW',
-  REMOTE_IMPORT_PREVIEW: 'REMOTE_IMPORT_PREVIEW',
+  AVAILABLE_CHANNELS: 'AVAILABLE_CHANNELS',
+  SELECT_CONTENT: 'SELECT_CONTENT',
+  SELECT_DRIVE: 'SELECT_DRIVE',
+  SELECT_IMPORT_SOURCE: 'SELECT_IMPORT_SOURCE',
 };
 
 export const TaskTypes = {
@@ -29,4 +27,10 @@ export const TaskStatuses = {
   RUNNING: 'RUNNING',
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
+};
+
+export const TransferTypes = {
+  LOCALIMPORT: 'localimport',
+  REMOTEIMPORT: 'remoteimport',
+  LOCALEXPORT: 'localexport',
 };

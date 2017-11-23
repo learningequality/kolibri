@@ -21,6 +21,7 @@ class MockResource {
     } else {
       fetchable.fetch = () => Promise.resolve(payload);
     }
+    sinon.spy(fetchable, 'fetch');
     return fetchable;
   }
 
@@ -35,7 +36,9 @@ class MockResource {
   }
 
   __getModelFetchReturns(payload, willReject = false) {
-    this.getModel.returns(this.__getFetchable(payload, willReject));
+    const fetchable = this.__getFetchable(payload, willReject);
+    this.getModel.returns(fetchable);
+    return fetchable;
   }
 
   __getModelSaveReturns(payload, willReject = false) {
@@ -45,7 +48,9 @@ class MockResource {
   }
 
   __getCollectionFetchReturns(payload, willReject = false) {
-    this.getCollection.returns(this.__getFetchable(payload, willReject));
+    const fetchable = this.__getFetchable(payload, willReject);
+    this.getCollection.returns(fetchable);
+    return fetchable;
   }
 }
 
