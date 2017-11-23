@@ -42,11 +42,10 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 clean-docs:
-	rm -f docs/py_modules/kolibri*rst
-	rm -f docs/py_modules/modules.rst
-	rm -f docs/kolibri*rst # old location
-	rm -f docs/modules.rst # old location
+	rm -f docs-developer/py_modules/kolibri*rst
+	rm -f docs-developer/py_modules/modules.rst
 	$(MAKE) -C docs clean
+	$(MAKE) -C docs-developer clean
 
 lint:
 	flake8 kolibri
@@ -65,9 +64,14 @@ coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
 
-docs: clean-docs
-	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
+docs-developer: clean-docs
+	sphinx-apidoc -d 10 -H "Python Reference" -o docs-developer/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
+	$(MAKE) -C docs-developer html
+
+docs-user: clean-docs
 	$(MAKE) -C docs html
+
+docs: docs-user docs-developer
 
 release:
 	ls -l dist/
