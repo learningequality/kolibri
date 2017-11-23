@@ -3,8 +3,8 @@ Kolibri
 =======
 
 .. image:: https://badge.fury.io/py/kolibri.svg
-   :target: https://pypi.python.org/pypi/kolibri/
-.. image:: https://travis-ci.org/learningequality/kolibri.svg
+  :target: https://pypi.python.org/pypi/kolibri/
+.. image:: https://travis-ci.org/learningequality/kolibri.svg?branch=develop
   :target: https://travis-ci.org/learningequality/kolibri
 .. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
   :target: http://codecov.io/github/learningequality/kolibri?branch=master
