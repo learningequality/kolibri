@@ -1,56 +1,53 @@
 <template>
 
   <subpage-container>
-    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
-    <template v-else>
-      <h1>{{ $tr('header') }}</h1>
-      <table>
-        <tr>
-          <th>{{ $tr('kolibriVersion') }}</th>
-          <td>{{ info.version }}</td>
-        </tr>
-        <tr>
-          <th>
-            {{ $tr('url', { count: info.urls.length }) }}
-          </th>
-          <td>
-            <a
-              v-for="url in info.urls"
-              :href="url"
-              target="_blank"
-              class="link"
-            >
-              {{ url }}
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <th>{{ $tr('database') }}</th>
-          <td>{{ info.database_path }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('deviceName') }}</th>
-          <td>{{ info.device_name }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('os') }}</th>
-          <td>{{ info.os }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('freeDisk') }}</th>
-          <td>{{ info.content_storage_free_space }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('serverTime') }}</th>
-          <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('serverTimezone') }}</th>
-          <td>{{ info.server_timezone }}</td>
-        </tr>
+    <h1>{{ $tr('header') }}</h1>
+    <table>
+      <tr>
+        <th>{{ $tr('kolibriVersion') }}</th>
+        <td>{{ info.version }}</td>
+      </tr>
+      <tr>
+        <th>
+          {{ $tr('url', { count: info.urls.length }) }}
+        </th>
+        <td>
+          <a
+            v-for="url in info.urls"
+            :href="url"
+            target="_blank"
+            class="link"
+          >
+            {{ url }}
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th>{{ $tr('database') }}</th>
+        <td>{{ info.database_path }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('deviceName') }}</th>
+        <td>{{ info.device_name }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('os') }}</th>
+        <td>{{ info.os }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('freeDisk') }}</th>
+        <td>{{ info.content_storage_free_space }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('serverTime') }}</th>
+        <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('serverTimezone') }}</th>
+        <td>{{ info.server_timezone }}</td>
+      </tr>
 
-      </table>
-    </template>
+    </table>
   </subpage-container>
 
 </template>

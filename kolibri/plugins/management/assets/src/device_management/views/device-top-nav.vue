@@ -16,7 +16,6 @@
       :link="linkify(PageNames.MANAGE_PERMISSIONS_PAGE)"
     />
     <k-navbar-link
-      v-if="isSuperuser"
       type="icon-and-title"
       :title="$tr('infoLabel')"
       icon="perm_device_information"
