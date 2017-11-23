@@ -3,11 +3,53 @@
   <subpage-container>
     <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
     <template v-else>
-      <div class="description">
-        <h1>{{ $tr('header') }}</h1>
-        <p>{{ $tr('deviceInfoDescription') }}</p>
-      </div>
-      {{ pageState }}
+      <h1>{{ $tr('header') }}</h1>
+      <table>
+        <tr>
+          <th>{{ $tr('kolibriVersion') }}</th>
+          <td>{{ info.version }}</td>
+        </tr>
+        <tr>
+          <th>
+            {{ $tr('url', { count: info.urls.length }) }}
+          </th>
+          <td>
+            <a
+              v-for="url in info.urls"
+              :href="url"
+              target="_blank"
+              class="link"
+            >
+              {{ url }}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ $tr('database') }}</th>
+          <td>{{ info.database_path }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('deviceName') }}</th>
+          <td>{{ info.device_name }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('os') }}</th>
+          <td>{{ info.os }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('freeDisk') }}</th>
+          <td>{{ info.content_storage_free_space }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('serverTime') }}</th>
+          <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('serverTimezone') }}</th>
+          <td>{{ info.server_timezone }}</td>
+        </tr>
+
+      </table>
     </template>
   </subpage-container>
 
@@ -28,24 +70,45 @@
     },
     vuex: {
       getters: {
-        pageState: state => state.pageState,
+        info: state => state.pageState.deviceInfo,
         isSuperuser,
       },
     },
     $trs: {
       header: 'Device Info',
-      version: 'Kolibri version',
-      url: 'Server URL',
+      kolibriVersion: 'Kolibri version',
+      url: 'Server {count, plural, one {URL} other {URLs}}',
       database: 'Database path',
-      device: 'Device ID',
+      deviceName: 'Device name',
       os: 'Operating system',
-      freedisk: 'Free disk space',
-      time: 'Server time',
-      timezone: 'Server timezone',
+      freeDisk: 'Free disk space',
+      serverTime: 'Server time',
+      formattedTime: '{datetime, time, long} on {datetime, date, long}',
+      serverTimezone: 'Server timezone',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  table
+    margin-top: 16px
+    width: 100%
+
+  th
+    text-align: left
+    vertical-align: top
+    padding-bottom: 24px
+    padding-right: 24px
+
+  td
+    font-family: monospace
+    padding-bottom: 24px
+
+  .link
+    display: block
+    margin-bottom: 8px
+
+</style>
