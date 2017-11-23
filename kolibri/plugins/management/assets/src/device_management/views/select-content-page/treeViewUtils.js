@@ -87,7 +87,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 
       // Some (but not all) descendants are omitted -> INDETERMINATE
       let selectedCount;
-      let totalCount;;
+      let totalCount;
       if (forImport) {
         selectedCount = total_resources - sumTotalResources(omittedDescendants);
         totalCount = total_resources;

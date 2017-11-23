@@ -21,7 +21,7 @@ function makeNodesForTransfer(included, omitted) {
   return { included, omitted };
 }
 
-describe.only('annotateNode utility correctly annotates', () => {
+describe('annotateNode utility correctly annotates', () => {
   // Simplest cases
   it('nodes that are in the "include" list (100% selected)', () => {
     const node_1 = makeNodeWithResources('1', 100, 10);

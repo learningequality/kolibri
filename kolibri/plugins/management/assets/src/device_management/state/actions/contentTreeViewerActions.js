@@ -2,7 +2,7 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { selectedNodes } from '../getters';
+import { selectedNodes, inExportMode } from '../getters';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 
 const pluckPks = map('pk');
@@ -61,6 +61,7 @@ export function addNodeForTransfer(store, node) {
  */
 export function removeNodeForTransfer(store, node) {
   let promise = Promise.resolve();
+  const forImport = !inExportMode(store.state);
   const { included, omitted } = selectedNodes(store.state);
   // remove nodes in "include" that are either descendants of the removed node or the node itself
   const [notToInclude, toInclude] = partition(included, includeNode =>
@@ -89,13 +90,21 @@ export function removeNodeForTransfer(store, node) {
       .then(() => {
         // loop through the ancestor list and remove any that have been completely un-selected
         includedAncestors.forEach(ancestor => {
-          const ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
-          const toOmit = omitted.filter(n => pluckPks(n.path).includes(ancestor.pk));
-          // When total_resources === on_device_resources, then that node is not selectable.
-          // So we need to compare the difference (i.e  # of transferrable nodes) when
-          // deciding whether parent is fully omitted.
-          const omittedResources =
-            sumBy(toOmit, 'total_resources') - sumBy(omitted, 'on_device_resources');
+          let omittedResources;
+          let ancestorResources;
+          const omittedDescendants = omitted.filter(n => pluckPks(n.path).includes(ancestor.pk));
+          if (forImport) {
+            // When total_resources === on_device_resources, then that node is not selectable.
+            // So we need to compare the difference (i.e  # of transferrable nodes) when
+            // deciding whether parent is fully omitted.
+            ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
+            omittedResources =
+              sumBy(omittedDescendants, 'total_resources') -
+              sumBy(omittedDescendants, 'on_device_resources');
+          } else {
+            ancestorResources = ancestor.on_device_resources;
+            omittedResources = sumBy(omittedDescendants, 'on_device_resources');
+          }
           if (ancestorResources === omittedResources) {
             // remove the ancestor from "include"
             store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.pk !== ancestor.pk));
