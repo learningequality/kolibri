@@ -6,12 +6,15 @@
       class="snackbar-backdrop"
     >
     </div>
-    <ui-snackbar
-      class="snackbar"
-      :message="text"
-      :action="actionText"
-      @action-click="$emit('actionClicked')"
-    />
+    <transition name="snackbar">
+      <ui-snackbar
+        v-show="isVisible"
+        class="snackbar"
+        :message="text"
+        :action="actionText"
+        @action-click="$emit('actionClicked')"
+      />
+    </transition>
   </div>
 
 </template>
@@ -51,13 +54,16 @@
     },
     data: () => ({
       timeout: null,
+      isVisible: false,
     }),
     mounted() {
+      this.isVisible = true;
       if (this.autoDismiss) {
         this.timeout = window.setTimeout(this.clearSnackbar, this.duration);
       }
     },
     beforeDestroy() {
+      this.isVisible = false;
       if (this.timeout) {
         window.clearTimeout(this.timeout);
       }
@@ -79,6 +85,7 @@
     bottom: 0
     z-index: 24
     margin: 16px
+    transition: transform 0.4s ease
 
   .snackbar-backdrop
     z-index: 16
@@ -88,5 +95,9 @@
     right: 0
     left: 0
     background-color: rgba(0, 0, 0, 0.7)
+
+  .snackbar-enter,
+  .snackbar-leave-active
+    transform: translateY(100px)
 
 </style>
