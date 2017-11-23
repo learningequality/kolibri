@@ -13,7 +13,8 @@
         </th>
         <td>
           <a
-            v-for="url in info.urls"
+            v-for="(url, index) in info.urls"
+            :key="index"
             :href="url"
             target="_blank"
             class="link"
