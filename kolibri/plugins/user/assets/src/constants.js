@@ -6,5 +6,4 @@ const PageNames = {
   PROFILE: 'PROFILE',
 };
 
-
 export { PageNames };
