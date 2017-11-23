@@ -1,6 +1,6 @@
 <template>
 
-  <div v-show="crumbs.length > 1">
+  <div v-show="showAllCrumbs || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
         <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
@@ -110,6 +110,14 @@
           return crumbItems.slice(0, -1).every(crumb => validateLinkObject(crumb.link));
         },
       },
+      /**
+       * When set to 'true', a breadcrumb will be shown for each item in 'items' array.
+       * Otherwise, the first item will be omitted.
+       */
+      showAllCrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data: () => ({
@@ -133,6 +141,12 @@
       },
       collapsedCrumbMaxWidth() {
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
+      },
+    },
+    watch: {
+      items(val) {
+        this.crumbs = Array.from(val);
+        this.attachSensors();
       },
     },
     created() {

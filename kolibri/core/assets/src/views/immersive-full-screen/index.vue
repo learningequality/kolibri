@@ -24,6 +24,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
+    name: 'immersiveFullScreen',
     props: {
       backPageLink: {
         type: Object,

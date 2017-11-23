@@ -1,4 +1,4 @@
-import KolibriApp from 'kolibri_app';
+import KolibriApp from 'kolibri_app'; // eslint-disable-line
 import RootVue from './views';
 import mutations from './state/mutations';
 import initialState from './state/initialState';
@@ -10,6 +10,14 @@ import {
 } from './state/actions/managePermissionsActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
 import store from 'kolibri.coreVue.vuex.store';
+import { createTranslator } from 'kolibri.utils.i18n';
+import wizardTransitionRoutes from './wizardTransitionRoutes';
+
+const translator = createTranslator('deviceAppPageTitles', {
+  manageDeviceContent: 'Manage Device Content',
+  manageDevicePermissions: 'Manage Device Permissions',
+  manageUserPermissions: 'Manage User Permissions',
+});
 
 function hideLoadingScreen() {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -33,7 +41,7 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage Device Content',
+        title: translator.$tr('manageDeviceContent'),
       });
       showManageContentPage(store).then(hideLoadingScreen);
     },
@@ -44,7 +52,7 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage Device Permissions',
+        title: translator.$tr('manageDevicePermissions'),
       });
       showManagePermissionsPage(store).then(hideLoadingScreen);
     },
@@ -55,11 +63,12 @@ const routes = [
     handler: ({ params, name }) => {
       preparePage(store.dispatch, {
         name,
-        title: 'Manage User Permissions',
+        title: translator.$tr('manageUserPermissions'),
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
     },
   },
+  ...wizardTransitionRoutes,
 ];
 
 class DeviceManagementModule extends KolibriApp {

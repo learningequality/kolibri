@@ -1,135 +1,75 @@
-import { TaskResource } from 'kolibri.resources';
-import { ContentWizardPages } from '../../constants';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
-import {
-  triggerLocalContentExportTask,
-  triggerLocalContentImportTask,
-  triggerRemoteContentImportTask,
-} from './taskActions';
-import find from 'lodash/find';
-
-export function updateWizardLocalDriveList(store) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
-  TaskResource.localDrives()
-    .then(response => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
-    })
-    .catch(error => {
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-      handleApiError(store, error);
-    });
-}
-
-export function showWizardPage(store, pageName, meta = {}) {
-  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
-    shown: Boolean(pageName),
-    page: pageName || null,
-    error: null,
-    busy: false,
-    drivesLoading: false,
-    driveList: null,
-    meta,
-  });
-}
-
-export function startImportWizard(store) {
-  showWizardPage(store, ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-}
-
-export function startExportWizard(store) {
-  showWizardPage(store, ContentWizardPages.EXPORT);
-  updateWizardLocalDriveList(store);
-}
-
-export function closeImportExportWizard(store) {
-  showWizardPage(store, false);
-}
+import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
+import { showAvailableChannelsPage } from './availableChannelsActions';
+import { showSelectContentPage } from './selectContentActions';
 
 /**
  * State machine for the Import/Export wizards.
- * Only handles forward, back, and cancel transitions.
+ * Only handles forward and cancel transitions.
+ * Back transitions are handled by router.
  *
  * @param store - vuex store object
- * @param {string} transition - 'forward', 'backward', or 'cancel'
+ * @param {string} transition - 'forward' or 'cancel'
  * @param {Object} params - data needed to execute transition
- * @returns {undefined}
+ * @returns {Promise}
+ *
  */
 export function transitionWizardPage(store, transition, params) {
-  const wizardPage = store.state.pageState.wizardState.page;
-  const FORWARD = 'forward';
-  const BACKWARD = 'backward';
+  const wizardPage = store.state.pageState.wizardState.pageName;
   const CANCEL = 'cancel';
+  const LOCAL_DRIVE = 'local';
+  const KOLIBRI_STUDIO = 'network';
 
-  const showPage = showWizardPage.bind(null, store);
+  function _updatePageName(pageName) {
+    store.dispatch('SET_WIZARD_PAGENAME', pageName);
+  }
+
+  function _updateTransferType(transferType) {
+    store.dispatch('SET_TRANSFER_TYPE', transferType);
+  }
 
   if (transition === CANCEL) {
-    return showPage(false);
+    return _updatePageName('');
   }
 
-  // At Choose Source Wizard
-  if (wizardPage === ContentWizardPages.CHOOSE_IMPORT_SOURCE) {
-    if (transition === FORWARD && params.source === 'local') {
-      return showPage(ContentWizardPages.IMPORT_LOCAL);
-    }
-    if (transition === FORWARD && params.source === 'network') {
-      return showPage(ContentWizardPages.IMPORT_NETWORK);
-    }
-  }
-
-  // At Local Import Wizard
-  if (wizardPage === ContentWizardPages.IMPORT_LOCAL) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
-    }
-    if (transition === FORWARD) {
-      const driveInfo = find(store.state.pageState.wizardState.driveList, { id: params.driveId });
-      return showPage(ContentWizardPages.LOCAL_IMPORT_PREVIEW, {
-        driveId: params.driveId,
-        driveName: driveInfo.name,
-        channelList: driveInfo.metadata.channels,
-      });
+  // AT LANDING PAGE
+  // Forward with params : { import : Boolean }
+  if (wizardPage === '') {
+    if (params.import) {
+      _updatePageName(PageNames.SELECT_IMPORT_SOURCE);
+    } else {
+      _updateTransferType(TransferTypes.LOCALEXPORT);
+      _updatePageName(PageNames.SELECT_DRIVE);
     }
   }
 
-  // At Network Import Wizard
-  if (wizardPage === ContentWizardPages.IMPORT_NETWORK) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.CHOOSE_IMPORT_SOURCE);
+  // At SELECT_IMPORT_SOURCE
+  // Forward with params : { source : 'local' | 'network' }
+  if (wizardPage === PageNames.SELECT_IMPORT_SOURCE) {
+    const { source } = params;
+    if (source === LOCAL_DRIVE) {
+      _updateTransferType(TransferTypes.LOCALIMPORT);
+      _updatePageName(PageNames.SELECT_DRIVE);
+      return Promise.resolve();
     }
-    if (transition === FORWARD) {
-      return showPage(ContentWizardPages.REMOTE_IMPORT_PREVIEW, {
-        channelId: params.channelId,
-      });
-    }
-  }
-
-  // At Export Wizard
-  if (wizardPage === ContentWizardPages.EXPORT) {
-    if (transition === FORWARD) {
-      return triggerLocalContentExportTask(store, params.driveId);
+    if (source === KOLIBRI_STUDIO) {
+      _updateTransferType(TransferTypes.REMOTEIMPORT);
+      return showAvailableChannelsPage(store);
     }
   }
 
-  // At Local Import Preview
-  if (wizardPage === ContentWizardPages.LOCAL_IMPORT_PREVIEW) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.IMPORT_LOCAL);
-    }
-    if (transition === FORWARD) {
-      return triggerLocalContentImportTask(store, params.sourceId);
-    }
+  // At SELECT_DRIVE
+  // Forward with params : { driveId }
+  if (wizardPage === PageNames.SELECT_DRIVE) {
+    store.dispatch('SET_SELECTED_DRIVE', params.driveId);
+    return showAvailableChannelsPage(store);
   }
 
-  // At Network Import Preview
-  if (wizardPage === ContentWizardPages.REMOTE_IMPORT_PREVIEW) {
-    if (transition === BACKWARD) {
-      return showPage(ContentWizardPages.IMPORT_NETWORK);
-    }
-    if (transition === FORWARD) {
-      return triggerRemoteContentImportTask(store, params.sourceId);
-    }
+  // At AVAILABLE_CHANNELS
+  // Forward with params: { channel }
+  if (wizardPage === PageNames.AVAILABLE_CHANNELS) {
+    store.dispatch('SET_TRANSFER_CHANNEL', params.channel);
+    return showSelectContentPage(store);
   }
 
-  return undefined;
+  return Promise.resolve();
 }

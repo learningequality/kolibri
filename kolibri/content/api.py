@@ -401,6 +401,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             "thumbnail": studioresp.get("icon_encoding"),
             "public": studioresp.get("public", True),
             "total_resources": studioresp.get("total_resource_count", 0),
+            "total_file_size": studioresp.get("published_size"),
             "version": studioresp.get("version", 0),
             "included_languages": included_languages,
             "last_updated": studioresp.get("last_published"),
