@@ -20,6 +20,7 @@
   {% endif %}
 </head>
 <body>
+{% if supported_browser %}
 <rootvue>
   <style>
     .loading-spinner-wrapper-base{
@@ -77,5 +78,10 @@
 
 {% endblock %}
 
+{% else %}
+
+{% include 'kolibri/unsupported_browser.html' %}
+
+{% endif %}
 </body>
 </html>
