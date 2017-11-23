@@ -92,7 +92,7 @@
       </div>
     </div>
     <core-snackbar
-      v-if="SignedOutDueToInactivitySnackbar"
+      v-if="showSignedOutDueToInactivitySnackbar"
       :text="$tr('signedOut')"
       :actionText="$tr('dismiss')"
       @actionClicked="clearSnackbar"
@@ -216,7 +216,7 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-      SignedOutDueToInactivitySnackbar() {
+      showSignedOutDueToInactivitySnackbar() {
         return this.currentSnackbar === SignedOutDueToInactivitySnackbar;
       },
     },
