@@ -30,7 +30,7 @@
     "elapsedTime.monthsAgo": "{n, number, integer} {n, plural, one {ماه} other {ماه} } پیش",
     "elapsedTime.yearsAgo": "{n, number, integer} {n, plural, one {سال} other {سال} } پیش",
     "languageSwitcherList.showMoreLanguagesSelector": "زبان‌های بیشتر",
-    "languageSwitcherList.selectedLanguageLabel": "Selected language",
+    "languageSwitcherList.selectedLanguageLabel": "زبانِ انتخاب‌شده",
     "sideNav.navigationLabel": "کاربرِ اصلی برای جهت‌یابی",
     "sideNav.learn": "یادگیری",
     "sideNav.facility": "مرکز آموزشی",
