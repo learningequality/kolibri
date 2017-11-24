@@ -19,7 +19,7 @@
     "authMessage.admin": "شما برای دیدن این صفحه باید به عنوانِ مدیر سایت (اَدمین) وارد این صفحه شوید",
     "authMessage.adminOrCoach": "شما برای دیدن این صفحه باید به عنوان مدیر سایت و یا مربی به سایت وارد شده باشید",
     "authMessage.learner": "شما برای دیدن این صفحه باید به عنوانِ دانش‌آموز وارد این صفحه شوید",
-    "authMessage.registeredUser": "You must be signed in to view this page",
+    "authMessage.registeredUser": "شما برای دیدن این صفحه باید وارد این صفحه شوید",
     "authMessage.superuser": "You must have Superuser permissions to view this page",
     "authMessage.forgetToSignIn": "آیا فراموش کرده‌اید که به سیستم وارد شوید؟",
     "elapsedTime.secondsAgo": "{n, number, integer} {n, plural, one {ثانیه} other {ثانیه} } پیش",
