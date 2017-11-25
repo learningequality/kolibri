@@ -175,7 +175,7 @@
     "renameExamModal.duplicateTitle": "اس عنوان کے ساتھ پہلے ہی ایک امتحان موجود ہے",
     "renameExamModal.required": "يہ خانہ ضروی ہے",
     "changeExamVisibilityModal.examVisibility": "امتحان کی رویت تبدیل کریں",
-    "changeExamVisibilityModal.shouldBeVisible": "Make '{ examTitle }' visible to entire class or specific groups",
+    "changeExamVisibilityModal.shouldBeVisible": "'{ examTitle }' پوری کلاس یا مخصوص گروپس کے لئے مرئی کریں",
     "changeExamVisibilityModal.group": "گرو",
     "changeExamVisibilityModal.selectGroups": "گرو چننا",
     "changeExamVisibilityModal.entireClass": "پوری { className } کلاس\/جماعت",
