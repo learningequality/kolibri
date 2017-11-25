@@ -19,7 +19,7 @@
     "deviceInfoPage.deviceName": "ڈیوائس کا نام",
     "deviceInfoPage.os": "آپریٹنگ سسٹم",
     "deviceInfoPage.freeDisk": "Free disk space",
-    "deviceInfoPage.serverTime": "Server time",
+    "deviceInfoPage.serverTime": "سرور کا وقت",
     "deviceInfoPage.formattedTime": "{datetime, time, long} on {datetime, date, long}",
     "deviceInfoPage.serverTimezone": "Server timezone",
     "userPermissionsPage.cancelButton": "منسوخ کریں",
