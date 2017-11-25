@@ -48,7 +48,7 @@
     "connectionSnackbars.disconnected": "سرور سے منقطع کر دیا ۔ { remainingTime } میں دوبارہ جڑنے کی کوشش کریں گے",
     "connectionSnackbars.tryNow": "اب کوشش کریں",
     "connectionSnackbars.tryingToReconnect": "دوبارہ جڑنے کی کوشش کر رہا ہے…",
-    "connectionSnackbars.successfullyReconnected": "Successfully reconnected!",
+    "connectionSnackbars.successfullyReconnected": "کامیابی سے دوبارہ جڑا ہوا ہے!",
     "error.errorHeader": "خطا",
     "error.errorButtonLabel": "خطا کو چھپائیں",
     "error.explanation": "معاف کیجئے, کچھ غلط ہو گیا ۔ صفحہ تازہ کریں",
