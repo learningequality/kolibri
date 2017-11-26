@@ -135,7 +135,7 @@
     "managementClassEnroll.selectUser": "یوزرمنتخب کریں",
     "managementClassEnroll.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } سے { numFilteredUsers, number }",
     "confirmEnrollmentModal.confirmEnrollment": "منتخب ہوے یوزرز کے اندراج کوتصدیق کرنا",
-    "confirmEnrollmentModal.areYouSure": "Are you sure you want to enroll the following users into {className}?",
+    "confirmEnrollmentModal.areYouSure": "اپ واقعی مندرجہ ذیل یوزرز کو اندراج کرنا چاہتے ہیں اس{className}?",
     "confirmEnrollmentModal.noGoBack": "نہیں، واپس جائیں",
     "confirmEnrollmentModal.yesEnrollUsers": "جی ہاں، طلباء کے اندراج کریں",
     "classEnrollPage.enrollUsers": "طلباء کا اندراج کریں",
