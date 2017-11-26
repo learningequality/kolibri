@@ -46,6 +46,6 @@
     "signInPage.poweredBy": "کولیبری {version}",
     "signInPage.required": "يہ خانہ بھرنا ضروری ہیں",
     "signInPage.requiredForCoachesAdmins": "ایڈمینس اور استادہ کو پاس ورڈ کی ضرورت ہے",
-    "signInPage.signedOut": "You were automatically signed out due to inactivity",
-    "signInPage.dismiss": "Dismiss"
+    "signInPage.signedOut": "غیر فعال ہونے کی بنا پر آپ خود بخود سائن آؤٹ ہوے تھے",
+    "signInPage.dismiss": "رخصت کریں"
 }
