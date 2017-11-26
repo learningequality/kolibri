@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-11-26 06:30-0500\n"
+"PO-Revision-Date: 2017-11-26 06:40-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -87,7 +87,7 @@ msgstr "معاف کیجئے گا, آپ کے براؤزر کا نسخۃ کی تا
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "کولیبری استعمیل کرنے کے لیے ہم فائر فکس یا کروم استعمال کرنے کی مشورہ دیتے ہے."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
