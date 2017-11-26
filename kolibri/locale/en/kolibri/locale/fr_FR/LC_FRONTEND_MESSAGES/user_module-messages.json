@@ -46,6 +46,6 @@
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Ce champ est obligatoire",
     "signInPage.requiredForCoachesAdmins": "Mot de passe est requis pour les enseignants et les administrateurs",
-    "signInPage.signedOut": "You were automatically signed out due to inactivity",
-    "signInPage.dismiss": "Dismiss"
+    "signInPage.signedOut": "Vous avez été automatiquement déconnecté pour cause d’inactivité",
+    "signInPage.dismiss": "Rejeter"
 }
