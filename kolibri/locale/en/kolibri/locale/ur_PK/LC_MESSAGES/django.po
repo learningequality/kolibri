@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-11-26 06:20-0500\n"
+"PO-Revision-Date: 2017-11-26 06:30-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -79,11 +79,11 @@ msgstr "کولیبری"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr ""
+msgstr "غیر تائید کیا ہوا براؤزر"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "معاف کیجئے گا, آپ کے براؤزر کا نسخۃ کی تائید نہیں کیا گیا ۔."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
