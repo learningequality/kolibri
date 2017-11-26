@@ -118,14 +118,14 @@
     "channelTokenModal.confirm": "تأكيد",
     "channelTokenModal.enterChannelToken": "أدخل رمز القناة",
     "channelTokenModal.invalidTokenMessage": "التحقق من إدخال الرمز بشكل صحيح",
-    "channelTokenModal.networkErrorMessage": "Unable to connect to token",
+    "channelTokenModal.networkErrorMessage": "غير قادر على الإتصال بالرمز",
     "channelTokenModal.tokenExplanation": "Channel tokens unlock unlisted channels from Kolibri Studio",
     "channelListItem.deleteButton": "حذف",
-    "channelListItem.onYourDevice": "On your device",
-    "channelListItem.resourcesSize": "{size} resources",
-    "channelListItem.selectButton": "Select",
-    "channelListItem.version": "Version {version}",
-    "channelListItem.defaultDescription": "(No description)",
+    "channelListItem.onYourDevice": "على جهازك",
+    "channelListItem.resourcesSize": "المصادر {size}",
+    "channelListItem.selectButton": "إختَر",
+    "channelListItem.version": "الإصدار {version}",
+    "channelListItem.defaultDescription": "(لا يوجد وصف)",
     "channelsGrid.emptyChannelListMessage": "لا توجد قنوات مثبتة",
     "channelsGrid.channelHeader": "قناة",
     "deleteChannelModal.deleteActionDescription": "سيتم حذف هذه القناة",
@@ -136,5 +136,5 @@
     "deleteChannelModal.confirmButtonLabel": "تأكيد",
     "deviceManagementTopNav.contentLabel": "المحتوى",
     "deviceManagementTopNav.permissionsLabel": "الأذونات",
-    "deviceManagementTopNav.infoLabel": "Info"
+    "deviceManagementTopNav.infoLabel": "معلومات"
 }
