@@ -46,6 +46,6 @@
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "پُر کردن این قسمت ضروری است",
     "signInPage.requiredForCoachesAdmins": "رمز عبور برای آموزگاران، مربیان و مدیران لازم است",
-    "signInPage.signedOut": "You were automatically signed out due to inactivity",
-    "signInPage.dismiss": "Dismiss"
+    "signInPage.signedOut": "شما به طور خودکار و بدلیل عدم فعالیت از سیستم خارج شدید",
+    "signInPage.dismiss": "رَد کردن"
 }
