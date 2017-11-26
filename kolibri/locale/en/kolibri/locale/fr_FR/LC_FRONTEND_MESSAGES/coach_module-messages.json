@@ -30,7 +30,7 @@
     "learnerReportPage.lastActivity": "Dernière activité",
     "learnerReportPage.exerciseCountText": "{count, number, integer} {count, plural, one {Exercise} other {Exercises}}",
     "learnerReportPage.contentCountText": "{count, number, integer} {count, plural, one {Ressource} other {Ressources}}",
-    "learnerReportPage.noLearners": "You do not have any learners registered yet",
+    "learnerReportPage.noLearners": "Vous n'avez pas encore d'apprenants enregistrés",
     "progressIndicator.completed": "complété par {0, number, integer} élèves",
     "progressIndicator.pct": "{0, number, percent}",
     "headerCell.ascending": "(trié par ordre croissant)",
