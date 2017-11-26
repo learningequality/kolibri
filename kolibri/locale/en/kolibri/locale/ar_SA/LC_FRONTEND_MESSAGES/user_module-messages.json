@@ -46,6 +46,6 @@
     "signInPage.poweredBy": " كوليبري {version}",
     "signInPage.required": "هذا الحقل مطلوب",
     "signInPage.requiredForCoachesAdmins": "كلمة المرور مطلوبة بالنسبة للمدربين والمشرفين",
-    "signInPage.signedOut": "You were automatically signed out due to inactivity",
-    "signInPage.dismiss": "Dismiss"
+    "signInPage.signedOut": "تم نسجيل خروجك تلقائياً بسبب عدم النشاط",
+    "signInPage.dismiss": "رفض"
 }
