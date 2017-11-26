@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-11-22 21:22-0500\n"
+"PO-Revision-Date: 2017-11-26 06:20-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -47,7 +47,7 @@ msgstr "ضرورت ہے۔ 30 رموز اوقاف یا اس سے کم۔ صرف ح
 
 #: kolibri/auth/models.py:216
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr ""
+msgstr "ایک جائز یوزر کا نام داخل کریں ۔ اس ویلیو میں صرف حروف، نمبرز اور آنڈرسکور ہوسکتے ہے ۔."
 
 #: kolibri/auth/models.py:220
 msgid "full name"
@@ -71,7 +71,7 @@ msgstr "نا معلوم فورمیٹ"
 
 #: kolibri/core/device/serializers.py:44
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "زبان کولیبری کی طرف سے تائید حاصل نہیں ہے"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
