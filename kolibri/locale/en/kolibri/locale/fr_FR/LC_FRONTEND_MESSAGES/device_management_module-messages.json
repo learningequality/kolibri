@@ -119,13 +119,13 @@
     "channelTokenModal.enterChannelToken": "Entrez le jeton de canal",
     "channelTokenModal.invalidTokenMessage": "Vérifier si vous avez entré le jeton correctement",
     "channelTokenModal.networkErrorMessage": "Impossible de se connecter au jeton",
-    "channelTokenModal.tokenExplanation": "Channel tokens unlock unlisted channels from Kolibri Studio",
+    "channelTokenModal.tokenExplanation": "Les jetons de chaînes débloquées absentes sur la liste des chaines du Studio Kolibri",
     "channelListItem.deleteButton": "Supprimer",
-    "channelListItem.onYourDevice": "On your device",
-    "channelListItem.resourcesSize": "{size} resources",
-    "channelListItem.selectButton": "Select",
+    "channelListItem.onYourDevice": "Sur votre appareil",
+    "channelListItem.resourcesSize": "ressources {size}",
+    "channelListItem.selectButton": "Sélectionner",
     "channelListItem.version": "Version {version}",
-    "channelListItem.defaultDescription": "(No description)",
+    "channelListItem.defaultDescription": "(Aucune description)",
     "channelsGrid.emptyChannelListMessage": "Aucune chaîne installée",
     "channelsGrid.channelHeader": "Chaîne",
     "deleteChannelModal.deleteActionDescription": "Cette chaîne sera supprimée",
@@ -136,5 +136,5 @@
     "deleteChannelModal.confirmButtonLabel": "Confirmer",
     "deviceManagementTopNav.contentLabel": "Contenu",
     "deviceManagementTopNav.permissionsLabel": "Autorisations",
-    "deviceManagementTopNav.infoLabel": "Info"
+    "deviceManagementTopNav.infoLabel": "Information"
 }
