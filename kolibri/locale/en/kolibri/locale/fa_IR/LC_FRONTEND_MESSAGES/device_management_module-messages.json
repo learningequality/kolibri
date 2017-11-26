@@ -119,7 +119,7 @@
     "channelTokenModal.enterChannelToken": "رمز کانال را وارد کنید",
     "channelTokenModal.invalidTokenMessage": "چک کنید که رمز را به درستی وارد کرده باشید",
     "channelTokenModal.networkErrorMessage": "نمی‌توانید به علامت رمزی وارد شوید",
-    "channelTokenModal.tokenExplanation": "Channel tokens unlock unlisted channels from Kolibri Studio",
+    "channelTokenModal.tokenExplanation": "رمز عبور قفلِ کانال‌های لیست‌ نشده را از استودیو Kolibri باز کرد",
     "channelListItem.deleteButton": "حذف",
     "channelListItem.onYourDevice": "بر روی دستگاهِ شما",
     "channelListItem.resourcesSize": "{size} منابع",
