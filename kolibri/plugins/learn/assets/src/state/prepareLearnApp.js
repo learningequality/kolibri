@@ -9,7 +9,7 @@ function prepareLearnApp(store) {
   if (userId === null) return Promise.resolve();
 
   const membershipPromise = MembershipResource.getCollection({
-    user_id: userId,
+    user: userId,
   }).fetch();
 
   return membershipPromise
