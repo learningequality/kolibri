@@ -102,6 +102,9 @@
       mode: {
         type: String, // 'IMPORT' | 'EXPORT' | 'MANAGE'
         required: true,
+        validator(val) {
+          return Object.keys(Modes).includes(val);
+        },
       },
       onDevice: {
         type: Boolean,
