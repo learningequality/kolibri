@@ -22,7 +22,7 @@
       >
 
         <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
-          <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
+          <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back">
             <mat-svg category="navigation" name="arrow_back" />
           </button>
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
@@ -80,10 +80,6 @@
       enableBgClickCancel: {
         type: Boolean,
         default: true,
-      },
-      enableBackBtn: {
-        type: Boolean,
-        default: false,
       },
       // toggles error message indicator in header
       hasError: {
