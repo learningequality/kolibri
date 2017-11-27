@@ -4,7 +4,14 @@
     <div class="top-bar">
       <router-link class="back-btn" :to="backPageLink">
         <mat-svg
-          class="back svg-back"
+          v-if="isRtl"
+          class="back back-btn-svg"
+          category="navigation"
+          name="arrow_forward"
+        />
+        <mat-svg
+          v-else
+          class="back back-btn-svg"
           category="navigation"
           name="arrow_back"
         />
@@ -66,7 +73,7 @@
     display: inline-block
     padding: 10px
 
-  .svg-back
+  .back-btn-svg
     fill: $core-bg-light
     margin-right: 10px
 

@@ -15,7 +15,7 @@
       <div v-show="searchBoxIsVisible" :class="{ 'search-box-dropdown': searchBoxIsDropdown }">
         <search-box
           ref="searchBox"
-          :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
+          :icon="searchBoxIcon"
           :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"
           @closeDropdownSearchBox="closeDropdownSearchBox"
         />
@@ -56,6 +56,12 @@
           return this.searchBoxIsOpen;
         }
         return true;
+      },
+      searchBoxIcon() {
+        if (this.searchBoxIsDropdown) {
+          return this.isRtl ? 'arrow_back' : 'arrow_forward';
+        }
+        return 'search';
       },
     },
     created() {

@@ -2,7 +2,7 @@
 
   <ui-toolbar
     class="progress-toolbar"
-    navIcon="arrow_back"
+    :navIcon="isRtl ? 'arrow_forward' : 'arrow_back'"
     :removeNavIcon="currentStep <= 1"
     @nav-icon-click="$emit('backButtonClicked')"
     type="colored"
