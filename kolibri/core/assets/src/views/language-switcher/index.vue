@@ -13,7 +13,6 @@
       class="core-text"
       :title="$tr('changeLanguageModalHeader')"
       @cancel="closeModal">
-      <p>{{ $tr('changeLanguageSubHeader') }}</p>
       <k-radio-button
         v-for="language in languageOptions"
         :key="language.id"
@@ -44,7 +43,6 @@
     components: { coreModal, kButton, kRadioButton },
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      changeLanguageSubHeader: 'Select the language you want to view Kolibri in',
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Confirm',
     },
