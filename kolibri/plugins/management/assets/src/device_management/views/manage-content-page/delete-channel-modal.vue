@@ -20,6 +20,7 @@
       />
 
       <k-button
+        name="confirm"
         :primary="true"
         @click="handleClickConfirm()"
         :text="$tr('confirmButtonLabel')"

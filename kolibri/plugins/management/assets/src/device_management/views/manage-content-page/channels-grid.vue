@@ -2,11 +2,18 @@
 
   <div>
     <transition mode="out-in">
-      <p class="core-text-alert" v-if="sortedChannels.length===0 && !channelsLoading">
+      <p
+        class="core-text-alert no-channels"
+        v-if="noChannelsToShow"
+      >
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear v-else-if="channelsLoading" type="indefinite" color="primary" />
+      <ui-progress-linear
+        v-else-if="channelsLoading"
+        type="indefinite"
+        color="primary"
+      />
 
       <div v-else>
         <div class="channel-list-header">
@@ -17,7 +24,6 @@
           <channel-list-item
             class="channel-list-item"
             v-for="channel in sortedChannels"
-            v-show="channel.on_device_resources > 0"
             :key="channel.id"
             :channel="channel"
             mode="MANAGE"
@@ -25,7 +31,6 @@
           />
         </div>
       </div>
-
     </transition>
 
     <delete-channel-modal
@@ -69,8 +74,14 @@
         }
         return '';
       },
+      noChannelsToShow() {
+        return this.sortedChannels.length === 0 && !this.channelsLoading;
+      },
       sortedChannels() {
-        return this.channelList.slice().sort(channel => channel.name);
+        return this.channelList
+          .slice()
+          .sort((c1, c2) => c1.name > c2.name)
+          .filter(channel => channel.on_device_resources > 0);
       },
     },
     created() {
