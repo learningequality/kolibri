@@ -48,7 +48,11 @@ export default class KolibriApp extends KolibriModule {
    *                           routes are handled. Use this to do initial state setup that needs to
    *                           be dynamically determined, and done before every route in the app.
    *                           Each function should return a promise that resolves when the state
-   *                           has been set.
+   *                           has been set. These will be invoked after the current session has
+   *                           been set in the vuex store, in order to allow these actions to
+   *                           reference getters that return data set by the getCurrentSession
+   *                           action. As this has always been bootstrapped into the base template
+   *                           this should not cause any real slow down in page loading.
    */
   get stateSetters() {
     return [];
@@ -58,21 +62,22 @@ export default class KolibriApp extends KolibriModule {
       state: this.initialState,
       mutations: this.mutations,
     });
-    Promise.all([
-      getCurrentSession(store),
-      // Invoke each of the state setters before initializing the app.
-      ...this.stateSetters.map(setter => setter(this.store)),
-    ]).then(() => {
-      this.rootvue = new Vue(
-        Object.assign(
-          {
-            el: 'rootvue',
-            store: store,
-            router: router.init(this.routes),
-          },
-          this.RootVue
-        )
-      );
+    getCurrentSession(store).then(() => {
+      Promise.all([
+        // Invoke each of the state setters before initializing the app.
+        ...this.stateSetters.map(setter => setter(this.store)),
+      ]).then(() => {
+        this.rootvue = new Vue(
+          Object.assign(
+            {
+              el: 'rootvue',
+              store: store,
+              router: router.init(this.routes),
+            },
+            this.RootVue
+          )
+        );
+      });
     });
   }
 }
