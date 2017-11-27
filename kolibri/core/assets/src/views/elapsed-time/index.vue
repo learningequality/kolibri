@@ -15,6 +15,7 @@
   import { now } from 'kolibri.utils.serverClock';
 
   const MINUTES_IN_DAY = 1440;
+  const MINUTES_IN_WEEK = 10080;
   const MINUTES_IN_MONTH = 43200;
   const MINUTES_IN_YEAR = 525600;
 
@@ -23,6 +24,7 @@
     MINUTES: 'minutes',
     HOURS: 'hours',
     DAYS: 'days',
+    WEEKS: 'weeks',
     MONTHS: 'months',
     YEARS: 'years',
   };
@@ -34,6 +36,7 @@
       minutesAgo: '{n, number, integer} {n, plural, one {minute} other {minutes} } ago',
       hoursAgo: '{n, number, integer} {n, plural, one {hour} other {hours} } ago',
       daysAgo: '{n, number, integer} {n, plural, one {day} other {days} } ago',
+      weeksAgo: '{n, number, integer} {n, plural, one {week} other {weeks} } ago',
       monthsAgo: '{n, number, integer} {n, plural, one {month} other {months} } ago',
       yearsAgo: '{n, number, integer} {n, plural, one {year} other {years} } ago',
     },
@@ -53,8 +56,10 @@
           return UNITS.MINUTES;
         } else if (this.minutes < MINUTES_IN_DAY) {
           return UNITS.HOURS;
-        } else if (this.minutes < MINUTES_IN_MONTH) {
+        } else if (this.minutes < MINUTES_IN_WEEK) {
           return UNITS.DAYS;
+        } else if (this.minutes < MINUTES_IN_MONTH) {
+          return UNITS.WEEKS;
         } else if (this.minutes < MINUTES_IN_YEAR) {
           return UNITS.MONTHS;
         }
@@ -79,6 +84,8 @@
           return Math.floor(this.minutes / 60);
         } else if (this.unit === UNITS.DAYS) {
           return Math.floor(this.minutes / MINUTES_IN_DAY);
+        } else if (this.unit === UNITS.WEEKS) {
+          return Math.floor(this.minutes / MINUTES_IN_WEEK);
         } else if (this.unit === UNITS.MONTHS) {
           return Math.floor(this.minutes / MINUTES_IN_MONTH);
         }

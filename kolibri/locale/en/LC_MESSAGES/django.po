@@ -1,0 +1,109 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-11-22 18:11-0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: kolibri/auth/constants/collection_kinds.py:12
+#: kolibri/plugins/management/kolibri_plugin.py:29
+msgid "Facility"
+msgstr ""
+
+#: kolibri/auth/constants/collection_kinds.py:13
+msgid "Classroom"
+msgstr ""
+
+#: kolibri/auth/constants/collection_kinds.py:14
+msgid "Learner group"
+msgstr ""
+
+#: kolibri/auth/constants/role_kinds.py:10
+msgid "Admin"
+msgstr ""
+
+#: kolibri/auth/constants/role_kinds.py:11
+msgid "Coach"
+msgstr ""
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr ""
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr ""
+
+#: kolibri/auth/models.py:216
+msgid ""
+"Enter a valid username. This value can contain only letters, numbers, and "
+"underscores."
+msgstr ""
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr ""
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr ""
+
+#: kolibri/auth/serializers.py:31
+msgid "An account with that username already exists"
+msgstr ""
+
+#: kolibri/content/api.py:355
+msgid "The requested channel does not exist on the content server"
+msgstr ""
+
+#: kolibri/content/models.py:183
+msgid "Unknown format"
+msgstr ""
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr ""
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr ""
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr ""
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr ""
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr ""
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr ""
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr ""
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr ""
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr ""

@@ -3,9 +3,18 @@
   <div class="channel-list-item">
 
     <div class="thumbnail dtc">
-      <img v-if="thumbnailImg" :src="thumbnailImg">
-      <div v-else class="default-icon">
-        <mat-svg category="navigation" name="apps" />
+      <img
+        v-if="thumbnailImg"
+        :src="thumbnailImg"
+      >
+      <div
+        v-else
+        class="default-icon"
+      >
+        <mat-svg
+          category="navigation"
+          name="apps"
+        />
       </div>
     </div>
 
@@ -13,19 +22,28 @@
 
       <div class="details-top">
         <div class="other-details">
-          <div v-if="inImportingMode && onDevice" class="on-device">
-            <mat-svg category="action" name="check_circle" />
-            {{ $tr('onYourDevice') }}
+          <div
+            v-if="inImportMode && onDevice"
+            class="on-device"
+          >
+            <mat-svg
+              category="action"
+              name="check_circle"
+            />
+            <span>{{ $tr('onYourDevice') }}</span>
           </div>
-          <div v-if="inManagingMode" class="resources-size">
-            {{ resourcesSizeText }}
+          <div
+            v-if="inExportMode || inManageMode"
+            class="resources-size"
+          >
+            <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
         <div class="title">
           {{ channel.name }}
         </div>
         <div class="version">
-          {{ $tr('version', { version: channel.version }) }}
+          {{ $tr('version', { version: versionNumber }) }}
         </div>
       </div>
 
@@ -39,13 +57,15 @@
 
     <div class="buttons dtc">
       <k-button
-        v-if="inImportingMode"
+        v-if="inImportMode || inExportMode"
         @click="$emit('clickselect')"
         name="select"
         :text="$tr('selectButton')"
+        primary
+        :disabled="tasksInQueue"
       />
       <k-button
-        v-if="inManagingMode"
+        v-if="inManageMode"
         @click="$emit('clickdelete')"
         name="delete"
         :text="$tr('deleteButton')"
@@ -60,10 +80,14 @@
 <script>
 
   import bytesForHumans from './bytesForHumans';
+  import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
 
-  const IMPORTING = 'importing';
-  const MANAGING = 'managing';
+  const Modes = {
+    IMPORT: 'IMPORT',
+    EXPORT: 'EXPORT',
+    MANAGE: 'MANAGE',
+  };
 
   export default {
     name: 'channelListItem',
@@ -76,7 +100,7 @@
         required: true,
       },
       mode: {
-        type: String,
+        type: String, // 'IMPORT' | 'EXPORT' | 'MANAGE'
         required: true,
       },
       onDevice: {
@@ -85,11 +109,14 @@
       },
     },
     computed: {
-      inImportingMode() {
-        return this.mode === IMPORTING;
+      inImportMode() {
+        return this.mode === Modes.IMPORT;
       },
-      inManagingMode() {
-        return this.mode === MANAGING;
+      inExportMode() {
+        return this.mode === Modes.EXPORT;
+      },
+      inManageMode() {
+        return this.mode === Modes.MANAGE;
       },
       resourcesSizeText() {
         return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.total_file_size) });
@@ -101,10 +128,18 @@
         const { taskList = [] } = this.pageState;
         return taskList.length > 0;
       },
+      versionNumber() {
+        const installed = this.channelIsInstalled(this.channel.id);
+        if (installed) {
+          return installed.version;
+        }
+        return this.channel.version;
+      },
     },
     vuex: {
       getters: {
         pageState: ({ pageState }) => pageState,
+        channelIsInstalled,
       },
     },
     $trs: {
@@ -131,6 +166,8 @@
   .channel-list-item
     display: table
     vertical-align: middle
+    padding: 2em 0
+    border-bottom: 1px solid $core-grey
 
   .title
     font-size: 1.2em
@@ -142,6 +179,7 @@
     color: $core-text-annotation
 
   .description
+    width: 66%
     padding: 1em 0
 
   .thumbnail
@@ -166,6 +204,14 @@
   .other-details
     float: right
     line-height: 1.7em
+
+  .on-device
+    line-height: 1.7em
+    svg
+      fill: $core-status-correct
+    span
+      margin-left: 10px
+      vertical-align: top
 
   .buttons
     width: 10%

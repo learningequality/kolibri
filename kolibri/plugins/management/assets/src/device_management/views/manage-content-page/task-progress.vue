@@ -88,6 +88,14 @@
     computed: {
       TaskStatuses: () => TaskStatuses,
       stageText() {
+        // Special case for Channel DB downloading, since they never go into RUNNING
+        if (this.type === 'UPDATING_CHANNEL') {
+          return this.$tr('updatingChannel');
+        }
+        if (this.type === 'DOWNLOADING_CHANNEL_CONTENTS') {
+          return this.$tr('downloadingChannelContents');
+        }
+
         if (this.status === TaskStatuses.RUNNING) {
           switch (this.type) {
             case TaskTypes.REMOTE_IMPORT:
@@ -162,6 +170,8 @@
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',
+      downloadingChannelContents: 'Downoading channel contents…',
+      updatingChannel: 'Updating channel…',
     },
   };
 

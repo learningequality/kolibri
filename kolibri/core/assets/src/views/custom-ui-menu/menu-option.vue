@@ -2,9 +2,7 @@
 
   <li
     class="ui-menu-option"
-    ref="menuOption"
-    role="menu-item"
-
+    role="menuitem"
     :class="classes"
     :tabindex="(isDivider || disabled) ? null : '0'"
   >
@@ -29,10 +27,7 @@
       </div>
     </slot>
 
-    <ui-ripple-ink
-      trigger="menuOption"
-      v-if="!disabled && !isDivider && !disableRipple"
-    />
+    <ui-ripple-ink v-if="!disabled && !isDivider && !disableRipple" />
   </li>
 
 </template>

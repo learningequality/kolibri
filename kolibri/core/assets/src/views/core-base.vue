@@ -35,6 +35,8 @@
         <slot></slot>
       </template>
     </div>
+
+    <connection-snackbars />
   </div>
 
 </template>
@@ -49,6 +51,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import connectionSnackbars from './connection-snackbars';
 
   export default {
     components: {
@@ -56,6 +59,7 @@
       sideNav,
       errorBox,
       loadingSpinner,
+      connectionSnackbars,
     },
     mixins: [responsiveWindow],
     props: {
@@ -79,6 +83,11 @@
       navBarNeeded: {
         type: Boolean,
         default: true,
+      },
+      // reserve space at the bottom for floating widgets
+      bottomMargin: {
+        type: Number,
+        default: 0,
       },
     },
     vuex: {
@@ -107,6 +116,7 @@
           paddingTop: padding,
           paddingLeft: padding,
           paddingRight: padding,
+          marginBottom: this.bottomMargin + 'px',
         };
       },
     },

@@ -27,6 +27,7 @@ except AppRegistryNotReady:
 
 logging = logger.getLogger(__name__)
 
+
 NETWORK_ERROR_STRING = _("There was a network error.")
 
 DISK_IO_ERROR_STRING = _("There was a disk access error.")
@@ -69,7 +70,14 @@ class TasksViewSet(viewsets.ViewSet):
             "started_by": request.user.pk,
         }
 
-        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl, extra_metadata=job_metadata,)
+        job_id = get_client().schedule(
+            call_command,
+            "importchannel",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+        )
         resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)

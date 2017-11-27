@@ -2,29 +2,23 @@
 
   <div class="drive-list">
     <div v-if="drives.length === 0">
-      <h2 class="core-text-alert">
-        <mat-svg class="error-svg" category="alert" name="error_outline" />
-        {{ $tr('noDrivesDetected') }}
-      </h2>
+      <ui-alert
+        type="info"
+        :dismissible="false"
+      >
+        {{ noDrivesText }}
+      </ui-alert>
     </div>
 
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
       <k-radio-button
-        v-for="drive in enabledDrives"
+        v-for="drive in drives"
         :key="drive.id"
         :label="enabledDriveLabel(drive)"
         :radiovalue="drive.id"
-        v-model="selectedDrive"
-        @change="$emit('change', drive.id)"
-      />
-      <k-radio-button
-        v-for="drive in disabledDrives"
-        :key="drive.id"
-        :label="disabledDriveLabel(drive)"
-        :radiovalue="drive.id"
-        :disabled="true"
-        v-model="selectedDrive"
+        :value="value"
+        @change="$emit('input', drive.id)"
       />
     </div>
   </div>
@@ -35,25 +29,24 @@
 <script>
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import UiAlert from 'keen-ui/src/UiAlert';
 
   export default {
     name: 'wizardDriveList',
-    components: { kRadioButton },
+    components: {
+      kRadioButton,
+      UiAlert,
+    },
     props: {
-      value: {
-        type: String,
-        required: true,
-      },
       drives: {
         type: Array,
         required: true,
       },
-      enabledDrivePred: {
-        type: Function,
+      mode: {
+        type: String,
         required: true,
       },
-      enabledMsg: { type: Function },
-      disabledMsg: {
+      value: {
         type: String,
         required: true,
       },
@@ -64,11 +57,11 @@
       };
     },
     computed: {
-      enabledDrives() {
-        return this.drives.filter(drive => this.enabledDrivePred(drive));
-      },
-      disabledDrives() {
-        return this.drives.filter(drive => !this.enabledDrivePred(drive));
+      noDrivesText() {
+        if (this.mode === 'IMPORT') {
+          return this.$tr('noImportableDrives');
+        }
+        return this.$tr('noExportableDrives');
       },
     },
     mounted() {
@@ -88,7 +81,8 @@
     },
     $trs: {
       drivesFound: 'Drives found',
-      noDrivesDetected: 'No drives were detected',
+      noImportableDrives: 'No drives with Kolibri content are connected to the server',
+      noExportableDrives: 'No drives that can be written to are connected to the server',
     },
   };
 

@@ -1,6 +1,10 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="$tr('learnTitle')"
+    :bottomMargin="bottomSpaceReserved"
+  >
     <template slot="app-bar-actions">
       <action-bar-search-box v-if="!isWithinSearchPage" />
     </template>
@@ -15,8 +19,8 @@
         />
         <k-navbar-link
           type="icon-and-title"
-          :title="$tr('topics')"
-          icon="folder"
+          :title="$tr('channels')"
+          icon="apps"
           :link="channelsLink"
         />
         <k-navbar-link
@@ -65,12 +69,15 @@
   import examPage from './exam-page';
   import totalPoints from './total-points';
   import actionBarSearchBox from './action-bar-search-box';
+
+  const BOTTOM_SPACED_RESERVED = 88;
+
   export default {
     name: 'learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
-      topics: 'Topics',
+      channels: 'Channels',
       exams: 'Exams',
     },
     components: {
@@ -155,6 +162,12 @@
           name: PageNames.EXAM_LIST,
         };
       },
+      bottomSpaceReserved() {
+        const isAssessment =
+          this.currentPage === 'content-page' && this.content && this.content.assessment;
+        // height of .attemptprogress-container.mobile in assessment-wrapper
+        return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
+      },
     },
 
     vuex: {
@@ -163,6 +176,7 @@
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
+        content: state => state.pageState.content,
       },
     },
   };

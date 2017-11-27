@@ -14,13 +14,15 @@
         </div>
 
         <div class="channel-list">
-          <div class="channel-item-wrapper" v-for="channel in sortedChannels" :key="channel.id">
-            <channel-list-item
-              :channel="channel"
-              mode="managing"
-              @clickdelete="selectedChannelId=channel.id"
-            />
-          </div>
+          <channel-list-item
+            class="channel-list-item"
+            v-for="channel in sortedChannels"
+            v-show="channel.on_device_resources > 0"
+            :key="channel.id"
+            :channel="channel"
+            mode="MANAGE"
+            @clickdelete="selectedChannelId=channel.id"
+          />
         </div>
       </div>
 
@@ -113,10 +115,7 @@
     padding: 1em 0
     color: $core-text-annotation
 
-  .channel-item-wrapper
-    padding: 2em 0
-    border-bottom: 1px solid $core-grey
-    &:first-of-type
-      border-top: 1px solid $core-grey
+  .channel-list-item:first-of-type
+    border-top: 1px solid $core-grey
 
 </style>

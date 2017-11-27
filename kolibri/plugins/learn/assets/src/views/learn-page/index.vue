@@ -6,36 +6,57 @@
       <content-card-group-header
         :header="$tr('popularSectionHeader')"
         :viewMorePageLink="popularPageLink"
-        :showViewMore="popular.length > trimmedPopular.length" />
-      <component
-        :is="recommendationDisplay"
+        :showViewMore="popular.length > trimmedPopular.length"
+      />
+      <content-card-group-grid
+        v-if="isMobile"
         :genContentLink="genContentLink"
-        :filter="false"
-        :contents="trimmedPopular" />
+        :contents="trimmedPopular"
+        :showContentKindFilter="false"
+      />
+      <content-card-group-carousel
+        v-else
+        :genContentLink="genContentLink"
+        :contents="trimmedPopular"
+      />
     </template>
 
     <template v-if="nextSteps.length">
       <content-card-group-header
         :header="$tr('suggestedNextStepsSectionHeader')"
         :viewMorePageLink="nextStepsPageLink"
-        :showViewMore="nextSteps.length > trimmedNextSteps.length" />
-      <component
-        :is="recommendationDisplay"
+        :showViewMore="nextSteps.length > trimmedNextSteps.length"
+      />
+      <content-card-group-grid
+        v-if="isMobile"
         :genContentLink="genContentLink"
-        :filter="false"
-        :contents="trimmedNextSteps" />
+        :contents="trimmedNextSteps"
+        :showContentKindFilter="false"
+      />
+      <content-card-group-carousel
+        v-else
+        :genContentLink="genContentLink"
+        :contents="trimmedNextSteps"
+      />
     </template>
 
     <template v-if="resume.length">
       <content-card-group-header
         :header="$tr('resumeSectionHeader')"
         :viewMorePageLink="resumePageLink"
-        :showViewMore="resume.length > trimmedResume.length" />
-      <component
-        :is="recommendationDisplay"
+        :showViewMore="resume.length > trimmedResume.length"
+      />
+      <content-card-group-grid
+        v-if="isMobile"
         :genContentLink="genContentLink"
-        :filter="false"
-        :contents="trimmedResume" />
+        :contents="trimmedResume"
+        :showContentKindFilter="false"
+      />
+      <content-card-group-carousel
+        v-else
+        :genContentLink="genContentLink"
+        :contents="trimmedResume"
+      />
     </template>
 
     <template v-for="(contents, channelId) in featured" v-if="contents.length">
@@ -43,13 +64,21 @@
         :key="channelId"
         :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
         :viewMorePageLink="featuredPageLink(channelId)"
-        :showViewMore="contents.length > trimContent(contents).length" />
-      <component
+        :showViewMore="contents.length > trimContent(contents).length"
+      />
+      <content-card-group-grid
+        v-if="isMobile"
         :key="channelId"
-        :is="recommendationDisplay"
         :genContentLink="genContentLink"
-        :filter="false"
-        :contents="trimContent(contents)" />
+        :contents="trimContent(contents)"
+        :showContentKindFilter="false"
+      />
+      <content-card-group-carousel
+        v-else
+        :key="channelId"
+        :genContentLink="genContentLink"
+        :contents="trimContent(contents)"
+      />
     </template>
 
   </div>
@@ -86,12 +115,6 @@
     computed: {
       isMobile() {
         return this.windowSize.breakpoint <= 1;
-      },
-      recommendationDisplay() {
-        if (this.isMobile) {
-          return contentCardGroupGrid;
-        }
-        return contentCardGroupCarousel;
       },
       carouselLimit() {
         return this.isMobile ? mobileCarouselLimit : desktopCarouselLimit;
