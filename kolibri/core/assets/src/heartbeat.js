@@ -1,4 +1,6 @@
 import logger from 'kolibri.lib.logging';
+import { checkSession } from 'kolibri.coreVue.vuex.actions';
+import store from 'kolibri.coreVue.vuex.store';
 
 const logging = logger.getLogger(__filename);
 
@@ -46,26 +48,13 @@ export default class HeartBeat {
     return this.timerId;
   }
   beat() {
-    const sessionModel = this.kolibri.resources.SessionResource.getModel('current');
-    const userId = sessionModel.attributes.user_id;
     if (this.active) {
       this.setActivityListeners();
     } else {
       logging.debug('No user activity');
     }
-    this.kolibri.resources.SessionResource
-      .getModel('current')
-      .fetch({ active: this.active }, true)
-      .then(session => {
-        if (session.user_id !== userId) {
-          window.location.reload();
-        }
-      })
-      .catch(error => {
-        logging.error('Heartbeat server polling failed, with error: ', error);
-      });
+    checkSession(store, this.active);
     this.setInactive();
-
     return this.wait();
   }
   get events() {

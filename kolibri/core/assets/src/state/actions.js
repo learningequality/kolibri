@@ -6,6 +6,7 @@ import {
   InteractionTypes,
   LoginErrors,
   ConnectionSnackbars,
+  SignedOutDueToInactivitySnackbar,
 } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
@@ -24,6 +25,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
+import Lockr from 'lockr';
 
 const name = 'coreTitles';
 
@@ -750,6 +752,26 @@ function clearSnackbar(store) {
   store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
 }
 
+function signedOutDueToInactivity() {
+  Lockr.set(SignedOutDueToInactivitySnackbar, true);
+  window.location = window.origin;
+}
+
+function checkSession(store, active = true) {
+  const sessionModel = SessionResource.getModel('current');
+  const userId = sessionModel.attributes.user_id;
+  SessionResource.getModel('current')
+    .fetch({ active }, true)
+    .then(session => {
+      if (session.user_id !== userId) {
+        signedOutDueToInactivity(store);
+      }
+    })
+    .catch(error => {
+      logging.error('Session polling failed, with error: ', error);
+    });
+}
+
 export {
   handleError,
   handleApiError,
@@ -782,4 +804,5 @@ export {
   showTryingToReconnectSnackbar,
   showSuccessfullyReconnectedSnackbar,
   clearSnackbar,
+  checkSession,
 };
