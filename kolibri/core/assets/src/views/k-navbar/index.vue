@@ -4,8 +4,13 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="scrollLeft"
+      @click="isRtl ? scrollRight() : scrollLeft()"
     >
+      <mat-svg
+        v-if="isRtl"
+        name="keyboard_arrow_right"
+        category="hardware"
+      />
       <mat-svg
         name="keyboard_arrow_left"
         category="hardware"
@@ -24,8 +29,13 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="scrollRight"
+      @click="isRtl ? scrollLeft() : scrollRight()"
     >
+      <mat-svg
+        v-if="isRtl"
+        name="keyboard_arrow_left"
+        category="hardware"
+      />
       <mat-svg
         name="keyboard_arrow_right"
         category="hardware"
