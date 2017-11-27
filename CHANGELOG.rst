@@ -8,7 +8,7 @@ Changes are ordered reverse-chronologically.
 0.7 (unreleased)
 ----------------
 
- - (adding changes here)
+ - Officially supporting Python 3.6
 
 
 0.6.1 (unreleased)
