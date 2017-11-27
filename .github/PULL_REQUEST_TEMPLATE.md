@@ -3,8 +3,8 @@
 <!--
 Using the template:
 
- 1. Leave all headlines in place
- 2. Replace instructional texts with your own words
+ 1. Replace instructional texts with your own words
+ 2. Remove headlines when not applicable
  3. Tick of completed checklist items as you complete them
  4. Feel free to skip checklist items that aren't applicable
 -->
