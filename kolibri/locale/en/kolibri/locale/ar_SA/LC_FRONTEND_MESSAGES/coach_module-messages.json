@@ -156,7 +156,7 @@
     "topicRow.exercisesSelected": "{selected, number} من {total, number} {total, plural, one {تمرين} other {تمارين}} اختيرت",
     "topicRow.selectTopic": "إختر موضوعاً",
     "coachExamsPage.exams": "الاختبارات",
-    "coachExamsPage.classExams": "امتحانات {className}",
+    "coachExamsPage.classExams": "إمتحانات {className}",
     "coachExamsPage.all": "الكل",
     "coachExamsPage.active": "ناشط",
     "coachExamsPage.inactive": "غير نشط",
