@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import sumBy from 'lodash/sumBy';
+import { TransferTypes } from '../constants';
 
 export function wizardState(state) {
   return state.pageState.wizardState;
@@ -57,4 +58,8 @@ export function nodeTransferCounts(state) {
     resources: getDifference('total_resources'),
     fileSize: getDifference('total_file_size'),
   };
+}
+
+export function inExportMode(state) {
+  return state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT;
 }
