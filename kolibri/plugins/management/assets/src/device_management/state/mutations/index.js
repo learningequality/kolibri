@@ -1,6 +1,7 @@
 import * as manageContentMutations from './manageContentMutations';
 import * as contentWizardMutations from './contentWizardMutations';
 import * as managePermissionsMutations from './managePermissionsMutations';
+import * as deviceInfoMutations from './deviceInfoMutations';
 import * as contentTransferMutations from './contentTransferMutations';
 
 const mutations = {
@@ -20,5 +21,6 @@ export default {
   ...manageContentMutations,
   ...contentWizardMutations,
   ...managePermissionsMutations,
+  ...deviceInfoMutations,
   ...contentTransferMutations,
 };

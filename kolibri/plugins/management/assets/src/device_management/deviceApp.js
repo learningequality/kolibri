@@ -9,6 +9,7 @@ import {
   showUserPermissionsPage,
 } from './state/actions/managePermissionsActions';
 import { showManageContentPage } from './state/actions/manageContentActions';
+import { showDeviceInfoPage } from './state/actions/deviceInfoActions';
 import store from 'kolibri.coreVue.vuex.store';
 import { createTranslator } from 'kolibri.utils.i18n';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
@@ -17,6 +18,7 @@ const translator = createTranslator('deviceAppPageTitles', {
   manageDeviceContent: 'Manage Device Content',
   manageDevicePermissions: 'Manage Device Permissions',
   manageUserPermissions: 'Manage User Permissions',
+  deviceInfo: 'Device info',
 });
 
 function hideLoadingScreen() {
@@ -66,6 +68,17 @@ const routes = [
         title: translator.$tr('manageUserPermissions'),
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+    },
+  },
+  {
+    name: PageNames.DEVICE_INFO_PAGE,
+    path: '/info',
+    handler: ({ name }) => {
+      preparePage(store.dispatch, {
+        name,
+        title: translator.$tr('deviceInfo'),
+      });
+      showDeviceInfoPage(store).then(hideLoadingScreen);
     },
   },
   ...wizardTransitionRoutes,

@@ -1,0 +1,32 @@
+{% load i18n %}
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: white;
+  }
+  .topbar {
+    background-color: #996189;
+    width: 100%;
+    color: white;
+  }
+  .topbar h1 {
+    font-size: x-large;
+    display: inline-block;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .content-container {
+    padding: 32px;
+  }
+</style>
+<div class="topbar">
+  <h1>Kolibri</h1>
+</div>
+
+<div class="content-container">
+  <h2>{% trans "Unsupported browser" %}</h2>
+  <p>{% trans "Sorry, your browser version is not supported." %}</p>
+  <p>{% trans "To use Kolibri, we recommend using Firefox or Chrome." %}</p>
+  <p>{% trans "You can also try updating your current browser." %}</p>
+</div>

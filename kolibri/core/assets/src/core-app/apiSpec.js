@@ -70,6 +70,7 @@ import uiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import appBar from '../views/app-bar';
+import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 
 export default {
@@ -123,6 +124,7 @@ export default {
       kSelect,
       uiAlert,
       appBar,
+      coreSnackbar,
       customUiMenu,
     },
     router,
