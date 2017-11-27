@@ -58,7 +58,7 @@
     addNodeForTransfer,
     removeNodeForTransfer,
   } from '../../state/actions/contentTreeViewerActions';
-  import { wizardState } from '../../state/getters';
+  import { wizardState, inExportMode } from '../../state/getters';
   import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
@@ -96,7 +96,9 @@
         }));
       },
       annotatedChildNodes() {
-        return this.childNodesWithPath.map(n => annotateNode(n, this.nodesForTransfer));
+        return this.childNodesWithPath.map(n =>
+          annotateNode(n, this.nodesForTransfer, !this.inExportMode)
+        );
       },
       annotatedTopicNode() {
         // For the purposes of annotating the parent topic node, we need to add
@@ -109,7 +111,11 @@
           ],
           omitted: [...this.nodesForTransfer.omitted],
         };
-        return annotateNode({ ...this.topicNode, path: [...this.path] }, selections);
+        return annotateNode(
+          { ...this.topicNode, path: [...this.path] },
+          selections,
+          !this.inExportMode
+        );
       },
       breadcrumbItems() {
         const items = [...this.breadcrumbs];
@@ -166,6 +172,7 @@
       getters: {
         breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
         childNodes: state => wizardState(state).currentTopicNode.children,
+        inExportMode,
         path: state => wizardState(state).path,
         nodesForTransfer: state => wizardState(state).nodesForTransfer,
         topicNode: state => wizardState(state).currentTopicNode,

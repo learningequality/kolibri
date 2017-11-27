@@ -279,7 +279,7 @@ describe('contentTreeViewer actions', () => {
       });
     });
 
-    it('when removing a Node leads to an included parent Node being un-selected', () => {
+    it('(IMPORT) when removing a Node leads to an included parent Node being un-selected', () => {
       // i.e. all of the parent's resources are omitted.
       // Then that parent node will be removed from `include`.
       // Then all of the parent node's descendants will be removed from `omit`.
@@ -298,6 +298,33 @@ describe('contentTreeViewer actions', () => {
         path: simplePath('1'),
         total_resources: 10, // 5 transferrable
         on_device_resources: 5,
+      });
+      setIncludedNodes([topNode]);
+      setOmittedNodes([childNode]);
+      return removeNodeForTransfer(store, siblingNode).then(() => {
+        assertIncludeEquals([]);
+        assertOmitEquals([]);
+        assertFilesResourcesEqual(0, 0);
+      });
+    });
+
+    it('(EXPORT) when removing a Node leads to an included parent Node being un-selected', () => {
+      store.state.pageState.wizardState.transferType = 'localexport';
+      const topNode = makeNode('1', {
+        path: simplePath(),
+        // Make it so that not all resources are installed
+        total_resources: 38,
+        on_device_resources: 3,
+      });
+      const childNode = makeNode('1_1', {
+        path: simplePath('1'),
+        total_resources: 9,
+        on_device_resources: 2,
+      });
+      const siblingNode = makeNode('1_2', {
+        path: simplePath('1'),
+        total_resources: 3,
+        on_device_resources: 1,
       });
       setIncludedNodes([topNode]);
       setOmittedNodes([childNode]);
