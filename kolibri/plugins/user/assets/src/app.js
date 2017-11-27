@@ -5,6 +5,7 @@ import * as actions from './state/actions';
 import { initialState, mutations } from './state/store';
 import { PageNames } from './constants';
 import store from 'kolibri.coreVue.vuex.store';
+import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
 
 const routes = [
   {
@@ -42,6 +43,9 @@ const routes = [
 ];
 
 class UserModule extends KolibriApp {
+  get stateSetters() {
+    return [getFacilityConfig];
+  }
   get routes() {
     return routes;
   }
