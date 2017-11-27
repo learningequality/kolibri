@@ -31,12 +31,12 @@ when applicable, please provide:
 
 - [ ] PR has the correct target milestone
 - [ ] PR has the appropriate labels
-- [ ] Changes in the PR do not introduce accessibility regressions ([confimed by testing with one of the recommended tools](http://kolibri.readthedocs.io/en/develop/dev/manual_testing.html#accessibility-a11y-testing))
 - [ ] If PR is ready for review, it has been assigned or requests review from someone
 - [ ] Documentation is updated as necessary
 - [ ] External dependency files are updated (`yarn` and `pip`)
 - [ ] If internal dependency is updated, link to diff is included
 - [ ] Screenshots of any front-end changes are in the PR description
+- [ ] PR has been [tested for accessibility regressions](http://kolibri.readthedocs.io/en/develop/dev/manual_testing.html#accessibility-a11y-testing)
 - [ ] CHANGELOG.rst is updated for high-level changes
 - [ ] You've added yourself to AUTHORS.rst if you're not there
 
