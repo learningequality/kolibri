@@ -122,7 +122,7 @@
         return this.mode === Modes.MANAGE;
       },
       resourcesSizeText() {
-        return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.total_file_size) });
+        return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.on_device_file_size) });
       },
       thumbnailImg() {
         return this.channel.thumbnail;
