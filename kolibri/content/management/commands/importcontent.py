@@ -6,7 +6,7 @@ from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
 from requests.exceptions import HTTPError
 
-from ...models import LocalFile
+from ...models import LocalFile, ContentNode
 from ...utils import annotation, paths, transfer
 
 # constants to specify the transfer method to be used
@@ -103,15 +103,24 @@ class Command(AsyncCommand):
     def copy_content(self, channel_id, path, node_ids=None, exclude_node_ids=None):
         self._transfer(COPY_METHOD, channel_id, path=path, node_ids=node_ids, exclude_node_ids=exclude_node_ids)
 
+    def _get_leaves_ids(self, node_ids):
+        leaf_node_ids = []
+        for node_id in node_ids:
+            node_leaves = ContentNode.objects.get(pk=node_id).get_descendants(include_self=True).filter(children__isnull=True).values_list('id', flat=True)
+            leaf_node_ids += node_leaves
+        return leaf_node_ids
+
     def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None):  # noqa: max-complexity=16
 
         files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
 
         if node_ids:
-            files_to_download = files_to_download.filter(files__contentnode__in=node_ids)
+            leaf_node_ids = self._get_leaves_ids(node_ids)
+            files_to_download = files_to_download.filter(files__contentnode__in=leaf_node_ids)
 
         if exclude_node_ids:
-            files_to_download = files_to_download.exclude(files__contentnode__in=exclude_node_ids)
+            exclude_leaf_node_ids = self._get_leaves_ids(exclude_node_ids)
+            files_to_download = files_to_download.exclude(files__contentnode__in=exclude_leaf_node_ids)
 
         # Make sure the files are unique, to avoid duplicating downloads
         files_to_download = files_to_download.distinct()
