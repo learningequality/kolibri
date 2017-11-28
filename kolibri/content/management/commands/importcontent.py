@@ -2,12 +2,10 @@ import os
 
 from django.conf import settings
 from django.core.management.base import CommandError
-from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
 from requests.exceptions import HTTPError
 
-from ...models import LocalFile
-from ...utils import annotation, paths, transfer
+from ...utils import annotation, paths, transfer, import_export_content
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -105,18 +103,8 @@ class Command(AsyncCommand):
 
     def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None):  # noqa: max-complexity=16
 
-        files_to_download = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=False)
-
-        if node_ids:
-            files_to_download = files_to_download.filter(files__contentnode__in=node_ids)
-
-        if exclude_node_ids:
-            files_to_download = files_to_download.exclude(files__contentnode__in=exclude_node_ids)
-
-        # Make sure the files are unique, to avoid duplicating downloads
-        files_to_download = files_to_download.distinct()
-
-        total_bytes_to_transfer = files_to_download.aggregate(Sum('file_size'))['file_size__sum'] or 0
+        files_to_download, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
+            channel_id, node_ids, exclude_node_ids, False)
 
         downloaded_files = []
         file_checksums_to_annotate = []
