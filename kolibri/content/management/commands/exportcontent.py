@@ -1,11 +1,9 @@
 import logging as logger
 import os
 
-from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...models import LocalFile, ContentNode
-from ...utils import paths, transfer
+from ...utils import paths, transfer, import_export_content
 
 logging = logger.getLogger(__name__)
 
@@ -51,13 +49,6 @@ class Command(AsyncCommand):
         parser.add_argument("channel_id", type=str)
         parser.add_argument("destination", type=str)
 
-    def _get_leaves_ids(self, node_ids):
-        leaf_node_ids = []
-        for node_id in node_ids:
-            node_leaves = ContentNode.objects.get(pk=node_id).get_descendants(include_self=True).filter(children__isnull=True).values_list('id', flat=True)
-            leaf_node_ids += node_leaves
-        return leaf_node_ids
-
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         data_dir = os.path.realpath(options["destination"])
@@ -65,17 +56,8 @@ class Command(AsyncCommand):
         exclude_node_ids = options["exclude_node_ids"]
         logging.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
 
-        files = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=True)
-
-        if node_ids:
-            leaf_node_ids = self._get_leaves_ids(node_ids)
-            files = files.filter(files__contentnode__in=leaf_node_ids)
-
-        if exclude_node_ids:
-            exclude_leaf_node_ids = self._get_leaves_ids(exclude_node_ids)
-            files = files.exclude(files__contentnode__in=exclude_leaf_node_ids)
-
-        total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
+        files, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
+            channel_id, node_ids, exclude_node_ids, True)
 
         exported_files = []
 
