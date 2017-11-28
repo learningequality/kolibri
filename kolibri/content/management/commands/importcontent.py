@@ -70,9 +70,13 @@ class Command(AsyncCommand):
             files = File.objects.all()
             total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
 
+            downloaded_files = []
+
             with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
                 for f in files:
+                    if self.is_cancelled():
+                        break
 
                     filename = f.get_filename()
                     dest = paths.get_content_storage_file_path(filename)
@@ -95,9 +99,21 @@ class Command(AsyncCommand):
                         with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
 
                             for chunk in filetransfer:
+                                if self.is_cancelled():
+                                    filetransfer.cancel()
+                                    break
                                 length = len(chunk)
                                 overall_progress_update(length)
                                 file_dl_progress_update(length)
+                            else:
+                                # If the for loop didn't break, add this to downloaded files.
+                                downloaded_files.append(dest)
+
+                if self.is_cancelled():
+                    # Cancelled, clean up any already downloading files.
+                    for dest in downloaded_files:
+                        os.remove(dest)
+                    self.cancel()
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

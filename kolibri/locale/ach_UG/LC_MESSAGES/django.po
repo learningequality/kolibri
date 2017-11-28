@@ -1,0 +1,78 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-03 18:14+0000\n"
+"PO-Revision-Date: 2017-07-28 17:27-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Acholi\n"
+"Language: ach_UG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ach\n"
+"X-Crowdin-File: /release-v0.5.x/en/LC_MESSAGES/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:12
+msgid "Facility"
+msgstr "crwdns10407:0crwdne10407:0"
+
+#: kolibri/auth/constants/collection_kinds.py:13
+msgid "Classroom"
+msgstr "crwdns10408:0crwdne10408:0"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+msgid "Learner group"
+msgstr "crwdns10409:0crwdne10409:0"
+
+#: kolibri/auth/constants/role_kinds.py:10
+msgid "Admin"
+msgstr "crwdns10410:0crwdne10410:0"
+
+#: kolibri/auth/constants/role_kinds.py:11
+msgid "Coach"
+msgstr "crwdns10411:0crwdne10411:0"
+
+#: kolibri/auth/models.py:157
+msgid "username"
+msgstr "crwdns10412:0crwdne10412:0"
+
+#: kolibri/auth/models.py:159
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "crwdns10413:0crwdne10413:0"
+
+#: kolibri/auth/models.py:163
+msgid "Enter a valid username. This value may contain only letters and numbers."
+msgstr "crwdns10414:0crwdne10414:0"
+
+#: kolibri/auth/models.py:167
+msgid "full name"
+msgstr "crwdns10415:0crwdne10415:0"
+
+#: kolibri/auth/models.py:168
+msgid "date joined"
+msgstr "crwdns10416:0crwdne10416:0"
+
+#: kolibri/auth/serializers.py:27
+msgid "An account with that username already exists"
+msgstr "crwdns10417:0crwdne10417:0"
+
+#: kolibri/content/models.py:215
+msgid "Unknown format"
+msgstr "crwdns10418:0crwdne10418:0"
+
+#: kolibri/core/templates/kolibri/base.html:11
+msgid "Kolibri"
+msgstr "crwdns10419:0crwdne10419:0"
+
+#: kolibri/plugins/management/kolibri_plugin.py:29
+msgid "Management"
+msgstr "crwdns10420:0crwdne10420:0"
+
+#: kolibri/tasks/api.py:86
+msgid "The requested channel does not exist on the content server"
+msgstr "crwdns10421:0crwdne10421:0"
+

@@ -1,6 +1,7 @@
+from six import string_types
+
 from django.db import models
 from django.db.models.query import F
-from six import string_types
 
 from .constants import collection_kinds
 from .errors import InvalidHierarchyRelationsArgument
@@ -91,9 +92,9 @@ class HierarchyRelationsFilter(object):
 
     def _as_sql_reference(self, ref):
         if hasattr(ref, "id"):  # ref is a model instance; return its ID
-            return ref.id
+            return "'{}'".format(ref.id)
         elif isinstance(ref, string_types) or isinstance(ref, int):  # ref is a string or integer; assume it's an ID
-            return ref
+            return "'{}'".format(ref)
         elif isinstance(ref, F):  # ref is an F expression; resolve it to a SQL reference
             return self._resolve_f_expression(ref)
         else:

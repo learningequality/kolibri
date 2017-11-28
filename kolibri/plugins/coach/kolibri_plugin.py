@@ -4,7 +4,7 @@ from kolibri.plugins.base import KolibriPluginBase
 from . import hooks, urls
 
 
-class CoachTools(KolibriPluginBase):
+class Coach(KolibriPluginBase):
     def url_module(self):
         return urls
 
@@ -12,9 +12,9 @@ class CoachTools(KolibriPluginBase):
         return "^coach/"
 
 
-class CoachToolsAsset(webpack_hooks.WebpackBundleHook):
+class CoachAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "coach_module"
     src_file = "assets/src/app.js"
 
-class CoachToolsInclusionHook(hooks.CoachToolsSyncHook):
-    bundle_class = CoachToolsAsset
+class CoachInclusionHook(hooks.CoachSyncHook):
+    bundle_class = CoachAsset

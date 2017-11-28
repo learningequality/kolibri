@@ -294,5 +294,15 @@
     },
     "pk": "6199dde695db4ee4ab392222d5af1e5c",
     "model": "content.channelmetadata"
+  },
+  {
+    "fields": {
+      "contentnode": "2b6926ed22025518a8b9da91745b51d3",
+      "assessment_item_ids": "[\"test\"]",
+      "number_of_assessments": 1,
+      "mastery_model": "{}"
+    },
+    "pk": "6199dde695db4ee4ab392222d5af1e5c",
+    "model": "content.assessmentmetadata"
   }
 ]

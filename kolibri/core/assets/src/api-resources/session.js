@@ -1,9 +1,11 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class SessionResource extends Resource {
+/**
+ * @example <caption>Get current session</caption>
+ * SessionResource.getModel('current')
+ */
+export default class SessionResource extends Resource {
   static resourceName() {
     return 'session';
   }
 }
-
-module.exports = SessionResource;

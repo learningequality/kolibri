@@ -1,4 +1,5 @@
 import logging as logger
+import os
 
 from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
@@ -10,6 +11,7 @@ logging = logger.getLogger(__name__)
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
+
 
 class Command(AsyncCommand):
 
@@ -67,9 +69,20 @@ class Command(AsyncCommand):
             with self.start_progress(total=filetransfer.total_size) as progress_update:
 
                 for chunk in filetransfer:
+
+                    if self.is_cancelled():
+                        filetransfer.cancel()
+                        break
                     progress_update(len(chunk), progress_extra_data)
 
-        annotation.update_channel_metadata_cache()
+        if not self.is_cancelled():
+            annotation.update_channel_metadata_cache()
+        else:
+            try:
+                os.remove(dest)
+            except IOError:
+                pass
+            self.cancel()
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

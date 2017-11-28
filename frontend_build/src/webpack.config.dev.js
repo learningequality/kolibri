@@ -8,14 +8,14 @@
 var webpack = require('webpack');
 var bundles = require('./webpack.config.js');
 
-for (var i=0; i < bundles.length; i++) {
+for (var i = 0; i < bundles.length; i++) {
   bundles[i].devtool = '#cheap-module-eval-source-map';
   bundles[i].plugins = bundles[i].plugins.concat([
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"debug"'
-      }
-    })
+        NODE_ENV: '"debug"',
+      },
+    }),
   ]);
 }
 

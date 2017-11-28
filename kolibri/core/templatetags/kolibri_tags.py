@@ -9,8 +9,12 @@ import re
 
 from django import template
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
+from django.utils.timezone import now
+from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
+from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIClient
@@ -47,35 +51,65 @@ def kolibri_main_navigation():
             "</script>".format(json.dumps(init_data)))
     return mark_safe(html)
 
+
+@register.simple_tag(takes_context=True)
+def kolibri_set_urls(context):
+    js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
+    js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
+    js = (js_reverse_inline(context) +
+          "Object.assign({0}.urls, {1}.{2})".format(settings.KOLIBRI_CORE_JS_NAME,
+                                                    js_global_object_name,
+                                                    js_var_name))
+    return mark_safe(js)
+
+
+@register.simple_tag()
+def kolibri_set_server_time():
+    html = ("<script type='text/javascript'>"
+            "{0}.utils.serverClock.setServerTime({1});"
+            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+                               json.dumps(now(), cls=DjangoJSONEncoder)))
+    return mark_safe(html)
+
+
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
             return ''
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
+    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
+            "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
             "model.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               json.dumps(url_params)))
     return mark_safe(html)
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
+    # Don't bootstrap when the debug panel is active, because it prevents profiling
+    if not getattr(settings, 'ENABLE_DATA_BOOTSTRAPPING'):
+        return ''
     # check necessary for when there is no initial content databases
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
             return ''
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
+    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
+            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
             "collection.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
+                               json.dumps(url_params),
                                json.dumps(kwargs),
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               ))
     return mark_safe(html)
 
 def _replace_dict_values(check, replace, dict):
@@ -101,4 +135,4 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     _replace_dict_values(None, str(''), kwargs)
     response = client.get(url, data=kwargs)
     _replace_dict_values(str(''), None, kwargs)
-    return response, kwargs
+    return response, kwargs, reversal

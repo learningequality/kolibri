@@ -32,6 +32,7 @@ Themes
    :maxdepth: 1
 
    content
+   dataflow
    uap
    user_management
    asset_loading

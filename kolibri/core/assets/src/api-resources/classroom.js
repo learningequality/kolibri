@@ -1,9 +1,7 @@
-const Resource = require('../api-resource').Resource;
+import { Resource } from '../api-resource';
 
-class ClassroomResource extends Resource {
+export default class ClassroomResource extends Resource {
   static resourceName() {
     return 'classroom';
   }
 }
-
-module.exports = ClassroomResource;

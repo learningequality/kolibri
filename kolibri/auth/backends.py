@@ -21,11 +21,15 @@ class FacilityUserBackend(object):
         :param facility: a Facility
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        users = FacilityUser.objects.filter(username=username)
+        users = FacilityUser.objects.filter(username__iexact=username)
         if facility:
             users = users.filter(facility=facility)
         for user in users:
             if user.check_password(password):
+                return user
+            # Allow login without password for learners for facilities that allow this.
+            # Must specify the facility, to prevent accidental logins
+            elif facility and user.dataset.learner_can_login_with_no_password and not user.roles.count():
                 return user
         return None
 

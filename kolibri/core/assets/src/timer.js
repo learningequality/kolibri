@@ -60,4 +60,6 @@ class Timer {
   }
 }
 
-module.exports = new Timer();
+const timer = new Timer();
+
+export { timer as default };

@@ -6,7 +6,7 @@
 
 var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
-var _ = require("lodash");
+var _ = require('lodash');
 var path = require('path');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
@@ -26,7 +26,6 @@ var coreAliases = require('./apiSpecExportTools').coreAliases;
  * @returns {Array} bundles - An array containing webpack config objects.
  */
 var readBundlePlugins = function(base_dir) {
-
   // Takes a module file path and turns it into a Python module path.
   var bundles = [];
   var externals = {};
@@ -37,18 +36,17 @@ var readBundlePlugins = function(base_dir) {
     var message = results[i];
 
     var output = parseBundlePlugin(message, base_dir);
-    if (typeof output !== "undefined") {
+    if (typeof output !== 'undefined') {
       var webpack_configuration = output[0];
       // The first part of the output is the Webpack configuration for that Kolibri plugin.
       bundles.push(webpack_configuration);
       // The second part of the output is any global variables that will be available to all other
       // plugins. For the moment, this is only the Kolibri global variable.
       var external = output[1];
-      if (external && typeof externals[external] === "undefined") {
-
+      if (external && typeof externals[external] === 'undefined') {
         externals[external] = external;
       } else if (external) {
-        logging.warn("Two plugins setting with same external flag " + external);
+        logging.warn('Two plugins setting with same external flag ' + external);
       }
     }
   }
@@ -59,7 +57,7 @@ var readBundlePlugins = function(base_dir) {
         if (k !== j) {
           // Only one key per object here, so just get the first key
           if (Object.keys(bundles[k].entry)[0] === Object.keys(bundles[j].entry)[0]) {
-            logging.error("Duplicate keys: " + Object.keys(bundles[k].entry)[0]);
+            logging.error('Duplicate keys: ' + Object.keys(bundles[k].entry)[0]);
           }
         }
       }
@@ -67,18 +65,30 @@ var readBundlePlugins = function(base_dir) {
   }
 
   // A bundle can specify a modification to the coreAPI.
-  var coreAPISpec = (_.find(bundles, function(bundle) {return bundle.coreAPISpec;}) || {}).coreAPISpec;
+  var coreAPISpec = (_.find(bundles, function(bundle) {
+    return bundle.coreAPISpec;
+  }) || {}).coreAPISpec;
 
   // Check that there is only one bundle modifying the coreAPI spec.
-  if (_.filter(bundles, function(bundle) {return bundle.coreAPISpec;}).length > 1) {
+  if (
+    _.filter(bundles, function(bundle) {
+      return bundle.coreAPISpec;
+    }).length > 1
+  ) {
     throw new RangeError('You have more than one coreAPISpec modification specified.');
   }
 
   // One bundle is special - that is the one for the core bundle.
-  var core_bundle = _.find(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;});
+  var core_bundle = _.find(bundles, function(bundle) {
+    return bundle.core_name && bundle.core_name !== null;
+  });
 
   // Check that there is only one core bundle and throw an error if there is more than one.
-  if (_.filter(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;}).length > 1) {
+  if (
+    _.filter(bundles, function(bundle) {
+      return bundle.core_name && bundle.core_name !== null;
+    }).length > 1
+  ) {
     throw new RangeError('You have more than one core bundle specified.');
   }
 
@@ -89,40 +99,38 @@ var readBundlePlugins = function(base_dir) {
 
   bundles.forEach(function(bundle) {
     bundle.resolve.alias = coreAliases(coreAPISpec);
-    if (bundle.core_name === null || typeof bundle.core_name === "undefined") {
+    if (bundle.core_name === null || typeof bundle.core_name === 'undefined') {
       // If this is not the core bundle, then we need to add the external library mappings.
       bundle.externals = _.extend({}, externals, core_externals);
     } else {
-      bundle.externals = _.extend({kolibri: core_bundle.output.library}, externals);
+      bundle.externals = _.extend({ kolibri: core_bundle.output.library }, externals);
       if (coreAPISpec) {
         bundle.plugins.push(
           new webpack.ProvidePlugin({
-            __coreAPISpec: coreAPISpec
+            __coreAPISpec: coreAPISpec,
           })
         );
       } else {
         bundle.plugins.push(
           new webpack.DefinePlugin({
-            __coreAPISpec: "{}"
+            __coreAPISpec: '{}',
           })
         );
       }
-
     }
   });
 
-  var locale_dir = path.join(base_dir, 'kolibri', 'locale')
+  var locale_dir = path.join(base_dir, 'kolibri', 'locale');
 
   mkdirp.sync(locale_dir);
 
   // We add some custom configuration options to the bundles that webpack 2 dislikes, clean them up here.
-  bundles.forEach(function (bundle) {
+  bundles.forEach(function(bundle) {
     delete bundle.core_name;
     delete bundle.coreAPISpec;
   });
 
   return bundles;
-
 };
 
 module.exports = readBundlePlugins;

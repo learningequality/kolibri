@@ -1,0 +1,20 @@
+{
+  "setupWizard.formHeader":"Crear un propietario del dispositivo y un centro educativo",
+  "setupWizard.deviceOwnerSectionHeader":"Propietario del dispositivo",
+  "setupWizard.facilitySectionHeader":"Centro Educativo",
+  "setupWizard.usernameInputLabel":"Nombre de usuario",
+  "setupWizard.passwordInputLabel":"Contraseña",
+  "setupWizard.confirmPasswordInputLabel":"Confirma contraseña",
+  "setupWizard.facilityInputLabel":"Nombre del centro educativo",
+  "setupWizard.deviceOwnerDescription":"Para usar Kolibri, primero necesitas crear una cuenta de Propietario del Dispositivo. Esta cuenta será usada para configurar los ajustes de alto nivel de esta instalación, y crear otras cuentas de administración",
+  "setupWizard.facilityDescription":"También necesitas crear un Centro educativo, que representa tu escuela, centro de entrenamiento, o cualquier otro lugar donde esta instalación será usada",
+  "setupWizard.formSubmissionButton":"Crear y empezar",
+  "setupWizard.usernameFieldEmptyErrorMessage":"El nombre de usuario no puede estar vacío",
+  "setupWizard.usernameCharacterErrorMessage":"El nombre de usuario solo puede contener letras y números",
+  "setupWizard.passwordFieldEmptyErrorMessage":"La contraseña no puede estar vacía",
+  "setupWizard.passwordsMismatchErrorMessage":"Las contraseñas no coinciden",
+  "setupWizard.facilityFieldEmptyErrorMessage":"El Centro Educativo no puede estar vacío",
+  "setupWizard.cannotSubmitPageError":"Por favor resuelve todos los errores mostrados.",
+  "setupWizard.genericPageError":"Algo fallo",
+  "setupWizard.setupProgressFeedback":"Configurando tu dispositivo..."
+}

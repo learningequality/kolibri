@@ -30,4 +30,14 @@ class Command(AsyncCommand):
             with self.start_progress(total=copy.total_size) as progress_update:
 
                     for block in copy:
+                        if self.is_cancelled():
+                            copy.cancel()
+                            break
                         progress_update(len(block))
+
+                    if self.is_cancelled():
+                        try:
+                            os.remove(dest)
+                        except IOError:
+                            pass
+                        self.cancel()

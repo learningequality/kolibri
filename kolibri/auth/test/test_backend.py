@@ -31,7 +31,7 @@ class DeviceOwnerBackendTestCase(TestCase):
         self.assertEqual(self.do, DeviceOwnerBackend().get_user(self.do.id))
 
     def test_nonexistent_user_returns_none(self):
-        self.assertIsNone(DeviceOwnerBackend().get_user(4756))
+        self.assertIsNone(DeviceOwnerBackend().get_user('8acf96e56d0d4ab49fab3fbf3f716bc2'))
 
     def test_authenticate_nonexistent_user_returns_none(self):
         self.assertIsNone(DeviceOwnerBackend().authenticate("foo", "bar"))
@@ -68,7 +68,7 @@ class FacilityUserBackendTestCase(TestCase):
         self.assertEqual(self.user, FacilityUserBackend().get_user(self.user.id))
 
     def test_nonexistent_user_returns_none(self):
-        self.assertIsNone(FacilityUserBackend().get_user(4756))
+        self.assertIsNone(FacilityUserBackend().get_user('8acf96e56d0d4ab49fab3fbf3f716bc2'))
 
     def test_authenticate_nonexistent_user_returns_none(self):
         self.assertIsNone(FacilityUserBackend().authenticate("foo", "bar"))

@@ -9,7 +9,7 @@ Setting up Kolibri for development
 Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with.
 
 .. tip::
-  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody alredy had it in the past and posted a solution somewhere... ;)
+  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody already had it in the past and posted a solution somewhere... ;)
 
 Git & GitHub
 ~~~~~~~~~~~~
@@ -53,7 +53,7 @@ Checking out the code
 
     cd kolibri  # Change into the newly cloned directory
     git remote add upstream git@github.com:learningequality/kolibri.git  # Add the upstream
-    git fetch  # Check if there are changes upstream
+    git fetch upstream # Check if there are changes upstream
     git checkout develop
 
 .. warning::
@@ -125,6 +125,11 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
     (kolibri)$ yarn install
 
 
+.. tip::
+
+  * We've adopted this concatenated version with added cleanup: ``make clean && pip install -r requirements.txt --upgrade && pip install -e . && yarn install``.
+  * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
+
 
 Running Kolibri server
 ----------------------
@@ -132,19 +137,11 @@ Running Kolibri server
 Development server
 ~~~~~~~~~~~~~~~~~~
 
-To start up the development server and build the client-side dependencies, use the following commands:
-
-Linux and Mac:
+To start up the development server and build the client-side dependencies, use the following command:
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri manage devserver --debug -- --webpack --qcluster
-
-Windows:
-
-.. code-block:: bash
-
-  (kolibri)$ kolibri manage devserver --debug -- --webpack
+  (kolibri)$ kolibri --debug manage devserver --webpack
 
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
@@ -158,9 +155,23 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   .. code-block:: bash
 
     (kolibri)$ yarn run build
-    (kolibri)$ kolibri manage devserver --debug -- 0.0.0.0:8000 --qcluster
+    (kolibri)$ kolibri --debug manage devserver -- 0.0.0.0:8000
 
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
+
+
+More advanced examples of the ``devserver`` command:
+
+.. code-block:: bash
+
+  # runs the dev server and rebuild client assets when files change
+  kolibri --debug manage devserver --webpack
+
+  # runs the dev server and re-run client-side tests when files changes
+  kolibri --debug manage devserver --karma
+
+  # runs all of the above
+  kolibri --debug manage devserver --webpack --karma
 
 
 Running the Production Server
@@ -195,6 +206,7 @@ The ``develop`` branch is reserved for active development. When we get close to 
   * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 
 .. _pull_request:
+
 
 Submit Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~
@@ -267,7 +279,7 @@ To improve build times, and facilitate rapid development, Javascript linting is 
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack --qcluster --lint
+  kolibri --debug manage devserver --webpack --lint
 
 
 Code Testing
@@ -317,7 +329,7 @@ Alternatively, this can be run as a subprocess in the development server with th
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --karma
+  kolibri --debug manage devserver --karma
 
 You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command:
 
@@ -353,7 +365,7 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 .. code-block:: bash
 
   cd docs
-  sphinx-autobuild . _build
+  sphinx-autobuild --port 8888 . _build
 
 
 Manual Testing

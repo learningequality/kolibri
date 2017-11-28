@@ -3,22 +3,16 @@
  * @module Facade
  */
 
-const vue = require('vue');
-const vuex = require('vuex');
-const router = require('vue-router');
-const Mediator = require('./mediator');
-const ResourceManager = require('../api-resource').ResourceManager;
-const Resources = require('../api-resources');
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const csrf = require('rest/interceptor/csrf');
-const errorCode = require('rest/interceptor/errorCode');
-const cookiejs = require('js-cookie');
-const constructorExport = require('./constructorExport');
-const logging = require('../logging');
-const HeartBeat = require('../heartbeat');
-const importIntlLocale = require('./import-intl-locale');
+import vue from 'vue';
+import vuex from 'vuex';
+import router from 'vue-router';
+import Mediator from './mediator';
+import constructorExport from './constructorExport';
+import logger from '../logging';
+import HeartBeat from '../heartbeat';
+import importIntlLocale from './import-intl-locale';
 
+const logging = logger.getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -44,15 +38,11 @@ const publicMethods = [
  * @constructor
  */
 
-module.exports = class CoreApp {
+export default class CoreApp {
   constructor() {
     Object.assign(this, constructorExport());
 
-    this.resources = new ResourceManager(this);
     const mediator = new Mediator();
-
-    Object.keys(Resources).forEach((resourceClassName) =>
-      this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
 
     vue.prototype.Kolibri = this;
     /**
@@ -67,8 +57,10 @@ module.exports = class CoreApp {
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
-      window.location.origin = `${window.location.protocol}//${window.location.hostname}${(
-            window.location.port ? `:${window.location.port}` : '')}`;
+      window.location.origin = `${window.location.protocol}//${window.location.hostname}${window
+        .location.port
+        ? `:${window.location.port}`
+        : ''}`;
     }
 
     const self = this;
@@ -77,7 +69,9 @@ module.exports = class CoreApp {
       /**
        * Use the vue-intl plugin.
        **/
+
       const VueIntl = require('vue-intl');
+
       vue.use(VueIntl, { defaultLocale: 'en-us' });
 
       function $trWrapper(formatter, messageId, args) {
@@ -124,46 +118,36 @@ module.exports = class CoreApp {
      * the modules need to wait until that happens.
      **/
     if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
-      Promise.all([(new Promise((resolve) => {
-        require.ensure([], (require) => {
-          resolve(() => require('intl'));
-        });
-      })), importIntlLocale(global.languageCode)]).then( // eslint-disable-line
-        (requires) => {
+      Promise.all([
+        new Promise(resolve => {
+          require.ensure([], require => {
+            resolve(() => require('intl'));
+          });
+        }),
+        importIntlLocale(global.languageCode),
+      ]).then(
+        // eslint-disable-line
+        requires => {
           // Executes function that requires 'intl'
           requires[0]();
           // Executes function that requires intl locale data - needs intl to have run
           requires[1]();
           setUpVueIntl();
         },
-        (error) => {
+        error => {
           logging.error(error);
           logging.error('An error occurred trying to setup Internationalization', error);
-        });
+        }
+      );
     } else {
       setUpVueIntl();
     }
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     this.kolibri_modules = mediator._kolibriModuleRegistry;
-    publicMethods.forEach((method) => {
+    publicMethods.forEach(method => {
       this[method] = mediator[method].bind(mediator);
     });
     this.heartBeat = new HeartBeat(this);
   }
-
-  get client() {
-    return (options) => {
-      if ((options && typeof options === 'object' && !Array.isArray(options)) &&
-        (!options.method || options.method === 'GET')) {
-        if (!options.params) {
-          options.params = {};
-        }
-        const cacheBust = new Date().getTime();
-        options.params[cacheBust] = cacheBust;
-      }
-      return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
-        token: cookiejs.get('csrftoken') }).wrap(errorCode)(options);
-    };
-  }
-};
+}

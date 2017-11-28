@@ -4,6 +4,8 @@ import copy
 import json
 import tempfile
 
+from ..hooks import WebpackBundleHook
+
 
 TEST_STATS_FILE_DATA = {
     "status": "done",
@@ -41,3 +43,7 @@ class TestHookMixin(object):
         self.TEST_STATS_FILE.close()
         print(self.unique_slug)
         return self.TEST_STATS_FILE.name
+
+
+class TestHook(TestHookMixin, WebpackBundleHook):
+    unique_slug = 'non_default_frontend'

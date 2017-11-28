@@ -10,9 +10,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'USER': 'postgres',
         'PASSWORD': '',
-        'NAME': 'foo',  # This module should never be used outside of tests -- so this name is irrelevant
+        'NAME': 'default',  # This module should never be used outside of tests -- so this name is irrelevant
         'TEST': {
-            'NAME': 'travis_ci_test'
+            'NAME': 'travis_ci_default'
         }
-    }
+    },
 }

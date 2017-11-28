@@ -1,7 +1,6 @@
 // Karma CI configuration
 var base_config = require('./karma.conf.js');
 
-
 module.exports = function(config) {
   base_config(config);
 
@@ -11,29 +10,28 @@ module.exports = function(config) {
 
   var webpack = config.webpack;
 
-  webpack.module.postLoaders = [{
-          test: /\.js/,
-          exclude: /(test|node_modules)/,
-          loader: 'istanbul-instrumenter'
-  }];
+  webpack.module.postLoaders = [
+    {
+      test: /\.js/,
+      exclude: /(test|node_modules)/,
+      loader: 'istanbul-instrumenter',
+    },
+  ];
 
   config.set({
-
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: reporters,
 
     coverageReporter: {
-
       reporters: [
-                // generates ./coverage/lcov.info
-                {type:'lcovonly', subdir: '.'},
-                // generates ./coverage/coverage-final.json
-                {type:'json', subdir: '.'},
+        // generates ./coverage/lcov.info
+        { type: 'lcovonly', subdir: '.' },
+        // generates ./coverage/coverage-final.json
+        { type: 'json', subdir: '.' },
       ],
-      dir: 'coverage/'
-
+      dir: 'coverage/',
     },
 
     // enable / disable watching file and executing tests whenever any file changes
@@ -42,6 +40,5 @@ module.exports = function(config) {
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
-
   });
 };

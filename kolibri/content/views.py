@@ -75,6 +75,10 @@ class ZipContentView(View):
         # allow all origins so that content can be read from within zips within sandboxed iframes
         response["Access-Control-Allow-Origin"] = "*"
 
+        # Newer versions of Chrome block iframes from loading
+        # solution is to override xframe options with any string (https://stackoverflow.com/a/6767901)
+        response['X-Frame-Options'] = "GOFORIT"
+
         return response
 
 

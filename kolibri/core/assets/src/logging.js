@@ -3,19 +3,20 @@
  * @module logging
  */
 
-const logging = require('loglevel');
+import loglevel from 'loglevel';
 
 const console = global.console;
 
 class Logger {
   constructor(loggerName) {
     this.loggerName = loggerName;
-    this.logger = logging.getLogger(loggerName);
-    Object.keys(logging.levels).forEach((methodName) => {
+    this.logger = loglevel.getLogger(loggerName);
+    Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
       if (logFunction) {
-        if (logFunction.bind === 'undefined') { // IE < 10
+        if (logFunction.bind === 'undefined') {
+          // IE < 10
           this[name] = Function.prototype.bind.call(logFunction, console, this.messagePrefix(name));
         } else {
           this[name] = logFunction.bind(console, this.messagePrefix(name));
@@ -49,9 +50,9 @@ class Logging {
   constructor() {
     this.registeredLoggers = {};
     this.defaultLogger = new Logger('root');
-    Object.keys(logging.levels).forEach((methodName) => {
+    Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
-      this[name] = (msg) => this.defaultLogger[name](msg);
+      this[name] = msg => this.defaultLogger[name](msg);
     });
   }
 
@@ -69,9 +70,10 @@ class Logging {
 
   callAllLoggersOrNamed(args, methodName, loggerName) {
     if (!loggerName) {
-      logging[methodName](...args);
-      Object.keys(this.registeredLoggers).forEach(
-        (name) => this.registeredLoggers[name][methodName](...args));
+      loglevel[methodName](...args);
+      Object.keys(this.registeredLoggers).forEach(name =>
+        this.registeredLoggers[name][methodName](...args)
+      );
     } else {
       this.registeredLoggers[loggerName][methodName](...args);
     }
@@ -94,4 +96,8 @@ class Logging {
   }
 }
 
-module.exports = new Logging();
+const logging = new Logging();
+
+export default logging;
+
+export const getLogger = (...args) => logging.getLogger(...args);

@@ -68,7 +68,17 @@ def initialize():
 
         for app in settings.INSTALLED_APPS:
             try:
-                plugin_module = importlib.import_module(app + ".kolibri_plugin")
+
+                # Handle AppConfig INSTALLED_APPS string
+                if ".apps." in app:
+                    # remove .apps.Config line in string
+                    import_string = app.split('.apps.')[0]
+                else:
+                    import_string = app
+
+                import_string += ".kolibri_plugin"
+                plugin_module = importlib.import_module(import_string)
+
                 logger.debug("Loaded kolibri plugin: {}".format(app))
                 # Load a list of all class types in module
                 all_classes = [cls for cls in plugin_module.__dict__.values() if isinstance(cls, type)]
@@ -92,7 +102,6 @@ def initialize():
 
 
 def get_urls():
-
     global __initialized, __registry
     assert __initialized, "Registry not initialized"
 

@@ -1,13 +1,13 @@
 process.env.DEV_SERVER = true;
 
 process.argv.forEach(function(val) {
-  if (val === "--lint") {
+  if (val === '--lint') {
     process.env.LINT = true;
   }
 });
 
-var WebpackDevServer = require("webpack-dev-server");
-var webpack = require("webpack");
+var WebpackDevServer = require('webpack-dev-server');
+var webpack = require('webpack');
 var devServerConfig = require('./webpackdevserverconfig');
 
 var bundles = require('./webpack.config.dev');
@@ -30,14 +30,14 @@ var server = new WebpackDevServer(compiler, {
   noInfo: false,
   watchOptions: {
     aggregateTimeout: 300,
-    poll: 1000
+    poll: 1000,
   },
   // It's a required option.
   publicPath: devServerConfig.publicPath,
   stats: {
     colors: true,
     chunks: false,
-    errorDetails: true
-  }
+    errorDetails: true,
+  },
 });
 server.listen(devServerConfig.port, devServerConfig.address, function() {});

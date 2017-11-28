@@ -1,7 +1,6 @@
+import VueRouter from 'vue-router';
 
-const VueRouter = require('vue-router');
-
-const Vue = require('vue');
+import Vue from 'vue';
 
 Vue.use(VueRouter);
 
@@ -27,7 +26,7 @@ class Router {
   }
 
   init(routes) {
-    routes.forEach((route) => {
+    routes.forEach(route => {
       if (route.handler) {
         // route.component = {};
         this._actions[route.name] = route.handler;
@@ -44,4 +43,6 @@ class Router {
   }
 }
 
-module.exports = new Router();
+const router = new Router();
+
+export { router as default };

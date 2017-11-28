@@ -1,0 +1,28 @@
+[
+  {
+    "model": "morango.scopedefinition",
+    "pk": "full-facility",
+    "fields": {
+      "profile": "facilitydata",
+      "version": 1,
+      "primary_scope_param_key": "dataset_id",
+      "description": "Allows full syncing for data under the Facility with FacilityDataset ID ${dataset_id}.",
+      "read_scope_def": "",
+      "write_scope_def": "",
+      "read_write_scope_def": "${dataset_id}"
+    }
+  },
+  {
+    "model": "morango.scopedefinition",
+    "pk": "single-user",
+    "fields": {
+      "profile": "facilitydata",
+      "version": 1,
+      "primary_scope_param_key": "",
+      "description": "Allows syncing data for FacilityUser ${user_id} under Facility with FacilityDataset ID ${dataset_id}.",
+      "read_scope_def": "${dataset_id}:allusers-ro\n${dataset_id}:user-ro:${user_id}",
+      "write_scope_def": "${dataset_id}:anonymous",
+      "read_write_scope_def": "${dataset_id}:user-rw:${user_id}"
+    }
+  }
+]

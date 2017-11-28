@@ -4,9 +4,9 @@
  * @module kolibriModule
  */
 
-const coreApp = require('kolibri');
+import coreApp from 'kolibri';
 
-module.exports = class KolibriModule {
+export default class KolibriModule {
   /**
    * An array of options to select from the options object passed into the constructor.
    * @type {string[]}
@@ -30,7 +30,7 @@ module.exports = class KolibriModule {
     this.once = __once;
     /* eslint-enable no-undef */
     const safeOptions = {};
-    this.kolibriModuleOptions.forEach((option) => {
+    this.kolibriModuleOptions.forEach(option => {
       if (options[option]) {
         safeOptions[option] = options[option];
       }
@@ -56,16 +56,14 @@ module.exports = class KolibriModule {
    * constructor.
    * Useful for setting up the kolibriModule before it is registered against the Kolibri core app.
    */
-  initialize() {
-  }
+  initialize() {}
 
   /**
    * A dummy ready function
    * Useful for initiating behaviour of the kolibriModule after it is registered against the
    * Kolibri core app.
    */
-  ready() {
-  }
+  ready() {}
 
   /**
    * Convenience method to unregister the kolibriModule from listening to certain events.
@@ -84,4 +82,4 @@ module.exports = class KolibriModule {
   emit(...args) {
     coreApp.emit(...args);
   }
-};
+}

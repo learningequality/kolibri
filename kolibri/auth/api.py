@@ -2,14 +2,17 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
+from django.db.models.query import F
 from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
+from .constants import collection_kinds
+from .filters import HierarchyRelationsFilter
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
-    MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer,
+    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
 )
 
 
@@ -68,15 +71,44 @@ class KolibriAuthPermissions(permissions.BasePermission):
 class FacilityDatasetViewSet(viewsets.ModelViewSet):
     permissions_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = FacilityDataset.objects.all()
     serializer_class = FacilityDatasetSerializer
+
+    def get_queryset(self):
+        queryset = FacilityDataset.objects.filter(collection__kind=collection_kinds.FACILITY)
+        facility_id = self.request.query_params.get('facility_id', None)
+        if facility_id is not None:
+            queryset = queryset.filter(collection__id=facility_id)
+        return queryset
+
+
+class FacilityUserFilter(filters.FilterSet):
+
+    member_of = filters.django_filters.MethodFilter()
+
+    def filter_member_of(self, queryset, value):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            target_user=F("id"),
+            ancestor_collection=value,
+        )
+
+    class Meta:
+        model = FacilityUser
 
 
 class FacilityUserViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
+    filter_class = FacilityUserFilter
+
+
+class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
+    queryset = FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None)
+    serializer_class = FacilityUsernameSerializer
+    filter_fields = ('facility', )
+    search_fields = ('^username', )
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
@@ -88,9 +120,10 @@ class DeviceOwnerViewSet(viewsets.ModelViewSet):
 
 class MembershipViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
+    filter_fields = ('user_id', 'collection_id')
 
 
 class RoleViewSet(viewsets.ModelViewSet):
@@ -173,6 +206,13 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
+        elif not password and (FacilityUser.objects.filter(username=username, facility=facility_id).exists() or
+                               DeviceOwner.objects.filter(username=username).exists()):
+            # Password was missing, but username is valid, prompt to give password
+            return Response({
+                "message": "Please provide password for user",
+                "missing_field": "password"
+            }, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Respond with error
             return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
@@ -191,7 +231,7 @@ class SessionViewSet(viewsets.ViewSet):
                     'username': '',
                     'full_name': '',
                     'user_id': None,
-                    'facility_id': None,
+                    'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                     'kind': ['anonymous'],
                     'error': '200'}
 
@@ -200,7 +240,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None,
+            session.update({'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                             'kind': ['superuser'],
                             'error': '200'})
             return session

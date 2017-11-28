@@ -17,17 +17,17 @@ register = template.Library()
 def coach_assets():
     """
     Using in a template will inject script tags that include the javascript assets defined
-    by any concrete hook that subclasses CoachToolsSyncHook.
+    by any concrete hook that subclasses CoachSyncHook.
     :return: HTML of script tags to insert into coach/coach.html
     """
-    return webpack_asset_render(hooks.CoachToolsSyncHook, async=False)
+    return webpack_asset_render(hooks.CoachSyncHook, async=False)
 
 
 @register.simple_tag()
 def coach_async_assets():
     """
     Using in a template will inject script tags that include the javascript assets defined
-    by any concrete hook that subclasses CoachToolsSyncHook.
+    by any concrete hook that subclasses CoachSyncHook.
     :return: HTML of script tags to insert into coach/coach.html
     """
-    return webpack_asset_render(hooks.CoachToolsAsyncHook, async=True)
+    return webpack_asset_render(hooks.CoachAsyncHook, async=True)
