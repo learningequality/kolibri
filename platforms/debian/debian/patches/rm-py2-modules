@@ -1,4 +1,0 @@
---- a/kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
-+++ b/kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
-@@ -1 +0,0 @@
--

@@ -1,0 +1,141 @@
+# -*- sh -*-
+# This file can be included with #SCRIPTSCOMMON#
+# Thanks to the openldap debian package for this
+# method!
+
+# Tracebacks in bash
+# https://docwhat.org/tracebacks-in-bash/
+#
+# Just take the code between the "cut here" lines
+# and put it in your own program.
+#
+# Written by Christian Höltje
+# Donated to the public domain in 2013
+
+#--------->8---------cut here---------8<---------
+set -e
+
+trap _exit_trap EXIT
+trap _err_trap ERR
+_showed_traceback=f
+
+function _exit_trap
+{
+  local _ec="$?"
+  if [[ $_ec != 0 && "${_showed_traceback}" != t ]]; then
+    traceback 1
+  fi
+}
+
+function _err_trap
+{
+  local _ec="$?"
+  local _cmd="${BASH_COMMAND:-unknown}"
+  traceback 1
+  _showed_traceback=t
+  echo "The command ${_cmd} exited with exit code ${_ec}." 1>&2
+}
+
+function traceback
+{
+  # Hide the traceback() call.
+  local -i start=$(( ${1:-0} + 1 ))
+  local -i end=${#BASH_SOURCE[@]}
+  local -i i=0
+  local -i j=0
+
+  echo "Traceback (last called is first):" 1>&2
+  for ((i=${start}; i < ${end}; i++)); do
+    j=$(( $i - 1 ))
+    local function="${FUNCNAME[$i]}"
+    local file="${BASH_SOURCE[$i]}"
+    local line="${BASH_LINENO[$j]}"
+    echo "     ${function}() in ${file}:${line}" 1>&2
+  done
+}
+
+#--------->8---------cut here---------8<---------
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+debug()
+{
+    if ! [ "$KALITE_DEB_DEBUG" = "" ]
+    then
+        echo "$1"
+    fi
+}
+
+args=("$@")
+
+# References:
+# More info on debconf: "man debconf-devel"
+#   install debconf-doc and debian-policy first!
+# Debconf tutorial:
+# http://www.fifi.org/doc/debconf-doc/tutorial.html
+
+
+
+# This generates the contents of /etc/kolibri/system.conf so we don't have the
+# file tracked by dpkg
+default_user_conf() {
+	cat <<EOF
+# /etc/kolibri/default
+#
+# Define kolibri environment settings here
+#
+# This is a Debian specific file
+#
+# Example environment vars to set (shell syntax)
+#
+# KOLIBRI_USER="kolibri"
+# KOLIBRI_HOME="~/.kolibri"
+# KOLIBRI_LISTEN_PORT="8080"
+# KOLIBRI_COMMAND="kolibri"
+# DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+EOF
+}
+
+
+
+
+# Configures the package during the postinst script
+kolibri_configure()
+{
+
+    mkdir -p /etc/kolibri/conf.d
+
+    if ! [ -e "/etc/kolibri/daemon.conf" ]
+    then
+      default_user_conf > /etc/kolibri/daemon.conf
+    fi
+
+    . /etc/default/kolibri
+
+    # This way of writing if statements with failing sub commands will work
+    # while using errexit
+    ( ! getent passwd "$KOLIBRI_USER" ) && {
+        echo "Creating new user $KOLIBRI_USER"
+        adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
+    }    
+
+    # Remove because we might re-register as systemd during an upgrade
+    update-rc.d -f ka-lite remove
+
+    # Register init script as service
+    if which systemctl > /dev/null 2>&1 ; then
+        # Works no matter if it's already enabled
+        systemctl enable ka-lite
+        systemctl start ka-lite || true
+    # Sysv
+    else
+        # Works no matter if it's already enabled
+        update-rc.d ka-lite defaults
+        # Start service -- nevermind if it fails
+        invoke-rc.d ka-lite start || true
+    fi
+    
+}
+

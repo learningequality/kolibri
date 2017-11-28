@@ -1,0 +1,24 @@
+# 1. Set the default values
+
+KOLIBRI_USER="kolibri"
+KOLIBRI_HOME="~/.kolibri"
+KOLIBRI_LISTEN_PORT="8080"
+KOLIBRI_COMMAND="kolibri"
+DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+# 2. Load conf.d directory
+
+if [ -d /etc/kolibri/conf.d ]
+then
+  for f in /etc/kolibri/conf.d/*.conf
+  do
+    . "$f"
+  done
+fi
+
+# 3. Load user configuration
+
+if [ -e /etc/kolibri/daemon.conf ]
+then
+  . /etc/kolibri/daemon.conf
+fi

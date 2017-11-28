@@ -1,0 +1,23 @@
+kolibri-source (0.5.0.dev46-0ubuntu5) trusty; urgency=medium
+
+  * Adding systemd+SysV startup service
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 00:20:16 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu4) trusty; urgency=medium
+
+  * Adding more py2-only excludes
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 17 Oct 2017 00:28:11 +0200
+
+kolibri-source (0.5.0.dev46-0ubuntu3) trusty; urgency=medium
+
+  * Apply patch to remove python2 like module from dist/
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 16 Oct 2017 17:49:16 +0200
+
+kolibri-source (0.5.0.dev46-0ubuntu1) trusty; urgency=medium
+
+  * Upstream dev release based on 0.5.x dev branch
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 16 Oct 2017 15:32:35 +0200

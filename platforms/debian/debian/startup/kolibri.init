@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# Author: Foundation for Learning Equality
+#
+# /etc/init.d/kolibri
+
+### BEGIN INIT INFO
+# Provides:          kolibri
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: kolibri daemon, an offline education platform
+### END INIT INFO
+
+set -e
+
+if !(whoami | grep "root" -q)
+then
+	echo "You need to be root"
+	exit 1
+fi
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+. /lib/lsb/init-functions
+
+. /etc/default/kolibri
+
+case "$1" in
+  start)
+    # run ka-lite as another user, the one who generated this file
+    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND start"
+    ;;
+  stop)
+    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND stop"
+    ;;
+  restart)
+    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND restart"
+    ;;
+  status)
+    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND status"
+    ;;
+  *)
+    log_success_msg "Usage: /etc/init.d/kolibri {start|stop|restart|status}"
+    exit 1
+esac
+
