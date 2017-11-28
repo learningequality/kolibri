@@ -187,8 +187,8 @@ function removeClassUser(store, classId, userId) {
   }
   // fetch the membership model with this classId and userId.
   const MembershipCollection = MembershipResource.getCollection({
-    user_id: userId,
-    collection_id: classId,
+    user: userId,
+    collection: classId,
   });
 
   MembershipCollection.delete().then(
