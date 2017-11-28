@@ -115,6 +115,8 @@ class TasksViewSet(viewsets.ViewSet):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             extra_metadata=job_metadata,
+            track_progress=True,
+            cancellable=True,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -201,6 +203,8 @@ class TasksViewSet(viewsets.ViewSet):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             extra_metadata=job_metadata,
+            track_progress=True,
+            cancellable=True,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -231,7 +235,8 @@ class TasksViewSet(viewsets.ViewSet):
             "deletechannel",
             channel_id,
             track_progress=True,
-            extra_metadata=job_metadata,)
+            extra_metadata=job_metadata,
+        )
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
