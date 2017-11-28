@@ -173,7 +173,7 @@ class Command(AsyncCommand):
                     os.remove(dest)
                 self.cancel()
             else:
-                annotation.set_availability(file_checksums_to_annotate)
+                annotation.set_availability(channel_id, file_checksums_to_annotate)
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
