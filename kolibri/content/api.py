@@ -424,8 +424,11 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     @list_route(methods=['get'])
     def kolibri_studio_status(self, request, **kwargs):
         try:
-            requests.get(get_channel_lookup_url())
-            return Response({"status": "online"})
+            resp = requests.get(get_channel_lookup_url())
+            if resp.status_code == 404:
+                raise requests.ConnectionError("Kolibri studio URL is incorrect!")
+            else:
+                return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
 
