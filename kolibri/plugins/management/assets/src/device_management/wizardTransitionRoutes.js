@@ -57,14 +57,13 @@ export default [
     name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
     path: '/content/wizard/availablechannels',
     handler: () => {
-      if (!get(store.state.pageState, 'wizardState.pageName')) {
+      const pageName = get(store.state.pageState, 'wizardState.pageName');
+      if (!pageName) {
         return router.replace('/content');
       }
-      // This action should maintain most of the state, except for nodesForTransfer
-      store.dispatch('REPLACE_INCLUDE_LIST', []);
-      store.dispatch('REPLACE_OMIT_LIST', []);
-      // TODO adjust tests to account for this flow (they assume fresh start from /content).
-      return store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
+      if (pageName === ContentWizardPages.SELECT_CONTENT) {
+        return transitionWizardPage(store, 'backward');
+      }
     },
   },
   {
