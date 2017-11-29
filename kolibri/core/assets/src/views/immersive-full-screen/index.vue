@@ -4,16 +4,10 @@
     <div class="top-bar">
       <router-link class="back-btn" :to="backPageLink">
         <mat-svg
-          v-if="isRtl"
-          class="back back-btn-svg"
-          category="navigation"
-          name="arrow_forward"
-        />
-        <mat-svg
-          v-else
-          class="back back-btn-svg"
+          class="back svg-back"
           category="navigation"
           name="arrow_back"
+          :class="{ 'rtl-icon': isRtl }"
         />
         <p class="back">{{ backPageText }}</p>
       </router-link>
@@ -73,7 +67,7 @@
     display: inline-block
     padding: 10px
 
-  .back-btn-svg
+  .svg-back
     fill: $core-bg-light
     margin-right: 10px
 

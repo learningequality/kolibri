@@ -7,13 +7,9 @@
       @click="isRtl ? scrollRight() : scrollLeft()"
     >
       <mat-svg
-        v-if="isRtl"
-        name="keyboard_arrow_right"
-        category="hardware"
-      />
-      <mat-svg
         name="keyboard_arrow_left"
         category="hardware"
+        :class="{ 'rtl-icon': isRtl }"
       />
     </button>
 
@@ -32,13 +28,9 @@
       @click="isRtl ? scrollLeft() : scrollRight()"
     >
       <mat-svg
-        v-if="isRtl"
-        name="keyboard_arrow_left"
-        category="hardware"
-      />
-      <mat-svg
         name="keyboard_arrow_right"
         category="hardware"
+        :class="{ 'rtl-icon': isRtl }"
       />
     </button>
   </nav>
