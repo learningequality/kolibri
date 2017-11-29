@@ -132,11 +132,11 @@ describe('channelListItem', () => {
     assert.equal(version(), 'Version 20');
   });
 
-  it('in MANAGE/EXPORT shows the file sizes of Resources', () => {
+  it('in MANAGE/EXPORT shows the on-device file sizes of Resources', () => {
     // ...and does not show the "On Device" indicator
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      assert.equal(resourcesSizeText(), '4 GB resources');
+      assert.equal(resourcesSizeText(), '90 MB resources');
       assert.deepEqual(onDevice(), []);
     }
     test(manageWrapper);
