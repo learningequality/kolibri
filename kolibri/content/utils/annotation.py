@@ -134,6 +134,7 @@ def recurse_availability_up_tree(channel_id):
             and_(
                 child.c.available == True,  # noqa
                 child.c.level == level,
+                child.c.channel_id == channel_id,
             )
         ).where(ContentNodeTable.c.id == child.c.parent_id)
 
