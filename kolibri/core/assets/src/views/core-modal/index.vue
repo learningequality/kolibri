@@ -22,9 +22,6 @@
       >
 
         <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
-          <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back">
-            <mat-svg category="navigation" name="arrow_back" />
-          </button>
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
             <mat-svg category="navigation" name="close" />
           </button>
@@ -60,7 +57,6 @@
       // error alerts
       errorAlert: 'Error in:',
       // aria labels
-      goBack: 'Go back',
       closeWindow: 'Close window',
     },
     props: {
@@ -214,9 +210,6 @@
     &:focus
       background-color: $core-grey-300
       outline: none
-
-  .btn-back
-    left: -10px
 
   .btn-close
     right: -10px
