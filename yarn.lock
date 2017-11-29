@@ -1177,9 +1177,9 @@ css-color-names@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
 
-css-element-queries@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-0.4.0.tgz#cb5bcde9d980ac3699e7471f798e70600088d3de"
+"css-element-queries@https://github.com/learningequality/css-element-queries":
+  version "0.3.2"
+  resolved "https://github.com/learningequality/css-element-queries#7b680b619ffcb657f26b49fb301fcc23f8f9922d"
 
 css-loader@^0.28.7:
   version "0.28.7"
