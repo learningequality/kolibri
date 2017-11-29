@@ -2,12 +2,17 @@
 
   <ui-toolbar
     class="progress-toolbar"
-    navIcon="arrow_back"
-    :removeNavIcon="currentStep <= 1"
-    @nav-icon-click="$emit('backButtonClicked')"
     type="colored"
     textColor="white">
-
+    <ui-icon-button
+      slot="icon"
+      v-show="currentStep > 1"
+      icon="arrow_back"
+      type="secondary"
+      color="white"
+      @click="$emit('backButtonClicked')"
+      :class="{ 'rtl-icon': isRtl }"
+    />
     {{ $tr('progressIndicator', {currentStep , totalSteps}) }}
 
   </ui-toolbar>
@@ -18,10 +23,14 @@
 <script>
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
     name: 'progressToolbar',
-    components: { uiToolbar },
+    components: {
+      uiToolbar,
+      uiIconButton,
+    },
     $trs: {
       progressIndicator: 'Step {currentStep, number} of {totalSteps, number}',
     },
