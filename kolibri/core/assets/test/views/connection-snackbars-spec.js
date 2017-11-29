@@ -7,7 +7,6 @@ import sinon from 'sinon';
 import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
 import connectionSnackbars from '../../src/views/connection-snackbars';
 import {
-  tryToReconnect,
   showDisconnectedSnackbar,
   showTryingToReconnectSnackbar,
   showSuccessfullyReconnectedSnackbar,

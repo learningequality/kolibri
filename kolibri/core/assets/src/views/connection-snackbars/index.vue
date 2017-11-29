@@ -8,18 +8,21 @@
       :actionText="$tr('tryNow')"
       :backdrop="true"
       @actionClicked="tryToReconnect"
+      :key="$tr('tryNow')"
     />
     <core-snackbar
       v-if="tryingToReconnect"
       class="trying-to-reconnect-snackbar"
       :text="$tr('tryingToReconnect')"
       :backdrop="true"
+      :key="$tr('tryingToReconnect')"
     />
     <core-snackbar
       v-if="successfullyReconnected"
       class="successfully-reconnected-snackbar"
       :text="$tr('successfullyReconnected')"
       :autoDismiss="true"
+      :key="$tr('successfullyReconnected')"
     />
   </div>
 
