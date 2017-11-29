@@ -354,13 +354,12 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             raise Http404(
                 _("The requested channel does not exist on the content server")
             )
-        cache.set(cache_key, resp.json(), 60 * 10)
 
         kolibri_mapped_response = []
         for channel in resp.json():
             kolibri_mapped_response.append(self._studio_response_to_kolibri_response(channel))
 
-        cache.set(cache_key, kolibri_mapped_response, 60 * 10)
+        cache.set(cache_key, kolibri_mapped_response, 5)
 
         return Response(kolibri_mapped_response)
 
