@@ -420,6 +420,17 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         """
         return self._cache_kolibri_studio_channel_request(identifier=pk)
 
+    @list_route(methods=['get'])
+    def kolibri_studio_status(self, request, **kwargs):
+        try:
+            resp = requests.get(get_channel_lookup_url())
+            if resp.status_code == 404:
+                raise requests.ConnectionError("Kolibri studio URL is incorrect!")
+            else:
+                return Response({"status": "online"})
+        except requests.ConnectionError:
+            return Response({"status": "offline"})
+
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer

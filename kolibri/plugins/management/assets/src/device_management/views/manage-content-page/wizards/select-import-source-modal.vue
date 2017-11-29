@@ -11,12 +11,14 @@
         :label="$tr('network')"
         v-model="source"
         radiovalue="network"
-        autofocus
+        :disabled="disableUi || kolibriStudioIsOffline"
+        :autofocus="!kolibriStudioIsOffline"
       />
       <k-radio-button
         :label="$tr('localDrives')"
         v-model="source"
         radiovalue="local"
+        :disabled="disableUi"
       />
     </div>
 
@@ -29,6 +31,7 @@
       <k-button
         @click="goForward"
         primary
+        :disabled="disableUi"
         :text="$tr('continue')"
       />
     </div>
@@ -43,6 +46,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
+  import { RemoteChannelResource } from 'kolibri.resources';
 
   export default {
     name: 'selectImportSourceModal',
@@ -54,7 +58,18 @@
     data() {
       return {
         source: 'network',
+        disableUi: true,
+        kolibriStudioIsOffline: false,
       };
+    },
+    created() {
+      RemoteChannelResource.getKolibriStudioStatus().then(({ entity }) => {
+        if (entity.status === 'offline') {
+          this.source = 'local';
+          this.kolibriStudioIsOffline = true;
+        }
+        this.disableUi = false;
+      });
     },
     $trs: {
       cancel: 'Cancel',
