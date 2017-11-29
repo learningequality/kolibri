@@ -4,6 +4,8 @@
     :title="title"
     :enableBgClickCancel="false"
     hideTopButtons
+    @enter="goForward"
+    @cancel="cancel"
   >
     <transition mode="out-in">
       <ui-alert

@@ -110,7 +110,7 @@ def set_local_file_availability_from_disk(checksums=None):
 
     mark_local_files_as_available(checksums_to_update)
 
-def recurse_availability_up_tree():
+def recurse_availability_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
@@ -138,16 +138,18 @@ def recurse_availability_up_tree():
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
-            ContentNodeTable.c.level == level - 1).where(
-            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=exists(available_nodes)).execution_options(autocommit=True))
+            and_(
+                ContentNodeTable.c.level == level - 1,
+                ContentNodeTable.c.channel_id == channel_id,
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)).execution_options(autocommit=True))
 
     bridge.end()
 
-def set_availability(checksums=None):
+def set_availability(channel_id, checksums=None):
     if checksums is None:
         set_local_file_availability_from_disk()
     else:
         mark_local_files_as_available(checksums)
 
     set_leaf_node_availability_from_local_file_availability()
-    recurse_availability_up_tree()
+    recurse_availability_up_tree(channel_id)

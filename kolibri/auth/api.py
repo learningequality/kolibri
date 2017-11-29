@@ -17,7 +17,7 @@ from .filters import HierarchyRelationsFilter
 from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
     ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, FacilityUserSignupSerializer,
-    LearnerGroupSerializer, MembershipSerializer, RoleSerializer
+    LearnerGroupSerializer, MembershipSerializer, PublicFacilitySerializer, RoleSerializer
 )
 
 
@@ -185,6 +185,13 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
             return Response([logged_in_user.facility_id])
+
+
+class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    queryset = Facility.objects.all()
+    serializer_class = PublicFacilitySerializer
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):

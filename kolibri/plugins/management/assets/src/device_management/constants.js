@@ -13,10 +13,10 @@ export const ContentWizardPages = {
 };
 
 export const TaskTypes = {
-  REMOTE_IMPORT: 'remoteimport',
-  LOCAL_IMPORT: 'localimport',
-  LOCAL_EXPORT: 'localexport',
-  DELETE_CHANNEL: 'deletechannel',
+  REMOTE_IMPORT: 'REMOTECONTENTIMPORT',
+  LOCAL_IMPORT: 'DISKCONTENTIMPORT',
+  LOCAL_EXPORT: 'DISKEXPORT',
+  DELETE_CHANNEL: 'DELETECHANNEL',
 };
 
 export const TaskStatuses = {

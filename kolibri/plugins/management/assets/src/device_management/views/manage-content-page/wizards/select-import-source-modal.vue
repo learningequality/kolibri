@@ -3,6 +3,8 @@
   <core-modal
     :title="$tr('title')"
     hideTopButtons
+    @enter="goForward"
+    @cancel="cancel"
   >
     <div class="options">
       <k-radio-button
