@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from .api import (
     ClassroomViewSet, CurrentFacilityViewSet, FacilityDatasetViewSet, FacilityUsernameViewSet, FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet,
-    MembershipViewSet, RoleViewSet, SessionViewSet, SignUpViewSet
+    MembershipViewSet, PublicFacilityViewSet, RoleViewSet, SessionViewSet, SignUpViewSet
 )
 
 router = routers.SimpleRouter()
@@ -18,6 +18,8 @@ router.register(r'session', SessionViewSet, base_name='session')
 router.register(r'classroom', ClassroomViewSet, base_name='classroom')
 router.register(r'learnergroup', LearnerGroupViewSet, base_name='learnergroup')
 router.register(r'signup', SignUpViewSet, base_name='signup')
+
+router.register(r'public/v1/facility', PublicFacilityViewSet, base_name='publicfacility')
 
 bulk_delete_router = BulkDeleteRouter()
 
