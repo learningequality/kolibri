@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="fh">
     <div class="wrapper-table">
       <div class="main-row"><div id="main-cell">
         <logo class="logo" />
@@ -378,11 +378,14 @@
     &:hover
       background-color: #0E0E0E
 
+  .fh
+    height: 100%
+
   .wrapper-table
     text-align: center
     background-color: #201A21
-    height: 100%
     width: 100%
+    height: 100%
     display: table
 
   .main-row
