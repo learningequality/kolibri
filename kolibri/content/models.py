@@ -117,6 +117,10 @@ class ContentNode(MPTTModel):
 
     class Meta:
         ordering = ('lft',)
+        index_together = [
+            ["level", "channel_id", "kind"],
+            ["level", "channel_id", "available"],
+        ]
 
     def __str__(self):
         return self.title

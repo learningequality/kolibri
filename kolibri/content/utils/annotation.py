@@ -1,4 +1,5 @@
 import logging as logger
+import datetime
 import os
 
 from django.conf import settings
@@ -125,13 +126,18 @@ def recurse_availability_up_tree(channel_id):
 
     child = ContentNodeTable.alias()
 
+    # start a transaction
+
+    trans = connection.begin()
     # Go from the deepest level to the shallowest
+    start = datetime.datetime.now()
     for level in range(node_depth, 0, -1):
 
         available_nodes = select([child.c.available]).where(
             and_(
                 child.c.available == True,  # noqa
                 child.c.level == level,
+                child.c.channel_id == channel_id,
             )
         ).where(ContentNodeTable.c.id == child.c.parent_id)
 
@@ -141,7 +147,13 @@ def recurse_availability_up_tree(channel_id):
             and_(
                 ContentNodeTable.c.level == level - 1,
                 ContentNodeTable.c.channel_id == channel_id,
-                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)).execution_options(autocommit=True))
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+
+    # commit the transaction
+    trans.commit()
+
+    elapsed = (datetime.datetime.now() - start)
+    logging.debug("Availability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
