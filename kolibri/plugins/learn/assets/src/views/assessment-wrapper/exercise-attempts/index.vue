@@ -79,7 +79,7 @@
         const style = {};
         // translateZ(0) is there to try and force GPU-acceleration.
         // (see e.g. http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css)
-        style.transform = `translateX(${xPos}px)`;
+        style.transform = `translateX(${xPos}px) translateZ(0)`;
         // hidden "slide-off" item
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
