@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import assert from 'assert';
-import store from '../../src/state/store';
+import coreStore from '../../src/state/store';
 import * as coreActions from '../../src/state/actions';
 import * as constants from '../../src/constants';
 import sinon from 'sinon';
@@ -13,18 +13,12 @@ import ConditionalPromise from '../../src/conditionalPromise';
 
 Vue.use(Vuex);
 
-function createStore() {
-  store.__initialized = false;
-  store.registerModule();
-  return store;
-}
-
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
     const errorMessage = 'testError';
     Vue.prototype.$formatMessage = () => errorMessage;
     it('handleError action updates core state', () => {
-      const store = createStore();
+      const store = coreStore.factory();
       coreActions.handleError(store, 'catastrophic failure');
       assert.equal(store.state.core.error, 'catastrophic failure');
       assert.equal(store.state.core.loading, false);
@@ -32,7 +26,7 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('handleApiError action updates core state', () => {
-      const store = createStore();
+      const store = coreStore.factory();
       const apiError = { message: 'Too Bad' };
       coreActions.handleApiError(store, apiError);
       assert(store.state.core.error.match(/Too Bad/));
@@ -46,7 +40,7 @@ describe('Vuex store/actions for core module', () => {
     let assignStub;
 
     beforeEach(() => {
-      store = createStore();
+      store = coreStore.factory();
       assignStub = sinon.stub(browser, 'redirectBrowser');
     });
 
@@ -120,7 +114,7 @@ describe('Vuex store/actions for core module', () => {
 describe('Vuex core logging actions', () => {
   describe('attempt log saving', () => {
     it('saveAndStoreAttemptLog does not overwrite state if item id has changed', done => {
-      const store = createStore();
+      const store = coreStore.factory();
       coreActions.createAttemptLog(store, 'first');
       let externalResolve;
       const firstState = Object.assign({}, store.state.core.logging.attempt);
