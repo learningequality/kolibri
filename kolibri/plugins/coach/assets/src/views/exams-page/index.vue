@@ -8,6 +8,7 @@
       :options="statusOptions"
       :inline="true"
       v-model="statusSelected"
+      v-if="sortedExams.length"
     />
     <k-button
       :primary="true"
@@ -43,7 +44,6 @@
         />
       </tbody>
     </table>
-    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -126,7 +126,6 @@
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
       kButton,
