@@ -1,13 +1,6 @@
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
-import {
-  MasteryLoggingMap,
-  AttemptLoggingMap,
-  InteractionTypes,
-  LoginErrors,
-  ConnectionSnackbars,
-  SignedOutDueToInactivitySnackbar,
-} from '../constants';
+import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -25,7 +18,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
-import Lockr from 'lockr';
+import heartbeat from 'kolibri.heartbeat';
 
 const name = 'coreTitles';
 
@@ -732,44 +725,12 @@ function updateMasteryAttemptState(
   });
 }
 
-function tryToReconnect(store) {
-  showTryingToReconnectSnackbar(store);
-}
-
-function showDisconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
-}
-
-function showTryingToReconnectSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.TRYING_TO_RECONNECT);
-}
-
-function showSuccessfullyReconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.SUCCESSFULLY_RECONNECTED);
+function tryToReconnect() {
+  heartbeat.beat();
 }
 
 function clearSnackbar(store) {
   store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
-}
-
-function signedOutDueToInactivity() {
-  Lockr.set(SignedOutDueToInactivitySnackbar, true);
-  window.location = window.origin;
-}
-
-function checkSession(store, active = true) {
-  const sessionModel = SessionResource.getModel('current');
-  const userId = sessionModel.attributes.user_id;
-  SessionResource.getModel('current')
-    .fetch({ active }, true)
-    .then(session => {
-      if (session.user_id !== userId) {
-        signedOutDueToInactivity(store);
-      }
-    })
-    .catch(error => {
-      logging.error('Session polling failed, with error: ', error);
-    });
 }
 
 export {
@@ -800,9 +761,5 @@ export {
   updateAttemptLogInteractionHistory,
   fetchPoints,
   tryToReconnect,
-  showDisconnectedSnackbar,
-  showTryingToReconnectSnackbar,
-  showSuccessfullyReconnectedSnackbar,
   clearSnackbar,
-  checkSession,
 };

@@ -1,15 +1,24 @@
 import logger from 'kolibri.lib.logging';
-import { checkSession } from 'kolibri.coreVue.vuex.actions';
+import { currentUserId, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
+import { SignedOutDueToInactivitySnackbar, ConnectionSnackbars } from './constants';
+import Lockr from 'lockr';
+import urls from 'kolibri.urls';
+import baseClient from './core-app/baseClient';
+import mime from 'rest/interceptor/mime';
+import interceptor from 'rest/interceptor';
+import errorCodes from './disconnectionErrorCodes';
 
 const logging = logger.getLogger(__filename);
 
-export default class HeartBeat {
-  constructor(kolibri, delay = 150000) {
-    if (!kolibri) {
-      throw new ReferenceError('A kolibri instance must be passed into the constructor');
-    }
-    this.kolibri = kolibri;
+const reconnectMultiplier = 2;
+
+const maxReconnectTime = 600;
+
+const minReconnectTime = 5;
+
+export class HeartBeat {
+  constructor(delay = 150000) {
     if (typeof delay !== 'number') {
       throw new ReferenceError('The delay must be a number in milliseconds');
     }
@@ -44,8 +53,73 @@ export default class HeartBeat {
     this.active = false;
   }
   wait() {
-    this.timerId = setTimeout(this.beat, this.delay);
+    const reconnect = reconnectTime(store.state);
+    this.timerId = setTimeout(this.beat, reconnect * 1000 || this.delay);
     return this.timerId;
+  }
+  checkSession() {
+    const userId = currentUserId(store.state);
+    let client = baseClient.wrap(mime, { mime: 'application/json' });
+    if (!connected(store.state)) {
+      store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.TRYING_TO_RECONNECT);
+      client = client.wrap(
+        interceptor({
+          response: function(response) {
+            if (!errorCodes.includes(response.status.code)) {
+              // Not one of our 'disconnected' status codes, so we are connected again
+              heartbeat.setConnected();
+              return response;
+            }
+            store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
+            const reconnect = reconnectTime(store.state);
+            store.dispatch(
+              'CORE_SET_RECONNECT_TIME',
+              Math.min(reconnectMultiplier * reconnect, maxReconnectTime)
+            );
+            return response;
+          },
+        })
+      );
+    }
+    return client({
+      params: {
+        active: this.active,
+      },
+      path: this.sessionUrl('current'),
+    })
+      .then(response => {
+        if (response.entity.user_id !== userId) {
+          this.signOutDueToInactivity();
+        }
+      })
+      .catch(error => {
+        logging.error('Session polling failed, with error: ', error);
+        if (errorCodes.includes(error.status.code)) {
+          this.monitorDisconnect();
+        }
+      });
+  }
+  monitorDisconnect() {
+    if (connected(store.state)) {
+      // We have not already registered that we have been disconnected
+      store.dispatch('CORE_SET_CONNECTED', false);
+      store.dispatch('CORE_SET_RECONNECT_TIME', minReconnectTime);
+      store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
+      this.wait();
+    }
+  }
+  setConnected() {
+    store.dispatch('CORE_SET_CONNECTED', true);
+    store.dispatch('CORE_SET_RECONNECT_TIME', null);
+    store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.SUCCESSFULLY_RECONNECTED);
+    this.wait();
+  }
+  signOutDueToInactivity() {
+    Lockr.set(SignedOutDueToInactivitySnackbar, true);
+    window.location = window.origin;
+  }
+  sessionUrl(id) {
+    return urls['session-detail'](id);
   }
   beat() {
     if (this.active) {
@@ -53,9 +127,13 @@ export default class HeartBeat {
     } else {
       logging.debug('No user activity');
     }
-    checkSession(store, this.active);
-    this.setInactive();
-    return this.wait();
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
+    return this.checkSession().finally(() => {
+      this.setInactive();
+      this.wait();
+    });
   }
   get events() {
     return [
@@ -69,3 +147,7 @@ export default class HeartBeat {
     ];
   }
 }
+
+const heartbeat = new HeartBeat();
+
+export default heartbeat;
