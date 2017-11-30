@@ -6,10 +6,11 @@
       <div class="previous" @click="previousSet">
         <ui-icon-button
           class="previous-button"
+          :style="buttonTransforms"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
-          :icon="isRtl ? 'arrow_forward' : 'arrow_back'"
+          icon="arrow_back"
           size="large"
         />
       </div>
@@ -17,10 +18,11 @@
       <div class="next" @click="nextSet">
         <ui-icon-button
           class="next-button"
+          :style="buttonTransforms"
           v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
-          :icon="isRtl ? 'arrow_back' : 'arrow_forward'"
+          icon="arrow_forward"
           size="large"
         />
       </div>
@@ -132,6 +134,15 @@
           'min-width': `${contentCardWidth}px`,
         };
       },
+      buttonTransforms() {
+        const alignmentTransform = 'translate(-50%, -50%)';
+        const mirrorTransform = `scaleX(-1) `;
+
+        return {
+          // must mirror first, order matters
+          transform: (this.isRtl ? mirrorTransform : '') + alignmentTransform,
+        };
+      },
     },
     watch: {
       // ensures that indeces in contentSetStart/End are within bounds of the contents
@@ -199,7 +210,6 @@
         }
       },
       isInThisSet(index) {
-        console.log('belongs');
         return this.contentSetStart <= index && index <= this.contentSetEnd;
       },
       nextSet() {
@@ -258,7 +268,6 @@
           position: absolute
           top: 50%
           left: 50%
-          transform: translate(-50%, -50%)
 
       // position-specific styles for each control button
       .next
