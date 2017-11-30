@@ -73,10 +73,13 @@
         if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;
         }
+        if (this.isRtl) {
+          xPos *= -1;
+        }
         const style = {};
         // translateZ(0) is there to try and force GPU-acceleration.
         // (see e.g. http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css)
-        style.transform = `translate(${xPos}px) translateZ(0)`;
+        style.transform = `translateX(${xPos}px)`;
         // hidden "slide-off" item
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
