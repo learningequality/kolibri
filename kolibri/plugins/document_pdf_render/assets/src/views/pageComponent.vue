@@ -8,6 +8,7 @@
       v-show="active"
       class="canvas"
       ref="canvas"
+      dir="ltr"
       :height="pageHeight"
       :width="pageWidth">
     </canvas>
