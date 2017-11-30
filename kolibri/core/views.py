@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 
-
 # Modified from django.views.i18n
 @csrf_exempt
 @ensure_csrf_cookie
