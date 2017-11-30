@@ -45,7 +45,7 @@ const loginTimeoutDetection = interceptor({
       // In this case, we should check right now if they are still logged in
       heartbeat.beat();
     }
-    return response;
+    return Promise.reject(response);
   },
 });
 
