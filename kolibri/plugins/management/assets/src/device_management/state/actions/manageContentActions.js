@@ -14,8 +14,8 @@ export function refreshChannelList(store) {
 }
 
 export function showManageContentPage(store) {
+  store.dispatch('RESET_MANAGE_CONTENT_PAGESTATE');
   if (canManageContent(store.state)) {
-    store.dispatch('RESET_MANAGE_CONTENT_PAGESTATE');
     return refreshChannelList(store);
   }
   return Promise.resolve();

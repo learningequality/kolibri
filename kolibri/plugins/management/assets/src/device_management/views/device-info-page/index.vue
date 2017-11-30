@@ -1,55 +1,60 @@
 <template>
 
-  <subpage-container>
-    <h1>{{ $tr('header') }}</h1>
-    <table>
-      <tr>
-        <th>{{ $tr('kolibriVersion') }}</th>
-        <td>{{ info.version }}</td>
-      </tr>
-      <tr>
-        <th>
-          {{ $tr('url', { count: info.urls.length }) }}
-        </th>
-        <td>
-          <a
-            v-for="(url, index) in info.urls"
-            :key="index"
-            :href="url"
-            target="_blank"
-            class="link"
-          >
-            {{ url }}
-          </a>
-        </td>
-      </tr>
-      <tr>
-        <th>{{ $tr('database') }}</th>
-        <td>{{ info.database_path }}</td>
-      </tr>
-      <tr>
-        <th>{{ $tr('deviceName') }}</th>
-        <td>{{ info.device_name }}</td>
-      </tr>
-      <tr>
-        <th>{{ $tr('os') }}</th>
-        <td>{{ info.os }}</td>
-      </tr>
-      <tr>
-        <th>{{ $tr('freeDisk') }}</th>
-        <td>{{ info.content_storage_free_space }}</td>
-      </tr>
-      <tr>
-        <th>{{ $tr('serverTime') }}</th>
-        <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
-      </tr>
-      <tr>
-        <th>{{ $tr('serverTimezone') }}</th>
-        <td>{{ info.server_timezone }}</td>
-      </tr>
+  <div>
+    <subpage-container v-if="canManageContent">
+      <h1>{{ $tr('header') }}</h1>
+      <table>
+        <tr>
+          <th>{{ $tr('kolibriVersion') }}</th>
+          <td>{{ info.version }}</td>
+        </tr>
+        <tr>
+          <th>
+            {{ $tr('url', { count: info.urls.length }) }}
+          </th>
+          <td>
+            <a
+              v-for="(url, index) in info.urls"
+              :key="index"
+              :href="url"
+              target="_blank"
+              class="link"
+            >
+              {{ url }}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ $tr('database') }}</th>
+          <td>{{ info.database_path }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('deviceName') }}</th>
+          <td>{{ info.device_name }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('os') }}</th>
+          <td>{{ info.os }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('freeDisk') }}</th>
+          <td>{{ info.content_storage_free_space }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('serverTime') }}</th>
+          <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
+        </tr>
+        <tr>
+          <th>{{ $tr('serverTimezone') }}</th>
+          <td>{{ info.server_timezone }}</td>
+        </tr>
 
-    </table>
-  </subpage-container>
+      </table>
+    </subpage-container>
+
+    <!-- TODO: Update to: Anyone who can manage content -->
+    <auth-message v-else authorizedRole="admin" />
+  </div>
 
 </template>
 
@@ -57,7 +62,7 @@
 <script>
 
   import authMessage from 'kolibri.coreVue.components.authMessage';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import subpageContainer from '../containers/subpage-container';
 
   export default {
@@ -69,7 +74,7 @@
     vuex: {
       getters: {
         info: state => state.pageState.deviceInfo,
-        isSuperuser,
+        canManageContent,
       },
     },
     $trs: {
