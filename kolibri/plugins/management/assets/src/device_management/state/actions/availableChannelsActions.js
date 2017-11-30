@@ -2,6 +2,7 @@ import { RemoteChannelResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
 import { driveChannelList, installedChannelList, wizardState } from '../getters';
 import router from 'kolibri.coreVue.router';
+import differenceBy from 'lodash/differenceBy';
 
 /**
  * Prepares the Available Channels Page for import/export flows
@@ -19,9 +20,12 @@ export function showAvailableChannelsPage(store) {
   if (transferType === TransferTypes.REMOTEIMPORT) {
     store.dispatch('SET_WIZARD_STATUS', 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO');
     return RemoteChannelResource.getCollection()
-      .fetch()
-      .then(publicChannels => {
-        setAvailableChannels(publicChannels);
+      .fetch({}, true)
+      ._promise.then(publicChannels => {
+        return getAllRemoteChannels(store, publicChannels);
+      })
+      .then(allChannels => {
+        setAvailableChannels(allChannels);
         store.dispatch('SET_WIZARD_STATUS', '');
       });
   }
@@ -47,4 +51,24 @@ export function showAvailableChannelsPage(store) {
  */
 export function getRemoteChannelByToken(token) {
   return RemoteChannelResource.getModel(token).fetch()._promise;
+}
+
+/**
+ * Makes a request to Kolibri Studio to get info on unlisted channels. And append
+ * them to the public channels.
+ *
+ * @param {Array<Channel>} publicChannels - the list of publich channels, which will not be queried
+ * @returns {Promise<Array<Channel>>}
+ */
+export function getAllRemoteChannels(store, publicChannels) {
+  const installedChannels = installedChannelList(store.state);
+  const potentiallyUnlisted = differenceBy(installedChannels, publicChannels, 'id');
+  const promises = potentiallyUnlisted.map(channel =>
+    getRemoteChannelByToken(channel.id)
+      .then(([channel]) => Promise.resolve({ ...channel, unlisted: true }))
+      .catch(() => Promise.resolve())
+  );
+  return Promise.all(promises).then(unlisted => {
+    return [...unlisted.filter(Boolean), ...publicChannels];
+  });
 }
