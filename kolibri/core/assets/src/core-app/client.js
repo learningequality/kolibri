@@ -14,15 +14,20 @@ import store from 'kolibri.coreVue.vuex.store';
 const disconnectInterceptor = interceptor({
   request: function(request) {
     if (!connected(store.state)) {
+      // If the vuex state records that we are not currently connected then cancel all
+      // outgoing requests.
       if (request.cancel) {
+        // If the request has a cancel method, call it.
         request.cancel();
       }
+      // Set the request as canceled
       request.canceled = true;
     }
     return request;
   },
   response: function(response) {
     if (response.request && response.request.canceled) {
+      // If a request has been canceled, reject the response and throw an error
       return Promise.reject(response);
     }
     return response;
@@ -46,8 +51,12 @@ const loginTimeoutDetection = interceptor({
 
 const serverDisconnectDetection = interceptor({
   response: function(response) {
+    // On every response, check to see if the status code is one of our designated
+    // disconnection status codes.
     if (response.status && errorCodes.includes(response.status.code)) {
+      // If so, set our heartbeat module to start monitoring the disconnection state
       heartbeat.monitorDisconnect();
+      // Return an error
       return Promise.reject(response);
     }
     return response;
