@@ -62,7 +62,10 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
 
-  contentCard.mixins = [responsiveElement];
+  if (!contentCard.mixins) {
+    contentCard.mixins = [];
+  }
+  contentCard.mixins.push(responsiveElement); //including because carousel breaks without it
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
