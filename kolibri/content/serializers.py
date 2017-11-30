@@ -13,6 +13,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
     lang_code = serializers.SerializerMethodField()
     lang_name = serializers.SerializerMethodField()
+    available = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
@@ -49,6 +50,9 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         return instance.root.lang.lang_name
 
+    def get_available(self, instance):
+        return instance.root.available
+
     class Meta:
         model = ChannelMetadata
         fields = (
@@ -62,6 +66,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             'root',
             'thumbnail',
             'version',
+            'available',
         )
 
 
