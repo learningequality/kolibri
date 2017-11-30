@@ -145,15 +145,16 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
+# For language names, see:
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# http://helpsharepointvision.nevron.com/Culture_Table.html
+
 LANGUAGES = [
     ('en', 'English'),
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
-    ('es-mx', 'Español (México)'),
     ('fr-fr', 'Français'),
-    ('pt-pt', 'Português'),
-    ('hi-in', 'हिंदी'),
-    ('ar-eg', 'العَرَبِيَّة‎‎')
+    ('ar', 'العَرَبِيَّة‎‎')
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
