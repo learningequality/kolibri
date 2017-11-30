@@ -8,7 +8,6 @@ import vuex from 'vuex';
 import router from 'vue-router';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
-import HeartBeat from '../heartbeat';
 import { setUpIntl } from '../utils/i18n';
 
 /**
@@ -74,6 +73,5 @@ export default class CoreApp {
     publicMethods.forEach(method => {
       this[method] = mediator[method].bind(mediator);
     });
-    this.heartBeat = new HeartBeat(this);
   }
 }

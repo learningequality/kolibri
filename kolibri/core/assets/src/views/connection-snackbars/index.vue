@@ -41,6 +41,10 @@
     components: {
       coreSnackbar,
     },
+    data: () => ({
+      timeToReconnect: 0,
+      timer: null,
+    }),
     $trs: {
       disconnected: 'Disconnected from server. Will try to reconnect in { remainingTime }',
       tryNow: 'Try now',
@@ -49,22 +53,51 @@
     },
     computed: {
       disconnected() {
-        return this.currentSnackbar === ConnectionSnackbars.DISCONNECTED;
+        return !this.connected && this.currentSnackbar === ConnectionSnackbars.DISCONNECTED;
       },
       tryingToReconnect() {
-        return this.currentSnackbar === ConnectionSnackbars.TRYING_TO_RECONNECT;
+        return !this.connected && this.currentSnackbar === ConnectionSnackbars.TRYING_TO_RECONNECT;
       },
       successfullyReconnected() {
-        return this.currentSnackbar === ConnectionSnackbars.SUCCESSFULLY_RECONNECTED;
+        return (
+          this.connected && this.currentSnackbar === ConnectionSnackbars.SUCCESSFULLY_RECONNECTED
+        );
       },
       remainingTime() {
-        return new Date(1000 * this.reconnectTime).toISOString().substr(14, 5);
+        return new Date(1000 * this.timeToReconnect).toISOString().substr(14, 5);
+      },
+    },
+    watch: {
+      currentSnackbar: 'setTimer',
+      connected: 'setTimer',
+    },
+    mounted() {
+      this.setTimer();
+    },
+    beforeDestroy() {
+      this.clearTimer();
+    },
+    methods: {
+      clearTimer() {
+        if (this.timer !== null) {
+          clearInterval(this.timer);
+          this.timer = null;
+        }
+      },
+      setTimer() {
+        this.clearTimer();
+        if (this.reconnectTime) {
+          this.timeToReconnect = this.reconnectTime;
+          this.timer = setInterval(() => {
+            this.timeToReconnect = this.timeToReconnect - 1;
+          }, 1000);
+        }
       },
     },
     vuex: {
       getters: {
         connected,
-        reconnectTime: reconnectTime || 0,
+        reconnectTime: reconnectTime,
         currentSnackbar,
       },
       actions: {
