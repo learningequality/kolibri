@@ -7,9 +7,16 @@
         class="thumbnail"
         :src="channel.thumbnail"
       >
-      <h2 class="title">
-        {{ channel.name }}
-      </h2>
+      <div class="channel-name">
+        <h2 class="title">
+          {{ channel.name }}
+        </h2>
+        <ui-icon
+          class="lock-icon"
+          v-if="channel.public === false"
+          icon="lock_open"
+        />
+      </div>
       <p class="version">
         {{ $tr('version', { version: versionNumber }) }}
       </p>
@@ -45,10 +52,13 @@
 <script>
 
   import bytesForHumans from '../manage-content-page/bytesForHumans';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'channelContentsSummary',
-    components: {},
+    components: {
+      UiIcon,
+    },
     props: {
       channel: {
         type: Object,
@@ -91,6 +101,14 @@
   .title
     font-size: 32px
     font-weight: bold
+    display: inline
+
+  .lock-icon
+    font-size: 32px
+    vertical-align: sub
+
+  .channel-title
+    margin-bottom: 8px
 
   .version
     font-size: 14px

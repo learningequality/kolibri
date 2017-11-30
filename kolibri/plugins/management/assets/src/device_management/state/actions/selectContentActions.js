@@ -30,7 +30,11 @@ export function showSelectContentPage(store) {
     .then(channel => {
       // The channel objects are not consistent if they come from different workflows.
       // Replacing them here with canonical type from ChannelResource.
-      store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+      store.dispatch('SET_TRANSFERRED_CHANNEL', {
+        ...channel,
+        version: transferredChannel.version,
+        public: transferredChannel.public,
+      });
       navigateToTopicUrl({ title: channel.name, pk: channel.root });
     })
     .catch(({ errorType }) => {

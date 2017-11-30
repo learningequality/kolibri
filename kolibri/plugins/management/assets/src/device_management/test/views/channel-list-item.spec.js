@@ -108,6 +108,8 @@ describe('channelListItem', () => {
     });
   });
 
+  xit('shows an icon if the channel is unlisted', () => {});
+
   it('if the channel is installed, the version number is of the installed channel', () => {
     importWrapper.setProps({
       onDevice: true,
