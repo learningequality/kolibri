@@ -3,10 +3,14 @@ from django.conf import settings
 from django.core.urlresolvers import translate_url
 from django.utils.http import is_safe_url
 from django.utils.translation import LANGUAGE_SESSION_KEY, check_for_language
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 
+
 # Modified from django.views.i18n
+@csrf_exempt
+@ensure_csrf_cookie
 def set_language(request):
     """
     Redirect to a given url while setting the chosen language in the
