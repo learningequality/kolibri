@@ -72,16 +72,70 @@ describe('contentTreeViewer component', () => {
     store = makeStore();
   });
 
-  it('shows one content-node-row for each importable node in topic', () => {
+  it('in REMOTEIMPORT, all nodes are shown', () => {
+    // API does annotate them as being importable, though...
+    store.dispatch('SET_TRANSFER_TYPE', 'remoteimport');
+    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+      pk: 'topic',
+      children: [
+        {
+          ...makeNode('1'),
+          available: false,
+          importable: true,
+        },
+        {
+          ...makeNode('1'),
+          available: true,
+          importable: true,
+        },
+      ],
+    });
     const wrapper = makeWrapper({ store });
     const rows = wrapper.find(ContentNodeRow);
-    // TODO: Investigate; CNG Payload has one importable topic
     assert.equal(rows.length, 2);
   });
 
-  xit('if in import mode, then non-importable nodes are filtered from the list', () => {});
+  it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
+    store.dispatch('SET_TRANSFER_TYPE', 'localimport');
+    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+      pk: 'topic',
+      children: [
+        {
+          ...makeNode('1'),
+          importable: true,
+        },
+        {
+          ...makeNode('1'),
+          importable: false,
+        },
+      ],
+    });
+    const wrapper = makeWrapper({ store });
+    const rows = wrapper.find(ContentNodeRow);
+    assert.equal(rows.length, 1);
+  });
 
-  xit('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {});
+  it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
+    store.dispatch('SET_TRANSFER_TYPE', 'localexport');
+    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+      pk: 'topic',
+      children: [
+        {
+          ...makeNode('1'),
+          available: true,
+          importable: true,
+        },
+        {
+          ...makeNode('1'),
+          available: false,
+          importable: false,
+        },
+      ],
+    });
+    const wrapper = makeWrapper({ store });
+    const rows = wrapper.find(ContentNodeRow);
+    assert.equal(rows.length, 1);
+  });
 
   it('it shows an empty state if the topic has no children', () => {
     setChildren([]);

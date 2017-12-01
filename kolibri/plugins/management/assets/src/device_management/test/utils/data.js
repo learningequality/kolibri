@@ -24,6 +24,8 @@ const defaultNode = {
   path: [],
   // [TOTAL_FILE_SIZE]: 1,
   [TOTAL_RESOURCES]: 1,
+  available: true,
+  importable: true,
 };
 
 export function makeNode(pk, attrs = {}) {
