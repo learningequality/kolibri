@@ -10,7 +10,7 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
-    <report-subheading />   
+    <report-subheading />
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
