@@ -11,6 +11,7 @@
         status="QUEUED"
         :percentage="0"
         :cancellable="false"
+        id="updatingchannel"
       />
       <task-progress
         v-if="tasksInQueue"
@@ -30,10 +31,7 @@
         </ui-alert>
       </section>
 
-      <section
-        v-if="channelOnDevice.on_device_resources > 0"
-        class="updates"
-      >
+      <section class="updates">
         <div
           class="updates-available"
           v-if="newVersionAvailable"
