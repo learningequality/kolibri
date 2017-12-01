@@ -16,6 +16,7 @@
       class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
+      :class="{'pull-left': !sortedExams.length}"
     />
     <table v-if="sortedExams.length">
       <thead>
@@ -288,5 +289,8 @@
     color: $core-text-annotation
     font-size: smaller
     font-weight: normal
+
+  .pull-left 
+    float: left
 
 </style>
