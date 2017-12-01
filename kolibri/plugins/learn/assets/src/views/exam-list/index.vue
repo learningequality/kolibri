@@ -4,7 +4,7 @@
     <auth-message v-if="!isUserLoggedIn" authorizedRole="learner" />
 
     <div v-else>
-      <page-header :title="$tr('examName')"></page-header>
+      <page-header :title="$tr('examName')" />
       <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
 

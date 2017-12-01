@@ -2,11 +2,7 @@
 
   <div>
 
-    <page-header :title="$tr('channels')">
-      <div slot="icon">
-        <mat-svg category="navigation" name="apps"/>
-      </div>
-    </page-header>
+    <page-header :title="$tr('channels')" />
 
     <content-card-group-grid
       :contents="channels"
