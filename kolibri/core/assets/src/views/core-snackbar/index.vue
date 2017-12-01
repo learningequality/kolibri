@@ -115,6 +115,10 @@
     z-index: 24
     margin: 16px
 
+    >>>.ui-snackbar__action-button
+      color: white
+      font-weight: bold
+
   .snackbar-backdrop
     z-index: 16
     position: fixed
