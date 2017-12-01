@@ -1,10 +1,10 @@
 <template>
   <div>
-    <sub v-if="pageName == recent && !standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</sub>
-    <sub v-if="pageName == exam && !exams.length ">{{ $tr('noExams') }}</sub>
-    <sub v-if="pageName == general && standardDataTable.length">{{ $tr('subHeading' , { threshold }) }}</sub>
-    <sub v-if="pageName == learners && !standardDataTable.length">{{ $tr('noLearners') }}</sub>
-    <sub v-if="pageName == groups">{{ $tr('noGroups') }}</sub>
+    <sub v-if="pageName === recent && !standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</sub>
+    <sub v-if="pageName === exam && !exams.length ">{{ $tr('noExams') }}</sub>
+    <sub v-if="pageName === general && standardDataTable.length">{{ $tr('subHeading' , { threshold }) }}</sub>
+    <sub v-if="pageName === learners && !standardDataTable.length">{{ $tr('noLearners') }}</sub>
+    <sub v-if="pageName === groups">{{ $tr('noGroups') }}</sub>
   </div>
 </template>
 
