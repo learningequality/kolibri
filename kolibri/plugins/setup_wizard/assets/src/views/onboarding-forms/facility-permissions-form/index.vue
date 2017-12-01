@@ -70,6 +70,7 @@
         <k-button
           appearance="basic-link"
           :text="$tr('facilityPermissionsPresetDetailsLink')"
+          :autofocus="true"
           @click="showFacilityPermissionsDetails"
         />
       </template>
@@ -90,7 +91,6 @@
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          :autofocus="true"
           radiovalue="formal"
           :label="$tr('adminManagedSetupTitle')"
         />
