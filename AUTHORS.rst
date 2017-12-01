@@ -29,3 +29,4 @@ Please feel free to add your name on this list if you do a PR!
 * Paul Luna (luna215)
 * Maureen Hernandez(mauhernandez)
 * Lingyi Wang (lyw07)
+* Richard Amodia (mrpau-richard)

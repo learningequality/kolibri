@@ -61,7 +61,3 @@ export function UPDATE_PATH_BREADCRUMBS(state, topic) {
 export function SET_AVAILABLE_SPACE(state, space) {
   state.pageState.wizardState.availableSpace = space;
 }
-
-export function SET_TRANSFERRED_CHANNEL(state, channel) {
-  state.pageState.wizardState.transferredChannel = channel;
-}

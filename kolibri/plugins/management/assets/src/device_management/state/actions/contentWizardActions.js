@@ -69,7 +69,7 @@ export function transitionWizardPage(store, transition, params) {
   // At AVAILABLE_CHANNELS
   // Forward with params: { channel }
   if (wizardPage === PageNames.AVAILABLE_CHANNELS && transition === FORWARD) {
-    store.dispatch('SET_TRANSFER_CHANNEL', params.channel);
+    store.dispatch('SET_TRANSFERRED_CHANNEL', params.channel);
     return showSelectContentPage(store);
   }
 
