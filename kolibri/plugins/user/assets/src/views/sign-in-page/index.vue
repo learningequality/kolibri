@@ -341,13 +341,13 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
 
   $login-text = #D8D8D8
 
-  #main-cell
+  #main-cell >>>
     .ui-
       &textbox__
         &label-text
@@ -371,21 +371,6 @@
 
       &:hover
         background: none
-
-</style>
-
-
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  $login-text = #D8D8D8
-
-  .k-button-secondary-raised
-    background-color: $core-text-default
-    color: $core-bg-canvas
-    &:hover
-      background-color: #0E0E0E
 
   .fh
     height: 100%
