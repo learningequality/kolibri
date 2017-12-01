@@ -35,13 +35,10 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
         return channel.name
 
     def get_content_title(self, obj):
-        try:
-            node = ContentNode.objects.filter(content_id=obj.content_id).first()
-            if node:
-                return node.title
-            else:
-                return ""
-        except ContentNode.DoesNotExist:
+        node = ContentNode.objects.filter(content_id=obj.content_id).first()
+        if node:
+            return node.title
+        else:
             return ""
 
     def get_time_spent(self, obj):
