@@ -6,11 +6,10 @@ Release process
 Branches and tags
 -----------------
 
-* The ``master`` branch always has the latest stable code
-* The ``develop`` branch is our current development branch
-* Branches named like ``release-v1.2.x`` (for example) track all releases of the 1.2 release line. This may include multiple patch releases (like v1.2.0, v1.2.1, etc)
-* Tags named like  like ``v1.2.0-beta1`` and ``v1.2.0`` label specific releases
-
+* The ``master`` branch always has the latest **stable**  + **released** code
+* The ``develop`` branch is our current development branch, it does not track any released code. Once a branch enters a pre-release phase, it should branch off ``develop`` and in to release branches...
+* Release branches track minor releases. The branches are named like ``release-v1.2.x`` (for example), which denotes that releases are tracked in the ``1.2`` release line. This may include multiple patch releases and pre-releases (like ``v1.2.0``, ``v1.2.1``, ``v1.2.1-beta1`` etc)
+* Tags named like  like ``v1.2.0-beta1`` and ``v1.2.0`` label specific releases and are tracked in their release branches.
 
 .. note::
   At a high level, we follow the 'Gitflow' model. Some helpful references: `Original reference <http://nvie.com/posts/a-successful-git-branching-model/>`_, `Atlassian <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/>`_
@@ -85,26 +84,25 @@ Ensure bugfixes from internal depencies have propagated
 Some issues in Kolibri arise due to our integration of internally produced, but external to Kolibri, packages, such as kolibri-exercise-perseus-renderer, iceqube, and morango. If any of these kinds of dependencies have been updated to fix issues for this milestone, then the dependency version should have been updated.
 
 
-Edit the VERSION file
-~~~~~~~~~~~~~~~~~~~~~
+Bump the version
+~~~~~~~~~~~~~~~~
+
+.. note:: This applies to all releases, both stable and pre-releases. Anything that's released should be tracked in a release branch.
 
 Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
 
-Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
+The form is of the ``kolibri.VERSION`` tuple is::
 
-Select a release series number and initial version number::
-
-    $ SERIES=0.1.x
-    $ VER=0.1.0a
-
-The form is::
-
-            0.1.x
-           /  |  \
-          /   |   \
-         /    |    \
-     major  minor   patch
-
+          (0, 1, x, suffix, 0)
+           /  |   \    \     \
+          /   |    \    \     +----+
+         /    |     \    \          \
+     major  minor  patch  a/b/rc   suffix release
+     
+     a=alpha
+     b=beta
+     rc=release candidate
+     post=post release (no source changes)
 
 Set the version in the release branch::
 
@@ -112,9 +110,7 @@ Set the version in the release branch::
     $ git add kolibri/__init__.py
     $ git commit -m "Bump version to $VER"
 
-Set the version number in the develop branch *if necessary*.
-
-Create a pull request on Github to get sign off for the release.
+Create a pull request on Github to get sign off for the release, create test builds etc. Target the release branch, not ``master`` or ``develop``!
 
 Checklist for sign off:
 
@@ -130,7 +126,9 @@ Checklist for sign off:
 Tag the release
 ~~~~~~~~~~~~~~~
 
-We always add git tags to a commit that makes it to a final or pre release. A
+Once the release PR is merged to a release branch, you can add a tag and create the Github release entry.
+
+We always add git tags to a commit that makes it to a final or pre-release. A
 tag is prefixed ``v`` and follows the Semver convention,
 for instance ``v1.2.3-alpha1``.
 
