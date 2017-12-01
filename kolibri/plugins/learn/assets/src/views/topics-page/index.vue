@@ -9,7 +9,11 @@
       </div>
     </page-header>
 
-    <p class="page-description" v-if="topic.description">
+    <p
+      v-if="topic.description"
+      dir="auto"
+      class="page-description ta-l"
+    >
       {{ topic.description }}
     </p>
 
@@ -76,5 +80,8 @@
     margin-top: 1em
     margin-bottom: 1em
     line-height: 1.5em
+
+  .ta-l
+    text-align: left
 
 </style>

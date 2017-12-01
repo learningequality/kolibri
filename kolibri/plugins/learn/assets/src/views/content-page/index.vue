@@ -2,8 +2,8 @@
 
   <div>
 
-    <!-- TODO : RTL : Remove al -->
-    <page-header :title="content.title" :dir="langDir" class="al" />
+    <!-- TODO: RTL - Remove ta-l -->
+    <page-header :title="content.title" dir="auto" class="ta-l" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -44,17 +44,17 @@
       <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
-    <!-- TODO : RTL : Remove al -->
-    <p v-html="description" :dir="langDir" class="al"></p>
+    <!-- TODO: RTL - Remove ta-l -->
+    <p v-html="description" dir="auto" class="ta-l"></p>
 
 
     <div class="metadata">
-      <!-- TODO : RTL : Do not interpolate strings -->
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <!-- TODO : RTL : Do not interpolate strings -->
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
@@ -66,8 +66,8 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <!-- TODO : RTL : Do not interpolate strings -->
-          <p v-if="licenceDescriptionIsVisible" :dir="langDir" class="al">
+          <!-- TODO: RTL - Do not interpolate strings -->
+          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
           </p>
         </template>
@@ -209,12 +209,6 @@
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
-      langDir() {
-        if (this.content.lang && this.content.dir) {
-          return this.content.dir;
-        }
-        return 'ltr';
-      },
     },
     beforeDestroy() {
       this.stopTracking();
@@ -288,7 +282,7 @@
   .download-button
     display: block
 
-  .al
+  .ta-l
     text-align: left
 
 </style>
