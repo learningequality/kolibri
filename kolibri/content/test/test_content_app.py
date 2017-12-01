@@ -309,18 +309,27 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['lang_code'], None)
         self.assertEqual(response.data['lang_name'], None)
 
-    def test_channelmetadata_content_available_filter_lowercase_true(self):
+    def test_channelmetadata_content_available_param_filter_lowercase_true(self):
         response = self.client.get(reverse("channel-list"), {"available": "true"})
         self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
-    def test_channelmetadata_content_available_filter_uppercase_true(self):
+    def test_channelmetadata_content_available_param_filter_uppercase_true(self):
         response = self.client.get(reverse("channel-list"), {"available": True})
         self.assertEqual(response.data, [])
 
-    def test_channelmetadata_content_unavailable_filter_false(self):
+    def test_channelmetadata_content_unavailable_param_filter_false(self):
         content.ContentNode.objects.filter(title="root").update(available=False)
         response = self.client.get(reverse("channel-list"), {"available": False})
         self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
+
+    def test_channelmetadata_content_available_field_true(self):
+        response = self.client.get(reverse("channel-list"))
+        self.assertEqual(response.data[0]["available"], True)
+
+    def test_channelmetadata_content_available_field_false(self):
+        content.ContentNode.objects.filter(title="root").update(available=False)
+        response = self.client.get(reverse("channel-list"))
+        self.assertEqual(response.data[0]["available"], False)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
