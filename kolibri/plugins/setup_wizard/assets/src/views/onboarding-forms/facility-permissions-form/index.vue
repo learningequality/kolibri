@@ -70,7 +70,7 @@
         <k-button
           appearance="basic-link"
           :text="$tr('facilityPermissionsPresetDetailsLink')"
-          :autofocus="true"
+          ref="details"
           @click="showFacilityPermissionsDetails"
         />
       </template>
@@ -170,6 +170,9 @@
         selectedPreset: this.currentPermissionPreset,
         permissionPresetDetailsModalShown: false,
       };
+    },
+    mounted() {
+      this.$refs.details.$el.focus();
     },
     methods: {
       setPermissions() {
