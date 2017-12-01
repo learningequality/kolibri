@@ -1,0 +1,36 @@
+Template: kolibri/window-title
+Type: title
+Description: Kolibri configuration
+
+Template: kolibri/init
+Type: boolean
+Default: true
+Description: Do you wish to run Kolibri on start-up?
+ This will automatically call the system service to start
+ Kolibri when your system boots.
+
+Template: kolibri/init-instructions
+Type: note
+Description: The Kolibri system service
+ You have chosen to run Kolibri as a system
+ service and it has been started automatically. You can
+ start/stop/restart Kolibri with the following command
+ .
+   sudo service kolibri [start, stop, restart]
+
+Template: kolibri/manual-instructions
+Type: note
+Description: Running Kolibri manually:
+ You have chosen not to run Kolibri as a system
+ service and that means you should run it manually.
+ Starting Kolibri with your current user account:
+ .
+   kolibri start
+ .
+ Starting Kolibri as a system-wide service:
+ .
+   sudo service kolibri start
+ .
+ Start Kolibri when the system boots:
+ .
+   sudo systemctl enable kolibri
