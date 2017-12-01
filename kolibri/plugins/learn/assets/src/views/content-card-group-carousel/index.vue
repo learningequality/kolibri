@@ -2,10 +2,11 @@
 
   <section class="content-carousel">
 
-    <div :style="widthOfCarousel" class="content-carousel-controls">
-      <div class="previous" @click="previousSet">
+    <div :style="contentControlsContainerStyles">
+
+      <div class="content-carousel-previous-control" @click="previousSet">
         <ui-icon-button
-          class="previous-button"
+          class="content-carousel-previous-control-button"
           :style="buttonTransforms"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
@@ -15,9 +16,30 @@
         />
       </div>
 
-      <div class="next" @click="nextSet">
+      <transition-group
+        :style="contentSetStyles"
+        tag="div"
+        @leave="slide"
+        @before-enter="setStartPosition"
+        @enter="slide">
+
+        <content-card
+          class="content-carousel-card"
+          v-for="(content, index) in contents"
+          v-if="isInThisSet(index)"
+          :style="positionCalc(index)"
+          :key="content.id"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress"
+          :link="genContentLink(content.id, content.kind)"
+        />
+      </transition-group>
+
+      <div class="content-carousel-next-control" @click="nextSet">
         <ui-icon-button
-          class="next-button"
+          class="content-carousel-next-control-button"
           :style="buttonTransforms"
           v-show="!isLastSet"
           :disabled="isLastSet"
@@ -26,29 +48,9 @@
           size="large"
         />
       </div>
+
     </div>
 
-    <transition-group
-      :style="widthOfCarousel"
-      class="content-carousel-set"
-      tag="div"
-      @leave="slide"
-      @before-enter="setStartPosition"
-      @enter="slide">
-
-      <content-card
-        class="content-carousel-card"
-        v-for="(content, index) in contents"
-        v-if="isInThisSet(index)"
-        :style="positionCalc(index)"
-        :key="content.id"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :link="genContentLink(content.id, content.kind)" />
-
-    </transition-group>
 
   </section>
 
@@ -129,12 +131,26 @@
       isLastSet() {
         return this.contentSetEnd >= this.contents.length - 1;
       },
-      widthOfCarousel() {
+      contentSetStyles() {
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const maxCardShadowOffset = 14; // determined by css styles on cards
+        return {
+          'min-width': `${contentCardWidth}px`,
+          'overflow-x': 'hidden',
+          width: `${cards + gutters + maxCardShadowOffset}px`,
+          height: `${contentCardWidth + maxCardShadowOffset}px`,
+          position: 'relative',
+        };
+      },
+      contentControlsContainerStyles() {
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
           width: `${cards + gutters}px`,
-          'min-width': `${contentCardWidth}px`,
+          height: `${contentCardWidth}px`,
+          overflow: 'visible',
+          position: 'relative',
         };
       },
       buttonTransforms() {
@@ -235,59 +251,52 @@
 
   // width of card + gutter
   $card-height = 210px
+  $control-hit-height = 100px
+  $control-hit-width = $control-hit-height
 
 
   .content-carousel
     margin-top: 1em
     clearfix()
+    position: relative
 
-    &-controls
-      $hit-height = 100px
-
-      $hit-width = $hit-height
-      // set up the parent element that the buttons use for reference
-      position: absolute
-      width: 100%
-
-      // styles that apply to both control buttons
-      .next, .previous
-        &:active
-          z-index: 8 // material
-
-        z-index: 2 // material
-        position: absolute
-        top: ($card-height / 2)
-        transform: translateY(-($hit-height / 2))
-        height: $hit-height
-        width: $hit-width
-        text-align: center
-        vertical-align: middle
-
-        &-button
-          &:active
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
-          box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
-          // center align within hitbox
-          position: absolute
-          top: 50%
-          left: 50%
-
-      // position-specific styles for each control button
-      .next
-        right: -($hit-width/2)
-      .previous
-        left: -($hit-width/2)
-
-    &-set
-      $max-card-shadow-offset = 14px
+    &-control-container
+      overflow: visible
       position: relative
-      height: $card-height + $max-card-shadow-offset
-      overflow-x: hidden
-      overflow-y: visible
 
     &-card
       left: 0
       transition: left 0.4s linear
       position: absolute
+
+    &-next-control, &-previous-control
+
+      // styles that apply to both control buttons
+      &:active
+        z-index: 8 // material
+
+      z-index: 2 // material
+      position: absolute
+      top: ($card-height / 2)
+      transform: translateY(-($control-hit-height / 2))
+      height: $control-hit-height
+      width: $control-hit-width
+      text-align: center
+      vertical-align: middle
+
+      &-button
+        &:active
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+        // center align within hitbox
+        position: absolute
+        top: 50%
+        left: 50%
+
+    // position-specific styles for each control button
+    &-next-control
+      right: -($control-hit-width/2)
+    &-previous-control
+      left: -($control-hit-width/2)
 
 </style>
