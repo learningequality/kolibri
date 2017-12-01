@@ -36,11 +36,7 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
 
     def get_content_title(self, obj):
         try:
-            channel = ChannelMetadata.objects.get(id=obj.channel_id)
-        except ChannelMetadata.DoesNotExist:
-            return ""
-        try:
-            node = ContentNode.objects.filter(tree_id=channel.root.tree_id).first()
+            node = ContentNode.objects.filter(content_id=obj.content_id).first()
             if node:
                 return node.title
             else:
