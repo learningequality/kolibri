@@ -1,5 +1,5 @@
 import os
-
+import logging as logger
 from django.conf import settings
 from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
@@ -10,6 +10,8 @@ from ...utils import annotation, paths, transfer, import_export_content
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
+
+logging = logger.getLogger(__name__)
 
 
 class Command(AsyncCommand):
@@ -107,6 +109,7 @@ class Command(AsyncCommand):
             channel_id, node_ids, exclude_node_ids, False)
 
         downloaded_files = []
+        number_of_skipped_files = 0
         file_checksums_to_annotate = []
 
         with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
@@ -155,12 +158,20 @@ class Command(AsyncCommand):
                 except HTTPError:
                     overall_progress_update(f.file_size)
 
+                except OSError:
+                    number_of_skipped_files += 1
+                    overall_progress_update(f.file_size)
+
             if self.is_cancelled():
                 # Cancelled, clean up any already downloading files.
                 for dest in downloaded_files:
                     os.remove(dest)
                 self.cancel()
             else:
+                if number_of_skipped_files > 0:
+                    logging.warning(
+                        "{} files are skipped, because they are not found in the given external drive.".format(number_of_skipped_files))
+
                 annotation.set_availability(channel_id, file_checksums_to_annotate)
 
     def handle_async(self, *args, **options):
