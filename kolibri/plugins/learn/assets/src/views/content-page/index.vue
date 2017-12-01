@@ -2,7 +2,8 @@
 
   <div>
 
-    <page-header :title="content.title" />
+    <!-- TODO : RTL : Remove al -->
+    <page-header :title="content.title" :dir="langDir" class="al" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -43,14 +44,17 @@
       <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
-    <p v-html="description"></p>
+    <!-- TODO : RTL : Remove al -->
+    <p v-html="description" :dir="langDir" class="al"></p>
 
 
     <div class="metadata">
+      <!-- TODO : RTL : Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
+      <!-- TODO : RTL : Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
@@ -62,7 +66,8 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <p v-if="licenceDescriptionIsVisible">
+          <!-- TODO : RTL : Do not interpolate strings -->
+          <p v-if="licenceDescriptionIsVisible" :dir="langDir" class="al">
             {{ content.license_description }}
           </p>
         </template>
@@ -204,6 +209,12 @@
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
+      langDir() {
+        if (this.content.lang && this.content.dir) {
+          return this.content.dir;
+        }
+        return 'ltr';
+      },
     },
     beforeDestroy() {
       this.stopTracking();
@@ -276,5 +287,8 @@
 
   .download-button
     display: block
+
+  .al
+    text-align: left
 
 </style>
