@@ -163,7 +163,7 @@
 
   .dtc
     display: table-cell
-    vertical-align: inherit
+    vertical-align: top
 
   .channel-list-item
     display: table
@@ -206,6 +206,8 @@
   .other-details
     float: right
     line-height: 1.7em
+    position: relative
+    top: 16px
 
   .on-device
     line-height: 1.7em
