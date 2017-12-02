@@ -32,7 +32,7 @@
       <span class="percentage">{{ progressMessage }}</span>
     </div>
 
-    <div class="buttons dtc">
+    <div v-if="showButtons" class="buttons dtc">
       <k-button
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
@@ -78,6 +78,10 @@
       cancellable: {
         type: Boolean,
         required: true,
+      },
+      showButtons: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
