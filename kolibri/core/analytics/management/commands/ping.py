@@ -69,4 +69,4 @@ class Command(BaseCommand):
 
         response.raise_for_status()
 
-        return json.loads(response.content)
+        return json.loads(response.content or "{}")
