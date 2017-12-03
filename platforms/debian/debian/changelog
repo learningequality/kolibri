@@ -1,3 +1,57 @@
+kolibri-source (0.6.0-0ubuntu3) trusty; urgency=medium
+
+  * Python3 dependency>=3.4 + fix error in /etc/default/kolibri
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 03 Dec 2017 21:01:26 +0100
+
+kolibri-source (0.6.0-0ubuntu2) trusty; urgency=medium
+
+  * Adds startup service configuration
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 01 Dec 2017 16:09:17 +0100
+
+kolibri-source (0.6.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 30 Nov 2017 19:45:39 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu11) trusty; urgency=medium
+
+  * Further removal of python2-only code
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 30 Nov 2017 17:10:58 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu10) trusty; urgency=medium
+
+  * Add in python3 setup.py install that got overwritten
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 21:18:31 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu9) trusty; urgency=medium
+
+  * Fix syntax error in config file write
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 16:30:25 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu8) trusty; urgency=medium
+
+  * Remove failing empty kolibri.install script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 14:21:17 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu7) unreleased; urgency=medium
+
+  * Add missing build dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 01:08:22 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu6) trusty; urgency=medium
+
+  * Removing call to python2 builder
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 00:30:32 +0100
+
 kolibri-source (0.5.0.dev46-0ubuntu5) trusty; urgency=medium
 
   * Adding systemd+SysV startup service
