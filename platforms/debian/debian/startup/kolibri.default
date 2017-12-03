@@ -12,7 +12,11 @@ if [ -d /etc/kolibri/conf.d ]
 then
   for f in /etc/kolibri/conf.d/*.conf
   do
-    . "$f"
+    # Necessary because of empty directories
+    if [ -e "$f" ]
+    then
+      . "$f"
+    fi
   done
 fi
 
