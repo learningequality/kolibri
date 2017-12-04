@@ -131,7 +131,7 @@
         return this.mode === Modes.MANAGE;
       },
       resourcesSizeText() {
-        return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.on_device_file_size) });
+        return bytesForHumans(this.channel.on_device_file_size);
       },
       thumbnailImg() {
         return this.channel.thumbnail;
@@ -157,7 +157,6 @@
     $trs: {
       deleteButton: 'Delete',
       onYourDevice: 'On your device',
-      resourcesSize: '{size} resources',
       selectButton: 'Select',
       version: 'Version {version}',
       defaultDescription: '(No description)',
@@ -173,7 +172,7 @@
 
   .dtc
     display: table-cell
-    vertical-align: inherit
+    vertical-align: top
 
   .channel-list-item
     display: table
@@ -217,6 +216,8 @@
   .other-details
     float: right
     line-height: 1.7em
+    position: relative
+    top: 16px
 
   .on-device
     line-height: 1.7em

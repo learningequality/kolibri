@@ -138,7 +138,7 @@ describe('channelListItem', () => {
     // ...and does not show the "On Device" indicator
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      assert.equal(resourcesSizeText(), '90 MB resources');
+      assert.equal(resourcesSizeText(), '90 MB');
       assert.deepEqual(onDevice(), []);
     }
     test(manageWrapper);
