@@ -108,12 +108,18 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .snackbar
     position: fixed
     bottom: 0
     left: 0
     z-index: 24
     margin: 16px
+
+    >>>.ui-snackbar__action-button
+      color: $core-bg-light
+      font-weight: bold
 
   .snackbar-backdrop
     z-index: 16
