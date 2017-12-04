@@ -36,7 +36,7 @@ class Command(BaseCommand):
             try:
                 logging.info("Attempting a ping.")
                 data = self.perform_ping(server)
-                logging.info("Ping succeeded! (Data: {}) Sleeping for {} minutes.".format(data, interval))
+                logging.info("Ping succeeded! (response: {}) Sleeping for {} minutes.".format(data, interval))
                 time.sleep(interval * 60)
                 continue
             except ConnectionError:
@@ -64,6 +64,7 @@ class Command(BaseCommand):
             "language": "TODO",
             # possibly add: channels, user count, dataset ids, high-level stats?
         }
+        logging.info("data: {}".format(data))
 
         response = requests.post(server, data=json.dumps(data), timeout=30)
 
