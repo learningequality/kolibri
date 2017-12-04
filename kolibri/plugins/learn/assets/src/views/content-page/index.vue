@@ -2,7 +2,8 @@
 
   <div>
 
-    <page-header :title="content.title" />
+    <!-- TODO: RTL - Remove ta-l -->
+    <page-header :title="content.title" dir="auto" class="ta-l" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -43,14 +44,17 @@
       <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
-    <p v-html="description"></p>
+    <!-- TODO: RTL - Remove ta-l -->
+    <p v-html="description" dir="auto" class="ta-l"></p>
 
 
     <div class="metadata">
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
@@ -62,7 +66,8 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <p v-if="licenceDescriptionIsVisible">
+          <!-- TODO: RTL - Do not interpolate strings -->
+          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
           </p>
         </template>
@@ -276,5 +281,8 @@
 
   .download-button
     display: block
+
+  .ta-l
+    text-align: left
 
 </style>

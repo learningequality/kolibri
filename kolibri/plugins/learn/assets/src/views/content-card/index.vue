@@ -10,7 +10,7 @@
       :isMobile="isMobile"
     />
 
-    <h3 class="text">{{ title }}</h3>
+    <h3 class="text" dir="auto">{{ title }}</h3>
 
   </router-link>
 

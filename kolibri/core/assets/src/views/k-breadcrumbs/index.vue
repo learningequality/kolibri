@@ -11,6 +11,7 @@
                   :text="crumb.text"
                   :to="crumb.link"
                   :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }"
+                  dir="auto"
                 />
               </li>
             </ol>
@@ -26,7 +27,11 @@
             v-show="!crumb.collapsed"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" />
+            <k-router-link
+              :text="crumb.text"
+              :to="crumb.link"
+              dir="auto"
+            />
           </li>
 
           <li
@@ -34,7 +39,12 @@
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
             :key="index"
           >
-            <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
+            <span
+              :style="{ maxWidth: `${lastCrumbMaxWidth}px` }"
+              dir="auto"
+            >
+              {{ crumb.text }}
+            </span>
           </li>
         </template>
       </ol>
