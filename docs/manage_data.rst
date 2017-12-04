@@ -1,4 +1,4 @@
-.. _manage_data:
+.. _manage_data_ref:
 
 Manage Data
 ~~~~~~~~~~~

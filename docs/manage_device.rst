@@ -1,9 +1,9 @@
-.. _manage_device:
+.. _manage_device_ref:
 
 Manage Device
 ~~~~~~~~~~~~~
 
-You can manage content and permissions for the device where Kolibri is running from the **Device** dashboard.
+You can manage content and permissions, and view the detailed info of the device where Kolibri is running from the **Device** dashboard.
 
 .. note::
   To manage device settings you must have the appropriate permissions.
@@ -14,7 +14,7 @@ You can manage content and permissions for the device where Kolibri is running f
 Assign Permissions
 ------------------
 
-You can assign additional permissions to Kolibri users which will provide them access to more features compared to their :ref:`user roles <user_roles>`. To manage permissions for Kolibri users, use the **Permission** tab in the  **Device** dashboard.
+You can assign additional permissions to Kolibri users which will provide them access to more features compared to their :ref:`user roles <user_roles>`. To manage permissions for Kolibri users, use the **Permission** tab in the  **Device** dashboard (|lock| icon).
 
 	.. image:: img/manage-permissions.png
 	  :alt: manage permissions  
@@ -50,3 +50,27 @@ The users who have been granted the **Super user** permissions will have a yello
 
 	.. image:: img/permissions-keys.png
 	  :alt: permissions indicators
+
+
+.. _device_info:
+
+
+View Device Info
+----------------
+
+To view the detailed info of the device where Kolibri is running on, use the **Info** tab in the  **Device** dashboard (|info| icon). This information will be useful in case you need to report an issue with Kolibri to FLE support team. Make note or copy the following device details:
+
+* Kolibri version
+* Server IP/URL(s)
+* Database path
+* Device name
+* Operating system 
+* Free disk space
+* Server time
+* Server timezone
+
+
+.. figure:: img/device-info.png
+  :alt: Find out the detailed device info in the Device > Info tab.
+
+  Find out the detailed device info in the Device > Info tab.

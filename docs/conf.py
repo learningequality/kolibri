@@ -123,6 +123,14 @@ html_static_path = ['_static']
 #     ],
 # }
 
+# Approach for custom stylesheet:
+# adapted from: http://rackerlabs.github.io/docs-rackspace/tools/rtd-tables.html
+# and https://github.com/altair-viz/altair/pull/418/files
+# https://github.com/rtfd/sphinx_rtd_theme/issues/117
+def setup(app):
+    # Add our custom CSS overrides
+    app.add_stylesheet('theme_overrides.css')
+
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
@@ -142,6 +150,16 @@ html_show_copyright = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'kolibri-user'
+
+rst_prolog = """
+.. role:: raw-html(raw)
+      :format: html
+
+.. |content| replace:: :raw-html:`<span class="fa fa-th" aria-hidden="true"></span><span class="visuallyhidden">Content</span>`
+.. |info| replace:: :raw-html:`<span class="fa fa-info fa-border" aria-hidden="true"></span><span class="visuallyhidden">Info</span>`
+.. |lock| replace:: :raw-html:`<span class="fa fa-lock" aria-hidden="true"></span><span class="visuallyhidden">Permissions</span>`
+
+"""
 
 
 # -- Options for manual page output --------------------------------------------

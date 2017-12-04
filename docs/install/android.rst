@@ -1,4 +1,4 @@
-.. _android:
+.. _apk:
 
 Android
 =======
@@ -19,17 +19,15 @@ Install
 	b. Under **Personal**, tap **Security**.
 	c. Under **Device administration**, tap **Unknown sources**.
 
-#. Download the **Kolibri** :url-android-installer:`Android installer <>` (*.apk file).
+#. Download the **Kolibri** `Android installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0-beta6>`_ (``APK`` file).
 #. Tap the downloaded .apk file.
 #. Wait until the installation finishes.
-#. Once you have **Kolibri** installed, tap **Open** and proceed with the :ref:`initial_setup` of your facility. 
+#. Once you have **Kolibri** installed, tap **Open** and proceed with the :ref:`setup_initial` of your facility. 
 
-``TODO - Update links for the installer.`` 
+.. TODO - Update links for the installer.
 
 Uninstall
 ---------
-
-``TODO - Review``
 
 #. Open your device's Settings app.
 #. Under Apps, tap **Kolibri**.
@@ -37,8 +35,6 @@ Uninstall
 
 Upgrade
 -------
-
-``TODO - Review``
 
 To upgrade **Kolibri**, follow these steps.
 

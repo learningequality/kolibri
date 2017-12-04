@@ -1,4 +1,4 @@
-.. _initial_setup:
+.. _setup_initial:
 
 
 Initial Setup
@@ -62,4 +62,4 @@ To do the initial setup of after the installation, follow these steps.
 
 	   View the Facility setup details.
 
-#. Once you finish the initial setup, proceed to :ref:`import some content <manage_content>`, and :ref:`create users <manage_users>` (if you chose the Admin-managed facility setup). Make sure to check how to :ref:`configure other computers <access_LAN>` in the network to access Kolibri.
+#. Once you finish the initial setup, proceed to :ref:`import some content <manage_content_ref>`, and :ref:`create users <manage_users_ref>` (if you chose the Admin-managed facility setup). Make sure to check how to :ref:`configure other computers <access_LAN>` in the network to access Kolibri.

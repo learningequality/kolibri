@@ -1,4 +1,4 @@
-.. _system_requirements:
+.. _sys_reqs:
 
 System requirements
 ===================
@@ -7,16 +7,14 @@ Operating systems
 -----------------
 
  - Windows Vista, 7, 8.1, 10
- - *(planned)* Linux: Any system with Python 3.4
- - *(planned)* Mac OSX 10.9, 10.10 and 10.11
- - *(planned)* Debian/Raspberry Pi packages: Wheezy or later
- - *(planned)* Ubuntu packages: 14.04, 15.10, 16.04 - anything that's *not* end-of-life.
+ - Debian/Ubuntu: 14.04, 15.10, 16.04 - anything that's *not* end-of-life.
+ - Linux: Any system with Python 2.7
+ - Mac OSX 10.9, 10.10 and 10.11
+ - Debian/Raspberry Pi packages: Wheezy or later
+ - *(planned)* Android: 4.2.2 or later
 
 
-**Limited support**
-
-``TODO``
-
+.. TODO - Limited support
 
 Supported Browsers
 ------------------
@@ -29,15 +27,13 @@ Supported Browsers
  - *(planned)* others on Android and  iOS.  
 
 
-Known issues:
-
-``TODO``
+.. TODO - Known issues
 
 
 Video playback
 --------------
 
-Videos are MP4 encoded. On Ubuntu/Debian systems, install the `Ubuntu restricted extras package <https://apps.ubuntu.com/cat/applications/ubuntu-restricted-extras/>`_.
+Videos are MP4 encoded, and require no aditional installation of plugins or codecs.
 
 
 Hardware requirements
@@ -63,6 +59,6 @@ Kolibri hardware requirements as a server are next to nothing.
 
 If you have a center with less than 30 computers, a device as simple as a Raspberry Pi is known to work fine as a server.
 
-``TODO - REVIEW with RPi package reqs if necessary``
+.. TODO - REVIEW with RPi package reqs if necessary
 
-.. note:: In case you are deploying on Linux and want an efficient setup, use the ``kolibri-raspberry-pi`` package, it doesn't require a specific architecture, but it's required to use if you deploy on a system with specs equivalent to or smaller than Raspberry Pi.
+   .. note:: In case you are deploying on Linux and want an efficient setup, use the ``kolibri-raspberry-pi`` package, it doesn't require a specific architecture, but it's required to use if you deploy on a system with specs equivalent to or smaller than Raspberry Pi.

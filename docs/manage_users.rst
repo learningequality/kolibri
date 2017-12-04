@@ -1,4 +1,4 @@
-.. _manage_users:
+.. _manage_users_ref:
 
 Manage Users
 ~~~~~~~~~~~~
@@ -69,4 +69,3 @@ Delete User’s Account
 
 .. image:: img/delete-account-confirm.png
   :alt: confirm delete account
-

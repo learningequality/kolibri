@@ -1,26 +1,43 @@
-.. _linux:
+.. _lin:
 
-Linux
-=====
+Debian/Ubuntu Linux
+===================
 
 .. warning::
-  Linux installer is not yet available!
+  Final Linux installer is not yet available!
 
 
-Install
--------
+Install from PPA repository
+---------------------------
 
-#. Download the Kolibri :url-deb-installer:`Linux installer <>`.
+#. Use the following commands in Terminal to add the PPA and install Kolibri.
+
+  .. code-block:: bash
+
+    sudo add-apt-repository ppa:learningequality/kolibri
+    sudo apt-get update
+    sudo apt-get install kolibri
+
+**OR**
+
+#. Go to `Kolibri project page on Launchpad <https://launchpad.net/~learningequality/+archive/ubuntu/kolibri/+packages>`_.
+#. Click and select the latest source package. It doesn't matter which series, all binaries are the same, regardless of your architecture or Ubuntu/Debian version.
+#. Scroll down to **Package files**.
+#. Download the Kolibri installer  (``DEB`` file).
 #. Run the command:
 
   .. code-block:: bash
 
     sudo dpkg -i kolibri-installer-filename.deb
 
-#. Follow the instructions in the installation wizard window.
-#. Once you have Kolibri installed on your system, proceed with the :ref:`initial_setup` of your facility. 
+5. Wait for the installation to finish and run this command to start Kolibri:
 
-``TODO - Update links for the installer, and review the system service options.`` 
+  .. code-block:: bash
+
+    kolibri start
+	
+6. When command finishes, open the default browser at http://127.0.0.1:8080 and proceed with the :ref:`setup_initial` of your facility. 
+
 
 Uninstall
 ---------
@@ -29,7 +46,7 @@ Uninstall
 
 OR
 
-* Use ``apt-get remove <name of package>``. You need to know the name of the package you installed, most probably ``kolibri``.
+* Use ``sudo apt-get remove <name of package>``. You need to know the exact name of the package you installed, most probably ``kolibri``.
 
 Upgrade
 -------
@@ -40,6 +57,5 @@ To upgrade Kolibri, follow these steps.
 
 #. Download the new version of Kolibri.
 #. Start the installer.
-#. Follow the instructions in the installation wizard window.
 #. Once the installation of the upgrade is finished, Kolibri will auto-start and open in the default browser on your computer.
 #. Go explore the new and improved Kolibri features!

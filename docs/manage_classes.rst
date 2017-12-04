@@ -1,5 +1,5 @@
 
-.. _manage_classes:
+.. _manage_classes_ref:
 
 Manage Classes
 ~~~~~~~~~~~~~~

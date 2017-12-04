@@ -4,7 +4,7 @@ Manage Kolibri
 
 .. include:: user_roles.rst
 
- 
+
 .. include:: manage_device.rst
 
 
