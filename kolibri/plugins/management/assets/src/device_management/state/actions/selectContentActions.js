@@ -33,6 +33,7 @@ export function showSelectContentPage(store) {
       store.dispatch('SET_TRANSFERRED_CHANNEL', {
         ...channel,
         version: transferredChannel.version,
+        public: transferredChannel.public,
       });
       navigateToTopicUrl({ title: channel.name, pk: channel.root });
     })

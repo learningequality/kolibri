@@ -39,8 +39,15 @@
             <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
-        <div class="title">
-          {{ channel.name }}
+        <div class="channel-title">
+          <div class="title">
+            {{ channel.name }}
+          </div>
+          <ui-icon
+            class="lock-icon"
+            v-if="channel.public === false"
+            icon="lock_open"
+          />
         </div>
         <div class="version">
           {{ $tr('version', { version: versionNumber }) }}
@@ -82,6 +89,7 @@
   import bytesForHumans from './bytesForHumans';
   import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -93,6 +101,7 @@
     name: 'channelListItem',
     components: {
       kButton,
+      UiIcon,
     },
     props: {
       channel: {
@@ -122,7 +131,7 @@
         return this.mode === Modes.MANAGE;
       },
       resourcesSizeText() {
-        return this.$tr('resourcesSize', { size: bytesForHumans(this.channel.on_device_file_size) });
+        return bytesForHumans(this.channel.on_device_file_size);
       },
       thumbnailImg() {
         return this.channel.thumbnail;
@@ -148,7 +157,6 @@
     $trs: {
       deleteButton: 'Delete',
       onYourDevice: 'On your device',
-      resourcesSize: '{size} resources',
       selectButton: 'Select',
       version: 'Version {version}',
       defaultDescription: '(No description)',
@@ -164,7 +172,7 @@
 
   .dtc
     display: table-cell
-    vertical-align: inherit
+    vertical-align: top
 
   .channel-list-item
     display: table
@@ -176,6 +184,7 @@
     font-size: 1.2em
     font-weight: bold
     line-height: 1.5em
+    display: inline
 
   .version
     font-size: 0.85em
@@ -207,6 +216,8 @@
   .other-details
     float: right
     line-height: 1.7em
+    position: relative
+    top: 16px
 
   .on-device
     line-height: 1.7em
@@ -220,5 +231,11 @@
     width: 10%
     text-align: right
     vertical-align: baseline
+
+  .lock-icon
+    vertical-align: sub
+
+  .channel-title
+    margin-bottom: 8px
 
 </style>

@@ -89,7 +89,12 @@ describe('transitionWizardPage action', () => {
       { id: 'public_channel_2', name: 'Public Channel Two' },
     ];
     // makes call to RemoteChannel API
-    const fetchSpy = RemoteChannelResource.__getCollectionFetchReturns(publicChannels).fetch;
+    let fetchSpy = sinon.stub().returns({
+      _promise: Promise.resolve(publicChannels),
+    });
+    RemoteChannelResource.getCollection.returns({
+      fetch: fetchSpy,
+    });
 
     // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
     transitionWizardPage(store, 'forward', { import: true });
@@ -104,7 +109,7 @@ describe('transitionWizardPage action', () => {
         // Calls from inside showAvailableChannelsPage
         sinon.assert.calledOnce(RemoteChannelResource.getCollection);
         sinon.assert.calledOnce(fetchSpy);
-        assert.equal(availableChannels(store.state), publicChannels);
+        assert.deepEqual(availableChannels(store.state), publicChannels);
 
         // STEP 3 - pick first channel -> SELECT_CONTENT
         return transitionWizardPage(store, 'forward', {

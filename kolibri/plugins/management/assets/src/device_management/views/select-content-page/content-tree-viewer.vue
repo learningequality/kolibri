@@ -139,7 +139,7 @@
         if (this.transferType === TransferTypes.LOCALEXPORT) {
           return node.available;
         }
-        return true;
+        return node.importable;
       },
       updateCurrentTopicNode(node) {
         return navigateToTopicUrl.call(this, node);
@@ -150,16 +150,15 @@
       toggleSelection(node) {
         // When the clicked node would put the parent at 100% included,
         // add the parent (as a side effect, all the children are removed from "include").
-        const sanitized = sanitizeNode(node);
         this.disableAll = true;
         let promise;
         if (this.nodeIsChecked(node)) {
-          promise = this.removeNodeForTransfer(sanitized);
+          promise = this.removeNodeForTransfer(sanitizeNode(node));
         } else {
           if (this.nodeCompletesParent(node)) {
             promise = this.addNodeForTransfer(sanitizeNode(this.annotatedTopicNode));
           } else {
-            promise = this.addNodeForTransfer(sanitized);
+            promise = this.addNodeForTransfer(sanitizeNode(node));
           }
         }
         return promise.then(() => {
