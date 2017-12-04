@@ -77,8 +77,8 @@
         <!-- Contains size estimates + submit button -->
         <selected-resources-size
           :mode="mode"
-          :fileSize="nodeTransferCounts.fileSize"
-          :resourceCount="nodeTransferCounts.resources"
+          :fileSize="nodeCounts.fileSize"
+          :resourceCount="nodeCounts.resources"
           :spaceOnDrive="availableSpace"
           @clickconfirm="startTransferringContent()"
         />
@@ -154,6 +154,9 @@
       taskInProgress() {
         return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
       },
+      nodeCounts() {
+        return this.nodeTransferCounts(this.transferType);
+      },
     },
     mounted() {
       this.getAvailableSpaceOnDrive();
@@ -189,6 +192,7 @@
         nodeTransferCounts,
         onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
         selectedItems: state => wizardState(state).nodesForTransfer || {},
+        transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
       },
       actions: {
