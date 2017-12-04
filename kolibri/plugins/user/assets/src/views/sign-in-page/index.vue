@@ -70,7 +70,7 @@
         <div class="divider"></div>
 
         <p class="login-text no-account">{{ $tr('noAccount') }}</p>
-        <div id="btn-group">
+        <div>
           <k-router-link
             v-if="canSignUp"
             :text="$tr('createAccount')"
@@ -78,11 +78,13 @@
             :primary="false"
             appearance="raised-button"
           />
+        </div>
+        <div>
           <k-external-link
             :text="$tr('accessAsGuest')"
             href="/learn"
             :primary="false"
-            appearance="raised-button"
+            appearance="flat-button"
           />
         </div>
         <p class="login-text version">{{ versionMsg }}</p>
@@ -339,13 +341,13 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
 
   $login-text = #D8D8D8
 
-  #main-cell
+  #main-cell >>>
     .ui-
       &textbox__
         &label-text
@@ -363,20 +365,12 @@
       &:hover
         background-color: #0E0E0E
 
-</style>
+    .button.secondary.flat
+      color: $core-grey
+      font-weight: normal
 
-
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  $login-text = #D8D8D8
-
-  .k-button-secondary-raised
-    background-color: $core-text-default
-    color: $core-bg-canvas
-    &:hover
-      background-color: #0E0E0E
+      &:hover
+        background: none
 
   .fh
     height: 100%
