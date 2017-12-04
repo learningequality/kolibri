@@ -13,10 +13,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-import pytz
-
 # import kolibri, so we can get the path to the module.
 import kolibri
+import pytz
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf, i18n
@@ -300,3 +299,6 @@ JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True
+
+# morango specific settings
+MORANGO_JSON_SERIALIZER_CLASS = "kolibri.auth.encoders"
