@@ -24,6 +24,9 @@ def get_files_to_transfer(channel_id, node_ids, exclude_node_ids, available):
 def _get_leaves_ids(node_ids):
     leaf_node_ids = []
     for node_id in node_ids:
-        node_leaves = ContentNode.objects.get(pk=node_id).get_descendants(include_self=True).filter(children__isnull=True).values_list('id', flat=True)
+        node_leaves = ContentNode.objects.get(pk=node_id) \
+            .get_descendants(include_self=True) \
+            .filter(children__isnull=True) \
+            .values_list('id', flat=True)
         leaf_node_ids += node_leaves
     return leaf_node_ids
