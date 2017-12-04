@@ -146,10 +146,16 @@
         }
       },
       languageFilterOptions() {
-        const codes = uniqBy(this.availableChannels, 'language')
-          .map(({ language, language_code }) => ({
-            value: language_code,
-            label: language,
+        let channels;
+        if (this.transferType === TransferTypes.LOCALEXPORT) {
+          channels = this.availableChannels.filter(this.channelIsOnDevice);
+        } else {
+          channels = [...this.availableChannels];
+        }
+        const codes = uniqBy(channels, 'lang_code')
+          .map(({ lang_name, lang_code }) => ({
+            value: lang_code,
+            label: lang_name,
           }))
           .filter(x => x.value);
         return [this.allLanguagesOption, ...codes];
@@ -200,7 +206,7 @@
           isOnDevice = this.channelIsOnDevice(channel);
         }
         if (this.languageFilter.value !== ALL_FILTER) {
-          languageMatches = channel.language_code === this.languageFilter.value;
+          languageMatches = channel.lang_code === this.languageFilter.value;
         }
         if (this.titleFilter) {
           // Similar code in userSearchUtils
@@ -212,8 +218,6 @@
     },
     vuex: {
       getters: {
-        // TODO do correct filtering for LOCALEXPORT. Possible that languages and
-        // other things might still leak out from unavailable channels.
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
         installedChannelList,
