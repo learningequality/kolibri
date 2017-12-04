@@ -29,6 +29,7 @@ Package: kolibri
 Architecture: all
 Depends: python3 (<< 3.6),
          python3 (>= 3.4),
+         python3-pkg-resources,
          adduser
 Suggests: python3-cryptography
 # Depends: ${python3:Depends}, ${misc:Depends}

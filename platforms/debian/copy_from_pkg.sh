@@ -60,9 +60,9 @@ case "$choice" in
 		if [ $also_changelog -eq 0 ]
 		then
 			rm $dest_dir/debian/changelog
+			git reset -- $dest_dir/debian/changelog
+			git checkout $dest_dir/debian/changelog
 		fi
-		git reset -- $dest_dir/debian/changelog
-		git checkout $dest_dir/debian/changelog
 ;;
 	n|N ) echo "no" ;;
 	* ) echo "Okay leaving then..." ;;
