@@ -10,13 +10,15 @@
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
+        :showButtons="false"
         :cancellable="false"
         id="updatingchannel"
       />
       <task-progress
-        v-if="tasksInQueue"
+        v-else-if="taskInProgress"
         type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="firstTask"
+        :showButtons="false"
         :cancellable="false"
       />
 
@@ -31,7 +33,8 @@
         </ui-alert>
       </section>
 
-      <section class="updates">
+      <section v-if="onDeviceInfoIsReady" class="updates">
+        <!-- QUESTION If auto updating when no content has been downloaded, why even show this? -->
         <div
           class="updates-available"
           v-if="newVersionAvailable"
@@ -107,7 +110,7 @@
   } from '../../state/actions/contentTransferActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
-  import { PageNames } from '../../constants';
+  import { PageNames, TaskStatuses } from '../../constants';
 
   export default {
     name: 'selectContentPage',
@@ -148,6 +151,9 @@
           name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
         };
       },
+      taskInProgress() {
+        return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
+      },
     },
     mounted() {
       this.getAvailableSpaceOnDrive();
@@ -183,7 +189,6 @@
         nodeTransferCounts,
         onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
         selectedItems: state => wizardState(state).nodesForTransfer || {},
-        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
         wizardStatus: state => wizardState(state).status,
       },
       actions: {

@@ -17,12 +17,18 @@ export function showSelectContentPage(store) {
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
 
   // Downloading the Content Metadata DB
-  if (channelOnDevice) {
+  if (!channelOnDevice) {
+    // Update metadata when no content has been downloaded
+    dbPromise = downloadChannelMetadata(store);
+  } else if (
+    channelOnDevice.on_device_resources &&
+    channelOnDevice.version < transferredChannel.version
+  ) {
+    dbPromise = downloadChannelMetadata(store);
+  } else {
     // If already on device, then skip the DB download, and use on-device
     // Channel metadata, since it has root id.
     dbPromise = Promise.resolve(channelOnDevice);
-  } else {
-    dbPromise = downloadChannelMetadata(store);
   }
 
   // Hydrating the store with the Channel Metadata
