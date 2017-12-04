@@ -39,8 +39,15 @@
             <span>{{ resourcesSizeText }}</span>
           </div>
         </div>
-        <div class="title">
-          {{ channel.name }}
+        <div class="channel-title">
+          <div class="title">
+            {{ channel.name }}
+          </div>
+          <ui-icon
+            class="lock-icon"
+            v-if="channel.public === false"
+            icon="lock_open"
+          />
         </div>
         <div class="version">
           {{ $tr('version', { version: versionNumber }) }}
@@ -82,6 +89,7 @@
   import bytesForHumans from './bytesForHumans';
   import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -93,6 +101,7 @@
     name: 'channelListItem',
     components: {
       kButton,
+      UiIcon,
     },
     props: {
       channel: {
@@ -176,6 +185,7 @@
     font-size: 1.2em
     font-weight: bold
     line-height: 1.5em
+    display: inline
 
   .version
     font-size: 0.85em
@@ -220,5 +230,11 @@
     width: 10%
     text-align: right
     vertical-align: baseline
+
+  .lock-icon
+    vertical-align: sub
+
+  .channel-title
+    margin-bottom: 8px
 
 </style>
