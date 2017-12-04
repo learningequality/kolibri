@@ -1,0 +1,306 @@
+# -*- sh -*-
+# This file can be included with #SCRIPTSCOMMON#
+# Thanks to the openldap debian package for this
+# method!
+
+
+###########################################
+# TRACEBACK & DEBUG
+###########################################
+
+
+# Tracebacks in bash
+# https://docwhat.org/tracebacks-in-bash/
+#
+# Just take the code between the "cut here" lines
+# and put it in your own program.
+#
+# Written by Christian Höltje
+# Donated to the public domain in 2013
+
+#--------->8---------cut here---------8<---------
+set -e
+
+trap _exit_trap EXIT
+trap _err_trap ERR
+_showed_traceback=f
+
+function _exit_trap
+{
+  local _ec="$?"
+  if [[ $_ec != 0 && "${_showed_traceback}" != t ]]; then
+    traceback 1
+  fi
+}
+
+function _err_trap
+{
+  local _ec="$?"
+  local _cmd="${BASH_COMMAND:-unknown}"
+  traceback 1
+  _showed_traceback=t
+  echo "The command ${_cmd} exited with exit code ${_ec}." 1>&2
+}
+
+function traceback
+{
+  # Hide the traceback() call.
+  local -i start=$(( ${1:-0} + 1 ))
+  local -i end=${#BASH_SOURCE[@]}
+  local -i i=0
+  local -i j=0
+
+  echo "Traceback (last called is first):" 1>&2
+  for ((i=${start}; i < ${end}; i++)); do
+    j=$(( $i - 1 ))
+    local function="${FUNCNAME[$i]}"
+    local file="${BASH_SOURCE[$i]}"
+    local line="${BASH_LINENO[$j]}"
+    echo "     ${function}() in ${file}:${line}" 1>&2
+  done
+}
+
+#--------->8---------cut here---------8<---------
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+debug()
+{
+    if ! [ "$kolibri_DEB_DEBUG" = "" ]
+    then
+        echo "$1"
+    fi
+}
+
+
+######################################
+# SCRIPT FUNCTIONS
+######################################
+
+
+args=("$@")
+
+# References:
+# More info on debconf: "man debconf-devel"
+#   install debconf-doc and debian-policy first!
+# Debconf tutorial:
+# http://www.fifi.org/doc/debconf-doc/tutorial.html
+
+
+
+# This generates the contents of /etc/kolibri/system.conf so we don't have the
+# file tracked by dpkg
+default_user_conf() {
+	cat <<EOF
+# /etc/kolibri/default
+#
+# Define kolibri environment settings here
+#
+# This is a Debian specific file
+#
+# Example environment vars to set (shell syntax)
+#
+# KOLIBRI_USER="kolibri"
+# KOLIBRI_HOME="~/.kolibri"
+# KOLIBRI_LISTEN_PORT="8080"
+# KOLIBRI_COMMAND="kolibri"
+# DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+EOF
+}
+
+
+########################################################
+# HANDLING OF INSTALLATION STATE
+########################################################
+
+
+export STATE_FILE=/tmp/kolibriinstall.state
+
+has_state() {
+    debug "Checking for state $1"
+    if [ -f "$STATE_FILE" ]
+    then
+        grep -q "$1" "$STATE_FILE"
+        has_state=$?
+        debug "Result: $has_state"
+        return $has_state
+    fi
+    debug "No state file"
+    return 2
+}
+
+add_state() {
+    debug "Adding state $1"
+    echo $1 >> "$STATE_FILE"
+}
+
+rm_states() {
+    debug "Removing states"
+    rm -f "$STATE_FILE"
+}
+
+
+
+#################################################
+# UTILITIES FOR PREINST/POSTINST/CONFIG
+#################################################
+
+
+# Stops the system service if it's installed
+stop_kolibri_service()
+{
+    if [ -x /etc/init.d/kolibri ]
+    then
+        if which systemctl > /dev/null 2>&1
+        then
+            systemctl stop kolibri || true
+        # Sysv
+        else
+            # Stop service -- nevermind if it fails
+            invoke-rc.d kolibri stop || true
+        fi
+    fi
+}
+
+# Fetches known configuration and sets variables
+kolibri_get_config()
+{
+    # This function exports variables of the configuration
+
+    # Enable init.d script
+    db_get kolibri/init
+    [ "$RET" = "true" ] && export ENABLE_INIT_D=true || export ENABLE_INIT_D=false
+
+}
+
+
+# Ask the users questions
+# Used in .config
+kolibri_debconf_ask()
+{
+    
+    if ! has_state "after_preinst"
+    then
+        return
+    fi
+
+    # Get the current configuration -- or rather: These are the defaults
+    # or presets before asking.
+    kolibri_get_config
+    
+    db_settitle kolibri/window-title
+    db_go || true
+
+    # Run as system script?
+    db_input high kolibri/init || true
+    db_go || true
+    
+    # Give init.d instructions
+    db_get kolibri/init
+    if [ "$RET" = "true" ]
+    then
+        db_input high kolibri/init-instructions || true
+    else
+        db_input high kolibri/manual-instructions || true
+    fi
+    db_go || true
+
+}
+
+
+# Configures the package during the postinst script
+kolibri_configure()
+{
+
+    mkdir -p /etc/kolibri/conf.d
+
+    if ! [ -e "/etc/kolibri/daemon.conf" ]
+    then
+      default_user_conf > /etc/kolibri/daemon.conf
+    fi
+
+    # Fetch the $KOLIBRI_USER setting
+    . /etc/default/kolibri
+
+    # This way of writing if statements with failing sub commands will work
+    # while using errexit
+    ( ! getent passwd "$KOLIBRI_USER" ) && {
+        echo "Creating new user $KOLIBRI_USER"
+        adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
+    }    
+
+    # Remove because we might re-register as systemd during an upgrade
+    update-rc.d -f kolibri remove
+
+    # Fetch configuration settings
+    kolibri_get_config
+
+    if $ENABLE_INIT_D
+    then
+        # Register init script as service
+        if which systemctl > /dev/null 2>&1 ; then
+            # Works no matter if it's already enabled
+            systemctl enable kolibri
+            systemctl start kolibri || true
+        # Sysv
+        else
+            # Works no matter if it's already enabled
+            update-rc.d kolibri defaults
+            # Start service -- nevermind if it fails
+            invoke-rc.d kolibri start || true
+        fi
+    fi
+
+    add_state "after_postinst"
+    
+}
+
+# This is run at the beginning of kolibri_debconf_ask
+# kolibri.config is run twice: before kolibri.preinst
+# and after kolibri.postinst configure!
+kolibri_debconf_set_defaults()
+{
+    if has_state "did_set_defaults"
+    then
+        return
+    fi
+
+    add_state "did_set_defaults"
+  
+    if [ "${args[0]}" = "configure" ]
+    then
+        # Because of some strange bug in debconf, we always purge the notes
+        # separately -- and this cannot be done in kolibri_purge because then
+        # debconf will assume that the note should be displayed unconditionally
+        # without calling db_input
+        # Furthermore, the note contents may have changed
+        db_fset kolibri/manual-instructions seen false
+        db_fset kolibri/init-instructions seen false
+    fi
+    
+}
+
+kolibri_preinst()
+{
+    
+    # Only do this if install, abort-upgrade
+    if [ "${args[0]}" = "install" ] ||
+       [ "${args[0]}" = "upgrade" ]
+    then
+        stop_kolibri_service
+        # Ask questions - consider not doing that during upgrade, but this is
+        # not a good idea in case we add new entries in kolibri.template
+        kolibri_debconf_set_defaults
+        kolibri_debconf_ask
+    fi
+
+    add_state "after_preinst"
+
+}
+
+kolibri_prerm()
+{
+    stop_kolibri_service
+}

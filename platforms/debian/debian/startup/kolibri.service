@@ -1,0 +1,23 @@
+# This provides the Kolibri service, started by invoking the old
+# style /etc/init.d/kolibri service for backwards-compatibility.
+
+[Unit]
+SourcePath=/etc/init.d/kolibri
+Description=LSB: kolibri daemon, an offline education platform
+After=local-fs.target remote-fs.target network-online.target systemd-journald-dev-log.socket nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutStartSec=infinity
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart=/etc/init.d/kolibri start
+ExecStop=/etc/init.d/kolibri stop
+
+[Install]
+WantedBy=multi-user.target
+

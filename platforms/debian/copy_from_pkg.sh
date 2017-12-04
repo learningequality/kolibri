@@ -18,8 +18,6 @@ fi
 
 # Goto location of this script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
-
 
 test_dir=$1
 
@@ -31,7 +29,7 @@ else
 	also_changelog=0
 fi
 
-dest_dir=`realpath .`
+dest_dir=`realpath $DIR`
 
 if ! [ -d $test_dir/debian ]
 then
@@ -56,16 +54,15 @@ case "$choice" in
 		# Copy everything except the assessment zip from the test pkg dir to this dir
 		cd $test_dir
 		debclean
-		cd -
 		# The below has to run with respect to relative paths, hence the cd and the cp --parents
 		cd $test_dir
 		find debian -mindepth 1 -not -name '*.zip' -exec cp -rp \{\} --parents $dest_dir \;
 		if [ $also_changelog -eq 0 ]
 		then
 			rm $dest_dir/debian/changelog
+			git reset -- $dest_dir/debian/changelog
+			git checkout $dest_dir/debian/changelog
 		fi
-		git reset -- $dest_dir/debian/changelog
-		git checkout $dest_dir/debian/changelog
 ;;
 	n|N ) echo "no" ;;
 	* ) echo "Okay leaving then..." ;;

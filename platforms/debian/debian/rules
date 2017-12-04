@@ -23,11 +23,26 @@ override_dh_auto_test:
 	echo "skipping tests"
 #	dh_auto_test -- --test-pytest
 
+override_dh_auto_install:
+	# Our own tests
+	debian/test_build_sanity.sh
+	python3 setup.py install --force --root=debian/kolibri --no-compile -O0 --install-layout=deb
+	# dh_installman
+	install -D -m0755 debian/startup/kolibri.init $(CURDIR)/debian/kolibri/etc/init.d/kolibri
+	install -D -m0644 debian/startup/kolibri.default $(CURDIR)/debian/kolibri/etc/default/kolibri
+	install -D -m0644 debian/startup/kolibri.service $(CURDIR)/debian/kolibri/lib/systemd/system/kolibri.service
+
+ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
+override_dh_installdeb:
+	dh_installdeb
+	perl -w debian/dh_installscripts-common -p kolibri -p kolibri-raspberry-pi -p kolibri-bundle
+endif
+
 
 # If you need to rebuild the Sphinx documentation
 # Add spinxdoc to the dh --with line
-#override_dh_auto_build:
+# override_dh_auto_build:
 #	dh_auto_build
-#	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bhtml        docs/ build/html # HTML generator
-#	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bman        docs/ build/man # Manpage generator
+#	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bhtmldocs/ build/html # HTML generator
+#	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bmandocs/ build/man # Manpage generator
 
