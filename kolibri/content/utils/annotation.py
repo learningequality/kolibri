@@ -1,5 +1,5 @@
-import logging as logger
 import datetime
+import logging as logger
 import os
 
 from django.conf import settings
@@ -26,13 +26,10 @@ def update_channel_metadata():
     """
     from .channel_import import import_channel_from_local_db
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
-    imported = False
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             import_channel_from_local_db(channel_id)
-            imported = True
-    if imported:
-        set_availability()
+            set_availability(channel_id)
 
 
 def set_leaf_node_availability_from_local_file_availability():
