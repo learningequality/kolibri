@@ -41,9 +41,7 @@ def set_env():
     else.
     """
     from kolibri import dist as kolibri_dist  # noqa
-    sys.path = sys.path + [
-        os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-    ]
+    sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
     # Add path for c extensions to sys.path
     get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
@@ -52,7 +50,7 @@ def set_env():
     except ImportError:
         # Fallback
         logging.warning('No C Extensions available for this platform.\n')
-        sys.path = sys.path[:-1]
+        sys.path = sys.path[1:]
 
     # This was added in
     # https://github.com/learningequality/kolibri/pull/580
