@@ -12,7 +12,6 @@
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   export default {
     components: { progressIcon },
