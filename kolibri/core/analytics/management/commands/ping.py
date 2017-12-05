@@ -60,7 +60,7 @@ class Command(BaseCommand):
             "database_id": instance.database.id,
             # "db_path": instance.db_path,
             "system_id": instance.system_id,
-            "macaddress": instance.macaddress, # this is actually an anonymous `nodeid`
+            "macaddress": instance.macaddress,  # this is actually an anonymous `nodeid`
             "language": "TODO",
             # possibly add: channels, user count, dataset ids, high-level stats?
         }
