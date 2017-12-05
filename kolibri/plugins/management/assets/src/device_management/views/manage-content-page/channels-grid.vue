@@ -82,8 +82,7 @@
       sortedChannels() {
         return this.installedChannelsWithResources
           .slice()
-          .sort((c1, c2) => c1.name > c2.name)
-          .filter(channel => channel.available);
+          .sort((c1, c2) => c1.name > c2.name);
       },
     },
     created() {
