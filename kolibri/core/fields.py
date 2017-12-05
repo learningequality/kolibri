@@ -5,6 +5,7 @@ import pytz
 from django.db.backends.utils import typecast_timestamp
 from django.db.models.fields import Field
 from django.utils import timezone
+from django.utils.six import string_types
 
 date_time_format = "%Y-%m-%d %H:%M:%S.%f"
 tz_format = "({tz})"
@@ -76,6 +77,8 @@ class DateTimeTzField(Field):
         # Casts datetimes into the format expected by the backend
         if value is None:
             return value
+        if isinstance(value, string_types):
+            value = parse_timezonestamp(value)
         return create_timezonestamp(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):

@@ -12,7 +12,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        exclude = ("dataset",)
+        fields = ('id', 'kind', 'collection', 'user')
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
@@ -43,7 +43,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        exclude = ("dataset",)
+        fields = ('id', 'collection', 'user')
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
@@ -59,8 +59,8 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
-        extra_kwargs = {'id': {'read_only': True}}
-        exclude = ("dataset", "kind", "parent")
+        extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
+        fields = ('id', 'name', 'dataset')
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):

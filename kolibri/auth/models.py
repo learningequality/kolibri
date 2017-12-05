@@ -27,19 +27,20 @@ import six
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY, SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
-from morango.query import SyncableModelQuerySet
-from morango.utils.morango_mptt import MorangoMPTTModel
+from morango.utils.morango_mptt import MorangoMPTTModel, MorangoMPTTTreeManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds, facility_presets, role_kinds
@@ -49,7 +50,7 @@ from .errors import (
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
+    AllCanReadFacilityDataset, AnonUserCanReadFacilities, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
     CollectionSpecificRoleBasedPermissions, FacilityAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
@@ -110,12 +111,12 @@ class FacilityDataset(FacilityDataSyncableModel):
     def calculate_source_id(self):
         # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
         if not self._morango_source_id:
-            self._morango_source_id = Certificate.generate_root_certificate("full-facility").id
+            self._morango_source_id = Certificate.generate_root_certificate(FULL_FACILITY).id
         return self._morango_source_id
 
     @staticmethod
     def compute_namespaced_id(partition_value, source_id_value, model_name):
-        assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
+        # assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
         assert model_name == FacilityDataset.morango_model_name
         # we use the source_id as the ID for the FacilityDataset
         return source_id_value
@@ -501,6 +502,20 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     class Meta:
         unique_together = (("username", "facility"),)
 
+    def serialize(self, data={}):
+        if not data:
+            data = {}
+        data['last_login'] = DjangoJSONEncoder().encode(self.last_login)
+        return super(FacilityUser, self).serialize(data=data)
+
+    @classmethod
+    def deserialize(cls, dict_model):
+        """Returns an unsaved class object based on the valid properties passed in."""
+        kwargs = {}
+        if dict_model['last_login'] == 'null':
+            kwargs['last_login'] = None
+        return super(FacilityUser, cls).deserialize(dict_model, **kwargs)
+
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
@@ -512,6 +527,26 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return getattr(self.devicepermissions, 'is_superuser') or getattr(self.devicepermissions, permission)
         except ObjectDoesNotExist:
             return False
+
+    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
+        if self.is_superuser:
+            # superusers of a device always have permission to sync
+            return True
+        if scope_params.get("dataset_id") != self.dataset_id:
+            # if the request isn't for the same facility as this user, abort
+            return False
+        if scope_definition_id == FULL_FACILITY:
+            # if request is for full-facility syncing, return True only if user is a Facility Admin
+            return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
+        elif scope_definition_id == SINGLE_USER:
+            # for single-user syncing, return True if this user *is* target user, or is admin for target user
+            target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
+            if self == target_user:
+                return True
+            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+                return True
+            return False
+        return False
 
     @property
     def can_manage_content(self):
@@ -671,7 +706,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
 
     # Morango syncing settings
-    morango_model_name = "collection"
+    morango_model_name = None
 
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
@@ -679,7 +714,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     permissions = (
         IsFromSameFacility(read_only=True) |
         CollectionSpecificRoleBasedPermissions() |
-        AnonUserCanReadFacilitiesThatAllowSignUps() |
+        AnonUserCanReadFacilities() |
         CoachesCanManageGroupsForTheirClasses()
     )
 
@@ -922,8 +957,7 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
 
 
-# class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):
-class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):  # should this be from_queryset or just MorangoManager
+class CollectionProxyManager(MorangoMPTTTreeManager):
     def get_queryset(self):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
@@ -935,7 +969,6 @@ class Facility(Collection):
     FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
 
     morango_model_name = "facility"
-    _morango_proxy_order = 1
 
     _KIND = collection_kinds.FACILITY
 
@@ -1014,8 +1047,7 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
-    _morango_proxy_order = 2
-
+    morango_model_dependencies = (Facility,)
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1070,8 +1102,7 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
-    _morango_proxy_order = 3
-
+    morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
