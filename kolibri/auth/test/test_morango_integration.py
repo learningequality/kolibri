@@ -1,6 +1,8 @@
 """
 Tests related specifically to integration with Morango.
 """
+import os
+import unittest
 
 from django.test import TestCase
 from morango.controller import MorangoProfileController
@@ -36,6 +38,7 @@ class DateTimeTZFieldTestCase(TestCase):
         self.controller = MorangoProfileController('facilitydata')
         InstanceIDModel.get_or_create_current_instance()
 
+    @unittest.skipIf(os.environ.get('TOX_ENV') == 'postgres', "Skipping testing on postgres because sql is not compatible.")
     def test_deserializing_field(self):
         facility = Facility.objects.create(name="hallo")
         FacilityUser.objects.create(username='jamie', facility=facility)
