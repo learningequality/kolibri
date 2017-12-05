@@ -28,7 +28,7 @@ def get_cext_path(dist_path):
     elif 'macosx' in platform:
         platform = 'macosx'
     dirname = os.path.join(dirname, platform)
-    sys.path = sys.path + [os.path.realpath(str(dirname))]
+    sys.path = [os.path.realpath(str(dirname))] + sys.path
 
 
 def set_env():
@@ -40,7 +40,6 @@ def set_env():
     from the distributed version in case it exists before importing anything
     else.
     """
-
     from kolibri import dist as kolibri_dist  # noqa
     sys.path = sys.path + [
         os.path.realpath(os.path.dirname(kolibri_dist.__file__))
