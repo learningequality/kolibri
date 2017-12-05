@@ -2,8 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title">
-    </page-header>
+    <page-header :title="content.title" />
 
     <content-renderer
       v-if="!content.assessment"

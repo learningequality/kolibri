@@ -1,15 +1,10 @@
 <template>
 
   <div class="header-wrapper">
-    <div class="header">
-      <h1 class="title">
-        {{ title }}
-        <progress-icon :progress="progress"/>
-      </h1>
-      <div class="end">
-        <slot name="end-header"/>
-      </div>
-    </div>
+    <h1 class="title">
+      {{ title }}
+      <progress-icon :progress="progress"/>
+    </h1>
   </div>
 
 </template>
@@ -24,12 +19,6 @@
     props: { title: { type: String } },
     vuex: {
       getters: {
-        contentKind: state => {
-          if (state.pageState.content) {
-            return state.pageState.content.kind;
-          }
-          return ContentNodeKinds.TOPIC;
-        },
         progress: state => {
           if (state.pageState.content) {
             if (
@@ -49,30 +38,9 @@
 </script>
 
 
-<style lang="stylus">
-
-  /** WARNING - unscoped styles for children                  */
-  /* use very precise selectors to minimize risk of collision */
-
-  @require '~kolibri.styles.definitions'
-
-  .header-wrapper .extra-nav a
-    color: $core-text-annotation
-    font-weight: 300
-
-</style>
-
-
 <style lang="stylus" scoped>
-
-  .extra-nav
-    font-size: 12px
-    min-height: 16px
 
   .title
     display: inline-block
-
-  .end
-    float: right
 
 </style>

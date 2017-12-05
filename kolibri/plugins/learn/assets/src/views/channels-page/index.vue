@@ -2,13 +2,10 @@
 
   <div>
 
-    <page-header :title="$tr('channels')">
-      <div slot="icon">
-        <mat-svg category="navigation" name="apps"/>
-      </div>
-    </page-header>
+    <page-header :title="$tr('channels')" class="visuallyhidden" />
 
     <content-card-group-grid
+      class="grid"
       :contents="channels"
       :gen-content-link="genChannelLink"
       v-if="channels.length"
@@ -54,9 +51,7 @@
 
 <style lang="stylus" scoped>
 
-  .page-description
-    margin-top: 1em
-    margin-bottom: 1em
-    line-height: 1.5em
+  .grid
+    margin-top: 24px
 
 </style>
