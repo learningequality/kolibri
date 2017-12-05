@@ -57,6 +57,7 @@ describe('channelsGrid component', () => {
         id: 'visible_channel',
         on_device_resources: 10,
         total_resources: 1000,
+        available: true,
       },
     ]);
   });
@@ -67,6 +68,7 @@ describe('channelsGrid component', () => {
       {
         name: 'hidden channel',
         id: 'hidden_channel',
+        available: false,
         on_device_resources: 0,
         total_resources: 1000,
       },
@@ -97,12 +99,14 @@ describe('channelsGrid component', () => {
       {
         name: 'beautiful channel',
         id: 'beautiful_channel',
+        available: true,
         on_device_resources: 10,
         total_resources: 1000,
       },
       {
         name: 'awesome channel',
         id: 'awesome_channel',
+        available: true,
         on_device_resources: 10,
         total_resources: 1000,
       },
