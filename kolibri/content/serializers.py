@@ -322,14 +322,17 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
             return True
         else:
-            # check if the external drive exists given drive id
             drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
-            drives = get_mounted_drives_with_channel_info()
-            if drive_id in drives:
-                datafolder = drives[drive_id].datafolder
-            else:
-                raise serializers.ValidationError(
-                    'The external drive with given drive id does not exist.')
+            datafolder = cache.get(drive_id, None)
+
+            if datafolder is None:
+                drives = get_mounted_drives_with_channel_info()
+                if drive_id in drives:
+                    datafolder = drives[drive_id].datafolder
+                    cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
+                else:
+                    raise serializers.ValidationError(
+                        'The external drive with given drive id does not exist.')
 
             files = obj.files.all()
             if not files.exists():

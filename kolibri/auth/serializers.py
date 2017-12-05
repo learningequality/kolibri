@@ -15,7 +15,6 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ('id', 'kind', 'collection', 'user')
 
 
-
 class FacilityUserSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
