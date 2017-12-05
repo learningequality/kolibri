@@ -1,11 +1,13 @@
 import atexit
 import logging
 import os
+import threading
 
 import cherrypy
 import ifcfg
 import requests
 from django.conf import settings
+from django.core.management import ManagementUtility
 from kolibri.content.utils import paths
 
 from .system import kill_pid, pid_exists
@@ -58,6 +60,9 @@ def start(port=8080):
     :param: port: Port number (default: 8080)
     """
 
+    # start the pingback thread
+    PingbackThread.start_command()
+
     # Write the new PID
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
@@ -79,6 +84,19 @@ def start(port=8080):
     atexit.register(rm_pid_file)
 
     run_server(port=port)
+
+
+class PingbackThread(threading.Thread):
+
+    @classmethod
+    def start_command(cls):
+        thread = cls()
+        thread.daemon = True
+        thread.start()
+
+    def run(self):
+        command = ManagementUtility().fetch_command("ping")
+        command.execute()
 
 
 def stop(pid=None, force=False):
