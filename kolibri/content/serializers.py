@@ -329,7 +329,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
                 drives = get_mounted_drives_with_channel_info()
                 if drive_id in drives:
                     datafolder = drives[drive_id].datafolder
-                    cache.set(drive_id, datafolder, 60 * 10)  # cache the datafolder for 10 minutes
+                    cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
                 else:
                     raise serializers.ValidationError(
                         'The external drive with given drive id does not exist.')
