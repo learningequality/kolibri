@@ -188,7 +188,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
                         "total_resources": 3, "on_device_resources": 0, "importable": True}]})
 
-    @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
+    @mock.patch('kolibri.content.api.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
         DriveData = namedtuple("DriveData", ["id", "datafolder"])
         drive_mock.return_value = {"123": DriveData(id="123", datafolder="test/")}

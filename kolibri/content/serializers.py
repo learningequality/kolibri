@@ -6,7 +6,6 @@ from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentN
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 from kolibri.content.utils.paths import get_content_storage_file_path
-from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -322,15 +321,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
             return True
         else:
-            # check if the external drive exists given drive id
-            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
-            drives = get_mounted_drives_with_channel_info()
-            if drive_id in drives:
-                datafolder = drives[drive_id].datafolder
-            else:
-                raise serializers.ValidationError(
-                    'The external drive with given drive id does not exist.')
-
+            datafolder = self.context['datafolder']
             files = obj.files.all()
             if not files.exists():
                 return False

@@ -17,6 +17,7 @@ from rest_framework import filters, mixins, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 
 from .utils.search import fuzz
 
@@ -300,17 +301,41 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
     def get_queryset(self):
         return models.ContentNode.objects.all().prefetch_related('files__local_file')
 
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        return serializer_class(*args, **kwargs)
+
     def retrieve(self, request, pk):
         queryset = self.get_queryset()
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
 
-        parent_serializer = self.get_serializer(instance)
+        drive_id = request.query_params.get('importing_from_drive_id', None)
+        context = {'request': request}
+        # Get the datafolder on the external drive during local import
+        if drive_id:
+            context['datafolder'] = self._get_context_with_datafolder(drive_id)
+
+        parent_serializer = self.get_serializer(instance, context=context)
         parent_data = parent_serializer.data
-        child_serializer = self.get_serializer(children, many=True)
+        child_serializer = self.get_serializer(children, many=True, context=context)
         parent_data['children'] = child_serializer.data
 
         return Response(parent_data)
+
+    def _get_context_with_datafolder(self, drive_id):
+        datafolder = cache.get(drive_id, None)
+
+        if datafolder is None:
+            drives = get_mounted_drives_with_channel_info()
+            if drive_id in drives:
+                datafolder = drives[drive_id].datafolder
+                cache.set(drive_id, datafolder, 60 * 10)  # cache the datafolder for 10 minutes
+            else:
+                raise serializers.ValidationError(
+                    'The external drive with given drive id does not exist.')
+
+        return datafolder
 
 
 class ContentNodeProgressFilter(IdFilter):
