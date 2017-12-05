@@ -47,9 +47,12 @@ describe('contentTreeViewer actions', () => {
     assert.deepEqual(nodesForTransfer(store.state).omitted, expected.map(addFileSizes));
   }
 
-  function assertFilesResourcesEqual(expectedFiles, expectedResources) {
-    // Maybe rename these so they don't clash with API.
-    const { fileSize, resources } = nodeTransferCounts(store.state);
+  function assertFilesResourcesEqual(
+    expectedFiles,
+    expectedResources,
+    transferType = 'remoteimport'
+  ) {
+    const { fileSize, resources } = nodeTransferCounts(store.state)(transferType);
     assert.equal(fileSize, expectedFiles);
     assert.equal(resources, expectedResources);
   }
@@ -95,26 +98,38 @@ describe('contentTreeViewer actions', () => {
   /**
    * Notes:
    * `makeNode` gives each Node a resource and file count of 1 by default,
-   * with 0 file/resources on the device
+   * with 0 file/resources on the device, so the asserted file sizes may be unrealistic
    *
-   * assertFilesResourcesEqual counts items to be imported or exported, so it is not the totals
-   * of the Nodes, but rather the totals of what's actually on the devices
    */
   describe('addNodeForTransfer action', () => {
     it('adding a single Node to empty list', () => {
       // ...straightforwardly adds it to `include`
-      const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
+      const node_1 = makeNode('1_1_1', {
+        path: simplePath('1', '1_1'),
+        total_resources: 200,
+        on_device_resources: 50,
+      });
       return addNodeForTransfer(store, node_1).then(() => {
         assertIncludeEquals([node_1]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 1);
+        assertFilesResourcesEqual(1, 150, 'remoteimport');
+        assertFilesResourcesEqual(0, 50, 'localexport');
+        assertFilesResourcesEqual(1, 150, 'localimport');
       });
     });
 
     it('adding Nodes that are not parent/child to each other', () => {
       // ...straightforwardly adds both to `include`
-      const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      const node_2 = makeNode('2_2_1', { path: simplePath('2', '2_2') });
+      const node_1 = makeNode('1_1_1', {
+        path: simplePath('1', '1_1'),
+        total_resources: 200,
+        on_device_resources: 50,
+      });
+      const node_2 = makeNode('2_2_1', {
+        path: simplePath('2', '2_2'),
+        total_resources: 200,
+        on_device_resources: 25,
+      });
       return addNodeForTransfer(store, node_1)
         .then(() => {
           return addNodeForTransfer(store, node_2);
@@ -122,9 +137,10 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([node_1, node_2]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(2, 2);
+          assertFilesResourcesEqual(2, 325, 'remoteimport');
+          assertFilesResourcesEqual(0, 75, 'localexport');
+          assertFilesResourcesEqual(2, 325, 'localimport');
         });
-      // console.log(store.state.pageState.wizardState.nodesForTransfer.included);
     });
 
     it('when a Node with descendants in `include` is added', () => {
@@ -143,13 +159,19 @@ describe('contentTreeViewer actions', () => {
           assertIncludeEquals([ancestorNode]);
           assertOmitEquals([]);
           // files/resources are not double counted
-          assertFilesResourcesEqual(1, 10);
+          assertFilesResourcesEqual(1, 7, 'remoteimport');
+          assertFilesResourcesEqual(0, 3, 'localexport');
+          assertFilesResourcesEqual(1, 7, 'localimport');
         });
     });
 
     it('when a Node in `omit` is re-added', () => {
       // ...it and all its descendants are removed from "omit"
-      const node = makeNode('1', { path: simplePath() });
+      const node = makeNode('1', {
+        path: simplePath(),
+        on_device_resources: 518,
+        total_resources: 753,
+      });
       const childNode = makeNode('1_1', { path: simplePath('1') });
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
       setIncludedNodes([]);
@@ -157,7 +179,9 @@ describe('contentTreeViewer actions', () => {
       return addNodeForTransfer(store, node).then(() => {
         assertIncludeEquals([node]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 1);
+        assertFilesResourcesEqual(1, 235, 'remoteimport');
+        assertFilesResourcesEqual(0, 518, 'localexport');
+        assertFilesResourcesEqual(1, 235, 'localimport');
       });
     });
 
@@ -179,7 +203,9 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(0, 0);
+          assertFilesResourcesEqual(0, 0, 'remoteimport');
+          assertFilesResourcesEqual(0, 0, 'localexport');
+          assertFilesResourcesEqual(0, 0, 'localimport');
         });
     });
 
@@ -202,12 +228,18 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([parentNode]);
           assertOmitEquals([childNode]);
-          assertFilesResourcesEqual(0, 30);
+          assertFilesResourcesEqual(0, 20, 'remoteimport');
+          assertFilesResourcesEqual(0, 10, 'localexport');
+          assertFilesResourcesEqual(0, 20, 'localimport');
         });
     });
 
     it('removing a sibling is same as removing single Node', () => {
-      const node_1 = makeNode('1_1', { path: simplePath('1') });
+      const node_1 = makeNode('1_1', {
+        path: simplePath('1'),
+        on_device_resources: 525,
+        total_resources: 1222,
+      });
       const node_2 = makeNode('1_2', { path: simplePath('1') });
       return addNodeForTransfer(store, node_1)
         .then(() => {
@@ -219,7 +251,9 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([node_1]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(1, 1);
+          assertFilesResourcesEqual(1, 697, 'remoteimport');
+          assertFilesResourcesEqual(0, 525, 'localexport');
+          assertFilesResourcesEqual(1, 697, 'localimport');
         });
     });
 
@@ -246,7 +280,9 @@ describe('contentTreeViewer actions', () => {
       return removeNodeForTransfer(store, node).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0);
+        assertFilesResourcesEqual(0, 0, 'remoteimport');
+        assertFilesResourcesEqual(0, 0, 'localexport');
+        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
 
@@ -254,13 +290,13 @@ describe('contentTreeViewer actions', () => {
       // ...since they are redundant
       const topNode = makeNode('1', {
         path: simplePath(),
-        on_device_resources: 8,
-        total_resources: 15,
+        on_device_resources: 7,
+        total_resources: 21,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
         on_device_resources: 2,
-        total_resources: 10,
+        total_resources: 11,
       });
       const grandchildNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
@@ -275,7 +311,9 @@ describe('contentTreeViewer actions', () => {
       return removeNodeForTransfer(store, childNode).then(() => {
         assertIncludeEquals([topNode]);
         assertOmitEquals([childNode]);
-        assertFilesResourcesEqual(0, 5);
+        assertFilesResourcesEqual(0, 5, 'remoteimport');
+        assertFilesResourcesEqual(0, 5, 'localexport');
+        assertFilesResourcesEqual(0, 5, 'localimport');
       });
     });
 
@@ -304,7 +342,9 @@ describe('contentTreeViewer actions', () => {
       return removeNodeForTransfer(store, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0);
+        assertFilesResourcesEqual(0, 0, 'remoteimport');
+        assertFilesResourcesEqual(0, 0, 'localexport');
+        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
 
@@ -331,7 +371,9 @@ describe('contentTreeViewer actions', () => {
       return removeNodeForTransfer(store, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0);
+        assertFilesResourcesEqual(0, 0, 'remoteimport');
+        assertFilesResourcesEqual(0, 0, 'localexport');
+        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
   });
