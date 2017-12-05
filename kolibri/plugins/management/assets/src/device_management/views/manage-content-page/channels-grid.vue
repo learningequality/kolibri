@@ -80,9 +80,7 @@
         return this.sortedChannels.length === 0 && !this.channelsLoading;
       },
       sortedChannels() {
-        return this.installedChannelsWithResources
-          .slice()
-          .sort((c1, c2) => c1.name > c2.name);
+        return this.installedChannelsWithResources.slice().sort((c1, c2) => c1.name > c2.name);
       },
     },
     created() {
