@@ -2,12 +2,7 @@
 
   <div>
 
-    <page-header :title="topic.title">
-      <div slot="icon">
-        <mat-svg v-if="isRoot" category="action" name="explore" />
-        <mat-svg v-else category="file" name="folder" />
-      </div>
-    </page-header>
+    <page-header :title="topic.title" />
 
     <p
       v-if="topic.description"
