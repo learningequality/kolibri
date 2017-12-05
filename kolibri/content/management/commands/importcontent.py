@@ -5,7 +5,7 @@ from django.core.management.base import CommandError
 from kolibri.tasks.management.commands.base import AsyncCommand
 from requests.exceptions import HTTPError
 
-from ...utils import annotation, paths, transfer, import_export_content
+from ...utils import annotation, import_export_content, paths, transfer
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -108,7 +108,6 @@ class Command(AsyncCommand):
         files_to_download, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
             channel_id, node_ids, exclude_node_ids, False)
 
-        downloaded_files = []
         number_of_skipped_files = 0
         file_checksums_to_annotate = []
 
@@ -149,9 +148,6 @@ class Command(AsyncCommand):
                                 length = len(chunk)
                                 overall_progress_update(length)
                                 file_dl_progress_update(length)
-                            else:
-                                # If the for loop didn't break, add this to downloaded files.
-                                downloaded_files.append(dest)
 
                     file_checksums_to_annotate.append(f.id)
 
@@ -162,17 +158,15 @@ class Command(AsyncCommand):
                     number_of_skipped_files += 1
                     overall_progress_update(f.file_size)
 
-            if self.is_cancelled():
-                # Cancelled, clean up any already downloading files.
-                for dest in downloaded_files:
-                    os.remove(dest)
-                self.cancel()
-            else:
-                if number_of_skipped_files > 0:
-                    logging.warning(
-                        "{} files are skipped, because they are not found in the given external drive.".format(number_of_skipped_files))
+            annotation.set_availability(channel_id, file_checksums_to_annotate)
 
-                annotation.set_availability(channel_id, file_checksums_to_annotate)
+            if number_of_skipped_files > 0:
+                logging.warning(
+                    "{} files are skipped, because they are not found in the given external drive.".format(
+                        number_of_skipped_files))
+
+            if self.is_cancelled():
+                self.cancel()
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
