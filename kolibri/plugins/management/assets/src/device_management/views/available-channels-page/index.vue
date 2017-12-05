@@ -89,7 +89,11 @@
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
   import uniqBy from 'lodash/uniqBy';
-  import { installedChannelList, wizardState } from '../../state/getters';
+  import {
+    installedChannelList,
+    installedChannelsWithResources,
+    wizardState,
+  } from '../../state/getters';
   import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import { TransferTypes } from '../../constants';
 
@@ -192,8 +196,8 @@
     },
     methods: {
       channelIsOnDevice(channel) {
-        const match = this.installedChannelList.find(({ id }) => id === channel.id);
-        return match && match.on_device_resources > 0;
+        const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
+        return Boolean(match);
       },
       goToChannel(channel) {
         this.transitionWizardPage('forward', { channel });
@@ -221,6 +225,7 @@
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
         installedChannelList,
+        installedChannelsWithResources,
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
       },
