@@ -34,7 +34,6 @@
       </section>
 
       <section v-if="onDeviceInfoIsReady" class="updates">
-        <!-- QUESTION If auto updating when no content has been downloaded, why even show this? -->
         <div
           class="updates-available"
           v-if="newVersionAvailable"
