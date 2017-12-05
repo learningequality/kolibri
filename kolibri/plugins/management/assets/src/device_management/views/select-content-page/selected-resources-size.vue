@@ -9,21 +9,24 @@
         {{ $tr('chooseContentToExport') }}
       </span>
     </div>
+
+    <span class="remaining-space">
+      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
+    </span>
+
     <div class="resources-selected">
-      <div class="resources-selected-message">
+      <span class="resources-selected-message">
         {{ $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount }) }}
-      </div>
+      </span>
 
       <k-button
         :text="buttonText"
+        :primary="true"
         :disabled="buttonIsDisabled"
         @click="$emit('clickconfirm')"
       />
     </div>
 
-    <div class="remaining-space">
-      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
-    </div>
 
     <ui-alert
       v-if="remainingSpaceAfterTransfer<=0"
@@ -96,21 +99,25 @@
 
 <style lang="stylus" scoped>
 
+  .selected-resources-size
+    // using table to separate element by alignment while keeping them on the same line
+    // avoids magic numbers, keeps text lined up.
+    display: table
+    line-height: 1em
+    width: 100%
+
+
   .choose-message
+    display: table-row
     padding: 8px 0
     font-weight: bold
 
-  .resources-selected
-    margin: 8px 0
-    &-message
-      display: inline
-    button
-      display: inline
-
-
   .remaining-space
+    text-align: left
+    display: table-cell
+
+  .resources-selected
     text-align: right
-    margin-top: -24px
-    margin-bottom: 8px
+    display: table-cell
 
 </style>
