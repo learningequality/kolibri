@@ -20,10 +20,9 @@ export function showSelectContentPage(store) {
   if (!channelOnDevice) {
     // Update metadata when no content has been downloaded
     dbPromise = downloadChannelMetadata(store);
-  } else if (
-    channelOnDevice.on_device_resources &&
-    channelOnDevice.version < transferredChannel.version
-  ) {
+  } else if (!channelOnDevice.available && channelOnDevice.version < transferredChannel.version) {
+    // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
+    // _and_ has been updated, then download the metadata
     dbPromise = downloadChannelMetadata(store);
   } else {
     // If already on device, then skip the DB download, and use on-device
