@@ -11,37 +11,42 @@ import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
  *
  */
 export function showSelectContentPage(store) {
-  let dbPromise;
+  let channelMetadataPromise;
   const { transferredChannel } = wizardState(store.state);
   const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
 
-  // Downloading the Content Metadata DB
+  // Immediately navigate to new URL so back button works in next screen
+  navigateToTopicUrl({ pk: '' });
+
   if (!channelOnDevice) {
     // Update metadata when no content has been downloaded
-    dbPromise = downloadChannelMetadata(store);
+    channelMetadataPromise = downloadChannelMetadata(store);
   } else if (
     channelOnDevice.on_device_resources &&
     channelOnDevice.version < transferredChannel.version
   ) {
-    dbPromise = downloadChannelMetadata(store);
+    channelMetadataPromise = downloadChannelMetadata(store);
   } else {
     // If already on device, then skip the DB download, and use on-device
     // Channel metadata, since it has root id.
-    dbPromise = Promise.resolve(channelOnDevice);
+    channelMetadataPromise = Promise.resolve(channelOnDevice);
   }
 
   // Hydrating the store with the Channel Metadata
-  return dbPromise
+  return channelMetadataPromise
     .then(channel => {
-      // The channel objects are not consistent if they come from different workflows.
-      // Replacing them here with canonical type from ChannelResource.
-      store.dispatch('SET_TRANSFERRED_CHANNEL', {
-        ...channel,
-        version: transferredChannel.version,
-        public: transferredChannel.public,
-      });
-      navigateToTopicUrl({ title: channel.name, pk: channel.root });
+      // Guard against a user going backwards to AVAILABLE_CHANNELS mid-download
+      if (wizardState(store.state).pageName === ContentWizardPages.SELECT_CONTENT) {
+        // The channel objects are not consistent across transfer types, so we
+        // replace them here with canonical type from ChannelResource when it's available.
+        store.dispatch('SET_TRANSFERRED_CHANNEL', {
+          ...channel,
+          version: transferredChannel.version,
+          public: transferredChannel.public,
+        });
+        navigateToTopicUrl({ title: channel.name, pk: channel.root });
+      }
     })
     .catch(({ errorType }) => {
       store.dispatch('SET_WIZARD_STATUS', errorType);
