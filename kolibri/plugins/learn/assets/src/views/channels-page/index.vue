@@ -52,6 +52,6 @@
 <style lang="stylus" scoped>
 
   .grid
-    margin-top: 48px
+    margin-top: 24px
 
 </style>
