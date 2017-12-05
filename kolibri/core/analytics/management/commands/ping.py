@@ -1,10 +1,13 @@
 import json
 import logging as logger
+import os
 import time
+from datetime import datetime
 
 import kolibri
 import requests
 from django.core.management.base import BaseCommand
+from kolibri.core.device.models import DeviceSettings
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError, RequestException, Timeout
 
@@ -12,25 +15,27 @@ logging = logger.getLogger(__name__)
 
 DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
-PING_SERVER_URL = "http://127.0.0.1:7777"
+DEFAULT_PING_SERVER_URL = "http://telemetry.learningequality.org/api/v1/pingback"
 
 
 class Command(BaseCommand):
     help = "Pings a central server to check for updates/messages and track stats."
 
     def add_arguments(self, parser):
-        parser.add_argument('--interval', action='store', dest='interval', default=DEFAULT_PING_INTERVAL,
+        parser.add_argument('--interval', action='store', dest='interval',
                             help='Number of minutes to wait after a successful ping before the next ping.')
-        parser.add_argument('--checkrate', action='store', dest='checkrate', default=DEFAULT_PING_CHECKRATE,
+        parser.add_argument('--checkrate', action='store', dest='checkrate',
                             help='Number of minutes to wait between failed ping attempts.')
-        parser.add_argument('--server', action='store', dest='server', default=PING_SERVER_URL,
+        parser.add_argument('--server', action='store', dest='server',
                             help='URL for the server ')
 
     def handle(self, *args, **options):
 
-        interval = float(options["interval"])
-        checkrate = float(options["checkrate"])
-        server = options["server"]
+        interval = float(options.get("interval", DEFAULT_PING_INTERVAL))
+        checkrate = float(options.get("checkrate", DEFAULT_PING_CHECKRATE))
+        server = options.get("server", DEFAULT_PING_SERVER_URL)
+
+        self.started = datetime.now()
 
         while True:
             try:
@@ -51,22 +56,28 @@ class Command(BaseCommand):
 
         instance, _ = InstanceIDModel.get_or_create_current_instance()
 
+        devicesettings = DeviceSettings.objects.first()
+        language = devicesettings.language_id if devicesettings else ""
+
         data = {
             "instance_id": instance.id,
             "version": kolibri.__version__,
+            "mode": os.environ.get("KOLIBRI_RUN_MODE", ""),
             "platform": instance.platform,
-            # "hostname": instance.hostname,
             "sysversion": instance.sysversion,
             "database_id": instance.database.id,
-            # "db_path": instance.db_path,
             "system_id": instance.system_id,
-            "macaddress": instance.macaddress,  # this is actually an anonymous `nodeid`
-            "language": "TODO",
+            "node_id": instance.node_id,
+            "language": language,
+            "uptime": int((datetime.now() - self.started).total_seconds() / 60),
             # possibly add: channels, user count, dataset ids, high-level stats?
         }
-        logging.info("data: {}".format(data))
 
-        response = requests.post(server, data=json.dumps(data), timeout=30)
+        jsondata = json.dumps(data)
+
+        logging.info("data: {}".format(jsondata))
+
+        response = requests.post(server, data=jsondata, timeout=60)
 
         response.raise_for_status()
 

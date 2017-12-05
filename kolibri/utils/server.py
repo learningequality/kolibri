@@ -96,7 +96,7 @@ class PingbackThread(threading.Thread):
 
     def run(self):
         command = ManagementUtility().fetch_command("ping")
-        command.execute(server="http://telemetry.learningequality.org/api/v1/pingback", interval=2, checkrate=1)
+        command.execute()
 
 
 def stop(pid=None, force=False):
