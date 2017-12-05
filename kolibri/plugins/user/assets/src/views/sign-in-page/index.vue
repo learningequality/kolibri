@@ -375,6 +375,9 @@
   .fh
     height: 100%
 
+  .fh
+    height: 100%
+
   .wrapper-table
     text-align: center
     background-color: #201A21

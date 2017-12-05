@@ -1,4 +1,4 @@
-.. _get_support:
+.. _get_support_ref:
 
 Get support
 ~~~~~~~~~~~
