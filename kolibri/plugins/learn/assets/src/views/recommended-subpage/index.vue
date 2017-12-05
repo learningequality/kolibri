@@ -2,10 +2,7 @@
 
   <div>
     <k-breadcrumbs :items="breadcrumbItems" />
-
-    <content-card-group-header
-      :header="header" />
-
+    <h1>{{ header }}</h1>
     <content-card-group-grid
       :contents="recommendations"
       :genContentLink="genContentLink"
@@ -86,4 +83,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  h1
+    font-size: 21px
+
+</style>
