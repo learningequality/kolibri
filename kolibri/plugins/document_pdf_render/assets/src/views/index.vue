@@ -210,7 +210,12 @@
             this.hidePage(i);
           }
         }
+        // update progress after we determine which pages to render
+        this.updateProgress();
       }, renderDebounceTime),
+      updateProgress() {
+        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+      },
     },
     watch: {
       scrollPos: 'checkPages',
@@ -278,18 +283,18 @@
       this.prepComponentData.then(() => {
         this.$emit('startTracking');
         this.checkPages();
-      });
 
-      // progress tracking
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
-      }, 30000);
+        // Automatically master after the targetTime, convert seconds -> milliseconds
+        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
+      });
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+
+      this.updateProgress();
+
       this.pdfDocument.cleanup();
       this.pdfDocument.destroy();
       this.$emit('stopTracking');
