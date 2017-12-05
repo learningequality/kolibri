@@ -41,6 +41,9 @@ export default [
       ) {
         return router.replace('/content');
       }
+      if (get(params, 'node.pk') === '') {
+        return;
+      }
       if (!params.node) {
         nextNode = {
           // Works fine without title at the moment.
