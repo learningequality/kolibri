@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from .base import *  # noqa
+from .dev import *  # noqa
 
 INTERNAL_IPS = ['127.0.0.1']
 

@@ -18,6 +18,7 @@ import os
 import sys
 
 import six
+from django.conf import settings
 
 
 def _posix_pid_exists(pid):
@@ -127,6 +128,21 @@ class _WindowsNullDevice:
     "A writeable object that writes to nowhere -- like /dev/null."
     def write(self, s):
         pass
+
+def get_free_space(path=settings.KOLIBRI_HOME):
+    if sys.platform.startswith('win'):
+        import ctypes
+
+        free = ctypes.c_ulonglong(0)
+        check = ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(path), None, None, ctypes.pointer(free))
+        if check == 0:
+            raise ctypes.winError()
+        result = free.value
+    else:
+        st = os.statvfs(path)
+        result = st.f_bavail * st.f_frsize
+
+    return result
 
 
 # Utility functions for pinging or killing PIDs

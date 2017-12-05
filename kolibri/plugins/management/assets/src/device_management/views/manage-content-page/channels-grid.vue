@@ -2,11 +2,18 @@
 
   <div>
     <transition mode="out-in">
-      <p class="core-text-alert" v-if="sortedChannels.length===0 && !channelsLoading">
+      <p
+        class="core-text-alert no-channels"
+        v-if="noChannelsToShow"
+      >
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear v-else-if="channelsLoading" type="indefinite" color="primary" />
+      <ui-progress-linear
+        v-else-if="channelsLoading"
+        type="indefinite"
+        color="primary"
+      />
 
       <div v-else>
         <div class="channel-list-header">
@@ -14,16 +21,16 @@
         </div>
 
         <div class="channel-list">
-          <div class="channel-item-wrapper" v-for="channel in sortedChannels" :key="channel.id">
-            <channel-list-item
-              :channel="channel"
-              mode="managing"
-              @clickdelete="selectedChannelId=channel.id"
-            />
-          </div>
+          <channel-list-item
+            class="channel-list-item"
+            v-for="channel in sortedChannels"
+            :key="channel.id"
+            :channel="channel"
+            mode="MANAGE"
+            @clickdelete="selectedChannelId=channel.id"
+          />
         </div>
       </div>
-
     </transition>
 
     <delete-channel-modal
@@ -67,8 +74,14 @@
         }
         return '';
       },
+      noChannelsToShow() {
+        return this.sortedChannels.length === 0 && !this.channelsLoading;
+      },
       sortedChannels() {
-        return this.channelList.slice().sort(channel => channel.name);
+        return this.channelList
+          .slice()
+          .sort((c1, c2) => c1.name > c2.name)
+          .filter(channel => channel.on_device_resources > 0);
       },
     },
     created() {
@@ -113,10 +126,7 @@
     padding: 1em 0
     color: $core-text-annotation
 
-  .channel-item-wrapper
-    padding: 2em 0
-    border-bottom: 1px solid $core-grey
-    &:first-of-type
-      border-top: 1px solid $core-grey
+  .channel-list-item:first-of-type
+    border-top: 1px solid $core-grey
 
 </style>

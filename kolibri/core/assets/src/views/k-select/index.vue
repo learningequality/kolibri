@@ -1,0 +1,148 @@
+<template>
+
+  <ui-select
+    class="k-select"
+    :class="{'k-select-inline': inline}"
+    :value="selection"
+    :options="options"
+    :label="label"
+    :floatingLabel="true"
+    :disabled="disabled"
+    :invalid="invalid"
+    :error="invalidText"
+    :name="name"
+    @change="handleChange"
+    @blur="$emit('blur')"
+  />
+
+</template>
+
+
+<script>
+
+  import uiSelect from 'keen-ui/src/UiSelect';
+  import isObject from 'lodash/isObject';
+
+  function areValidOptions(array) {
+    return array.every(object => {
+      return isValidOption(object);
+    });
+  }
+
+  function isValidOption(object) {
+    if (!isObject(object)) {
+      return false;
+    } else if (Object.keys(object).length === 0) {
+      return true;
+    }
+    return object.hasOwnProperty('value') && object.hasOwnProperty('label');
+  }
+
+  /**
+   * Used to select or filter items
+   */
+  export default {
+    name: 'kSelect',
+    model: {
+      event: 'change',
+    },
+    components: {
+      uiSelect,
+    },
+    props: {
+      /**
+       * Object currently selected
+       */
+      value: {
+        type: Object,
+        required: true,
+        validator(val) {
+          return isValidOption(val);
+        },
+      },
+      /**
+       * Array of option objects { value, label, disabled }.
+       * Disabled key is optional
+       */
+      options: {
+        type: Array,
+        required: true,
+        validator(val) {
+          return areValidOptions(val);
+        },
+      },
+      /**
+       * Label
+       */
+      label: {
+        type: String,
+        required: true,
+      },
+      /**
+       * Whether disabled or not
+       */
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Whether invalid or not
+       */
+      invalid: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Text displayed if invalid
+       */
+      invalidText: {
+        type: String,
+        required: false,
+      },
+      /**
+       * Whether or not display as inline block
+       */
+      inline: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    data() {
+      return {
+        // workaround for Keen-ui not displaying floating labels for empty objects
+        selection: Object.keys(this.value).length === 0 ? '' : this.value,
+      };
+    },
+    computed: {
+      name() {
+        return `k-select-${this._uid}`;
+      },
+    },
+    watch: {
+      value(inputValue) {
+        this.selection = inputValue;
+      },
+      selection(newSelection) {
+        /* Emits new selection.*/
+        this.$emit('change', newSelection);
+      },
+    },
+    methods: {
+      handleChange(newSelection) {
+        this.selection = newSelection;
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="stylus" scoped>
+
+  .k-select-inline
+    display: inline-block
+    vertical-align: bottom
+    width: 100px
+    margin-right: 16px
+
+</style>

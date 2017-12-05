@@ -1,6 +1,6 @@
 <template>
 
-  <div v-show="crumbs.length > 1">
+  <div v-show="showAllCrumbs || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
         <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
@@ -11,6 +11,7 @@
                   :text="crumb.text"
                   :to="crumb.link"
                   :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }"
+                  dir="auto"
                 />
               </li>
             </ol>
@@ -26,7 +27,11 @@
             v-show="!crumb.collapsed"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" />
+            <k-router-link
+              :text="crumb.text"
+              :to="crumb.link"
+              dir="auto"
+            />
           </li>
 
           <li
@@ -34,7 +39,12 @@
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
             :key="index"
           >
-            <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
+            <span
+              :style="{ maxWidth: `${lastCrumbMaxWidth}px` }"
+              dir="auto"
+            >
+              {{ crumb.text }}
+            </span>
           </li>
         </template>
       </ol>
@@ -110,6 +120,14 @@
           return crumbItems.slice(0, -1).every(crumb => validateLinkObject(crumb.link));
         },
       },
+      /**
+       * When set to 'true', a breadcrumb will be shown for each item in 'items' array.
+       * Otherwise, the first item will be omitted.
+       */
+      showAllCrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data: () => ({
@@ -133,6 +151,12 @@
       },
       collapsedCrumbMaxWidth() {
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
+      },
+    },
+    watch: {
+      items(val) {
+        this.crumbs = Array.from(val);
+        this.attachSensors();
       },
     },
     created() {

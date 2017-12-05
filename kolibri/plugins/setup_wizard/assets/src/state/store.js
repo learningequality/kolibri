@@ -1,13 +1,8 @@
-import Vuex from 'kolibri.lib.vuex';
 import { currentLanguage } from 'kolibri.utils.i18n';
-import { findKey } from 'lodash';
+import findKey from 'lodash/findKey';
 import { permissionPresets } from './constants';
-import {
-  initialState as coreInitialState,
-  mutations as coreMutations,
-} from 'kolibri.coreVue.vuex.store';
 
-const initialState = {
+export const initialState = {
   onboardingData: {
     language_id: currentLanguage,
     facility: {
@@ -25,7 +20,7 @@ const initialState = {
   onboardingStep: 1,
 };
 
-const mutations = {
+export const mutations = {
   SET_LANGUAGE(state, language_id) {
     state.onboardingData.language_id = language_id;
   },
@@ -56,14 +51,3 @@ const mutations = {
     state.onboardingStep = step;
   },
 };
-
-// assigns core state and mutations
-Object.assign(initialState, coreInitialState);
-Object.assign(mutations, coreMutations);
-
-const store = new Vuex.Store({
-  state: initialState,
-  mutations,
-});
-
-export default store;

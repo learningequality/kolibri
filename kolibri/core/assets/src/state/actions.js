@@ -14,9 +14,11 @@ import {
 } from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
+import heartbeat from 'kolibri.heartbeat';
 
 const name = 'coreTitles';
 
@@ -552,12 +554,13 @@ function stopTrackingProgress(store) {
 
 function saveMasteryLog(store) {
   const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
-  masteryLogModel
-    .save(_masteryLogModel(store))
-    .only(samePageCheckGenerator(store), newMasteryLog => {
-      // Update store in case an id has been set.
-      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-    });
+  return masteryLogModel.save(_masteryLogModel(store));
+}
+
+function saveAndStoreMasteryLog(store) {
+  return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
+    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+  });
 }
 
 function setMasteryLogComplete(store, completetime) {
@@ -615,12 +618,30 @@ function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item,
   });
-  const promise = attemptLogModel.save(_attemptLogModel(store));
-  promise.then(newAttemptLog => {
+  if (attemptLogModel) {
+    return attemptLogModel.save(_attemptLogModel(store));
+  }
+  return ConditionalPromise.resolve();
+}
+
+function saveAndStoreAttemptLog(store) {
+  const attemptLogId = store.state.core.logging.attempt.id;
+  const attemptLogItem = store.state.core.logging.attempt.item;
+  /*
+   * Create a 'same item' check instead of same page check, which only allows the resulting save
+   * payload to be set if two conditions are met: firstly, that at the time the save was
+   * initiated, the attemptlog did not have an id, we need this id for future updating saves,
+   * but no other information saved to the server needs to be persisted back into the vuex store;
+   * secondly, we check that the item id when the save has resolved is the same as when the save
+   * was initiated, ensuring that we are not overwriting the vuex attemptlog representation for a
+   * different question.
+   */
+  const sameItemAndNoLogIdCheck = () =>
+    !attemptLogId && attemptLogItem === store.state.core.logging.attempt.item;
+  return saveAttemptLog(store).only(sameItemAndNoLogIdCheck, newAttemptLog => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
-  return promise;
 }
 
 function createAttemptLog(store, itemId) {
@@ -704,6 +725,14 @@ function updateMasteryAttemptState(
   });
 }
 
+function tryToReconnect() {
+  heartbeat.beat();
+}
+
+function clearSnackbar(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
+}
+
 export {
   handleError,
   handleApiError,
@@ -722,11 +751,15 @@ export {
   samePageCheckGenerator,
   initMasteryLog,
   saveMasteryLog,
+  saveAndStoreMasteryLog,
   setMasteryLogComplete,
   createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
+  saveAndStoreAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
+  tryToReconnect,
+  clearSnackbar,
 };

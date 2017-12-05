@@ -21,10 +21,7 @@
         :style="{ width: width, height: height }"
       >
 
-        <div class="top-buttons" @keydown.enter.stop>
-          <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
-            <mat-svg category="navigation" name="arrow_back" />
-          </button>
+        <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
             <mat-svg category="navigation" name="close" />
           </button>
@@ -60,7 +57,6 @@
       // error alerts
       errorAlert: 'Error in:',
       // aria labels
-      goBack: 'Go back',
       closeWindow: 'Close window',
     },
     props: {
@@ -81,10 +77,6 @@
         type: Boolean,
         default: true,
       },
-      enableBackBtn: {
-        type: Boolean,
-        default: false,
-      },
       // toggles error message indicator in header
       hasError: {
         type: Boolean,
@@ -99,6 +91,10 @@
       height: {
         type: String,
         required: false,
+      },
+      hideTopButtons: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -188,8 +184,8 @@
     left: 50%
     transform: translate(-50%, -50%)
     background: #fff
-    max-width: 100%
-    max-height: 100%
+    max-width: 90%
+    max-height: 90%
     overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
@@ -201,7 +197,6 @@
 
   .modal.mobile
     width: 85%
-    top: 45%
 
   .top-buttons
     position: relative
@@ -212,15 +207,12 @@
     color: $core-text-default
     border: none
     position: absolute
-
-  .btn-back
-    left: -10px
+    &:focus
+      background-color: $core-grey-300
+      outline: none
 
   .btn-close
     right: -10px
-
-  .title
-    text-align: center
 
   .fade-enter-active, .fade-leave-active
     transition: all 0.3s ease

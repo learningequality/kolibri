@@ -95,6 +95,15 @@ function requireName(pathArray) {
   return ['kolibri'].concat(pathArray.slice(1)).join('.');
 }
 
+var baseAliases = {
+  kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
+  kolibri_app: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_app'),
+  content_renderer_module: path.resolve(
+    __dirname,
+    '../../kolibri/core/assets/src/content_renderer_module'
+  ),
+};
+
 function coreExternals(kolibri_name) {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
@@ -123,13 +132,7 @@ function coreAliases(localAPISpec) {
   /*
    * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
    */
-  var aliasesObj = {
-    kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
-    content_renderer_module: path.resolve(
-      __dirname,
-      '../../kolibri/core/assets/src/content_renderer_module'
-    ),
-  };
+  var aliasesObj = Object.assign({}, baseAliases);
   function recurseObjectKeysAndAlias(obj, pathArray) {
     if (typeof obj === 'object') {
       Object.keys(obj).forEach(function(key) {
@@ -162,4 +165,5 @@ function coreAliases(localAPISpec) {
 module.exports = {
   coreExternals: coreExternals,
   coreAliases: coreAliases,
+  baseAliases: baseAliases,
 };

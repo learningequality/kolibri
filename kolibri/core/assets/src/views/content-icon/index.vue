@@ -31,7 +31,7 @@
         v-if="is(Constants.ContentNodeKinds.EXERCISE)"
         category="action"
         name="assignment"
-        :class="[colorClass]" />
+        :class="[colorClass, { 'rtl-icon': isRtl }]" />
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.HTML5)"
         category="device"

@@ -24,7 +24,6 @@ import * as actions from '../state/actions';
 import * as store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
-import exerciseAttempts from '../views/exercise-attempts';
 import downloadButton from '../views/content-renderer/download-button';
 import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
@@ -52,6 +51,7 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
@@ -66,9 +66,17 @@ import urls from './urls';
 import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import uiAlert from 'keen-ui/src/UiAlert';
+import tetherDrop from 'tether-drop';
+import tetherTooltip from 'tether-tooltip';
+import appBar from '../views/app-bar';
+import coreSnackbar from '../views/core-snackbar';
+import customUiMenu from '../views/custom-ui-menu';
+import heartbeat from '../heartbeat';
 
 export default {
   client,
+  heartbeat,
   lib: {
     logging,
     vue,
@@ -76,6 +84,8 @@ export default {
     conditionalPromise,
     apiResource,
     seededshuffle,
+    tetherDrop,
+    tetherTooltip,
   },
   coreVue: {
     vuex: {
@@ -87,7 +97,6 @@ export default {
     },
     components: {
       contentRenderer,
-      exerciseAttempts,
       downloadButton,
       loadingSpinner,
       progressBar,
@@ -114,6 +123,11 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      kSelect,
+      uiAlert,
+      appBar,
+      coreSnackbar,
+      customUiMenu,
     },
     router,
     mixins: {

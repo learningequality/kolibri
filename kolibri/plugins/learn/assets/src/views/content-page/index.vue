@@ -2,7 +2,8 @@
 
   <div>
 
-    <page-header :title="content.title" />
+    <!-- TODO: RTL - Remove ta-l -->
+    <page-header :title="content.title" dir="auto" class="ta-l" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -38,29 +39,37 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
+      :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession">
       <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
     </assessment-wrapper>
 
-    <p v-html="description"></p>
+    <!-- TODO: RTL - Remove ta-l -->
+    <p v-html="description" dir="auto" class="ta-l"></p>
 
 
     <div class="metadata">
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
-          <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip" />
-          </span>
-
-          <ui-popover trigger="licensetooltip" class="license-description">
+          <ui-icon-button
+            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
+            :ariaLabel="$tr('toggleLicenseDescription')"
+            size="small"
+            type="secondary"
+            @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
+          />
+          <!-- TODO: RTL - Do not interpolate strings -->
+          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
-          </ui-popover>
+          </p>
         </template>
 
       </p>
@@ -72,11 +81,13 @@
 
     <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
 
-    <content-card-group-carousel
-      v-if="showRecommended"
-      :genContentLink="genContentLink"
-      :header="recommendedText"
-      :contents="recommended" />
+    <template v-if="showRecommended">
+      <h2>{{ $tr('recommended') }}</h2>
+      <content-card-group-carousel
+        :genContentLink="genContentLink"
+        :header="recommendedText"
+        :contents="recommended" />
+    </template>
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
@@ -119,8 +130,7 @@
   import assessmentWrapper from '../assessment-wrapper';
   import pointsPopup from '../points-popup';
   import pointsSlidein from '../points-slidein';
-  import uiPopover from 'keen-ui/src/UiPopover';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
 
   export default {
@@ -130,7 +140,7 @@
       nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
-      licenseDescription: 'License description',
+      toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
     components: {
@@ -142,10 +152,12 @@
       assessmentWrapper,
       pointsPopup,
       pointsSlidein,
-      uiPopover,
-      uiIcon,
+      uiIconButton,
     },
-    data: () => ({ wasIncomplete: false }),
+    data: () => ({
+      wasIncomplete: false,
+      licenceDescriptionIsVisible: false,
+    }),
     computed: {
       canDownload() {
         if (this.content) {
@@ -270,14 +282,7 @@
   .download-button
     display: block
 
-  .license-tooltip
-    cursor: pointer
-    font-size: 1.25em
-    color: $core-action-dark
-
-  .license-description
-    max-width: 300px
-    padding: 1em
-    font-size: smaller
+  .ta-l
+    text-align: left
 
 </style>

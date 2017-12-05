@@ -1,5 +1,5 @@
-import { sortBy, flatten } from 'lodash';
-
+import sortBy from 'lodash/sortBy';
+import flatten from 'lodash/flatten';
 import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';

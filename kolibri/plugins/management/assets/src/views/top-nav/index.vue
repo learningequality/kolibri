@@ -15,7 +15,7 @@
     />
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('configuration')"
+      :title="$tr('settings')"
       icon="settings"
       :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
     />
@@ -40,7 +40,7 @@
     $trs: {
       classes: 'Classes',
       data: 'Data',
-      configuration: 'Configuration',
+      settings: 'Settings',
       users: 'Users',
     },
     components: {

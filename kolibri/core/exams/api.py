@@ -1,5 +1,6 @@
 from django.db.models.query import F
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.core.exams import models, serializers
@@ -31,6 +32,13 @@ class ExamViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.Exam.objects.all()
+
+    def perform_update(self, serializer):
+        was_active = serializer.instance.active
+        serializer.save()
+        if was_active and not serializer.instance.active:
+            # Has changed from active to not active, set completion_timestamps on all non closed examlogs
+            serializer.instance.examlogs.filter(completion_timestamp__isnull=True).update(completion_timestamp=now())
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):

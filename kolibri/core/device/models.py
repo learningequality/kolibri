@@ -1,8 +1,13 @@
 from django.conf import settings
 from django.db import models
-from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import Facility, FacilityUser
 
 from .permissions import UserCanManageDevicePermissions
+
+device_permissions_fields = [
+    'is_superuser',
+    'can_manage_content',
+]
 
 
 class DevicePermissions(models.Model):
@@ -24,6 +29,7 @@ class DeviceSettings(models.Model):
 
     is_provisioned = models.BooleanField(default=False)
     language_id = models.CharField(max_length=15, default=settings.LANGUAGE_CODE)
+    default_facility = models.ForeignKey(Facility, on_delete=models.SET_NULL, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1

@@ -2,9 +2,12 @@ import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import * as Constants from '../../constants';
 import { setClassState } from './main';
+import logger from 'kolibri.lib.logging';
 
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+
+const logging = logger.getLogger(__filename);
 
 const name = 'groupManagementPageTitles';
 
@@ -154,20 +157,29 @@ function deleteGroup(store, groupId) {
     );
 }
 
-function _addUserToGroup(store, groupId, userId) {
-  const membershipPayload = {
+function _addMultipleUsersToGroup(store, groupId, userIds) {
+  const memberships = userIds.map(userId => ({
     collection: groupId,
     user: userId,
-  };
+  }));
+
   return new Promise((resolve, reject) => {
-    MembershipResource.createModel(membershipPayload)
+    MembershipResource.createCollection(
+      {
+        collection: groupId,
+      },
+      memberships
+    )
       .save()
       .then(
         () => {
-          const groups = store.state.pageState.groups;
+          const groups = Array(...store.state.pageState.groups);
           const groupIndex = groups.findIndex(group => group.id === groupId);
-          const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
-          groups[groupIndex].users.push(userObject);
+
+          userIds.forEach(userId => {
+            const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
+            groups[groupIndex].users.push(userObject);
+          });
 
           // Clear cache for future fetches
           LearnerGroupResource.clearCache();
@@ -180,51 +192,29 @@ function _addUserToGroup(store, groupId, userId) {
   });
 }
 
-function _addMultipleUsersToGroup(store, groupId, userIds) {
-  const addPromises = userIds.map(userId => _addUserToGroup(store, groupId, userId));
-
-  return new Promise((resolve, reject) => {
-    Promise.all(addPromises).then(() => resolve(), error => reject(error));
-  });
-}
-
-function _removeUserfromGroup(store, groupId, userId) {
-  const membershipPayload = {
-    collection_id: groupId,
-    user_id: userId,
-  };
-  return new Promise((resolve, reject) => {
-    MembershipResource.getCollection(membershipPayload)
-      .fetch()
-      .then(membership => {
-        const membershipId = membership[0].id; // will always only have one item in the array.
-        MembershipResource.getModel(membershipId)
-          .delete()
-          .then(
-            () => {
-              const groups = store.state.pageState.groups;
-              const groupIndex = groups.findIndex(group => group.id === groupId);
-              groups[groupIndex].users = groups[groupIndex].users.filter(
-                user => user.id !== userId
-              );
-
-              // Clear cache for future fetches
-              LearnerGroupResource.clearCache();
-
-              store.dispatch('SET_GROUPS', groups);
-              resolve();
-            },
-            error => reject(error)
-          );
-      });
-  });
-}
-
 function _removeMultipleUsersFromGroup(store, groupId, userIds) {
-  const removePromises = userIds.map(userId => _removeUserfromGroup(store, groupId, userId));
-
   return new Promise((resolve, reject) => {
-    Promise.all(removePromises).then(() => resolve(), error => reject(error));
+    MembershipResource.getCollection({
+      user_ids: userIds,
+      collection: groupId,
+    })
+      .delete()
+      .then(
+        () => {
+          const groups = Array(...store.state.pageState.groups);
+          const groupIndex = groups.findIndex(group => group.id === groupId);
+          groups[groupIndex].users = groups[groupIndex].users.filter(
+            user => !userIds.includes(user.id)
+          );
+
+          // Clear cache for future fetches
+          LearnerGroupResource.clearCache();
+
+          store.dispatch('SET_GROUPS', groups);
+          resolve();
+        },
+        error => reject(error)
+      );
   });
 }
 
@@ -235,7 +225,7 @@ function addUsersToGroup(store, groupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 
@@ -246,7 +236,7 @@ function removeUsersFromGroup(store, groupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 
@@ -259,7 +249,7 @@ function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 

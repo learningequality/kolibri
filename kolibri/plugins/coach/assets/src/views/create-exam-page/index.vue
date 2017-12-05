@@ -118,10 +118,11 @@
       @randomize="seed = generateRandomSeed()"
     />
 
-    <ui-snackbar-container
-      class="snackbar-container"
-      ref="snackbarContainer"
-      position="center"
+    <core-snackbar
+      v-if="examModificationSnackbarIsVisible"
+      :key="snackbarText"
+      :text="snackbarText"
+      :autoDismiss="true"
     />
   </div>
 
@@ -139,28 +140,26 @@
     addExercise,
     removeExercise,
     displayExamModal,
+    showExamModificationSnackbar,
   } from '../../state/actions/exam';
   import { className } from '../../state/getters/main';
-  import { Modals as ExamModals } from '../../examConstants';
+  import { Modals as ExamModals, EXAM_MODIFICATION_SNACKBAR } from '../../examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import uiSelect from 'keen-ui/src/UiSelect';
-  import uiSnackbar from 'keen-ui/src/UiSnackbar';
-  import uiSnackbarContainer from 'keen-ui/src/UiSnackbarContainer';
+  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
+  import { currentSnackbar } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'createExamPage',
     components: {
-      uiSelect,
-      uiSnackbar,
-      uiSnackbarContainer,
+      coreSnackbar,
       uiProgressLinear,
       kButton,
       kTextbox,
@@ -205,6 +204,7 @@
         selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
+        snackbarText: null,
       };
     },
     computed: {
@@ -354,6 +354,9 @@
           number_of_questions: 1,
         }));
       },
+      examModificationSnackbarIsVisible() {
+        return this.currentSnackbar === EXAM_MODIFICATION_SNACKBAR;
+      },
     },
     methods: {
       changeSelection() {
@@ -375,28 +378,24 @@
       handleAddExercise(exercise) {
         this.selectionMade = true;
         this.addExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({
-          message: `${this.$tr('added')} ${exercise.title}`,
-        });
+        this.snackbarText = `${this.$tr('added')} ${exercise.title}`;
+        this.showExamModificationSnackbar();
       },
       handleRemoveExercise(exercise) {
         this.removeExercise(exercise);
-        this.$refs.snackbarContainer.createSnackbar({
-          message: `${this.$tr('removed')} ${exercise.title}`,
-        });
+        this.snackbarText = `${this.$tr('removed')} ${exercise.title}`;
+        this.showExamModificationSnackbar();
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({
-          message: `${this.$tr('added')} ${topicTitle}`,
-        });
+        this.snackbarText = `${this.$tr('added')} ${topicTitle}`;
+        this.showExamModificationSnackbar();
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
-        this.$refs.snackbarContainer.createSnackbar({
-          message: `${this.$tr('removed')} ${topicTitle}`,
-        });
+        this.snackbarText = `${this.$tr('removed')} ${topicTitle}`;
+        this.showExamModificationSnackbar();
       },
       preview() {
         this.previewOrSubmissionAttempt = true;
@@ -459,6 +458,7 @@
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
         exams: state => state.pageState.exams,
+        currentSnackbar,
       },
       actions: {
         fetchContent,
@@ -466,6 +466,7 @@
         addExercise,
         removeExercise,
         displayExamModal,
+        showExamModificationSnackbar,
       },
     },
   };

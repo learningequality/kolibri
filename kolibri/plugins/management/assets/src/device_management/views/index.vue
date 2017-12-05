@@ -17,20 +17,21 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames } from '../constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
+  import { PageNames } from '../constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import topNavigation from './device-top-nav';
-  import store from '../state/store';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
   import userPermissionsPage from './user-permissions-page';
+  import deviceInfoPage from './device-info-page';
   import welcomeModal from './welcome-modal';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: 'manageContentPage',
     [PageNames.MANAGE_PERMISSIONS_PAGE]: 'managePermissionsPage',
     [PageNames.USER_PERMISSIONS_PAGE]: 'userPermissionsPage',
+    [PageNames.DEVICE_INFO_PAGE]: 'deviceInfoPage',
   };
 
   export default {
@@ -42,6 +43,7 @@
       managePermissionsPage,
       topNavigation,
       userPermissionsPage,
+      deviceInfoPage,
     },
     computed: {
       DEVICE: () => TopLevelPageNames.DEVICE,
@@ -49,7 +51,6 @@
         return pageNameComponentMap[this.pageName];
       },
     },
-    store,
     vuex: {
       getters: {
         pageName: ({ pageName }) => pageName,

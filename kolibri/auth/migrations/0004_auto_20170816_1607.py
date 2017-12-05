@@ -9,7 +9,9 @@ from kolibri.auth.constants.role_kinds import ADMIN
 
 def device_owner_to_super_user(apps, schema_editor):
     from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
-    real_default_facility = RealFacility.get_default_facility()
+    # The get_default_facility method now requires database access to another model that does not exist yet for
+    # this migration, so just defer to the old behaviour.
+    real_default_facility = RealFacility.objects.first()
     # Can't do much if no facilities exist, as no facility to FK the users onto
     if real_default_facility:
         DeviceOwner = apps.get_model('kolibriauth', 'DeviceOwner')

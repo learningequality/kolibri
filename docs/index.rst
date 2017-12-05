@@ -1,13 +1,12 @@
-Getting Started
----------------
+User Guide
+==========
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 3
 
-  user/index
-  dev/index
-  changelog
-  contributing/index
-  authors
-
-.. include:: ../README.rst
+   install
+   access
+   manage
+   coach
+   learner
+   faq

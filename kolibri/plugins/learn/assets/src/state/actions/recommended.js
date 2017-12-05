@@ -98,6 +98,7 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
 }
 
 function showLearn(store) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;

@@ -7,6 +7,7 @@
           class="back svg-back"
           category="navigation"
           name="arrow_back"
+          :class="{ 'rtl-icon': isRtl }"
         />
         <p class="back">{{ backPageText }}</p>
       </router-link>
@@ -24,6 +25,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
+    name: 'immersiveFullScreen',
     props: {
       backPageLink: {
         type: Object,
@@ -85,6 +87,6 @@
     top: 0
     bottom: 0
     overflow-y: auto
-    background-color: $core-bg-canvas
+    background-color: $core-bg-light
 
 </style>

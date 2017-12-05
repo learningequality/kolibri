@@ -19,9 +19,14 @@ sys.path = sys.path + [
     os.path.realpath(os.path.dirname(kolibri_dist.__file__))
 ]
 
+try:
+    from .build_config.default_settings import settings_path
+except ImportError:
+    settings_path = "kolibri.deployment.default.settings.base"
+
 # Set default env
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+    "DJANGO_SETTINGS_MODULE", settings_path
 )
 os.environ.setdefault(
     "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
@@ -31,6 +36,8 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
 import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
+
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 from . import server  # noqa
 from .system import become_daemon  # noqa
@@ -171,7 +178,6 @@ def initialize(debug=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-
     if not os.path.isfile(version_file()):
         django.setup()
 
@@ -185,8 +191,19 @@ def initialize(debug=False):
         autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()
-        change_version = kolibri.__version__ != version.strip()
+        version = version.strip() if version else ""
+        change_version = kolibri.__version__ != version
         if change_version:
+            # Version changed, make a backup no matter what.
+            from kolibri.core.deviceadmin.utils import dbbackup
+            try:
+                backup = dbbackup(version)
+                logger.info(
+                    "Backed up database to: {path}".format(path=backup))
+            except IncompatibleDatabase:
+                logger.warning(
+                    "Skipped automatic database backup, not compatible with "
+                    "this DB engine.")
             enable_default_plugins()
 
         django.setup()
@@ -202,6 +219,14 @@ def initialize(debug=False):
             )
             update()
 
+def _migrate_databases():
+    """
+    Try to migrate all active databases. This should not be called unless Django has
+    been initialized.
+    """
+    from django.conf import settings
+    for database in settings.DATABASES:
+        call_command("migrate", interactive=False, database=database)
 
 def _first_run():
     """
@@ -224,7 +249,7 @@ def _first_run():
     # We need to migrate the database before enabling plugins, because they
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -261,7 +286,7 @@ def update():
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
@@ -428,8 +453,8 @@ def setup_logging(debug=False):
         settings.DEBUG = True
         LOGGING['handlers']['console']['level'] = 'DEBUG'
         LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
+        logger.debug("Debug mode is on!")
     logging.config.dictConfig(LOGGING)
-    logger.debug("Debug mode is on!")
 
 
 def manage(cmd, args=[]):

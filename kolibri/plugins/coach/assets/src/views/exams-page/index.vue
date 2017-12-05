@@ -1,13 +1,12 @@
 <template>
 
   <div>
-    <h1>{{ className }} {{ $tr('exams') }}</h1>
-    <ui-select
+    <h1>{{ $tr('classExams', {className}) }}</h1>
+    <k-select
       :label="$tr('exams')"
-      :floatingLabel="true"
       :options="statusOptions"
+      :inline="true"
       v-model="statusSelected"
-      class="status-filter"
     />
     <k-button
       :primary="true"
@@ -105,7 +104,7 @@
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
   import activateExamModal from './activate-exam-modal';
@@ -119,6 +118,7 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
+      classExams: '{className} Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
@@ -129,7 +129,7 @@
     },
     components: {
       kButton,
-      uiSelect,
+      kSelect,
       examRow,
       createExamModal,
       activateExamModal,
@@ -141,7 +141,7 @@
     },
     data() {
       return {
-        statusSelected: { label: this.$tr('all') },
+        statusSelected: { label: this.$tr('all'), value: this.$tr('all') },
         selectedExam: {
           title: '',
           id: '',
@@ -161,9 +161,9 @@
       },
       statusOptions() {
         return [
-          { label: this.$tr('all') },
-          { label: this.$tr('active') },
-          { label: this.$tr('inactive') },
+          { label: this.$tr('all'), value: this.$tr('all') },
+          { label: this.$tr('active'), value: this.$tr('active') },
+          { label: this.$tr('inactive'), value: this.$tr('inactive') },
         ];
       },
       activeExams() {
@@ -282,11 +282,6 @@
 
   .col-visibility
     text-align: left
-
-  .status-filter
-    display: inline-block
-    margin: 0
-    width: 200px
 
   th
     color: $core-text-annotation

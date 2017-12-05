@@ -210,6 +210,10 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(models.Facility.objects.filter(id=self.facility1.id).count(), 0)
 
+    def test_public_facility_endpoint(self):
+        response = self.client.get(reverse('publicfacility-list'))
+        self.assertEqual(models.Facility.objects.all().count(), len(response.data))
+
 
 class UserCreationTestCase(APITestCase):
 
@@ -256,6 +260,14 @@ class UserUpdateTestCase(APITestCase):
     def test_user_update_password(self):
         new_password = 'baz'
         self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), {'password': new_password}, format="json")
+        self.client.logout()
+        response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
+        self.assertTrue(response)
+
+    def test_user_update_password_non_partial_with_username(self):
+        new_password = 'baz'
+        self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}),
+                          {'password': new_password, 'username': self.user.username}, format="json")
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
@@ -319,6 +331,13 @@ class LoginLogoutTestCase(APITestCase):
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertTrue(response.data['kind'][0], 'anonymous')
+
+    def test_session_update_last_active(self):
+        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        expire_date = Session.objects.get().expire_date
+        self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
+        new_expire_date = Session.objects.get().expire_date
+        self.assertTrue(expire_date < new_expire_date)
 
 
 class AnonSignUpTestCase(APITestCase):

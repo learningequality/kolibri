@@ -4,6 +4,7 @@ import imp
 import os
 import shutil
 import subprocess
+import sys
 
 DIST_CEXT = 'kolibri/dist/cext'
 PYPI_DOWNLOAD = 'https://pypi.python.org/simple/'
@@ -16,13 +17,13 @@ Check if requests and bs4 modules are installed.
 def _install_requests_and_bs4_if_needed():
     try:
         imp.find_module('requests')
-        print ('requests module exists')
+        print('requests module exists')
     except ImportError:
         subprocess.call(['pip', 'install', 'requests'])
 
     try:
         imp.find_module('bs4')
-        print ('bs4 module exists')
+        print('bs4 module exists')
     except ImportError:
         subprocess.call(['pip', 'install', 'bs4'])
 
@@ -46,7 +47,7 @@ def get_path_with_arch(platform, path):
     return path
 
 
-def download_package(path, platform, version, implementation, abi, name):
+def download_package(path, platform, version, implementation, abi, name, pk_version):
     """
     Download the package according to platform, python version, implementation and abi.
     """
@@ -58,7 +59,7 @@ def download_package(path, platform, version, implementation, abi, name):
     return_code = subprocess.call([
         'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
         '--python-version', version, '--implementation', implementation,
-        '--abi', abi, '-i', index_url, name
+        '--abi', abi, '-i', index_url, '{}=={}'.format(name, pk_version)
     ])
     return return_code
 
@@ -72,7 +73,7 @@ def install_package_by_wheel(path, name):
         path, os.path.join(path, name)
     ])
     if return_code == 1:
-        print ('Installation failed for package {}\n'.format(name))
+        sys.exit('\nInstallation failed for package {}.\n'.format(name))
     else:
         # Clean up all the whl files and dist-info folders in the directory
         for item in os.listdir(path):
@@ -94,7 +95,7 @@ def parse_package_page(files, pk_version):
         if file_name[-1].split('.')[-1] != 'whl' or file_name[1] != pk_version or file_name[2][2:] == '26':
             continue
 
-        print ('Installing {}...'.format(file.string))
+        print('Installing {}...'.format(file.string))
 
         implementation = file_name[2][:2]
         python_version = file_name[2][2:]
@@ -114,15 +115,15 @@ def parse_package_page(files, pk_version):
             continue
 
         download_return = download_package(
-            path, platform, python_version, implementation, abi, file_name[0]
-        )
+            path, platform, python_version, implementation, abi, file_name[0],
+            pk_version)
 
         # Successfully downloaded package
         if download_return == 0:
             install_package_by_wheel(path, file.string)
         # Download failed
         else:
-            print ('Download failed for package {}\n'.format(file.string))
+            sys.exit('\nDownload failed for package {}.\n'.format(file.string))
 
 
 def install(name, pk_version):
@@ -138,12 +139,14 @@ def install(name, pk_version):
         links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
         for link in links:
             r = requests.get(link + name)
-            files = BeautifulSoup(r.content, 'html.parser')
-
-            parse_package_page(files, pk_version)
+            if r.status_code == 200:
+                files = BeautifulSoup(r.content, 'html.parser')
+                parse_package_page(files, pk_version)
+            else:
+                sys.exit('\nUnable to find package {} on {}.\n'.format(name, link))
 
     except ImportError:
-        raise ImportError('Importing modules failed.\n')
+        raise ImportError('\nImporting modules failed.\n')
 
 
 def parse_requirements(args):
@@ -156,9 +159,9 @@ def parse_requirements(args):
             char_list = line.split('==')
             if len(char_list) == 2:
                 # Install package according to its name and version
-                install(char_list[0], char_list[1])
+                install(char_list[0].strip(), char_list[1].strip())
             else:
-                print ('Name format is incorrect. Should be \'packageName==packageVersion\'.')
+                sys.exit('\nName format in cext.txt is incorrect. Should be \'packageName==packageVersion\'.\n')
 
 
 if __name__ == '__main__':

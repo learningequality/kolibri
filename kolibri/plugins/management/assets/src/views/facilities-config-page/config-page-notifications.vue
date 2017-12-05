@@ -32,7 +32,7 @@
 <script>
 
   import { notificationTypes } from '../../constants';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   export default {
     name: 'configPageNotifications',
     components: { uiAlert },

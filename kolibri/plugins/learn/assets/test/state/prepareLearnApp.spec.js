@@ -3,7 +3,7 @@ import assert from 'assert';
 import sinon from 'sinon';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
 import makeStore from '../util/makeStore';
-import { mockResource } from 'testUtils';
+import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 
 import { MembershipResource } from 'kolibri.resources';
 
@@ -38,7 +38,7 @@ describe('prepareLearnApp action', () => {
 
     return prepareLearnApp(store).then(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, {
-        user_id: 101,
+        user: 101,
       });
       assert.deepEqual(getMemberships(store), fakeMemberships);
     });
@@ -50,7 +50,7 @@ describe('prepareLearnApp action', () => {
 
     return prepareLearnApp(store).catch(() => {
       sinon.assert.calledWith(MembershipResource.getCollection, {
-        user_id: 102,
+        user: 102,
       });
       assert.deepEqual(store.state.core.error, 'fetch error');
       assert.deepEqual(getMemberships(store), []);

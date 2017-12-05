@@ -234,8 +234,7 @@
         }
 
         this.$nextTick(() => {
-          this.player = videojs(this.$refs.player, videojsConfig);
-          this.player.on('loadedmetadata', this.handleReadyPlayer);
+          this.player = videojs(this.$refs.player, videojsConfig, this.handleReadyPlayer);
         });
       },
       handleReadyPlayer() {
@@ -358,9 +357,9 @@
 <style lang="stylus" scoped>
 
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import '../../../node_modules/video.js/dist/video-js.css'
+  @import './videojs-style/video-js.min.css'
   // Custom build icons.
-  @import '../videojs-font/css/videojs-icons.css'
+  @import './videojs-style/videojs-font/css/videojs-icons.css'
 
   .wrapper
     width: 854px

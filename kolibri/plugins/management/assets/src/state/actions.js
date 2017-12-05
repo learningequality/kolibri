@@ -187,24 +187,19 @@ function removeClassUser(store, classId, userId) {
   }
   // fetch the membership model with this classId and userId.
   const MembershipCollection = MembershipResource.getCollection({
-    user_id: userId,
-    collection_id: classId,
+    user: userId,
+    collection: classId,
   });
 
-  MembershipCollection.fetch().then(membership => {
-    const membershipId = membership[0].id; // will always only have one item in the array.
-    MembershipResource.getModel(membershipId)
-      .delete()
-      .then(
-        () => {
-          store.dispatch('DELETE_CLASS_USER', userId);
-          displayModal(store, false);
-        },
-        error => {
-          handleApiError(store, error);
-        }
-      );
-  });
+  MembershipCollection.delete().then(
+    () => {
+      store.dispatch('DELETE_CLASS_USER', userId);
+      displayModal(store, false);
+    },
+    error => {
+      handleApiError(store, error);
+    }
+  );
 }
 
 function showClassesPage(store) {
@@ -301,14 +296,16 @@ function showClassEnrollPage(store, classId) {
 
 function enrollUsersInClass(store, classId, users) {
   // TODO no error handling
-  return Promise.all(
-    users.map(userId =>
-      MembershipResource.createModel({
-        collection: classId,
-        user: userId,
-      }).save()
-    )
-  );
+  const memberships = users.map(userId => ({
+    collection: classId,
+    user: userId,
+  }));
+  return MembershipResource.createCollection(
+    {
+      collection: classId,
+    },
+    memberships
+  ).save();
 }
 
 // ================================

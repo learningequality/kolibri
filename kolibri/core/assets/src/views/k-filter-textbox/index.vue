@@ -94,8 +94,8 @@
   .k-filter
     display: inline-block
     position: relative
-    width: 100%
-    max-width: 540px
+    max-width: 100%
+    width: 540px
 
   .k-filter-icon
     position: absolute

@@ -6,7 +6,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import { getChannelObject, isUserLoggedIn, getChannels } from 'kolibri.coreVue.vuex.getters';
 import {
   setChannelInfo,
   handleError,
@@ -156,12 +156,18 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
 }
 
 function setAndCheckChannels(store) {
-  return setChannelInfo(store).then(channels => {
-    if (!channels.length) {
-      router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+  return setChannelInfo(store).then(
+    () => {
+      const channels = getChannels(store.state);
+      if (!channels.length) {
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+      }
+      return channels;
+    },
+    error => {
+      handleApiError(store, error);
     }
-    return channels;
-  });
+  );
 }
 
 /**
@@ -273,6 +279,7 @@ function showTopicsChannel(store, id) {
 }
 
 function showTopicsContent(store, id) {
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
@@ -443,6 +450,10 @@ function showExam(store, id, questionNumber) {
     ]).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
+        if (exam.closed) {
+          router.getInstance().replace({ name: PageNames.EXAM_LIST });
+          return;
+        }
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -646,7 +657,9 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
 }
 
 function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog);
+  const examLog = Object.assign({}, store.state.examLog, {
+    completion_timestamp: now(),
+  });
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id)
     .save(examLog)

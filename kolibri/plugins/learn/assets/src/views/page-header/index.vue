@@ -2,7 +2,7 @@
 
   <div class="header-wrapper">
     <div class="header">
-      <h1 class="title">
+      <h1 class="title" dir="auto">
         {{ title }}
         <progress-icon :progress="progress" />
       </h1>

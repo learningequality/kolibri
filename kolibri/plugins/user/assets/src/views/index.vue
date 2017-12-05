@@ -19,7 +19,6 @@
 
 <script>
 
-  import store from '../state/store';
   import { PageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -67,7 +66,6 @@
       },
     },
     vuex: { getters: { pageName: state => state.pageName } },
-    store,
   };
 
 </script>

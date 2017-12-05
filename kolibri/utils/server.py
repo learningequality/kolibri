@@ -68,6 +68,11 @@ def start(port=8080):
     from kolibri.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
 
+    # This is also run every time the server is started to clear all the tasks
+    # in the queue
+    from kolibri.tasks.client import get_client
+    get_client().clear(force=True)
+
     def rm_pid_file():
         os.unlink(PID_FILE)
 

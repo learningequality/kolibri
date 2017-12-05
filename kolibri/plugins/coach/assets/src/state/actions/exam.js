@@ -13,7 +13,8 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import * as CoreActions from 'kolibri.coreVue.vuex.actions';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-import * as Constants from '../../constants';
+import { PageNames } from '../../constants';
+import { EXAM_MODIFICATION_SNACKBAR } from '../../examConstants';
 import { setClassState } from './main';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -139,7 +140,7 @@ function displayExamModal(store, modalName) {
 
 function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
@@ -156,6 +157,7 @@ function showExamsPage(store, classId) {
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams),
         examModalShown: false,
+        busy: false,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -220,6 +222,7 @@ function _removeAssignment(assignmentId) {
 }
 
 function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
+  store.dispatch('SET_BUSY', true);
   const assignPromises = collectionsToAssign.map(collection => _assignExamTo(examId, collection));
   const unassignPromises = assignmentsToRemove.map(assignment => _removeAssignment(assignment));
   const assignmentPromises = assignPromises.concat(unassignPromises);
@@ -258,9 +261,13 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       exams[examIndex].visibility = examVisibility;
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_BUSY', false);
       displayExamModal(store, false);
     },
-    error => CoreActions.handleError(store, error)
+    error => {
+      store.dispatch('SET_BUSY', false);
+      CoreActions.handleError(store, error);
+    }
   );
 }
 
@@ -372,7 +379,7 @@ function fetchContent(store, topicId) {
 
 function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
+  store.dispatch('SET_PAGE_NAME', PageNames.CREATE_EXAM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
 
   const channelPromise = ChannelResource.getCollection().fetch();
@@ -444,7 +451,7 @@ function createExam(store, classCollection, examObj) {
         _assignExamTo(exam.id, classCollection).then(
           () => {
             store.dispatch('CORE_SET_PAGE_LOADING', false);
-            router.getInstance().push({ name: Constants.PageNames.EXAMS });
+            router.getInstance().push({ name: PageNames.EXAMS });
           },
           error => CoreActions.handleError(store, error)
         );
@@ -455,7 +462,7 @@ function createExam(store, classCollection, examObj) {
 
 function showExamReportPage(store, classId, channelId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
   const examLogPromise = ExamLogResource.getCollection({
     exam: examId,
     collection: classId,
@@ -516,9 +523,9 @@ function showExamReportDetailPage(
   questionNumber,
   interactionIndex
 ) {
-  if (store.state.pageName !== Constants.PageNames.EXAM_REPORT_DETAIL) {
+  if (store.state.pageName !== PageNames.EXAM_REPORT_DETAIL) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
-    store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
+    store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
   const examPromise = ExamResource.getModel(examId, {
     channel_id: channelId,
@@ -630,6 +637,10 @@ function showExamReportDetailPage(
   );
 }
 
+function showExamModificationSnackbar(store) {
+  store.dispatch('CORE_SET_CURRENT_SNACKBAR', EXAM_MODIFICATION_SNACKBAR);
+}
+
 export {
   displayExamModal,
   showExamsPage,
@@ -647,4 +658,5 @@ export {
   addExercise,
   removeExercise,
   getAllExercisesWithinTopic,
+  showExamModificationSnackbar,
 };

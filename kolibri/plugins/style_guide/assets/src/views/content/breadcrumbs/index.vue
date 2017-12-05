@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <page-template :completed="false">
 
     <h1>Topic tree breadcrumbs</h1>
 

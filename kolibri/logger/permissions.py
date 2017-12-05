@@ -1,4 +1,5 @@
 from kolibri.auth.permissions.base import BasePermissions, lookup_field_with_fks
+from rest_framework import permissions
 
 
 class AnyoneCanWriteAnonymousLogs(BasePermissions):
@@ -26,3 +27,25 @@ class AnyoneCanWriteAnonymousLogs(BasePermissions):
 
     def readable_by_user_filter(self, user, queryset):
         return queryset.none()
+
+
+def _ensure_raw_dict(d):
+    if hasattr(d, "dict"):
+        d = d.dict()
+    return dict(d)
+
+
+class ExamActivePermissions(permissions.BasePermission):
+    """
+    A Django REST Framework permissions class that does not allow writes to examattemptlogs
+    when the exam has been submitted, or the exam closed.
+    """
+
+    def has_permission(self, request, view):
+        # as `has_object_permission` isn't called for POST/create, we need to check here
+        if (request.method == "POST" or request.method == "PATCH") and request.data:
+            validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
+            # Make sure the examlog is not closed and the exam is active
+            return not validated_data['examlog'].closed and validated_data['examlog'].exam.active
+
+        return True

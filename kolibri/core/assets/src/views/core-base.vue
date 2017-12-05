@@ -35,6 +35,8 @@
         <slot></slot>
       </template>
     </div>
+
+    <connection-snackbars />
   </div>
 
 </template>
@@ -45,10 +47,11 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import appBar from './app-bar';
+  import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import connectionSnackbars from './connection-snackbars';
 
   export default {
     components: {
@@ -56,6 +59,7 @@
       sideNav,
       errorBox,
       loadingSpinner,
+      connectionSnackbars,
     },
     mixins: [responsiveWindow],
     props: {
@@ -80,6 +84,11 @@
         type: Boolean,
         default: true,
       },
+      // reserve space at the bottom for floating widgets
+      bottomMargin: {
+        type: Number,
+        default: 0,
+      },
     },
     vuex: {
       getters: {
@@ -100,9 +109,14 @@
         return this.headerHeight * 4;
       },
       contentStyle() {
+        const padding = (this.mobile ? 16 : 32) + 'px';
         return {
           top: `${this.headerHeight}px`,
           [this.isRtl ? 'right' : 'left']: 0,
+          paddingTop: padding,
+          paddingLeft: padding,
+          paddingRight: padding,
+          marginBottom: this.bottomMargin + 'px',
         };
       },
     },
@@ -144,6 +158,5 @@
     right: 0
     bottom: 0
     padding-bottom: 40px
-    padding: 32px
 
 </style>

@@ -31,6 +31,10 @@ clean-build:
 	rm -fr .cache
 	rm -r kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
+	rm -r kolibri/utils/build_config/* || true # remove everything
+	git checkout -- kolibri/utils/build_config # restore __init__.py
+	rm -r requirements.txt || true # remove requirements.txt
+	git checkout -- requirements.txt # restore requirements.txt
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -38,11 +42,10 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 clean-docs:
-	rm -f docs/py_modules/kolibri*rst
-	rm -f docs/py_modules/modules.rst
-	rm -f docs/kolibri*rst # old location
-	rm -f docs/modules.rst # old location
+	rm -f docs-developer/py_modules/kolibri*rst
+	rm -f docs-developer/py_modules/modules.rst
 	$(MAKE) -C docs clean
+	$(MAKE) -C docs-developer clean
 
 lint:
 	flake8 kolibri
@@ -61,9 +64,14 @@ coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
 
-docs: clean-docs
-	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
+docs-developer: clean-docs
+	sphinx-apidoc -d 10 -H "Python Reference" -o docs-developer/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
+	$(MAKE) -C docs-developer html
+
+docs-user: clean-docs
 	$(MAKE) -C docs html
+
+docs: docs-user docs-developer
 
 release:
 	ls -l dist/
@@ -80,7 +88,17 @@ staticdeps:
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 
-dist: writeversion staticdeps assets compilemessages
+setrequirements:
+	rm -r requirements.txt || true # remove requirements.txt
+	git checkout -- requirements.txt # restore requirements.txt
+	python build_tools/customize_requirements.py
+
+buildconfig:
+	rm -r kolibri/utils/build_config/* || true # remove everything
+	git checkout -- kolibri/utils/build_config # restore __init__.py
+	python build_tools/customize_build.py
+
+dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
@@ -118,7 +136,7 @@ dockerenvbuild: writeversion
 	docker image build -t learningequality/kolibri:$$(cat kolibri/VERSION) -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
 
 kolibripippex:
 	git clone https://github.com/learningequality/pip.git
