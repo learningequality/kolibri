@@ -15,7 +15,7 @@ logging = logger.getLogger(__name__)
 
 DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
-DEFAULT_PING_SERVER_URL = "http://telemetry.learningequality.org/api/v1/pingback"
+DEFAULT_PING_SERVER_URL = "https://telemetry.learningequality.org/api/v1/pingback"
 
 
 class Command(BaseCommand):
