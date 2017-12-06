@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-11-29 15:53-0500\n"
+"PO-Revision-Date: 2017-12-05 00:33-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -47,7 +47,7 @@ msgstr "Requerido. 30 caracteres o menos. Solamente letras y números."
 
 #: kolibri/auth/models.py:216
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr ""
+msgstr "Escribir un nombre de usuario válido. Este valor puede contener sólo letras, números y guiones bajos."
 
 #: kolibri/auth/models.py:220
 msgid "full name"
@@ -71,7 +71,7 @@ msgstr "Formato desconocido"
 
 #: kolibri/core/device/serializers.py:44
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "Kolibri todavía no está disponible en este idioma"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -79,19 +79,19 @@ msgstr "Kolibri"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr ""
+msgstr "Navegador no compatible"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "La versión del navegador no está soportada."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "También puedes actualizar tu navegador actual."
 
 #: kolibri/tasks/api.py:31
 msgid "There was a network error."
@@ -103,5 +103,5 @@ msgstr "Hubo un error de acceso a disco."
 
 #: kolibri/tasks/api.py:35
 msgid "There was an unknown error."
-msgstr ""
+msgstr "Se ha producido un error desconocido."
 

@@ -46,6 +46,6 @@
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Este campo es obligatorio",
     "signInPage.requiredForCoachesAdmins": "Contraseña es necesaria para tutores y administradores",
-    "signInPage.signedOut": "You were automatically signed out due to inactivity",
-    "signInPage.dismiss": "Dismiss"
+    "signInPage.signedOut": "Sesión terminada por inactividad",
+    "signInPage.dismiss": "Cerrar"
 }

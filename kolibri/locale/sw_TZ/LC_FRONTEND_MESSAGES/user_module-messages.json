@@ -1,5 +1,5 @@
 {
-    "userPageTitles.userProfilePageTitle": "Wasifu wa mtumiaji",
+    "userPageTitles.userProfilePageTitle": "Wasifu wa Mtumiaji",
     "userPageTitles.userSignInPageTitle": "Kuingia Mtumiaji",
     "userPageTitles.userSignUpPageTitle": "Usajili wa Mtumiaji",
     "userPlugin.userProfileTitle": "Wasifu",
@@ -16,7 +16,7 @@
     "profilePage.points": "Pointi",
     "profilePage.role": "Jukumu",
     "profilePage.devicePermissions": "Idhini ya kifaa",
-    "profilePage.usernameNotAlphaNumUnderscore": "Jina la mtumiaji ni linaweza kuwa na herufi, namba na kistari chini",
+    "profilePage.usernameNotAlphaNumUnderscore": "Jina la mtumiaji linaweza kuwa na herufi, namba na kistari chini",
     "profilePage.required": "Uga huu unahitajika",
     "profilePage.limitedPermissions": "Ukomo wa idhini",
     "profilePage.youCan": "Unaweza",
@@ -26,7 +26,7 @@
     "signUpPage.password": "Nywila",
     "signUpPage.reEnterPassword": "Ingiza tena nywila",
     "signUpPage.passwordMatchError": "Nywila hazioani",
-    "signUpPage.genericError": "Kuna hitilafu imetokea wakati wa kujisajiri!",
+    "signUpPage.genericError": "Kuna hitilafu imetokea wakati wa kujisajili!",
     "signUpPage.usernameAlphaNumError": "Jina la mtumiaji linaweza kuwa tuu na herufi, namba na kistari chini",
     "signUpPage.usernameAlreadyExistsError": "Akaunti yenye jina hilo la mtumiaji tayari ipo",
     "signUpPage.logIn": "Ingia",
@@ -45,7 +45,7 @@
     "signInPage.signInError": "Jina la mtumiaji au Nywila sio sahihi",
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Uga huu unahitajika",
-    "signInPage.requiredForCoachesAdmins": "Nywila inahitajika kwa makocha na wasimamizi",
+    "signInPage.requiredForCoachesAdmins": "Nywila inahitajika kwa wakufunzi na wasimamizi",
     "signInPage.signedOut": "Umetolewa moja kwa moja kwa kutotumia",
     "signInPage.dismiss": "Ondoa"
 }
