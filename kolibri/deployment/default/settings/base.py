@@ -155,7 +155,9 @@ LANGUAGES = [
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
     ('fr-fr', 'Français'),
-    ('ar', 'العَرَبِيَّة‎‎')
+    ('ar', 'العَرَبِيَّة‎‎'),
+    ('fa', 'فارسی'),
+    ('ur-pk', 'اُردو (پاکستان)‏'),
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"

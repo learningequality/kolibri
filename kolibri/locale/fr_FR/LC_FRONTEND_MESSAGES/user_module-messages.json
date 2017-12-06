@@ -16,7 +16,7 @@
     "profilePage.points": "Points",
     "profilePage.role": "Rôle",
     "profilePage.devicePermissions": "Autorisations de l'appareil",
-    "profilePage.usernameNotAlphaNumUnderscore": "Nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
+    "profilePage.usernameNotAlphaNumUnderscore": "Le nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
     "profilePage.required": "Ce champ est obligatoire",
     "profilePage.limitedPermissions": "Autorisations limitées",
     "profilePage.youCan": "Vous pouvez",
@@ -27,7 +27,7 @@
     "signUpPage.reEnterPassword": "Resaisir le mot de passe",
     "signUpPage.passwordMatchError": "Les mots de passe ne sont pas identiques",
     "signUpPage.genericError": "Une erreur s'est produite lors de l'inscription!",
-    "signUpPage.usernameAlphaNumError": "Nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
+    "signUpPage.usernameAlphaNumError": "Le nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
     "signUpPage.usernameAlreadyExistsError": "Un compte avec ce nom d'utilisateur existe déjà",
     "signUpPage.logIn": "Se connecter",
     "signUpPage.kolibri": "Kolibri",
@@ -45,7 +45,7 @@
     "signInPage.signInError": "Nom utilisateur ou mot de passe incorrect",
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Ce champ est obligatoire",
-    "signInPage.requiredForCoachesAdmins": "Mot de passe est requis pour les enseignants et les administrateurs",
+    "signInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les enseignants et les administrateurs",
     "signInPage.signedOut": "Vous avez été automatiquement déconnecté pour cause d’inactivité",
     "signInPage.dismiss": "Rejeter"
 }

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-11-29 15:53-0500\n"
+"PO-Revision-Date: 2017-12-05 19:25-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -47,7 +47,7 @@ msgstr "مطلوب. 30 حرفا أو أقل. حروف وأرقام فقط"
 
 #: kolibri/auth/models.py:216
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr ""
+msgstr "أدخل إسم مستخدم صالح. يمكنك استخدام الأحرف والأرقام والمحارف السفلية فقط."
 
 #: kolibri/auth/models.py:220
 msgid "full name"
@@ -71,7 +71,7 @@ msgstr "صيغة غير معروفة"
 
 #: kolibri/core/device/serializers.py:44
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "هذه اللغة غير معتمدة في كوليبري"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -79,29 +79,29 @@ msgstr "كوليبري"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr ""
+msgstr "متصفح غير مدعوم"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "نعتذر، الإصدار الحالي لمتصفحك غير مدعوم."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "لاستهدام كوليبري، ننصح باستخدام متصفح فايرفوكس أو متصفح كروم."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي."
 
 #: kolibri/tasks/api.py:31
 msgid "There was a network error."
-msgstr ""
+msgstr "حدث خطأ في الشبكة."
 
 #: kolibri/tasks/api.py:33
 msgid "There was a disk access error."
-msgstr ""
+msgstr "حدث خطأ أثناء الوصول إلى القرص."
 
 #: kolibri/tasks/api.py:35
 msgid "There was an unknown error."
-msgstr ""
+msgstr "حصل خطأ غير معروف."
 

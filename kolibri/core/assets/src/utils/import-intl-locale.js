@@ -40,6 +40,26 @@ module.exports = locale => {
           'ar'
         );
       });
+    case 'fa':
+      return new Promise(resolve => {
+        require.ensure(
+          ['intl/locale-data/jsonp/fa.js'],
+          require => {
+            resolve(() => require('intl/locale-data/jsonp/fa.js'));
+          },
+          'fa'
+        );
+      });
+    case 'ur-PK':
+      return new Promise(resolve => {
+        require.ensure(
+          ['intl/locale-data/jsonp/ur-PK.js'],
+          require => {
+            resolve(() => require('intl/locale-data/jsonp/ur-PK.js'));
+          },
+          'ur-PK'
+        );
+      });
     default:
       return new Promise(resolve => {
         require.ensure(
