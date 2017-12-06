@@ -8,7 +8,9 @@ Changes are ordered reverse-chronologically.
 0.6.1 (unreleased)
 ------------------
 
- - Added mobile-friendly content cards
+ - Many mobile-friendly updates across the app
+ - Update French, Portuguese, and Swahili translations
+ - Upgraded Windows installer
 
 
 0.6.0
