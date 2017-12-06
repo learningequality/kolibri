@@ -304,11 +304,19 @@
         wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
       handleSeek() {
+        // record progress before updating the times, to capture any progress that happened pre-seeking
         this.recordProgress();
+
+        // now, update all the timestamps to set the new time location as the baseline starting point
         this.dummyTime = this.player.currentTime();
         this.lastUpdateTime = this.dummyTime;
+        this.progressStartingPoint = this.dummyTime;
       },
       updateTime() {
+        // skip out of here if we're currently seeking, so we don't update this.dummyTime before calculating old progress
+        if (this.player.seeking()) {
+          return;
+        }
         this.dummyTime = this.player.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
@@ -316,7 +324,10 @@
         }
       },
       setPlayState(state) {
-        this.recordProgress();
+        // avoid recording progress if we're currently seeking, as timers are in an intermediate state
+        if (!this.player.seeking()) {
+          this.recordProgress();
+        }
         if (state === true) {
           this.$emit('startTracking');
         } else {
