@@ -53,4 +53,4 @@ is already deployed around the world.
 How can I contribute?
 ---------------------
 
-Thanks for your interest! Please see the 'contributing' section of our `online documentation <http://kolibri.readthedocs.io/>`_.
+Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/contributing/>`_ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`_.
