@@ -48,8 +48,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kSelect from 'kolibri.coreVue.components.kSelect';
 
-  import omit from 'lodash/omit';
-
   const mobileNumberOfLanguageButtons = 5;
   const desktopNumberOfLanguageButtons = 3;
 
@@ -75,13 +73,7 @@
         return allLanguages[currentLanguage].lang_name;
       },
       remainingLanguages() {
-        const remainingLanguages = Object.values(omit(allLanguages, [currentLanguage]));
-        remainingLanguages.sort((lang1, lang2) => {
-          // puts words with foreign characters first in the array
-          return lang2.lang_name.localeCompare(lang1.lang_name);
-        });
-
-        return remainingLanguages;
+        return this.languageOptions.filter(lang => lang.id !== currentLanguage);
       },
       numberOfLanguageButtons() {
         let numBtns = this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
