@@ -402,6 +402,8 @@
 
   @require '~kolibri.styles.definitions'
 
+  /*!!rtl:begin:ignore*/
+
   $dark-grey = #212121
   $grey = #303030
   $light-grey = #424242
@@ -642,5 +644,7 @@
     /* Adjust forward button position. */
     .vjs-icon-forward_10
       left: 75%
+
+  /*!!rtl:end:ignore*/
 
 </style>
