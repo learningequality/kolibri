@@ -2,7 +2,11 @@
 
   <div>
     <h1 class="header">{{ $tr('classGroups') }}</h1>
-    <report-subheading />   
+    
+    <report-subheading 
+      :group="ungroupedUsersObject"
+      :isUngrouped="true"
+    />   
     
     <k-button
       :text="$tr('newGroup')"

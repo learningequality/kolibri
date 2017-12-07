@@ -4,7 +4,7 @@
     <sub v-if="pageName === exam && !exams.length ">{{ $tr('noExams') }}</sub>
     <sub v-if="pageName === general && standardDataTable.length">{{ $tr('subHeading' , { threshold }) }}</sub>
     <sub v-if="pageName === learners && !standardDataTable.length">{{ $tr('noLearners') }}</sub>
-    <sub v-if="pageName === groups">{{ $tr('noGroups') }}</sub>
+    <sub v-if="pageName === groups && !group.users.length">{{ $tr('noGroups') }}</sub>
   </div>
 </template>
 
@@ -23,6 +23,15 @@
       noLearners: 'You do not have any learners registered yet',
       noGroups: 'You do not have any groups created yet. Start by creating a new one below',
       subHeading: 'Only showing activity in past {threshold} days',
+    },
+    props: {
+      group: {
+        type: Object,
+        required: true,
+        validator(group) {
+          return group.name && group.users;
+        },
+      },
     },
     data: () => ({
       recent: PageNames.RECENT_CHANNELS,
@@ -46,5 +55,6 @@
   };
 
 </script>
+
 
 <style lang="stylus" scoped></style>
