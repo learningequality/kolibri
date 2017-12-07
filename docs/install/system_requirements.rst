@@ -7,7 +7,7 @@ Operating systems
 -----------------
 
  - Windows Vista, 7, 8.1, 10
- - Debian/Ubuntu: 14.04, 15.10, 16.04 - anything that's *not* end-of-life.
+ - Debian/Ubuntu: 14.04, 16.04 and up - anything that's *not* end-of-life.
  - Linux: Any system with Python 2.7
  - Mac OSX 10.9, 10.10 and 10.11
  - Debian/Raspberry Pi packages: Wheezy or later
@@ -39,7 +39,7 @@ Videos are MP4 encoded, and require no aditional installation of plugins or code
 Hardware requirements
 ---------------------
 
-``TODO - REVIEW this whole section``
+.. tip:: You can download the full `Kolibri Hardware Guide <https://learningequality.org/r/hardware-guide>`_ and examples of `Hardware Configurations for Kolibri <https://learningequality.org/r/hardware>`_ as PDF documents.
 
 Clients
 ^^^^^^^

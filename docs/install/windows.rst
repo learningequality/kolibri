@@ -8,7 +8,7 @@ To install or uninstall Kolibri on Windows, follow these steps.
 Install
 -------
 
-#. Download the Kolibri `Windows installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0-beta6>`_ (``EXE`` file).
+#. Download the Kolibri `Windows installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0>`_ (``EXE`` file).
 #. Double-click the downloaded ``.exe`` file.
 #. Select the language for the installation.
 #. Follow the instructions in the installation wizard window.

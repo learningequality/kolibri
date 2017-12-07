@@ -19,7 +19,7 @@ Install
 	b. Under **Personal**, tap **Security**.
 	c. Under **Device administration**, tap **Unknown sources**.
 
-#. Download the **Kolibri** `Android installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0-beta6>`_ (``APK`` file).
+#. Download the **Kolibri** `Android installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0>`_ (``APK`` file).
 #. Tap the downloaded .apk file.
 #. Wait until the installation finishes.
 #. Once you have **Kolibri** installed, tap **Open** and proceed with the :ref:`setup_initial` of your facility. 
