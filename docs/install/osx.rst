@@ -1,16 +1,17 @@
-Mac OSX
-=======
 .. _osx:
 
+MacOS
+=====
+
 .. warning::
-  Full OSX installer is not yet available, but you can run Kolibri in Terminal using the package called ``PEX``.
+  Full macOS installer is not yet available, but you can run Kolibri in Terminal using the package called ``PEX``.
 
 
 Install
 -------
 
-#. Download the `Kolibri installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0-beta6>`_ (``PEX`` file).
-#. Open the Terminal in the folder where ``PEX`` file is located and run the command:
+#. Download the `Kolibri PEX installer <https://learningequality.org/r/kolibri-pex-latest>`_.
+#. Open Terminal in the folder where ``PEX`` file is located and run the command:
 
   .. code-block:: bash
 
@@ -29,6 +30,6 @@ Upgrade
 
 To upgrade Kolibri, follow these steps.
 
-#. Download the new version of `Kolibri installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0-beta6>`_ (``PEX`` file).
+#. Download the new version of `Kolibri PEX installer <https://learningequality.org/r/kolibri-pex-latest>`_.
 #. Start Kolibri as during the first install.
 #. Go explore the new and improved Kolibri features!
