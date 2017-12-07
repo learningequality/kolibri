@@ -394,6 +394,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         resp = {
             "id": studioresp["id"],
+            "description": studioresp.get("description"),
             "name": studioresp["name"],
             "lang_code": studioresp.get("language"),
             "lang_name": channel_lang_name,
