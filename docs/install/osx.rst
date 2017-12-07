@@ -10,7 +10,7 @@ MacOS
 Install
 -------
 
-#. Download the `Kolibri installer <https://github.com/learningequality/kolibri/releases/tag/v0.7.0>`_ (``PEX`` file).
+#. Download the `Kolibri PEX installer <https://learningequality.org/r/kolibri-pex-latest>`_.
 #. Open Terminal in the folder where ``PEX`` file is located and run the command:
 
   .. code-block:: bash
@@ -30,6 +30,6 @@ Upgrade
 
 To upgrade Kolibri, follow these steps.
 
-#. Download the new version of `Kolibri installer <https://github.com/learningequality/kolibri/releases/>`_ (``PEX`` file).
+#. Download the new version of `Kolibri PEX installer <https://learningequality.org/r/kolibri-pex-latest>`_.
 #. Start Kolibri as during the first install.
 #. Go explore the new and improved Kolibri features!
