@@ -131,6 +131,7 @@ def setup(app):
     # Add our custom CSS overrides
     app.add_stylesheet('theme_overrides.css')
 
+
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
