@@ -1,3 +1,5 @@
-CONNECTION_PRAGMAS = "PRAGMA wal_autocheckpoint=500;"
+# CONNECTION_PRAGMAS = "PRAGMA wal_autocheckpoint=500;"
+CONNECTION_PRAGMAS = ""
 
-START_PRAGMAS = "PRAGMA journal_mode=WAL;"
+# START_PRAGMAS = "PRAGMA journal_mode=WAL;"
+START_PRAGMAS = ""
