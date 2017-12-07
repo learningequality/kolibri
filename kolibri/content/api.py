@@ -257,7 +257,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def descendants(self, request, **kwargs):
         node = self.get_object(prefetch=False)
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants()
+        descendants = node.get_descendants().filter(available=True)
         if kind:
             descendants = descendants.filter(kind=kind)
 
@@ -281,7 +281,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()
-        next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
+        next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
@@ -394,6 +394,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         resp = {
             "id": studioresp["id"],
+            "description": studioresp.get("description"),
             "name": studioresp["name"],
             "lang_code": studioresp.get("language"),
             "lang_name": channel_lang_name,
