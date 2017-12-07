@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'kolibri.core.exams',
     'kolibri.core.device',
     'kolibri.core.discovery',
+    'kolibri.core.analytics',
     'rest_framework',
     'django_js_reverse',
     'jsonfield',
@@ -145,15 +146,18 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
+# For language names, see:
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# http://helpsharepointvision.nevron.com/Culture_Table.html
+
 LANGUAGES = [
     ('en', 'English'),
     ('sw-tz', 'Kiswahili'),
     ('es-es', 'Español'),
-    ('es-mx', 'Español (México)'),
     ('fr-fr', 'Français'),
-    ('pt-pt', 'Português'),
-    ('hi-in', 'हिंदी'),
-    ('ar-eg', 'العَرَبِيَّة‎‎')
+    ('ar', 'العَرَبِيَّة‎‎'),
+    ('fa', 'فارسی'),
+    ('ur-pk', 'اُردو (پاکستان)‏'),
 ]
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
@@ -310,3 +314,6 @@ ENABLE_DATA_BOOTSTRAPPING = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+# morango specific settings
+MORANGO_JSON_SERIALIZER_CLASS = "kolibri.auth.encoders"

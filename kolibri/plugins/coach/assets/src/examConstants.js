@@ -9,4 +9,6 @@ const Modals = {
   PREVIEW_NEW_EXAM: 'PREVIEW_NEW_EXAM',
 };
 
-export { Modals };
+const EXAM_MODIFICATION_SNACKBAR = 'EXAM_MODIFICATION_SNACKBAR';
+
+export { Modals, EXAM_MODIFICATION_SNACKBAR };

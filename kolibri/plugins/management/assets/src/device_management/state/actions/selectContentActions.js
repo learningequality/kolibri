@@ -17,12 +17,17 @@ export function showSelectContentPage(store) {
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
 
   // Downloading the Content Metadata DB
-  if (channelOnDevice) {
+  if (!channelOnDevice) {
+    // Update metadata when no content has been downloaded
+    dbPromise = downloadChannelMetadata(store);
+  } else if (!channelOnDevice.available && channelOnDevice.version < transferredChannel.version) {
+    // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
+    // _and_ has been updated, then download the metadata
+    dbPromise = downloadChannelMetadata(store);
+  } else {
     // If already on device, then skip the DB download, and use on-device
     // Channel metadata, since it has root id.
     dbPromise = Promise.resolve(channelOnDevice);
-  } else {
-    dbPromise = downloadChannelMetadata(store);
   }
 
   // Hydrating the store with the Channel Metadata
@@ -30,7 +35,11 @@ export function showSelectContentPage(store) {
     .then(channel => {
       // The channel objects are not consistent if they come from different workflows.
       // Replacing them here with canonical type from ChannelResource.
-      store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+      store.dispatch('SET_TRANSFERRED_CHANNEL', {
+        ...channel,
+        version: transferredChannel.version,
+        public: transferredChannel.public,
+      });
       navigateToTopicUrl({ title: channel.name, pk: channel.root });
     })
     .catch(({ errorType }) => {

@@ -52,6 +52,8 @@
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
+  import { installedChannelsWithResources } from '../../state/getters';
+
   export default {
     name: 'channelsGrid',
     components: {
@@ -70,7 +72,7 @@
       },
       selectedChannelTitle() {
         if (this.channelIsSelected) {
-          return this.channelList.find(channel => channel.id === this.selectedChannelId).name;
+          return this.sortedChannels.find(channel => channel.id === this.selectedChannelId).name;
         }
         return '';
       },
@@ -78,10 +80,7 @@
         return this.sortedChannels.length === 0 && !this.channelsLoading;
       },
       sortedChannels() {
-        return this.channelList
-          .slice()
-          .sort((c1, c2) => c1.name > c2.name)
-          .filter(channel => channel.on_device_resources > 0);
+        return this.installedChannelsWithResources.slice().sort((c1, c2) => c1.name > c2.name);
       },
     },
     created() {
@@ -100,7 +99,7 @@
     },
     vuex: {
       getters: {
-        channelList: state => state.pageState.channelList,
+        installedChannelsWithResources,
         pageState: state => state.pageState,
       },
       actions: {

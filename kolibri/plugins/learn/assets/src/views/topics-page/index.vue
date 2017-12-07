@@ -2,14 +2,13 @@
 
   <div>
 
-    <page-header :title="topic.title">
-      <div slot="icon">
-        <mat-svg v-if="isRoot" category="action" name="explore" />
-        <mat-svg v-else category="file" name="folder" />
-      </div>
-    </page-header>
+    <page-header :title="topic.title" />
 
-    <p class="page-description" v-if="topic.description">
+    <p
+      v-if="topic.description"
+      dir="auto"
+      class="page-description ta-l"
+    >
       {{ topic.description }}
     </p>
 
@@ -76,5 +75,8 @@
     margin-top: 1em
     margin-bottom: 1em
     line-height: 1.5em
+
+  .ta-l
+    text-align: left
 
 </style>

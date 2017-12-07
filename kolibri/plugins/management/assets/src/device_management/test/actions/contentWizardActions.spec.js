@@ -66,6 +66,10 @@ describe('transitionWizardPage action', () => {
   const transferType = () => wizardState(store.state).transferType;
   const selectedDrive = () => wizardState(store.state).selectedDrive;
 
+  before(() => {
+    TaskResource.localDrives = sinon.stub();
+  });
+
   beforeEach(() => {
     store = makeStore();
 
@@ -76,6 +80,7 @@ describe('transitionWizardPage action', () => {
 
   afterEach(() => {
     showSelectContentPageStub.restore();
+    TaskResource.localDrives.reset();
   });
 
   it('REMOTEIMPORT flow correctly updates wizardState', () => {
@@ -84,7 +89,12 @@ describe('transitionWizardPage action', () => {
       { id: 'public_channel_2', name: 'Public Channel Two' },
     ];
     // makes call to RemoteChannel API
-    const fetchSpy = RemoteChannelResource.__getCollectionFetchReturns(publicChannels).fetch;
+    let fetchSpy = sinon.stub().returns({
+      _promise: Promise.resolve(publicChannels),
+    });
+    RemoteChannelResource.getCollection.returns({
+      fetch: fetchSpy,
+    });
 
     // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
     transitionWizardPage(store, 'forward', { import: true });
@@ -99,7 +109,7 @@ describe('transitionWizardPage action', () => {
         // Calls from inside showAvailableChannelsPage
         sinon.assert.calledOnce(RemoteChannelResource.getCollection);
         sinon.assert.calledOnce(fetchSpy);
-        assert.equal(availableChannels(store.state), publicChannels);
+        assert.deepEqual(availableChannels(store.state), publicChannels);
 
         // STEP 3 - pick first channel -> SELECT_CONTENT
         return transitionWizardPage(store, 'forward', {
@@ -115,7 +125,7 @@ describe('transitionWizardPage action', () => {
   });
 
   it('LOCALIMPORT flow correctly updates wizardState', () => {
-    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(
+    TaskResource.localDrives.returns(
       Promise.resolve({
         entity: [],
       })
@@ -146,12 +156,11 @@ describe('transitionWizardPage action', () => {
       })
       .then(() => {
         sinon.assert.calledOnce(showSelectContentPageStub);
-        localDrivesStub.restore();
       });
   });
 
   it('LOCALEXPORT flow correctly updates wizardState', () => {
-    const localDrivesStub = sinon.stub(TaskResource, 'localDrives').returns(
+    TaskResource.localDrives.returns(
       Promise.resolve({
         entity: [],
       })
@@ -176,7 +185,50 @@ describe('transitionWizardPage action', () => {
       })
       .then(() => {
         sinon.assert.calledOnce(showSelectContentPageStub);
-        localDrivesStub.restore();
       });
+  });
+
+  it('in all modes, going back from SELECT_CONTENT to AVAILABLE_CHANNELS should reset parts of wizardState', () => {
+    // Putting unrealistic data into state to emphasize the generality of this behavior
+    const initial = {
+      currentTopicNode: {
+        id: 'currentTopicNode',
+      },
+      nodesForTransfer: {
+        included: [1, 2, 3],
+        omitted: [4, 5, 6],
+      },
+      pageName: 'SELECT_CONTENT',
+      availableSpace: 123123123,
+      availableChannels: ['a', 'b', 'c'],
+      driveList: ['c', 'd', 'e'],
+      selectedDrive: {
+        foo: 'bar',
+      },
+      transferType: 'intergalatic',
+      path: [{ bar: 'foo', baz: 'buzz' }],
+      status: 'awesome',
+      pathCache: { a: { b: 1 } },
+      transferredChannel: {
+        id: 'channelios',
+      },
+    };
+    const expected = {
+      ...initial,
+      currentTopicNode: {},
+      nodesForTransfer: {
+        included: [],
+        omitted: [],
+      },
+      pageName: 'AVAILABLE_CHANNELS',
+      path: [],
+      status: '',
+      pathCache: {},
+      transferredChannel: {},
+    };
+    store.state.pageState.wizardState = { ...initial };
+    return transitionWizardPage(store, 'backward').then(() => {
+      assert.deepEqual(wizardState(store.state), expected);
+    });
   });
 });

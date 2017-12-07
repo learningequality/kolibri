@@ -178,12 +178,18 @@
           options.push({
             label: this.$tr('signOut'),
             icon: 'exit_to_app',
+            iconProps: {
+              mirror: this.isRtl,
+            },
             action: this.signOut,
           });
         } else {
           options.push({
             label: this.$tr('signIn'),
             icon: 'exit_to_app',
+            iconProps: {
+              mirror: this.isRtl,
+            },
             href: '/user',
           });
         }

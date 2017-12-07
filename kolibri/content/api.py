@@ -45,7 +45,7 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all()
+        return models.ChannelMetadata.objects.all().order_by('-last_updated')
 
 
 class IdFilter(filters.FilterSet):
@@ -257,7 +257,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def descendants(self, request, **kwargs):
         node = self.get_object(prefetch=False)
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants()
+        descendants = node.get_descendants().filter(available=True)
         if kind:
             descendants = descendants.filter(kind=kind)
 
@@ -281,7 +281,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()
-        next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
+        next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
@@ -354,13 +354,12 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             raise Http404(
                 _("The requested channel does not exist on the content server")
             )
-        cache.set(cache_key, resp.json(), 60 * 10)
 
         kolibri_mapped_response = []
         for channel in resp.json():
             kolibri_mapped_response.append(self._studio_response_to_kolibri_response(channel))
 
-        cache.set(cache_key, kolibri_mapped_response, 60 * 10)
+        cache.set(cache_key, kolibri_mapped_response, 5)
 
         return Response(kolibri_mapped_response)
 
@@ -395,6 +394,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         resp = {
             "id": studioresp["id"],
+            "description": studioresp.get("description"),
             "name": studioresp["name"],
             "lang_code": studioresp.get("language"),
             "lang_name": channel_lang_name,
@@ -420,6 +420,17 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         Gets metadata about a channel through a token or channel id.
         """
         return self._cache_kolibri_studio_channel_request(identifier=pk)
+
+    @list_route(methods=['get'])
+    def kolibri_studio_status(self, request, **kwargs):
+        try:
+            resp = requests.get(get_channel_lookup_url())
+            if resp.status_code == 404:
+                raise requests.ConnectionError("Kolibri studio URL is incorrect!")
+            else:
+                return Response({"status": "online"})
+        except requests.ConnectionError:
+            return Response({"status": "offline"})
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):

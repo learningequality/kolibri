@@ -6,7 +6,7 @@
     </transition>
 
     <div>
-      <top-navigation />
+      <top-navigation v-if="canManageContent" />
       <component :is="currentPage" />
     </div>
   </core-base>
@@ -17,6 +17,7 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import topNavigation from './device-top-nav';
@@ -54,6 +55,7 @@
       getters: {
         pageName: ({ pageName }) => pageName,
         welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
+        canManageContent,
       },
       actions: {
         hideWelcomeModal(store) {

@@ -10,12 +10,15 @@
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
+        :showButtons="false"
         :cancellable="false"
+        id="updatingchannel"
       />
       <task-progress
-        v-if="tasksInQueue"
+        v-else-if="taskInProgress"
         type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="firstTask"
+        :showButtons="false"
         :cancellable="false"
       />
 
@@ -30,10 +33,7 @@
         </ui-alert>
       </section>
 
-      <section
-        v-if="channelOnDevice.on_device_resources > 0"
-        class="updates"
-      >
+      <section v-if="onDeviceInfoIsReady" class="updates">
         <div
           class="updates-available"
           v-if="newVersionAvailable"
@@ -76,8 +76,8 @@
         <!-- Contains size estimates + submit button -->
         <selected-resources-size
           :mode="mode"
-          :fileSize="nodeTransferCounts.fileSize"
-          :resourceCount="nodeTransferCounts.resources"
+          :fileSize="nodeCounts.fileSize"
+          :resourceCount="nodeCounts.resources"
           :spaceOnDrive="availableSpace"
           @clickconfirm="startTransferringContent()"
         />
@@ -109,7 +109,7 @@
   } from '../../state/actions/contentTransferActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
-  import { PageNames } from '../../constants';
+  import { PageNames, TaskStatuses } from '../../constants';
 
   export default {
     name: 'selectContentPage',
@@ -150,6 +150,12 @@
           name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
         };
       },
+      taskInProgress() {
+        return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
+      },
+      nodeCounts() {
+        return this.nodeTransferCounts(this.transferType);
+      },
     },
     mounted() {
       this.getAvailableSpaceOnDrive();
@@ -185,7 +191,7 @@
         nodeTransferCounts,
         onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
         selectedItems: state => wizardState(state).nodesForTransfer || {},
-        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
+        transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
       },
       actions: {

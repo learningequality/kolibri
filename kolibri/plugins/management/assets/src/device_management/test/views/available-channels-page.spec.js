@@ -22,8 +22,8 @@ const availableChannels = [
   {
     name: 'Awesome Channel',
     id: 'awesome_channel',
-    language_code: 'en',
-    language: 'English',
+    lang_code: 'en',
+    lang_name: 'English',
     total_resources: 100,
   },
   {
@@ -34,15 +34,15 @@ const availableChannels = [
   {
     name: 'Hunden Channel',
     id: 'hunden_channel',
-    language_code: 'de',
-    language: 'German',
+    lang_code: 'de',
+    lang_name: 'German',
     total_resources: 100,
   },
   {
     name: 'Kaetze Channel',
     id: 'kaetze_channel',
-    language_code: 'de',
-    language: 'German',
+    lang_code: 'de',
+    lang_name: 'German',
     total_resources: 100,
   },
 ];
@@ -52,9 +52,13 @@ const channelsOnDevice = cloneDeep(availableChannels);
 // Pretending that metadata has been downloaded previously for Bird & Hunden channel,
 // but no resources. Awesome & Kaetze channel have some resources.
 channelsOnDevice[0].on_device_resources = 90;
+channelsOnDevice[0].available = true;
 channelsOnDevice[1].on_device_resources = 0;
+channelsOnDevice[1].available = false;
 channelsOnDevice[2].on_device_resources = 0;
+channelsOnDevice[2].available = false;
 channelsOnDevice[3].on_device_resources = 90;
+channelsOnDevice[3].available = true;
 
 function makeStore() {
   return new Vuex.Store({

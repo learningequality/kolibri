@@ -48,20 +48,20 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
 
 
-class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
+class AnonUserCanReadFacilities(DenyAll):
     """
-    Permissions class that allows reading the object if user is anonymous and facility settings allows learner sign ups.
+    Permissions class that allows reading the object if user is anonymous.
     """
 
     def user_can_read_object(self, user, obj):
         if obj.kind == FACILITY:
-            return isinstance(user, AnonymousUser) and obj.dataset.learner_can_sign_up
+            return isinstance(user, AnonymousUser)
         else:
             return False
 
     def readable_by_user_filter(self, user, queryset):
         if isinstance(user, AnonymousUser):
-            return queryset.filter(dataset__learner_can_sign_up=True, kind=FACILITY)
+            return queryset.filter(kind=FACILITY)
         return queryset.none()
 
 

@@ -1,7 +1,10 @@
 /* eslint-env node */
+import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
+
+const logging = logger.getLogger(__filename);
 
 export function cancelTask(store, taskId) {
   return TaskResource.cancelTask(taskId).then(function onSuccess() {
@@ -46,11 +49,15 @@ function _taskListShouldUpdate(state, newTasks) {
 export function refreshTaskList(store) {
   // This uses TaskResource.getTasks instead of .getCollection because
   // .getCollection mutates values in store.state such that _taskListShouldUpdate doesn't work
-  return TaskResource.getTasks().then(({ entity: newTasks }) => {
-    if (_taskListShouldUpdate(store.state, newTasks)) {
-      updateTasks(store, newTasks);
-    }
-  });
+  return TaskResource.getTasks()
+    .then(({ entity: newTasks }) => {
+      if (_taskListShouldUpdate(store.state, newTasks)) {
+        updateTasks(store, newTasks);
+      }
+    })
+    .catch(error => {
+      logging.error('There was an error while fetching the task list: ', error);
+    });
 }
 
 /**

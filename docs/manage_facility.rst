@@ -1,4 +1,4 @@
-.. _manage_facility:
+.. _manage_facility_ref:
 
 Manage Facility
 ~~~~~~~~~~~~~~~~

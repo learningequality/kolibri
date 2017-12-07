@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 18:14+0000\n"
-"PO-Revision-Date: 2017-07-28 17:27-0400\n"
+"POT-Creation-Date: 2017-11-22 18:11-0800\n"
+"PO-Revision-Date: 2017-12-05 00:33-0500\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -14,9 +14,10 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: sw-TZ\n"
-"X-Crowdin-File: /release-v0.5.x/en/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
+#: kolibri/plugins/management/kolibri_plugin.py:29
 msgid "Facility"
 msgstr "Kituo"
 
@@ -36,43 +37,71 @@ msgstr "Msimamizi"
 msgid "Coach"
 msgstr "Elekeza"
 
-#: kolibri/auth/models.py:157
+#: kolibri/auth/models.py:210
 msgid "username"
 msgstr "jina la mtumiaji"
 
-#: kolibri/auth/models.py:159
+#: kolibri/auth/models.py:212
 msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr "Inahitajika. Herufi 30 au pungufu. Herufi na tarakimu tu"
 
-#: kolibri/auth/models.py:163
-msgid "Enter a valid username. This value may contain only letters and numbers."
-msgstr "Ingiza jina halali la mtumiaji. Thamani hii inaweza kuwa na herufi na nambari tu."
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "Ingiza jina sahihi la mtumiaji. Taarifa hii inaweza kuhusisha herufi, tarakimu au vistari vya chini tu."
 
-#: kolibri/auth/models.py:167
+#: kolibri/auth/models.py:220
 msgid "full name"
 msgstr "jina kamili"
 
-#: kolibri/auth/models.py:168
+#: kolibri/auth/models.py:221
 msgid "date joined"
 msgstr "tarehe ya kujiunga"
 
-#: kolibri/auth/serializers.py:27
+#: kolibri/auth/serializers.py:31
 msgid "An account with that username already exists"
 msgstr "Akaunti na jina hilo la mtumiaji tayari ipo"
 
-#: kolibri/content/models.py:215
-msgid "Unknown format"
-msgstr "Muundo halijulikani"
+#: kolibri/content/api.py:355
+msgid "The requested channel does not exist on the content server"
+msgstr "Kipengele kilichoombwa hakipo kwenye kumbukumbu ya yaliyomo"
 
-#: kolibri/core/templates/kolibri/base.html:11
+#: kolibri/content/models.py:183
+msgid "Unknown format"
+msgstr "Muundo haujulikani"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Lugha haikubaliani na Kolibri"
+
+#: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: kolibri/plugins/management/kolibri_plugin.py:29
-msgid "Management"
-msgstr "Usimamizi"
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Kisakuzi hakikubali"
 
-#: kolibri/tasks/api.py:86
-msgid "The requested channel does not exist on the content server"
-msgstr "Kipengere kilichoombwa hakipo kwenye kumbukumbu ya yaliyomo"
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Samahani, toleo la kisakuzi chako halikubali."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Kutumia Kolibri, tunapendekeza matumizi ya Firefox au Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "Lakini pia unaweza kukisasisha kisakuzi chako."
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "Kulikuwa na hitilafu ya kimtandao."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "Kulikuwa na hitilafu ya ufikivu wa diski."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "Kulikuwa na hitilafu isiyojulikana."
 

@@ -100,6 +100,8 @@ describe('selectContentPage', () => {
 
   xit('if there is no thumbnail, it shows a placeholder', () => {});
 
+  xit('if channel is unlisted, shows an icon', () => {});
+
   it('shows the total size of the channel', () => {
     const wrapper = makeWrapper({ store });
     const { totalSizeRows } = getElements(wrapper);

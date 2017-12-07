@@ -3,6 +3,7 @@ import urls from 'kolibri.urls';
 import bytesForHumans from '../../views/manage-content-page/bytesForHumans';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 
 /* Function to fetch device info from the backend
  * and resolve validated data
@@ -23,15 +24,18 @@ export function getDeviceInfo() {
  * @returns Promise<void>
  */
 export function showDeviceInfoPage(store) {
-  const promises = ConditionalPromise.all([getDeviceInfo()]).only(samePageCheckGenerator(store))
-    ._promise;
-  return promises
-    .then(function onSuccess([deviceInfo]) {
-      store.dispatch('SET_DEVICE_INFO_PAGE_STATE', {
-        deviceInfo,
+  if (canManageContent(store.state)) {
+    const promises = ConditionalPromise.all([getDeviceInfo()]).only(samePageCheckGenerator(store))
+      ._promise;
+    return promises
+      .then(function onSuccess([deviceInfo]) {
+        store.dispatch('SET_DEVICE_INFO_PAGE_STATE', {
+          deviceInfo,
+        });
+      })
+      .catch(function onFailure(error) {
+        handleApiError(store, error);
       });
-    })
-    .catch(function onFailure(error) {
-      handleApiError(store, error);
-    });
+  }
+  return Promise.resolve();
 }

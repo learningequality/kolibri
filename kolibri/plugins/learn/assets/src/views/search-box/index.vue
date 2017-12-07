@@ -30,6 +30,7 @@
             type="secondary"
             color="white"
             class="search-submit-button"
+            :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
             :icon="icon"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"

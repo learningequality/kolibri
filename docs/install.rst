@@ -28,3 +28,6 @@ To install **Kolibri**, check the system requirements first and then follow the 
 
 
 .. include:: install/initial_setup.rst
+
+
+.. include:: ../CHANGELOG.rst

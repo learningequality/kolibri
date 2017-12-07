@@ -115,14 +115,14 @@
         <nav>
           <ui-icon-button
             type="primary"
-            icon="chevron_left"
+            :icon="isRtl? 'chevron_right' : 'chevron_left'"
             :ariaLabel="$tr('previousResults')"
             :disabled="pageNum === 1"
             size="small"
             @click="goToPage(pageNum - 1)" />
           <ui-icon-button
             type="primary"
-            icon="chevron_right"
+            :icon="isRtl? 'chevron_left' : 'chevron_right'"
             :ariaLabel="$tr('nextResults')"
             :disabled="pageNum === numPages"
             size="small"

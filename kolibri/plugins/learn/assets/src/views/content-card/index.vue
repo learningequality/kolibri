@@ -10,7 +10,7 @@
       :isMobile="isMobile"
     />
 
-    <h3 class="text">{{ title }}</h3>
+    <h3 class="text" dir="auto">{{ title }}</h3>
 
   </router-link>
 
@@ -20,7 +20,6 @@
 <script>
 
   import values from 'lodash/values';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
@@ -29,7 +28,6 @@
     components: {
       cardThumbnail,
     },
-    mixins: [responsiveElement], // not used, but carousel seems to break without it
     props: {
       title: {
         type: String,
