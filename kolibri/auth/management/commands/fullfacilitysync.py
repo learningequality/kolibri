@@ -1,11 +1,12 @@
 import requests
+from django.core.management import call_command
 from django.utils.six.moves import input
 from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions, DeviceSettings
 from kolibri.core.device.utils import device_provisioned
 from kolibri.tasks.management.commands.base import AsyncCommand
-from morango.certificates import Certificate, Filter
+from morango.certificates import Certificate, Filter, ScopeDefinition
 from morango.controller import MorangoProfileController
 from six.moves.urllib.parse import urljoin
 
@@ -88,6 +89,9 @@ class Command(AsyncCommand):
             device_settings.save()
 
     def handle_async(self, *args, **options):
+        # call this in case user directly syncs without migrating database
+        if not ScopeDefinition.objects.filter():
+                call_command("loaddata", "scopedefinitions")
         controller = MorangoProfileController('facilitydata')
         with self.start_progress(total=7) as progress_update:
             network_connection = controller.create_network_connection(options['base_url'])

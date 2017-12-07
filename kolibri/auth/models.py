@@ -27,7 +27,6 @@ import six
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
@@ -501,20 +500,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     class Meta:
         unique_together = (("username", "facility"),)
-
-    def serialize(self, data={}):
-        if not data:
-            data = {}
-        data['last_login'] = DjangoJSONEncoder().encode(self.last_login)
-        return super(FacilityUser, self).serialize(data=data)
-
-    @classmethod
-    def deserialize(cls, dict_model):
-        """Returns an unsaved class object based on the valid properties passed in."""
-        kwargs = {}
-        if dict_model['last_login'] == 'null':
-            kwargs['last_login'] = None
-        return super(FacilityUser, cls).deserialize(dict_model, **kwargs)
 
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)

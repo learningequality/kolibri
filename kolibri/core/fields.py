@@ -85,3 +85,7 @@ class DateTimeTzField(Field):
         if not prepared:
             value = self.get_prep_value(value)
         return value
+
+    def value_from_object_json_compatible(self, obj):
+        if self.value_from_object(obj):
+            return create_timezonestamp(self.value_from_object(obj))
