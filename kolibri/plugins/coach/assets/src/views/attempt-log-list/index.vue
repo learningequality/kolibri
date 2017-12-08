@@ -13,33 +13,33 @@
           }"
           :key="index"
         >
-            <mat-svg
-              v-if="attemptLog.noattempt"
-              class="item svg-item svg-noattempt"
-              category="navigation"
-              name="cancel"
-            />
-            <mat-svg
-              v-else-if="attemptLog.correct"
-              class="item svg-item svg-correct"
-              category="action"
-              name="check_circle"
-            />
-            <mat-svg
-              v-else-if="!attemptLog.correct"
-              class="item svg-item svg-wrong"
-              category="navigation"
-              name="cancel"
-            />
-            <mat-svg
-              v-else-if="attemptLog.hinted"
-              class="item svg-item svg-hint"
-              category="action"
-              name="lightbulb_outline"
-            />
-            <h3 class="item">
-              {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
-            </h3>
+          <mat-svg
+            v-if="attemptLog.noattempt"
+            class="item svg-item svg-noattempt"
+            category="navigation"
+            name="cancel"
+          />
+          <mat-svg
+            v-else-if="attemptLog.correct"
+            class="item svg-item svg-correct"
+            category="action"
+            name="check_circle"
+          />
+          <mat-svg
+            v-else-if="!attemptLog.correct"
+            class="item svg-item svg-wrong"
+            category="navigation"
+            name="cancel"
+          />
+          <mat-svg
+            v-else-if="attemptLog.hinted"
+            class="item svg-item svg-hint"
+            category="action"
+            name="lightbulb_outline"
+          />
+          <h3 class="item">
+            {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
+          </h3>
         </li>
       </template>
     </ul>

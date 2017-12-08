@@ -2,23 +2,23 @@
 
   <subpage-container>
 
-      <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
+    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 
-      <div v-else>
-        <div class="description">
-          <h1>{{ $tr('devicePermissionsHeader') }}</h1>
-          <p>{{ $tr('devicePermissionsDescription') }}</p>
-        </div>
-
-        <div class="filter-box">
-          <k-filter-textbox
-            v-model="searchFilterText"
-            :placeholder="$tr('searchPlaceholder')"
-          />
-        </div>
-
-        <user-grid :searchFilter="searchFilterText" />
+    <div v-else>
+      <div class="description">
+        <h1>{{ $tr('devicePermissionsHeader') }}</h1>
+        <p>{{ $tr('devicePermissionsDescription') }}</p>
       </div>
+
+      <div class="filter-box">
+        <k-filter-textbox
+          v-model="searchFilterText"
+          :placeholder="$tr('searchPlaceholder')"
+        />
+      </div>
+
+      <user-grid :searchFilter="searchFilterText" />
+    </div>
 
   </subpage-container>
 

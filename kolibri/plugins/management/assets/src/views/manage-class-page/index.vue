@@ -2,9 +2,8 @@
 
   <div>
 
-    <div 
-      class="header">
-        <h1>{{ $tr('allClasses') }}</h1>
+    <div class="header">
+      <h1>{{ $tr('allClasses') }}</h1>
 
       <k-button
         class="create-btn"
@@ -168,7 +167,7 @@
     display: block
     top: 0
     right: 0
-  
+
   .create-btn-mobile
     position: relative
     display: inline-block

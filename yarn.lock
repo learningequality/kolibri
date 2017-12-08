@@ -1307,7 +1307,7 @@ de-indent@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/de-indent/-/de-indent-1.0.2.tgz#b2038e846dc33baa5796128d0804b455b8c1e21d"
 
-debug@*, debug@3.1.0, debug@^3.0.0, debug@^3.0.1:
+debug@*, debug@3.1.0, debug@^3.0.1, debug@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   dependencies:
@@ -1782,12 +1782,12 @@ eslint-plugin-import@^2.7.0:
     minimatch "^3.0.3"
     read-pkg-up "^2.0.0"
 
-eslint-plugin-vue@beta:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-3.13.0.tgz#77dbe45c42ac56503cc0f2e2612911a439e96304"
+"eslint-plugin-vue@https://github.com/vuejs/eslint-plugin-vue/#1ac12f567dc8d13c9d4c92ac7f650dd446006eef":
+  version "4.0.0-beta.2"
+  resolved "https://github.com/vuejs/eslint-plugin-vue/#1ac12f567dc8d13c9d4c92ac7f650dd446006eef"
   dependencies:
     requireindex "^1.1.0"
-    vue-eslint-parser "^2.0.1-beta.0"
+    vue-eslint-parser "^2.0.1-beta.1"
 
 eslint-scope@^3.7.1:
   version "3.7.1"
@@ -1838,7 +1838,7 @@ eslint@^4.2.0:
     table "^4.0.1"
     text-table "~0.2.0"
 
-espree@^3.3.2, espree@^3.5.1:
+espree@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/espree/-/espree-3.5.1.tgz#0c988b8ab46db53100a1954ae4ba995ddd27d87e"
   dependencies:
@@ -6087,13 +6087,13 @@ vue-add-globals@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/vue-add-globals/-/vue-add-globals-2.0.1.tgz#c9fba6faac44f679ec15d5a9637f518b181fc44d"
 
-vue-eslint-parser@^2.0.1-beta.0:
-  version "2.0.1-beta.1"
-  resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-2.0.1-beta.1.tgz#7e1b3c0865905264605169497fe9e42d27c1ae60"
+vue-eslint-parser@^2.0.1-beta.1:
+  version "2.0.1-beta.2"
+  resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-2.0.1-beta.2.tgz#82e5130ac18ae4b0c894a7c831b55ec92478fa2f"
   dependencies:
-    debug "^3.0.0"
+    debug "^3.1.0"
     eslint-scope "^3.7.1"
-    espree "^3.3.2"
+    espree "^3.5.1"
     esquery "^1.0.0"
     lodash "^4.17.4"
 

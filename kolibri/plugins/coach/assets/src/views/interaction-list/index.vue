@@ -1,7 +1,7 @@
 <template>
 
   <div class="interaction-list">
-  <!--TODO-->
+    <!--TODO-->
     <template v-if="interactions.length">
       <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
       <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>

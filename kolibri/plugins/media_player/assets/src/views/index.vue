@@ -5,9 +5,9 @@
       <loading-spinner />
     </div>
     <div
-       v-show="!loading"
-       class="fill-space"
-       :class="{ 'mimic-fullscreen': mimicFullscreen }">
+      v-show="!loading"
+      class="fill-space"
+      :class="{ 'mimic-fullscreen': mimicFullscreen }">
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">

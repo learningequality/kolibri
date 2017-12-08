@@ -2,17 +2,17 @@
 
   <div>
 
-      <div class="card-group-details">
+    <div class="card-group-details">
 
-        <h2 v-if="header" class="card-group-details-header">
-          {{ header }}
-        </h2>
+      <h2 v-if="header" class="card-group-details-header">
+        {{ header }}
+      </h2>
 
-        <span v-if="showViewMore" class="card-group-details-view-more">
-          <k-router-link :text="$tr('viewMoreFromSectionButton')" :to="viewMorePageLink" />
-        </span>
+      <span v-if="showViewMore" class="card-group-details-view-more">
+        <k-router-link :text="$tr('viewMoreFromSectionButton')" :to="viewMorePageLink" />
+      </span>
 
-      </div>
+    </div>
 
   </div>
 

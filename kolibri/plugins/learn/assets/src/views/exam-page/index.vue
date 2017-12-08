@@ -19,26 +19,26 @@
           <div class="outer-container">
             <div class="answer-history-container column">
               <answer-history
-              :questionNumber="questionNumber"
-              @goToQuestion="goToQuestion" />
+                :questionNumber="questionNumber"
+                @goToQuestion="goToQuestion" />
             </div>
-          <div class="exercise-container column">
-            <content-renderer
-              class="content-renderer"
-              ref="contentRenderer"
-              v-if="itemId"
-              :id="content.id"
-              :kind="content.kind"
-              :files="content.files"
-              :contentId="content.content_id"
-              :channelId="channelId"
-              :available="content.available"
-              :extraFields="content.extra_fields"
-              :itemId="itemId"
-              :assessment="true"
-              :allowHints="false"
-              :answerState="currentAttempt.answer"
-              @interaction="throttledSaveAnswer" />
+            <div class="exercise-container column">
+              <content-renderer
+                class="content-renderer"
+                ref="contentRenderer"
+                v-if="itemId"
+                :id="content.id"
+                :kind="content.kind"
+                :files="content.files"
+                :contentId="content.content_id"
+                :channelId="channelId"
+                :available="content.available"
+                :extraFields="content.extra_fields"
+                :itemId="itemId"
+                :assessment="true"
+                :allowHints="false"
+                :answerState="currentAttempt.answer"
+                @interaction="throttledSaveAnswer" />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>

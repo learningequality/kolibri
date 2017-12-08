@@ -6,7 +6,8 @@
         'language-list-selected',
         'language-list-items',
         (isMobile ? 'mobile' : '')
-      ]">
+      ]"
+    >
       <div class="language-list-selected-label">
         {{ $tr('selectedLanguageLabel') }}
       </div>

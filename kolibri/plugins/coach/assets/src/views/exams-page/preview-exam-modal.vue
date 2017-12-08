@@ -41,9 +41,9 @@
             :itemId="itemId"
             :assessment="true"
             :allowHints="false" />
-          </div>
+        </div>
       </div>
-      </div>
+    </div>
   </core-modal>
 
 </template>
