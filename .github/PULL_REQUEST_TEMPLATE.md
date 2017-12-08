@@ -35,7 +35,7 @@ Using the PR template:
 
 ### Contributor Checklist
 
-- [ ] PR has the correct target target branch and milestone
+- [ ] PR has the correct target branch and milestone
 - [ ] PR has 'needs review' or 'work-in-progress' label
 - [ ] Contributor has fully tested the PR manually
 - [ ] Screenshots of any front-end changes are in the PR description
