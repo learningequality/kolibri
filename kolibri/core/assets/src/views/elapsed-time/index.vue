@@ -40,7 +40,11 @@
       monthsAgo: '{n, number, integer} {n, plural, one {month} other {months} } ago',
       yearsAgo: '{n, number, integer} {n, plural, one {year} other {years} } ago',
     },
-    props: ['date'],
+    props: {
+      date: {
+        type: Date,
+      },
+    },
     data: () => ({
       now: now(),
       timer: null,

@@ -85,7 +85,11 @@
       pageComponent,
     },
     mixins: [responsiveWindow, responsiveElement],
-    props: ['defaultFile'],
+    props: {
+      defaultFile: {
+        type: Object,
+      },
+    },
     data: () => ({
       isFullscreen: false,
       progress: 0,

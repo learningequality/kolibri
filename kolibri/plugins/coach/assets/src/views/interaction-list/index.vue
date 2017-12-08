@@ -42,8 +42,13 @@
         type: Array,
         required: true,
       },
-      selectedInteractionIndex: {},
-      attemptNumber: { required: true },
+      selectedInteractionIndex: {
+        type: Number,
+      },
+      attemptNumber: {
+        type: Number,
+        required: true,
+      },
     },
     methods: {
       setCurrentInteractionIndex(index) {

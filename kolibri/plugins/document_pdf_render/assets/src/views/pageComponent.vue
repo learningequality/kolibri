@@ -34,6 +34,7 @@
         type: Number,
       },
       pdfPage: {
+        type: [Object, Promise],
         default: null,
       },
     },

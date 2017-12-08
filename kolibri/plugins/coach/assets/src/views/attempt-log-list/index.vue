@@ -65,6 +65,7 @@
         required: true,
       },
       selectedQuestionNumber: {
+        type: Number,
         required: true,
         default: 1,
       },

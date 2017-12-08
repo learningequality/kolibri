@@ -85,8 +85,14 @@
         type: Boolean,
         default: false,
       },
-      itemId: { default: null },
-      answerState: { default: null },
+      itemId: {
+        type: String,
+        default: null,
+      },
+      answerState: {
+        type: Object,
+        default: null,
+      },
       allowHints: {
         type: Boolean,
         default: true,
