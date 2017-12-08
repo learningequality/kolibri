@@ -42,12 +42,7 @@ See `our website <https://learningequality.org/kolibri/>`_ for more information.
 How can I use it?
 -----------------
 
-Kolibri is under active development and is not yet ready to be used in real
-deployments. We expect a public release to be available during second half of 2017.
-
-In the meantime, take a look at
-`KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
-is already deployed around the world.
+An initial version of Kolibri is `now available for download! <https://learningequality.org/download/>`_
 
 
 How can I contribute?
