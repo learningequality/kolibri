@@ -315,7 +315,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_content_available_param_filter_uppercase_true(self):
         response = self.client.get(reverse("channel-list"), {"available": True})
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
     def test_channelmetadata_content_unavailable_param_filter_false(self):
         content.ContentNode.objects.filter(title="root").update(available=False)
