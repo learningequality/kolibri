@@ -1,4 +1,7 @@
+import getpass
+
 import requests
+import validators
 from django.core.management import call_command
 from django.utils.six.moves import input
 from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
@@ -57,13 +60,13 @@ class Command(AsyncCommand):
             # prompt user for creds if not already specified
             if not username or not password:
                 username = input('Please enter username: ')
-                password = input('Please enter password: ')
+                password = getpass.getpass('Please enter password: ')
             client_cert = nc.certificate_signing_request(server_cert, FULL_FACILITY, {'dataset_id': dataset_id},
                                                          userargs=username, password=password)
         else:
             client_cert = owned_certs[0]
 
-        return client_cert, server_cert
+        return client_cert, server_cert, username
 
     def create_superuser_and_provision_device(self, username, dataset_id):
         # Prompt user to pick a superuser if one does not currently exist
@@ -89,6 +92,10 @@ class Command(AsyncCommand):
             device_settings.save()
 
     def handle_async(self, *args, **options):
+        # validate url that is passed in
+        if validators.url(options['base_url']) is not True:
+            print('Base-url is not valid. Please retry command and enter a valid url.')
+            return
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
                 call_command("loaddata", "scopedefinitions")
@@ -100,9 +107,14 @@ class Command(AsyncCommand):
             options['dataset_id'] = self.get_dataset_id(options['base_url'], options['dataset_id'])
             progress_update(1)
 
-            client_cert, server_cert = self.get_client_and_server_certs(options['username'], options['password'],
-                                                                        options['dataset_id'], network_connection)
+            client_cert, server_cert, options['username'] = self.get_client_and_server_certs(options['username'], options['password'],
+                                                                                             options['dataset_id'], network_connection)
             progress_update(1)
+
+            # this means device is trying to sync with itself, which we don't allow
+            if client_cert == server_cert:
+                print('Device can not sync with itself. Please re-check base-url and try again.')
+                return
 
             sync_client = network_connection.create_sync_session(client_cert, server_cert)
             progress_update(1)
