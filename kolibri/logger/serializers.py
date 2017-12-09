@@ -28,7 +28,7 @@ class ExamLogSerializer(KolibriModelSerializer):
     class Meta:
         model = ExamLog
         fields = ('id', 'exam', 'user', 'closed', 'progress', 'score', 'completion_timestamp')
-        read_only_fields = ('completion_timestamp')
+        read_only_fields = ('completion_timestamp', )
 
     def update(self, instance, validated_data):
         # This has changed, set the completion timestamp

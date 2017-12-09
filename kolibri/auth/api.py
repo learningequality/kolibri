@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import F
+from django_filters.rest_framework import CharFilter, DjangoFilterBackend, FilterSet, ModelChoiceFilter
 from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
 from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
@@ -14,7 +15,7 @@ from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
-from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, Collection, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
     ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, FacilityUserSignupSerializer,
     LearnerGroupSerializer, MembershipSerializer, PublicFacilitySerializer, RoleSerializer
@@ -94,11 +95,11 @@ class FacilityDatasetViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class FacilityUserFilter(filters.FilterSet):
+class FacilityUserFilter(FilterSet):
 
-    member_of = filters.django_filters.MethodFilter()
+    member_of = ModelChoiceFilter(method="filter_member_of", queryset=Collection.objects.all())
 
-    def filter_member_of(self, queryset, value):
+    def filter_member_of(self, queryset, name, value):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
             target_user=F("id"),
             ancestor_collection=value,
@@ -106,11 +107,12 @@ class FacilityUserFilter(filters.FilterSet):
 
     class Meta:
         model = FacilityUser
+        fields = ["member_of", ]
 
 
 class FacilityUserViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
@@ -135,7 +137,7 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
 
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
-    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     serializer_class = FacilityUsernameSerializer
     filter_fields = ('facility', )
     search_fields = ('^username', )
@@ -145,19 +147,20 @@ class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
 
 
-class MembershipFilter(filters.FilterSet):
-    user_ids = filters.django_filters.MethodFilter()
+class MembershipFilter(FilterSet):
+    user_ids = CharFilter(method="filter_user_ids")
 
-    def filter_user_ids(self, queryset, value):
+    def filter_user_ids(self, queryset, name, value):
         return queryset.filter(user_id__in=value.split(','))
 
     class Meta:
         model = Membership
+        fields = ["user_ids", ]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filter_class = MembershipFilter
@@ -203,7 +206,7 @@ class ClassroomViewSet(viewsets.ModelViewSet):
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 

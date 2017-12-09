@@ -5,6 +5,7 @@ from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+
 class NestedCollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -74,6 +75,7 @@ class UserExamSerializer(serializers.ModelSerializer):
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'score', 'archive', 'answer_count', 'closed',
         )
+        fields = '__all__'
 
     def to_representation(self, obj):
         output = {}
