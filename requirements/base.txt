@@ -20,7 +20,7 @@ jsonfield==2.0.1
 morango==0.2.2
 requests-toolbelt==0.7.1
 clint==0.5.1
-tzlocal==1.4
+tzlocal==1.5.1
 pytz==2017.2
 python-dateutil==2.6.0
 ifcfg==0.11b6
