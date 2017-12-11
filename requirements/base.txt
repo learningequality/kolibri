@@ -23,6 +23,6 @@ clint==0.5.1
 tzlocal==1.4
 pytz==2017.2
 python-dateutil==2.6.0
-ifcfg==0.11b6
+ifcfg==0.11
 sqlalchemy==1.1.12
 user-agents==1.1.0
