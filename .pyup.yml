@@ -19,10 +19,15 @@ requirements:
   - requirements/dev.txt:
       # don't use global 'pin' default
       pin: False
-  - requirements/test.txt:
-      # don't use global 'pin' default
-      pin: False
   - requirements/docs.txt:
       # Auto-builds, so don't pin things
+      # don't use global 'pin' default
+      pin: False
+  - requirements/pipeline.txt:
+      # This is only used on buildkite for some build stuff
+      # so not very important
+      update: False
+      pin: False
+  - requirements/test.txt:
       # don't use global 'pin' default
       pin: False
