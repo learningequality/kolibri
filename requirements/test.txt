@@ -1,11 +1,11 @@
 -r base.txt
+-r cext.txt
 # These are for testing
-factory-boy==2.7.0
-fake-factory==0.5.7
+factory-boy
+fake-factory
 coverage
 mock
 pytest
 mixer
 pytest-cov
 pytest-django
-cryptography==1.8.1

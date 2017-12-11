@@ -2,7 +2,7 @@ django-filter==1.1.0
 django-js-reverse==0.7.3
 six==1.10.0
 djangorestframework==3.7.3
-django==1.11.8
+django==1.11.8  # pyup: >=1.11,<2
 colorlog==2.6.0
 docopt==0.6.2
 django-mptt==0.8.7
