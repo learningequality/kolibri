@@ -32,10 +32,13 @@ class KolibriReportPermissions(permissions.BasePermission):
         collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        if 'user' == collection_kind:
-            return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
-        else:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
+        try:
+            if 'user' == collection_kind:
+                return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
+            else:
+                return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
+        except (FacilityUser.DoesNotExist, Collection.DoesNotExist):
+            return False
 
 
 class UserReportViewSet(viewsets.ModelViewSet):

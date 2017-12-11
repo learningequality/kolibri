@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.utils.deprecation import MiddlewareMixin
 from kolibri.core.device.utils import device_provisioned
 
 ALLOWED_PATH_LIST = [
@@ -10,7 +11,7 @@ ALLOWED_PATH_LIST = [
 ]
 
 
-class SetupWizardMiddleware():
+class SetupWizardMiddleware(MiddlewareMixin):
     """
     display the setup wizard if device is not provisioned
     """

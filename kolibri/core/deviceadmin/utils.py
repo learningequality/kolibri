@@ -109,7 +109,7 @@ def dbrestore(from_file):
     db.connections.close_all()
 
     # Wipe current database file
-    if not db.connections['default'].is_in_memory_db(dst_file):
+    if not db.connections['default'].is_in_memory_db():
         with open(dst_file, "w") as f:
             f.truncate()
     else:
