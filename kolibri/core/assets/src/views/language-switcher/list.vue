@@ -77,7 +77,9 @@
         return this.languageOptions.filter(lang => lang.id !== currentLanguage);
       },
       numberOfLanguageButtons() {
-        let numBtns = this.isMobile ? mobileNumberOfLanguageButtons : desktopNumberOfLanguageButtons;
+        let numBtns = this.isMobile
+          ? mobileNumberOfLanguageButtons
+          : desktopNumberOfLanguageButtons;
         // prevent a case where the selector menu has just a single item
         if (Object.keys(allLanguages).length === numBtns + 2) {
           return numBtns + 1;

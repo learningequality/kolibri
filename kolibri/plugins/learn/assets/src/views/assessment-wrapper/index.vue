@@ -181,7 +181,10 @@ oriented data synchronization.
           .reverse();
       },
       mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
+        return MasteryModelGenerators[this.masteryModel.type](
+          this.assessmentIds,
+          this.masteryModel
+        );
       },
       totalCorrectRequiredM() {
         return this.mOfNMasteryModel.m;

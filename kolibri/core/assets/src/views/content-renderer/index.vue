@@ -128,7 +128,9 @@
         return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length
+          ? this.availableFiles[0]
+          : undefined;
       },
       supplementaryFiles() {
         return this.files.filter(file => file.supplementary && file.available);

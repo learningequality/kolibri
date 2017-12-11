@@ -192,7 +192,8 @@
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      selected:
+        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
       duplicateTitle: 'An exam with that title already exists',
       name: 'Name',
     },
@@ -322,7 +323,8 @@
       },
       someExercisesWithinCurrentTopicSelected() {
         return (
-          !this.allExercisesWithinCurrentTopicSelected && !this.noExercisesWithinCurrentTopicSelected
+          !this.allExercisesWithinCurrentTopicSelected &&
+          !this.noExercisesWithinCurrentTopicSelected
         );
       },
       showPreviewNewExamModal() {
