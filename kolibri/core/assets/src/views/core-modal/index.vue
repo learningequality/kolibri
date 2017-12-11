@@ -22,7 +22,11 @@
       >
 
         <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
-          <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
+          <button
+            :aria-label="$tr('closeWindow')"
+            @click="emitCancelEvent"
+            class="header-btn btn-close"
+          >
             <mat-svg category="navigation" name="close" />
           </button>
         </div>

@@ -31,7 +31,12 @@
       @click="zoomOut" />
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar v-if="documentLoading" class="progress-bar" :showPercentage="true" :progress="progress" />
+      <progress-bar
+        v-if="documentLoading"
+        class="progress-bar"
+        :showPercentage="true"
+        :progress="progress"
+      />
       <page-component
         class="pdf-page-container"
         v-for="(page, index) in pdfPages"
@@ -63,8 +68,8 @@
   import pageComponent from './pageComponent';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
-  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF renderer's
-  // own webpack config
+  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
+  // renderer's own webpack config
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
   // Number of pages before and after current visible to keep rendered

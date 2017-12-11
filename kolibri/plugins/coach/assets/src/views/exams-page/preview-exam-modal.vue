@@ -13,14 +13,17 @@
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
               <li
-                v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                 :key="questionIndex"
               >
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
                   appearance="flat-button"
-                  :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
+                  :text="$tr(
+                    'question',
+                    { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                  )"
                 />
               </li>
             </ol>
@@ -158,6 +161,9 @@
       },
       close() {
         this.displayExamModal(false);
+      },
+      getExerciseQuestions(exerciseId) {
+        return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
     vuex: { actions: { displayExamModal: examActions.displayExamModal } },

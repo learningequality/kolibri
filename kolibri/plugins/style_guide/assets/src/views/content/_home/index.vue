@@ -6,7 +6,10 @@
 
     <h2>Scope</h2>
     <p>
-      This guide is meant to cover the majority of the application. There will always be edge cases, and common sense always trumps rote rules. Maintain consistency as much as possible, but don’t make significant sacrifices in the UX for the sake of consistency.
+      This guide is meant to cover the majority of the application.
+      There will always be edge cases, and common sense always trumps rote rules.
+      Maintain consistency as much as possible,
+      but don’t make significant sacrifices in the UX for the sake of consistency.
     </p>
 
   </page-template>

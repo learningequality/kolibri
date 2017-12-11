@@ -13,7 +13,9 @@
         />
       </div>
 
-      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
+      <div
+        :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'"
+      >
         <k-button
           :text="$tr('createNewUser')"
           :primary="false"
@@ -71,7 +73,7 @@
               <k-checkbox
                 :label="$tr('selectAllOnPage')"
                 :showLabel="false"
-                :checked="allVisibleFilteredUsersSelected && visibleFilteredUsers.length !== 0 && !showSelectedUsers"
+                :checked="selectAllIsChecked"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
                 class="inline-block check"
@@ -108,10 +110,14 @@
       </table>
 
       <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
-      <p v-if="filteredUsers.length === 0 && filterInput !== ''">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+      <p v-if="filteredUsers.length === 0 && filterInput !== ''">
+        {{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong>
+      </p>
 
       <div class="pagination-footer">
-        <span>{{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}</span>
+        <span>
+          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+        </span>
         <nav>
           <ui-icon-button
             type="primary"
@@ -263,6 +269,13 @@
       },
       showConfirmEnrollmentModal() {
         return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
+      },
+      selectAllIsChecked() {
+        return (
+          this.allVisibleFilteredUsersSelected &&
+          this.visibleFilteredUsers.length !== 0 &&
+          !this.showSelectedUsers
+        );
       },
     },
     watch: {

@@ -37,8 +37,14 @@
     <div>
       <nav>
         <ol>
-          <li v-for="(topic, index) in topic.breadcrumbs" :key="index" :class="breadCrumbClass(index)">
-            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
+          <li
+            v-for="(topic, index) in topic.breadcrumbs"
+            :key="index"
+            :class="breadCrumbClass(index)"
+          >
+            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">
+              {{ topic.title }}
+            </button>
             <strong v-else>{{ topic.title }}</strong>
           </li>
         </ol>

@@ -39,15 +39,34 @@ module.exports = {
   },
   rules: {
     'comma-style': 2,
-
+    'max-len': [
+      'error',
+      100,
+      {
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreUrls: true,
+      },
+    ],
     'vue/attribute-hyphenation': [2, 'never'],
     'vue/name-property-casing': [0],
     'vue/require-default-prop': 0,
-    'vue/html-self-closing': [0],
+    'vue/html-self-closing': [
+      'error',
+      {
+        html: {
+          void: 'never',
+          normal: 'never',
+          component: 'always',
+        },
+        svg: 'always',
+        math: 'always',
+      },
+    ],
     'vue/max-attributes-per-line': [
       2,
       {
-        singleline: 10,
+        singleline: 5,
         multiline: {
           max: 1,
           allowFirstLine: false,

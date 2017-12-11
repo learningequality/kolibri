@@ -150,7 +150,8 @@
       updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
-        // Only bother to do this is if the node is available, and the kind and extension are defined.
+        // Only bother to do this is if the node is available,
+        // and the kind and extension are defined.
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([

@@ -11,7 +11,9 @@
       {{ pageState.contentScopeSummary.title }}
     </h1>
     <report-subheading />
-    <p v-if="!standardDataTable.length" class="center-text"><strong>{{ $tr('noLearners') }}</strong></p>
+    <p v-if="!standardDataTable.length" class="center-text">
+      <strong>{{ $tr('noLearners') }}</strong>
+    </p>
     <report-table v-else>
       <thead slot="thead">
         <tr>

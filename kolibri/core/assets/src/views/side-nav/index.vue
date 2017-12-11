@@ -9,7 +9,10 @@
       >
         <div
           class="side-nav-header"
-          :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
+          :style="{
+            height: headerHeight + 'px',
+            width: `${width}px`, paddingTop: mobile ? '4px' : '8px'
+          }"
         >
           <ui-icon-button
             ref="toggleButton"
@@ -255,7 +258,9 @@
   @require '~kolibri.styles.definitions'
 
   // matches angular material's spec
-  $side-nav-box-shadow = 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
+  $side-nav-box-shadow =  0 2px 4px -1px rgba(0, 0, 0, 0.2),
+                          0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                          0 1px 10px 0 rgba(0, 0, 0, 0.12)
 
   // matches keen-ui toolbar's spec
   $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)

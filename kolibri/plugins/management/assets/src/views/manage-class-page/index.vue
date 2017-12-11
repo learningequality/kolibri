@@ -44,7 +44,11 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
+              <k-button
+                appearance="flat-button"
+                @click="openDeleteClassModal(classModel)"
+                :text="$tr('deleteClass')"
+              />
             </td>
           </tr>
         </tbody>

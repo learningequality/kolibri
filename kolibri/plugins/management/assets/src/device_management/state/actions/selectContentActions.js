@@ -78,7 +78,8 @@ export function updateTreeViewTopic(store, topic) {
  * Makes a call to freespace API and places result in the store.
  * If transfer type is LOCALEXPORT, it gets the selected drive's freespace.
  *
- * @param {string} path - Path to the Kolibri data folder. If empty, defaults to server's KOLIBRI_HOME.
+ * @param {string} path - Path to the Kolibri data folder.
+ * If empty, defaults to server's KOLIBRI_HOME.
  * @returns {Promise}
  *
  */
