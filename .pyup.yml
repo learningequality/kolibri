@@ -13,6 +13,9 @@ search: True
 # default: empty
 # allowed: list
 requirements:
+  - requirements/build.txt:
+      # don't use global 'pin' default
+      pin: False
   - requirements/dev.txt:
       # don't use global 'pin' default
       pin: False
