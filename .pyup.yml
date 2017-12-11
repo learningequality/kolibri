@@ -1,0 +1,25 @@
+# update schedule
+# default: empty
+# allowed: "every day", "every week", ..
+schedule: "every day"
+
+# DON'T CHANGE, BECAUSE WHEN SOMEONE ADDS A NEW REQ
+# FILE IN requirements/ IT WON'T BE SCANNED
+# default: True
+# allowed: True, False
+search: True
+
+# Specify requirement files by hand, default is empty
+# default: empty
+# allowed: list
+requirements:
+  - requirements/dev.txt:
+      # don't use global 'pin' default
+      pin: False
+  - requirements/test.txt:
+      # don't use global 'pin' default
+      pin: False
+  - requirements/docs.txt:
+      # Auto-builds, so don't pin things
+      # don't use global 'pin' default
+      pin: False
