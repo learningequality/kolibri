@@ -74,7 +74,7 @@
     $trs: {
       cancel: 'Cancel',
       continue: 'Continue',
-      network: 'Kolibri Central Server',
+      network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
       title: 'Import from where?',
     },

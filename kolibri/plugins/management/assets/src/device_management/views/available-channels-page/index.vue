@@ -241,7 +241,7 @@
       channels: 'Channels',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
-      kolibriCentralServer: 'Kolibri Central Server',
+      kolibriCentralServer: 'Kolibri Studio',
       languageFilterLabel: 'Language:',
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
