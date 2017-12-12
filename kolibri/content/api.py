@@ -8,12 +8,13 @@ from django.db.models import Q, Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
+from django_filters.rest_framework import BooleanFilter, CharFilter, ChoiceFilter, DjangoFilterBackend, FilterSet
 from kolibri.content import models, serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds, languages
-from rest_framework import filters, mixins, pagination, viewsets
+from rest_framework import mixins, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -23,15 +24,10 @@ from .utils.search import fuzz
 logger = logging.getLogger(__name__)
 
 
-class ChannelMetadataFilter(filters.FilterSet):
-    available = filters.django_filters.MethodFilter()
+class ChannelMetadataFilter(FilterSet):
+    available = BooleanFilter(method="filter_available")
 
-    def filter_available(self, queryset, value):
-        if value == "true":
-            value = True
-        else:
-            value = False
-
+    def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
 
     class Meta:
@@ -41,17 +37,17 @@ class ChannelMetadataFilter(filters.FilterSet):
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all().order_by('-last_updated')
 
 
-class IdFilter(filters.FilterSet):
-    ids = filters.django_filters.MethodFilter()
+class IdFilter(FilterSet):
+    ids = CharFilter(method="filter_ids")
 
-    def filter_ids(self, queryset, value):
+    def filter_ids(self, queryset, name, value):
         return queryset.filter(pk__in=value.split(','))
 
     class Meta:
@@ -59,19 +55,19 @@ class IdFilter(filters.FilterSet):
 
 
 class ContentNodeFilter(IdFilter):
-    search = filters.django_filters.MethodFilter(action='title_description_filter')
-    recommendations_for = filters.django_filters.MethodFilter()
-    next_steps = filters.django_filters.MethodFilter()
-    popular = filters.django_filters.MethodFilter()
-    resume = filters.django_filters.MethodFilter()
-    kind = filters.django_filters.MethodFilter()
+    search = CharFilter(method='title_description_filter')
+    recommendations_for = CharFilter(method="filter_recommendations_for")
+    next_steps = CharFilter(method="filter_next_steps")
+    popular = CharFilter(method="filter_popular")
+    resume = CharFilter(method="filter_resume")
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
                   'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
 
-    def title_description_filter(self, queryset, value):
+    def title_description_filter(self, queryset, name, value):
         """
         search for title or description that contains the keywords that are not necessary in adjacent
         """
@@ -87,14 +83,14 @@ class ContentNodeFilter(IdFilter):
             Q(parent__isnull=False),
             reduce(lambda x, y: x & y, token_queries))
 
-    def filter_recommendations_for(self, queryset, value):
+    def filter_recommendations_for(self, queryset, name, value):
         """
         Recommend items that are similar to this piece of content.
         """
         return queryset.get(pk=value).get_siblings(
             include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
 
-    def filter_next_steps(self, queryset, value):
+    def filter_next_steps(self, queryset, name, value):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
 
@@ -123,7 +119,7 @@ class ContentNodeFilter(IdFilter):
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
 
-    def filter_popular(self, queryset, value):
+    def filter_popular(self, queryset, name, value):
         """
         Recommend content that is popular with all users.
 
@@ -155,7 +151,7 @@ class ContentNodeFilter(IdFilter):
         cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
 
-    def filter_resume(self, queryset, value):
+    def filter_resume(self, queryset, name, value):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
@@ -184,7 +180,7 @@ class ContentNodeFilter(IdFilter):
 
         return resume
 
-    def filter_kind(self, queryset, value):
+    def filter_kind(self, queryset, name, value):
         """
         Show only content of a given kind.
 
@@ -209,7 +205,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
 
 class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
 
@@ -316,11 +312,12 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
+        fields = ['ids', ]
 
 
 class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
 
     def get_queryset(self):
