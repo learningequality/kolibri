@@ -16,6 +16,10 @@ requirements:
   - requirements/build.txt:
       # don't use global 'pin' default
       pin: False
+  - requirements/cext.txt:
+      # don't use global 'pin' default
+      pin: False
+      update: False
   - requirements/dev.txt:
       # don't use global 'pin' default
       pin: False
