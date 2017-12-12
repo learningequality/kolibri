@@ -109,7 +109,10 @@
         if (this.pageName === PageNames.TOPICS_ROOT) {
           return 'channels-page';
         }
-        if (this.pageName === PageNames.TOPICS_CHANNEL || this.pageName === PageNames.TOPICS_TOPIC) {
+        if (
+          this.pageName === PageNames.TOPICS_CHANNEL ||
+          this.pageName === PageNames.TOPICS_TOPIC
+        ) {
           return 'topics-page';
         }
         if (
@@ -142,7 +145,9 @@
         return this.pageName === PageNames.SEARCH;
       },
       tabLinksAreVisible() {
-        return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;
+        return (
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH
+        );
       },
       pointsAreVisible() {
         return this.windowSize.breakpoint > 0 && this.pageName !== PageNames.SEARCH;

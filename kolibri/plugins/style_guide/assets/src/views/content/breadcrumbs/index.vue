@@ -12,7 +12,8 @@
     </p>
 
     <p>
-      It should include the current item/location, which does not require a link. This text might be repeated in a header, which is fine.
+      It should include the current item/location, which does not require a link.
+      This text might be repeated in a header, which is fine.
     </p>
 
     <show>

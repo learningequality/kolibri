@@ -56,8 +56,8 @@ export function getRemoteChannelByToken(token) {
 /**
  * HACK: Makes a request to Kolibri Studio to get info on unlisted channels, then appends
  * them to the public channels. This hack is to get around the fact that the ChannelMetadata object
- * does not indicate the origins of a channel: whether a remote public, remote unlisted, or bespoke channel
- * from USB, the ChannelMetadata is identical.
+ * does not indicate the origins of a channel: whether a remote public, remote unlisted, or bespoke
+ * channel from USB, the ChannelMetadata is identical.
  *
  * @param {Array<Channel>} publicChannels - the list of publich channels, which will not be queried
  * @returns {Promise<Array<Channel>>}

@@ -28,17 +28,18 @@
     </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
-    <!--<k-textbox-->
-      <!--v-model.trim="searchInput"-->
-    <!--/>-->
-    <!--<div v-if="searchInput">-->
-      <!--search results-->
-    <!--</div>-->
+
     <div>
       <nav>
         <ol>
-          <li v-for="(topic, index) in topic.breadcrumbs" :key="index" :class="breadCrumbClass(index)">
-            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
+          <li
+            v-for="(topic, index) in topic.breadcrumbs"
+            :key="index"
+            :class="breadCrumbClass(index)"
+          >
+            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">
+              {{ topic.title }}
+            </button>
             <strong v-else>{{ topic.title }}</strong>
           </li>
         </ol>
@@ -186,7 +187,8 @@
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      selected:
+        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
       duplicateTitle: 'An exam with that title already exists',
       name: 'Name',
     },
@@ -316,7 +318,8 @@
       },
       someExercisesWithinCurrentTopicSelected() {
         return (
-          !this.allExercisesWithinCurrentTopicSelected && !this.noExercisesWithinCurrentTopicSelected
+          !this.allExercisesWithinCurrentTopicSelected &&
+          !this.noExercisesWithinCurrentTopicSelected
         );
       },
       showPreviewNewExamModal() {

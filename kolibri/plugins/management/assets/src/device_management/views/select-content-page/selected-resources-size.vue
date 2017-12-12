@@ -16,7 +16,9 @@
 
     <div class="resources-selected">
       <span class="resources-selected-message">
-        {{ $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount }) }}
+        {{
+          $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount })
+        }}
       </span>
 
       <k-button

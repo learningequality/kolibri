@@ -1,7 +1,11 @@
 <template>
 
   <core-modal :title="$tr('moveLearners')" @cancel="close">
-    <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
+    <p>
+      {{ $tr('moveThe') }}
+      <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong>
+      {{ $tr('to') }}:
+    </p>
     <k-radio-button
       v-for="group in groupsExcludingCurrent"
       :key="group.id"

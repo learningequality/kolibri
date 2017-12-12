@@ -14,7 +14,7 @@
       :ariaLabel="$tr('close')"
       @click="$emit('close')"
     />
-    </div>
+  </div>
 
 </template>
 

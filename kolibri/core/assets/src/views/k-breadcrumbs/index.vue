@@ -6,7 +6,11 @@
         <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
-              <li v-for="(crumb, index) in collapsedCrumbs" class="breadcrumbs-dropdown-item" :key="index">
+              <li
+                v-for="(crumb, index) in collapsedCrumbs"
+                class="breadcrumbs-dropdown-item"
+                :key="index"
+              >
                 <k-router-link
                   :text="crumb.text"
                   :to="crumb.link"

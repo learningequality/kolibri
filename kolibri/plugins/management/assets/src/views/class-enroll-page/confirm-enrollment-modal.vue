@@ -4,7 +4,9 @@
     <div>
       <p>{{ $tr('areYouSure', {className}) }}</p>
       <ul class="review-enroll-ul">
-        <li class="review-enroll-li" v-for="userId in selectedUsers" :key="userId"><strong>{{ getUsername(userId) }}</strong></li>
+        <li class="review-enroll-li" v-for="userId in selectedUsers" :key="userId">
+          <strong>{{ getUsername(userId) }}</strong>
+        </li>
       </ul>
       <div class="modal-buttons">
         <k-button

@@ -5,7 +5,9 @@
     @cancel="close"
     width="400px"
   >
-    <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">{{ errorMessage }}</ui-alert>
+    <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
+      {{ errorMessage }}
+    </ui-alert>
 
     <form @submit.prevent="createNewUser">
       <section>
@@ -63,7 +65,12 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <k-button :text="$tr('createAccount')" :primary="true" type="submit" :disabled="submitting" />
+        <k-button
+          :text="$tr('createAccount')"
+          :primary="true"
+          type="submit"
+          :disabled="submitting"
+        />
       </section>
     </form>
   </core-modal>

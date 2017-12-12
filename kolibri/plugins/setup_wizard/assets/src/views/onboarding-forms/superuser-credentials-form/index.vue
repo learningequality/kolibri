@@ -6,48 +6,48 @@
     :submitText="submitText"
     @submit="setSuperuserCredentials">
 
-      <k-textbox
-        v-model="name"
-        :label="$tr('adminNameFieldLabel')"
-        :autofocus="true"
-        autocomplete="name"
-        :maxlength="120"
-        @blur="visitedFields.name = true"
-        :invalid="nameIsInvalid"
-        :invalidText="nameErrorMessage"
-        ref="name"
-      />
-      <k-textbox
-        v-model="username"
-        :label="$tr('adminUsernameFieldLabel')"
-        type="username"
-        autocomplete="username"
-        :maxlength="30"
-        @blur="visitedFields.username = true"
-        :invalid="usernameIsInvalid"
-        :invalidText="usernameErrorMessage"
-        ref="username"
-      />
-      <k-textbox
-        v-model="password"
-        :label="$tr('adminPasswordFieldLabel')"
-        type="password"
-        autocomplete="new-password"
-        @blur="visitedFields.password = true"
-        :invalid="passwordIsInvalid"
-        :invalidText="passwordErrorMessage"
-        ref="password"
-      />
-      <k-textbox
-        v-model="passwordConfirm"
-        :label="$tr('adminPasswordConfirmationFieldLabel')"
-        type="password"
-        autocomplete="new-password"
-        @blur="visitedFields.passwordConfirm = true"
-        :invalid="passwordConfirmIsInvalid"
-        :invalidText="passwordConfirmErrorMessage"
-        ref="passwordConfirm"
-      />
+    <k-textbox
+      v-model="name"
+      :label="$tr('adminNameFieldLabel')"
+      :autofocus="true"
+      autocomplete="name"
+      :maxlength="120"
+      @blur="visitedFields.name = true"
+      :invalid="nameIsInvalid"
+      :invalidText="nameErrorMessage"
+      ref="name"
+    />
+    <k-textbox
+      v-model="username"
+      :label="$tr('adminUsernameFieldLabel')"
+      type="username"
+      autocomplete="username"
+      :maxlength="30"
+      @blur="visitedFields.username = true"
+      :invalid="usernameIsInvalid"
+      :invalidText="usernameErrorMessage"
+      ref="username"
+    />
+    <k-textbox
+      v-model="password"
+      :label="$tr('adminPasswordFieldLabel')"
+      type="password"
+      autocomplete="new-password"
+      @blur="visitedFields.password = true"
+      :invalid="passwordIsInvalid"
+      :invalidText="passwordErrorMessage"
+      ref="password"
+    />
+    <k-textbox
+      v-model="passwordConfirm"
+      :label="$tr('adminPasswordConfirmationFieldLabel')"
+      type="password"
+      autocomplete="new-password"
+      @blur="visitedFields.passwordConfirm = true"
+      :invalid="passwordConfirmIsInvalid"
+      :invalidText="passwordConfirmErrorMessage"
+      ref="passwordConfirm"
+    />
 
   </onboarding-form>
 

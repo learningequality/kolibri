@@ -5,7 +5,7 @@
     :description="$tr('facilityNamingFormDescription')"
     :submitText="submitText"
     @submit="setFacilityName"
-    >
+  >
     <k-textbox
       :autofocus="true"
       v-model="facilityName"

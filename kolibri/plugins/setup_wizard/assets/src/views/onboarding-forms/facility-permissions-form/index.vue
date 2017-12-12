@@ -109,7 +109,7 @@
         <span class="permission-preset-description">
           {{ $tr('informalSetupDescription') }}
         </span>
-    </label>
+      </label>
 
     </onboarding-form>
 

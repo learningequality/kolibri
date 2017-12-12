@@ -34,6 +34,7 @@
         type: Number,
       },
       pdfPage: {
+        type: [Object, Promise],
         default: null,
       },
     },
@@ -113,8 +114,8 @@
           // We have a pdfPage, so use this opportunity to set the current page width and height
           this.setPageDimensions();
         } else {
-          // No pdfPage and not active, either we are not being asked to render a page yet, or it has been removed
-          // so we should tear down any existing page
+          // No pdfPage and not active, either we are not being asked to render a page yet,
+          // or it has been removed so we should tear down any existing page
           this.cancelRender();
           this.clearPage();
         }
