@@ -7,7 +7,7 @@ import cherrypy
 import ifcfg
 import requests
 from django.conf import settings
-from django.core.management import ManagementUtility
+from django.core.management import call_command
 from kolibri.content.utils import paths
 
 from .system import kill_pid, pid_exists
@@ -95,8 +95,7 @@ class PingbackThread(threading.Thread):
         thread.start()
 
     def run(self):
-        command = ManagementUtility().fetch_command("ping")
-        command.execute()
+        call_command("ping")
 
 
 def stop(pid=None, force=False):
