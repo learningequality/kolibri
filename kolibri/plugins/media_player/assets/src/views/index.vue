@@ -214,7 +214,9 @@
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
               'Volume Level': this.$tr('volumeLevel'),
-              'A network error caused the media download to fail part-way.': this.$tr('networkError'),
+              'A network error caused the media download to fail part-way.': this.$tr(
+                'networkError'
+              ),
               'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
                 'formatError'
               ),
