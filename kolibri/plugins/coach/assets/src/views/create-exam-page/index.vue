@@ -28,12 +28,7 @@
     </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
-    <!--<k-textbox-->
-    <!--v-model.trim="searchInput"-->
-    <!--/>-->
-    <!--<div v-if="searchInput">-->
-    <!--search results-->
-    <!--</div>-->
+
     <div>
       <nav>
         <ol>
