@@ -13,6 +13,7 @@
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
       <k-radio-button
+        :kRadioInputLength="drives.length"
         v-for="drive in drives"
         :key="drive.id"
         :label="enabledDriveLabel(drive)"

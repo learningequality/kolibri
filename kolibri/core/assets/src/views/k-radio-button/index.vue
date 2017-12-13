@@ -82,6 +82,10 @@
         type: Boolean,
         default: false,
       },
+      kRadioInputLength: {
+        type: Number,
+        required: false,
+      },
       /**
       * Autofocus on mount
       */
@@ -93,6 +97,13 @@
     data: () => ({
       isActive: false,
     }),
+    mounted() {
+      this.$nextTick(function() {
+        if (this.kRadioInputLength == 1) {
+          this.select();
+        }
+      });
+    },
     computed: {
       model: {
         get() {
