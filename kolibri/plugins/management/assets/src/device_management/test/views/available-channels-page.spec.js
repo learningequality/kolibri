@@ -182,7 +182,7 @@ describe('availableChannelsPage', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
-    assert.equal(wholePageBackText(), 'Kolibri Central Server');
+    assert.equal(wholePageBackText(), 'Kolibri Studio');
     assert.equal(titleText(), 'Channels');
   });
 
