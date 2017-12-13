@@ -174,7 +174,7 @@
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',
-      downloadingChannelContents: 'Downoading channel contents…',
+      downloadingChannelContents: 'Generating channel listing. This could take a few minutes…',
       updatingChannel: 'Updating channel…',
     },
   };
