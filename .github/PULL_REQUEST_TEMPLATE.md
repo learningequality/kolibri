@@ -2,7 +2,7 @@
 Using the PR template:
  1. Following guidance below, replace …'s with your own words
  2. After saving the PR, tick of completed checklist items
- 3. Skip checklist items that aren't applicable
+ 3. Skip checklist items that are not applicable or not necessary
 -->
 
 ### Summary
