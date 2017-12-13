@@ -45,7 +45,7 @@ Using the PR template:
 
 - [ ] Automated test coverage is satisfactory
 - [ ] Reviewer has fully tested the PR manually
-- [ ] PR has been tested for [accessibility regressions](http://kolibri.readthedocs.io/en/develop/dev/manual_testing.html#accessibility-a11y-testing)
+- [ ] PR has been tested for [accessibility regressions](http://kolibri-dev.readthedocs.io/en/develop/manual_testing.html#accessibility-a11y-testing)
 - [ ] External dependencies files were updated (`yarn` and `pip`)
 - [ ] Documentation is updated
 - [ ] Link to diff of internal dependency change is included
