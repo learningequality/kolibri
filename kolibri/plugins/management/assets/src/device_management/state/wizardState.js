@@ -16,7 +16,7 @@ export function importExportWizardState() {
     pageName: '',
     // 2. set after choosing REMOTEEXPORT or LOCALIMPORT
     driveList: [],
-    // 3. set after choosing a USB drive or Kolibri Central Server
+    // 3. set after choosing a USB drive or Kolibri Studio
     transferType: '',
     availableChannels: [],
     selectedDrive: {},

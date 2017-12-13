@@ -22,21 +22,21 @@ Import Content into Kolibri
 To import content into Kolibri, follow these steps.
 
 #. Click **Import** button in the **Content** page.
-#. Choose the source option (*Kolibri Central Server* or *Attached drive or memory card*).
+#. Choose the source option (*Kolibri Studio* or *Attached drive or memory card*).
 
 	.. image:: img/import-choose-source.png
 	  :alt: choose source for importing content
 
 
-Import Content from Kolibri Central Server
+Import Content from Kolibri Studio
 ******************************************
 
 If the computer where Kolibri is running has an Internet connection with the sufficient bandwidth, follow these steps to import content channels.  
 
 .. _central_server:
 
-#. Choose option *Kolibri Central Server*, and you will be able to see all the available **public** content channels. 
-  
+#. Choose option *Kolibri Studio*, and you will be able to see all the available **public** content channels.
+
   	.. image:: img/kolibri-central-server.png
 	  :alt: Select from which public channel you want to import content from.
 
@@ -53,7 +53,7 @@ If the computer where Kolibri is running has an Internet connection with the suf
 	.. image:: img/import-CC.png
 	  :alt: wait for import channel to finish
 
-#. If you need to import content from a **private/unlisted** channel, scroll to the bottom of the *Kolibri Central Server* page.
+#. If you need to import content from a **private/unlisted** channel, scroll to the bottom of the *Kolibri Studio* page.
 #. Click on **Try adding the token** link, and enter the **channel token/ID** received from the channel curator on Kolibri Studio.
 
 	.. image:: img/enter-token.png
@@ -72,7 +72,7 @@ If the computer where Kolibri server is running does not have access to Internet
 #. Choose option for *Attached drive or memory card*, and click **Continue**.
 #. Kolibri will automatically detect and display the drive(s) with available Kolibri content files.
 #. Select the drive where the desired channel is stored, and click **Continue**.
-#. Click **Select** button for the desired channel, and follow the same steps for selecting topics and resources as for the :ref:`import from Kolibri Central Server <central_server>`. 
+#. Click **Select** button for the desired channel, and follow the same steps for selecting topics and resources as for the :ref:`import from Kolibri Studio <central_server>`.
 
 	.. image:: img/import-local-drive2.png
 	  :alt: import channel from detected local drive
