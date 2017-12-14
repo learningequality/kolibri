@@ -1,6 +1,6 @@
 -r base.txt
 flake8==3.5.0
-pre-commit==0.14.2
+pre-commit==1.4.1
 tox==2.9.1
 django-debug-panel==0.8.3
 django-debug-toolbar==1.8
