@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('deactivateExam')" @cancel="close">
+  <core-modal
+    :title="$tr('deactivateExam')"
+    @cancel="close"
+  >
     <p>
       <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('noLongerVisible') }}
@@ -15,9 +18,17 @@
         </ul>
       </span>
     </p>
-    <div class="footer">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
-      <k-button :text="$tr('deactivate')" :primary="true" @click="deactivateExam(examId)" />
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('deactivate')"
+        :primary="true"
+        @click="deactivateExam(examId)"
+      />
     </div>
   </core-modal>
 
@@ -77,9 +88,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: right
-
-</style>
+<style lang="stylus"></style>

@@ -1,6 +1,16 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
+  <core-modal
+    :title="$tr('preview')"
+    @cancel="close"
+    width="100%"
+    height="100%"
+  >
+    <k-button
+      :text="$tr('close')"
+      :primary="false"
+      @click="close"
+    />
     <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
@@ -182,7 +192,6 @@
 
   .question-selector, .exercise-container
     overflow-y: auto
-
 
   ol
     padding: 0

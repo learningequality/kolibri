@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('resetPassword')" @cancel="displayModal(false)">
+  <core-modal
+    :title="$tr('resetPassword')"
+    @cancel="displayModal(false)"
+  >
     <form @submit.prevent="submitForm">
 
       <p>{{ $tr('username') }}: <strong>{{ username }}</strong></p>
@@ -25,7 +28,7 @@
         v-model="confirmedPassword"
       />
 
-      <div class="ta-r">
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
           :primary="false"
@@ -152,11 +155,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .ta-r
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

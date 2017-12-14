@@ -9,7 +9,7 @@
       <p>{{ $tr('changesWillBeLost') }}</p>
     </div>
 
-    <div class="modal-buttons">
+    <div class="core-modal-buttons">
       <k-button
         :primary="false"
         appearance="flat-button"
@@ -24,7 +24,6 @@
         :text="$tr('reset')"
         name="reset"
       />
-
     </div>
 
   </core-modal>
@@ -62,9 +61,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .modal-buttons
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

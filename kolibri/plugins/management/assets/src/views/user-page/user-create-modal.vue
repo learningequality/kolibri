@@ -64,14 +64,20 @@
       </section>
 
       <!-- Button Options at footer of modal -->
-      <section class="footer">
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('cancel')"
+          :primary="false"
+          appearance="flat-button"
+          @click="close"
+        />
         <k-button
           :text="$tr('createAccount')"
           :primary="true"
           type="submit"
           :disabled="submitting"
         />
-      </section>
+      </div>
     </form>
   </core-modal>
 
@@ -92,6 +98,7 @@
     name: 'userCreateModal',
     $trs: {
       addNewAccountTitle: 'Add new account',
+      cancel: 'Cancel',
       name: 'Full name',
       username: 'Username',
       password: 'Password',
@@ -279,9 +286,6 @@
 
 
 <style lang="stylus" scoped>
-
-  .footer
-    text-align: right
 
   .kind-select
     margin-bottom: 3em

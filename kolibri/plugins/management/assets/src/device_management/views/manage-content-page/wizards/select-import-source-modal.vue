@@ -21,7 +21,7 @@
       />
     </div>
 
-    <div class="buttons">
+    <div class="core-modal-buttons">
       <k-button
         @click="cancel"
         appearance="flat-button"
@@ -29,7 +29,7 @@
       />
       <k-button
         @click="goForward"
-        primary
+        :primary="true"
         :disabled="disableUi"
         :text="$tr('continue')"
       />
@@ -99,10 +99,5 @@
 
   .options
     margin: 2em 0
-
-  .buttons
-    text-align: right
-    button:nth-child(2)
-      margin-right: 0
 
 </style>

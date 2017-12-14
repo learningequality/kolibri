@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('moveLearners')" @cancel="close">
+  <core-modal
+    :title="$tr('moveLearners')"
+    @cancel="close"
+  >
     <p>
       {{ $tr('moveThe') }}
       <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong>
@@ -23,7 +26,7 @@
       />
     </div>
 
-    <div class="button-section">
+    <div class="core-modal-buttons button-section">
       <k-button
         :text="$tr('cancel')"
         appearance="flat-button"
@@ -43,7 +46,12 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import {
+    displayModal,
+    addUsersToGroup,
+    removeUsersFromGroup,
+    moveUsersBetweenGroups,
+  } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
@@ -113,10 +121,10 @@
     },
     vuex: {
       actions: {
-        displayModal: groupActions.displayModal,
-        addUsersToGroup: groupActions.addUsersToGroup,
-        removeUsersFromGroup: groupActions.removeUsersFromGroup,
-        moveUsersBetweenGroups: groupActions.moveUsersBetweenGroups,
+        displayModal,
+        addUsersToGroup,
+        removeUsersFromGroup,
+        moveUsersBetweenGroups,
       },
     },
   };
@@ -133,6 +141,5 @@
 
   .button-section
     margin-top: 1em
-    text-align: right
 
 </style>

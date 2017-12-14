@@ -10,9 +10,7 @@
 
       <p>{{ $tr('description') }}</p>
 
-      <!-- Button Section TODO: cleaunup -->
-      <section>
-
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
           appearance="flat-button"
@@ -24,8 +22,7 @@
           :primary="true"
           @click="classDelete"
         />
-
-      </section>
+      </div>
 
     </div>
   </core-modal>
@@ -89,14 +86,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  section
-    text-align: right
-
-  .header
-    text-align: center
 
   p
     word-break: keep-all

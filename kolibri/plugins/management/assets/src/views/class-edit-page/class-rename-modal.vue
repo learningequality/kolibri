@@ -17,21 +17,20 @@
           v-model.trim="name"
         />
 
-        <section class="footer">
+        <div class="core-modal-buttons">
           <k-button
             type="button"
             appearance="flat-button"
             :text="$tr('cancel')"
             @click="close"
           />
-
           <k-button
             type="submit"
             :text="$tr('update')"
             :primary="true"
             :disabled="submitting"
           />
-        </section>
+        </div>
       </form>
     </div>
   </core-modal>
@@ -138,9 +137,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: center
-
-</style>
+<style lang="stylus" scoped></style>

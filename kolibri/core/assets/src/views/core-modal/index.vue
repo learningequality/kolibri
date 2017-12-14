@@ -195,10 +195,10 @@
   .fade-enter, .fade-leave-active
     opacity: 0
 
-  >>>.buttons
+  >>>.core-modal-buttons
     text-align: right
 
-  >>>.buttons button:last-of-type
+  >>>.core-modal-buttons button:last-of-type
     margin-right: 0
 
 </style>
