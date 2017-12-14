@@ -54,21 +54,18 @@ function makeStore() {
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
     titleText: () => wrapper.first(coreModal).getProp('title'),
     driveListLoading: () => wrapper.find('.drive-list-loading'),
-    driveListLoadingText: () =>
-      wrapper
-        .first('.drive-list-loading')
-        .text()
-        .trim(),
+    driveListLoadingText: () => wrapper.first('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),
     writableImportableRadio: () => wrapper.find('input[value="writable_importable_drive"]'),
     noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
-    cancelButton: () => wrapper.find('.buttons button')[0],
-    continueButton: () => wrapper.find('.buttons button')[1],
+    cancelButton: () => wrapper.find('.core-modal-buttons button')[0],
+    continueButton: () => wrapper.find('.core-modal-buttons button')[1],
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
   };
