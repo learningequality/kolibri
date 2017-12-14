@@ -18,7 +18,7 @@ le-utils==0.1.4
 kolibri_exercise_perseus_plugin==0.7.4
 jsonfield==2.0.2
 morango==0.2.2
-requests-toolbelt==0.7.1
+requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
 pytz==2017.3
