@@ -21,16 +21,6 @@
         :style="{ width: width, height: height }"
       >
 
-        <div class="top-buttons" @keydown.enter.stop v-if="!hideTopButtons">
-          <button
-            :aria-label="$tr('closeWindow')"
-            @click="emitCancelEvent"
-            class="header-btn btn-close"
-          >
-            <mat-svg category="navigation" name="close" />
-          </button>
-        </div>
-
         <!-- Modal Title -->
         <h1 v-show="!invisibleTitle" class="title" id="modal-title">
           <!-- Accessible error reporting per @radina -->
@@ -95,10 +85,6 @@
       height: {
         type: String,
         required: false,
-      },
-      hideTopButtons: {
-        type: Boolean,
-        default: false,
       },
     },
     data() {
@@ -201,19 +187,6 @@
 
   .modal.mobile
     width: 85%
-
-  .top-buttons
-    position: relative
-    height: 20px
-    margin-bottom: 25px
-
-  .header-btn
-    color: $core-text-default
-    border: none
-    position: absolute
-    &:focus
-      background-color: $core-grey-300
-      outline: none
 
   .btn-close
     right: -10px

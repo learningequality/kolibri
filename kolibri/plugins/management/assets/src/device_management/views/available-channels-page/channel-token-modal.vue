@@ -1,9 +1,6 @@
 <template>
 
-  <core-modal
-    :title="$tr('enterChannelToken')"
-    :hideTopButtons="true"
-  >
+  <core-modal :title="$tr('enterChannelToken')">
     <p>{{ $tr('tokenExplanation') }}</p>
 
     <form @submit.prevent="submitForm">

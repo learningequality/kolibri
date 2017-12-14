@@ -3,7 +3,6 @@
   <core-modal
     :title="title"
     :enableBgClickCancel="false"
-    hideTopButtons
     @enter="goForward"
     @cancel="cancel"
   >

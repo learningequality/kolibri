@@ -2,7 +2,6 @@
 
   <core-modal
     :title="$tr('title')"
-    hideTopButtons
     @enter="goForward"
     @cancel="cancel"
   >
