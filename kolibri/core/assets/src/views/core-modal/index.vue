@@ -29,9 +29,7 @@
         </h1>
 
         <!-- Modal Content -->
-        <slot>
-          <p>To populate, wrap your content with <code> modal </code>.</p>
-        </slot>
+        <slot></slot>
 
       </div>
     </div>
@@ -196,5 +194,11 @@
 
   .fade-enter, .fade-leave-active
     opacity: 0
+
+  >>>.buttons
+    text-align: right
+
+  >>>.buttons button:last-of-type
+    margin-right: 0
 
 </style>
