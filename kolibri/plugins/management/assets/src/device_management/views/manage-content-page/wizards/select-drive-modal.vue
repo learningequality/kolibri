@@ -105,6 +105,7 @@
         })
         .then(() => {
           this.driveStatus = '';
+          this.selectedDriveId = this.enabledDrives.length === 1 ? this.enabledDrives[0].id : '';
         });
     },
     methods: {
