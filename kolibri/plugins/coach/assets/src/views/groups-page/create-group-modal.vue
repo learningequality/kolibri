@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('newLearnerGroup')" @cancel="close">
+  <core-modal
+    :title="$tr('newLearnerGroup')"
+    @cancel="close"
+  >
     <div>
       <form @submit.prevent="callCreateGroup">
         <k-textbox
@@ -13,7 +16,7 @@
           @blur="nameBlurred = true"
           v-model.trim="name"
         />
-        <div class="ta-r">
+        <div class="core-modal-buttons">
           <k-button
             type="button"
             :text="$tr('cancel')"
@@ -122,9 +125,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .ta-r
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

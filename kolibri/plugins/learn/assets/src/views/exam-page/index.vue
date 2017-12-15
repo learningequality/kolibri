@@ -65,11 +65,27 @@
           </div>
         </div>
       </div>
-      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
+      <core-modal
+        v-if="submitModalOpen"
+        :title="$tr('submitExam')"
+        @cancel="toggleModal"
+      >
         <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}</p>
-        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal" />
-        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true" />
+        <p v-if="questionsUnanswered">
+          {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        </p>
+        <div class="core-modal-buttons">
+          <k-button
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+          <k-button
+            :text="$tr('submitExam')"
+            @click="finishExam"
+            :primary="true"
+          />
+        </div>
       </core-modal>
     </template>
   </immersive-full-screen>
@@ -81,7 +97,7 @@
 
   import { PageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions/main';
+  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';
@@ -131,8 +147,8 @@
         questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
-        setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
-        closeExam: actions.closeExam,
+        setAndSaveCurrentExamAttemptLog,
+        closeExam,
       },
     },
     computed: {

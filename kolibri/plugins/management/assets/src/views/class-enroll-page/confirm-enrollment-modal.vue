@@ -1,6 +1,10 @@
 <template>
 
-  <core-modal :title="$tr('confirmEnrollment')" @cancel="close" class="confirm-modal">
+  <core-modal
+    :title="$tr('confirmEnrollment')"
+    @cancel="close"
+    class="confirm-modal"
+  >
     <div>
       <p>{{ $tr('areYouSure', {className}) }}</p>
       <ul class="review-enroll-ul">
@@ -8,15 +12,17 @@
           <strong>{{ getUsername(userId) }}</strong>
         </li>
       </ul>
-      <div class="modal-buttons">
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('noGoBack')"
           appearance="flat-button"
-          @click="close" />
+          @click="close"
+        />
         <k-button
           :text="$tr('yesEnrollUsers')"
           :primary="true"
-          @click="enrollUsers" />
+          @click="enrollUsers"
+        />
       </div>
     </div>
   </core-modal>
@@ -26,8 +32,8 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
-  import * as constants from '../../constants';
+  import { enrollUsersInClass, displayModal } from '../../state/actions';
+  import { PageNames } from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
@@ -59,7 +65,7 @@
     computed: {
       editClassLink() {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
@@ -81,8 +87,8 @@
     vuex: {
       getters: { facilityUsers: state => state.pageState.facilityUsers },
       actions: {
-        enrollUsersInClass: actions.enrollUsersInClass,
-        displayModal: actions.displayModal,
+        enrollUsersInClass,
+        displayModal,
       },
     },
   };
@@ -98,11 +104,5 @@
 
   .review-enroll-li
     line-height: 1.8em
-
-  .header
-    text-align: center
-
-  .modal-buttons
-    text-align: right
 
 </style>

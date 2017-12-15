@@ -1,9 +1,6 @@
 <template>
 
-  <core-modal
-    :title="$tr('enterChannelToken')"
-    :hideTopButtons="true"
-  >
+  <core-modal :title="$tr('enterChannelToken')">
     <p>{{ $tr('tokenExplanation') }}</p>
 
     <form @submit.prevent="submitForm">
@@ -25,7 +22,7 @@
         :disabled="formIsDisabled"
       />
 
-      <div class="buttons">
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
           name="cancel"
@@ -34,7 +31,6 @@
           :disabled="formIsDisabled"
         />
         <k-button
-          class="submit"
           type="submit"
           :text="$tr('confirm')"
           :primary="true"
@@ -122,12 +118,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .buttons
-    text-align: right
-
-  .submit
-    margin-right: 0
-
-</style>
+<style lang="stylus" scoped></style>

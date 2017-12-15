@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('niceWork')" @cancel="closePopover">
+  <core-modal
+    :title="$tr('niceWork')"
+    @cancel="closePopover"
+  >
 
     <div class="progress-icon">
       <progress-icon :progress="1" />
@@ -31,8 +34,11 @@
       </div>
     </div>
 
-    <div class="buttons">
-      <k-button :text="$tr('close')" @click="closePopover" />
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('close')"
+        @click="closePopover"
+      />
       <slot name="nextItemBtn"></slot>
     </div>
 
@@ -146,10 +152,6 @@
   .next-item-section
     text-align: center
     margin-bottom: 2em
-
-  .buttons
-    text-align: center
-    padding: 0 0 0.5em
 
   .next-item-heading
     margin: 0

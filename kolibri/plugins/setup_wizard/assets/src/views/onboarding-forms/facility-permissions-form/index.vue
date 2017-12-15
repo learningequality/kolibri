@@ -8,7 +8,8 @@
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       @cancel="hideFacilityPermissionsDetails"
       :enableBgClickCancel="true"
-      v-if="permissionPresetDetailsModalShown">
+      v-if="permissionPresetDetailsModalShown"
+    >
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
@@ -49,14 +50,14 @@
         </dd>
       </dl>
 
-      <span class="permission-preset-modal-dismiss-button-wrapper">
+      <div class="core-modal-buttons">
         <k-button
           class="permission-preset-modal-dismiss-button"
           :text="$tr('permissionsModalDismissText')"
           :primary="true"
           @click="hideFacilityPermissionsDetails"
         />
-      </span>
+      </div>
 
     </core-modal>
 
@@ -223,11 +224,6 @@
     &-modal
       &-dismiss-button
         text-transform: uppercase
-        &-wrapper
-          display: block
-          text-align: right
-          width: 100%
-
 
   .permission-preset-human
     margin-bottom: 8px

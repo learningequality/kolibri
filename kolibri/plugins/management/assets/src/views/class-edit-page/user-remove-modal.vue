@@ -9,22 +9,18 @@
       <span v-html="formattedDeleteConfirmation"> </span>
       <p v-html="formattedAccessReassuranceConfirmation"> </p>
 
-      <!-- Button Section TODO: cleaunup -->
-      <section>
-
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
           appearance="flat-button"
           @click="close"
         />
-
         <k-button
           :text="$tr('remove')"
           :primary="true"
           @click="userRemove"
         />
-
-      </section>
+      </div>
 
     </div>
   </core-modal>
@@ -34,12 +30,14 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { removeClassUser, displayModal } from '../../state/actions';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+
   function bold(stringToBold) {
     return `<strong v-html> ${stringToBold} </strong>`;
   }
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+
   export default {
     name: 'userRemoveModal',
     $trs: {
@@ -95,8 +93,8 @@
     },
     vuex: {
       actions: {
-        removeClassUser: actions.removeClassUser,
-        displayModal: actions.displayModal,
+        removeClassUser,
+        displayModal,
       },
     },
   };
@@ -106,15 +104,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .header
-    text-align: center
-
   p
     word-break: keep-all
-
-  section
-    text-align: right
 
 </style>

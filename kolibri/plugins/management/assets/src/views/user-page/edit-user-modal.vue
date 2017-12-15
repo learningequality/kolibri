@@ -1,9 +1,18 @@
 <template>
 
-  <core-modal :title="$tr('editUser')" @cancel="displayModal(false)">
+  <core-modal
+    :title="$tr('editUser')"
+    @cancel="displayModal(false)"
+  >
     <form @submit.prevent="submitForm">
 
-      <ui-alert v-if="error" type="error" :dismissible="false">{{ error }}</ui-alert>
+      <ui-alert
+        v-if="error"
+        type="error"
+        :dismissible="false"
+      >
+        {{ error }}
+      </ui-alert>
 
       <k-textbox
         ref="name"
@@ -35,7 +44,7 @@
         v-model="newKind"
       />
 
-      <div class="ta-r">
+      <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
           :primary="false"
@@ -216,12 +225,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .kind-select
     margin-bottom: 32px
-
-  .ta-r
-    text-align: right
 
 </style>

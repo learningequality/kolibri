@@ -3,7 +3,6 @@
   <core-modal
     :title="title"
     :enableBgClickCancel="false"
-    hideTopButtons
     @enter="goForward"
     @cancel="cancel"
   >
@@ -35,14 +34,13 @@
       :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
     />
 
-    <div class="buttons">
+    <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
         @click="cancel"
         appearance="flat-button"
       />
       <k-button
-        class="forward-button"
         :text="$tr('continue')"
         @click="goForward"
         :disabled="continueIsDisabled"
@@ -147,12 +145,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .buttons
-    text-align: right
-
-  .forward-button
-    margin-right: 0
-
-</style>
+<style lang="stylus" scoped></style>

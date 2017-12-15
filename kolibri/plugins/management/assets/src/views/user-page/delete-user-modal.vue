@@ -1,23 +1,24 @@
 <template>
 
-  <core-modal :title="$tr('deleteUser')" @cancel="displayModal(false)">
-    <div>
-      {{ $tr('deleteConfirmation', { username }) }}
-      <div class="ta-r">
-        <k-button
-          :text="$tr('no')"
-          :primary="false"
-          appearance="flat-button"
-          @click="displayModal(false)"
-        />
-        <k-button
-          :text="$tr('yes')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="submitting"
-          @click="handleDeleteUser"
-        />
-      </div>
+  <core-modal
+    :title="$tr('deleteUser')"
+    @cancel="closeModal()"
+  >
+    <p>{{ $tr('deleteConfirmation', { username }) }}</p>
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('no')"
+        :primary="false"
+        appearance="flat-button"
+        @click="closeModal()"
+      />
+      <k-button
+        :text="$tr('yes')"
+        :primary="true"
+        appearance="raised-button"
+        :disabled="submitting"
+        @click="handleDeleteUser"
+      />
     </div>
   </core-modal>
 
@@ -60,6 +61,9 @@
         this.submitting = true;
         this.deleteUser(this.id);
       },
+      closeModal() {
+        this.displayModal(false);
+      },
     },
     vuex: {
       actions: {
@@ -78,11 +82,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .ta-r
-    text-align: right
-
-</style>
+<style lang="stylus"></style>

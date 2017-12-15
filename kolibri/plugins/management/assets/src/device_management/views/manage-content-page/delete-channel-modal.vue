@@ -1,6 +1,6 @@
 <template>
 
-  <modal
+  <core-modal
     :title="$tr('title')"
     @cancel="handleClickCancel()"
   >
@@ -12,7 +12,7 @@
       <p>{{ $tr('confirmationQuestion') }}</p>
     </div>
 
-    <div class="buttons">
+    <div class="core-modal-buttons">
       <k-button
         :primary="false"
         @click="handleClickCancel()"
@@ -26,20 +26,20 @@
         :text="$tr('confirmButtonLabel')"
       />
     </div>
-
-  </modal>
+  </core-modal>
 
 </template>
 
 
 <script>
 
-  import modal from 'kolibri.coreVue.components.coreModal';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+
   export default {
     name: 'deleteChannelModal',
     components: {
-      modal,
+      coreModal,
       kButton,
     },
     props: {
@@ -74,8 +74,5 @@
 
   .action-description
     font-weight: bold
-
-  .buttons
-    text-align: right
 
 </style>

@@ -1,11 +1,22 @@
 <template>
 
-  <core-modal :title="$tr('deleteLearnerGroup')" @cancel="close">
+  <core-modal
+    :title="$tr('deleteLearnerGroup')"
+    @cancel="close"
+  >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
-    <div class="ta-r">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
-      <k-button :text="$tr('deleteGroup')" :primary="true" @click="deleteGroup(groupId)" />
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('deleteGroup')"
+        :primary="true"
+        @click="deleteGroup(groupId)"
+      />
     </div>
   </core-modal>
 
@@ -14,7 +25,7 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import { displayModal, deleteGroup } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -50,8 +61,8 @@
     },
     vuex: {
       actions: {
-        displayModal: groupActions.displayModal,
-        deleteGroup: groupActions.deleteGroup,
+        displayModal,
+        deleteGroup,
       },
     },
   };
@@ -59,9 +70,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .ta-r
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

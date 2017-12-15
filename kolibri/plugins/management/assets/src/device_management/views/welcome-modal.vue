@@ -14,13 +14,13 @@
       {{ $tr('welcomeModalPermissionsDescription') }}
     </p>
 
-    <span class="welcome-modal-dismiss-button-wrapper">
+    <div class="core-modal-buttons">
       <k-button
         :text="$tr('welcomeButtonDismissText')"
         :primary="true"
         @click="emitCloseModal"
       />
-    </span>
+    </div>
 
   </core-modal>
 
@@ -62,9 +62,5 @@
     &-dismiss-button
       margin-top: 24px
       margin-bottom: 16px
-      &-wrapper
-        display: block
-        width: 100%
-        text-align: right
 
 </style>
