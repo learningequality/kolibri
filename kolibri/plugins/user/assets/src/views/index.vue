@@ -73,8 +73,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .full-page
     position: absolute
     top: 0

@@ -1,6 +1,6 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
-import * as actions from './state/actions';
+import { showRoot, showSignIn, showSignUp, showProfile } from './state/actions';
 import initialState from './state/initialState';
 import mutations from './state/mutations';
 import { PageNames } from './constants';
@@ -12,28 +12,28 @@ const routes = [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      actions.showRoot(store);
+      showRoot(store);
     },
   },
   {
     name: PageNames.SIGN_IN,
     path: '/signin',
     handler: () => {
-      actions.showSignIn(store);
+      showSignIn(store);
     },
   },
   {
     name: PageNames.SIGN_UP,
     path: '/create_account',
     handler: () => {
-      actions.showSignUp(store);
+      showSignUp(store);
     },
   },
   {
     name: PageNames.PROFILE,
     path: '/profile',
     handler: () => {
-      actions.showProfile(store);
+      showProfile(store);
     },
   },
   {
@@ -60,6 +60,4 @@ class UserModule extends KolibriApp {
   }
 }
 
-const userModule = new UserModule();
-
-export { userModule as default };
+export default new UserModule();
