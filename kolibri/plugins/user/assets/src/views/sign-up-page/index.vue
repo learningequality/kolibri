@@ -10,14 +10,25 @@
         {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
-        <router-link id="signin" :to="signInPage">
+        <router-link
+          id="signin"
+          :to="signInPage"
+        >
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
     </ui-toolbar>
 
-    <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
+    <form
+      class="signup-form"
+      ref="form"
+      @submit.prevent="signUp"
+    >
+      <ui-alert
+        v-if="unknownError"
+        type="error"
+        @dismiss="resetSignUpState"
+      >
         {{ errorMessage }}
       </ui-alert>
 
@@ -84,7 +95,12 @@
         @blur="facilityBlurred = true"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button
+        :disabled="busy"
+        :primary="true"
+        :text="$tr('finish')"
+        type="submit"
+      />
 
     </form>
 
