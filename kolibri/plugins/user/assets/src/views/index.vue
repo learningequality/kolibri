@@ -27,9 +27,9 @@
   import profilePage from './profile-page';
 
   const pageNameComponentMap = {
-    [PageNames.SIGN_IN]: 'signInPage',
-    [PageNames.SIGN_UP]: 'signUpPage',
-    [PageNames.PROFILE]: 'profilePage',
+    [PageNames.SIGN_IN]: signInPage,
+    [PageNames.SIGN_UP]: signUpPage,
+    [PageNames.PROFILE]: profilePage,
   };
 
   export default {
