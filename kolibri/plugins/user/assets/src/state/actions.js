@@ -1,8 +1,6 @@
 import { PageNames } from '../constants';
 import { SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-import router from 'kolibri.coreVue.router';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
@@ -21,17 +19,19 @@ function redirectToHome() {
   window.location = '/';
 }
 
-function showRoot(store) {
-  const userSignedIn = isUserLoggedIn(store.state);
-  if (userSignedIn) {
-    router.getInstance().replace({
-      name: PageNames.PROFILE,
-    });
-    return;
-  }
-  router.getInstance().replace({
-    name: PageNames.SIGN_IN,
-  });
+function resetSignUpState(store) {
+  store.dispatch('RESET_SIGN_UP_STATE');
+}
+
+function resetProfileState(store) {
+  store.dispatch('RESET_PROFILE_STATE');
+}
+
+function resetAndSetPageName(store, { pageName, title }) {
+  store.dispatch('SET_PAGE_NAME', pageName);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', title);
 }
 
 function editProfile(store, edits, session) {
@@ -91,91 +91,43 @@ function editProfile(store, edits, session) {
   );
 }
 
-function resetProfileState(store) {
-  const pageState = {
-    busy: false,
-    success: false,
-    error: false,
-    errorMessage: '',
-  };
-
-  store.dispatch('SET_PAGE_STATE', pageState);
-}
-
 function showProfile(store) {
-  const userSignedIn = isUserLoggedIn(store.state);
-  if (!userSignedIn) {
-    router.getInstance().replace({
-      name: PageNames.SIGN_IN,
-    });
-    return;
-  }
-  store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('userProfilePageTitle'));
+  resetAndSetPageName(store, {
+    pageName: PageNames.PROFILE,
+    title: translator.$tr('userProfilePageTitle'),
+  });
   resetProfileState(store);
 }
 
 function showSignIn(store) {
-  const userSignedIn = isUserLoggedIn(store.state);
-  if (userSignedIn) {
-    router.getInstance().replace({
-      name: PageNames.PROFILE,
-    });
-    return;
-  }
-
   if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
     store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
     Lockr.set(SignedOutDueToInactivitySnackbar, null);
   }
 
-  store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
+  resetAndSetPageName(store, {
+    pageName: PageNames.SIGN_IN,
+    title: translator.$tr('userSignInPageTitle'),
+  });
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('userSignInPageTitle'));
 }
 
-function resetSignUpState(store) {
-  const pageState = {
-    busy: false,
-    errorCode: null,
-    errorMessage: '',
-  };
-
-  store.dispatch('SET_PAGE_STATE', pageState);
-}
 
 function showSignUp(store) {
-  const userSignedIn = isUserLoggedIn(store.state);
-  if (userSignedIn) {
-    router.getInstance().replace({
-      name: PageNames.PROFILE,
-    });
-    return Promise.resolve();
-  }
-  const FacilityCollection = FacilityResource.getCollection().fetch();
-
-  return FacilityCollection.then(facilities => {
+  return FacilityResource.getCollection().fetch().then(facilities => {
     store.dispatch('CORE_SET_FACILITIES', facilities);
-    store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('userSignUpPageTitle'));
+    resetAndSetPageName(store, {
+      pageName: PageNames.SIGN_UP,
+      title: translator.$tr('userSignUpPageTitle'),
+    });
     resetSignUpState(store);
   }).catch(error => coreActions.handleApiError(store, error));
 }
 
 function signUp(store, signUpCreds) {
-  const signUpModel = SignUpResource.createModel(signUpCreds);
-  const signUpPromise = signUpModel.save(signUpCreds);
-
-  resetSignUpState(store);
   store.dispatch('SET_SIGN_UP_BUSY', true);
-
-  signUpPromise
+  resetSignUpState(store);
+  return SignUpResource.createModel(signUpCreds).save(signUpCreds)
     .then(() => {
       store.dispatch('SET_SIGN_UP_ERROR', null, '');
       // TODO: Better solution?
@@ -195,7 +147,6 @@ function signUp(store, signUpCreds) {
 }
 
 export {
-  showRoot,
   showSignIn,
   showSignUp,
   signUp,

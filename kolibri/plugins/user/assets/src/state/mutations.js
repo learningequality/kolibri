@@ -24,4 +24,19 @@ export default {
     state.pageState.errorCode = errorCode;
     state.pageState.errorMessage = errorMessage;
   },
+  RESET_PROFILE_STATE(state) {
+    state.pageState = {
+      busy: false,
+      success: false,
+      error: false,
+      errorMessage: '',
+    };
+  },
+  RESET_SIGN_UP_STATE(state) {
+    state.pageState = {
+      busy: false,
+      errorCode: null,
+      errorMessage: '',
+    };
+  },
 };
