@@ -373,4 +373,7 @@
     margin: 36px
     margin-top: 96px
 
+  button[type='submit']
+    margin-left: 0
+
 </style>
