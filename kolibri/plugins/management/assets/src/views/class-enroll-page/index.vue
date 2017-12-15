@@ -350,19 +350,6 @@
 </script>
 
 
-<style lang="stylus">
-
-  .switch
-    margin-top: 20px
-    .ui-switch__track
-      z-index: 0
-
-    .ui-switch__thumb
-      z-index: 1
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
@@ -370,6 +357,14 @@
   // based on material design data table spec
   $table-row-selected = #F5F5F5
   $table-row-hover = #EEEEEE
+
+  >>>.switch
+    margin-top: 20px
+    .ui-switch__track
+      z-index: 0
+
+    .ui-switch__thumb
+      z-index: 1
 
   .align-right
     text-align: right

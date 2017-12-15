@@ -103,17 +103,12 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   span
     display: inline-block
 
-</style>
-
-
-<style lang="stylus">
-
-  @require '~kolibri.styles.definitions'
-
-  .dropdown-menu
+  >>>.dropdown-menu
     &.ui-menu
       max-width: 210px
 

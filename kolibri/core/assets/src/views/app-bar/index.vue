@@ -180,19 +180,12 @@
 </script>
 
 
-<style lang="stylus">
-
-  @require '~kolibri.styles.definitions'
-
-  .override-ui-toolbar
-    color: $core-text-default
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  >>>.override-ui-toolbar
+    color: $core-text-default
 
   .app-bar
     overflow: hidden
