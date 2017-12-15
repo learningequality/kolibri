@@ -46,7 +46,7 @@ To sign out from Kolibri you can either:
 Learn with Kolibri
 ==================
 
-Each time you sign into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches.
+Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches (not visible if you are browsing as a guest).
 
 Recommended
 ^^^^^^^^^^^
@@ -71,7 +71,7 @@ The number of displayed content items in each row will depend on the width of yo
 Channels
 ^^^^^^^^
 
-**Channels** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri, grouped in channels. Use it as you wish, or according to indications from your teachers and coaches.
+**Topics** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri. Use it as you wish, or according to indications from your teachers and coaches.
 
 Depending on how your school and teachers or coaches decided to organize the content, you may have one or more channels available here. Follow the indications by your teachers or coaches on how to use the content from each available channel.
 
@@ -210,3 +210,4 @@ If your teacher/coach scheduled an exam for you or your class, it will be availa
 
 .. figure:: img/exam-result.png
 	:alt: exams tab
+

@@ -71,8 +71,6 @@ To see the progress of a single learner, click their name. In the figure below y
 
 	    View the details for all the answers and attempts for a single exercise.
 
-
 .. include:: manage/_groups.rst
-
 
 .. include:: manage/_exams.rst

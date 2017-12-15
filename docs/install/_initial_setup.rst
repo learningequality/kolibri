@@ -9,7 +9,7 @@ To do the initial setup of after the installation, follow these steps.
 .. note::
   You need to do the initial setup only once, the first time you start Kolibri after the installation.
 
-#. **Select the default language for Kolibri.** 
+#. **Select the default language for Kolibri.**
 
   	.. figure:: img/select-language.png
 	   :alt: Select the default Kolibri language.
@@ -40,7 +40,7 @@ To do the initial setup of after the installation, follow these steps.
 | Facility type                                    | Users                                              |
 +==================================================+====================================================+
 | | **Admin managed**                              | * Admins must create all user accounts.            |
-| | For schools and other formal learning contexts.| * Users can sign in without password.              | 
+| | For schools and other formal learning contexts.| * Users can sign in without password.              |
 |                                                  | * Users cannot edit their account information.     |
 +--------------------------------------------------+----------------------------------------------------+
 | | **Self-managed**                               | * Guests can create their own accounts.            |
