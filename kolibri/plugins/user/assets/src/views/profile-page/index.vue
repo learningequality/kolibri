@@ -97,7 +97,7 @@
 
 <script>
 
-  import { editProfile, resetProfileState } from '../../state/actions';
+  import { updateUserProfile, resetProfileState } from '../../state/actions';
   import {
     facilityConfig,
     isSuperuser,
@@ -237,7 +237,7 @@
             username: this.username,
             full_name: this.name,
           };
-          this.editProfile(edits, this.session);
+          this.updateUserProfile(edits, this.session);
         } else {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
@@ -271,7 +271,7 @@
         userHasPermissions,
       },
       actions: {
-        editProfile,
+        updateUserProfile,
         resetProfileState,
         fetchPoints,
       },

@@ -114,7 +114,7 @@
 
 <script>
 
-  import { signUp, resetSignUpState } from '../../state/actions';
+  import { signUpNewUser, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -279,7 +279,7 @@
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
-          this.signUpAction({
+          this.signUpNewUser({
             facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
@@ -310,8 +310,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: signUp,
-        resetSignUpState: resetSignUpState,
+        signUpNewUser,
+        resetSignUpState,
       },
     },
   };

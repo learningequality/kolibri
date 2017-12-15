@@ -26,7 +26,7 @@ function resetAndSetPageName(store, { pageName, title }) {
   store.dispatch('CORE_SET_TITLE', title);
 }
 
-export function editProfile(store, edits, session) {
+export function updateUserProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   const savedUserModel = FacilityUserResource.getModel(session.user_id);
@@ -75,7 +75,7 @@ export function editProfile(store, edits, session) {
   );
 }
 
-export function showProfile(store) {
+export function showProfilePage(store) {
   resetAndSetPageName(store, {
     pageName: PageNames.PROFILE,
     title: translator.$tr('userProfilePageTitle'),
@@ -83,7 +83,7 @@ export function showProfile(store) {
   resetProfileState(store);
 }
 
-export function showSignIn(store) {
+export function showSignInPage(store) {
   if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
     store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
     Lockr.set(SignedOutDueToInactivitySnackbar, null);
@@ -96,7 +96,7 @@ export function showSignIn(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
-export function showSignUp(store) {
+export function showSignUpPage(store) {
   return FacilityResource.getCollection()
     .fetch()
     .then(facilities => {
@@ -110,7 +110,7 @@ export function showSignUp(store) {
     .catch(error => coreActions.handleApiError(store, error));
 }
 
-export function signUp(store, signUpCreds) {
+export function signUpNewUser(store, signUpCreds) {
   store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
   return SignUpResource.createModel(signUpCreds)

@@ -1,6 +1,6 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
-import { showSignIn, showSignUp, showProfile } from './state/actions';
+import { showSignInPage, showSignUpPage, showProfilePage } from './state/actions';
 import initialState from './state/initialState';
 import mutations from './state/mutations';
 import { PageNames } from './constants';
@@ -18,7 +18,6 @@ const routes = [
         router.getInstance().replace({
           name: PageNames.PROFILE,
         });
-        return;
       }
       router.getInstance().replace({
         name: PageNames.SIGN_IN,
@@ -34,7 +33,7 @@ const routes = [
           name: PageNames.PROFILE,
         });
       } else {
-        showSignIn(store);
+        showSignInPage(store);
       }
     },
   },
@@ -48,7 +47,7 @@ const routes = [
         });
         return Promise.resolve();
       } else {
-        return showSignUp(store);
+        return showSignUpPage(store);
       }
     },
   },
@@ -61,7 +60,7 @@ const routes = [
           name: PageNames.SIGN_IN,
         });
       } else {
-        showProfile(store);
+        showProfilePage(store);
       }
     },
   },
