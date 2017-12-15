@@ -1,14 +1,4 @@
-/**
- ** pageState schemas
- **/
-
-export const initialState = {
-  pageName: undefined,
-  pageState: {},
-  facility: undefined,
-};
-
-export const mutations = {
+export default {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
