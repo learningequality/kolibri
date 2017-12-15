@@ -19,11 +19,11 @@ function redirectToHome() {
   window.location = '/';
 }
 
-function resetSignUpState(store) {
+export function resetSignUpState(store) {
   store.dispatch('RESET_SIGN_UP_STATE');
 }
 
-function resetProfileState(store) {
+export function resetProfileState(store) {
   store.dispatch('RESET_PROFILE_STATE');
 }
 
@@ -34,7 +34,7 @@ function resetAndSetPageName(store, { pageName, title }) {
   store.dispatch('CORE_SET_TITLE', title);
 }
 
-function editProfile(store, edits, session) {
+export function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   function getUserModel() {
@@ -91,7 +91,7 @@ function editProfile(store, edits, session) {
   );
 }
 
-function showProfile(store) {
+export function showProfile(store) {
   resetAndSetPageName(store, {
     pageName: PageNames.PROFILE,
     title: translator.$tr('userProfilePageTitle'),
@@ -99,7 +99,7 @@ function showProfile(store) {
   resetProfileState(store);
 }
 
-function showSignIn(store) {
+export function showSignIn(store) {
   if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
     store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
     Lockr.set(SignedOutDueToInactivitySnackbar, null);
@@ -112,22 +112,25 @@ function showSignIn(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
-
-function showSignUp(store) {
-  return FacilityResource.getCollection().fetch().then(facilities => {
-    store.dispatch('CORE_SET_FACILITIES', facilities);
-    resetAndSetPageName(store, {
-      pageName: PageNames.SIGN_UP,
-      title: translator.$tr('userSignUpPageTitle'),
-    });
-    resetSignUpState(store);
-  }).catch(error => coreActions.handleApiError(store, error));
+export function showSignUp(store) {
+  return FacilityResource.getCollection()
+    .fetch()
+    .then(facilities => {
+      store.dispatch('CORE_SET_FACILITIES', facilities);
+      resetAndSetPageName(store, {
+        pageName: PageNames.SIGN_UP,
+        title: translator.$tr('userSignUpPageTitle'),
+      });
+      resetSignUpState(store);
+    })
+    .catch(error => coreActions.handleApiError(store, error));
 }
 
-function signUp(store, signUpCreds) {
+export function signUp(store, signUpCreds) {
   store.dispatch('SET_SIGN_UP_BUSY', true);
   resetSignUpState(store);
-  return SignUpResource.createModel(signUpCreds).save(signUpCreds)
+  return SignUpResource.createModel(signUpCreds)
+    .save(signUpCreds)
     .then(() => {
       store.dispatch('SET_SIGN_UP_ERROR', null, '');
       // TODO: Better solution?
@@ -145,13 +148,3 @@ function signUp(store, signUpCreds) {
       store.dispatch('SET_SIGN_UP_BUSY', false);
     });
 }
-
-export {
-  showSignIn,
-  showSignUp,
-  signUp,
-  resetSignUpState,
-  showProfile,
-  editProfile,
-  resetProfileState,
-};
