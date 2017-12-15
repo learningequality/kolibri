@@ -40,12 +40,7 @@
   .tbody-move
     transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
 
-</style>
-
-
-<style lang="stylus">
-
-  .data-table
+  >>>.data-table
     td, th
       padding: 8px
 

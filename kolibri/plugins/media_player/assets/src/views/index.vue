@@ -409,10 +409,8 @@
     height: 100%
     background-color: black
 
-</style>
 
-
-<style lang="stylus">
+  /***** PLAYER OVERRIDES *****/
 
   @require '~kolibri.styles.definitions'
 
@@ -427,13 +425,13 @@
 
 
   /* Hide control bar when playing & inactive */
-  .vjs-has-started.vjs-playing.vjs-user-inactive
+  >>>.vjs-has-started.vjs-playing.vjs-user-inactive
     .vjs-control-bar
       visibility: hidden
 
 
   /*** CUSTOM VIDEOJS SKIN ***/
-  .custom-skin
+  >>>.custom-skin
     $button-height-normal = 40px
     $button-font-size-normal = 24px
 
@@ -565,7 +563,7 @@
 
 
   /*** MEDIUM: < 600px ***/
-  .player-medium
+  >>>.player-medium
     /* Seek bar moves up. */
     .vjs-progress-control
       position: absolute
@@ -581,7 +579,7 @@
 
 
   /*** SMALL: < 480px ***/
-  .player-small
+  >>>.player-small
     $button-height-small = 44px
     $button-font-size-normal = 24px
 
@@ -638,7 +636,7 @@
 
 
   /*** TINY: < 360px ***/
-  .player-tiny
+  >>>.player-tiny
     /* Time divider is hidden */
     .vjs-time-divider
       display: none
