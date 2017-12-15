@@ -1,5 +1,6 @@
 REQUIREMENTS=requirements.txt
 REQUIREMENTS_CEXT=requirements/cext.txt
+REQUIREMENTS_CEXT_NOARCH=requirements/cext_noarch.txt
 
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
@@ -56,7 +57,7 @@ test:
 test-all:
 	tox
 
-assets: staticdeps
+assets:
 	yarn install
 	yarn run build
 
@@ -83,6 +84,7 @@ staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
+	pip install -t kolibri/dist -r $(REQUIREMENTS_CEXT_NOARCH)
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
