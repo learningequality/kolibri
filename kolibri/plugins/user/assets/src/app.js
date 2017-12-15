@@ -18,10 +18,11 @@ const routes = [
         router.getInstance().replace({
           name: PageNames.PROFILE,
         });
+      } else {
+        router.getInstance().replace({
+          name: PageNames.SIGN_IN,
+        });
       }
-      router.getInstance().replace({
-        name: PageNames.SIGN_IN,
-      });
     },
   },
   {

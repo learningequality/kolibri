@@ -26,7 +26,7 @@ function resetAndSetPageName(store, { pageName, title }) {
   store.dispatch('CORE_SET_TITLE', title);
 }
 
-export function updateUserProfile(store, edits, session) {
+export function updateUserProfile(store, { edits, session }) {
   // payload needs username, fullname, and facility
   // used to save changes to API
   const savedUserModel = FacilityUserResource.getModel(session.user_id);

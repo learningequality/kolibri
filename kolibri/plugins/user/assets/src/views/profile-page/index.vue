@@ -205,7 +205,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -219,7 +219,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       formIsValid() {
         return !this.usernameIsInvalid;
@@ -233,11 +233,13 @@
         this.formSubmitted = true;
         this.resetProfileState();
         if (this.formIsValid) {
-          const edits = {
-            username: this.username,
-            full_name: this.name,
-          };
-          this.updateUserProfile(edits, this.session);
+          this.updateUserProfile({
+            edits: {
+              username: this.username,
+              full_name: this.name,
+            },
+            session: this.session,
+          });
         } else {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
@@ -316,5 +318,8 @@
 
   .permissions-icon
     padding-right: 8px
+
+  button[type='submit']
+    margin-left: 0
 
 </style>
