@@ -84,7 +84,7 @@ staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
-	pip install -t kolibri/dist -r $(REQUIREMENTS_CEXT_NOARCH)
+	pip install -t kolibri/dist -r $(REQUIREMENTS_CEXT_NOARCH) --no-deps
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
