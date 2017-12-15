@@ -100,6 +100,7 @@
         :primary="true"
         :text="$tr('finish')"
         type="submit"
+        class="submit"
       />
 
     </form>
@@ -373,7 +374,7 @@
     margin: 36px
     margin-top: 96px
 
-  button[type='submit']
+  .submit
     margin-left: 0
 
 </style>

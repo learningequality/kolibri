@@ -177,9 +177,9 @@
         return null;
       },
       permissionTypeText() {
-        if (this.permissionType === PermissionTypes.SUPERUSER) {
+        if (this.isSuperuser) {
           return this.$tr('isSuperuser');
-        } else if (this.permissionType === PermissionTypes.LIMITED_PERMISSIONS) {
+        } else if (this.userHasPermissions) {
           return this.$tr('limitedPermissions');
         }
         return '';
@@ -319,7 +319,7 @@
   .permissions-icon
     padding-right: 8px
 
-  button[type='submit']
+  .submit
     margin-left: 0
 
 </style>
