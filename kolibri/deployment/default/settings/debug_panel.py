@@ -8,9 +8,9 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda x: True,
 }
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE.append(  # noqa
     'debug_panel.middleware.DebugPanelMiddleware',
-) + MIDDLEWARE_CLASSES  # noqa
+)
 
 INSTALLED_APPS += [  # noqa
     'debug_toolbar',
