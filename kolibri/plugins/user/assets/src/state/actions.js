@@ -5,19 +5,11 @@ import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
 
-const name = 'userPageTitles';
-
-const messages = {
+const translator = createTranslator('userPageTitles', {
   userProfilePageTitle: 'User Profile',
   userSignInPageTitle: 'User Sign In',
   userSignUpPageTitle: 'User Sign Up',
-};
-
-const translator = createTranslator(name, messages);
-
-function redirectToHome() {
-  window.location = '/';
-}
+});
 
 export function resetSignUpState(store) {
   store.dispatch('RESET_SIGN_UP_STATE');
@@ -37,10 +29,7 @@ function resetAndSetPageName(store, { pageName, title }) {
 export function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
   // used to save changes to API
-  function getUserModel() {
-    return FacilityUserResource.getModel(session.user_id);
-  }
-  const savedUserModel = getUserModel();
+  const savedUserModel = FacilityUserResource.getModel(session.user_id);
   const changedValues = {};
 
   // explicit checks for the only values that can be changed
@@ -55,38 +44,33 @@ export function editProfile(store, edits, session) {
   // }
 
   // check to see if anything's changed and conditionally add last requirement
-  if (!Object.keys(changedValues).length) {
-    return;
+  if (Object.keys(changedValues).length === 0) {
+    return Promise.resolve();
   }
 
-  // update user object with new values
   store.dispatch('SET_PROFILE_BUSY', true);
 
-  savedUserModel.save(changedValues).then(
+  return savedUserModel.save(changedValues).then(
     () => {
-      // dispatch changes to store
       coreActions.getCurrentSession(store, true);
       store.dispatch('SET_PROFILE_SUCCESS', true);
       store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_ERROR', false, '');
-
-      // error handling
+      store.dispatch('SET_PROFILE_ERROR', { isError: false });
     },
     error => {
-      function _errorMessageHandler(apiError) {
-        if (apiError.status.code === 400) {
-          // access the first apiError message
-          return Object.values(apiError.entity)[0][0];
-        } else if (apiError.status.code === 403) {
-          return apiError.entity[0];
-        }
-        return '';
+      const { status, entity } = error;
+      let errorMessage = '';
+      if (status.code === 400) {
+        errorMessage = Object.values(entity)[0][0];
+      } else if (status.code === 403) {
+        errorMessage = entity[0];
       }
-
-      // copying logic from user-create-modal
       store.dispatch('SET_PROFILE_SUCCESS', false);
-      store.dispatch('SET_PROFILE_ERROR', true, _errorMessageHandler(error));
       store.dispatch('SET_PROFILE_BUSY', false);
+      store.dispatch('SET_PROFILE_ERROR', {
+        isError: true,
+        errorMessage,
+      });
     }
   );
 }
@@ -132,19 +116,19 @@ export function signUp(store, signUpCreds) {
   return SignUpResource.createModel(signUpCreds)
     .save(signUpCreds)
     .then(() => {
-      store.dispatch('SET_SIGN_UP_ERROR', null, '');
-      // TODO: Better solution?
-      redirectToHome();
+      store.dispatch('SET_SIGN_UP_ERROR', { errorCode: null });
+      window.location = '/';
     })
     .catch(error => {
-      function _errorMessageHandler(apiError) {
-        if (apiError.status.code === 400 || apiError.status.code === 200) {
-          return apiError.entity[0];
-        }
-        return '';
+      const { status, entity } = error;
+      let errorMessage = '';
+      if (status.code === 400 || status.code === 200) {
+        errorMessage = entity[0];
       }
-
-      store.dispatch('SET_SIGN_UP_ERROR', error.status.code, _errorMessageHandler(error));
+      store.dispatch('SET_SIGN_UP_ERROR', {
+        errorCode: status.code,
+        errorMessage,
+      });
       store.dispatch('SET_SIGN_UP_BUSY', false);
     });
 }
