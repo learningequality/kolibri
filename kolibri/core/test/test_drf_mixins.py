@@ -3,8 +3,9 @@ import json
 
 from django.test import TestCase
 from django.test.client import RequestFactory
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 
 from kolibri.content.models import Language
 from kolibri.content.serializers import LanguageSerializer
@@ -12,7 +13,7 @@ from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
 
 
 class LanguageViewSet(ModelViewSet):
-    filter_backends = (filters.DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend, )
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
     filter_fields = ('id', )

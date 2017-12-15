@@ -85,8 +85,14 @@
         type: Boolean,
         default: false,
       },
-      itemId: { default: null },
-      answerState: { default: null },
+      itemId: {
+        type: String,
+        default: null,
+      },
+      answerState: {
+        type: Object,
+        default: null,
+      },
       allowHints: {
         type: Boolean,
         default: true,
@@ -122,7 +128,9 @@
         return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length
+          ? this.availableFiles[0]
+          : undefined;
       },
       supplementaryFiles() {
         return this.files.filter(file => file.supplementary && file.available);
@@ -144,7 +152,8 @@
       updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
-        // Only bother to do this is if the node is available, and the kind and extension are defined.
+        // Only bother to do this is if the node is available,
+        // and the kind and extension are defined.
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([

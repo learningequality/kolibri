@@ -21,7 +21,14 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </content-renderer>
 
     <assessment-wrapper
@@ -41,7 +48,14 @@
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </assessment-wrapper>
 
     <!-- TODO: RTL - Remove ta-l -->
@@ -95,7 +109,13 @@
         @close="markAsComplete"
         :kind="content.next_content.kind"
         :title="content.next_content.title">
-        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right" />
+        <k-button
+          :primary="true"
+          slot="nextItemBtn"
+          @click="nextContentClicked"
+          :text="$tr('nextContent')"
+          alignment="right"
+        />
       </points-popup>
 
       <transition v-else name="slidein" appear>

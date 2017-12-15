@@ -49,6 +49,10 @@ if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):
     ] + urlpatterns
 
 if getattr(settings, 'REST_SWAGGER', False):
+    from rest_framework_swagger.views import get_swagger_view
+
+    schema_view = get_swagger_view(title='Kolibri API')
+
     urlpatterns += [
-        url(r'^api_explorer/', include('rest_framework_swagger.urls'))
+        url(r'^api_explorer/', schema_view)
     ]

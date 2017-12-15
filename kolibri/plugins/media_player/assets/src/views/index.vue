@@ -5,12 +5,16 @@
       <loading-spinner />
     </div>
     <div
-       v-show="!loading"
-       class="fill-space"
-       :class="{ 'mimic-fullscreen': mimicFullscreen }">
+      v-show="!loading"
+      class="fill-space"
+      :class="{ 'mimic-fullscreen': mimicFullscreen }">
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">
+          <source
+            :src="video.storage_url"
+            :type="`video/${video.extension}`"
+            :key="video.storage_url"
+          >
         </template>
         <template v-for="track in trackSources">
           <track
@@ -26,7 +30,11 @@
 
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
-          <source :src="audio.storage_url" :type="`audio/${audio.extension}`" :key="audio.storage_url">
+          <source
+            :src="audio.storage_url"
+            :type="`audio/${audio.extension}`"
+            :key="audio.storage_url"
+          >
         </template>
       </audio>
     </div>
@@ -206,7 +214,9 @@
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
               'Volume Level': this.$tr('volumeLevel'),
-              'A network error caused the media download to fail part-way.': this.$tr('networkError'),
+              'A network error caused the media download to fail part-way.': this.$tr(
+                'networkError'
+              ),
               'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
                 'formatError'
               ),
@@ -304,16 +314,19 @@
         wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
       handleSeek() {
-        // record progress before updating the times, to capture any progress that happened pre-seeking
+        // record progress before updating the times,
+        // to capture any progress that happened pre-seeking
         this.recordProgress();
 
-        // now, update all the timestamps to set the new time location as the baseline starting point
+        // now, update all the timestamps to set the new time location
+        // as the baseline starting point
         this.dummyTime = this.player.currentTime();
         this.lastUpdateTime = this.dummyTime;
         this.progressStartingPoint = this.dummyTime;
       },
       updateTime() {
-        // skip out of here if we're currently seeking, so we don't update this.dummyTime before calculating old progress
+        // skip out of here if we're currently seeking,
+        // so we don't update this.dummyTime before calculating old progress
         if (this.player.seeking()) {
           return;
         }
@@ -324,7 +337,8 @@
         }
       },
       setPlayState(state) {
-        // avoid recording progress if we're currently seeking, as timers are in an intermediate state
+        // avoid recording progress if we're currently seeking,
+        // as timers are in an intermediate state
         if (!this.player.seeking()) {
           this.recordProgress();
         }

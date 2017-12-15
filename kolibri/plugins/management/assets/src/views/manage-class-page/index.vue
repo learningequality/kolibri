@@ -2,9 +2,8 @@
 
   <div>
 
-    <div 
-      class="header">
-        <h1>{{ $tr('allClasses') }}</h1>
+    <div class="header">
+      <h1>{{ $tr('allClasses') }}</h1>
 
       <k-button
         class="create-btn"
@@ -45,7 +44,11 @@
               {{ classModel.memberCount }}
             </td>
             <td class="table-btn">
-              <k-button appearance="flat-button" @click="openDeleteClassModal(classModel)" :text="$tr('deleteClass')" />
+              <k-button
+                appearance="flat-button"
+                @click="openDeleteClassModal(classModel)"
+                :text="$tr('deleteClass')"
+              />
             </td>
           </tr>
         </tbody>
@@ -168,7 +171,7 @@
     display: block
     top: 0
     right: 0
-  
+
   .create-btn-mobile
     position: relative
     display: inline-block

@@ -466,9 +466,9 @@ export default class Mediator {
           // and css files that we think we want by default).
           .then(scriptsArray => {
             // If we want to dynamically switch css, e.g. we loaded RTL css and later decide we need
-            // LTR, we need to keep track of the script/link tags that we instantiated when we loaded
-            // the css so that we can remove them from the DOM, and prevent a styling collision
-            // from the two conflicting style sheets
+            // LTR, we need to keep track of the script/link tags that we instantiated when we
+            // loaded the css so that we can remove them from the DOM, and prevent a styling
+            // collision from the two conflicting style sheets
             const storeTags = module => {
               // Function to keep track of the <link>/<script> tags for each URL.
               module.urlTags = {};
@@ -500,7 +500,8 @@ export default class Mediator {
   }
   /*
    * Method to load the direction specific CSS for a particular content renderer
-   * @param {ContentRendererModule} contentRendererModule The content renderer module to load the css for
+   * @param {ContentRendererModule} contentRendererModule The content renderer module to load the
+   * css for
    * @param {String} direction Must be one of languageDirections.RTL or LTR
    * @return {Promise} Promise that resolves when new CSS has loaded
    */
@@ -511,7 +512,8 @@ export default class Mediator {
       }
       const urls = this._contentRendererUrls[contentRendererModule.name];
       // Find the URL for the specified direction
-      // Note that this will only work if we have one CSS file per module - which is currently the case
+      // Note that this will only work if we have one CSS file per module - which is
+      // currently the case
       const cssUrl = urls.find(
         url =>
           (direction === languageDirections.RTL && url.includes(languageDirections.RTL)) ||

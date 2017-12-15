@@ -22,7 +22,7 @@
               v-if="!!getPermissionType(user.id)"
               :permissionType="getPermissionType(user.id)"
             />
-            </td>
+          </td>
           <td>
             {{ user.full_name }}
             <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>

@@ -43,11 +43,11 @@
    */
   export default {
     name: 'kSelect',
-    model: {
-      event: 'change',
-    },
     components: {
       uiSelect,
+    },
+    model: {
+      event: 'change',
     },
     props: {
       /**

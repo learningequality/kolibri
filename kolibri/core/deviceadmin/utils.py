@@ -82,7 +82,7 @@ def dbbackup(old_version, dest_folder=None):
 
     backup_path = os.path.join(dest_folder, fname)
 
-    with open(backup_path, 'w') as f:
+    with open(backup_path, 'wb') as f:
         # If the connection hasn't been opened yet, then open it
         if not db.connections['default'].connection:
             db.connections['default'].connect()
@@ -109,8 +109,8 @@ def dbrestore(from_file):
     db.connections.close_all()
 
     # Wipe current database file
-    if not db.connections['default'].is_in_memory_db(dst_file):
-        with open(dst_file, "w") as f:
+    if not db.connections['default'].is_in_memory_db():
+        with open(dst_file, "wb") as f:
             f.truncate()
     else:
         logger.info("In memory database, not truncating: {}".format(dst_file))

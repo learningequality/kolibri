@@ -10,8 +10,8 @@ Vue.use(Vuep, { lineNumbers: false });
 class StyleGuideModule extends KolibriModule {
   ready() {
     this.rootvue = new Vue({
-      name: 'styleGuideRoot',
       el: 'rootvue',
+      name: 'styleGuideRoot',
       render: createElement => createElement(RootVue),
       router: router.init(navMenuRoutes, {
         // Enable the anchor scrolling behavior (which requires the vue-router
