@@ -9,6 +9,7 @@ Vue.use(Vuep, { lineNumbers: false });
 
 class StyleGuideModule extends KolibriModule {
   ready() {
+    document.title = 'Kolibri Style Guide';
     this.rootvue = new Vue({
       el: 'rootvue',
       name: 'styleGuideRoot',
