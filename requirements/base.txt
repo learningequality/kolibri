@@ -9,7 +9,7 @@ django-mptt==0.9.0
 djangorestframework-csv==2.0.0
 tqdm==4.19.5                     # progress bars
 requests==2.18.4
-cherrypy==13.0.0
+cherrypy==11.0.0  # pyup: <11.1.0
 iceqube==0.0.4
 porter2stemmer==1.0
 unicodecsv==0.14.1
