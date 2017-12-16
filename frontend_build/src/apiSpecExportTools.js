@@ -15,7 +15,7 @@ var specFilePath = path.resolve(
 );
 
 function specModule(filePath) {
-  var rootPath = path.dirname(filePath);
+  const rootPath = path.dirname(filePath);
   function newPath(importPath) {
     if (importPath.startsWith('.')) {
       return path.join(rootPath, importPath);
@@ -27,8 +27,8 @@ function specModule(filePath) {
   // Read the spec file and do a regex replace to change all instances of 'import...'
   // to just be the string of the import path.
   // Our strict linting rules should ensure that this regex suffices.
-  var apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
-  var apiSpecTree = esprima.parse(apiSpecFile, { sourceType: 'module' });
+  const apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
+  const apiSpecTree = esprima.parse(apiSpecFile, { sourceType: 'module' });
 
   const importPaths = apiSpecTree.body
     .filter(decl => decl.type === esprima.Syntax.ImportDeclaration)
@@ -38,7 +38,7 @@ function specModule(filePath) {
 
   const pathLookup = Object.assign({}, ...importPaths);
 
-  var properties = apiSpecTree.body.find(
+  const exportTree = apiSpecTree.body.find(
     dec => dec.type === esprima.Syntax.ExportDefaultDeclaration
   ).declaration.properties;
 
@@ -48,20 +48,22 @@ function specModule(filePath) {
         recurseProperties(prop.value.properties);
       } else if (prop.value.type === esprima.Syntax.Identifier) {
         var path = pathLookup[prop.key.name];
-        (prop.value = {
-          type: 'Literal',
-          value: path,
-          raw: '"' + path + '"',
-        }),
-          (prop.shorthand = false);
+        Object.assign(prop, {
+          value: {
+            type: 'Literal',
+            value: path,
+            raw: `"${path}"`,
+          },
+          shorthand: false,
+        });
       }
     });
   }
 
-  recurseProperties(properties);
+  recurseProperties(exportTree);
 
   // Manually construct an AST that will contain the apiSpec object we need
-  var objectTree = {
+  const objectTree = {
     type: 'Program',
     body: [
       {
@@ -72,7 +74,7 @@ function specModule(filePath) {
             id: { type: 'Identifier', name: 'apiSpec' },
             init: {
               type: 'ObjectExpression',
-              properties,
+              properties: exportTree,
             },
           },
         ],
@@ -83,7 +85,7 @@ function specModule(filePath) {
   };
 
   eval(escodegen.generate(objectTree));
-
+  // apiSpec was created by the eval above
   return apiSpec;
 }
 
