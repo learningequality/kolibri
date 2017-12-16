@@ -101,13 +101,9 @@
   import { signUp, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import { kButton, kSelect, kTextbox, logo, uiAlert } from 'kolibri.coreVue.allComponents';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import logo from 'kolibri.coreVue.components.logo';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
   import languageSwitcherFooter from '../language-switcher-footer';
 
   export default {

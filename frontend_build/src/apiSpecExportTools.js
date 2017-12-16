@@ -1,4 +1,3 @@
-/* eslint-disable */
 var fs = require('fs');
 var path = require('path');
 var esprima = require('esprima');
@@ -16,31 +15,30 @@ var specFilePath = path.resolve(
 );
 
 function specModule(filePath) {
-  var rootPath = path.dirname(filePath);
-  function newPath(p1) {
-    if (p1.startsWith('.')) {
-      return path.join(rootPath, p1);
+  const rootPath = path.dirname(filePath);
+  function newPath(importPath) {
+    if (importPath.startsWith('.')) {
+      return path.join(rootPath, importPath);
     } else {
-      return p1;
+      return importPath;
     }
   }
 
-  // Read the spec file and do a regex replace to change all instances of 'require('...')'
-  // to just be the string of the require path.
+  // Read the spec file and do a regex replace to change all instances of 'import...'
+  // to just be the string of the import path.
   // Our strict linting rules should ensure that this regex suffices.
-  var apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
+  const apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
+  const apiSpecTree = esprima.parse(apiSpecFile, { sourceType: 'module' });
 
-  var apiSpecTree = esprima.parse(apiSpecFile, { sourceType: 'module' });
+  const importPaths = apiSpecTree.body
+    .filter(decl => decl.type === esprima.Syntax.ImportDeclaration)
+    .map(importDecl => ({
+      [importDecl.specifiers[0].local.name]: newPath(importDecl.source.value),
+    }));
 
-  var pathLookup = {};
+  const pathLookup = Object.assign({}, ...importPaths);
 
-  apiSpecTree.body.forEach(function(dec) {
-    if (dec.type === esprima.Syntax.ImportDeclaration) {
-      pathLookup[dec.specifiers[0].local.name] = newPath(dec.source.value);
-    }
-  });
-
-  var properties = apiSpecTree.body.find(
+  const exportTree = apiSpecTree.body.find(
     dec => dec.type === esprima.Syntax.ExportDefaultDeclaration
   ).declaration.properties;
 
@@ -50,20 +48,22 @@ function specModule(filePath) {
         recurseProperties(prop.value.properties);
       } else if (prop.value.type === esprima.Syntax.Identifier) {
         var path = pathLookup[prop.key.name];
-        (prop.value = {
-          type: 'Literal',
-          value: path,
-          raw: '"' + path + '"',
-        }),
-          (prop.shorthand = false);
+        Object.assign(prop, {
+          value: {
+            type: 'Literal',
+            value: path,
+            raw: `"${path}"`,
+          },
+          shorthand: false,
+        });
       }
     });
   }
 
-  recurseProperties(properties);
+  recurseProperties(exportTree);
 
   // Manually construct an AST that will contain the apiSpec object we need
-  var objectTree = {
+  const objectTree = {
     type: 'Program',
     body: [
       {
@@ -74,7 +74,7 @@ function specModule(filePath) {
             id: { type: 'Identifier', name: 'apiSpec' },
             init: {
               type: 'ObjectExpression',
-              properties,
+              properties: exportTree,
             },
           },
         ],
@@ -85,7 +85,7 @@ function specModule(filePath) {
   };
 
   eval(escodegen.generate(objectTree));
-
+  // apiSpec was created by the eval above
   return apiSpec;
 }
 
@@ -106,7 +106,8 @@ var baseAliases = {
 
 function coreExternals(kolibri_name) {
   /*
-   * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
+   * Function for creating a hash of externals for modules that are exposed
+   * on the core kolibri object.
    */
   var externalsObj = {
     kolibri: kolibri_name,
@@ -130,7 +131,8 @@ function coreExternals(kolibri_name) {
 
 function coreAliases(localAPISpec) {
   /*
-   * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
+   * Function for creating a hash of aliases for modules that are exposed on
+   * the core kolibri object.
    */
   var aliasesObj = Object.assign({}, baseAliases);
   function recurseObjectKeysAndAlias(obj, pathArray) {
@@ -144,7 +146,8 @@ function coreAliases(localAPISpec) {
       // We only want to include modules that are using relative imports, so as to exclude
       // modules that are already in node_modules.
       if (obj.startsWith('.')) {
-        // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
+        // Map from the requireName to a resolved path (relative to the apiSpecFile)
+        // to the module in question.
         aliasesObj[requireName(pathArray)] = path.resolve(
           path.join(path.dirname(specFilePath), obj)
         );
