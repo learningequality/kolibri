@@ -73,6 +73,7 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
+import allComponents from '../views/index.js';
 
 export default {
   client,
@@ -95,6 +96,7 @@ export default {
       store,
       mappers,
     },
+    allComponents,
     components: {
       contentRenderer,
       downloadButton,
