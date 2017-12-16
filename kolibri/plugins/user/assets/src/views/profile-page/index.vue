@@ -112,10 +112,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
-  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import { kButton, kTextbox, permissionsIcon, pointsIcon } from 'kolibri.coreVue.allComponents';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
 

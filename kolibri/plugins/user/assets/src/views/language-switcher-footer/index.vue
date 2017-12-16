@@ -9,7 +9,7 @@
 
 <script>
 
-  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
+  import { languageSwitcherList } from 'kolibri.coreVue.allComponents';
 
   export default {
     name: 'languageSwitcherFooter',

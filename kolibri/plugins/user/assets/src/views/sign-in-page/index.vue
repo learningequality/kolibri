@@ -111,15 +111,17 @@
   import { facilityConfig, currentFacilityId, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors, SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import logo from 'kolibri.coreVue.components.logo';
+  import {
+    coreSnackbar,
+    kButton,
+    kExternalLink,
+    kRouterLink,
+    kTextbox,
+    logo,
+  } from 'kolibri.coreVue.allComponents';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import languageSwitcherFooter from '../language-switcher-footer';
-  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
 
   export default {
     name: 'signInPage',
