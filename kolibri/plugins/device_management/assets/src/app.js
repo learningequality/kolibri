@@ -3,7 +3,7 @@ import RootVue from './views';
 import mutations from './state/mutations';
 import initialState from './state/initialState';
 import { PageNames } from './constants';
-import preparePage from '../state/preparePage';
+import preparePage from './state/preparePage';
 import {
   showManagePermissionsPage,
   showUserPermissionsPage,

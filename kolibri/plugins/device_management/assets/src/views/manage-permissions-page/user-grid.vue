@@ -49,7 +49,7 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
-  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
 
   export default {

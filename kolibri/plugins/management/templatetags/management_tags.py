@@ -2,7 +2,7 @@
 Management template tags
 ========================
 
-Tags for including management app javascript assets ina template. To use:
+Tags for including management app javascript assets in a template. To use:
 
 .. code-block:: html
 

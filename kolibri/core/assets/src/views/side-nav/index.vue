@@ -167,7 +167,7 @@
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
             icon: 'tablet_mac',
-            href: '/management/device',
+            href: '/device',
           });
         }
         options.push({ type: 'divider' });
