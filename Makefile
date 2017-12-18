@@ -86,6 +86,10 @@ staticdeps:
 	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
 	pip install -t kolibri/dist -r $(REQUIREMENTS_CEXT_NOARCH) --no-deps
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	# This expression checks that everything in kolibri/dist has an __init__.py
+	# To prevent namespaced packages from suddenly showing up
+	# https://github.com/learningequality/kolibri/pull/2972
+	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
 
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
