@@ -4,12 +4,12 @@ import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from 'avoriaz';
-import ChannelsGrid from '../../views/manage-content-page/channels-grid.vue';
-import DeleteChannelModal from '../../views/manage-content-page/delete-channel-modal.vue';
-import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
-import { manageContentPageState } from '../../state/wizardState';
-import mutations from '../../state/mutations';
-import SlottedDiv from '../../../../../../learn/assets/test/util/SlottedDiv.vue';
+import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
+import DeleteChannelModal from '../../src/views/manage-content-page/delete-channel-modal.vue';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
+import { manageContentPageState } from '../../src/state/wizardState';
+import mutations from '../../src/state/mutations';
+import SlottedDiv from '../../../../learn/assets/test/util/SlottedDiv.vue';
 import UiProgressLinear from 'keen-ui/src/UiProgressLinear.vue';
 
 function makeStore() {

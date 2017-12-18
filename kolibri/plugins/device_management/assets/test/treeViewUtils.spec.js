@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import { annotateNode } from '../views/select-content-page/treeViewUtils';
+import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
 import pick from 'lodash/pick';
 

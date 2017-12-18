@@ -5,16 +5,16 @@ import assert from 'assert';
 import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
-import mutations from '../../state/mutations';
+import mutations from '../../src/state/mutations';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import {
   addNodeForTransfer,
   removeNodeForTransfer,
-} from '../../state/actions/contentTreeViewerActions';
+} from '../../src/state/actions/contentTreeViewerActions';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../state/getters';
-import { updateTreeViewTopic } from '../../state/actions/selectContentActions';
-import { importExportWizardState } from '../../state/wizardState';
+import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../src/state/getters';
+import { updateTreeViewTopic } from '../../src/state/actions/selectContentActions';
+import { importExportWizardState } from '../../src/state/wizardState';
 
 const simplePath = (...pks) => pks.map(pk => ({ pk, title: `node_${pk}` }));
 

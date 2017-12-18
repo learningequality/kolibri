@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import sinon from 'sinon';
 import { mount } from 'avoriaz';
 import assert from 'assert';
-import ContentNodeRow from '../../views/select-content-page/content-node-row.vue';
+import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
 import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 

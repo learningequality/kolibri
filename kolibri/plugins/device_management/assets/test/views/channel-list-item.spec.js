@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
 import assert from 'assert';
-import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { mount } from 'avoriaz';
 import { defaultChannel } from '../utils/data';
 

@@ -5,12 +5,12 @@ import VueRouter from 'vue-router';
 import assert from 'assert';
 import { mount } from 'avoriaz';
 import sinon from 'sinon';
-import ContentTreeViewer from '../../views/select-content-page/content-tree-viewer.vue';
-import ContentNodeRow from '../../views/select-content-page/content-node-row.vue';
+import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
+import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-import { importExportWizardState } from '../../state/wizardState';
+import { importExportWizardState } from '../../src/state/wizardState';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import mutations from '../../state/mutations';
+import mutations from '../../src/state/mutations';
 import omit from 'lodash/omit';
 
 function simplePath(pks) {

@@ -4,12 +4,12 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import { mount } from 'avoriaz';
-import SelectContentPage from '../../views/select-content-page';
+import SelectContentPage from '../../src/views/select-content-page';
 import { defaultChannel, contentNodeGranularPayload } from '../utils/data';
-import { wizardState } from '../../state/getters';
-import SelectedResourcesSize from '../../views/select-content-page/selected-resources-size';
+import { wizardState } from '../../src/state/getters';
+import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size';
 import sinon from 'sinon';
-import { importExportWizardState } from '../../state/wizardState';
+import { importExportWizardState } from '../../src/state/wizardState';
 
 SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {};
 

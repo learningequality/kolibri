@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
 import { mount } from 'avoriaz';
 import sinon from 'sinon';
-import ChannelTokenModal from '../../views/available-channels-page/channel-token-modal';
+import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import kTextbox from 'kolibri.coreVue.components.kTextbox';
 import UiAlert from 'keen-ui/src/UiAlert';
 

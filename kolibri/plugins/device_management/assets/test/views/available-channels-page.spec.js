@@ -5,13 +5,13 @@ import VueRouter from 'vue-router';
 import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from 'avoriaz';
-import AvailableChannelsPage from '../../views/available-channels-page';
-import ChannelListItem from '../../views/manage-content-page/channel-list-item.vue';
+import AvailableChannelsPage from '../../src/views/available-channels-page';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import UiSelect from 'keen-ui/src/UiSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-import ChannelTokenModal from '../../views/available-channels-page/channel-token-modal';
-import { importExportWizardState } from '../../state/wizardState';
+import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
+import { importExportWizardState } from '../../src/state/wizardState';
 import cloneDeep from 'lodash/cloneDeep';
 
 const router = new VueRouter({

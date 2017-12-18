@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import bytesForHumans from '../views/manage-content-page/bytesForHumans';
+import bytesForHumans from '../src/views/manage-content-page/bytesForHumans';
 
 const ONE_KB = 1024;
 const ONE_MB = 1048576;

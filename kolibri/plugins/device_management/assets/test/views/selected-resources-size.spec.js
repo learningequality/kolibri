@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
 import { mount } from 'avoriaz';
 import sinon from 'sinon';
-import SelectedResourcesSize from '../../views/select-content-page/selected-resources-size.vue';
+import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size.vue';
 import kButton from 'kolibri.coreVue.components.kButton';
 import UiAlert from 'keen-ui/src/UiAlert.vue';
 

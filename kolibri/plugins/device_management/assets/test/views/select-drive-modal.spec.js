@@ -4,8 +4,8 @@ import Vuex from 'vuex';
 import assert from 'assert';
 import { mount } from 'avoriaz';
 import sinon from 'sinon';
-import SelectDriveModal from '../../views/manage-content-page/wizards/select-drive-modal';
-import { wizardState } from '../../state/getters';
+import SelectDriveModal from '../../src/views/manage-content-page/wizards/select-drive-modal';
+import { wizardState } from '../../src/state/getters';
 import coreModal from 'kolibri.coreVue.components.coreModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 
