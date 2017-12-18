@@ -1,30 +1,29 @@
 from __future__ import absolute_import, print_function, unicode_literals
-
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.hooks import UserNavigationHook
-from kolibri.core.webpack import hooks as webpack_hooks
+from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.base import KolibriPluginBase
+from .hooks import FacilityManagementSyncHook
+from . import urls
 
-from . import hooks, urls
 
-
-class ManagementPlugin(KolibriPluginBase):
+class FacilityManagementPlugin(KolibriPluginBase):
     def url_module(self):
         return urls
 
     def url_slug(self):
-        return "^management/"
+        return "^facility/"
 
 
-class ManagementAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "management_module"
+class FacilityManagementAsset(WebpackBundleHook):
+    unique_slug = "facility_management_module"
     src_file = "assets/src/app.js"
 
 
-class ManagementInclusionHook(hooks.ManagementSyncHook):
-    bundle_class = ManagementAsset
+class FacilityManagementInclusionHook(FacilityManagementSyncHook):
+    bundle_class = FacilityManagementAsset
 
 
-class ManagementNavItem(UserNavigationHook):
+class FacilityManagementNavItem(UserNavigationHook):
     label = _("Facility")
     url = '#'

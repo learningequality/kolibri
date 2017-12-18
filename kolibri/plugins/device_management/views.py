@@ -3,5 +3,4 @@ from django.views.generic.base import TemplateView
 
 
 class DeviceManagementView(TemplateView):
-
     template_name = "device_management.html"
