@@ -179,8 +179,8 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const facilityURL = urls['kolibri:managementplugin:management']();
-      const deviceURL = urls['kolibri:managementplugin:device_management']();
+      const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
+      const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
