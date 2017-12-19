@@ -1,7 +1,7 @@
-.. include:: ../../CODE_OF_CONDUCT.rst
+.. include:: ../../../CODE_OF_CONDUCT.rst
 
 Reporting Guidelines
-====================
+--------------------
 
 If you believe someone is violating the code of conduct we ask that you
 report it to the Learning Equality by emailing
@@ -40,7 +40,7 @@ In your report please include:
 #. Any other information you believe we should have.
 
 What happens after you file a report?
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You will receive an email from the Code of Conduct committee
 acknowledging receipt within 48 hours (we aim to be quicker than that).
@@ -82,19 +82,9 @@ reporter to let them know what action (if any) we'll be taking. We'll
 take into account feedback from the reporter on the appropriateness of
 our response, but we don't guarantee we'll act on it.
 
-Attribution
------------
-
-This Code of Conduct is distributed under a `Creative Commons
-Attribution-ShareAlike
-license <http://creativecommons.org/licenses/by-sa/3.0/>`__.
-
-Text derived from the
-`Django Code of Conduct <https://www.djangoproject.com/conduct/reporting/>`__
-
 
 Enforcement Manual
-==================
+------------------
 
 This is the enforcement manual followed by Learning Equality's Code of Conduct
 Committee. It's used when we respond to an issue to make sure we're
@@ -102,7 +92,7 @@ consistent and fair. It should be considered an internal document, but
 we're publishing it publicly in the interests of transparency.
 
 The Code of Conduct Committee
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All responses to reports of conduct violations will be managed by a Code
 of Conduct Committee ("the committee").
@@ -112,7 +102,7 @@ establish this committee, comprised of at least three members.
 
 
 How the committee will respond to reports
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a report is sent to the committee, a member will reply with a receipt
 to confirm that a process of reading your report has started.
@@ -143,7 +133,7 @@ timeline for resolution.
 
 
 Acting Unilaterally
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 If the act is ongoing or involves a threat to anyone's safety (e.g. threats of
 violence), any committee member may act immediately (before reaching
@@ -161,7 +151,7 @@ must report their actions to the committee for review within 24 hours.
 
 
 Resolutions
------------
+~~~~~~~~~~~
 
 The committee must agree on a resolution by consensus. If the committee
 cannot reach consensus and deadlocks for over a week, the committee will
@@ -203,13 +193,13 @@ The committee will never publicly discuss the issue; all public
 statements will be made by the core team.
 
 Conflicts of Interest
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 In the event of any conflict of interest a committee member must
 immediately notify the other members, and recuse themselves if necessary.
 
 Attribution
-===========
+-----------
 
 Reporting Guidelines and Enforcement Manual are both distributed under a
 `Creative Commons Attribution-ShareAlike license

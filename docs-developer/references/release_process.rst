@@ -29,7 +29,7 @@ Process
 Update the Changelog
 ~~~~~~~~~~~~~~~~~~~~
 
-Update the :doc:`changelog` as necessary. In general we should try to keep the changelog up-to-date as PRs are merged in; however in practice the changelog usually needs to be cleaned up, fleshed out, and clarified.
+Update the :ref:`changelog` as necessary. In general we should try to keep the changelog up-to-date as PRs are merged in; however in practice the changelog usually needs to be cleaned up, fleshed out, and clarified.
 
 Our changelogs should list:
 

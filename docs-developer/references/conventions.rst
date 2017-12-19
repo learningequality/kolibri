@@ -1,3 +1,5 @@
+.. _conventions:
+
 Front-end code conventions
 ==========================
 

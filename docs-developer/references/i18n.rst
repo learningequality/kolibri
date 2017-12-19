@@ -76,7 +76,8 @@ In this way, messages are namespaced, and then available off the ``$tr`` method 
 
 These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
 
-.. new_language:
+.. _new_language:
+
 Adding a new language
 ---------------------
 
