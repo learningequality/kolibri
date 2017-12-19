@@ -13,7 +13,7 @@ Install
 #. Select the language for the installation.
 #. Follow the instructions in the installation wizard window.
 #. Once the installation finishes, Kolibri will auto-start and open in the default browser on your computer.
-#. Proceed with the :ref:`setup_initial` of your facility. 
+#. Proceed with the :ref:`setup_initial` of your facility.
 
 .. warning::
   Windows firewall will prompt you to allow the Python process needed to run Kolibri. Click **Allow access** to accept and proceed.
