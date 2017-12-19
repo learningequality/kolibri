@@ -5,6 +5,8 @@ Getting started
 
 First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
+.. _dev_env_intro:
+  
 Setting up Kolibri for development
 ----------------------------------
 
@@ -243,8 +245,10 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
   pre-commit install
 
 
-Development
-----------
+.. _workflow_intro:
+
+Development workflows
+---------------------
 
 Linting
 ~~~~~~~

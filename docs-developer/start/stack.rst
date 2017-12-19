@@ -1,3 +1,5 @@
+.. _stack:
+  
 Tech stack overview
 ===================
 
@@ -102,7 +104,7 @@ Continuous Integration
 Tests and Linting
 ~~~~~~~~~~~~~~~~~
 
-We use a number of mechanisms to help encourage code quality and consistency. These checks enforce a subset of our :doc:`conventions`.
+We use a number of mechanisms to help encourage code quality and consistency. These checks enforce a subset of our :ref:`conventions`.
 
 - `pre-commit <http://pre-commit.com/>`_ is run locally on ``git commit`` and enforces some Python conventions
 - We use `EditorConfig <http://editorconfig.org/>`_ to help developers set their editor preferences

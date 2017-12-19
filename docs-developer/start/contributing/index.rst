@@ -67,5 +67,5 @@ Code of conduct
    :titlesonly:
 
    code_of_conduct
-
+   authors
 

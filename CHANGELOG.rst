@@ -1,9 +1,19 @@
-.. :changelog:
-
 Release Notes
 =============
 
 Changes are ordered reverse-chronologically.
+
+0.8.0 (unreleased)
+------------------
+
+ - TBA
+
+
+0.7.1 (unreleased)
+------------------
+
+ - TBA
+
 
 0.7.0
 -----
@@ -18,8 +28,8 @@ Changes are ordered reverse-chronologically.
  - Granular content import and export
 
 
-0.6.1 (unreleased)
-------------------
+0.6.1
+-----
 
  - Many mobile-friendly updates across the app
  - Update French, Portuguese, and Swahili translations
