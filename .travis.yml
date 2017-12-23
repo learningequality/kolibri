@@ -4,8 +4,6 @@ language: python
 
 dist: trusty
 
-sudo: required
-
 addons:
   chrome: stable
 
