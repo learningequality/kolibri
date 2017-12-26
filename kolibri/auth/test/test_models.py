@@ -397,3 +397,15 @@ class FacilityTestCase(TestCase):
     def test_default_facility_returns_none_when_no_settings(self):
         default_facility = Facility.get_default_facility()
         self.assertEqual(default_facility, None)
+
+
+class FacilityUserTestCase(TestCase):
+
+    def test_able_to_create_user_with_same_username(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        FacilityUser.objects.create(username='bob', facility=self.facility)
+        try:
+            FacilityUser.objects.create(username='bob', facility=self.facility)
+        except IntegrityError:
+            self.fail("Can't create user with same username.")
