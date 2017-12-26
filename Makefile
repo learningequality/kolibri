@@ -100,7 +100,7 @@ buildconfig:
 
 dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 	pip install -r requirements/build.txt
-	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
+	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
 
