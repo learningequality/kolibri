@@ -77,7 +77,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{ num } questions',
+      numQuestions: '{num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
