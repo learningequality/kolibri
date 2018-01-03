@@ -498,9 +498,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     is_facility_user = True
 
-    class Meta:
-        unique_together = (("username", "facility"),)
-
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
