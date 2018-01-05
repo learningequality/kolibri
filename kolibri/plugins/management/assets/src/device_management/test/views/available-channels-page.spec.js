@@ -243,7 +243,7 @@ describe('availableChannelsPage', () => {
     const { languageFilter } = getElements(wrapper);
     // Fake labels for now
     const expected = [
-      { label: 'All Languages', value: 'ALL' },
+      { label: 'All languages', value: 'ALL' },
       { label: 'English', value: 'en' },
       { label: 'German', value: 'de' },
     ];

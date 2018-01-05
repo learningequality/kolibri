@@ -73,7 +73,7 @@ describe('exam report page', () => {
       averageScore()
         .text()
         .trim(),
-      'Average Score: 50%'
+      'Average score: 50%'
     );
   });
 
