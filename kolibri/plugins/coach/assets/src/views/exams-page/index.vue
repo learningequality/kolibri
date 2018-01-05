@@ -118,7 +118,7 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      classExams: '{className} exams',
+      classExams: 'Exams in {className}',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
