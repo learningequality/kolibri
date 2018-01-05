@@ -41,8 +41,8 @@
   export default {
     name: 'userRemoveModal',
     $trs: {
-      modalTitle: 'Remove User from Class',
-      remove: 'Remove from Class',
+      modalTitle: 'Remove user from class',
+      remove: 'Remove from class',
       cancel: 'Cancel',
       deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
       accessReassurance: 'You can still access this account from { sectionTabName }',

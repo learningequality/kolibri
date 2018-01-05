@@ -32,12 +32,12 @@
   export default {
     name: 'deleteGroupModal',
     $trs: {
-      deleteLearnerGroup: 'Delete Learner Group',
+      deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
       learnersWillBecome: 'Learners within this group will become',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
-      deleteGroup: 'Delete Group',
+      deleteGroup: 'Delete group',
     },
     components: {
       coreModal,

@@ -41,7 +41,7 @@
   export default {
     $trs: {
       facilityTitle: 'Facility',
-      adminOrSuperuser: 'You must be a signed in as an Admin or Superuser to view this page',
+      adminOrSuperuser: 'You must be a signed in as an admin or superuser to view this page',
     },
     name: 'managementRoot',
     components: {

@@ -71,7 +71,7 @@
       className: 'Class name',
       tableCaption: 'List of classes',
       members: 'Members',
-      noClassesExist: 'No Classes Exist.',
+      noClassesExist: 'No classes exist.',
     },
   };
 

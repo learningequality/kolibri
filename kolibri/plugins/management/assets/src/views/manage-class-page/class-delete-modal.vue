@@ -38,8 +38,8 @@
   export default {
     name: 'classDeleteModal',
     $trs: {
-      modalTitle: 'Delete Class',
-      delete: 'Delete Class',
+      modalTitle: 'Delete class',
+      delete: 'Delete class',
       cancel: 'Cancel',
       description:
         'Users will only be removed from the class and are still accessible from the "Users" tab.',

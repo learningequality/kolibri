@@ -194,10 +194,10 @@
     },
     $trs: {
       cancelButton: 'Cancel',
-      devicePermissions: 'Device Permissions',
+      devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can import and export content channels',
       goBack: 'Go Back',
-      invalidUser: 'Invalid User ID',
+      invalidUser: 'Invalid user ID',
       makeSuperuser: 'Make superuser',
       makeSuperuserDetails:
         'A superuser has all device permissions and is able to manage permissions of other users',
