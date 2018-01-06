@@ -1,5 +1,5 @@
-Learner
-#######
+Learn
+#####
 
 Access Kolibri
 ==============
@@ -35,26 +35,26 @@ Once you have logged in into Kolibri, you can see and edit your user data from t
 		View and edit your user profile.
 
 To sign out from Kolibri you can either:
-	* Click the user icon in the upper right corner and select **Sign out** option.
-	OR
+	* Click the user icon in the upper right corner and select **Sign out** option, **OR**
+	* Select **Sign out** option in the main sidebar menu.
 
-	* Select **Sign out** option in the main menu.
+Learn with Kolibri
+==================
 
-
-Learn
-=====
-
-Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches (not visible if you are browsing as a guest).
+Each time you sign into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches.
 
 Recommended
 ^^^^^^^^^^^
 
 In the **Recommended** tab you can see various sections:
 
-* **Most popular** section which displays the most frequently used materials in your school or facility.
-* **Next steps** section which displays suggestions according to your previously visited activities.
-* **Resume section** displays activities that you started but haven’t finished yet.
-* **Featured in...** section.
+* **Most popular** section displays the most frequently used materials in your school or facility.
+* **Next steps** section displays suggestions according to  topics and materials you previously visited.
+* **Resume** section displays activities that you started but haven’t finished yet.
+* **Featured in...** sections display a preview of activities for each content channel you have access on Kolibri.
+
+.. note::
+   **Next steps** and **Resume** are not visible if you are browsing as a guest.
 
 You can browse through learning materials in all sections by using the arrow icons at the beginning and the end of the section rows.
 
@@ -63,17 +63,17 @@ You can browse through learning materials in all sections by using the arrow ico
 
 		Learn page gives you access to all Kolibri learning content and activities.
 
-Topics
-^^^^^^
+Channels
+^^^^^^^^
 
-**Topics** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri. Use it as you wish, or according to indications from your teachers and coaches.
+**Channels** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri. Use it as you wish, or according to indications from your teachers and coaches.
 
-In Kolibri **Topic tab** content from different sources is grouped in **Channels**. Depending on how your school and teachers or coaches decided to organize the content, you may have one or more **Channels** available here. Follow the indications by your teachers or coaches on how to use the content from each available **Channel**.
+In Kolibri **Channels tab** content from different sources is grouped in channels. Depending on how your school and teachers or coaches decided to organize the content, you may have one or more channels available here. Follow the indications by your teachers or coaches on how to use the content from each available channel.
 
 	.. figure:: img/channels.png
-		:alt: Content in Kolibri is grouped in Channels.
+		:alt: Content in Kolibri is grouped in channels.
 
-		Content in Kolibri is grouped in Channels.
+		Content in Kolibri is grouped in channels.
 
 Navigate Kolibri topics with breadcrumb links
 """""""""""""""""""""""""""""""""""""""""""""
@@ -157,8 +157,8 @@ PDF Viewer options
 .. note::
   Options for viewing PDF files will depend on the browser and operating system you are using to view Kolibri.
 
-* Use the **Toggle Fullscreen** button to open the PDF file in fullscreen view.
-* Use the **Esc** button to close the fullscreen view and return.
+* Use the **Enter fullscreen** button to open the PDF file in fullscreen view.
+* Use the **Esc** key to close the fullscreen view and return.
 
 	.. figure:: img/pdf.png
 		:alt: pdf page
@@ -178,7 +178,7 @@ If your teacher/coach scheduled an exam for you or your class, it will be availa
 
 
 #. Press the button **Start** when you are ready to start taking exam.
-#. You can go on answering the questions in the order you prefer: move through questions with Previous and Next question buttons, or click on the question number in the column on the left side.
+#. You can go on answering the questions in the order you prefer: move through questions with **Previous** and **Next question** buttons, or click on the question number in the column on the left side.
 
 	.. figure:: img/exam-detail.png
 		:alt: exams tab
@@ -191,7 +191,7 @@ If your teacher/coach scheduled an exam for you or your class, it will be availa
 	.. figure:: img/exam-continue.png
 		:alt: exams tab
 
-#. Press the button Submit exam when you are positive that you answered all the questions, and you want to finish the exam.
+#. Press the button **Submit exam** when you are positive that you answered all the questions, and you want to submit it for grading.
 #. You will see instant feedback with the result of your exam.
 
 	.. figure:: img/exam-result.png
