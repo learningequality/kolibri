@@ -68,7 +68,7 @@ Import Content from a Local Drive
 
 If the computer where Kolibri server is running does not have access to Internet or has insufficient bandwidth, you have the option to receive content channels stored on an external drive (USB stick or hard disk). Follow these steps to import content channels.
 
-#. Insert the USB drive in your computer.
+#. Connect the external USB drive to your computer.
 #. Choose option for *Attached drive or memory card*, and click **Continue**.
 #. Kolibri will automatically detect and display the drive(s) with available Kolibri content files.
 #. Select the drive where the desired channel is stored, and click **Continue**.
@@ -78,13 +78,13 @@ If the computer where Kolibri server is running does not have access to Internet
 	  :alt: import channel from detected local drive
 
 
-.. tip:: **Workaround for import from local drive on older devices.**
+.. tip:: **Workaround for import from external drive on older devices.**
 
 	If Kolibri is installed on an older or a low-resource device, you can try the following procedure for importing content channels for faster results.
 
-	#. Stop Kolibri.
-	#. Browse the local drive with the file explorer of your operating system.
-	#. Copy the ``content`` folder located inside the ``KOLIBRI_DATA`` folder on the local drive.
+	#. Stop Kolibri (use the ``Exit`` option in the task tray menu on Windows, or type ``Ctrl+C`` in Terminal if you are running the ``PEX`` file on macOS/Linux).
+	#. Browse the attached USB drive with the file explorer of your operating system.
+	#. Copy the ``content`` folder located inside the ``KOLIBRI_DATA`` folder on the attached drive.
 	#. Paste the copied ``content`` folder inside the ``.kolibri`` folder on your hard disk. The location of the ``.kolibri`` folder will depend on your operating system (see the table below).
 	#. Confirm the merge of the two folders.
 	#. Restart Kolibri, and the new channels should now be available.
