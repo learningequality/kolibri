@@ -58,7 +58,7 @@
   export default {
     name: 'moveLearnersModal',
     $trs: {
-      moveLearners: 'Move Learners',
+      moveLearners: 'Move learners',
       moveThe: 'Move the',
       to: 'to',
       learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
