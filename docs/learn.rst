@@ -25,7 +25,7 @@ To sign in to **Kolibri** and start learning follow these steps:
 	.. figure:: img/learn-page-signin.png
 		:alt: Location of "Sign in" to Kolibri links.
 
-		Location of "Sign in" to Kolibri links.
+		Location of links to "Sign in" Kolibri .
 
 Once you have logged in into Kolibri, you can see and edit your user data from the **Profile** option in the main menu (below **Learn**).
 
@@ -116,6 +116,12 @@ Independent of the required action (writing an answer yourself or choosing one o
 
    * If the answer is correct and a checkmark appears, click the **Next question** button to proceed.
    * If the answer is incorrect, click the **Get a hint** button, read the suggestions, and try to answer again.
+   * The progress bar below the exercise is taking into account only the most recent answers you give, and that means that you need to have the required number of correct answers (*check marks*) **in the row** for the exercise to be considered completed.
+
+    .. figure:: img/correct-row.png
+	    :alt: If the exercise requires 5 check marks, you must provide 5 correct answers one after another.
+
+	    The correct answers in the image above are not in a row; this exercise will be completed only after you give 5 correct answers one after another.
 
 #. Once you have achieved the required number of correct answers in a row, click the **Next item** button, to continue learning with the rest of the material in that topic.
 #. If you are unable to solve some questions, try reviewing the videos in the **Recommended** section below the exercise, or seek help from your peers or teacher/coach.

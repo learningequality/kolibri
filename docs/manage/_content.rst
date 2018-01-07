@@ -19,6 +19,10 @@ Each Kolibri content channel has its own **token/ID** in `Kolibri Studio <https:
 Import Content into Kolibri
 ---------------------------------
 
+.. tip::
+  As a precaution, we recommend you avoid other interactions with Kolibri (navigate away or manage users, for example) while content import is in progress.
+
+
 To import content into Kolibri, follow these steps.
 
 #. Click **Import** button in the **Content** page.
@@ -26,6 +30,7 @@ To import content into Kolibri, follow these steps.
 
 	.. image:: img/import-choose-source.png
 	  :alt: choose source for importing content
+
 
 
 Import Content from Kolibri Studio

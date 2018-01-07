@@ -6,7 +6,7 @@ System requirements
 Operating systems
 -----------------
 
- - Windows Vista, 7, 8.1, 10
+ - Windows Vista, 7, 8.1, 10 (Windows XP cannot be used to install Kolibri server, but could potentially work as a client if the browsers are `as up-to-date as possible <https://support.mozilla.org/en-US/questions/1173904>`_)
  - Debian/Ubuntu: 14.04, 16.04 and up - anything that's *not* end-of-life.
  - Linux: Any system with Python 2.7
  - Mac OSX 10.9, 10.10 and 10.11
@@ -19,7 +19,7 @@ Operating systems
 Supported Browsers
 ------------------
 
- - IE10+, Microsoft Edge
+ - IE11+, Microsoft Edge
  - Firefox
  - Chrome
  - *(planned)* Safari
