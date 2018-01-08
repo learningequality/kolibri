@@ -1,6 +1,47 @@
 Frequently Asked Questions
 ==========================
 
+
+How much does Kolibri cost to install?
+--------------------------------------
+
+It is FREE – both free as in “free speech” and free as in “free beer”! To learn more about free software, see this `Free Software Foundation article <http://www.fsf.org/about/what-is-free-software>`_.
+
+Something isn’t working - does Kolibri have log files?
+------------------------------------------------------
+
+It’s very important to get more technical information if Kolibri is not working or crashing. Have a look at ``~/.kolibri`` folder (``C:\Documents and Settings\<username>\.kolibri`` on Windows), where you will find the log files which Kolibri writes to while it’s running. 
+
+
+How do I report a problem?
+--------------------------
+
+Refer to our :ref:`Community Forum <get_support_ref>` to report an issue and receive support.  Our technical users, including software developers should follow the instructions on our `Developer documentation <http://kolibri-dev.readthedocs.io/>`_ for reporting bugs.
+
+Why are my downloaded videos not displaying?
+--------------------------------------------
+
+Make sure to check the :ref:`system requirements <sys_reqs>` to see if you can support video playback. Please report any issues on our :ref:`Community Forum <get_support_ref>`.
+
+Bulk Downloads of Content Channels
+----------------------------------
+
+``Coming soon!``
+
+At this time we do not support bulk downloads of content channel outside the Kolibri platform.  In the near future, we will consider offering bit torrents for certain global content channels.
+
+How can I import a content channel without a reliable internet connection?
+--------------------------------------------------------------------------
+
+You can import a content channel from attached USB after you’ve initially downloaded the content channel from the internet. Content channels can be copied and carried forward to servers you want to import the content channel to.
+
+
+
+
+
+
+
+
 Network Terminology
 -------------------
 
@@ -20,6 +61,10 @@ Troubleshoot Network Problems
 #. Can you access Kolibri via ``http://127.0.0.1:8080``?
 #. Can you access anything from the external IP of the device running Kolibri **FROM** the device itself?
 #. Can you ping the external IP address from another device on the network?
+
+
+
+
 
 
 Working with Kolibri from the Command Line
@@ -107,15 +152,38 @@ Change Language
 +-----------------------+-----------------+
 | Spanish (Spain)       | ``es-es``       | 
 +-----------------------+-----------------+ 
-| Spanish (Mexico)      | ``es-mx``       | 
-+-----------------------+-----------------+ 
 | French                | ``fr``          | 
-+-----------------------+-----------------+
-| Portuguese (Portugal) | ``pt-pt``       | 
-+-----------------------+-----------------+
-| Portuguese (Brazil)   | ``pt-br``       |
 +-----------------------+-----------------+
 | Swahili (Tanzania)    | ``sw-tz``       | 
 +-----------------------+-----------------+
-|                       |                 | 
+| Arabic                | ``ar``          | 
 +-----------------------+-----------------+
+| Farsi                 | ``fa``          | 
++-----------------------+-----------------+
+| Urdu (Pakistan)       | ``ur-pk``       | 
++-----------------------+-----------------+
+
+
+Backup and Restore Kolibri Database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Kolibri automatically creates a backup of the database with every version upgrade. If for some reason you need to make a manual backup, use the following command.
+
+.. code-block:: bash
+
+  kolibri manage dbbackup
+
+This command will create a time-stamped ``.dump`` file in the ``./kolibri/backups`` folder that you can use to restore the database with the following command.
+
+.. code-block:: bash
+
+  kolibri manage dbrestore --latest
+
+If you need to restore a backup version prior to the latest one, you must specify the full path to a specific ``*.dump`` file.
+
+.. code-block:: bash
+
+  kolibri manage dbrestore ~/.kolibri/backups/db-xxxx.dump
+
+.. warning::
+  This command is not intended for replication across different devices, but **only** for restoring on a single device from a local backup of the database.

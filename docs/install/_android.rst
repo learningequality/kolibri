@@ -24,6 +24,9 @@ Install
 #. Wait until the installation finishes.
 #. Once you have **Kolibri** installed, tap **Open** and proceed with the :ref:`setup_initial` of your facility. 
 
+.. warning::
+  Be mindful of the size of content channels that you import on your Android phone or tablet, as some of them can quickly fill your device’s storage.
+
 .. TODO - Update links for the installer.
 
 Uninstall

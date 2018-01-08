@@ -14,7 +14,10 @@ Operating systems
  - *(planned)* Android: 4.2.2 or later
 
 
-.. TODO - Limited support
+Limited support
+^^^^^^^^^^^^^^^
+ - Windows XP cannot be used to install Kolibri server, but could potentially work as a client device if the browsers are `as up-to-date as possible <https://support.mozilla.org/en-US/questions/1173904>`_.
+
 
 Supported Browsers
 ------------------
@@ -53,11 +56,11 @@ Servers
 
 Kolibri hardware requirements as a server are next to nothing.
 
- - 256 MB
- - 500 MHz CPU
- - Hard drive space depends on the size of the content channels you intend to import into Kolibri
+ - 500 MB RAM (1 GB recommended)
+ - 500 MHz CPU (1 GHz recommended)
+ - Hard drive space depends on the size of the content channels you intend to import  from `Kolibri Studio <https://studio.learningequality.org/>`_ or a local storage.
 
-If you have a center with less than 30 computers, a device as simple as a Raspberry Pi is known to work fine as a server.
+If you have a facility with less than 30 computers, a device as simple as a Raspberry Pi is known to work fine as a server.
 
 .. TODO - REVIEW with RPi package reqs if necessary
 
