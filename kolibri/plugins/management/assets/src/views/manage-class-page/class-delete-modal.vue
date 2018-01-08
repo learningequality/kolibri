@@ -7,8 +7,7 @@
   >
     <div>
       <span v-html="formattedDeleteConfirmation"> </span>
-
-      <p>{{ $tr('description') }}</p>
+      <p v-html="formattedAccessReassuranceConfirmation"> </p>
 
       <div class="core-modal-buttons">
         <k-button
@@ -16,7 +15,6 @@
           appearance="flat-button"
           @click="close"
         />
-
         <k-button
           :text="$tr('delete')"
           :primary="true"
@@ -32,18 +30,24 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { deleteClass, displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
+
+  function bold(stringToBold) {
+    return `<strong v-html> ${stringToBold} </strong>`;
+  }
+
   export default {
     name: 'classDeleteModal',
     $trs: {
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
       cancel: 'Cancel',
-      description:
-        'Users will only be removed from the class and are still accessible from the "Users" tab.',
       deleteConfirmation: 'Are you sure you want to delete { classname }?',
+      accessReassurance:
+        'Enrolled users will be removed from the class but still accessible from the { sectionTabName } tab.',
+      usersTab: 'Users',
     },
     components: {
       kButton,
@@ -62,7 +66,12 @@
     computed: {
       formattedDeleteConfirmation() {
         return this.$tr('deleteConfirmation', {
-          classname: `<strong> ${this.classname} </strong>`,
+          classname: bold(this.classname),
+        });
+      },
+      formattedAccessReassuranceConfirmation() {
+        return this.$tr('accessReassurance', {
+          sectionTabName: bold(this.$tr('usersTab')),
         });
       },
     },
@@ -76,8 +85,8 @@
     },
     vuex: {
       actions: {
-        deleteClass: actions.deleteClass,
-        displayModal: actions.displayModal,
+        deleteClass,
+        displayModal,
       },
     },
   };

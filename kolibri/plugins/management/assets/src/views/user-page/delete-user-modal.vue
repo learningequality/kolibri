@@ -4,21 +4,25 @@
     :title="$tr('deleteUser')"
     @cancel="closeModal()"
   >
-    <p>{{ $tr('deleteConfirmation', { username }) }}</p>
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('no')"
-        :primary="false"
-        appearance="flat-button"
-        @click="closeModal()"
-      />
-      <k-button
-        :text="$tr('yes')"
-        :primary="true"
-        appearance="raised-button"
-        :disabled="submitting"
-        @click="handleDeleteUser"
-      />
+    <div>
+      <span v-html="formattedDeleteConfirmation"> </span>
+      <p v-html="formattedDeleteWarning"> </p>
+    
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('cancel')"
+          :primary="false"
+          appearance="flat-button"
+          @click="closeModal()"
+        />
+        <k-button
+          :text="$tr('delete')"
+          :primary="true"
+          appearance="raised-button"
+          :disabled="submitting"
+          @click="handleDeleteUser"
+        />
+      </div>
     </div>
   </core-modal>
 
@@ -31,8 +35,19 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
 
+  function bold(stringToBold) {
+    return `<strong v-html> ${stringToBold} </strong>`;
+  }
+
   export default {
     name: 'deleteUserModal',
+    $trs: {
+      deleteUser: 'Delete user',
+      deleteConfirmation: 'Are you sure you want to delete user { username }?',
+      deleteWarning: 'All the learning records for { username } will be lost.',
+      cancel: 'Cancel',
+      delete: 'Delete',
+    },
     components: {
       coreModal,
       kButton,
@@ -56,6 +71,18 @@
         submitting: false,
       };
     },
+    computed: {
+      formattedDeleteConfirmation() {
+        return this.$tr('deleteConfirmation', {
+          username: bold(this.username),
+        });
+      },
+      formattedDeleteWarning() {
+        return this.$tr('deleteWarning', {
+          username: bold(this.username),
+        });
+      },
+    },
     methods: {
       handleDeleteUser() {
         this.submitting = true;
@@ -71,15 +98,14 @@
         displayModal,
       },
     },
-    $trs: {
-      deleteUser: 'Delete user',
-      deleteConfirmation: 'Are you sure you want to delete { username }?',
-      no: 'No',
-      yes: 'Yes',
-    },
   };
 
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="stylus" scoped>
+
+  p
+    word-break: keep-all
+
+</style>
