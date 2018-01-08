@@ -44,8 +44,8 @@
       modalTitle: 'Remove User from Class',
       remove: 'Remove from Class',
       cancel: 'Cancel',
-      deleteConfirmation: 'Are you sure you want to remove { username } from { classname }?',
-      accessReassurance: 'You can still access this account from { sectionTabName }',
+      deleteConfirmation: 'Are you sure you want to remove user { username } from { classname }?',
+      accessReassurance: 'You can still access this account from the { sectionTabName } tab.',
       usersTab: 'Users',
     },
     components: {
