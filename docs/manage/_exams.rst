@@ -25,28 +25,27 @@ To create a new exam, follow these steps.
 #. Fill in the field for number of questions you want the exam to contain.
 #. Navigate through the topic tree and activate checkboxes of those exercises you want to include in the exam.
 
-    .. image:: img/add-content-exam.png
+    .. figure:: img/add-content-exam.png
       :alt: add content to your exam
 
+      As you keep adding the exercises you will see confirmation messages at the bottom.
 
-    As you keep adding the exercises you will see confirmation messages at the bottom.
 
-#. Click **Preview** button to view the result in overlay window.
+#. Click **Preview** button to view the result before finishing.
 
     .. image:: img/preview-exam.png
-      :alt: preview the content of your exam
+      :alt: preview the content of the exam
 
+  * Click **Randomize questions** button to present them in the different order from those in the topic origin.
+  * Click **Close** button to return to the exam home page.
 
-    * Click **Randomize questions** button to present them in the different order from those in the topic origin.
-    * Close the exam preview with the **X** button in the upper right corner to return to the exam home page.
-
-#. Click **Finish** button to save the result.
+8. Click **Finish** button to save the result.
 
 
 Change Exam Visibility
 ----------------------
 
-Newly created exam will be visible to entire class. To change exam visibility, that is to assign it only to one group of learners instead of the whole class, follow these steps.
+Newly created exam will be visible to entire class by default. To change exam visibility, that is to assign it only to one group of learners instead of the whole class, follow these steps.
 
 #. Click **Options** for the desired exam and select the **Change visibility** option.
 #. Select the group(s) of learners to whom you wish to assign the exam.
@@ -77,13 +76,13 @@ To view the report and scores for learners who have taken the exam, follow these
       :alt: open the exam report from the drop-down selector
 
 
-#. Click the name of the learner to view the detailed report with preview of results for each question.
+#. This view prominently displays the number of learners who already submitted the exam and their average score. It also presents the list of all the learners who had access to the exam, with the respective statuses and scores. Click the name of the learner to view the detailed report with preview of results for each question.
 
     .. image:: img/exam-report.png
       :alt: view the exam report for the whole group or class
 
 
-#. Click each of the questions to preview it and understand better which question learners answered correctly in the exam and those they struggled with.
+#. Click each of the questions to preview it and understand better which question learners answered correctly in the exam and how many attempts they had on each answer.
 
     .. image:: img/exam-report-detail.png
       :alt: view the detailed exam report for the selected learner

@@ -57,14 +57,14 @@ In the example above, the progress bar for this exercise will appear as 40%, bec
 
 How does it looks if learner A does 5 correct answers in a row on their first try, but learner B gets 10 wrong answers in a row before giving 5 correct ones in a row? In both cases, the progress would show as 100%, and you would have to click each learner's name to access their progress report and see the attempt history.
 
-In the figure below you can see the progress of 6 learners for the exercise **Numbers to 120** in ascending order.
+In the figure below you can see the progress of 5 learners for the exercise **Numbers to 120** in ascending order.
 
 	.. figure:: img/exercise-view-detail.png
 	    :alt: View the progress for a single exercise or resource in a topic.
 
 	    View the progress for a single exercise or resource in a topic.
 
-To see the progress of a single learner, click their name. In the figure below you can see the progress of the learner **Hansen** for the exercise **Numbers to 120**. The exercise is still **In progress** as the learner has not completed the 5 correct answers in the row. You can also see that for the *Question 13* the learner has given the correct answer only on the 5th attempt, which indicates that they are still struggling with the given concept.
+To see the progress of a single learner, click their name. In the figure below you can see the progress of the learner **Hansen** for the exercise **Numbers to 120**. The exercise is still **In progress** as the learner has not completed the 5 correct answers in the row. You can also see that for the *Question 13* the learner has given the correct answer only on the 4th attempt, which indicates that they are still struggling with the given concept.
 
 	.. figure:: img/learner-exercise-attempts.png
 	    :alt: View the details for all the answers and attempts for a single exercise.

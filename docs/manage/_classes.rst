@@ -51,7 +51,7 @@ Change Class Name
 
 To edit class name, follow these steps.
 
-#. Click on the **Edit** button (pencil icon) next to the class’ name.
+#. Click on the |pencil| icon next to the class’ name.
 #. Write the new name in the **Class name** field.
 #. Click **Update** to confirm the edited information, or **Cancel** to exit without saving.
 
@@ -63,7 +63,7 @@ To edit class name, follow these steps.
 Enroll users to class
 *********************
 
-#. Click **Enroll users** button.
+#. Click **Enroll users** button on the class details page.
 
     .. image:: img/add-users-to-class.png
       :alt: add users to class

@@ -17,7 +17,7 @@ Each Kolibri content channel has its own **token/ID** in `Kolibri Studio <https:
 .. warning:: The term **Channel ID** was valid for Kolibri versions up to 0.6, while from the Kolibri version 0.7 onward, we will start using exclusively the term **token** to uniquely designate each channel.
 
 Import Content into Kolibri
----------------------------------
+---------------------------
 
 .. tip::
   As a precaution, we recommend you avoid other interactions with Kolibri (navigate away or manage users, for example) while content import is in progress.
@@ -26,15 +26,15 @@ Import Content into Kolibri
 To import content into Kolibri, follow these steps.
 
 #. Click **Import** button in the **Content** page.
-#. Choose the source option (*Kolibri Studio* or *Attached drive or memory card*).
+#. Choose the source option: **Kolibri Studio** or **Attached drive or memory card**.
 
-	.. image:: img/import-choose-source.png
-	  :alt: choose source for importing content
+.. image:: img/import-choose-source.png
+  :alt: choose source for importing content
 
 
 
 Import Content from Kolibri Studio
-******************************************
+**********************************
 
 If the computer where Kolibri is running has an Internet connection with the sufficient bandwidth, follow these steps to import content channels.
 
@@ -79,8 +79,8 @@ If the computer where Kolibri server is running does not have access to Internet
 #. Select the drive where the desired channel is stored, and click **Continue**.
 #. Click **Select** button for the desired channel, and follow the same steps for selecting topics and resources as for the :ref:`import from Kolibri Studio <central_server>`.
 
-	.. image:: img/import-local-drive2.png
-	  :alt: import channel from detected local drive
+  .. image:: img/import-local-drive2.png
+    :alt: import channel from detected local drive
 
 
 .. tip:: **Workaround for import from external drive on older devices.**
