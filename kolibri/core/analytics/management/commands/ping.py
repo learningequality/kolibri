@@ -31,9 +31,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        interval = float(options.get("interval", DEFAULT_PING_INTERVAL))
-        checkrate = float(options.get("checkrate", DEFAULT_PING_CHECKRATE))
-        server = options.get("server", DEFAULT_PING_SERVER_URL)
+        interval = float(options.get("interval") or DEFAULT_PING_INTERVAL)
+        checkrate = float(options.get("checkrate") or DEFAULT_PING_CHECKRATE)
+        server = options.get("server") or DEFAULT_PING_SERVER_URL
 
         self.started = datetime.now()
 
