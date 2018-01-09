@@ -10,14 +10,14 @@
           :summaryLog="summaryLog" />
       </div>
       <div class="details-container">
-        <div class="attempt-log-container">
+        <div class="attempt-log-container pure-u-1-3">
           <attempt-log-list
             :attemptLogs="attemptLogs"
             :selectedQuestionNumber="attemptLogIndex"
             @select="navigateToNewAttempt($event)"
           />
         </div>
-        <div class="exercise-container">
+        <div class="exercise-container pure-u-2-3">
           <interaction-list
             :interactions="currentInteractionHistory"
             :selectedInteractionIndex="interactionIndex"
