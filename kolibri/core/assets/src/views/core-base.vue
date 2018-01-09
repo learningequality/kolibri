@@ -54,6 +54,7 @@
   import connectionSnackbars from './connection-snackbars';
 
   export default {
+    name: 'coreBasePage',
     components: {
       appBar,
       sideNav,
@@ -128,8 +129,14 @@
     },
     methods: {
       updateDocumentTitle() {
-        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+        document.title = this.title
+          ? this.$tr('kolibriTitleMessage', { title: this.title })
+          : this.$tr('kolibriMessage');
       },
+    },
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
     },
   };
 
