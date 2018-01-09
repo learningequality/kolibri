@@ -49,8 +49,8 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful login', done => {
-      urls['kolibri:managementplugin:management'] = () => '';
-      urls['kolibri:managementplugin:device_management'] = () => '';
+      urls['kolibri:facilitymanagementplugin:facility_management'] = () => '';
+      urls['kolibri:devicemanagementplugin:device_management'] = () => '';
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () =>
