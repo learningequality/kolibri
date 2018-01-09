@@ -48,7 +48,8 @@ try:
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
-        "kolibri.plugins.management",
+        "kolibri.plugins.facility_management",
+        "kolibri.plugins.device_management",
         "kolibri.plugins.learn",
         "kolibri.plugins.document_pdf_render",
         "kolibri.plugins.html5_app_renderer",

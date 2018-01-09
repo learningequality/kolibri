@@ -54,8 +54,8 @@ module.exports = function(config) {
       './karma_config/globals.js',
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
-      'kolibri/**/assets/test/**/*.js',
-      'kolibri/**/assets/**/*.spec.js',
+      { pattern: 'kolibri/**/assets/test/**/*.js', watched: false },
+      { pattern: 'kolibri/**/assets/**/*.spec.js', watched: false },
     ],
 
     // list of files to exclude
