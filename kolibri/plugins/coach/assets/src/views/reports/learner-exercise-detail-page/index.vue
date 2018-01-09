@@ -2,7 +2,7 @@
 
   <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
     <template>
-      <div class="summary-container">
+      <div class="pure-u-1-1">
         <attempt-summary
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
@@ -163,12 +163,6 @@
   @require '~kolibri.styles.definitions'
 
   $container-side-padding = 15px
-
-  .summary-container
-    padding-top: $container-side-padding
-    padding-left: $container-side-padding
-    padding-right: $container-side-padding
-    height: 15%
 
   .details-container
     width: 100%
