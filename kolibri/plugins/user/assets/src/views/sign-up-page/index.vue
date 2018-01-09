@@ -10,14 +10,25 @@
         {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
-        <router-link id="signin" :to="signInPage">
+        <router-link
+          id="signin"
+          :to="signInPage"
+        >
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
     </ui-toolbar>
 
-    <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
+    <form
+      class="signup-form"
+      ref="form"
+      @submit.prevent="signUp"
+    >
+      <ui-alert
+        v-if="unknownError"
+        type="error"
+        @dismiss="resetSignUpState"
+      >
         {{ errorMessage }}
       </ui-alert>
 
@@ -84,7 +95,13 @@
         @blur="facilityBlurred = true"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button
+        :disabled="busy"
+        :primary="true"
+        :text="$tr('finish')"
+        type="submit"
+        class="submit"
+      />
 
     </form>
 
@@ -98,7 +115,7 @@
 
 <script>
 
-  import { signUp, resetSignUpState } from '../../state/actions';
+  import { signUpNewUser, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -263,7 +280,7 @@
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
-          this.signUpAction({
+          this.signUpNewUser({
             facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
@@ -294,8 +311,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: signUp,
-        resetSignUpState: resetSignUpState,
+        signUpNewUser,
+        resetSignUpState,
       },
     },
   };
@@ -356,5 +373,8 @@
   .footer
     margin: 36px
     margin-top: 96px
+
+  .submit
+    margin-left: 0
 
 </style>
