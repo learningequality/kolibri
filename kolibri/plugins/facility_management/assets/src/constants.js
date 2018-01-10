@@ -27,6 +27,7 @@ const defaultFacilityConfig = {
   learnerCanEditPassword: true,
   learnerCanSignUp: true,
   learnerCanDeleteAccount: true,
+  learnerCanLoginWithNoPassword: false,
 };
 
 const notificationTypes = {
