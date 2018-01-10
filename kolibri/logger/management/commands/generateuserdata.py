@@ -4,11 +4,11 @@ import csv
 import os
 import random
 
-from kolibri.logger.utils import user_data as utils
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from kolibri.auth.test.helpers import provision_device, create_superuser
+from kolibri.auth.test.helpers import create_superuser, provision_device
 from kolibri.content.models import ChannelMetadata
+from kolibri.logger.utils import user_data as utils
 
 
 class Command(BaseCommand):
@@ -25,6 +25,7 @@ class Command(BaseCommand):
         # on the device than specified
         parser.add_argument('--facilities', type=int, default=1, dest="facilities", help="Number of facilities")
         parser.add_argument('--no-onboarding', action='store_true', dest="no_onboarding", help="Automatically create superusers and skip onboarding")
+        parser.add_argument('--num-content-items', type=int, dest='num_content_items', help="Number of content interactions per user")
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
@@ -34,6 +35,7 @@ class Command(BaseCommand):
         n_users = options['users']
         n_classes = options['classes']
         no_onboarding = options['no_onboarding']
+        num_content_items = options['num_content_items']
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(options['seed'])
@@ -74,7 +76,10 @@ class Command(BaseCommand):
                 for user, base_data in zip(users, classroom_user_data):
                     # The user data we are fetching from has 'Age' as a characteristic, use this as the "age" of the user
                     # in terms of their content interaction history - older, more content items interacted with!
-                    n_content_items = int(base_data['Age'])
+                    if num_content_items:
+                        n_content_items = num_content_items
+                    else:
+                        n_content_items = int(base_data['Age'])
 
                     # Loop over all local channels to generate data for each channel
                     for channel in ChannelMetadata.objects.all():
