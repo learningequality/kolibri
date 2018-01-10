@@ -1,5 +1,9 @@
-Learn
-#####
+.. _learn:
+
+Learn with Kolibri
+##################
+
+.. _access_learner:
 
 Access Kolibri
 ==============
@@ -37,6 +41,7 @@ Once you have logged in into Kolibri, you can see and edit your user data from t
 To sign out from Kolibri you can either:
 	* Click the user icon in the upper right corner and select **Sign out** option, **OR**
 	* Select **Sign out** option in the main sidebar menu.
+
 
 Learn with Kolibri
 ==================
@@ -99,6 +104,8 @@ If you are looking for a specific subject, topic, or term, use the **Search** fe
 	:alt: search page
 
 	Search page gives you option to search for a specific term in Kolibri.
+
+.. _content_types:
 
 Content types
 ^^^^^^^^^^^^^
@@ -173,6 +180,7 @@ PDF Viewer options
 
 Use the **Download content** button below the PDF viewer to download the PDF file to your computer.
 
+.. _exams:
 
 Exams
 ^^^^^

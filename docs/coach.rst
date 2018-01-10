@@ -1,6 +1,8 @@
-Coach
-=====
+.. _coach:
 
+Coach Learners in Kolibri
+#########################
+ 
 You can track progress of the **Learner** users, create and assign **Exams** to classes or learner groups from the **Coach** dashboard. The default view of the **Coach** dashboard presents the list of **Classes** with number of learners enrolled to each class.
 
 Select a class from the list to access the progress-tracking features and create exams.
@@ -34,6 +36,7 @@ Use this view to access the full report of activity progress for the selected cl
 
 	  Use the topic view to see the average progress for exercises and resources for all the learners in the class.
 
+.. _track_progress:
 
 Track Learner Progress
 ----------------------
@@ -71,10 +74,8 @@ To see the progress of a single learner, click their name. In the figure below y
 
 	    View the details for all the answers and attempts for a single exercise.
 
+
 .. include:: manage/_groups.rst
 
 
 .. include:: manage/_exams.rst
-
-
-

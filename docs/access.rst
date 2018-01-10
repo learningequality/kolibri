@@ -1,3 +1,5 @@
+.. _access:
+
 Access Kolibri
 ##############
 
@@ -87,6 +89,9 @@ While **Kolibri** is up and running on the device where you installed it, other 
     Find out the IP/Server URL in the Device > Info tab.
 
 .. note::
+  You can also use the ``ipconfig`` command on Windows or ``ifconfig`` command on Linux/OSX to find out the IP address of the device running the **Kolibri**.
+
+.. tip::
   You can also use the ``ipconfig`` command on Windows or ``ifconfig`` command on Linux/OSX to find out the IP address of the device running the **Kolibri**.
 
 

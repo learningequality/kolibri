@@ -95,6 +95,8 @@ If the computer where Kolibri server is running does not have access to Internet
 	#. Restart Kolibri, and the new channels should now be available.
 
 
+.. _home:
+
      +---------------------------+-----------------------------------------+
      | **Operating system**      | **Location**                            |
      +===========================+=========================================+
@@ -134,3 +136,12 @@ If you want to make available the content you have imported on your Kolibri devi
 
 	.. image:: img/kolibri-data-osx.png
 	  :alt: structure of the local drive folders with exported content channels
+
+
+Peer-to-Peer Content Syncronization
+-----------------------------------
+
+``Coming soon!``
+
+
+.. Not yet. Peer to peer sync is a priority for Kolibri in the near future, but is not available yet.
