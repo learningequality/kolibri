@@ -29,7 +29,8 @@ Feedback
 New ideas
 ~~~~~~~~~
 
-(to be decided - we are working on a feedback platform)
+Until we can present a proper feedback platform, we encourage you to post any
+new ideas to the `Community Forums <https://community.learningequality.org/>`_.
 
 
 Technical issues
