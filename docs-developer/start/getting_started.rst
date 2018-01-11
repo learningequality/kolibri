@@ -131,7 +131,7 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
 
 .. tip::
 
-  * We've adopted this concatenated version with added cleanup: ``make clean && pip install -r requirements.txt --upgrade && pip install -e . && yarn install``.
+  * We've adopted this concatenated version with added cleanup: ``pip install -r requirements/dev.txt --upgrade && make clean && pip install -e . && yarn install``.
   * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
 
 
