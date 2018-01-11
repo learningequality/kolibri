@@ -5,8 +5,8 @@
     @cancel="closeModal()"
   >
     <div>
-      <span v-html="formattedDeleteConfirmation"> </span>
-      <p v-html="formattedDeleteWarning"> </p>
+      <p>{{ $tr('confirmation', { username: username }) }}</p>
+      <p>{{ $tr('warning', { username: username }) }}</p>
     
       <div class="core-modal-buttons">
         <k-button
@@ -35,16 +35,12 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
 
-  function bold(stringToBold) {
-    return `<strong v-html> ${stringToBold} </strong>`;
-  }
-
   export default {
     name: 'deleteUserModal',
     $trs: {
       deleteUser: 'Delete user',
-      deleteConfirmation: 'Are you sure you want to delete user { username }?',
-      deleteWarning: 'All the learning records for { username } will be lost.',
+      confirmation: "Are you sure you want to delete '{ username }'?",
+      warning: "All the learning records for '{ username }' will be lost.",
       cancel: 'Cancel',
       delete: 'Delete',
     },
@@ -70,18 +66,6 @@
       return {
         submitting: false,
       };
-    },
-    computed: {
-      formattedDeleteConfirmation() {
-        return this.$tr('deleteConfirmation', {
-          username: bold(this.username),
-        });
-      },
-      formattedDeleteWarning() {
-        return this.$tr('deleteWarning', {
-          username: bold(this.username),
-        });
-      },
     },
     methods: {
       handleDeleteUser() {
