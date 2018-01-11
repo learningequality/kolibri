@@ -16,8 +16,9 @@ To do the initial setup of after the installation, follow these steps.
 
 	   Select the default Kolibri language.
 
-  .. tip::
-    You can :ref:`change the user interface language <change_language>` later, from the user menu in the upper right corner.
+
+	.. tip::
+	  You can :ref:`change the user interface language <change_language>` later, from the user menu in the upper right corner.
 
 #. **Name your facility.** A Facility is the location where you installed Kolibri, such as a school or a training center.
 
