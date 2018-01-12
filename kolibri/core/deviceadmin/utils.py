@@ -1,6 +1,8 @@
+import io
 import logging
 import os
 import re
+import sys
 from datetime import datetime
 
 import kolibri
@@ -10,6 +12,16 @@ from django import db
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+
+
+# Use encoded text for Python 3 (doesn't work in Python 2!)
+KWARGS_IO_READ = {'mode': 'r', 'encoding': 'utf-8'}
+KWARGS_IO_WRITE = {'mode': 'w', 'encoding': 'utf-8'}
+
+# Use binary file mode for Python 2 (doesn't work in Python 3!)
+if sys.version_info < (3,):
+    KWARGS_IO_READ = {'mode': 'rb'}
+    KWARGS_IO_WRITE = {'mode': 'wb'}
 
 
 class IncompatibleDatabase(Exception):
@@ -82,7 +94,9 @@ def dbbackup(old_version, dest_folder=None):
 
     backup_path = os.path.join(dest_folder, fname)
 
-    with open(backup_path, 'w') as f:
+    # Setting encoding=utf-8: io.open() is Python 2 compatible
+    # See: https://github.com/learningequality/kolibri/issues/2875
+    with io.open(backup_path, **KWARGS_IO_WRITE) as f:
         # If the connection hasn't been opened yet, then open it
         if not db.connections['default'].connection:
             db.connections['default'].connect()
@@ -115,7 +129,9 @@ def dbrestore(from_file):
     else:
         logger.info("In memory database, not truncating: {}".format(dst_file))
 
-    with open(from_file, "r") as f:
+    # Setting encoding=utf-8: io.open() is Python 2 compatible
+    # See: https://github.com/learningequality/kolibri/issues/2875
+    with open(from_file, **KWARGS_IO_READ) as f:
         db.connections['default'].connect()
         db.connections['default'].connection.executescript(
             f.read()
