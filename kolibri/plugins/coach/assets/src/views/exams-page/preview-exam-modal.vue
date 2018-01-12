@@ -53,7 +53,8 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false" />
+            :allowHints="false"
+          />
         </div>
       </div>
     </div>

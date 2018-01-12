@@ -6,6 +6,7 @@
 
     <p>
       Note that dropdown buttons generally follow the same rules as regular buttons.
+    </p>
     <p>
       In areas where multiple actions are necessary, raised or flat buttons
       can be made into dropdown buttons, which have multiple actions nested
