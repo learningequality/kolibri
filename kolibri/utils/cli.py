@@ -140,8 +140,6 @@ def get_cext_path(dist_path):
         else:
             dirname = os.path.join(dirname, python_version+'mu')
 
-    elif 'macosx' in platform:
-        platform = 'macosx'
     dirname = os.path.join(dirname, platform)
     sys.path = sys.path + [os.path.realpath(str(dirname))]
 
