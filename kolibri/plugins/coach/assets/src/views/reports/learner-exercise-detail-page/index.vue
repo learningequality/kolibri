@@ -2,7 +2,7 @@
 
   <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
     <template>
-      <div class="summary-container">
+      <div class="pure-u-1-1">
         <attempt-summary
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
@@ -10,14 +10,14 @@
           :summaryLog="summaryLog" />
       </div>
       <div class="details-container">
-        <div class="attempt-log-container">
+        <div class="attempt-log-container pure-u-1-3">
           <attempt-log-list
             :attemptLogs="attemptLogs"
             :selectedQuestionNumber="attemptLogIndex"
             @select="navigateToNewAttempt($event)"
           />
         </div>
-        <div class="exercise-container">
+        <div class="exercise-container pure-u-2-3">
           <interaction-list
             :interactions="currentInteractionHistory"
             :selectedInteractionIndex="interactionIndex"
@@ -163,12 +163,6 @@
   @require '~kolibri.styles.definitions'
 
   $container-side-padding = 15px
-
-  .summary-container
-    padding-top: $container-side-padding
-    padding-left: $container-side-padding
-    padding-right: $container-side-padding
-    height: 15%
 
   .details-container
     width: 100%
