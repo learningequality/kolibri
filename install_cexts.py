@@ -93,9 +93,12 @@ def parse_package_page(files, pk_version):
         #   * not python versions that kolibri supports
         #   * for macosx or any 64-bit platforms, since the process of setup wizard has been fast enough
         if (
-            file_name[-1].split('.')[-1] != 'whl' or file_name[1] != pk_version or file_name[2][2:] == '26'
-            or 'macosx' in file_name[4].split('.')[0] or '64' in file_name[4].split('.')[0]
-           ):
+                file_name[-1].split('.')[-1] != 'whl' or
+                file_name[1] != pk_version or
+                file_name[2][2:] == '26' or
+                'macosx' in file_name[4].split('.')[0] or
+                '64' in file_name[4].split('.')[0]):
+
             continue
 
         print('Installing {}...'.format(file.string))
