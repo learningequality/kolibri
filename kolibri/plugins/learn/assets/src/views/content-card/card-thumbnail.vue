@@ -35,7 +35,8 @@
       <div
         class="progress-bar"
         :style="{ width: `${progress * 100}%` }"
-        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }">
+        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+      >
       </div>
     </div>
 

@@ -27,7 +27,8 @@
             <div class="answer-history-container column">
               <answer-history
                 :questionNumber="questionNumber"
-                @goToQuestion="goToQuestion" />
+                @goToQuestion="goToQuestion"
+              />
             </div>
             <div class="exercise-container column">
               <content-renderer
@@ -45,7 +46,8 @@
                 :assessment="true"
                 :allowHints="false"
                 :answerState="currentAttempt.answer"
-                @interaction="throttledSaveAnswer" />
+                @interaction="throttledSaveAnswer"
+              />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>

@@ -5,7 +5,8 @@
     class="doc-viewer"
     :style="minViewerHeight"
     :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }"
-    allowfullscreen>
+    allowfullscreen
+  >
 
     <k-button
       class="btn doc-viewer-controls button-fullscreen"
@@ -21,14 +22,16 @@
       aria-controls="pdf-container"
       icon="add"
       size="large"
-      @click="zoomIn" />
+      @click="zoomIn"
+    />
     <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
-      @click="zoomOut" />
+      @click="zoomOut"
+    />
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
       <progress-bar
@@ -46,7 +49,8 @@
         :defaultHeight="pageHeight"
         :defaultWidth="pageWidth"
         :scale="scale"
-        :pageNum="index + 1" />
+        :pageNum="index + 1"
+      />
     </div>
   </div>
 

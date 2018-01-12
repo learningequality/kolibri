@@ -20,7 +20,8 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :initSession="initSession">
+      :initSession="initSession"
+    >
       <k-button
         :primary="true"
         @click="nextContentClicked"
@@ -47,7 +48,8 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
-      :initSession="initSession">
+      :initSession="initSession"
+    >
       <k-button
         :primary="true"
         @click="nextContentClicked"
@@ -100,7 +102,8 @@
       <content-card-group-carousel
         :genContentLink="genContentLink"
         :header="recommendedText"
-        :contents="recommended" />
+        :contents="recommended"
+      />
     </template>
 
     <template v-if="progress >= 1 && wasIncomplete">
@@ -108,7 +111,8 @@
         v-if="showPopup"
         @close="markAsComplete"
         :kind="content.next_content.kind"
-        :title="content.next_content.title">
+        :title="content.next_content.title"
+      >
         <k-button
           :primary="true"
           slot="nextItemBtn"
