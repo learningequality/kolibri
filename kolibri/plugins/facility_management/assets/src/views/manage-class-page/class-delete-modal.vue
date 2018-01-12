@@ -7,7 +7,7 @@
   >
     <div>
       <p>{{ $tr('confirmation', { classname: classname }) }}</p>
-      <p>{{ $tr('description') }} <strong>{{ $tr('users') }}</strong>.</p>
+      <p>{{ $tr('description') }}</p>
 
       <div class="core-modal-buttons">
         <k-button
@@ -41,9 +41,7 @@
       delete: 'Delete Class',
       cancel: 'Cancel',
       confirmation: "Are you sure you want to delete '{ classname }'?",
-      description:
-        'Enrolled users will be removed from the class but still accessible from the tab ',
-      users: 'Users',
+      description:  "Enrolled users will be removed from the class but still accessible from the 'Users' tab.",
     },
     components: {
       kButton,
