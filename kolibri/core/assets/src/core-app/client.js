@@ -80,12 +80,13 @@ const client = options => {
     .wrap(disconnectInterceptor)
     .wrap(mime, { mime: 'application/json' })
     .wrap(loginTimeoutDetection)
-    .wrap(serverDisconnectDetection)(options).then(response => {
-    if (response.request && response.request.canceled) {
-      return Promise.reject(response);
-    }
-    return response;
-  });
+    .wrap(serverDisconnectDetection)(options)
+    .then(response => {
+      if (response.request && response.request.canceled) {
+        return Promise.reject(response);
+      }
+      return response;
+    });
 };
 
 export default client;

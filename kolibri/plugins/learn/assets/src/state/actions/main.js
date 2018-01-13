@@ -621,7 +621,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     // prettier-ignore
     [contentId]: ({
       [itemId]: currentAttemptLog,
-    }),
+    })
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
@@ -650,7 +650,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
           // prettier-ignore
           [contentId]: ({
           [itemId]: log,
-        }),
+        })
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
