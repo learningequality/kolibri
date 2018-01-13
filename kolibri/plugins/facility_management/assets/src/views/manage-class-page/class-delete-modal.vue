@@ -42,7 +42,7 @@
       cancel: 'Cancel',
       confirmation: "Are you sure you want to delete '{ classname }'?",
       description:
-        "Enrolled users will be removed from the class but still accessible from the 'Users' tab.",
+        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
     components: {
       kButton,

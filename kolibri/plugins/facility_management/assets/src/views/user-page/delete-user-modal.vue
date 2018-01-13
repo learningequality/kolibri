@@ -4,25 +4,23 @@
     :title="$tr('deleteUser')"
     @cancel="closeModal()"
   >
-    <div>
-      <p>{{ $tr('confirmation', { username: username }) }}</p>
-      <p>{{ $tr('warning', { username: username }) }}</p>
-    
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="closeModal()"
-        />
-        <k-button
-          :text="$tr('delete')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="submitting"
-          @click="handleDeleteUser"
-        />
-      </div>
+    <p>{{ $tr('confirmation', { username: username }) }}</p>
+    <p>{{ $tr('warning', { username: username }) }}</p>
+  
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        :primary="false"
+        appearance="flat-button"
+        @click="closeModal()"
+      />
+      <k-button
+        :text="$tr('delete')"
+        :primary="true"
+        appearance="raised-button"
+        :disabled="submitting"
+        @click="handleDeleteUser"
+      />
     </div>
   </core-modal>
 
