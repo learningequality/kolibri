@@ -5,7 +5,7 @@
     @cancel="close"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
-    <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
+    <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
@@ -34,8 +34,7 @@
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      learnersWillBecome: 'Learners within this group will become',
-      ungrouped: 'Ungrouped',
+      learnersWillBecomeUngrouped: "Learners within this group will become 'Ungrouped'.",
       cancel: 'Cancel',
       deleteGroup: 'Delete Group',
     },

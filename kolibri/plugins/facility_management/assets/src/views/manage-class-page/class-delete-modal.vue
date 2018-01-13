@@ -6,8 +6,7 @@
     @cancel="close"
   >
     <div>
-      <span v-html="formattedDeleteConfirmation"> </span>
-
+      <p>{{ $tr('confirmation', { classname: classname }) }}</p>
       <p>{{ $tr('description') }}</p>
 
       <div class="core-modal-buttons">
@@ -41,9 +40,9 @@
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
       cancel: 'Cancel',
+      confirmation: "Are you sure you want to delete '{ classname }'?",
       description:
-        'Users will only be removed from the class and are still accessible from the "Users" tab.',
-      deleteConfirmation: 'Are you sure you want to delete { classname }?',
+        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
     components: {
       kButton,
@@ -57,13 +56,6 @@
       classid: {
         type: String,
         required: true,
-      },
-    },
-    computed: {
-      formattedDeleteConfirmation() {
-        return this.$tr('deleteConfirmation', {
-          classname: `<strong> ${this.classname} </strong>`,
-        });
       },
     },
     methods: {

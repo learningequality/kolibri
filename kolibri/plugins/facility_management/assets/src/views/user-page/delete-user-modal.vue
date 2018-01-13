@@ -4,16 +4,18 @@
     :title="$tr('deleteUser')"
     @cancel="closeModal()"
   >
-    <p>{{ $tr('deleteConfirmation', { username }) }}</p>
+    <p>{{ $tr('confirmation', { username: username }) }}</p>
+    <p>{{ $tr('warning', { username: username }) }}</p>
+  
     <div class="core-modal-buttons">
       <k-button
-        :text="$tr('no')"
+        :text="$tr('cancel')"
         :primary="false"
         appearance="flat-button"
         @click="closeModal()"
       />
       <k-button
-        :text="$tr('yes')"
+        :text="$tr('delete')"
         :primary="true"
         appearance="raised-button"
         :disabled="submitting"
@@ -33,6 +35,13 @@
 
   export default {
     name: 'deleteUserModal',
+    $trs: {
+      deleteUser: 'Delete user',
+      confirmation: "Are you sure you want to delete '{ username }'?",
+      warning: "All the learning records for '{ username }' will be lost.",
+      cancel: 'Cancel',
+      delete: 'Delete',
+    },
     components: {
       coreModal,
       kButton,
@@ -70,12 +79,6 @@
         deleteUser,
         displayModal,
       },
-    },
-    $trs: {
-      deleteUser: 'Delete user',
-      deleteConfirmation: 'Are you sure you want to delete { username }?',
-      no: 'No',
-      yes: 'Yes',
     },
   };
 
