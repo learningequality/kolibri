@@ -2,11 +2,13 @@
 
   <div>
     <h1>{{ $tr('classExams', {className}) }}</h1>
+    <report-subheading />   
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
       :inline="true"
       v-model="statusSelected"
+      v-if="sortedExams.length"
     />
     <k-button
       :primary="true"
@@ -14,6 +16,7 @@
       class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
+      :class="{'pull-left': !sortedExams.length}"
     />
     <table v-if="sortedExams.length">
       <thead>
@@ -42,7 +45,6 @@
         />
       </tbody>
     </table>
-    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -113,6 +115,7 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
+  import reportSubheading from '../reports/report-subheading';
 
   export default {
     name: 'coachExamsPage',
@@ -125,7 +128,6 @@
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: `You do not have any exams. Start by creating a new exam above.`,
     },
     components: {
       kButton,
@@ -138,6 +140,7 @@
       previewExamModal,
       renameExamModal,
       deleteExamModal,
+      reportSubheading,
     },
     data() {
       return {
@@ -287,5 +290,8 @@
     color: $core-text-annotation
     font-size: smaller
     font-weight: normal
+
+  .pull-left
+    float: left
 
 </style>
