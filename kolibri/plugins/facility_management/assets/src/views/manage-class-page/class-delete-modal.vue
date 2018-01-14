@@ -37,8 +37,8 @@
   export default {
     name: 'classDeleteModal',
     $trs: {
-      modalTitle: 'Delete Class',
-      delete: 'Delete Class',
+      modalTitle: 'Delete class',
+      delete: 'Delete class',
       cancel: 'Cancel',
       confirmation: "Are you sure you want to delete '{ classname }'?",
       description:

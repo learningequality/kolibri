@@ -45,7 +45,7 @@
   export default {
     name: 'coachExamReportDetailPageStatus',
     $trs: {
-      title: '{name} - Exam Performance',
+      title: '{name} - Exam performance',
       overallScore: 'Overall score: { score, number, percent }',
       questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',

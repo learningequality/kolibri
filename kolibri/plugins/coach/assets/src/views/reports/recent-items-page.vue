@@ -80,7 +80,7 @@
     },
     mixins: [alignMixin],
     $trs: {
-      title: 'Recent Activity',
+      title: 'Recent activity',
       name: 'Name',
       progress: 'Class progress',
       reportProgress: '{completed} {descriptor}',

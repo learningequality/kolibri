@@ -120,14 +120,14 @@
       actions: { displayModal: actions.displayModal },
     },
     $trs: {
-      allClasses: 'All Classes',
-      addNew: 'Add New Class',
-      deleteClass: 'Delete Class',
-      className: 'Class Name',
+      allClasses: 'All classes',
+      addNew: 'Add new class',
+      deleteClass: 'Delete class',
+      className: 'Class name',
       classes: 'Users',
       members: 'Members',
       actions: 'Actions',
-      noClassesExist: 'No Classes Exist.',
+      noClassesExist: 'No classes exist.',
     },
   };
 

@@ -136,17 +136,17 @@
       },
     },
     $trs: {
-      currentFacilityHeader: 'Your current Facility',
+      currentFacilityHeader: 'Your current facility',
       learnerCanEditName: 'Allow learners and coaches to edit their full name',
       learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
-      pageDescription: 'Configure and change different Facility settings here.',
-      pageHeader: 'Facility Settings',
+      pageDescription: 'Configure and change different facility settings here.',
+      pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
-      settingsHeader: 'Facility Settings',
+      settingsHeader: 'Facility settings',
     },
   };
 

@@ -69,7 +69,7 @@
     },
     mixins: [alignMixin],
     $trs: {
-      recentTitle: 'Recent Activity',
+      recentTitle: 'Recent activity',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',

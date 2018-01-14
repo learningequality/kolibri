@@ -39,7 +39,7 @@
   export default {
     name: 'confirmEnrollmentModal',
     $trs: {
-      confirmEnrollment: 'Confirm Enrollment of Selected Users',
+      confirmEnrollment: 'Confirm enrollment of selected users',
       areYouSure: 'Are you sure you want to enroll the following users into {className}?',
       noGoBack: 'No, go back',
       yesEnrollUsers: 'Yes, enroll learners',
