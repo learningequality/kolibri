@@ -126,7 +126,7 @@
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: 'You do not have any exams. Start by creating a new exam below',
+      noExams: 'You do not have any exams yet',
     },
     components: {
       kButton,

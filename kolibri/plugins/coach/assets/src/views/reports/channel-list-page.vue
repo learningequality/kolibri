@@ -78,7 +78,7 @@
       lastActivity: 'Last active',
       showingRecent: 'Showing activity in past {threshold} days',
       noRecent: 'There has been no activity in the past {threshold} days',
-      noChannels: 'You have not imported any content yet',
+      noChannels: 'You do not have any content yet',
     },
     computed: {
       CHANNEL() {

@@ -78,7 +78,7 @@
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
-      noGroups: 'You do not have any groups created yet. Start by creating a new one below',
+      noGroups: 'You do not have any groups created yet',
     },
     components: {
       kButton,
