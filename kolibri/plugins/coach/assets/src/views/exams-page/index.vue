@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('classExams', {className}) }}</h1>
-    <report-subheading />   
+    <p v-if="!exams.length">{{ $tr('noExams') }}</p>   
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
@@ -115,7 +115,6 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
-  import reportSubheading from '../reports/report-subheading';
 
   export default {
     name: 'coachExamsPage',
@@ -128,6 +127,7 @@
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
+      noExams: 'You do not have any exams. Start by creating a new exam below',
     },
     components: {
       kButton,
@@ -140,7 +140,6 @@
       previewExamModal,
       renameExamModal,
       deleteExamModal,
-      reportSubheading,
     },
     data() {
       return {

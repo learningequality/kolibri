@@ -3,10 +3,7 @@
   <div>
     <h1 class="header">{{ $tr('classGroups') }}</h1>
     
-    <report-subheading 
-      :group="ungroupedUsersObject"
-      :isUngrouped="true"
-    />   
+    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>   
     
     <k-button
       :text="$tr('newGroup')"
@@ -74,7 +71,6 @@
   import renameGroupModal from './rename-group-modal';
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
-  import reportSubheading from '../reports/report-subheading';
 
   export default {
     name: 'coachGroupsPage',
@@ -82,6 +78,7 @@
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
+      noGroups: 'You do not have any groups created yet. Start by creating a new one below',
     },
     components: {
       kButton,
@@ -90,7 +87,6 @@
       renameGroupModal,
       deleteGroupModal,
       moveLearnersModal,
-      reportSubheading,
     },
     data() {
       return {

@@ -4,7 +4,7 @@
     <div v-if="showRecentOnly" class="header">
       <h1>{{ $tr('recentTitle') }}</h1>  
     </div> 
-    <report-subheading /> 
+    <p>{{ $tr('subHeading' , { threshold }) }}</p>
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
@@ -52,7 +52,6 @@
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -61,7 +60,6 @@
     name: 'coachRecentPageChannelList',
     components: {
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       activityCell,
@@ -72,6 +70,7 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
+      subHeading: 'Only showing activity in past {threshold} days',
     },
     computed: {
       CHANNEL() {
@@ -79,6 +78,9 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      threshold() {
+        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {

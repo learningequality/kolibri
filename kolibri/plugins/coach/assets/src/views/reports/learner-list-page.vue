@@ -11,7 +11,7 @@
       {{ pageState.contentScopeSummary.title }}
     </h1>
 
-    <report-subheading />
+    <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
@@ -75,7 +75,6 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -89,7 +88,6 @@
       contentIcon,
       breadcrumbs,
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       progressCell,
@@ -106,6 +104,7 @@
         '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      noLearners: 'You do not have any learners registered yet',
     },
     computed: {
       isExercisePage() {
