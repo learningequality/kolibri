@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classExams', {className}) }}</h1>
+    <h1>{{ $tr('classExams') }}</h1>
     <p v-if="!exams.length">{{ $tr('noExams') }}</p>   
     <k-select
       :label="$tr('exams')"
@@ -119,7 +119,7 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      classExams: '{className} Exams',
+      classExams: 'Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',

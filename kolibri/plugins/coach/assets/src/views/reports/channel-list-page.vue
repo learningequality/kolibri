@@ -1,10 +1,12 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" class="header">
+    <template v-if="showRecentOnly">
       <h1>{{ $tr('recentTitle') }}</h1>  
-    </div> 
-    <p>{{ $tr('subHeading' , { threshold }) }}</p>
+      <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
+      <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
+    </template> 
+    <h1 v-else>{{ $tr('topicsTitle') }}</h1>
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
@@ -66,11 +68,13 @@
     },
     mixins: [alignMixin],
     $trs: {
-      recentTitle: 'Recent Activity',
+      recentTitle: 'Recent activity',
+      topicsTitle: 'Content',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
-      subHeading: 'Only showing activity in past {threshold} days',
+      showingRecent: 'Showing activity in past {threshold} days',
+      noRecent: 'No activity in past {threshold} days',
     },
     computed: {
       CHANNEL() {

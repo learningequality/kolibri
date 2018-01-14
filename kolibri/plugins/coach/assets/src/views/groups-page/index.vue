@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1 class="header">{{ $tr('classGroups') }}</h1>
+    <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
     
     <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>   
     

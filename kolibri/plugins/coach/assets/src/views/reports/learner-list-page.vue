@@ -10,6 +10,7 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
+    <h1 v-else>{{ $tr('learners') }}</h1>
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
@@ -95,6 +96,7 @@
     },
     mixins: [alignMixin],
     $trs: {
+      learners: 'Learner reports',
       name: 'Name',
       group: 'Group',
       exerciseProgress: 'Exercise progress',
