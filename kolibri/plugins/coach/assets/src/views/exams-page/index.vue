@@ -13,10 +13,9 @@
     <k-button
       :primary="true"
       appearance="raised-button"
-      class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
-      :class="{'pull-left': !sortedExams.length}"
+      :class="{'pull-right': sortedExams.length}"
     />
     <table v-if="sortedExams.length">
       <thead>
@@ -267,7 +266,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .create-button
+  .pull-right
     float: right
     margin-top: 1em
     margin-bottom: 1em
@@ -289,8 +288,5 @@
     color: $core-text-annotation
     font-size: smaller
     font-weight: normal
-
-  .pull-left
-    float: left
 
 </style>
