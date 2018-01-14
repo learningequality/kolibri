@@ -6,7 +6,10 @@
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
       <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
     </template> 
-    <h1 v-else>{{ $tr('topicsTitle') }}</h1>
+    <template v-else>
+      <h1>{{ $tr('topicsTitle') }}</h1>
+      <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
+    </template>
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
@@ -74,7 +77,8 @@
       channelList: 'Channel list',
       lastActivity: 'Last active',
       showingRecent: 'Showing activity in past {threshold} days',
-      noRecent: 'No activity in past {threshold} days',
+      noRecent: 'There has been no activity in the past {threshold} days',
+      noChannels: 'You have not imported any content yet',
     },
     computed: {
       CHANNEL() {
