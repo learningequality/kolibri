@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <table>
+    <table v-if="group.users.length">
       <thead>
         <tr>
           <th class="col-checkbox">
@@ -76,6 +76,7 @@
         </tr>
       </tbody>
     </table>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>
@@ -101,6 +102,7 @@
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
+      noLearners: 'No Learners in this group',
       selectAll: 'Select all',
       selectLearner: 'Select learner',
     },
