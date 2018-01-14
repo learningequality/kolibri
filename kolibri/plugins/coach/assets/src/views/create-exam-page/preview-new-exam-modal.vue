@@ -5,7 +5,8 @@
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
-    :examCreation="true">
+    :examCreation="true"
+  >
     <k-button
       slot="randomize-button"
       :text="$tr('randomize')"

@@ -6,7 +6,8 @@
     textColor="white"
     class="app-bar"
     @nav-icon-click="$emit('toggleSideNav')"
-    :style="{ height: height + 'px' }">
+    :style="{ height: height + 'px' }"
+  >
 
     <div>
       <div class="app-bar-title-icon"></div>

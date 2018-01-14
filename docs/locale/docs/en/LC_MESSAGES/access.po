@@ -1,0 +1,199 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Learning Equality
+# This file is distributed under the same license as the Kolibri package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Kolibri 0.8.0.dev020171220114619-git\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-05 12:11-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+
+#: ../../access.rst:11
+msgid "Access Kolibri"
+msgstr ""
+
+#: ../../access.rst:15
+msgid "Starting Kolibri on Windows"
+msgstr ""
+
+#: ../../access.rst:17
+msgid ""
+"To start **Kolibri** on Windows, just double-click the desktop shortcut. "
+"You will see the notification message *Kolibri is starting, please "
+"wait...*."
+msgstr ""
+
+#: ../../access.rst:19
+msgid ""
+"When you see the notification *Kolibri is running...*, **Kolibri** will "
+"open in the browser with the URL http://127.0.0.1:8080."
+msgstr ""
+
+#: ../../access.rst:23
+msgid "Kolibri Taskbar Options"
+msgstr ""
+
+#: ../../access.rst:25
+msgid ""
+"While it is running, **Kolibri** will display an icon in the Windows "
+"taskbar (usually at bottom right, near the clock), that allows you to "
+"stop it and configure other settings."
+msgstr ""
+
+#: ../../access.rst:30
+msgid "Kolibri taskbar options."
+msgstr ""
+
+#: ../../access.rst:33
+msgid "Use the **Load in browser** option to open Kolibri in the browser."
+msgstr ""
+
+#: ../../access.rst:34
+msgid ""
+"By default **Kolibri** will start running every time you start the "
+"computer where it is installed. Uncheck the **Run Kolibri at system "
+"startup** option if you prefer to start it manually from the desktop "
+"shortcut."
+msgstr ""
+
+#: ../../access.rst:35
+msgid ""
+"When installed, **Kolibri** will open in the browser everytime it is "
+"started. Uncheck the option **Open browser when Kolibri starts** if you "
+"prefer to have it running in the background, and to open it manually in "
+"the browser by typing the URL http://127.0.0.1:8080 in the address bar."
+msgstr ""
+
+#: ../../access.rst:36
+msgid ""
+"Select **Exit** to stop **Kolibri**. You will be prompted to confirm the "
+"selection, after which **Kolibri** will stop. You will have to close the "
+"browser (or the tab) manually."
+msgstr ""
+
+#: ../../access.rst:39 ../../access.rst:57
+msgid ""
+"Remember to :ref:`configure other computers <access_LAN>` in the network "
+"to access **Kolibri** content."
+msgstr ""
+
+#: ../../access.rst:43
+msgid "Starting Kolibri on Linux"
+msgstr ""
+
+#: ../../access.rst:46
+msgid ""
+"Final **Kolibri** installer for Linux and OSX is not released yet, so "
+"these steps are *Work in Progress*!"
+msgstr ""
+
+#: ../../access.rst:48
+msgid "Run this command in Terminal to start Kolibri:"
+msgstr ""
+
+#: ../../access.rst:54
+msgid ""
+"Open the default browser at http://127.0.0.1:8080 displaying the "
+"**Kolibri** start page."
+msgstr ""
+
+#: ../../access.rst:59
+msgid "Run this command in Terminal to stop Kolibri:"
+msgstr ""
+
+#: ../../access.rst:67
+msgid "Starting Kolibri on Android"
+msgstr ""
+
+#: ../../access.rst:70
+msgid ""
+"Final **Kolibri** installer for Android is not released yet, so these "
+"steps are *Work in Progress*!"
+msgstr ""
+
+#: ../../access.rst:72
+msgid "Go to **Apps** on your device and tap the **Kolibri** icon."
+msgstr ""
+
+#: ../../access.rst:77
+msgid "Tap the Kolibri icon among your device apps to start."
+msgstr ""
+
+#: ../../access.rst:83
+msgid "Accessing Kolibri from Other Devices in the Network"
+msgstr ""
+
+#: ../../access.rst:85
+msgid ""
+"While **Kolibri** is up and running on the device where you installed it,"
+" other computers, tablets, even mobile phones in the same **Local Area "
+"Network (LAN)** can access its learning contents."
+msgstr ""
+
+#: ../../access.rst:87
+msgid ""
+"To access the content on the same device/computer where **Kolibri** is "
+"running, open the browser at the address http://127.0.0.1:8080/."
+msgstr ""
+
+#: ../../access.rst:89
+msgid ""
+"To access the content from other devices in the same network, you need to"
+" know the IP address of one where where **Kolibri** is running. For "
+"example, if **Kolibri** is on a device/computer with IP address "
+"**192.168.0.104**, you can access it from others in the same network by "
+"opening the browser and typing the address http://192.168.0.104:8080."
+msgstr ""
+
+#: ../../access.rst:91
+msgid ""
+"You can check the IP (**Server URL**) of the device where Kolibri is "
+"running by going to **Info** tab in the **Device** dashboard, ."
+msgstr ""
+
+#: ../../access.rst:96
+msgid "Find out the IP/Server URL in the Device > Info tab."
+msgstr ""
+
+#: ../../access.rst:99
+msgid ""
+"You can also use the ``ipconfig`` command on Windows or ``ifconfig`` "
+"command on Linux/OSX to find out the IP address of the device running the"
+" **Kolibri**."
+msgstr ""
+
+#: ../../access.rst:105
+msgid "Change Language"
+msgstr ""
+
+#: ../../access.rst:107
+msgid ""
+"To change language in which **Kolibri** user interface is displayed, "
+"follow these steps."
+msgstr ""
+
+#: ../../access.rst:109
+msgid "Open your user menu in the upper right corner."
+msgstr ""
+
+#: ../../access.rst:110
+msgid "Select the **Change language** option."
+msgstr ""
+
+#: ../../access.rst:111
+msgid "Choose the desired language."
+msgstr ""
+
+#: ../../access.rst:112
+msgid "Click **Select** to confirm."
+msgstr ""
+

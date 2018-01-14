@@ -23,7 +23,7 @@
             icon="close"
             @click="toggleNav"
           />
-          <span class="side-nav-header-name">Kolibri</span>
+          <span class="side-nav-header-name">{{ $tr('Kolibri') }}</span>
         </div>
 
         <div
@@ -90,6 +90,7 @@
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
+      Kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
       facility: 'Facility',
@@ -159,7 +160,7 @@
             label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
             icon: 'settings_input_antenna',
-            href: '/management/facility',
+            href: '/facility',
           });
         }
         if (this.canManageContent || this.isSuperuser) {
@@ -167,7 +168,7 @@
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
             icon: 'tablet_mac',
-            href: '/management/device',
+            href: '/device',
           });
         }
         options.push({ type: 'divider' });

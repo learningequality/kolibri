@@ -1,0 +1,422 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Learning Equality
+# This file is distributed under the same license as the Kolibri package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Kolibri 0.8.0.dev020171220114619-git\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-05 12:11-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+
+#: ../../coach.rst:11
+msgid "Coach"
+msgstr ""
+
+#: ../../coach.rst:13
+msgid ""
+"You can track progress of the **Learner** users, create and assign "
+"**Exams** to classes or learner groups from the **Coach** dashboard. The "
+"default view of the **Coach** dashboard presents the list of **Classes** "
+"with number of learners enrolled to each class."
+msgstr ""
+
+#: ../../coach.rst:15
+msgid ""
+"Select a class from the list to access the progress-tracking features and"
+" create exams."
+msgstr ""
+
+#: ../../coach.rst:24
+msgid "Recent Activity View"
+msgstr ""
+
+#: ../../coach.rst:26
+msgid ""
+"This is the default view when you select a class from the **Coach** "
+"dashboard. It displays the list of channels and items (exercises and "
+"resources - videos, reading material, etc.) accessed during the last 7 "
+"days by learners of the selected class."
+msgstr ""
+
+#: ../../coach.rst:31
+msgid ""
+"If the class learners have access to more then one channel, you will "
+"first see the list of channels which you can navigate by topics and "
+"subtopics until you arrive to a specific item. In this view you can see "
+"the progress of each class learner for that specific item."
+msgstr ""
+
+#: ../../coach.rst:37
+msgid "Topic Activity View"
+msgstr ""
+
+#: ../../coach.rst:39
+msgid ""
+"Use this view to access the full report of activity progress for the "
+"selected class. You can navigate channels by topics and subtopics until "
+"you see the progress of each class learner for one specific item."
+msgstr ""
+
+#: ../../manage/_groups.rst:5
+msgid "Manage Groups"
+msgstr ""
+
+#: ../../manage/_groups.rst:7
+msgid ""
+"In case you need to further divide learners inside classes, for example "
+"to address the different progress needs or levels, you can use the "
+"**Groups** feature. Create and delete groups, as well as assign learners "
+"to them from the **Groups** tab in your **Coach** dashboard. Default view"
+" displays the list of all groups for the selected class, with the list of"
+" assigned learners for each group."
+msgstr ""
+
+#: ../../manage/_groups.rst:13
+msgid ""
+"To manage Kolibri users you must sign-in as **Super user**, **Admin** or "
+"**Coach**."
+msgstr ""
+
+#: ../../manage/_groups.rst:17
+msgid "Create a New Group"
+msgstr ""
+
+#: ../../manage/_groups.rst:19
+msgid "To create a new learner group, follow these steps."
+msgstr ""
+
+#: ../../manage/_groups.rst:21
+msgid "Click **+ New group** button."
+msgstr ""
+
+#: ../../manage/_groups.rst:22
+msgid "Give group a desired name."
+msgstr ""
+
+#: ../../manage/_groups.rst:23
+msgid "Click **Save** to confirm, or **Cancel** to exit without creating a group."
+msgstr ""
+
+#: ../../manage/_groups.rst:27
+msgid "Assign Learners to Group"
+msgstr ""
+
+#: ../../manage/_groups.rst:29
+msgid ""
+"Below existing groups there is a list with all learners currently **NOT**"
+" assigned to any groups."
+msgstr ""
+
+#: ../../manage/_groups.rst:31
+msgid ""
+"Use checkboxes to select all the learners in the list, or specific ones "
+"you want to assign to the group."
+msgstr ""
+
+#: ../../manage/_groups.rst:32
+msgid "Click **Move learners** button on the right side of the list."
+msgstr ""
+
+#: ../../manage/_groups.rst:33
+msgid ""
+"Select the group to which you want to assign the selected learners in the"
+" confirmation window."
+msgstr ""
+
+#: ../../manage/_groups.rst:34
+msgid "Click **Move** to proceed, or **Cancel** to exit without assigning."
+msgstr ""
+
+#: ../../manage/_groups.rst:41
+msgid "Move learners between groups"
+msgstr ""
+
+#: ../../manage/_groups.rst:43
+msgid ""
+"Use checkboxes to select all the user in one group, or specific users you"
+" want to assign to another group."
+msgstr ""
+
+#: ../../manage/_groups.rst:44
+msgid "Click **Move learners** button on the right side of the origin group."
+msgstr ""
+
+#: ../../manage/_groups.rst:45
+msgid ""
+"Select the group to which you want to move the selected learners, or the "
+"**Ungrouped** option if you want to remove them from the origin group "
+"without assigning to a new one."
+msgstr ""
+
+#: ../../manage/_groups.rst:46
+msgid "Click **Move** to proceed, or **Cancel** to exit without moving."
+msgstr ""
+
+#: ../../manage/_groups.rst:53
+msgid "Rename Group"
+msgstr ""
+
+#: ../../manage/_groups.rst:55
+msgid "To rename group, follow these steps."
+msgstr ""
+
+#: ../../manage/_groups.rst:57 ../../manage/_groups.rst:68
+msgid ""
+"Click the down arrow icon on the right edge of the desired group from the"
+" list."
+msgstr ""
+
+#: ../../manage/_groups.rst:58
+msgid "Select the **Rename group** from the drop-down menu."
+msgstr ""
+
+#: ../../manage/_groups.rst:59
+msgid "Input the new name for the group in the confirmation window."
+msgstr ""
+
+#: ../../manage/_groups.rst:60
+msgid ""
+"Click **Save changes** button to proceed, or **Cancel** to exit without "
+"renaming the group."
+msgstr ""
+
+#: ../../manage/_groups.rst:64
+msgid "Delete Group"
+msgstr ""
+
+#: ../../manage/_groups.rst:66
+msgid "To delete a group, follow these steps."
+msgstr ""
+
+#: ../../manage/_groups.rst:69
+msgid "Select the **Delete group** from the drop-down menu."
+msgstr ""
+
+#: ../../manage/_groups.rst:70
+msgid ""
+"Click **Delete group** button in the confirmation window to proceed, or "
+"**Cancel** to exit without deleting the group."
+msgstr ""
+
+#: ../../manage/_groups.rst:73
+msgid "Learners currently assigned to group will become ungrouped."
+msgstr ""
+
+#: ../../manage/_exams.rst:5
+msgid "Manage Exams"
+msgstr ""
+
+#: ../../manage/_exams.rst:7
+msgid ""
+"You can view, create and delete exams, as well as assign them to "
+"learners, using the **Exams** tab in your **Coach** dashboard. Default "
+"view displays the list of all exams in a selected class, with a series of"
+" options to set the visibility, (de)activate when required, and view "
+"report of students who took them."
+msgstr ""
+
+#: ../../manage/_exams.rst:13
+msgid ""
+"To manage **Exams** in Kolibri classes and groups you must be logged-in "
+"as **Coach** or **Admin**."
+msgstr ""
+
+#: ../../manage/_exams.rst:17
+msgid "Create New Exam"
+msgstr ""
+
+#: ../../manage/_exams.rst:19
+msgid "To create a new exam, follow these steps."
+msgstr ""
+
+#: ../../manage/_exams.rst:21
+msgid "Click **New exam** button."
+msgstr ""
+
+#: ../../manage/_exams.rst:22
+msgid ""
+"Select the content channel from which you wish to select questions for "
+"the exam."
+msgstr ""
+
+#: ../../manage/_exams.rst:23
+msgid ""
+"Click **Create exam** to confirm, or **Cancel** to exit the confirmation "
+"window."
+msgstr ""
+
+#: ../../manage/_exams.rst:24
+msgid "Fill in the field for exam title."
+msgstr ""
+
+#: ../../manage/_exams.rst:25
+msgid "Fill in the field for number of questions you want exam to contain."
+msgstr ""
+
+#: ../../manage/_exams.rst:26
+msgid ""
+"Navigate through the topic tree and select checkboxes of those exercises "
+"you want to include in the exam."
+msgstr ""
+
+#: ../../manage/_exams.rst:32
+msgid ""
+"As you keep adding the exercises you will see confirmation messages at "
+"the bottom."
+msgstr ""
+
+#: ../../manage/_exams.rst:34
+msgid "Click **Preview** button to view the result in overlay window."
+msgstr ""
+
+#: ../../manage/_exams.rst:40
+msgid ""
+"Click **Randomize questions** button to present them in the different "
+"order from those in the topic origin."
+msgstr ""
+
+#: ../../manage/_exams.rst:41
+msgid ""
+"Click the **Close** (**X**) button in the upper right corner to return to"
+" the exam home page."
+msgstr ""
+
+#: ../../manage/_exams.rst:43
+msgid "Click **Finish** button to save the result."
+msgstr ""
+
+#: ../../manage/_exams.rst:47
+msgid "Change Exam Visibility"
+msgstr ""
+
+#: ../../manage/_exams.rst:49
+msgid ""
+"Newly created exam will be visible to entire class. To change exam "
+"visibility, meaning to assign it only to one group of learners instead of"
+" the whole class, follow these steps."
+msgstr ""
+
+#: ../../manage/_exams.rst:51
+msgid ""
+"Click **Change** button under the **Visible to** column in the list of "
+"exams."
+msgstr ""
+
+#: ../../manage/_exams.rst:52
+msgid "Select the group(s) of learners to whom you wish to assign the exam."
+msgstr ""
+
+#: ../../manage/_exams.rst:53
+msgid ""
+"Click **Update** to confirm, or **Cancel** to exit the confirmation "
+"window."
+msgstr ""
+
+#: ../../manage/_exams.rst:60
+msgid "Activate/Deactivate Exam"
+msgstr ""
+
+#: ../../manage/_exams.rst:62
+msgid ""
+"Once you set the visibility of exam to the chosen group(s) of learners, "
+"you need to **Activate** it in order for it to appear in the **Learn** "
+"view of the learners to whom you assigned it."
+msgstr ""
+
+#: ../../manage/_exams.rst:64
+msgid ""
+"Click **Activate** button under the **Action** column in the list of "
+"exams."
+msgstr ""
+
+#: ../../manage/_exams.rst:65
+msgid "When the exam period concludes, click the **Deactivate** button."
+msgstr ""
+
+#: ../../manage/_exams.rst:69
+msgid "View Exam Report"
+msgstr ""
+
+#: ../../manage/_exams.rst:71
+msgid ""
+"To view the report on learners who have taken the exam, follow these "
+"steps."
+msgstr ""
+
+#: ../../manage/_exams.rst:73 ../../manage/_exams.rst:97
+#: ../../manage/_exams.rst:109
+msgid ""
+"Click down arrow near the **Activate** button for the desired exam from "
+"the list."
+msgstr ""
+
+#: ../../manage/_exams.rst:74
+msgid "Select **View report** in the drop-down menu."
+msgstr ""
+
+#: ../../manage/_exams.rst:80
+msgid ""
+"Click the name of the learner to view the detailed report with preview of"
+" results for each question."
+msgstr ""
+
+#: ../../manage/_exams.rst:86
+msgid ""
+"Click each of the questions to preview it and understand better which "
+"question learners answered correctly in the exam and those they struggled"
+" with."
+msgstr ""
+
+#: ../../manage/_exams.rst:93
+msgid "Delete Exam"
+msgstr ""
+
+#: ../../manage/_exams.rst:95
+msgid "To delete exam, follow these steps."
+msgstr ""
+
+#: ../../manage/_exams.rst:98
+msgid "Select **Delete** in the drop-down menu."
+msgstr ""
+
+#: ../../manage/_exams.rst:99
+msgid ""
+"Click **Delete** button in the confirmation window to proceed, or "
+"**Cancel** to exit without deleting the exam."
+msgstr ""
+
+#: ../../manage/_exams.rst:102
+msgid "All data from the exam you are deleting will be lost."
+msgstr ""
+
+#: ../../manage/_exams.rst:105
+msgid "Rename Exam"
+msgstr ""
+
+#: ../../manage/_exams.rst:107
+msgid "To rename exam, follow these steps."
+msgstr ""
+
+#: ../../manage/_exams.rst:110
+msgid "Select **Rename** in the drop-down menu."
+msgstr ""
+
+#: ../../manage/_exams.rst:111
+msgid "Change the exam title in the confirmation window."
+msgstr ""
+
+#: ../../manage/_exams.rst:112
+msgid ""
+"Click **Rename** button  to proceed, or **Cancel** to exit without "
+"renaming the exam."
+msgstr ""
+

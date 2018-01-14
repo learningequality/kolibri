@@ -4,7 +4,8 @@
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="setSuperuserCredentials">
+    @submit="setSuperuserCredentials"
+  >
 
     <k-textbox
       v-model="name"

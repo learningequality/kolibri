@@ -39,3 +39,8 @@ Kolibri can serve high quality education content from several publicly available
    :maxdepth: 3
 
    faq
+   
+.. toctree::
+   :maxdepth: 3
+
+   contact

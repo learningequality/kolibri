@@ -21,7 +21,8 @@
         tag="div"
         @leave="slide"
         @before-enter="setStartPosition"
-        @enter="slide">
+        @enter="slide"
+      >
 
         <content-card
           class="content-carousel-card"

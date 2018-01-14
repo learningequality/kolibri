@@ -33,7 +33,8 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress" />
+        @updateProgress="updateProgress"
+      />
     </div>
 
     <div>

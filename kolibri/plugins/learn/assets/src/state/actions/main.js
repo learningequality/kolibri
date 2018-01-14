@@ -215,13 +215,14 @@ function showTopicsTopic(store, id, isRoot = false) {
     store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_TOPIC);
   }
 
-  const topicPromise = ContentNodeResource.getModel(id).fetch();
-  const childrenPromise = ContentNodeResource.getCollection({
-    parent: id,
-  }).fetch();
-  const channelsPromise = setChannelInfo(store);
-  const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
-  ConditionalPromise.all([topicPromise, childrenPromise, ancestorsPromise, channelsPromise]).only(
+  const promises = [
+    ContentNodeResource.getModel(id).fetch(), // the topic
+    ContentNodeResource.getCollection({ parent: id }).fetch(), // the topic's children
+    ContentNodeResource.fetchAncestors(id), // the topic's ancestors
+    setChannelInfo(store),
+  ];
+
+  ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([topic, children, ancestors]) => {
       const currentChannel = getChannelObject(store.state, topic.channel_id);
@@ -229,32 +230,40 @@ function showTopicsTopic(store, id, isRoot = false) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      const topicContents = _collectionState(children);
       const pageState = {
-        isRoot: isRoot,
+        isRoot,
+        channel: currentChannel,
+        topic: _topicState(topic, ancestors),
+        contents: topicContents,
       };
-      pageState.channel = currentChannel;
-      pageState.topic = _topicState(topic, ancestors);
-      const collection = _collectionState(children);
-      pageState.contents = collection;
+
       store.dispatch('SET_PAGE_STATE', pageState);
-      // Topics are expensive to compute progress for, so we lazily load progress for them.
-      const subtopicIds = collection
-        .filter(item => item.kind === ContentNodeKinds.TOPIC)
-        .map(subtopic => subtopic.id);
-      if (subtopicIds.length) {
-        const topicProgressPromise = ContentNodeProgressResource.getCollection({
-          ids: subtopicIds,
-        }).fetch();
-        topicProgressPromise.then(progressArray => {
-          store.dispatch('SET_TOPIC_PROGRESS', progressArray);
-        });
+
+      // Only load subtopic progress if the user is logged in
+      if (isUserLoggedIn(store.state)) {
+        const subtopicIds = topicContents
+          .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
+          .map(({ id }) => id);
+
+        if (subtopicIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: subtopicIds })
+            .fetch()
+            .then(progresses => {
+              store.dispatch('SET_TOPIC_PROGRESS', progresses);
+            });
+        }
       }
+
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+
       if (isRoot) {
         store.dispatch(
           'CORE_SET_TITLE',
-          translator.$tr('topicsForChannelPageTitle', { currentChannelTitle: currentChannel.title })
+          translator.$tr('topicsForChannelPageTitle', {
+            currentChannelTitle: currentChannel.title,
+          })
         );
       } else {
         store.dispatch(
@@ -612,7 +621,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
     // prettier-ignore
     [contentId]: ({
       [itemId]: currentAttemptLog,
-    }),
+    })
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
@@ -641,7 +650,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
           // prettier-ignore
           [contentId]: ({
           [itemId]: log,
-        }),
+        })
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);

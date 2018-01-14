@@ -297,10 +297,7 @@
         this.subtopics.forEach(subtopic => {
           allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
         });
-        this.exercises.forEach(exercise => {
-          allExercises.push(exercise);
-        });
-        return allExercises;
+        return [allExercises, ...this.exercises];
       },
       allExercisesWithinCurrentTopicSelected() {
         if (this.allExercisesWithinCurrentTopic.length === 0) {

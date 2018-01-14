@@ -171,14 +171,6 @@
           sug.toLowerCase().startsWith(this.username.toLowerCase())
         );
       },
-      // TODO: not used
-      uniqueMatch() {
-        // If we have a matching username entered, don't show any suggestions.
-        return (
-          this.suggestions.length === 1 &&
-          this.suggestions[0].toLowerCase() === this.username.toLowerCase()
-        );
-      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
@@ -188,7 +180,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -201,7 +193,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
         if (this.simpleSignIn) {

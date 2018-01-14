@@ -2,7 +2,8 @@
 
   <section
     class="pdf-page-container"
-    :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
+    :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }"
+  >
     <span class="pdf-page-loading"> {{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="active"
@@ -10,7 +11,8 @@
       ref="canvas"
       dir="ltr"
       :height="pageHeight"
-      :width="pageWidth">
+      :width="pageWidth"
+    >
     </canvas>
   </section>
 

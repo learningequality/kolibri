@@ -1,0 +1,46 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Learning Equality
+# This file is distributed under the same license as the Kolibri package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Kolibri 0.8.0.dev020171220114619-git\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-05 12:11-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+
+#: ../../index.rst:11
+msgid "Kolibri User Guide"
+msgstr ""
+
+#: ../../index.rst:13
+msgid ""
+"**Kolibri** is an open-source educational platform specially designed to "
+"provide offline access to a wide range of quality, openly licensed "
+"educational content in low-resource contexts like rural schools, refugee "
+"camps, orphanages, and also in non-formal school programs."
+msgstr ""
+
+#: ../../index.rst:15
+msgid ""
+"Kolibri can serve high quality education content from several publicly "
+"available **content channels**, collections of educational resources "
+"(exercises, videos, audio or document files) and associated metadata, "
+"prepared and organized for their use in Kolibri. It also works in "
+"conjuntion with `Kolibri Studio <https://studio.learningequality.org>`_, "
+"the tool used to organize content and build custom content channels, "
+"aligned to the local curricula, or according to specific learning needs."
+msgstr ""
+
+#: ../../index.rst:20
+msgid "Some publicly available learning content that may be included in Kolibri."
+msgstr ""
+

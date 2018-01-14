@@ -7,7 +7,8 @@
     <div
       v-show="!loading"
       class="fill-space"
-      :class="{ 'mimic-fullscreen': mimicFullscreen }">
+      :class="{ 'mimic-fullscreen': mimicFullscreen }"
+    >
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
           <source

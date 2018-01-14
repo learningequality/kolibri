@@ -10,7 +10,8 @@
         :icon="icon"
         :hasDropdown="true"
         :class="{ appbarbutton: inAppBar }"
-        ref="buttonLarge">
+        ref="buttonLarge"
+      >
         {{ name }}
         <ui-menu
           :options="options"
@@ -18,7 +19,8 @@
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.buttonLarge.closeDropdown()"
-          @select="emitSelection" />
+          @select="emitSelection"
+        />
       </ui-button>
     </span>
     <span v-else>
@@ -29,14 +31,16 @@
         :color="color"
         :icon="icon"
         :hasDropdown="true"
-        ref="button">
+        ref="button"
+      >
         <ui-menu
           :options="options"
           slot="dropdown"
           class="dropdown-menu"
           :class="{ disabledasselected: displayDisabledAsSelected }"
           @close="$refs.button.closeDropdown()"
-          @select="emitSelection" />
+          @select="emitSelection"
+        />
       </ui-icon-button>
     </span>
   </span>

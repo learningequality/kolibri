@@ -73,15 +73,6 @@ class ContentSummaryViewSet(viewsets.ModelViewSet):
         return ContentNode.objects.filter(channel_id=channel_id).order_by('lft')
 
 
-class UserSummaryViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (KolibriReportPermissions,)
-    serializer_class = UserReportSerializer
-
-    def get_queryset(self):
-        return FacilityUser.objects.all()
-
-
 class RecentReportViewSet(viewsets.ModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)

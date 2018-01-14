@@ -4,11 +4,7 @@
     :title="$tr('moveLearners')"
     @cancel="close"
   >
-    <p>
-      {{ $tr('moveThe') }}
-      <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong>
-      {{ $tr('to') }}:
-    </p>
+    <p>{{ $tr('moveLearnerCount', {count: usersToMove.length }) }}</p>
     <k-radio-button
       v-for="group in groupsExcludingCurrent"
       :key="group.id"
@@ -59,9 +55,8 @@
     name: 'moveLearnersModal',
     $trs: {
       moveLearners: 'Move learners',
-      moveThe: 'Move the',
-      to: 'to',
-      learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
+      moveLearnerCount:
+        'Move {count, number, integer} {count, plural, one {learner} other {learners}} to:',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
       move: 'Move',

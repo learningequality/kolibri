@@ -3,7 +3,8 @@
   <form
     class="search-box"
     @submit.prevent="search"
-    @keydown.esc.prevent="handleEscKey">
+    @keydown.esc.prevent="handleEscKey"
+  >
     <div class="search-box-row">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input

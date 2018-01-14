@@ -1,0 +1,1419 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Learning Equality
+# This file is distributed under the same license as the Kolibri package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Kolibri 0.8.0.dev020171220114619-git\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-05 12:11-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+
+#: ../../install.rst:11
+msgid "Install Kolibri"
+msgstr ""
+
+#: ../../install.rst:15
+msgid "**Kolibri** is not released yet, so these guides are *Work in Progress* !"
+msgstr ""
+
+#: ../../install.rst:18
+msgid ""
+"To install **Kolibri**, check the system requirements first and then "
+"follow the procedure for the operating system on your device."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:4
+msgid "System requirements"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:7
+msgid "Operating systems"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:9
+msgid "Windows Vista, 7, 8.1, 10"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:10
+msgid "Debian/Ubuntu: 14.04, 16.04 and up - anything that's *not* end-of-life."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:11
+msgid "Linux: Any system with Python 2.7"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:12
+msgid "Mac OSX 10.9, 10.10 and 10.11"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:13
+msgid "Debian/Raspberry Pi packages: Wheezy or later"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:14
+msgid "*(planned)* Android: 4.2.2 or later"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:20
+msgid "Supported Browsers"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:22
+msgid "IE10+, Microsoft Edge"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:23
+msgid "Firefox"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:24
+msgid "Chrome"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:25
+msgid "*(planned)* Safari"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:26
+msgid "*(planned)* Epiphany on Raspberry Pi"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:27
+msgid "*(planned)* others on Android and  iOS."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:34
+msgid "Video playback"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:36
+msgid ""
+"Videos are MP4 encoded, and require no aditional installation of plugins "
+"or codecs."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:40
+msgid "Hardware requirements"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:42
+msgid ""
+"You can download the full `Kolibri Hardware Guide "
+"<https://learningequality.org/r/hardware-guide>`_ and examples of "
+"`Hardware Configurations for Kolibri "
+"<https://learningequality.org/r/hardware>`_ as PDF documents."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:45
+msgid "Clients"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:47
+msgid ""
+"Very old desktops and very low-power computers can be used as client "
+"devices to access Kolibri. For instance, some deployments are known to "
+"use first-gen Raspberry Pi as desktop computers."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:49
+msgid ""
+"It is always a good idea to do a practical test, but when you want to "
+"deploy Kolibri, usually it's not necessary to scale your hardware. The "
+"main concern is that your system needs a video card and driver that can "
+"play the videos."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:52
+msgid "Servers"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:54
+msgid "Kolibri hardware requirements as a server are next to nothing."
+msgstr ""
+
+#: ../../install/_system_requirements.rst:56
+msgid "256 MB"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:57
+msgid "500 MHz CPU"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:58
+msgid ""
+"Hard drive space depends on the size of the content channels you intend "
+"to import into Kolibri"
+msgstr ""
+
+#: ../../install/_system_requirements.rst:60
+msgid ""
+"If you have a center with less than 30 computers, a device as simple as a"
+" Raspberry Pi is known to work fine as a server."
+msgstr ""
+
+#: ../../install/_windows.rst:4
+msgid "Windows"
+msgstr ""
+
+#: ../../install/_windows.rst:6
+msgid "To install or uninstall Kolibri on Windows, follow these steps."
+msgstr ""
+
+#: ../../install/_android.rst:11 ../../install/_osx.rst:11
+#: ../../install/_windows.rst:9
+msgid "Install"
+msgstr ""
+
+#: ../../install/_windows.rst:11
+msgid ""
+"Download the Kolibri `Windows installer <https://learningequality.org/r"
+"/kolibri-windows-setup-latest>`_."
+msgstr ""
+
+#: ../../install/_windows.rst:12 ../../install/_windows.rst:42
+msgid "Double-click the downloaded ``.exe`` file."
+msgstr ""
+
+#: ../../install/_windows.rst:13
+msgid "Select the language for the installation."
+msgstr ""
+
+#: ../../install/_windows.rst:14 ../../install/_windows.rst:43
+msgid "Follow the instructions in the installation wizard window."
+msgstr ""
+
+#: ../../install/_windows.rst:15
+msgid ""
+"Once the installation finishes, Kolibri will auto-start and open in the "
+"default browser on your computer."
+msgstr ""
+
+#: ../../install/_windows.rst:16
+msgid "Proceed with the :ref:`setup_initial` of your facility."
+msgstr ""
+
+#: ../../install/_windows.rst:19
+msgid ""
+"Windows firewall will prompt you to allow the Python process needed to "
+"run Kolibri. Click **Allow access** to accept and proceed."
+msgstr ""
+
+#: ../../install/_windows.rst:24
+msgid "Allow the Python process needed to run Kolibri."
+msgstr ""
+
+#: ../../install/_android.rst:30 ../../install/_linux.rst:45
+#: ../../install/_osx.rst:24 ../../install/_windows.rst:28
+msgid "Uninstall"
+msgstr ""
+
+#: ../../install/_windows.rst:30
+msgid "Open the Windows Control Panel."
+msgstr ""
+
+#: ../../install/_windows.rst:31
+msgid "Select **Programs and Features** option."
+msgstr ""
+
+#: ../../install/_windows.rst:32
+msgid "Select Kolibri from the list of programs."
+msgstr ""
+
+#: ../../install/_windows.rst:33
+msgid "Click the button **Uninstall/Change** and follow the instructions."
+msgstr ""
+
+#: ../../install/_android.rst:37 ../../install/_linux.rst:54
+#: ../../install/_osx.rst:29 ../../install/_windows.rst:37
+msgid "Upgrade"
+msgstr ""
+
+#: ../../install/_linux.rst:58 ../../install/_osx.rst:31
+#: ../../install/_windows.rst:39
+msgid "To upgrade Kolibri, follow these steps."
+msgstr ""
+
+#: ../../install/_windows.rst:41
+msgid ""
+"Download the new version of Kolibri `Windows installer "
+"<https://learningequality.org/r/kolibri-windows-setup-latest>`_."
+msgstr ""
+
+#: ../../install/_linux.rst:62 ../../install/_windows.rst:44
+msgid ""
+"Once the installation of the upgrade is finished, Kolibri will auto-start"
+" and open in the default browser on your computer."
+msgstr ""
+
+#: ../../install/_linux.rst:63 ../../install/_osx.rst:35
+#: ../../install/_windows.rst:45
+msgid "Go explore the new and improved Kolibri features!"
+msgstr ""
+
+#: ../../install/_linux.rst:4
+msgid "Debian/Ubuntu Linux"
+msgstr ""
+
+#: ../../install/_linux.rst:7
+msgid ""
+"Beware that the final Linux ``deb`` installer is still Work-in-Progress, "
+"and that you may run into issues with the steps indicated below Please "
+"report any problems with this installer on our `GitHub repository "
+"<https://github.com/learningequality/kolibri-installer-"
+"debian/issues/new>`_."
+msgstr ""
+
+#: ../../install/_linux.rst:9
+msgid ""
+"However, you can run Kolibri in Terminal using the package called "
+"``PEX``. Follow the same procedure as indicated for :ref:`macOS <osx>`."
+msgstr ""
+
+#: ../../install/_linux.rst:13
+msgid "Install from PPA repository"
+msgstr ""
+
+#: ../../install/_linux.rst:15
+msgid "Use the following commands in Terminal to add the PPA and install Kolibri."
+msgstr ""
+
+#: ../../install/_linux.rst:23
+msgid "**OR**"
+msgstr ""
+
+#: ../../install/_linux.rst:25
+msgid ""
+"Go to `Kolibri project page on Launchpad "
+"<https://launchpad.net/~learningequality/+archive/ubuntu/kolibri/+packages>`_."
+msgstr ""
+
+#: ../../install/_linux.rst:26
+msgid ""
+"Click and select the latest source package. It doesn't matter which "
+"series, all binaries are the same, regardless of your architecture or "
+"Ubuntu/Debian version."
+msgstr ""
+
+#: ../../install/_linux.rst:27
+msgid "Scroll down to **Package files**."
+msgstr ""
+
+#: ../../install/_linux.rst:28
+msgid "Download the Kolibri installer  (``DEB`` file)."
+msgstr ""
+
+#: ../../install/_linux.rst:29
+msgid "Run the command:"
+msgstr ""
+
+#: ../../install/_linux.rst:35
+msgid "Wait for the installation to finish and run this command to start Kolibri:"
+msgstr ""
+
+#: ../../install/_linux.rst:41
+msgid ""
+"When command finishes, open the default browser at http://127.0.0.1:8080 "
+"and proceed with the :ref:`setup_initial` of your facility."
+msgstr ""
+
+#: ../../install/_linux.rst:47
+msgid "Open up **Software** on Ubuntu and locate the Kolibri. Press **Remove**."
+msgstr ""
+
+#: ../../install/_linux.rst:49
+msgid "OR"
+msgstr ""
+
+#: ../../install/_linux.rst:51
+msgid ""
+"Use ``sudo apt-get remove <name of package>``. You need to know the exact"
+" name of the package you installed, most probably ``kolibri``."
+msgstr ""
+
+#: ../../install/_linux.rst:56
+msgid "``TODO - Review``"
+msgstr ""
+
+#: ../../install/_linux.rst:60
+msgid "Download the new version of Kolibri."
+msgstr ""
+
+#: ../../install/_linux.rst:61
+msgid "Start the installer."
+msgstr ""
+
+#: ../../install/_osx.rst:4
+msgid "MacOS"
+msgstr ""
+
+#: ../../install/_osx.rst:7
+msgid ""
+"Full macOS installer is not yet available, but you can run Kolibri in "
+"Terminal using the package called ``PEX``."
+msgstr ""
+
+#: ../../install/_osx.rst:13
+msgid ""
+"Download the `Kolibri PEX installer <https://learningequality.org/r"
+"/kolibri-pex-latest>`_."
+msgstr ""
+
+#: ../../install/_osx.rst:14
+msgid ""
+"Open Terminal in the folder where ``PEX`` file is located and run the "
+"command:"
+msgstr ""
+
+#: ../../install/_osx.rst:20
+msgid ""
+"Once the command finishes, open the default browser at "
+"http://127.0.0.1:8080 and proceed with the :ref:`setup_initial` of your "
+"facility."
+msgstr ""
+
+#: ../../install/_osx.rst:26
+msgid "Delete the ``PEX`` file."
+msgstr ""
+
+#: ../../install/_osx.rst:33
+msgid ""
+"Download the new version of `Kolibri PEX installer "
+"<https://learningequality.org/r/kolibri-pex-latest>`_."
+msgstr ""
+
+#: ../../install/_osx.rst:34
+msgid "Start Kolibri as during the first install."
+msgstr ""
+
+#: ../../install/_android.rst:4
+msgid "Android"
+msgstr ""
+
+#: ../../install/_android.rst:7
+msgid "Final Android installer is not yet available!"
+msgstr ""
+
+#: ../../install/_android.rst:13
+msgid "Allow the installation of **Kolibri** on your Android device."
+msgstr ""
+
+#: ../../install/_android.rst:16
+msgid ""
+"This beta version of **Kolibri** Android installer is not yet available "
+"on Play Store, and in order to install it, you need to change a security "
+"setting (these steps may be slightly different depending on the device "
+"model and Android version):"
+msgstr ""
+
+#: ../../install/_android.rst:18
+msgid "Open your device's **Settings** app."
+msgstr ""
+
+#: ../../install/_android.rst:19
+msgid "Under **Personal**, tap **Security**."
+msgstr ""
+
+#: ../../install/_android.rst:20
+msgid "Under **Device administration**, tap **Unknown sources**."
+msgstr ""
+
+#: ../../install/_android.rst:22
+msgid ""
+"Download the **Kolibri** `Android installer "
+"<https://github.com/learningequality/kolibri/releases/tag/v0.7.0>`_ "
+"(``APK`` file)."
+msgstr ""
+
+#: ../../install/_android.rst:23 ../../install/_android.rst:43
+msgid "Tap the downloaded .apk file."
+msgstr ""
+
+#: ../../install/_android.rst:24 ../../install/_android.rst:44
+msgid "Wait until the installation finishes."
+msgstr ""
+
+#: ../../install/_android.rst:25
+msgid ""
+"Once you have **Kolibri** installed, tap **Open** and proceed with the "
+":ref:`setup_initial` of your facility."
+msgstr ""
+
+#: ../../install/_android.rst:32
+msgid "Open your device's Settings app."
+msgstr ""
+
+#: ../../install/_android.rst:33
+msgid "Under Apps, tap **Kolibri**."
+msgstr ""
+
+#: ../../install/_android.rst:34
+msgid "Tap Uninstall button."
+msgstr ""
+
+#: ../../install/_android.rst:39
+msgid "To upgrade **Kolibri**, follow these steps."
+msgstr ""
+
+#: ../../install/_android.rst:41
+msgid "Uninstall the previous version."
+msgstr ""
+
+#: ../../install/_android.rst:42
+msgid "Download the new version of **Kolibri**."
+msgstr ""
+
+#: ../../install/_android.rst:45
+msgid "Tap **Open** and go explore the new and improved **Kolibri** features!"
+msgstr ""
+
+#: ../../install/_advanced.rst:4
+msgid "Advanced installation options"
+msgstr ""
+
+#: ../../install/_advanced.rst:7
+msgid "Advanced installation options are not yet available!"
+msgstr ""
+
+#: ../../install/_advanced.rst:12
+msgid "Generic installation (pip install)"
+msgstr ""
+
+#: ../../install/_advanced.rst:14
+msgid ""
+"Once Kolibri is released, you may install it as a standard package from "
+"PyPi using this command::"
+msgstr ""
+
+#: ../../install/_advanced.rst:22
+msgid "Debian/Ubuntu: Subscribe to updates through a PPA"
+msgstr ""
+
+#: ../../install/_advanced.rst:24
+msgid "``TODO - REVIEW this whole section once PPA is ready``"
+msgstr ""
+
+#: ../../install/_advanced.rst:27
+msgid ""
+"We maintain a `PPA on Launchpad "
+"<https://launchpad.net/~learningequality/+archive/ubuntu/kolibri>`_ and "
+"if you are connected to the internet, this will also give you automatic "
+"updates."
+msgstr ""
+
+#: ../../install/_advanced.rst:29
+msgid "On Ubuntu, do this::"
+msgstr ""
+
+#: ../../install/_advanced.rst:42
+msgid "Raspberry Pi"
+msgstr ""
+
+#: ../../install/_advanced.rst:44
+msgid "``TODO - once RPi deb is ready``"
+msgstr ""
+
+#: ../../install/_initial_setup.rst:5
+msgid "Initial Setup"
+msgstr ""
+
+#: ../../install/_initial_setup.rst:7
+msgid "To do the initial setup of after the installation, follow these steps."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:10
+msgid ""
+"You need to do the initial setup only once, the first time you start "
+"Kolibri after the installation."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:12
+msgid "**Select the default language for Kolibri.**"
+msgstr ""
+
+#: ../../install/_initial_setup.rst:17
+msgid "Select the default Kolibri language."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:20
+msgid ""
+"You can :ref:`change the user interface language <change_language>` "
+"later, from the user menu in the upper right corner."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:22
+msgid ""
+"**Name your facility.** A Facility is the location where you installed "
+"Kolibri, such as a school or a training center."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:27
+msgid "Select the name for the facility where Kolibri is running."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:29
+msgid ""
+"**Create the Admin account.** This Admin user will be a **Super User** "
+"able to manage all the device content, and all the rest of the facility "
+"users and their permisions."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:34
+msgid "Select the username and password for the facility Super User."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:36
+msgid ""
+"**Choose a Facility setup.** Click the **Setup details** for more "
+"information about user permissions for each setup type."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:39
+msgid "Facility type"
+msgstr ""
+
+#: ../../install/_initial_setup.rst:39
+msgid "Users"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "**Admin managed**"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "For schools and other formal learning contexts."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:41
+msgid "Admins must create all user accounts."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:42
+msgid "Users can sign in without password."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:43
+msgid "Users cannot edit their account information."
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "**Self-managed**"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "For parent-child learning, homeschooling"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "or suplementary individual learning."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:45 ../../install/_initial_setup.rst:49
+msgid "Guests can create their own accounts."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:46 ../../install/_initial_setup.rst:50
+msgid "Users can edit their account information."
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "**Informal and personal use**"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "For libraries, orphanages, correctional"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "facilities, youth centers, computer labs,"
+msgstr ""
+
+#: ../../install/_initial_setup.rst
+msgid "and other non-formal learning contexts."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:58
+msgid "Choose a Facility setup."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:63
+msgid "View the Facility setup details."
+msgstr ""
+
+#: ../../install/_initial_setup.rst:65
+msgid ""
+"Once you finish the initial setup, proceed to :ref:`import some content "
+"<manage_content_ref>`, and :ref:`create users <manage_users_ref>` (if you"
+" chose the Admin-managed facility setup). Make sure to check how to "
+":ref:`configure other computers <access_LAN>` in the network to access "
+"Kolibri."
+msgstr ""
+
+#: ../../../CHANGELOG.rst:2
+msgid "Release Notes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:4
+msgid "Changes are ordered reverse-chronologically."
+msgstr ""
+
+#: ../../../CHANGELOG.rst:7
+msgid "0.8.0 (unreleased)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:9 ../../../CHANGELOG.rst:15
+msgid "TBA"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:13
+msgid "0.7.1 (unreleased)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:19
+msgid "0.7.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:21
+msgid "Completed RTL language support"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:22
+msgid "Languages: English, Spanish, Arabic, Farsi, Swahili, Urdu, and French"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:23
+msgid "Support for Python 3.6"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:24
+msgid "Split user and developer documentation"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:25
+msgid "Improved lost-connection and session timeout handling"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:26
+msgid "Added 'device info' administrator page"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:27
+msgid "Content search integration with Studio"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:28
+msgid "Granular content import and export"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:32
+msgid "0.6.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:34
+msgid "Many mobile-friendly updates across the app"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:35
+msgid "Update French, Portuguese, and Swahili translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:36
+msgid "Upgraded Windows installer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:40
+msgid "0.6.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:42
+msgid "Cross-channel searching and browsing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:43
+msgid "Improved device onboarding experience"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:44
+msgid ""
+"Improved device permissions experience (deprecated 'device owner', added "
+"'superuser' flag and import permission)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:45
+msgid "Various channel import/export experience and stability improvements"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:46
+msgid "Responsive login page"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:47
+msgid "Dynamic language switching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:48
+msgid "Work on integrated living style guide"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:49
+msgid "Added beta support for right-to-left languages"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:50
+msgid "Improved handling of locale codes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:51
+msgid "Added support for frontend translation outside of Vue components"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:52
+msgid "Added an open-source 'code of conduct' for contributors"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:53
+msgid "By default run PEX file in foreground on MacOS"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:54
+msgid "Crypto optimizations from C extensions"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:55
+msgid "Deprecated support for HTML in translation strings"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:56
+msgid "Hide thumbnails from content 'download' button"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:57
+msgid "Automatic database backup during upgrades. #2365"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:58
+msgid "... and many other updates and fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:62
+msgid "0.5.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:64
+msgid "Release timeout bug fix from 0.4.8"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:68
+msgid "0.5.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:70
+msgid "Release bug fix from 0.4.7"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:74
+msgid "0.5.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:76
+msgid ""
+"Python dependencies: Only bundle, do not install dependencies in system "
+"env #2299"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:77
+msgid "Beta Android support"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:78
+msgid "Fix 'importchannel' command #2082"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:79
+msgid "Small translation improvements for Spanish, French, Hindi, and Swahili"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:83
+msgid "0.5.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:85
+msgid ""
+"Update all user logging related timestamps to a custom datetime field "
+"that includes timezone info"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:86
+msgid ""
+"Added daemon mode (system service) to run ``kolibri start`` in background"
+" (default!) #1548"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:87
+msgid "Implemented ``kolibri stop`` and ``kolibri status`` #1548"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:88
+msgid "Newly imported channels are given a 'last_updated' timestamp"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:89
+msgid ""
+"Add progress annotation for topics, lazily loaded to increase page load "
+"performance"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:90
+msgid "Add API endpoint for getting number and total size of files in a channel"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:91
+msgid "Migrate all JS linting to prettier rather than eslint"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:92
+msgid ""
+"Merge audio_mp3_render and video_mp4_render plugins into one single "
+"media_player plugin"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:93
+msgid ""
+"KOLIBRI_LISTEN_PORT environment variable for specifying a default for the"
+" --port option #1724"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:97
+msgid "0.4.9"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:98
+msgid "User experience improvements for session timeout"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:102
+msgid "0.4.8"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:104
+msgid "Prevent session timeout if user is still active"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:105
+msgid "Fix exam completion timestamp bug"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:106
+msgid "Prevent exercise attempt logging crosstalk bug"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:107
+msgid "Update Hindi translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:110
+msgid "0.4.7"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:112
+msgid ""
+"Fix bug that made updating existing Django models from the frontend "
+"impossible"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:116
+msgid "0.4.6"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:118
+msgid "Fix various exam and progress tracking issues"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:119
+msgid "Add automatic sign-out when browser is closed"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:120
+msgid "Fix search issue"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:121
+msgid "Learner UI updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:122
+msgid "Updated Hindi translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:126
+msgid "0.4.5"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:128
+msgid ""
+"Frontend and backend changes to increase performance of the Kolibri "
+"application under heavy load"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:129
+msgid "Fix bug in frontend simplified login code"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:133
+msgid "0.4.4"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:135
+msgid "Fix for Python 3 compatibility in Whl, Windows and Pex builds #1797"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:136
+msgid "Adds Mexican Spanish as an interface language"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:137
+msgid "Upgrades django-q for bug fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:141
+msgid "0.4.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:143
+msgid "Speed improvements for content recommendation #1798"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:147
+msgid "0.4.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:149
+msgid "Fixes for morango database migrations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:153
+msgid "0.4.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:155
+msgid "Makes usernames for login case insensitive #1733"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:156
+msgid "Fixes various issues with exercise rendering #1757"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:157
+msgid "Removes wrong CLI usage instructions #1742"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:161
+msgid "0.4.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:163
+msgid "Class and group management"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:164
+msgid "Learner reports #1464"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:165
+msgid "Performance optimizations #1499"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:166
+msgid "Anonymous exercises fixed #1466"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:167
+msgid "Integrated Morango, to prep for data syncing (will require fresh database)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:168
+msgid "Adds Simplified Login support as a configurable facility flag"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:172
+msgid "0.3.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:174
+msgid "Turns video captions on by default"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:178 ../../../CHANGELOG.rst:185
+msgid "0.3.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:180
+msgid "Updated translations for Portuguese and Kiswahili in exercises."
+msgstr ""
+
+#: ../../../CHANGELOG.rst:181
+msgid "Updated Spanish translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:187
+msgid "Portuguese and Kaswihili updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:188
+msgid "Windows fixes (mimetypes and modified time)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:189
+msgid "VF sidebar translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:193
+msgid "0.3.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:195
+msgid "Add support for nested URL structures in API Resource layer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:196
+msgid "Add Spanish and Swahili translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:197
+msgid "Improve pipeline for translating plugins"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:198
+msgid "Add search back in"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:199
+msgid "Content Renderers use explicit new API rather than event-based loading"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:203
+msgid "0.2.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:205
+msgid "Add authentication for tasks API"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:206
+msgid "Temporarily remove 'search' functionality"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:207
+msgid "Rename 'Learn/Explore' to 'Recommended/Topics'"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:208
+msgid "Add JS-based 'responsive mixin' as alternative to media queries"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:209
+msgid "Replace jeet grids with pure.css grids"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:210
+msgid "Begin using some keen-ui components"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:211
+msgid "Update primary layout and navigation"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:212
+msgid "New log-in page"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:213
+msgid "User sign-up and profile-editing functionality"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:214
+msgid "Versioning based on git tags"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:215
+msgid "Client heartbeat for usage tracking"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:216
+msgid "Allow plugins to override core components"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:217
+msgid "Wrap all user-facing strings for I18N"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:218
+msgid "Log filtering based on users and collections"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:219
+msgid "Improved docs"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:220
+msgid "Pin dependencies with Yarn"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:221
+msgid "ES2015 transpilation now Bublé instead of Babel"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:222
+msgid ""
+"Webpack build process compatible with plugins outside the kolibri "
+"directory"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:223
+msgid "Vue2 refactor"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:224
+msgid "HTML5 app renderer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:228
+msgid "0.1.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:230
+msgid "SVG inlining"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:231
+msgid "Exercise completion visualization"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:232
+msgid "Perseus exercise renderer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:233
+msgid "Coach reports"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:237
+msgid "0.1.0 - MVP"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:239
+msgid "Improved documentation"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:240
+msgid "Conditional (cancelable) JS promises"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:241
+msgid "Asset bundling performance improvements"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:242
+msgid "Endpoint indexing into zip files"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:243
+msgid "Case-insensitive usernames"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:244
+msgid "Make plugins more self-contained"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:245
+msgid "Client-side router bug fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:246
+msgid "Resource layer smart cache busting"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:247
+msgid "Loading 'spinner'"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:248
+msgid "Make modals accessible"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:249
+msgid "Fuzzy searching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:250
+msgid "Usage data export"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:251
+msgid "Drive enumeration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:252
+msgid "Content interaction logging"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:253
+msgid "I18N string extraction"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:254
+msgid "Channel switching bug fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:255
+msgid "Modal popups"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:256 ../../../CHANGELOG.rst:275
+msgid "A11Y updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:257
+msgid "Tab focus highlights"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:258
+msgid "Learn app styling changes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:259
+msgid "User management UI"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:260
+msgid "Task management"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:261
+msgid "Content import/export"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:262
+msgid "Session state and login widget"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:263
+msgid "Channel switching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:264
+msgid "Setup wizard plugin"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:265
+msgid "Documentation updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:266
+msgid "Content downloading"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:270
+msgid "0.0.1 - MMVP"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:272
+msgid "Page titles"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:273
+msgid "Javascript logging module"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:274
+msgid "Responsiveness updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:276
+msgid "Cherrypy server"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:277
+msgid "Vuex integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:278
+msgid "Stylus/Jeet-based grids"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:279
+msgid "Support for multiple content DBs"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:280
+msgid "API resource retrieval and caching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:281
+msgid "Content recommendation endpoints"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:282
+msgid "Client-side routing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:283
+msgid "Content search"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:284
+msgid "Video, Document, and MP3 content renderers"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:285
+msgid "Initial VueIntl integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:286
+msgid "User management API"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:287
+msgid "Vue.js integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:288
+msgid "Learn app and content browsing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:289
+msgid "Content endpoints"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:290
+msgid "Automatic inclusion of requirements in a static build"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:291
+msgid "Django JS Reverse with urls representation in kolibriGlobal object"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:292
+msgid "Python plugin API with hooks"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:293
+msgid "Webpack build pipeline, including linting"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:294
+msgid "Authentication, authorization, permissions"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:295
+msgid "Users, Collections, and Roles"
+msgstr ""
+

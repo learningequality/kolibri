@@ -2,39 +2,63 @@
 
   <div class="attempt-summary">
     <div class="column pure-u-3-4">
-      <div class="user-name-container">
-        <mat-svg
-          class="svg-item"
-          category="action"
-          name="face"
-        />
-        <h1 class="user-name">{{ userName }}</h1>
+      <div class="summary-item">
+        <div class="icon">
+          <mat-svg
+            class="svg-item"
+            category="action"
+            name="face"
+          />
+        </div>
+        <span class="user-name">
+          {{ userName }}
+        </span>
       </div>
-      <div class="exercise-name">
-        <content-icon class="svg-icon" :kind="kind" />
-        {{ exerciseTitle }}
+
+      <div class="summary-item">
+        <div class="icon">
+          <content-icon
+            class="svg-icon"
+            :kind="kind"
+          />
+        </div>
+        <span class="exercise-name">
+          {{ exerciseTitle }}
+        </span>
       </div>
-      <div :class="{'in-progress': !isCompleted, 'requirements': true}">
-        <progress-icon class="svg-icon" :progress="summaryLog.progress" />
-        {{ requirementsString }}
+
+      <div
+        :class="{'in-progress': !isCompleted}"
+        class="summary-item"
+      >
+        <div class="icon">
+          <progress-icon
+            class="svg-icon"
+            :progress="summaryLog.progress"
+          />
+        </div>
+        <span>
+          {{ requirementsString }}
+        </span>
       </div>
+
     </div>
+
     <div class="column pure-u-1-4">
       <div class="status">
-        <progress-icon class="svg-icon" :progress="summaryLog.progress" />
-        <span v-if="isCompleted">
-          <strong> {{ $tr('statusMastered') }} </strong>
-          <br>
-          <elapsed-time :date="dateCompleted" />
-        </span>
-        <span v-else-if="isCompleted !== null">
-          <strong> {{ $tr('statusInProgress') }} </strong>
-          <br>
-          <elapsed-time :date="dateLastAttempted" />
-        </span>
-        <span v-else>
-          <strong> {{ $tr('notStarted') }} </strong>
-        </span>
+        <div class="status-text">
+          <progress-icon
+            class="svg-icon"
+            :progress="summaryLog.progress"
+          />
+          <strong>{{ statusText }}</strong>
+        </div>
+        <div
+          class="update-time"
+          v-if="isCompleted || isCompleted !== null"
+        >
+          <elapsed-time :date="updateTime" />
+        </div>
       </div>
     </div>
   </div>
@@ -110,6 +134,24 @@
           throw e;
         }
       },
+      statusText() {
+        if (this.isCompleted) {
+          return this.$tr('statusMastered');
+        } else if (this.isCompleted !== null) {
+          return this.$tr('statusInProgress');
+        } else {
+          return this.$tr('notStarted');
+        }
+      },
+      updateTime() {
+        if (this.isCompleted) {
+          return this.dateCompleted;
+        } else if (this.isCompleted !== null) {
+          return this.dateLastAttempted;
+        } else {
+          return null;
+        }
+      },
       requirementsString() {
         try {
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
@@ -137,20 +179,16 @@
 
   .attempt-summary
     background-color: $core-bg-light
-    height: 100%
 
-  .user-name-container
-    display: block
+  .user-name
+    font-size: 24px
+    font-weight: bold
+
+  .exercise-name
+    font-weight: bold
 
   .svg-icon
     font-size: 1.3em
-
-  .exercise-name
-    margin-top: 10px
-    font-weight: bold
-
-  .requirements
-    margin-top: 10px
 
   .in-progress
     color: $core-grey
@@ -159,16 +197,31 @@
     display: inline-block
     vertical-align: middle
 
-  .user-name
-    display: inline-block
-    vertical-align: middle
-    margin: 0
-
   .column
     float: left
 
   .status
     float: right
     text-align: right
+
+  .icon
+    display: inline-block
+    margin-right: 16px
+    width: 24px
+
+  .summary-item
+    margin: 8px 0
+    vertical-align: baseline
+    span
+      vertical-align: inherit
+
+  .status-text
+    margin-top: 8px
+    .svg-icon
+      margin-right: 8px
+
+  .update-time
+    padding: 4px 0
+    font-size: 12px
 
 </style>

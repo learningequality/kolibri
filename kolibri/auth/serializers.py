@@ -23,6 +23,11 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
+    def create(self, validated_data):
+        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return super(FacilityUserSerializer, self).create(validated_data)
+
 
 class FacilityUserSignupSerializer(FacilityUserSerializer):
 
