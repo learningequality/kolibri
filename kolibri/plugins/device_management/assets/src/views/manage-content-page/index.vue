@@ -86,7 +86,7 @@
       import: 'Import',
       export: 'Export',
       noAccessDetails:
-        'You must be signed in as a Superuser or have Content Management permissions to view this page',
+        'You must be signed in as a superuser or have content management permissions to view this page',
     },
     components: {
       authMessage,

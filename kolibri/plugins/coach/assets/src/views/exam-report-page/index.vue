@@ -115,7 +115,7 @@
     },
     $trs: {
       examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
-      averageScore: 'Average Score: {num, number, percent}',
+      averageScore: 'Average score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',

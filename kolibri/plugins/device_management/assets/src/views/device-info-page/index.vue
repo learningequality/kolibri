@@ -78,7 +78,7 @@
       },
     },
     $trs: {
-      header: 'Device Info',
+      header: 'Device info',
       kolibriVersion: 'Kolibri version',
       url: 'Server {count, plural, one {URL} other {URLs}}',
       database: 'Database path',

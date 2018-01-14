@@ -48,8 +48,8 @@
   export default {
     name: 'classCreateModal',
     $trs: {
-      addNewClassTitle: 'Add New Class',
-      classname: 'Class Name',
+      addNewClassTitle: 'Add new class',
+      classname: 'Class name',
       cancel: 'Cancel',
       create: 'Create',
       duplicateName: 'A class with that name already exists',

@@ -123,7 +123,7 @@
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
-      newExam: 'New Exam',
+      newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
       noExams: 'You do not have any exams yet',

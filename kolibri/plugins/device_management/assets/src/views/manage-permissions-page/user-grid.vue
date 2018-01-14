@@ -104,7 +104,7 @@
     $trs: {
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
-      fullName: 'Full Name',
+      fullName: 'Full name',
       username: 'Username',
       noUsersMatching: 'No users matching "{searchFilter}"',
       you: 'You',

@@ -47,8 +47,8 @@
   export default {
     name: 'classnameEditModal',
     $trs: {
-      modalTitle: 'Change Class Name',
-      classname: 'Class Name',
+      modalTitle: 'Change class name',
+      classname: 'Class name',
       cancel: 'Cancel',
       update: 'Update',
       duplicateName: 'A class with that name already exists',
