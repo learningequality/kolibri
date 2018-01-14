@@ -234,7 +234,7 @@
       },
     },
     $trs: {
-      allLanguages: 'All Languages',
+      allLanguages: 'All languages',
       channelsAvailable:
         '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
       channelHeader: 'Channel',

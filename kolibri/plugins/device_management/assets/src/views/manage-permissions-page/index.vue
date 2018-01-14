@@ -53,7 +53,7 @@
       },
     },
     $trs: {
-      devicePermissionsHeader: 'Device Permissions',
+      devicePermissionsHeader: 'Device permissions',
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
       searchPlaceholder: 'Search for a user...',
     },

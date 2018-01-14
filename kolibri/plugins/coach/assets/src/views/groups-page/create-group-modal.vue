@@ -46,8 +46,8 @@
   export default {
     name: 'createGroupModal',
     $trs: {
-      newLearnerGroup: 'New Learner Group',
-      learnerGroupName: 'Learner Group Name',
+      newLearnerGroup: 'Add new group',
+      learnerGroupName: 'Group name',
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',

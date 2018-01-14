@@ -46,8 +46,8 @@
   export default {
     name: 'renameGroupModal',
     $trs: {
-      renameLearnerGroup: 'Rename Learner Group',
-      learnerGroupName: 'Learner Group Name',
+      renameLearnerGroup: 'Rename group',
+      learnerGroupName: 'Group name',
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
