@@ -6,7 +6,6 @@
       @enter="setLang"
       @cancel="closeModal"
     >
-      <p>{{ $tr('changeLanguageSubHeader') }}</p>
       <k-radio-button
         v-for="language in languageOptions"
         :key="language.id"
@@ -14,9 +13,17 @@
         :label="language.lang_name"
         v-model="selectedLanguage"
       />
-      <div class="footer">
-        <k-button :text="$tr('cancelButtonText')" :raised="false" @click="closeModal" />
-        <k-button :text="$tr('confirmButtonText')" :primary="true" @click="setLang" />
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('cancelButtonText')"
+          :raised="false"
+          @click="closeModal"
+        />
+        <k-button
+          :text="$tr('confirmButtonText')"
+          :primary="true"
+          @click="setLang"
+        />
       </div>
     </core-modal>
   </div>
@@ -38,7 +45,6 @@
     mixins: [languageSwitcherMixin],
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      changeLanguageSubHeader: 'Select the language you want to view Kolibri in',
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Confirm',
     },
@@ -60,9 +66,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: right
-
-</style>
+<style lang="stylus"></style>

@@ -13,6 +13,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
     lang_code = serializers.SerializerMethodField()
     lang_name = serializers.SerializerMethodField()
+    available = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
@@ -49,10 +50,24 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         return instance.root.lang.lang_name
 
+    def get_available(self, instance):
+        return instance.root.available
+
     class Meta:
         model = ChannelMetadata
-        fields = ('root', 'id', 'name', 'description', 'author', 'last_updated', 'version', 'thumbnail',
-                  'lang_code', 'lang_name')
+        fields = (
+            'author',
+            'description',
+            'id',
+            'last_updated',
+            'lang_code',
+            'lang_name',
+            'name',
+            'root',
+            'thumbnail',
+            'version',
+            'available',
+        )
 
 
 class LowerCaseField(serializers.CharField):
@@ -290,7 +305,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     total_resources = serializers.SerializerMethodField()
-    resources_on_device = serializers.SerializerMethodField()
+    on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
     def get_total_resources(self, obj):
@@ -298,23 +313,26 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
         return total_resources
 
-    def get_resources_on_device(self, obj):
+    def get_on_device_resources(self, obj):
         available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
 
         return available_resources
 
     def get_importable(self, obj):
-        if 'request' not in self.context or not self.context['request'].query_params.get('drive_id', None) or obj.kind == content_kinds.TOPIC:
+        if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
             return True
         else:
-            # check if the external drive exists given drive id
-            drive_id = self.context['request'].query_params.get('drive_id', None)
-            drives = get_mounted_drives_with_channel_info()
-            if drive_id in drives:
-                datafolder = drives[drive_id].datafolder
-            else:
-                raise serializers.ValidationError(
-                    'The external drive with given drive id does not exist.')
+            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
+            datafolder = cache.get(drive_id, None)
+
+            if datafolder is None:
+                drives = get_mounted_drives_with_channel_info()
+                if drive_id in drives:
+                    datafolder = drives[drive_id].datafolder
+                    cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
+                else:
+                    raise serializers.ValidationError(
+                        'The external drive with given drive id does not exist.')
 
             files = obj.files.all()
             if not files.exists():
@@ -330,7 +348,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'available', 'kind', 'total_resources', 'resources_on_device', 'importable',
+            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable',
         )
 
 

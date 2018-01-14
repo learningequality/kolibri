@@ -1,12 +1,13 @@
 <template>
 
   <div>
-    <content-card-group-header
-      :header="header" />
-
+    <k-breadcrumbs :items="breadcrumbItems" />
+    <h1>{{ header }}</h1>
     <content-card-group-grid
       :contents="recommendations"
-      :genContentLink="genContentLink" />
+      :genContentLink="genContentLink"
+      :showContentKindFilter="false"
+    />
   </div>
 
 </template>
@@ -17,6 +18,7 @@
   import { PageNames } from '../../constants';
   import contentCardGroupGrid from '../content-card-group-grid';
   import contentCardGroupHeader from '../content-card-group-header';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
 
   export default {
     name: 'recommendedSubpage',
@@ -25,10 +27,12 @@
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
       featuredPageHeader: 'Featured in {channelTitle}',
+      recommended: 'Recommended',
     },
     components: {
       contentCardGroupGrid,
       contentCardGroupHeader,
+      kBreadcrumbs,
     },
     computed: {
       header() {
@@ -44,6 +48,19 @@
           default:
             return null;
         }
+      },
+      breadcrumbItems() {
+        return [
+          {
+            text: this.$tr('recommended'),
+            link: {
+              name: PageNames.RECOMMENDED,
+            },
+          },
+          {
+            text: this.header,
+          },
+        ];
       },
     },
     methods: {
@@ -66,4 +83,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  h1
+    font-size: 21px
+
+</style>

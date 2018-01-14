@@ -2,10 +2,12 @@
 
   <section class="content-carousel">
 
-    <div :style="widthOfCarousel" class="content-carousel-controls">
-      <div class="previous" @click="previousSet">
+    <div :style="contentControlsContainerStyles">
+
+      <div class="content-carousel-previous-control" @click="previousSet">
         <ui-icon-button
-          class="previous-button"
+          class="content-carousel-previous-control-button"
+          :style="buttonTransforms"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
@@ -14,9 +16,32 @@
         />
       </div>
 
-      <div class="next" @click="nextSet">
+      <transition-group
+        :style="contentSetStyles"
+        tag="div"
+        @leave="slide"
+        @before-enter="setStartPosition"
+        @enter="slide"
+      >
+
+        <content-card
+          class="content-carousel-card"
+          v-for="(content, index) in contents"
+          v-if="isInThisSet(index)"
+          :style="positionCalc(index)"
+          :key="content.id"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress"
+          :link="genContentLink(content.id, content.kind)"
+        />
+      </transition-group>
+
+      <div class="content-carousel-next-control" @click="nextSet">
         <ui-icon-button
-          class="next-button"
+          class="content-carousel-next-control-button"
+          :style="buttonTransforms"
           v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
@@ -24,41 +49,9 @@
           size="large"
         />
       </div>
+
     </div>
 
-    <transition-group
-      :style="widthOfCarousel"
-      class="content-carousel-set"
-      tag="div"
-      @leave="slide"
-      @before-enter="setStartPosition"
-      @enter="slide">
-
-      <div
-        class="content-carousel-card"
-        v-for="(content, index) in contents"
-        v-if="isInThisSet(index)"
-        :style="positionCalc(index)"
-        :key="content.id"
-      >
-        <!-- uses props if scoped slot is unused -->
-          <slot
-            :title="content.title"
-            :thumbnail="content.thumnail"
-            :kind="content.kind"
-            :progress="content.progress"
-            :id="content.id">
-
-            <content-card
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :kind="content.kind"
-            :progress="content.progress"
-            :link="genContentLink(content.id, content.kind)" />
-          </slot>
-      </div>
-
-    </transition-group>
 
   </section>
 
@@ -71,6 +64,11 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentCard from '../content-card';
+
+  if (!contentCard.mixins) {
+    contentCard.mixins = [];
+  }
+  contentCard.mixins.push(responsiveElement); //including because carousel breaks without it
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
@@ -102,12 +100,17 @@
         // flag marks holds the index (in contents array, prop) of first item in carousel
         contentSetStart: 0,
         // flag that marks when the slide animation will be going start at left
-        leftToRight: false,
+        panBackwards: false,
         // tracks whether the carousel has been interacted with
         interacted: false,
+        contentCardWidth,
+        gutterWidth,
       };
     },
     computed: {
+      animationAttr() {
+        return this.isRtl ? 'right' : 'left';
+      },
       contentSetSize() {
         if (this.elSize.width > 2 * contentCardWidth) {
           const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
@@ -129,12 +132,35 @@
       isLastSet() {
         return this.contentSetEnd >= this.contents.length - 1;
       },
-      widthOfCarousel() {
+      contentSetStyles() {
+        const cards = this.contentSetSize * contentCardWidth;
+        const gutters = (this.contentSetSize - 1) * gutterWidth;
+        const maxCardShadowOffset = 14; // determined by css styles on cards
+        return {
+          'min-width': `${contentCardWidth}px`,
+          'overflow-x': 'hidden',
+          width: `${cards + gutters + maxCardShadowOffset}px`,
+          height: `${contentCardWidth + maxCardShadowOffset}px`,
+          position: 'relative',
+        };
+      },
+      contentControlsContainerStyles() {
         const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         return {
           width: `${cards + gutters}px`,
-          'min-width': `${contentCardWidth}px`,
+          height: `${contentCardWidth}px`,
+          overflow: 'visible',
+          position: 'relative',
+        };
+      },
+      buttonTransforms() {
+        const alignmentTransform = 'translate(-50%, -50%)';
+        const mirrorTransform = `scaleX(-1) `;
+
+        return {
+          // must mirror first, order matters
+          transform: (this.isRtl ? mirrorTransform : '') + alignmentTransform,
         };
       },
     },
@@ -162,11 +188,11 @@
       contentSetSize(newSetSize, oldSetSize) {
         const addingCards = newSetSize > oldSetSize;
         const removingCards = oldSetSize > newSetSize;
-        this.leftToRight = removingCards;
+        this.panBackwards = removingCards;
 
         if (this.isLastSet && addingCards && !this.isFirstSet) {
           this.contentSetStart = this.contents.length - this.contentSetSize;
-          this.leftToRight = true;
+          this.panBackwards = true;
         }
       },
     },
@@ -175,32 +201,32 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return { left: `${cardOffset + gutterOffset}px` };
+        return { [this.animationAttr]: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
-        // sets the initial spot from which cards will be sliding into place from
-        // direction depends on `leftToRight`
-        const originalPosition = parseInt(el.style.left, 10);
-        const cards = this.contentSetSize * contentCardWidth;
-        const gutters = (this.contentSetSize - 1) * gutterWidth;
-        const carouselContainerOffset = cards + gutters;
-        const sign = this.leftToRight ? -1 : 1;
-
         if (this.interacted) {
-          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+          // sets the initial spot from which cards will be sliding into place from
+          // direction depends on `panBackwards`
+          const originalPosition = parseInt(el.style[this.animationAttr], 10);
+          const cards = this.contentSetSize * contentCardWidth;
+          const gutters = this.contentSetSize * gutterWidth;
+          const carouselContainerOffset = cards + gutters;
+          const sign = this.panBackwards ? -1 : 1;
+
+          el.style[this.animationAttr] = `${sign * carouselContainerOffset + originalPosition}px`;
         }
       },
       slide(el) {
-        // moves cards from their starting point by their offset
-        // direction depends on `leftToRight`
-        const originalPosition = parseInt(el.style.left, 10);
-        const cards = this.contentSetSize * contentCardWidth;
-        const gutters = (this.contentSetSize - 1) * gutterWidth;
-        const carouselContainerOffset = cards + gutters;
-        const sign = this.leftToRight ? 1 : -1;
-
         if (this.interacted) {
-          el.style.left = `${sign * carouselContainerOffset + originalPosition}px`;
+          // moves cards from their starting point by their offset
+          // direction depends on `panBackwards`
+          const originalPosition = parseInt(el.style[this.animationAttr], 10);
+          const cards = this.contentSetSize * contentCardWidth;
+          const gutters = this.contentSetSize * gutterWidth;
+          const carouselContainerOffset = cards + gutters;
+          const sign = this.panBackwards ? 1 : -1;
+
+          el.style[this.animationAttr] = `${sign * carouselContainerOffset + originalPosition}px`;
         }
       },
       isInThisSet(index) {
@@ -208,11 +234,11 @@
       },
       nextSet() {
         this.contentSetStart += this.contentSetSize;
-        this.leftToRight = false;
+        this.panBackwards = false;
       },
       previousSet() {
         this.contentSetStart -= this.contentSetSize;
-        this.leftToRight = true;
+        this.panBackwards = true;
       },
     },
   };
@@ -226,59 +252,52 @@
 
   // width of card + gutter
   $card-height = 210px
+  $control-hit-height = 100px
+  $control-hit-width = $control-hit-height
 
 
   .content-carousel
     margin-top: 1em
     clearfix()
+    position: relative
 
-    &-controls
-      $hit-height = 100px
-
-      $hit-width = $hit-height
-      // set up the parent element that the buttons use for reference
-      position: absolute
-      width: 100%
-
-      // styles that apply to both control buttons
-      .next, .previous
-        &:active
-          z-index: 8 // material
-
-        z-index: 2 // material
-        position: absolute
-        top: ($card-height / 2)
-        transform: translateY(-($hit-height / 2))
-        height: $hit-height
-        width: $hit-width
-        text-align: center
-        vertical-align: middle
-
-        &-button
-          &:active
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
-          box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
-          // center align within hitbox
-          position: absolute
-          top: 50%
-          left: 50%
-          transform: translate(-50%, -50%)
-
-      // position-specific styles for each control button
-      .next
-        right: -($hit-width/2)
-      .previous
-        left: -($hit-width/2)
-
-    &-set
-      $max-card-shadow-offset = 14px
+    &-control-container
+      overflow: visible
       position: relative
-      height: $card-height + $max-card-shadow-offset
-      overflow-x: hidden
-      overflow-y: visible
 
     &-card
+      left: 0
       transition: left 0.4s linear
       position: absolute
+
+    &-next-control, &-previous-control
+
+      // styles that apply to both control buttons
+      &:active
+        z-index: 8 // material
+
+      z-index: 2 // material
+      position: absolute
+      top: ($card-height / 2)
+      transform: translateY(-($control-hit-height / 2))
+      height: $control-hit-height
+      width: $control-hit-width
+      text-align: center
+      vertical-align: middle
+
+      &-button
+        &:active
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+        // center align within hitbox
+        position: absolute
+        top: 50%
+        left: 50%
+
+    // position-specific styles for each control button
+    &-next-control
+      right: -($control-hit-width/2)
+    &-previous-control
+      left: -($control-hit-width/2)
 
 </style>

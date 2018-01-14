@@ -28,7 +28,7 @@ describe('auth message component', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const { headerText, detailsText } = getElements(wrapper);
     assert.equal(headerText(), 'Did you forget to sign in?');
-    assert.equal(detailsText(), 'You must be signed in as a Registered User to view this page');
+    assert.equal(detailsText(), 'You must be signed in to view this page');
   });
 
   it('shows the correct details when authorized role is "learner"', () => {

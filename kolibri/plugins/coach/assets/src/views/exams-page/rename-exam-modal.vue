@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('renameExam')" @cancel="close">
+  <core-modal
+    :title="$tr('renameExam')"
+    @cancel="close"
+  >
     <form @submit.prevent="callRenameExam">
       <k-textbox
         ref="name"
@@ -11,9 +14,19 @@
         @blur="titleBlurred = true"
         v-model.trim="newExamTitle"
       />
-      <div class="footer">
-        <k-button :text="$tr('cancel')" appearance="flat-button" type="button" @click="close" />
-        <k-button :text="$tr('rename')" :primary="true" type="submit" :disabled="submitting" />
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('cancel')"
+          appearance="flat-button"
+          type="button"
+          @click="close"
+        />
+        <k-button
+          :text="$tr('rename')"
+          :primary="true"
+          type="submit"
+          :disabled="submitting"
+        />
       </div>
     </form>
   </core-modal>
@@ -124,9 +137,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

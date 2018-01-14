@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ className }} {{ $tr('exams') }}</h1>
+    <h1>{{ $tr('classExams', {className}) }}</h1>
     <report-subheading />   
     <k-select
       :label="$tr('exams')"
@@ -121,6 +121,7 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
+      classExams: '{className} Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
@@ -290,7 +291,7 @@
     font-size: smaller
     font-weight: normal
 
-  .pull-left 
+  .pull-left
     float: left
 
 </style>

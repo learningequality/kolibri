@@ -5,7 +5,8 @@
     class="doc-viewer"
     :style="minViewerHeight"
     :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }"
-    allowfullscreen>
+    allowfullscreen
+  >
 
     <k-button
       class="btn doc-viewer-controls button-fullscreen"
@@ -21,17 +22,24 @@
       aria-controls="pdf-container"
       icon="add"
       size="large"
-      @click="zoomIn" />
+      @click="zoomIn"
+    />
     <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
-      @click="zoomOut" />
+      @click="zoomOut"
+    />
 
     <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar v-if="documentLoading" class="progress-bar" :showPercentage="true" :progress="progress" />
+      <progress-bar
+        v-if="documentLoading"
+        class="progress-bar"
+        :showPercentage="true"
+        :progress="progress"
+      />
       <page-component
         class="pdf-page-container"
         v-for="(page, index) in pdfPages"
@@ -41,7 +49,8 @@
         :defaultHeight="pageHeight"
         :defaultWidth="pageWidth"
         :scale="scale"
-        :pageNum="index + 1" />
+        :pageNum="index + 1"
+      />
     </div>
   </div>
 
@@ -63,8 +72,8 @@
   import pageComponent from './pageComponent';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
-  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF renderer's
-  // own webpack config
+  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
+  // renderer's own webpack config
   PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
 
   // Number of pages before and after current visible to keep rendered
@@ -85,7 +94,11 @@
       pageComponent,
     },
     mixins: [responsiveWindow, responsiveElement],
-    props: ['defaultFile'],
+    props: {
+      defaultFile: {
+        type: Object,
+      },
+    },
     data: () => ({
       isFullscreen: false,
       progress: 0,
@@ -185,18 +198,15 @@
       this.prepComponentData.then(() => {
         this.$emit('startTracking');
         this.checkPages();
+        // Automatically master after the targetTime, convert seconds -> milliseconds
+        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
       });
-
-      // progress tracking
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', self.sessionTimeSpent / self.targetTime);
-      }, 30000);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+      this.updateProgress();
       this.pdfDocument.cleanup();
       this.pdfDocument.destroy();
       this.$emit('stopTracking');
@@ -293,7 +303,12 @@
             this.hidePage(i);
           }
         }
+        // update progress after we determine which pages to render
+        this.updateProgress();
       }, renderDebounceTime),
+      updateProgress() {
+        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',

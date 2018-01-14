@@ -6,8 +6,8 @@ from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
 from kolibri.content import models as content
-from kolibri.content.models import NO_VERSION, V020BETA1, V040BETA3
-from kolibri.content.utils.channel_import import ChannelImport, mappings
+from kolibri.content.models import NO_VERSION, V020BETA1, V040BETA3, ChannelMetadata, ContentNode
+from kolibri.content.utils.channel_import import ChannelImport, mappings, import_channel_from_local_db
 from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 from mock import patch, MagicMock, Mock, call
@@ -282,6 +282,31 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             call.session.query(class_mock),
             call.session.query().all()
         ])
+
+class MaliciousDatabaseTestCase(TestCase):
+
+    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
+    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
+    @patch('kolibri.content.utils.channel_import.initialize_import_manager')
+    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
+        import_mock = MagicMock()
+        initialize_manager_mock.return_value = import_mock
+        channel_id = '6199dde695db4ee4ab392222d5af1e5c'
+
+        def create_channel():
+            ChannelMetadata.objects.create(
+                id=channel_id,
+                name='test',
+                min_schema_version='1',
+                root_id=channel_id,
+            )
+        import_mock.import_channel_data.side_effect = create_channel
+        import_channel_from_local_db(channel_id)
+        try:
+            channel = ChannelMetadata.objects.get(id=channel_id)
+            assert channel.root
+        except ContentNode.DoesNotExist:
+            self.fail('Channel imported without a valid root node')
 
 
 SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')

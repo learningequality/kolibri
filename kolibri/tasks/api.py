@@ -10,6 +10,7 @@ from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
 from rest_framework import serializers, viewsets
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
@@ -25,6 +26,14 @@ except AppRegistryNotReady:
     django.setup()
 
 logging = logger.getLogger(__name__)
+
+
+NETWORK_ERROR_STRING = _("There was a network error.")
+
+DISK_IO_ERROR_STRING = _("There was a disk access error.")
+
+CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
+
 
 class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
@@ -61,7 +70,14 @@ class TasksViewSet(viewsets.ViewSet):
             "started_by": request.user.pk,
         }
 
-        job_id = get_client().schedule(call_command, "importchannel", "network", channel_id, baseurl=baseurl, extra_metadata=job_metadata,)
+        job_id = get_client().schedule(
+            call_command,
+            "importchannel",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+        )
         resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)
@@ -99,6 +115,8 @@ class TasksViewSet(viewsets.ViewSet):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             extra_metadata=job_metadata,
+            track_progress=True,
+            cancellable=True,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -185,6 +203,8 @@ class TasksViewSet(viewsets.ViewSet):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             extra_metadata=job_metadata,
+            track_progress=True,
+            cancellable=True,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -215,7 +235,8 @@ class TasksViewSet(viewsets.ViewSet):
             "deletechannel",
             channel_id,
             track_progress=True,
-            extra_metadata=job_metadata,)
+            extra_metadata=job_metadata,
+        )
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(get_client().status(task_id))
@@ -403,8 +424,8 @@ def _job_to_response(job):
         }
     else:
         return {
-            "type": job.extra_metadata.get("type"),
-            "started_by": job.extra_metadata.get("started_by"),
+            "type": getattr(job, "extra_metadata", {}).get("type"),
+            "started_by": getattr(job, "extra_metadata", {}).get("started_by"),
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),

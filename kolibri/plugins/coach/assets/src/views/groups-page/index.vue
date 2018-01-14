@@ -67,6 +67,7 @@
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
+  import flatMap from 'lodash/flatMap';
   import kButton from 'kolibri.coreVue.components.kButton';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
@@ -118,13 +119,7 @@
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
       },
       groupedUsers() {
-        const groupedUsers = [];
-        this.sortedGroups.forEach(group => {
-          group.users.forEach(user => {
-            groupedUsers.push(user);
-          });
-        });
-        return groupedUsers;
+        return flatMap(this.sortedGroups, 'users');
       },
       ungroupedUsers() {
         return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);

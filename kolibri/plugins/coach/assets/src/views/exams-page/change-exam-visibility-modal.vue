@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('examVisibility')" @cancel="close">
+  <core-modal
+    :title="$tr('examVisibility')"
+    @cancel="close"
+  >
     <p>{{ $tr('shouldBeVisible', { examTitle }) }}</p>
     <k-radio-button
       :label="$tr('entireClass', { className })"
@@ -15,10 +18,18 @@
       :checked="groupIsSelected(group.id)"
       @change="handleGroupChange(group.id, $event)"
     />
-    <div class="footer">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
-      <k-button :text="$tr('update')" :primary="true" :disabled="busy" @click="updateVisibility" />
-
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('update')"
+        :primary="true"
+        :disabled="busy"
+        @click="updateVisibility"
+      />
     </div>
   </core-modal>
 
@@ -184,9 +195,6 @@
 
   label
     display: block
-
-  .footer
-    text-align: right
 
   .group-select
     padding-bottom: 4rem

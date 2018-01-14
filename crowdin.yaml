@@ -1,10 +1,11 @@
 project_identifier_env: CROWDIN_PROJECT
 api_key_env: CROWDIN_API_KEY
-base_path: .
+base_path: /kolibri/locale/en
+preserve_hierachy: true
 
 files:
-  - source: '/kolibri/locale/en/LC_FRONTEND_MESSAGES/*.json'
+  - source: 'LC_FRONTEND_MESSAGES/*.json'
     translation: '/kolibri/locale/%locale_with_underscore%/LC_FRONTEND_MESSAGES/%original_file_name%'
 
-  - source: '/kolibri/locale/en/LC_MESSAGES/*.po'
+  - source: 'LC_MESSAGES/*.po'
     translation: '/kolibri/locale/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'

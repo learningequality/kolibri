@@ -26,7 +26,7 @@
         class="content-icon-bg"
         :style="contentIconBgColor"
       >
-        <polygon stroke-width="0" points="0,0 60,0 0,60" />
+        <polygon stroke-width="0" :points="contentIconBgCoords" />
       </svg>
       <content-icon :kind="kind" class="content-icon"/>
     </div>
@@ -35,7 +35,8 @@
       <div
         class="progress-bar"
         :style="{ width: `${progress * 100}%` }"
-        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }">
+        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+      >
       </div>
     </div>
 
@@ -93,6 +94,16 @@
           return { backgroundImage: `url('${this.thumbnail}')` };
         }
         return {};
+      },
+      contentIconBgCoords() {
+        const topLeft = '0,0';
+        const topRight = '64,0';
+        const bottomLeft = '0,64';
+        const bottomRight = '64,64';
+        if (this.isRtl) {
+          return `${topLeft} ${topRight} ${bottomRight}`;
+        }
+        return `${topLeft} ${topRight} ${bottomLeft}`;
       },
       contentIconBgColor() {
         if (this.kind === 'exercise') {

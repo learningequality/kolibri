@@ -7,7 +7,7 @@ from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, ChannelMe
 from kolibri.utils.time import local_now
 from sqlalchemy.exc import SQLAlchemyError
 
-from .annotation import set_leaf_node_availability_from_local_file_availability
+from .annotation import recurse_availability_up_tree, set_leaf_node_availability_from_local_file_availability
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge, ClassNotFoundError
@@ -353,7 +353,18 @@ def import_channel_from_local_db(channel_id):
     import_manager.end()
 
     set_leaf_node_availability_from_local_file_availability()
+    recurse_availability_up_tree(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
+    try:
+        assert channel.root
+    except ContentNode.DoesNotExist:
+        node_id = channel.root_id
+        ContentNode.objects.create(
+            id=node_id,
+            title=channel.name,
+            content_id=node_id,
+            channel_id=channel_id,
+        )
     channel.save()

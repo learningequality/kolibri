@@ -5,7 +5,9 @@
     <div class="description">
       <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
-    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('pointsTooltip', { points: totalPoints }) }}</ui-tooltip>
+    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+      {{ $tr('pointsTooltip', { points: totalPoints }) }}
+    </ui-tooltip>
   </div>
 
 </template>
@@ -54,6 +56,8 @@
     display: inline-block
     width: 20px
     height: 20px
+    position: relative
+    top: 2px
 
   .description
     display: inline-block

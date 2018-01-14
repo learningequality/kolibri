@@ -1,0 +1,244 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Learning Equality
+# This file is distributed under the same license as the Kolibri package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Kolibri 0.8.0.dev020171220114619-git\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-05 12:11-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+
+#: ../../faq.rst:11
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: ../../faq.rst:14
+msgid "Network Terminology"
+msgstr ""
+
+#: ../../faq.rst:17
+msgid "About IP addresses"
+msgstr ""
+
+#: ../../faq.rst:19
+msgid ""
+"``0.0.0.0`` = A special IP address on the **server** (your device running"
+" Kolibri and \"serving\" its content to others in the local network), "
+"which actually means \"all available IP addresses\". It's a kind of "
+"alias. But accessing ``0.0.0.0`` from another computer doesn't make sense"
+" and doesn't work. By default, Kolibri will serve on ``0.0.0.0``, which "
+"essentially means all IP addresses that are available on the device will "
+"render Kolibri accessible."
+msgstr ""
+
+#: ../../faq.rst:20
+msgid ""
+"``127.0.0.1`` = A device's local IP address, meaning \"myself\". Some "
+"people joke and say \"There's no place like 127.0.0.1\", meaning "
+"\"there's no place like home\" :) This can be used on the serving device "
+"itself to test that Kolibri is running, in case you need a failsafe way "
+"of checking that Kolibri is in fact running and responsive."
+msgstr ""
+
+#: ../../faq.rst:21
+msgid ""
+"``192.x.y.z`` = Addresses starting with ``192`` are local network IP "
+"addresses. The same thing can be said about ``10.x.y.z``. The address "
+"that you wanna use to enter on the clients/tablets in order to contact "
+"the server will in most cases start with ``192`` or ``10``."
+msgstr ""
+
+#: ../../faq.rst:22
+msgid ""
+"Port number: Kolibri runs on port ``8080``. When you access something on "
+"an IP address, you need a port. Ports can be open or closed on the "
+"server, but they can also be regulated by firewall rules on the way. "
+"``http://`` <- this is the protocol that the browser reads out from the "
+"\"URL\", which is just some text that describes Kolibri."
+msgstr ""
+
+#: ../../faq.rst:23
+msgid ""
+"``http://192.168.1.1:8080`` means: \"Connect to IP address "
+"``192.168.1.1`` on port ``8080`` with the HTTP protocol\". The browser "
+"will the continue to try to reach this address, but may fail for instance"
+" if Kolibri isn't running, or if a step along the way blocks access."
+msgstr ""
+
+#: ../../faq.rst:27
+msgid "Troubleshoot Network Problems"
+msgstr ""
+
+#: ../../faq.rst:29
+msgid "Can you access Kolibri via ``http://127.0.0.1:8080``?"
+msgstr ""
+
+#: ../../faq.rst:30
+msgid ""
+"Can you access anything from the external IP of the device running "
+"Kolibri **FROM** the device itself?"
+msgstr ""
+
+#: ../../faq.rst:31
+msgid "Can you ping the external IP address from another device on the network?"
+msgstr ""
+
+#: ../../faq.rst:35
+msgid "Working with Kolibri from the Command Line"
+msgstr ""
+
+#: ../../faq.rst:38
+msgid ""
+"In Windows you need to open ``cmd.exe`` Command prompt in the folder "
+"where Kolibri executable is located: ``c:/Python27/Scripts``."
+msgstr ""
+
+#: ../../faq.rst:40
+msgid ""
+"If you see errors in the prompt/terminal output while running the "
+"commands below, ask for help at our `Community Forums "
+"<https://community.learningequality.org/>`_, or `file an issue on GitHub "
+"<https://github.com/learningequality/kolibri/issues/new>`_."
+msgstr ""
+
+#: ../../faq.rst:44
+msgid "Start/Stop Kolibri"
+msgstr ""
+
+#: ../../faq.rst:46
+msgid ""
+"In case you need to troubleshoot potential problems while running "
+"Kolibri, you may try to start it manually from the command line."
+msgstr ""
+
+#: ../../faq.rst:59
+msgid "Import Content Channels from Internet"
+msgstr ""
+
+#: ../../faq.rst:61
+msgid ""
+"To import content channels from Internet, run these two commands in "
+"sequence. The first downloads the channel database, and the second "
+"downloads the resources (videos, documents, etc.). *Make sure not to "
+"include the angle brackets “< >” in the command.*"
+msgstr ""
+
+#: ../../faq.rst:70
+msgid "Import Content Channels from a Local Drive"
+msgstr ""
+
+#: ../../faq.rst:72
+msgid ""
+"To import content channels from the local drive, run these two commands "
+"in sequence. Local drive should have a folder ``KOLIBRI_DATA`` at the "
+"root, with Kolibri ``content`` inside."
+msgstr ""
+
+#: ../../faq.rst:81
+msgid "Export Content Channels"
+msgstr ""
+
+#: ../../faq.rst:83
+msgid ""
+"To export Kolibri content channels on a local drive in order to share it "
+"with another device, run these two commands in sequence. The first "
+"exports the channel database, and the second exports the resources "
+"(videos, documents, etc.)."
+msgstr ""
+
+#: ../../faq.rst:90
+msgid ""
+"The path should be to a folder named ``KOLIBRI_DATA`` at the root of the "
+"local drive, so it will get picked up later for importing via the Web UI."
+msgstr ""
+
+#: ../../faq.rst:94
+msgid "Create a New Super User"
+msgstr ""
+
+#: ../../faq.rst:96
+msgid ""
+"In case you need to create another Super user, either to address "
+"additional need of managing facility, or if you lost the password for the"
+" old one, run the following command:"
+msgstr ""
+
+#: ../../faq.rst:102
+msgid ""
+"You will be prompted to input the **Username** and **Password** and the "
+"new **Super user** user account will be created."
+msgstr ""
+
+#: ../../faq.rst:106
+msgid "Change Language"
+msgstr ""
+
+#: ../../faq.rst:113
+msgid "Available languages in Kolibri"
+msgstr ""
+
+#: ../../faq.rst:115
+msgid "English"
+msgstr ""
+
+#: ../../faq.rst:115
+msgid "``en``"
+msgstr ""
+
+#: ../../faq.rst:117
+msgid "Spanish (Spain)"
+msgstr ""
+
+#: ../../faq.rst:117
+msgid "``es-es``"
+msgstr ""
+
+#: ../../faq.rst:119
+msgid "Spanish (Mexico)"
+msgstr ""
+
+#: ../../faq.rst:119
+msgid "``es-mx``"
+msgstr ""
+
+#: ../../faq.rst:121
+msgid "French"
+msgstr ""
+
+#: ../../faq.rst:121
+msgid "``fr``"
+msgstr ""
+
+#: ../../faq.rst:123
+msgid "Portuguese (Portugal)"
+msgstr ""
+
+#: ../../faq.rst:123
+msgid "``pt-pt``"
+msgstr ""
+
+#: ../../faq.rst:125
+msgid "Portuguese (Brazil)"
+msgstr ""
+
+#: ../../faq.rst:125
+msgid "``pt-br``"
+msgstr ""
+
+#: ../../faq.rst:127
+msgid "Swahili (Tanzania)"
+msgstr ""
+
+#: ../../faq.rst:127
+msgid "``sw-tz``"
+msgstr ""
+

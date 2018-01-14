@@ -35,6 +35,8 @@
         <slot></slot>
       </template>
     </div>
+
+    <connection-snackbars />
   </div>
 
 </template>
@@ -49,13 +51,16 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import connectionSnackbars from './connection-snackbars';
 
   export default {
+    name: 'coreBasePage',
     components: {
       appBar,
       sideNav,
       errorBox,
       loadingSpinner,
+      connectionSnackbars,
     },
     mixins: [responsiveWindow],
     props: {
@@ -79,6 +84,11 @@
       navBarNeeded: {
         type: Boolean,
         default: true,
+      },
+      // reserve space at the bottom for floating widgets
+      bottomMargin: {
+        type: Number,
+        default: 0,
       },
     },
     vuex: {
@@ -107,6 +117,7 @@
           paddingTop: padding,
           paddingLeft: padding,
           paddingRight: padding,
+          marginBottom: this.bottomMargin + 'px',
         };
       },
     },
@@ -118,8 +129,14 @@
     },
     methods: {
       updateDocumentTitle() {
-        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+        document.title = this.title
+          ? this.$tr('kolibriTitleMessage', { title: this.title })
+          : this.$tr('kolibriMessage');
       },
+    },
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
     },
   };
 

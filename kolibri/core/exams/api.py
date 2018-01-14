@@ -1,10 +1,11 @@
 from django.db.models.query import F
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.core.exams import models, serializers
-from rest_framework import filters, pagination, viewsets
+from rest_framework import pagination, viewsets
 from rest_framework.response import Response
 
 
@@ -17,7 +18,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size = None
     page_size_query_param = "page_size"
 
-class ExamFilter(filters.FilterSet):
+class ExamFilter(FilterSet):
 
     class Meta:
         model = models.Exam
@@ -27,7 +28,7 @@ class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
     permissions_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filter_class = ExamFilter
 
     def get_queryset(self):

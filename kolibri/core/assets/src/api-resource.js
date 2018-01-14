@@ -300,8 +300,8 @@ export class Collection {
                   // Mark that the fetch has completed.
                   this.synced = true;
                 } else if (typeof (response.entity || {}).results !== 'undefined') {
-                  // If it's not, there are two possibilities - something is awry, or we have received
-                  // paginated data! Check to see if it is paginated.
+                  // If it's not, there are two possibilities - something is awry,
+                  // or we have received paginated data! Check to see if it is paginated.
                   this.clearCache();
                   // Paginated objects have 'results' as their results object so interpret this as
                   // such.
@@ -344,8 +344,8 @@ export class Collection {
   /**
    * Method to save data to the server for this particular collection.
    * Can only currently be used to save new models to the server, not do bulk updates.
-   * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR successfully
-   * returns, otherwise reject is called with the response object.
+   * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR
+   * successfully returns, otherwise reject is called with the response object.
    */
   save() {
     const promise = new ConditionalPromise((resolve, reject) => {
@@ -404,7 +404,8 @@ export class Collection {
       Promise.all(this.promises).then(
         () => {
           if (!Object.keys(this.getParams).length) {
-            // Cannot do a DELETE unless we are filtering by something, to prevent dangerous bulk deletes
+            // Cannot do a DELETE unless we are filtering by something,
+            // to prevent dangerous bulk deletes
             reject('Can not delete unfiltered collection (collection without any GET params');
           } else {
             // Otherwise, DELETE the Collection

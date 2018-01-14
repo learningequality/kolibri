@@ -45,6 +45,7 @@ export const initialState = {
     facilityConfig: {},
     facilities: [],
     connection: baseConnectionState,
+    currentSnackbar: null,
   },
 };
 
@@ -184,6 +185,10 @@ export const coreMutations = {
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;
   },
+
+  CORE_SET_CURRENT_SNACKBAR(state, snackbar) {
+    state.core.currentSnackbar = snackbar;
+  },
 };
 
 const store = new Vuex.Store({});
@@ -199,4 +204,10 @@ store.registerModule = ({ state, mutations } = { state: {}, mutations: {} }) => 
   store.hotUpdate({ mutations: Object.assign(mutations, coreMutations) });
   store.replaceState(Object.assign(state, initialState));
   store.__initialized = true;
+};
+
+store.factory = ({ state, mutations } = { state: {}, mutations: {} }) => {
+  store.__initialized = false;
+  store.registerModule({ state, mutations });
+  return store;
 };

@@ -10,16 +10,6 @@ module.exports = locale => {
           'fr-FR'
         );
       });
-    case 'pt-PT':
-      return new Promise(resolve => {
-        require.ensure(
-          ['intl/locale-data/jsonp/pt-PT.js'],
-          require => {
-            resolve(() => require('intl/locale-data/jsonp/pt-PT.js'));
-          },
-          'pt-PT'
-        );
-      });
     case 'sw-TZ':
       return new Promise(resolve => {
         require.ensure(
@@ -40,11 +30,35 @@ module.exports = locale => {
           'es-ES'
         );
       });
-    case 'es-MX':
+    case 'ar':
       return new Promise(resolve => {
-        require.ensure([], require => {
-          resolve(() => require('intl/locale-data/jsonp/es-MX.js'));
-        });
+        require.ensure(
+          ['intl/locale-data/jsonp/ar.js'],
+          require => {
+            resolve(() => require('intl/locale-data/jsonp/ar.js'));
+          },
+          'ar'
+        );
+      });
+    case 'fa':
+      return new Promise(resolve => {
+        require.ensure(
+          ['intl/locale-data/jsonp/fa.js'],
+          require => {
+            resolve(() => require('intl/locale-data/jsonp/fa.js'));
+          },
+          'fa'
+        );
+      });
+    case 'ur-PK':
+      return new Promise(resolve => {
+        require.ensure(
+          ['intl/locale-data/jsonp/ur-PK.js'],
+          require => {
+            resolve(() => require('intl/locale-data/jsonp/ur-PK.js'));
+          },
+          'ur-PK'
+        );
       });
     default:
       return new Promise(resolve => {

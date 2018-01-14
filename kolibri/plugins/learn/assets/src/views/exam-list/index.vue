@@ -5,7 +5,9 @@
 
     <div v-else>
       <page-header :title="$tr('examName')" />
-      <p v-if="activeExams" class="exams-assigned">{{ $tr('assignedTo', { assigned: activeExams }) }}</p>
+      <p v-if="activeExams" class="exams-assigned">
+        {{ $tr('assignedTo', { assigned: activeExams }) }}
+      </p>
       <p v-else class="exams-assigned">{{ $tr('noExams') }}</p>
 
       <div class="pure-g exam-row" v-for="exam in exams" :key="exam.id">
@@ -20,7 +22,9 @@
             <p>{{ $tr('howManyCorrect', { score: exam.score, outOf: exam.questionCount }) }}</p>
           </div>
           <div class="exam-row-3rd-col" :class="thirdColClass">
-            <p><strong>{{ $tr('percentCorrect', { pct: exam.score/exam.questionCount }) }}</strong></p>
+            <p>
+              <strong>{{ $tr('percentCorrect', { pct: exam.score/exam.questionCount }) }}</strong>
+            </p>
           </div>
         </template>
 

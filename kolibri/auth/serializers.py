@@ -12,7 +12,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        exclude = ("dataset",)
+        fields = ('id', 'kind', 'collection', 'user')
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
@@ -22,6 +22,11 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
+
+    def create(self, validated_data):
+        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return super(FacilityUserSerializer, self).create(validated_data)
 
 
 class FacilityUserSignupSerializer(FacilityUserSerializer):
@@ -43,7 +48,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        exclude = ("dataset",)
+        fields = ('id', 'collection', 'user')
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
@@ -59,8 +64,15 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
-        extra_kwargs = {'id': {'read_only': True}}
-        exclude = ("dataset", "kind", "parent")
+        extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
+        fields = ('id', 'name', 'dataset')
+
+
+class PublicFacilitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Facility
+        fields = ('dataset', 'name')
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -87,6 +99,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
                 fields=('parent', 'name')
             )
         ]
+
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 

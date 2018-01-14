@@ -1,3 +1,4 @@
+import datetime
 import logging as logger
 import os
 
@@ -25,13 +26,10 @@ def update_channel_metadata():
     """
     from .channel_import import import_channel_from_local_db
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
-    imported = False
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             import_channel_from_local_db(channel_id)
-            imported = True
-    if imported:
-        set_availability()
+            set_availability(channel_id)
 
 
 def set_leaf_node_availability_from_local_file_availability():
@@ -110,7 +108,7 @@ def set_local_file_availability_from_disk(checksums=None):
 
     mark_local_files_as_available(checksums_to_update)
 
-def recurse_availability_up_tree():
+def recurse_availability_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
@@ -125,29 +123,42 @@ def recurse_availability_up_tree():
 
     child = ContentNodeTable.alias()
 
+    # start a transaction
+
+    trans = connection.begin()
     # Go from the deepest level to the shallowest
+    start = datetime.datetime.now()
     for level in range(node_depth, 0, -1):
 
         available_nodes = select([child.c.available]).where(
             and_(
                 child.c.available == True,  # noqa
                 child.c.level == level,
+                child.c.channel_id == channel_id,
             )
         ).where(ContentNodeTable.c.id == child.c.parent_id)
 
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
-            ContentNodeTable.c.level == level - 1).where(
-            ContentNodeTable.c.kind == content_kinds.TOPIC).values(available=exists(available_nodes)).execution_options(autocommit=True))
+            and_(
+                ContentNodeTable.c.level == level - 1,
+                ContentNodeTable.c.channel_id == channel_id,
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+
+    # commit the transaction
+    trans.commit()
+
+    elapsed = (datetime.datetime.now() - start)
+    logging.debug("Availability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
-def set_availability(checksums=None):
+def set_availability(channel_id, checksums=None):
     if checksums is None:
         set_local_file_availability_from_disk()
     else:
         mark_local_files_as_available(checksums)
 
     set_leaf_node_availability_from_local_file_availability()
-    recurse_availability_up_tree()
+    recurse_availability_up_tree(channel_id)

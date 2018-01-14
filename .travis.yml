@@ -4,6 +4,8 @@ language: python
 
 dist: trusty
 
+sudo: required
+
 addons:
   chrome: stable
 
@@ -30,6 +32,10 @@ matrix:
       env:
         - TOX_ENV=pythonbuild3.5
         - TRAVIS_NODE_VERSION="6"
+    - python: "3.6"
+      env:
+        - TOX_ENV=pythonbuild3.6
+        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=pythonlint
@@ -53,6 +59,10 @@ matrix:
     - python: "3.5"
       env:
         - TOX_ENV=py3.5
+        - TRAVIS_NODE_VERSION="6"
+    - python: "3.6"
+      env:
+        - TOX_ENV=py3.6
         - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:

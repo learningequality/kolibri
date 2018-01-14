@@ -1,52 +1,53 @@
-# Details
-
 <!--
-Using the template:
-
- 1. Leave all headlines in place
- 2. Replace instructional texts with your own words
- 3. Tick of completed checklist items as you complete them
- 4. If you intentionally skip a checklist item, see below instruction
-
-Skipping items in checklists:
-
-Tick the item checkbox, ~strikethrough item text~, and write why it was skipped, example:
-
-- [x] ~Skipped item~ This is a documentation fix
+ 1. Following guidance below, replace …'s with your own words
+ 2. After saving the PR, tick of completed checklist items
+ 3. Skip checklist items that are not applicable or not necessary
+ 4. Delete instruction/comment blocks
 -->
 
 ### Summary
+<!--
+ * description of the change
+ * manual verification steps performed
+ * screenshots if the PR affects the UI
+-->
 
-* description of the change
-* manual verification steps performed
-* screenshots if the PR affects the UI
+…
 
 ### Reviewer guidance
+<!--
+ * how can a reviewer test these changes?
+ * are there any risky areas that deserve extra testing
+-->
 
-description of how to test the changes
+…
 
 ### References
+<!--
+ * references to related issues and PRs
+ * links to mockups or specs for new features
+ * links to the diffs for any dependency updates, e.g. in iceqube or the perseus plugin
+-->
 
-when applicable, please provide:
+…
 
-* references to related issues and PRs
-* links to mockups or specs for new features
-* links to the diffs for dependency updates, e.g. in iceqube or the perseus plugin
+----
 
-# Contributor Checklist
+### Contributor Checklist
 
-- [ ] PR has the correct target milestone
-- [ ] PR has the appropriate labels
-- [ ] Changes in the PR do not introduce accessibility regressions ([confimed by testing with one of the recommended tools](http://kolibri.readthedocs.io/en/develop/dev/manual_testing.html#accessibility-a11y-testing)) 
-- [ ] If PR is ready for review, it has been assigned or requests review from someone
-- [ ] Documentation is updated as necessary
-- [ ] External dependency files are updated (`yarn` and `pip`)
-- [ ] If internal dependency is updated, link to diff is included
+- [ ] PR has the correct target branch and milestone
+- [ ] PR has 'needs review' or 'work-in-progress' label
+- [ ] Contributor has fully tested the PR manually
 - [ ] Screenshots of any front-end changes are in the PR description
-- [ ] CHANGELOG.rst is updated for high-level changes
-- [ ] You've added yourself to AUTHORS.rst if you're not there
+- [ ] If PR is ready for review, a reviewer has been added. (Don't use 'Assignees')
 
-# Reviewer Checklist
+### Reviewer Checklist
 
 - [ ] Automated test coverage is satisfactory
-- [ ] PR has been fully tested manually
+- [ ] Reviewer has fully tested the PR manually
+- [ ] PR has been tested for [accessibility regressions](http://kolibri-dev.readthedocs.io/en/develop/manual_testing.html#accessibility-a11y-testing)
+- [ ] External dependencies files were updated (`yarn` and `pip`)
+- [ ] Documentation is updated
+- [ ] Link to diff of internal dependency change is included
+- [ ] CHANGELOG.rst is updated for high-level changes
+- [ ] Contributor is in AUTHORS.rst

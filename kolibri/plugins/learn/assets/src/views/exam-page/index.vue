@@ -11,7 +11,14 @@
           <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
-            <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
+            <p class="questions-answered">
+              {{
+                $tr(
+                  'questionsAnswered',
+                  { numAnswered: questionsAnswered, numTotal: exam.questionCount }
+                )
+              }}
+            </p>
             <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
           </div>
         </div>
@@ -19,42 +26,68 @@
           <div class="outer-container">
             <div class="answer-history-container column">
               <answer-history
-              :questionNumber="questionNumber"
-              @goToQuestion="goToQuestion" />
+                :questionNumber="questionNumber"
+                @goToQuestion="goToQuestion"
+              />
             </div>
-          <div class="exercise-container column">
-            <content-renderer
-              class="content-renderer"
-              ref="contentRenderer"
-              v-if="itemId"
-              :id="content.id"
-              :kind="content.kind"
-              :files="content.files"
-              :contentId="content.content_id"
-              :channelId="channelId"
-              :available="content.available"
-              :extraFields="content.extra_fields"
-              :itemId="itemId"
-              :assessment="true"
-              :allowHints="false"
-              :answerState="currentAttempt.answer"
-              @interaction="throttledSaveAnswer" />
+            <div class="exercise-container column">
+              <content-renderer
+                class="content-renderer"
+                ref="contentRenderer"
+                v-if="itemId"
+                :id="content.id"
+                :kind="content.kind"
+                :files="content.files"
+                :contentId="content.content_id"
+                :channelId="channelId"
+                :available="content.available"
+                :extraFields="content.extra_fields"
+                :itemId="itemId"
+                :assessment="true"
+                :allowHints="false"
+                :answerState="currentAttempt.answer"
+                @interaction="throttledSaveAnswer"
+              />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
               <div class="question-navbutton-container">
-                <k-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')" />
-                <k-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')" />
+                <k-button
+                  :disabled="questionNumber===0"
+                  @click="goToQuestion(questionNumber - 1)"
+                  :text="$tr('previousQuestion')"
+                />
+                <k-button
+                  :disabled="questionNumber===exam.questionCount-1"
+                  @click="goToQuestion(questionNumber + 1)"
+                  :text="$tr('nextQuestion')"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
+      <core-modal
+        v-if="submitModalOpen"
+        :title="$tr('submitExam')"
+        @cancel="toggleModal"
+      >
         <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}</p>
-        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal" />
-        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true" />
+        <p v-if="questionsUnanswered">
+          {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        </p>
+        <div class="core-modal-buttons">
+          <k-button
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+          <k-button
+            :text="$tr('submitExam')"
+            @click="finishExam"
+            :primary="true"
+          />
+        </div>
       </core-modal>
     </template>
   </immersive-full-screen>
@@ -66,7 +99,7 @@
 
   import { PageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions/main';
+  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';
@@ -116,8 +149,8 @@
         questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
-        setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
-        closeExam: actions.closeExam,
+        setAndSaveCurrentExamAttemptLog,
+        closeExam,
       },
     },
     computed: {

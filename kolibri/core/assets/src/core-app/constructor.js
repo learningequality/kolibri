@@ -8,7 +8,6 @@ import vuex from 'vuex';
 import router from 'vue-router';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
-import HeartBeat from '../heartbeat';
 import { setUpIntl } from '../utils/i18n';
 
 /**
@@ -56,10 +55,9 @@ export default class CoreApp {
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
-      window.location.origin = `${window.location.protocol}//${window.location.hostname}${window
-        .location.port
-        ? `:${window.location.port}`
-        : ''}`;
+      window.location.origin = `${window.location.protocol}//${window.location.hostname}${
+        window.location.port ? `:${window.location.port}` : ''
+      }`;
     }
 
     const intlReady = () => {
@@ -74,6 +72,5 @@ export default class CoreApp {
     publicMethods.forEach(method => {
       this[method] = mediator[method].bind(mediator);
     });
-    this.heartBeat = new HeartBeat(this);
   }
 }
