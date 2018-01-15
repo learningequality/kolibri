@@ -4,7 +4,7 @@ Advanced installation options
 =============================
 
 .. warning::
-  Advanced installation options are not yet available!
+  Advanced installation options are Work-In-Progress!
 
 .. _pip-installation:
 
@@ -42,3 +42,9 @@ Raspberry Pi
 ------------
 
 ``TODO - once RPi deb is ready``
+
+
+Nginx configuration
+-------------------
+
+* for anonymous visitors ``Coming soon!``

@@ -1,3 +1,5 @@
+.. _manage:
+
 Manage Kolibri
 ##############
 
@@ -23,4 +25,4 @@ Manage Kolibri
 .. include:: manage_data.rst
 
 
-.. include:: get_support.rst
+.. include:: manage/_command_line.rst
