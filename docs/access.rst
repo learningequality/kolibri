@@ -55,19 +55,19 @@ Starting Kolibri on Linux
 
     kolibri stop
 
-
-Starting Kolibri on Android
-===========================
-
-.. warning::
-  Final **Kolibri** installer for Android is not released yet, so these steps are *Work in Progress*!
-
-Go to **Apps** on your device and tap the **Kolibri** icon.
-
-    .. figure:: img/android-apps.png
-      :alt: Tap the Kolibri icon among your device apps to start.
-
-      Tap the Kolibri icon among your device apps to start.
+..
+  Starting Kolibri on Android
+  ===========================
+  
+  .. warning::
+    Final **Kolibri** installer for Android is not released yet, so these steps are *Work in Progress*!
+  
+  Go to **Apps** on your device and tap the **Kolibri** icon.
+  
+      .. figure:: img/android-apps.png
+        :alt: Tap the Kolibri icon among your device apps to start.
+  
+        Tap the Kolibri icon among your device apps to start.
 
 
 .. _access_LAN:
