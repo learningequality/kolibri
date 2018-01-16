@@ -4,7 +4,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Case, When, F, IntegerField, Value
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -431,6 +431,9 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Get total and on-device file sizes for a given ContentNode
+    """
     serializer_class = serializers.ContentNodeGranularSerializer
 
     def get_queryset(self):
@@ -438,8 +441,15 @@ class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk):
         instance = self.get_object()
-        files = models.LocalFile.objects.filter(files__contentnode__in=instance.get_descendants(include_self=True)).distinct()
-        total_file_size = files.aggregate(Sum('file_size'))['file_size__sum'] or 0
-        on_device_file_size = files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+        files = models.LocalFile.objects \
+            .filter(files__contentnode__in=instance.get_descendants(include_self=True)) \
+            .distinct()
+        file_sizes = files.aggregate(
+            total=Sum('file_size'),
+            on_device=Sum(Case(When(available=True, then=F('file_size')), default=Value(0), output_field=IntegerField()))
+        )
 
-        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})
+        return Response({
+            'total_file_size': file_sizes['total'],
+            'on_device_file_size': file_sizes['on_device'],
+        })
