@@ -80,5 +80,6 @@ module.exports = {
         multiline: 'always',
       },
     ],
+    'vue/html-closing-bracket-spacing': ['error'],
   },
 };
