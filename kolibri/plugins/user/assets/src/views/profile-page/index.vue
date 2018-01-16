@@ -89,7 +89,15 @@
         :primary="true"
         :disabled="busy"
       />
+
     </form>
+
+    <k-button
+      v-if="canEditPassword"
+      appearance="basic-link"
+      :text="$tr('changePasswordPrompt')"
+      :disabled="busy"
+    />
   </div>
 
 </template>
@@ -139,6 +147,7 @@
       required: 'This field is required',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
+      changePasswordPrompt: 'Change password',
     },
     components: {
       kButton,
@@ -155,6 +164,7 @@
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,
+        passwordModalVisible: false,
       };
     },
     computed: {
@@ -193,6 +203,12 @@
       canEditName() {
         if (this.isCoach || this.isLearner) {
           return this.facilityConfig.learnerCanEditName;
+        }
+        return true;
+      },
+      canEditPassword() {
+        if (this.isCoach || this.isLearner) {
+          return this.facilityConfig.learnerCanEditPassword;
         }
         return true;
       },
