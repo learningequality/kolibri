@@ -28,7 +28,7 @@
       >
         <polygon stroke-width="0" :points="contentIconBgCoords" />
       </svg>
-      <content-icon :kind="kind" class="content-icon"/>
+      <content-icon :kind="kind" class="content-icon" />
     </div>
 
     <div class="progress-bar-wrapper">
