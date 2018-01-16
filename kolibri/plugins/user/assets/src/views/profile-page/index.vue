@@ -97,6 +97,12 @@
       appearance="basic-link"
       :text="$tr('changePasswordPrompt')"
       :disabled="busy"
+      @click="passwordModalVisible = true"
+    />
+
+    <change-user-password-modal
+      v-if="passwordModalVisible"
+      @closePasswordModal="passwordModalVisible = false"
     />
   </div>
 
@@ -125,6 +131,7 @@
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import changeUserPasswordModal from './change-user-password-modal';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -155,6 +162,7 @@
       uiAlert,
       pointsIcon,
       permissionsIcon,
+      changeUserPasswordModal,
     },
     mixins: [responsiveWindow],
     data() {
