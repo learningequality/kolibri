@@ -4,13 +4,7 @@
     :title="$tr('title')"
     @cancel="handleClickCancel()"
   >
-    <div>
-      <p class="action-description">
-        {{ $tr('deleteActionDescription') }}: {{ channelTitle }}
-      </p>
-      <p>{{ $tr('restorationInstructions') }}</p>
-      <p>{{ $tr('confirmationQuestion') }}</p>
-    </div>
+    <p>{{ $tr('confirmationQuestion', { channelTitle }) }}</p>
 
     <div class="core-modal-buttons">
       <k-button
@@ -57,22 +51,14 @@
       },
     },
     $trs: {
-      deleteActionDescription: 'This channel will be deleted',
-      confirmationQuestion: 'Are you sure you want to do this?',
-      restorationInstructions:
-        'To restore this channel, you will need to re-import it from the internet or a storage device',
+      confirmationQuestion: `Are you sure you want to delete '{ channelTitle }' from your device?`,
       title: 'Delete channel',
       cancelButtonLabel: 'Cancel',
-      confirmButtonLabel: 'Confirm',
+      confirmButtonLabel: 'Delete',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .action-description
-    font-weight: bold
-
-</style>
+<style lang="stylus" scoped></style>
