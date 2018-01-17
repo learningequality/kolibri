@@ -1,6 +1,7 @@
 <template>
 
-  <div class="group-section">
+  <div class="group-section"> 
+
     <div class="pure-g">
       <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
         <h2 class="group-name right-margin">{{ group.name }}</h2>
@@ -75,7 +76,7 @@
         </tr>
       </tbody>
     </table>
-    <span v-else>{{ $tr('noLearners') }}</span>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>

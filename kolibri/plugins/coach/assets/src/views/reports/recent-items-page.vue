@@ -4,8 +4,7 @@
 
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
-    <report-subheading />
-
+    <p v-if="!standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</p>
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
@@ -59,7 +58,6 @@
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -71,7 +69,6 @@
     components: {
       breadcrumbs,
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       activityCell,
@@ -89,10 +86,14 @@
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
+      noRecentProgress: 'No activity in past {threshold} days',
     },
     computed: {
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      threshold() {
+        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {

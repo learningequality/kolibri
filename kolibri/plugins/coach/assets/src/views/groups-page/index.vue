@@ -1,8 +1,10 @@
 <template>
 
   <div>
-    <h1 class="header">{{ $tr('classGroups') }}</h1>
-
+    <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
+    
+    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>   
+    
     <k-button
       :text="$tr('newGroup')"
       :primary="true"
@@ -69,12 +71,14 @@
   import renameGroupModal from './rename-group-modal';
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
+
   export default {
     name: 'coachGroupsPage',
     $trs: {
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
+      noGroups: 'You do not have any groups created yet',
     },
     components: {
       kButton,
