@@ -97,12 +97,18 @@
       appearance="basic-link"
       :text="$tr('changePasswordPrompt')"
       :disabled="busy"
-      @click="passwordModalVisible = true"
+      @click="setPasswordModalVisible(true)"
+    />
+
+    <core-snackbar
+      v-if="passwordModalSuccess"
+      :autoDismiss="true"
+      :text="$tr('passwordChangeSuccessMessage')"
     />
 
     <change-user-password-modal
       v-if="passwordModalVisible"
-      @closePasswordModal="passwordModalVisible = false"
+      @cancel="setPasswordModalVisible(false)"
     />
   </div>
 
@@ -130,6 +136,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import uiAlert from 'keen-ui/src/UiAlert';
   import changeUserPasswordModal from './change-user-password-modal';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
@@ -155,6 +162,7 @@
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
       changePasswordPrompt: 'Change password',
+      passwordChangeSuccessMessage: 'Password changed',
     },
     components: {
       kButton,
@@ -163,6 +171,7 @@
       pointsIcon,
       permissionsIcon,
       changeUserPasswordModal,
+      coreSnackbar,
     },
     mixins: [responsiveWindow],
     data() {
@@ -172,7 +181,6 @@
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,
-        passwordModalVisible: false,
       };
     },
     computed: {
@@ -292,6 +300,8 @@
         error: state => state.pageState.error,
         errorMessage: state => state.pageState.errorMessage,
         success: state => state.pageState.success,
+        passwordModalVisible: state => state.pageState.passwordState.modal,
+        passwordModalSuccess: state => state.pageState.passwordState.success,
         getUserRole,
         getUserPermissions,
         userHasPermissions,
@@ -300,6 +310,9 @@
         updateUserProfile,
         resetProfileState,
         fetchPoints,
+        setPasswordModalVisible(store, visibility) {
+          store.dispatch('SET_PROFILE_PASSWORD_MODAL', visibility);
+        },
       },
     },
   };

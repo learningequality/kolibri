@@ -59,7 +59,7 @@
 
 <script>
 
-  // import { updateUser, displayModal } from '../../state/actions';
+  import { updateUserProfilePassword } from '../../state/actions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -111,7 +111,7 @@
           if (this.confirmedNewPassword === '') {
             return this.$tr('required');
           }
-          if (this.confirmedNewPassword !== this.password) {
+          if (this.confirmedNewPassword !== this.newPassword) {
             return this.$tr('passwordMismatchErrorMessage');
           }
         }
@@ -126,12 +126,12 @@
     },
     methods: {
       closeModal() {
-        this.$emit('closePasswordModal');
+        this.$emit('cancel');
       },
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
-          this.updateUser(this.id, { password: this.password });
+          this.updateUserProfilePassword(this.newPassword);
         } else {
           if (this.newPasswordIsInvalid) {
             this.$refs.newPassword.focus();
@@ -143,8 +143,7 @@
     },
     vuex: {
       actions: {
-        // updateUser,
-        // displayModal,
+        updateUserProfilePassword,
       },
       getters: {
         isBusy: state => state.pageState.busy,
