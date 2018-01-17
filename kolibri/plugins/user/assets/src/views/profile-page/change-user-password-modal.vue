@@ -14,7 +14,7 @@
         :invalid="currentPasswordIsInvalid"
         :invalidText="currentPasswordInvalidErrorText"
         @blur="currentPasswordBlurred = true"
-        v-model="password"
+        v-model="currentPassword"
       />
       <k-textbox
         ref="newPassword"
@@ -70,20 +70,6 @@
       coreModal,
       kTextbox,
       kButton,
-    },
-    props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      username: {
-        type: String,
-        required: true,
-      },
     },
     data() {
       return {
@@ -161,7 +147,7 @@
         // displayModal,
       },
       getters: {
-        isBusy: state => state.pageState.isBusy,
+        isBusy: state => state.pageState.busy,
       },
     },
     $trs: {
