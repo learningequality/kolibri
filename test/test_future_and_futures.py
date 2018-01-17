@@ -30,8 +30,6 @@ class FutureAndFuturesTestCase(TestCase):
                 module_parent_path = os.path.realpath(
                     os.path.dirname(imp.find_module(module_name)[1]))
                 # future's standard libraries such as `html` should not be found
-                # at the same level as kolibri/dist but only in 'kolibri/dist/py2only';
-                # otherwise, python3 will try to import them from kolibri/dist
-                # instead of its builtin packages
+                # at the same level as kolibri/dist; otherwise, python3 will try to
+                # import them from kolibri/dist instead of its builtin packages
                 self.assertNotEqual(dist_dir, module_parent_path)
-                self.assertEqual(os.path.join(dist_dir, 'py2only'), module_parent_path)

@@ -60,6 +60,12 @@ def set_env():
         reload(sys)  # noqa
         sys.setdefaultencoding('utf8')
 
+        # Dynamically add the path of `py2only` to PYTHONPATH in Python 2 so that
+        # we only import the `future` and `futures` packages from system packages when
+        # running with Python 3. Please see `build_tools/py2only.py` for details.
+        sys.path = sys.path + [os.path.join(
+            os.path.realpath(os.path.dirname(kolibri_dist.__file__)), 'py2only')]
+
     try:
         from .build_config.default_settings import settings_path
     except ImportError:
