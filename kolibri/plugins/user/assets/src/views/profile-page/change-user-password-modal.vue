@@ -2,30 +2,37 @@
 
   <core-modal
     :title="$tr('passwordChangeFormHeader')"
+    @cancel="closeModal"
   >
-    <!-- @cancel="displayModal(false)" -->
     <form @submit.prevent="submitForm">
 
-      <p>{{ $tr('username') }}: <strong>{{ username }}</strong></p>
-
       <k-textbox
-        ref="password"
+        ref="currentPassword"
         type="password"
-        :label="$tr('newPasswordFieldLabel')"
+        :label="$tr('currentPasswordFieldLabel')"
         :autofocus="true"
-        :invalid="passwordIsInvalid"
-        :invalidText="passwordIsInvalidText"
-        @blur="passwordBlurred = true"
+        :invalid="currentPasswordIsInvalid"
+        :invalidText="currentPasswordInvalidErrorText"
+        @blur="currentPasswordBlurred = true"
         v-model="password"
       />
       <k-textbox
-        ref="confirmedPassword"
-        type="password"
+        ref="newPassword"
+        type="new-password"
+        :label="$tr('newPasswordFieldLabel')"
+        :invalid="newPasswordIsInvalid"
+        :invalidText="newPasswordInvalidErrorText"
+        @blur="newPasswordBlurred = true"
+        v-model="newPassword"
+      />
+      <k-textbox
+        ref="confirmedNewPassword"
+        type="new-password"
         :label="$tr('confirmNewPasswordFieldLabel')"
-        :invalid="confirmedPasswordIsInvalid"
-        :invalidText="confirmedPasswordIsInvalidText"
-        @blur="confirmedPasswordBlurred = true"
-        v-model="confirmedPassword"
+        :invalid="confirmedNewPasswordIsInvalid"
+        :invalidText="confirmedNewPasswordInvalidErrorText"
+        @blur="confirmedNewPasswordBlurred = true"
+        v-model="confirmedNewPassword"
       />
 
       <div class="core-modal-buttons">
@@ -33,11 +40,11 @@
           :text="$tr('cancelButtonLabel')"
           :primary="false"
           appearance="flat-button"
-          @click="displayModal(false)"
+          @click="closeModal"
         />
         <k-button
           type="submit"
-          :text="$tr('save')"
+          :text="$tr('updateButtonLabel')"
           :primary="true"
           appearance="raised-button"
           :disabled="isBusy"
@@ -58,7 +65,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'resetUserPasswordModal',
+    name: 'changeUserPasswordModal',
     components: {
       coreModal,
       kTextbox,
@@ -80,53 +87,70 @@
     },
     data() {
       return {
-        password: '',
-        confirmedPassword: '',
-        passwordBlurred: false,
-        confirmedPasswordBlurred: false,
+        currentPassword: '',
+        newPassword: '',
+        confirmedNewPassword: '',
+        currentPasswordBlurred: false,
+        newPasswordBlurred: false,
+        confirmedNewPasswordBlurred: false,
         submittedForm: false,
       };
     },
     computed: {
-      passwordIsInvalidText() {
-        if (this.passwordBlurred || this.submittedForm) {
-          if (this.password === '') {
+      currentPasswordIsInvalid() {
+        return !!this.currentPasswordInvalidErrorText;
+      },
+      currentPasswordInvalidErrorText() {
+        // TODO add wrong password text
+        if (this.currentPasswordBlurred || this.submittedForm) {
+          if (this.currentPassword === '') {
             return this.$tr('required');
           }
         }
         return '';
       },
-      passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
-      },
-      confirmedPasswordIsInvalidText() {
-        if (this.confirmedPasswordBlurred || this.submittedForm) {
-          if (this.confirmedPassword === '') {
+      newPasswordInvalidErrorText() {
+        if (this.newPasswordBlurred || this.submittedForm) {
+          if (this.newPassword === '') {
             return this.$tr('required');
           }
-          if (this.confirmedPassword !== this.password) {
+        }
+        return '';
+      },
+      newPasswordIsInvalid() {
+        return !!this.newPasswordInvalidErrorText;
+      },
+      confirmedNewPasswordInvalidErrorText() {
+        if (this.confirmedNewPasswordBlurred || this.submittedForm) {
+          if (this.confirmedNewPassword === '') {
+            return this.$tr('required');
+          }
+          if (this.confirmedNewPassword !== this.password) {
             return this.$tr('passwordMismatchErrorMessage');
           }
         }
         return '';
       },
-      confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+      confirmedNewPasswordIsInvalid() {
+        return !!this.confirmedNewPasswordInvalidErrorText;
       },
       formIsValid() {
-        return !this.passwordIsInvalid && !this.confirmedPasswordIsInvalid;
+        return !this.newPasswordIsInvalid && !this.confirmedNewPasswordIsInvalid;
       },
     },
     methods: {
+      closeModal() {
+        this.$emit('closePasswordModal');
+      },
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
           this.updateUser(this.id, { password: this.password });
         } else {
-          if (this.passwordIsInvalid) {
-            this.$refs.password.focus();
-          } else if (this.confirmedPasswordIsInvalid) {
-            this.$refs.confirmedPassword.focus();
+          if (this.newPasswordIsInvalid) {
+            this.$refs.newPassword.focus();
+          } else if (this.confirmedNewPasswordIsInvalid) {
+            this.$refs.confirmedNewPassword.focus();
           }
         }
       },
