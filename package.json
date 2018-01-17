@@ -34,7 +34,7 @@
   "dependencies": {
     "array-includes": "^3.0.3",
     "core-js": "^2.4.1",
-    "css-element-queries": "https://github.com/learningequality/css-element-queries",
+    "css-element-queries": "1.0.1",
     "date-fns": "^1.28.2",
     "engine-strict": "^1.0.0",
     "filesize": "^3.3.0 ",
