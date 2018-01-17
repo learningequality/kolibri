@@ -75,6 +75,25 @@ export function updateUserProfile(store, { edits, session }) {
   );
 }
 
+export function updateUserProfilePassword(store, password) {
+  const session = store.state.core.session;
+  const savedUserModel = FacilityUserResource.getModel(session.user_id);
+
+  store.dispatch('SET_PROFILE_BUSY', true);
+
+  return savedUserModel.save({ password }).then(
+    () => {
+      store.dispatch('SET_PROFILE_BUSY', false);
+      store.dispatch('SET_PROFILE_PASSWORD_MODAL', false);
+      store.dispatch('SET_PROFILE_PASSWORD_SUCCESS', true);
+    },
+    () => {
+      store.dispatch('SET_PROFILE_BUSY', false);
+      store.dispatch('SET_PROFILE_PASSWORD_ERROR', true);
+    }
+  );
+}
+
 export function showProfilePage(store) {
   resetAndSetPageName(store, {
     pageName: PageNames.PROFILE,
