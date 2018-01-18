@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
