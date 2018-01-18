@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'kolibri.core.exams',
     'kolibri.core.device',
     'kolibri.core.discovery',
+    'kolibri.core.lessons',
     'kolibri.core.analytics',
     'rest_framework',
     'django_js_reverse',
