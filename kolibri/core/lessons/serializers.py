@@ -59,23 +59,30 @@ class LessonSerializer(ModelSerializer):
         return new_lesson
 
     def update(self, instance, validated_data):
-        assignees = validated_data.pop('assigned_groups')
-        # TODO Updating the scalar fields
+        # Update the scalar fields
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.resources = validated_data.get('resources', instance.resources)
 
-        current_assignments = (instance.assigned_groups).all()
-        current_group_ids = [x.collection.id for x in list(current_assignments)]
-        new_group_ids = [x['collection'].id for x in list(assignees)]
+        # Add/delete any new/removed Assignments
+        if 'assigned_groups' in validated_data:
+            assignees = validated_data.pop('assigned_groups')
+            current_assignments = (instance.assigned_groups).all()
+            current_group_ids = [x.collection.id for x in list(current_assignments)]
+            new_group_ids = [x['collection'].id for x in list(assignees)]
 
-        ids_to_add = set(new_group_ids) - set(current_group_ids)
-        for id in ids_to_add:
-            self._create_lesson_assignment(
-                lesson=instance,
-                collection=Collection.objects.get(id=id)
-            )
+            ids_to_add = set(new_group_ids) - set(current_group_ids)
+            for id in ids_to_add:
+                self._create_lesson_assignment(
+                    lesson=instance,
+                    collection=Collection.objects.get(id=id)
+                )
 
-        ids_to_delete = set(current_group_ids) - set(new_group_ids)
-        LessonAssignment.objects.filter(collection_id__in=ids_to_delete).delete()
+            ids_to_delete = set(current_group_ids) - set(new_group_ids)
+            LessonAssignment.objects.filter(collection_id__in=ids_to_delete).delete()
 
+        instance.save()
         return instance
 
     def _create_lesson_assignment(self, **params):

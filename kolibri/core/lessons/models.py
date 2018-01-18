@@ -38,6 +38,12 @@ class Lesson(AbstractFacilityDataModel):
     # Set to True when the Lesson is 'deleted'
     is_archived = models.BooleanField(default=False)
 
+    def __str__(self):
+        return 'Lesson {} for Classroom {}'.format(
+            self.name,
+            self.collection.name,
+        )
+
     # Morango fields
     morango_model_name = 'lesson'
 
@@ -46,9 +52,6 @@ class Lesson(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         return self.dataset_id
-
-    def __str__(self):
-        return self.name
 
 
 class LessonAssignment(AbstractFacilityDataModel):
