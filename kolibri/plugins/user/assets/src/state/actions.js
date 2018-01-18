@@ -86,6 +86,8 @@ export function updateUserProfilePassword(store, password) {
       store.dispatch('SET_PROFILE_BUSY', false);
       store.dispatch('SET_PROFILE_PASSWORD_MODAL', false);
       store.dispatch('SET_PROFILE_PASSWORD_SUCCESS', true);
+      // snackbars are typically used with core state properties. Decided not to do that here.
+      window.setTimeout(() => store.dispatch('SET_PROFILE_PASSWORD_SUCCESS', false), 4000);
     },
     () => {
       store.dispatch('SET_PROFILE_BUSY', false);

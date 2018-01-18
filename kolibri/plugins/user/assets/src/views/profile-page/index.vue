@@ -101,8 +101,7 @@
     />
 
     <core-snackbar
-      v-if="passwordModalSuccess"
-      :autoDismiss="true"
+      v-if="passwordChangeSuccess"
       :text="$tr('passwordChangeSuccessMessage')"
     />
 
@@ -301,7 +300,7 @@
         errorMessage: state => state.pageState.errorMessage,
         success: state => state.pageState.success,
         passwordModalVisible: state => state.pageState.passwordState.modal,
-        passwordModalSuccess: state => state.pageState.passwordState.success,
+        passwordChangeSuccess: state => state.pageState.passwordState.success,
         getUserRole,
         getUserPermissions,
         userHasPermissions,
