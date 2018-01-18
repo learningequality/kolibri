@@ -1,8 +1,9 @@
 import getpass
 
 import requests
-import validators
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.core.validators import URLValidator
 from django.utils.six.moves import input
 from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.auth.models import FacilityUser
@@ -11,6 +12,8 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.tasks.management.commands.base import AsyncCommand
 from morango.certificates import Certificate, Filter, ScopeDefinition
 from morango.controller import MorangoProfileController
+from morango.models import InstanceIDModel
+from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
 
@@ -93,12 +96,29 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         # validate url that is passed in
-        if validators.url(options['base_url']) is not True:
+        try:
+            URLValidator()((options['base_url']))
+        except ValidationError:
             print('Base-url is not valid. Please retry command and enter a valid url.')
             return
+
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
                 call_command("loaddata", "scopedefinitions")
+
+        # ping server at url with info request
+        info_url = urljoin(options['base_url'], 'api/morango/v1/morangoinfo/1/')
+        try:
+            info_resp = requests.get(info_url)
+        except ConnectionError:
+            print('Can not connect to server with base-url: {}'.format(options['base_url']))
+            return
+
+        # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
+        if InstanceIDModel.get_or_create_current_instance()[0].id == info_resp.json()['instance_id']:
+            print('Device can not sync with itself. Please re-check base-url and try again.')
+            return
+
         controller = MorangoProfileController('facilitydata')
         with self.start_progress(total=7) as progress_update:
             network_connection = controller.create_network_connection(options['base_url'])
@@ -110,11 +130,6 @@ class Command(AsyncCommand):
             client_cert, server_cert, options['username'] = self.get_client_and_server_certs(options['username'], options['password'],
                                                                                              options['dataset_id'], network_connection)
             progress_update(1)
-
-            # this means device is trying to sync with itself, which we don't allow
-            if client_cert == server_cert:
-                print('Device can not sync with itself. Please re-check base-url and try again.')
-                return
 
             sync_client = network_connection.create_sync_session(client_cert, server_cert)
             progress_update(1)
