@@ -82,8 +82,9 @@ staticdeps:
 	rm -r kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
-	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
+	python build_tools/install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
