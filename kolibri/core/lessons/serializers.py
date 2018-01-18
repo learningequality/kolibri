@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, JSONField
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from .models import Lesson, LessonAssignment
@@ -19,6 +19,7 @@ class LessonAssignmentSerializer(ModelSerializer):
 class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
     assigned_groups = LessonAssignmentSerializer(many=True)
+    resources = JSONField(default='[]')
 
     class Meta:
         model = Lesson
