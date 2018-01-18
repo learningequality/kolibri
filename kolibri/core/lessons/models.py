@@ -70,6 +70,12 @@ class LessonAssignment(AbstractFacilityDataModel):
     collection = models.ForeignKey(Collection, related_name='assigned_lessons', blank=False, null=False)
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_lessons', blank=False, null=False)
 
+    def __str__(self):
+        return 'Lesson {} for Collection {}'.format(
+            self.lesson.name,
+            self.collection.name,
+        )
+
     # Morango fields
     morango_model_name = 'lessonassignment'
 
