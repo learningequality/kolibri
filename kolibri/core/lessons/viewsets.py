@@ -6,4 +6,11 @@ class LessonViewset(ModelViewSet):
     serializer_class = LessonSerializer
 
     def get_queryset(self):
-        return Lesson.objects.filter(is_archived=False)
+        queryset = Lesson.objects.filter(is_archived=False)
+
+        classid = self.request.query_params.get('classid', None)
+
+        if classid is not None:
+            queryset = queryset.filter(collection_id=classid)
+
+        return queryset
