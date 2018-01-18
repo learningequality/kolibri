@@ -1,16 +1,14 @@
-from rest_framework.viewsets import ModelViewSet
 from .serializers import LessonSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.core.lessons.models import Lesson
+from rest_framework.viewsets import ModelViewSet
 
 class LessonViewset(ModelViewSet):
     serializer_class = LessonSerializer
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    filter_fields = ('collection',)
 
     def get_queryset(self):
-        queryset = Lesson.objects.filter(is_archived=False)
-
-        classid = self.request.query_params.get('classid', None)
-
-        if classid is not None:
-            queryset = queryset.filter(collection_id=classid)
-
-        return queryset
+        return Lesson.objects.all()
