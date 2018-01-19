@@ -1,4 +1,5 @@
 import getpass
+import sys
 
 import requests
 from django.core.exceptions import ValidationError
@@ -48,7 +49,7 @@ class Command(AsyncCommand):
         server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
         if not server_certs:
             print('Server does not have any certificates for dataset_id: {}'.format(dataset_id))
-            return
+            sys.exit(1)
         server_cert = server_certs[0]
 
         # check for the certs we own for the specific facility
@@ -100,11 +101,11 @@ class Command(AsyncCommand):
             URLValidator()((options['base_url']))
         except ValidationError:
             print('Base-url is not valid. Please retry command and enter a valid url.')
-            return
+            sys.exit(1)
 
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
-                call_command("loaddata", "scopedefinitions")
+            call_command("loaddata", "scopedefinitions")
 
         # ping server at url with info request
         info_url = urljoin(options['base_url'], 'api/morango/v1/morangoinfo/1/')
@@ -112,12 +113,12 @@ class Command(AsyncCommand):
             info_resp = requests.get(info_url)
         except ConnectionError:
             print('Can not connect to server with base-url: {}'.format(options['base_url']))
-            return
+            sys.exit(1)
 
         # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
         if InstanceIDModel.get_or_create_current_instance()[0].id == info_resp.json()['instance_id']:
             print('Device can not sync with itself. Please re-check base-url and try again.')
-            return
+            sys.exit(1)
 
         controller = MorangoProfileController('facilitydata')
         with self.start_progress(total=7) as progress_update:
