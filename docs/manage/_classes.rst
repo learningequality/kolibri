@@ -4,7 +4,7 @@
 Manage Classes
 ~~~~~~~~~~~~~~
 
-You can view, create and delete classes, as well as search, filter and enroll Kolibri users in them, using the **Classes** tab in your **Facility** dashboard. Default view displays the list of all classes in your facility, with the number of enrolled users for each class. 
+You can view, create and delete classes, as well as search, filter and enroll Kolibri users in them, using the **Classes** tab in your **Facility** dashboard. Default view displays the list of all classes in your facility, with the number of enrolled users for each class.
 
 .. image:: img/classes.png
   :alt: manage classes
@@ -19,8 +19,8 @@ Add New Class
 To add a new class, follow these steps.
 
 #. Click **Add new class** button.
-#. Fill in the class name. 
-#. Click **Create** to add the new class, or **Cancel** to exit. 
+#. Fill in the class name.
+#. Click **Create** to add the new class, or **Cancel** to exit.
 
 .. image:: img/add-new-class.png
   :alt: add new class
@@ -32,7 +32,7 @@ Delete Class
 To delete class, follow these steps.
 
 #. Click **Delete class** button for the chosen class from the list.
-#. Click **Delete class** in the confirmation window to proceed, or **Cancel** to exit without deleting the class. 
+#. Click **Delete class** in the confirmation window to proceed, or **Cancel** to exit without deleting the class.
 
 .. image:: img/delete-class.png
   :alt: delete class
@@ -44,7 +44,7 @@ To delete class, follow these steps.
 Edit Class and Enroll Users
 ---------------------------
 
-To edit a class select it from the default view in the **Classes** tab. In the following **Class** view you can change class name, remove currently enrolled users from the class and enroll new ones. 
+To edit a class select it from the default view in the **Classes** tab. In the following **Class** view you can change class name, remove currently enrolled users from the class and enroll new ones.
 
 Change Class Name
 *****************
@@ -52,7 +52,7 @@ Change Class Name
 To edit class name, follow these steps.
 
 #. Click on the **Edit** button (pencil icon) next to the class’ name.
-#. Write the new name in the **Class name** field. 
+#. Write the new name in the **Class name** field.
 #. Click **Update** to confirm the edited information, or **Cancel** to exit without saving.
 
 .. image:: img/change-class-name.png
@@ -63,7 +63,7 @@ To edit class name, follow these steps.
 Enroll users to class
 *********************
 
-#. Click **Enroll users** button.
+#. Click the **Enroll users** button on the class details page.
 
     .. image:: img/add-users-to-class.png
       :alt: add users to class

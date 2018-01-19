@@ -61,7 +61,7 @@ release = kolibri.__version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', '**/_*.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -159,6 +159,9 @@ rst_prolog = """
 .. |content| replace:: :raw-html:`<span class="fa fa-th" aria-hidden="true"></span><span class="visuallyhidden">Content</span>`
 .. |info| replace:: :raw-html:`<span class="fa fa-info fa-border" aria-hidden="true"></span><span class="visuallyhidden">Info</span>`
 .. |lock| replace:: :raw-html:`<span class="fa fa-lock" aria-hidden="true"></span><span class="visuallyhidden">Permissions</span>`
+.. |pencil| replace:: :raw-html:`<span class="fa fa-pencil" aria-hidden="true"></span><span class="visuallyhidden">Edit</span>`
+.. |arrow-right| replace:: :raw-html:`<span class="fa fa-arrow-right" aria-hidden="true"></span><span class="visuallyhidden">See next</span>`
+.. |arrow-left| replace:: :raw-html:`<span class="fa fa-arrow-left" aria-hidden="true"></span><span class="visuallyhidden">See previous</span>`
 
 """
 

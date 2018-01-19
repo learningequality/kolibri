@@ -4,7 +4,7 @@ Debian/Ubuntu Linux
 ===================
 
 .. warning::
-  Beware that the final Linux ``deb`` installer is still Work-in-Progress, and that you may run into issues with the steps indicated below Please report any problems with this installer on our `GitHub repository <https://github.com/learningequality/kolibri-installer-debian/issues/new>`_.
+  Beware that the final Linux ``deb`` installer is still Work-in-Progress, and that you may run into issues with the steps indicated below. Please report any problems with this installer on our `GitHub repository <https://github.com/learningequality/kolibri-installer-debian/issues/new>`_.
 
   However, you can run Kolibri in Terminal using the package called ``PEX``. Follow the same procedure as indicated for :ref:`macOS <osx>`.
 

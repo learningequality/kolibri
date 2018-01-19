@@ -1,3 +1,5 @@
+.. _install:
+
 Install Kolibri
 ###############
 
@@ -9,25 +11,25 @@ Install Kolibri
 To install **Kolibri**, check the system requirements first and then follow the procedure for the operating system on your device.
 
 
-.. include:: install/system_requirements.rst
+.. include:: install/_system_requirements.rst
 
 
-.. include:: install/windows.rst
+.. include:: install/_windows.rst
 
 
-.. include:: install/linux.rst
+.. include:: install/_linux.rst
 
 
-.. include:: install/osx.rst
+.. include:: install/_osx.rst
 
 
-.. include:: install/android.rst
+.. include:: install/_android.rst
 
 
-.. include:: install/advanced.rst
+.. include:: install/_advanced.rst
 
 
-.. include:: install/initial_setup.rst
+.. include:: install/_initial_setup.rst
 
 
 .. include:: ../CHANGELOG.rst

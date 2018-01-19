@@ -1,3 +1,5 @@
+.. _access:
+
 Access Kolibri
 ##############
 
@@ -58,14 +60,14 @@ Starting Kolibri on Android
 ===========================
 
 .. warning::
-  Final **Kolibri** installer for Android is not released yet, so these steps are *Work in Progress*!
+  Final **Kolibri** installer for Android is not released yet, support is *experimental*!
 
 Go to **Apps** on your device and tap the **Kolibri** icon.
 
-    .. figure:: img/android-apps.png
-      :alt: Tap the Kolibri icon among your device apps to start.
+.. figure:: img/android-apps.png
+  :alt: Tap the Kolibri icon among your device apps to start.
 
-      Tap the Kolibri icon among your device apps to start.
+  Tap the Kolibri icon among your device apps to start.
 
 
 .. _access_LAN:
@@ -81,12 +83,12 @@ While **Kolibri** is up and running on the device where you installed it, other 
 
 * You can check the IP (**Server URL**) of the device where Kolibri is running by going to **Info** tab in the **Device** dashboard, .
 
-    .. figure:: img/device-info.png
-      :alt: Find out the IP/Server URL in the Device > Info tab.
+  .. figure:: img/device-info.png
+    :alt: Find out the IP/Server URL in the Device > Info tab.
 
-      Find out the IP/Server URL in the Device > Info tab.
+    Find out the IP/Server URL in the Device > Info tab.
 
-.. note::
+.. tip::
   You can also use the ``ipconfig`` command on Windows or ``ifconfig`` command on Linux/OSX to find out the IP address of the device running the **Kolibri**.
 
 
