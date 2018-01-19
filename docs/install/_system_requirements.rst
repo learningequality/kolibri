@@ -6,17 +6,19 @@ System requirements
 Operating systems
 -----------------
 
- - Windows Vista, 7, 8.1, 10 
- - Debian/Ubuntu: 14.04, 16.04 and up - anything that's *not* end-of-life.
- - Linux: Any system with Python 2.7
- - Mac OSX 10.9, 10.10 and 10.11
- - Debian/Raspberry Pi packages: Wheezy or later
- - *(planned)* Android: 4.2.2 or later
-
-
-Limited support
-^^^^^^^^^^^^^^^
- - Windows XP cannot be used to install Kolibri server, but could potentially work as a client device if the browsers are `as up-to-date as possible <https://support.mozilla.org/en-US/questions/1173904>`_.
+* Android server - unsupported
+* Android client - 4.2+ supported
+* Mac server - 10.6+ supported as PEX
+* Mac client - all browsers supported
+* iOS server - unsupported
+* iOS client - safari unsupported, chrome & FF supported
+* Windows server
+  * Supported: Vista, 7, 8, 10
+  * Unsupported: Windows XP cannot be used to install Kolibri server, but could potentially work as a client device if the browsers are `as up-to-date as possible <https://support.mozilla.org/en-US/questions/1173904>`_.
+* Windows client - IE 11+, chrome, FF supported
+* Ubuntu: 14.04, 16.04 and up - anything that's *not* end-of-life.
+* Debian/Raspbian: Jessie or later
+* Linux: Any system with Python 2.7
 
 
 Supported Browsers
@@ -28,9 +30,6 @@ Supported Browsers
  - *(planned)* Safari
  - *(planned)* Epiphany on Raspberry Pi
  - *(planned)* others on Android and  iOS.  
-
-
-.. TODO - Known issues
 
 
 Video playback

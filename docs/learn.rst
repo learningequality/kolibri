@@ -12,7 +12,7 @@ Access Kolibri
   	* If you are using Kolibri in your school, education center or facility, your coach or administrator will provide the instructions how to open the sign-in page, and username and password if necessary.
   	* If you are using Kolibri on your own, outside an education center or facility, follow the instructions how to :doc:`access` according to your operating system.
 
-To sign in **Kolibri** and start learning follow these steps:
+To sign in to **Kolibri** and start learning, follow these steps:
 
 #. Type your username and password (may be optional).
 #. Click the **SIGN IN** button.
@@ -27,9 +27,9 @@ To sign in **Kolibri** and start learning follow these steps:
    If you start browsing Kolibri as a guest, you need either to select **Sign in** option from the **Guest** menu in the upper right corner, or from the sidebar menu (left or bottom) to open the sign-in page.
 
 	.. figure:: img/learn-page-signin.png
-		:alt: Location of "Sign in" to Kolibri links.
+		:alt: Location of links to "Sign in" to Kolibri.
 
-		Location of links to "Sign in" Kolibri .
+		Location of links to "Sign in" to Kolibri.
 
 Once you have logged in into Kolibri, you can see and edit your user data from the **Profile** option in the main sidebar menu (below **Learn**).
 
@@ -53,10 +53,10 @@ Recommended
 
 In the **Recommended** tab you can see various sections:
 
-* **Most popular** section displays the most frequently used materials in your school or facility.
-* **Next steps** section displays suggestions according to  topics and materials you previously visited.
-* **Resume** section displays activities that you started but haven’t finished yet.
-* **Featured in...** sections display a preview of activities for each content channel you have access on Kolibri.
+* **Most popular** displays the most frequently used materials in your school or facility.
+* **Next steps** displays suggestions according to  topics and materials you previously visited.
+* **Resume** displays activities that you started but haven’t finished yet.
+* **Featured in...** displays a preview of activities for each content channel you have access on Kolibri.
 
 .. note::
    **Next steps** and **Resume** are not visible if you are browsing as a guest.

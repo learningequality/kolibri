@@ -1,7 +1,7 @@
 .. _coach:
 
-Coach Learners in Kolibri
-#########################
+Coach Your Learners in Kolibri
+##############################
  
 You can track progress of the **Learner** users, create and assign **Exams** to classes or learner groups from the **Coach** dashboard. The default view of the **Coach** dashboard presents the list of **Classes** with number of learners enrolled to each class.
 

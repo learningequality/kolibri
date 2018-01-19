@@ -48,16 +48,18 @@ To import content channels from Internet, run these two commands in sequence. Th
   kolibri manage importchannel -- network <Channel ID>
   kolibri manage importcontent -- network <Channel ID>
 
-
-Import Content Channels from a Local Drive
-------------------------------------------
-
-To import content channels from the local drive, run these two commands in sequence. Local drive should have a folder ``KOLIBRI_DATA`` at the root, with Kolibri ``content`` inside.
-
-.. code-block:: bash
-
-  kolibri manage importchannel -- local <Channel ID> /path/to/local/drive
-  kolibri manage importcontent -- local <Channel ID> /path/to/local/drive
+..
+  Commented out because the API is weird and should be fixed
+  
+  Import Content Channels from a Local Drive
+  ------------------------------------------
+  
+  To import content channels from the local drive, run these two commands in sequence. Local drive should have a folder ``KOLIBRI_DATA`` at the root, with Kolibri ``content`` inside.
+  
+  .. code-block:: bash
+  
+    kolibri manage importchannel -- local <Channel ID> /path/to/local/drive
+    kolibri manage importcontent -- local <Channel ID> /path/to/local/drive
 
 
 Export Content Channels
@@ -134,10 +136,6 @@ If you need to restore a backup version prior to the latest one, you must specif
 
 .. warning::
   This command is not intended for replication across different devices, but **only** for restoring on a single device from a local backup of the database.
-
-
-Backup and Restore Kolibri Database
------------------------------------
 
 
 Change the Location of ALL Kolibri Files

@@ -141,7 +141,7 @@ If you want to make available the content you have imported on your Kolibri devi
 Peer-to-Peer Content Syncronization
 -----------------------------------
 
-``Coming soon!``
+``Stay tuned!``
 
 
 .. Not yet. Peer to peer sync is a priority for Kolibri in the near future, but is not available yet.

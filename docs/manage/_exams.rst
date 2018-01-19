@@ -45,7 +45,7 @@ To create a new exam, follow these steps.
 Change Exam Visibility
 ----------------------
 
-Newly created exam will be visible to entire class by default. To change exam visibility, that is to assign it only to one group of learners instead of the whole class, follow these steps.
+Newly created exam will be visible to entire class by default. To assign an exam to one group of learners instead of the whole class, follow these steps:
 
 #. Click **Options** for the desired exam and select the **Change visibility** option.
 #. Select the group(s) of learners to whom you wish to assign the exam.

@@ -16,7 +16,7 @@ You can download Kolibri *Session* and *Summary* logs usage data and export in t
 Data Syncing
 ------------
 
-``Coming soon!``
+``Stay tuned!``
 
 
 .. Kolibri is capable to share your learner progress data with a central data repository when you are online. This enables the system to have an online backup of your data, allows you to view your student progress online, and to share your data across multiple Kolibri installations.
