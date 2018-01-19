@@ -26,64 +26,90 @@ const lessonRoutes = [
   {
     name: PageNames.LESSONS.ROOT,
     path: '/:classId/lessons',
-    handler: () => {
-      showLessonRootPage(store);
+    handler: toRoute => {
+      showLessonRootPage(store, toRoute.params.classId);
     },
   },
   {
     name: PageNames.LESSONS.SUMMARY,
     path: '/coach/#/:classId/lessons/:lessonId',
-    handler: () => {
-      showLessonSummaryPage(store);
+    handler: toRoute => {
+      showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.RESOURCE_SUMMARY,
     path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId',
-    handler: () => {
-      showLessonResourceSummaryPage(store);
+    handler: toRoute => {
+      showLessonResourceSummaryPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId
+      );
     },
   },
   {
     name: PageNames.LESSONS.RESOURCE_USER_SUMMARY,
     path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
-    handler: () => {
-      showLessonResourceUserSummaryPage(store);
+    handler: toRoute => {
+      showLessonResourceUserSummaryPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId,
+        toRoute.params.userId
+      );
     },
   },
   {
     name: PageNames.LESSONS.REVIEW,
     path: '/coach/#/:classId/lessons/:lessonId/review',
-    handler: () => {
-      showLessonReviewPage(store);
+    handler: toRoute => {
+      showLessonReviewPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.SELECTION_ROOT,
     path: '/coach/#/:classId/lessons/:lessonId/selection',
-    handler: () => {
-      showLessonSelectionPage(store);
+    handler: toRoute => {
+      showLessonSelectionPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.SELECTION,
     path: '/coach/#/:classId/lessons/:lessonId/selection/topic/:topicId',
-    handler: () => {
-      showLessonSelectionTopicPage(store);
+    handler: toRoute => {
+      showLessonSelectionTopicPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.topicId
+      );
     },
   },
   {
     name: PageNames.LESSONS.SELECTION_SEARCH,
     path: '/coach/#/:classId/lessons/:lessonId/selection/search/:searchTerm',
-    handler: () => {
-      showLessonSelectionSearchPage(store);
+    handler: toRoute => {
+      showLessonSelectionSearchPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.searchTerm
+      );
     },
   },
   {
     name: PageNames.LESSONS.CONTENT_PREVIEW,
     path: '/coach/#/:classId/lessons/:lessonId/preview/:contentId',
-    handler: () => {
-      showLessonContentPreview(store);
+    handler: toRoute => {
+      showLessonContentPreview(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId
+      );
     },
   },
 ];
