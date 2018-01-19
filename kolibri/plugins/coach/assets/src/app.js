@@ -10,6 +10,84 @@ import * as reportsActions from './state/actions/reports';
 import { initialState, mutations } from './state/store';
 import { PageNames } from './constants';
 
+import {
+  showLessonRootPage,
+  showLessonSummaryPage,
+  showLessonResourceSummaryPage,
+  showLessonResourceUserSummaryPage,
+  showLessonReviewPage,
+  showLessonSelectionPage,
+  showLessonSelectionTopicPage,
+  showLessonSelectionSearchPage,
+  showLessonContentPreview,
+} from './state/actions/lessons';
+
+const lessonRoutes = [
+  {
+    name: PageNames.LESSONS.ROOT,
+    path: '/:classId/lessons',
+    handler: () => {
+      showLessonRootPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.SUMMARY,
+    path: '/coach/#/:classId/lessons/:lessonId',
+    handler: () => {
+      showLessonSummaryPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.RESOURCE_SUMMARY,
+    path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId',
+    handler: () => {
+      showLessonResourceSummaryPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.RESOURCE_USER_SUMMARY,
+    path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
+    handler: () => {
+      showLessonResourceUserSummaryPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.REVIEW,
+    path: '/coach/#/:classId/lessons/:lessonId/review',
+    handler: () => {
+      showLessonReviewPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.SELECTION_ROOT,
+    path: '/coach/#/:classId/lessons/:lessonId/selection',
+    handler: () => {
+      showLessonSelectionPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.SELECTION,
+    path: '/coach/#/:classId/lessons/:lessonId/selection/topic/:topicId',
+    handler: () => {
+      showLessonSelectionTopicPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.SELECTION_SEARCH,
+    path: '/coach/#/:classId/lessons/:lessonId/selection/search/:searchTerm',
+    handler: () => {
+      showLessonSelectionSearchPage(store);
+    },
+  },
+  {
+    name: PageNames.LESSONS.CONTENT_PREVIEW,
+    path: '/coach/#/:classId/lessons/:lessonId/preview/:contentId',
+    handler: () => {
+      showLessonContentPreview(store);
+    },
+  },
+];
+
 const routes = [
   {
     name: PageNames.CLASS_LIST,
@@ -235,6 +313,7 @@ const routes = [
       groupActions.showGroupsPage(store, to.params.classId);
     },
   },
+  ...lessonRoutes,
   {
     path: '*',
     redirect: '/',
