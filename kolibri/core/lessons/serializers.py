@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, JSONField
+from rest_framework.serializers import ModelSerializer, JSONField, SerializerMethodField
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from .models import Lesson, LessonAssignment
@@ -10,11 +10,15 @@ class LessonAssignmentSerializer(ModelSerializer):
     containing only the assignee Collection, and omitting redundant info
     about the Lesson
     """
+    collection_kind = SerializerMethodField()
+
     class Meta:
         model = LessonAssignment
-        fields = ('id', 'collection', 'assigned_by',)
-        read_only_fields = ('assigned_by',)
+        fields = ('id', 'collection', 'assigned_by', 'collection_kind',)
+        read_only_fields = ('assigned_by', 'collection_kind',)
 
+    def get_collection_kind(self, instance):
+        return instance.collection.kind
 
 class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
