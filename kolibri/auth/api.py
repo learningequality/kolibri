@@ -83,7 +83,7 @@ class KolibriAuthPermissions(permissions.BasePermission):
 
 
 class FacilityDatasetViewSet(viewsets.ModelViewSet):
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
 

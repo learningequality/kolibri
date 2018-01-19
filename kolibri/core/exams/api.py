@@ -27,7 +27,7 @@ class ExamFilter(FilterSet):
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filter_class = ExamFilter
 
@@ -45,7 +45,7 @@ class ExamViewset(viewsets.ModelViewSet):
 class ExamAssignmentViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamAssignmentSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
@@ -55,7 +55,7 @@ class ExamAssignmentViewset(viewsets.ModelViewSet):
 class UserExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.UserExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):

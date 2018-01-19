@@ -340,7 +340,7 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
 
 
 class RemoteChannelViewSet(viewsets.ViewSet):
-    permissions_classes = (CanManageContent,)
+    permission_classes = (CanManageContent,)
 
     http_method_names = ['get']
 
