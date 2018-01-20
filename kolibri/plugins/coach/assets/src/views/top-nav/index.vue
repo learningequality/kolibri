@@ -21,6 +21,12 @@
     />
     <k-navbar-link
       type="icon-and-title"
+      :title="$tr('lessons')"
+      icon="import_contacts"
+      :link="lessonsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -49,6 +55,7 @@
       exams: 'Exams',
       learners: 'Learners',
       groups: 'Groups',
+      lessons: 'Lessons',
     },
     components: {
       kNavbar,
@@ -85,6 +92,12 @@
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
+          params: { classId: this.classId },
+        };
+      },
+      lessonsLink() {
+        return {
+          name: Constants.PageNames.LESSONS.ROOT,
           params: { classId: this.classId },
         };
       },

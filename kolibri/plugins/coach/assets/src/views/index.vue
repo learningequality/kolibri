@@ -39,6 +39,10 @@
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
   import classSelector from './class-selector';
+
+  // lessons
+  import LessonRootPage from './lessons/LessonRootPage';
+
   export default {
     name: 'coachRoot',
     $trs: {
@@ -61,6 +65,8 @@
       itemListPage,
       learnerListPage,
       classSelector,
+      // lessons
+      LessonRootPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -87,6 +93,9 @@
           [PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [PageNames.EXAM_REPORT]: 'exam-report-page',
           [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
+
+          // lessons
+          [PageNames.LESSONS.ROOT]: 'LessonRootPage',
         };
         return pageNameToComponentMap[this.pageName];
       },
