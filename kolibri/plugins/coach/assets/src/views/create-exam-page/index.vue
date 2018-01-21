@@ -178,7 +178,7 @@
       title: 'Exam title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'The exam requires a title',
-      numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
@@ -252,6 +252,9 @@
             return this.$tr('numQuestionsBetween');
           }
           if (this.inputNumQuestions < 1 || this.inputNumQuestions > 50) {
+            return this.$tr('numQuestionsBetween');
+          }
+          if (!Number.isInteger(this.inputNumQuestions)) {
             return this.$tr('numQuestionsBetween');
           }
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
