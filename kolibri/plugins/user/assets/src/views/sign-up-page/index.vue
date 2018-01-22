@@ -40,7 +40,7 @@
         type="text"
         autocomplete="name"
         :label="$tr('name')"
-        :maxlength="120"
+        :maxlength="$tr('nameMaxLength', { nameMaxLength: 120 })"
         :autofocus="true"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
@@ -54,7 +54,7 @@
         type="text"
         autocomplete="username"
         :label="$tr('username')"
-        :maxlength="30"
+        :maxlength="$tr('userMaxLength', { userMaxLength: 30 })"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
@@ -130,6 +130,8 @@
   export default {
     name: 'signUpPage',
     $trs: {
+      nameMaxLength: '{nameMaxLength, number, integer}',
+      userMaxLength: '{userMaxLength, number, integer}',
       createAccount: 'Create an account',
       name: 'Full name',
       username: 'Username',

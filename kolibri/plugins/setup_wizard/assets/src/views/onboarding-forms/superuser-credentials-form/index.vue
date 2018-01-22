@@ -12,7 +12,7 @@
       :label="$tr('adminNameFieldLabel')"
       :autofocus="true"
       autocomplete="name"
-      :maxlength="120"
+      :maxlength="$tr('nameMaxLength', { nameMaxLength: 120 })"
       @blur="visitedFields.name = true"
       :invalid="nameIsInvalid"
       :invalidText="nameErrorMessage"
@@ -23,7 +23,7 @@
       :label="$tr('adminUsernameFieldLabel')"
       type="username"
       autocomplete="username"
-      :maxlength="30"
+      :maxlength="$tr('userMaxLength', { userMaxLength: 30 })"
       @blur="visitedFields.username = true"
       :invalid="usernameIsInvalid"
       :invalidText="usernameErrorMessage"
@@ -69,6 +69,8 @@
       kTextbox,
     },
     $trs: {
+      nameMaxLength: '{nameMaxLength, number, integer}',
+      userMaxLength: '{userMaxLength, number, integer}',
       adminAccountCreationHeader: 'Create your Admin account',
       adminAccountCreationDescription:
         'This account allows you to manage your Facility and content on this device.',
