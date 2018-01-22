@@ -136,6 +136,7 @@ For particular views on a data table (which could range from 'show me everything
 Collections are a cached view onto the data table, which are populated by Models - so if a Model that has previously been fetched from the server by a Collection is requested from :code:`getModel`, it is already cachced.
 
 .. code-block:: javascript
+
   // corresponds to /api/content/<channelId>/contentnode/?popular=1
   const contentCollection = ContentNodeResource.getCollection({ channel_id: channelId }, { popular: 1 });
 
