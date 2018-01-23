@@ -57,12 +57,12 @@
           @input="pageNum = 1"
         />
         <div class="inline-block">
-          <ui-switch
+          <ui-checkbox
             name="showSelectedUsers"
             :class="{ 'invisible' : filterInput }"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
             v-model="showSelectedUsers"
-            class="switch"
+            class="checkbox"
             @input="pageNum = 1"
           />
         </div>
@@ -162,7 +162,7 @@
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
-  import uiSwitch from 'keen-ui/src/UiSwitch';
+  import uiCheckbox from 'keen-ui/src/UiCheckbox';
   import userRole from '../user-role';
   export default {
     name: 'managementClassEnroll',
@@ -175,7 +175,7 @@
       kFilterTextbox,
       userCreateModal,
       confirmEnrollmentModal,
-      uiSwitch,
+      uiCheckbox,
       userRole,
     },
     mixins: [responsiveWindow],
@@ -407,6 +407,12 @@
 
   .col-checkbox
     width: 24px
+
+  .col-role
+    width: 30%
+
+  .col-username
+    width: 35%
 
   nav
     display: inline-block
