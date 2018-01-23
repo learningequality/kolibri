@@ -115,7 +115,7 @@ release = kolibri.__version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', 'py_modules/kolibri*rst', 'py_modules/modules.rst']
+exclude_patterns = ['_build']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
