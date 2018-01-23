@@ -18,17 +18,17 @@ Frontend Translation
 
 For any strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_ an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_.
 
-Within Kolibri, messages are defined on the body of the Vue component::
+Within Kolibri, messages are defined on the body of the Vue component:
 
-  - ``$trs``, an object of the form::
+- ``$trs``, an object of the form::
 
     {
       msgId: 'Message text',
     }
 
-  - ``name``, we use the Vue component name to namespace the messages.
+- ``name``, we use the Vue component name to namespace the messages.
 
-The ``name`` and all ``msgId``s should be in camelCase.
+The ``name`` and every ``msgId`` should be in camelCase.
 
 User visible strings should be rendered directly in the template with ``{{ $tr('msgId') }}``. These strings are collected during the build process, and bundled into exported JSON files. These files are then uploaded to Crowdin for translation.
 
