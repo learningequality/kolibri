@@ -7,6 +7,7 @@ import unittest
 from functools import wraps
 
 import kolibri
+import mock
 from kolibri.utils import version
 
 #: Because we don't want to call the original (decorated function), it uses
@@ -46,7 +47,8 @@ class TestKolibriVersion(unittest.TestCase):
         self.assertIn(major_version_tuple, kolibri.__version__)
 
     @mock_get_git_describe
-    def test_alpha_0_version(self):
+    @mock.patch('kolibri.utils.version.get_version_file', return_value=None)
+    def test_alpha_0_version(self, file_mock):
         """
         Test that when doing something with a 0th alpha doesn't provoke any
         hickups with ``git describe --tag``.
@@ -54,20 +56,16 @@ class TestKolibriVersion(unittest.TestCase):
         v = get_version((0, 1, 0, "alpha", 0))
         self.assertIn("0.1.0.dev", v)
 
-    def test_alpha_1_version(self):
+    @mock_get_git_describe
+    @mock.patch('kolibri.utils.version.get_version_file', return_value=None)
+    def test_alpha_1_version(self, file_mock):
         """
         Test some normal alpha version, but don't assert that the
         ``git describe --tag`` is consistent (it will change in future test
         runs)
         """
-        # Simple mocking
-        assert_version = version.assert_git_version
-        version.assert_git_version = lambda *x: True
-        try:
-            v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1.0a1", v)
-        finally:
-            version.assert_git_version = assert_version
+        v = get_version((0, 1, 0, "alpha", 1))
+        self.assertIn("0.1.0a1", v)
 
     @mock_get_git_describe
     def test_alpha_1_version_no_git(self):
@@ -130,33 +128,52 @@ class TestKolibriVersion(unittest.TestCase):
         finally:
             version.get_version_file = get_version_file
 
-    def test_alpha_1_inconsistent_git(self):
+    @mock.patch('kolibri.utils.version.git_tagged_version', return_value=True)
+    def test_alpha_1_inconsistent_git(self, tagged_mock):
         """
         Test that we fail when git returns inconsistent data
         """
         # Simple mocking
         git_describe = version.get_git_describe
         try:
-            version.get_git_describe = lambda *x: 'v0.2.0-beta1-29-gc61d5f4'
+            version.get_git_describe = lambda *x: 'v0.2.0-beta1'
             self.assertRaises(
                 AssertionError,
                 get_version,
                 (0, 1, 0, "alpha", 1)
             )
-            version.get_git_describe = lambda *x: 'v0.2.0-beta2-29-gc61d5f4'
+            version.get_git_describe = lambda *x: 'v0.2.0-beta2'
             self.assertRaises(
                 AssertionError,
                 get_version,
                 (0, 1, 0, "beta", 0)
             )
-            version.get_git_describe = lambda *x: 'v0.1.0-beta2-29-gc61d5f4'
+            version.get_git_describe = lambda *x: 'v0.1.0-beta2'
             self.assertRaises(
                 AssertionError,
                 get_version,
                 (0, 1, 0, "beta", 1)
             )
+            version.get_git_describe = lambda *x: 'v0.1.0'
+            self.assertRaises(
+                AssertionError,
+                get_version,
+                (0, 1, 0, "alpha", 0)
+            )
         finally:
             version.get_git_describe = git_describe
+
+    @mock.patch('kolibri.utils.version.git_tagged_version', return_value=True)
+    @mock.patch('kolibri.utils.version.get_complete_version', side_effect=lambda x: x if x else (0, 2, 0, 'alpha', 2))
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.2.0-beta1")
+    def test_beta_1_git(self, describe_mock, complete_mock, tagged_mock):
+        """
+        Test that we use git tag data when our version is alpha
+        """
+        self.assertEqual(
+            get_version(),
+            '0.2.0b1'
+        )
 
     @mock_get_git_describe
     def test_final(self):

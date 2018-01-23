@@ -114,6 +114,11 @@ from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
 
+ordered_versions = ('alpha', 'beta', 'rc', 'final')
+
+def ordered_version_less_than(a, b):
+    return ordered_versions.index(a) < ordered_versions.index(b)
+
 
 def get_major_version(version=None):
     """
@@ -133,7 +138,7 @@ def get_complete_version(version=None):
         from kolibri import VERSION as version
     else:
         assert len(version) == 5
-        assert version[3] in ('alpha', 'beta', 'rc', 'final')
+        assert version[3] in ordered_versions
 
     return version
 
@@ -184,6 +189,31 @@ def get_git_changeset():
             return "{}-export".format(
                 datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             )
+
+
+def git_tagged_version():
+    """
+    :returns: None if no git tag available (no git, no tags, or not in a repo)
+              True if we are exactly on a git tag with the current commit
+              False if we are not.
+    """
+    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        p = subprocess.Popen(
+            "git describe --tags --exact-match",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            cwd=repo_dir,
+            universal_newlines=True
+        )
+        # This does not fail if git is not available or current dir isn't a git
+        # repo - it's safe.
+        if p.communicate()[0]:
+            return True
+        return False
+    except EnvironmentError:
+        return None
 
 
 def get_git_describe():
@@ -259,11 +289,11 @@ def assert_git_version(version, git_version):
         version[1] == git_version[1] and
         version[2] == git_version[2] and
         (
-            version[3] > git_version[3] or
+            ordered_version_less_than(version[3], git_version[3]) or
             version[3] == git_version[3] and
             version[4] >= git_version[4]
         )
-    ):
+    ) or (version[3] != 'final' and git_version[3] == 'final'):
         raise AssertionError(
             "Inconsistent git tagging: {} <= {}".format(version, git_version)
         )
@@ -305,20 +335,16 @@ def get_prerelease_version(version):
 
     # Calculate suffix...
 
-    # If a description from git is available and we haven't already
-    # found a suffix
-    if not suffix and tag_describe:
+    # If a description from git is available and we are building on a commit
+    # with an exact tag
+    if git_tagged_version() and tag_describe:
         git_version, git_suffix = get_version_from_git(tag_describe)
 
         # Fail in case the VERSION tuple and version derived from Git are
         # not tolerable.
         assert_git_version(version, git_version)
 
-        # We allow a git version that specifies the same
-        # (major, minor, patch, release) - for instance 1.2.3a2 - as
-        # the current tag to be filled in with a suffix from git.
-        if version[3] == git_version[3] and version[4] == git_version[4]:
-            suffix = git_suffix
+        return get_major_version(git_version) + mapping[git_version[3]] + str(git_version[4])
 
     # If no git info, *fallback* to VERSION file info
     elif not suffix:
