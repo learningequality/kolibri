@@ -282,8 +282,8 @@ def get_prerelease_version(version):
     Called when kolibri.VERSION is set to a non-final version:
 
     if version ==
-    *, *, *, "alpha", 0: Maps to latest commit timestamp
-    *, *, *, "alpha", >0: Uses latest git tag, asserting that there is such.
+    \*, \*, \*, "alpha", 0: Maps to latest commit timestamp
+    \*, \*, \*, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
 
     major = get_major_version(version)
