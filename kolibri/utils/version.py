@@ -212,7 +212,8 @@ def get_version_from_git(get_git_describe_string):
     Fetches the latest git tag (NB! broken behavior!)
 
     :returns: A validated tuple, same format as kolibri.VERSION, but with extra
-    data suffixed. Example: (1, 2, 3, 'alpha', '1-123-f12345')
+        data suffixed. Example: (1, 2, 3, 'alpha', '1-123-f12345')
+
     """
     git_tag_validity_check = re.compile(
         r'v(?P<version>\d+\.\d+(\.\d+)?)'
