@@ -12,9 +12,10 @@ export default {
   SET_PROFILE_SUCCESS(state, isSuccessful) {
     state.pageState.success = isSuccessful;
   },
-  SET_PROFILE_ERROR(state, { isError, errorMessage = '' }) {
+  SET_PROFILE_ERROR(state, { isError, errorMessage = '', errorCode = null }) {
     state.pageState.error = isError;
     state.pageState.errorMessage = errorMessage;
+    state.pageState.errorCode = errorCode;
   },
   // Sign Up Page Mutations
   SET_SIGN_UP_BUSY(state, isBusy) {
@@ -29,6 +30,7 @@ export default {
       busy: false,
       success: false,
       error: false,
+      errorCode: null,
       errorMessage: '',
     };
   },
