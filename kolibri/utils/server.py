@@ -211,9 +211,10 @@ def get_status():  # noqa: max-complexity=16
     The behavior is also quite redundant given that `kalite start` should
     always create a PID file, and if its been started directly with the
     runserver command, then its up to the developer to know what's happening.
+
     :returns: (PID, address, port), where address is not currently detected in
-              a valid way because it's not configurable, and we might be
-              listening on several IPs.
+        a valid way because it's not configurable, and we might be
+        listening on several IPs.
     :raises: NotRunning
     """
 

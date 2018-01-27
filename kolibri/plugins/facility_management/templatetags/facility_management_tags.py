@@ -1,6 +1,6 @@
 """
 Facility Management template tags
-========================
+=================================
 
 Tags for including management app javascript assets in a template. To use:
 

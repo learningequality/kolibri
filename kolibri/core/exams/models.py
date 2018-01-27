@@ -27,15 +27,13 @@ class Exam(AbstractFacilityDataModel):
     channel_id = models.CharField(max_length=32)
     # Number of total questions this exam has
     question_count = models.IntegerField()
-    """
-    JSON blob describing content ids for the assessments this exam draws from, and how many
-    questions each assessment contributes to the exam. e.g.:
-
-    [
-        {"exercise_id": <content_id1>, "number_of_questions": 6},
-        {"exercise_id": <content_id2>, "number_of_questions": 5}
-    ]
-    """
+    # JSON blob describing content ids for the assessments this exam draws from, and how many
+    # questions each assessment contributes to the exam. e.g.:
+    #
+    # [
+    #     {"exercise_id": <content_id1>, "number_of_questions": 6},
+    #     {"exercise_id": <content_id2>, "number_of_questions": 5}
+    # ]
     question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam
     seed = models.IntegerField(default=1)

@@ -62,7 +62,7 @@ A router that decides what content database to read from based on a thread-local
 ContentNode
 -----------
 
-``ContentNode`` is implemented as a Django model that inherits from two abstract classes, MPTTModel and ContentDatabaseModel. 
+``ContentNode`` is implemented as a Django model that inherits from two abstract classes, MPTTModel and ContentDatabaseModel.
 `django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/>`_, which
 allows for efficient traversal and querying of the ContentNode tree.
 ``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel.
@@ -87,9 +87,9 @@ Content Constants
 
 A Python module that stores constants for the ``kind`` field in ContentNode model and the ``preset`` field and ``extension`` field in File model.
 
-.. automodule:: kolibri.content.constants.content_kinds
-.. automodule:: kolibri.content.constants.extensions
-.. automodule:: kolibri.content.constants.presets
+.. automodule:: le_utils.constants.content_kinds
+.. automodule:: le_utils.constants.file_formats
+.. automodule:: le_utils.constants.format_presets
 
 Workflows
 ---------
