@@ -110,9 +110,13 @@ import pkgutil
 import re
 import subprocess
 
+from pkg_resources import parse_version
+
 from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
+
+ORDERED_VERSIONS = ('alpha', 'beta', 'rc', 'final')
 
 
 def get_major_version(version=None):
@@ -133,7 +137,7 @@ def get_complete_version(version=None):
         from kolibri import VERSION as version
     else:
         assert len(version) == 5
-        assert version[3] in ('alpha', 'beta', 'rc', 'final')
+        assert version[3] in ORDERED_VERSIONS
 
     return version
 
@@ -157,8 +161,7 @@ def get_git_changeset():
     This value isn't guaranteed to be unique, but collisions are very unlikely,
     so it's sufficient for generating the development version numbers.
 
-    If there is no git data or git installed, it will gracefully return a
-    timestamp based on datetime.now()
+    If there is no git data or git installed, it will return None
     """
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
@@ -176,20 +179,15 @@ def get_git_changeset():
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
         return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
-        try:
-            # Check to see if we have a version file, if so, get the version from there.
-            # Do this by returning None, and then the get_prerelease_version code will read the VERSION file.
-            get_version_file()
-        except IOError:
-            return "{}-export".format(
-                datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-            )
+        return None
 
 
 def get_git_describe():
     """
+    Detects a valid tag, 1.2.3-<alpha|beta|rc>(-123-sha123)
     :returns: None if no git tag available (no git, no tags, or not in a repo)
     """
+    valid_pattern = re.compile(r"^v[0-9\\-\\.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         p = subprocess.Popen(
@@ -203,7 +201,7 @@ def get_git_describe():
         # This does not fail if git is not available or current dir isn't a git
         # repo - it's safe.
         version_string = p.communicate()[0].rstrip()
-        return version_string
+        return version_string if valid_pattern.match(version_string) else None
     except EnvironmentError:
         return None
 
@@ -246,29 +244,6 @@ def get_version_from_git(get_git_describe_string):
     )), suffix
 
 
-def assert_git_version(version, git_version):
-    """
-    This is the policy that expresses what git version is allowed together with
-    the current VERSION tuple
-
-    :version: current VERSION tuple
-    :git_version: the git version derived from git describe
-    """
-    if not (
-        version[0] == git_version[0] and
-        version[1] == git_version[1] and
-        version[2] == git_version[2] and
-        (
-            version[3] > git_version[3] or
-            version[3] == git_version[3] and
-            version[4] >= git_version[4]
-        )
-    ):
-        raise AssertionError(
-            "Inconsistent git tagging: {} <= {}".format(version, git_version)
-        )
-
-
 def get_version_file():
     """
     Looks for a file VERSION in the package data and returns the contents in
@@ -286,67 +261,105 @@ def get_prerelease_version(version):
     *, *, *, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
 
-    major = get_major_version(version)
-
     mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'rc'}
-    suffix = ''
-
-    # Support item assignment instead of tuple
-    version = list(version)
-
-    tag_describe = get_git_describe()
-
-    # If it's the 0th alpha, load suffix info from git changeset
     if version[4] == 0 and version[3] == 'alpha':
         mapping['alpha'] = '.dev'
-        suffix = get_git_changeset()
 
+    major = get_major_version(version)
     major_and_release = major + mapping[version[3]] + str(version[4])
 
     # Calculate suffix...
+    tag_describe = get_git_describe()
 
-    # If a description from git is available and we haven't already
-    # found a suffix
-    if not suffix and tag_describe:
-        git_version, git_suffix = get_version_from_git(tag_describe)
+    # If the detected git describe data is not valid, then either respect
+    # that we are in alpha-0 mode or raise an error
+    if tag_describe:
 
-        # Fail in case the VERSION tuple and version derived from Git are
-        # not tolerable.
-        assert_git_version(version, git_version)
+        git_version, suffix = get_version_from_git(tag_describe)
 
-        # We allow a git version that specifies the same
-        # (major, minor, patch, release) - for instance 1.2.3a2 - as
-        # the current tag to be filled in with a suffix from git.
-        if version[3] == git_version[3] and version[4] == git_version[4]:
-            suffix = git_suffix
+        if not git_version[:3] == version[:3]:
+            # If it's the 0th alpha, load suffix info from git changeset
+            if version[4] == 0 and version[3] == 'alpha':
+                # Throw away the description from git
+                suffix = get_git_changeset()
+                # Replace 'alpha' with .dev
+                return major + ".dev0" + suffix
 
-    # If no git info, *fallback* to VERSION file info
-    elif not suffix:
-        # No git data, will look for a VERSION file
-        version_file = get_version_file()
-
-        # Check that the version file is consistent
-        if version_file:
-
-            # Because \n may have been appended
-            version_file = version_file.strip()
-
-            # If there is a '.dev', we can remove it, otherwise we check it
-            # for consistency and fail if inconsistent
-            before_dev = version_file.split(".dev")[0]
-
-            if not major_and_release.startswith(before_dev):
+            # If the tag was not of a final version, we will fail.
+            elif not git_version[4] == 'final' and git_version[:3] > version[:3]:
                 raise AssertionError(
-                    "VERSION file inconsistent with kolibri.__version__. "
-                    "__version__ is: {}, File says: {}".format(
+                    (
+                        "Version detected from git describe --tags, but it's "
+                        "inconsistent with kolibri.__version__."
+                        "__version__ is: {}, tag says: {}."
+                    ).format(
                         str(version),
-                        version_file
+                        git_version,
                     )
                 )
-            else:
-                return version_file
 
-    return major_and_release + suffix
+        if git_version[3] == 'final' and version[3] != 'final':
+            raise AssertionError(
+                "You have added a final tag without bumping kolibri.VERISON"
+            )
+
+        return (
+            get_major_version(git_version) +
+            mapping[git_version[3]] +
+            str(git_version[4]) +
+            suffix
+        )
+
+    # No git data, will look for a VERSION file
+    version_file = get_version_file()
+
+    # Check that the version file is consistent
+    if version_file:
+
+        # Because \n may have been appended
+        version_file = version_file.strip()
+
+        # If there is a '.dev', we can remove it, otherwise we check it
+        # for consistency and fail if inconsistent
+        version_file_base = parse_version(version_file).base_version
+
+        # If a final release is specified in the VERSION file, then it
+        # has to be a final release in the VERSION tuple as well.
+        # A final release specified in a VERSION file (pep 440) is
+        # something that doesn't end like a1, b1, post1, and rc1
+        pep440_is_final = re.compile(r"^\d+(\.\d)+(\.post\d+)?$")
+        version_file_is_final = pep440_is_final.match(version_file)
+
+        if version_file_is_final and version_file != major_and_release:
+            raise AssertionError(
+                (
+                    "kolibri/VERSION file specified as final release but "
+                    "kolibri.__version__. is not a final release."
+                    "__version__ is: {}, file says: {}."
+                ).format(
+                    str(version),
+                    version_file,
+                )
+            )
+
+        if not major_and_release.startswith(version_file_base):
+            raise AssertionError(
+                (
+                    "kolibri/VERSION file inconsistent with "
+                    "kolibri.__version__.\n"
+                    "__version__ is: {}, file says: {}\n\n{} should start "
+                    "with {}"
+                ).format(
+                    str(version),
+                    version_file,
+                    major_and_release,
+                    version_file_base
+                )
+            )
+        return version_file
+
+    # In all circumstances, return the initial findings
+    return major_and_release
 
 
 @lru_cache()
