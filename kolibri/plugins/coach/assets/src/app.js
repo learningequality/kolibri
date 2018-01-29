@@ -32,14 +32,14 @@ const lessonRoutes = [
   },
   {
     name: PageNames.LESSONS.SUMMARY,
-    path: '/coach/#/:classId/lessons/:lessonId',
+    path: '/:classId/lessons/:lessonId',
     handler: toRoute => {
       showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.RESOURCE_SUMMARY,
-    path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId',
+    path: '/:classId/lessons/:lessonId/resource/:contentId',
     handler: toRoute => {
       showLessonResourceSummaryPage(
         store,
@@ -51,7 +51,7 @@ const lessonRoutes = [
   },
   {
     name: PageNames.LESSONS.RESOURCE_USER_SUMMARY,
-    path: '/coach/#/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
+    path: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
     handler: toRoute => {
       showLessonResourceUserSummaryPage(
         store,
@@ -64,21 +64,21 @@ const lessonRoutes = [
   },
   {
     name: PageNames.LESSONS.REVIEW,
-    path: '/coach/#/:classId/lessons/:lessonId/review',
+    path: '/:classId/lessons/:lessonId/review',
     handler: toRoute => {
       showLessonReviewPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.SELECTION_ROOT,
-    path: '/coach/#/:classId/lessons/:lessonId/selection',
+    path: '/:classId/lessons/:lessonId/selection',
     handler: toRoute => {
       showLessonSelectionPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
     name: PageNames.LESSONS.SELECTION,
-    path: '/coach/#/:classId/lessons/:lessonId/selection/topic/:topicId',
+    path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
     handler: toRoute => {
       showLessonSelectionTopicPage(
         store,
@@ -90,7 +90,7 @@ const lessonRoutes = [
   },
   {
     name: PageNames.LESSONS.SELECTION_SEARCH,
-    path: '/coach/#/:classId/lessons/:lessonId/selection/search/:searchTerm',
+    path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
     handler: toRoute => {
       showLessonSelectionSearchPage(
         store,
@@ -102,7 +102,7 @@ const lessonRoutes = [
   },
   {
     name: PageNames.LESSONS.CONTENT_PREVIEW,
-    path: '/coach/#/:classId/lessons/:lessonId/preview/:contentId',
+    path: '/:classId/lessons/:lessonId/preview/:contentId',
     handler: toRoute => {
       showLessonContentPreview(
         store,
