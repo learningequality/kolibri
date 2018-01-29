@@ -140,4 +140,11 @@
   .language-list-dropdown
     margin-bottom: 8px
 
+  .language-list-dropdown.k-select-inline
+      width: auto
+
+  >>>.ui-select__label-text.is-inline
+    margin-right: 2em
+    width: auto
+
 </style>
