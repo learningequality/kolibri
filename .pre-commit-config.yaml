@@ -7,12 +7,11 @@
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
--   repo: git://github.com/FalconSocial/pre-commit-python-sorter
-    sha: b57843b0b874df1d16eb0bef00b868792cb245c2
+-   repo: https://github.com/asottile/reorder_python_imports
+    sha: v0.3.5
     hooks:
-    -   id: python-import-sorter
-        args:
-        - --silent-overwrite
+    -   id: reorder-python-imports
+        language_version: python2.7
 -   repo: local
     hooks:
       -   id: frontend-prettify
