@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('newLesson')">
+  <core-modal
+    :title="$tr('newLesson')"
+    @cancel="closeModal()"
+  >
     <form @submit.prevent="submitLessonModal">
       <k-textbox
         :label="$tr('title')"
@@ -35,7 +38,10 @@
         />
       </fieldset>
       <div class="core-modal-buttons">
-        <k-button :text="$tr('cancel')" />
+        <k-button
+          :text="$tr('cancel')"
+          @click="closeModal()"
+        />
         <k-button
           :text="$tr('continue')"
           type="submit"
@@ -127,6 +133,9 @@
       groupIsChecked(groupId) {
         return this.learnerGroups.includes(groupId);
       },
+      closeModal() {
+        this.$emit('cancel');
+      }
     },
     vuex: {
       getters: {

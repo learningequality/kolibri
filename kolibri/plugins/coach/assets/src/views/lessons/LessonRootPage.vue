@@ -5,8 +5,12 @@
     <k-button
       :primary="true"
       text="New Lesson"
+      @click="showModal=true"
     />
-    <lesson-root-page-create-lesson-modal />
+    <lesson-root-page-create-lesson-modal
+      v-if="showModal"
+      @cancel="showModal=false"
+    />
   </div>
 
 </template>
@@ -23,6 +27,11 @@
       kButton,
       LessonRootPageCreateLessonModal,
     },
+    data() {
+      return {
+        showModal: false,
+      };
+    }
   };
 
 </script>
