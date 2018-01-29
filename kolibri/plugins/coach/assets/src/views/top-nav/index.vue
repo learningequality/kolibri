@@ -15,18 +15,6 @@
     />
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignment_late"
-      :link="examsLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
-      :title="$tr('lessons')"
-      icon="import_contacts"
-      :link="lessonsLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -36,6 +24,18 @@
       :title="$tr('groups')"
       icon="group_work"
       :link="groupsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignment_late"
+      :link="examsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('lessons')"
+      icon="import_contacts"
+      :link="lessonsLink"
     />
   </k-navbar>
 
