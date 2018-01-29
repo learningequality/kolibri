@@ -3,15 +3,14 @@
 # Kolibri 'developer docs' build configuration file
 #
 # This file is execfile()d with the current directory set to its containing dir.
-
-import django
 import inspect
 import os
 import sys
-
 from datetime import datetime
-from django.utils.html import strip_tags
+
+import django
 from django.utils.encoding import force_text
+from django.utils.html import strip_tags
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -20,8 +19,6 @@ cwd = os.getcwd()
 parent = os.path.dirname(cwd)
 sys.path.insert(0, os.path.abspath(parent))
 
-# This import *must* come after the path insertion, otherwise sphinx won't be able to find the kolibri module
-import kolibri  # noqa
 
 builddir = os.path.join(cwd, '_build')
 
@@ -29,10 +26,13 @@ builddir = os.path.join(cwd, '_build')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
 os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
 
-if not os.path.exists(os.environ["KOLIBRI_HOME"]):
-    os.mkdir(os.environ["KOLIBRI_HOME"])
+
+# This import *must* come after the path insertion, otherwise sphinx won't be able to find the kolibri module
+import kolibri  # noqa
+
 
 django.setup()
+
 
 # Monkey patch this so we don't have any complaints during Sphinx inspect
 from django.db.models.fields import files  # noqa
