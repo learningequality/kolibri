@@ -1,12 +1,21 @@
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
+import { LessonResource } from 'kolibri.resources';
 
 function showLessonRootPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_STATE', {
+    lessons: [],
+  });
   store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.ROOT);
   setClassState(store, classId).then(
     () => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return LessonResource.getCollection({ collection: classId })
+        .fetch({}, true)
+        ._promise.then(lessons => {
+          store.dispatch('SET_CLASS_LESSONS', lessons);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        });
     },
     error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);

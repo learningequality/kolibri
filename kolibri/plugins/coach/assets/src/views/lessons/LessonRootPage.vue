@@ -7,6 +7,14 @@
       text="New Lesson"
       @click="showModal=true"
     />
+    <table class="lessons-list">
+      <tr>
+        <th>Title</th>
+      </tr>
+      <tr v-for="lesson in lessons" :key="lesson.id">
+        <td>{{ lesson.name }}</td>
+      </tr>
+    </table>
     <lesson-root-page-create-lesson-modal
       v-if="showModal"
       @cancel="showModal=false"
@@ -31,6 +39,11 @@
       return {
         showModal: false,
       };
+    },
+    vuex: {
+      getters: {
+        lessons: state => state.pageState.lessons,
+      },
     }
   };
 

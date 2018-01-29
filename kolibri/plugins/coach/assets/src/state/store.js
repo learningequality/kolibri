@@ -1,4 +1,5 @@
 import Vue from 'kolibri.lib.vue';
+import * as lessonsMutations from './mutations/lessonsMutations';
 
 export const initialState = {
   pageName: '',
@@ -10,6 +11,7 @@ export const initialState = {
 
 export const mutations = {
   // coach-wide
+  ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
