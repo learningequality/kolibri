@@ -179,4 +179,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  fieldset
+    border: none
+    margin: 0
+    padding: 0
+
+</style>
