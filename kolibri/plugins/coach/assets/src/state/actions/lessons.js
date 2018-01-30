@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
 import { LessonResource } from 'kolibri.resources';
@@ -9,14 +10,7 @@ function showLessonRootPage(store, classId) {
   });
   store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.ROOT);
   setClassState(store, classId).then(
-    () => {
-      return LessonResource.getCollection({ collection: classId })
-        .fetch({}, true)
-        ._promise.then(lessons => {
-          store.dispatch('SET_CLASS_LESSONS', lessons);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-        });
-    },
+    () => updateLessons(store, classId),
     error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       console.log(error);
@@ -24,8 +18,30 @@ function showLessonRootPage(store, classId) {
   );
 }
 
+function updateLessons(store, classId) {
+  return LessonResource.getCollection({ collection: classId })
+    .fetch({}, true)
+    ._promise.then(lessons => {
+      store.dispatch('SET_CLASS_LESSONS', lessons);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
+
 function showLessonSummaryPage(store, classId, lessonId) {
-  console.log('test');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_STATE', {});
+
+  const loadRequirements = [
+    LessonResource.getModel(lessonId).fetch(),
+    setClassState(store, classId),
+  ];
+
+  Promise.all(loadRequirements).then(([lesson]) => {
+    store.dispatch('SET_CURRENT_LESSON', lesson);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    console.log('LESSON SUMMARY PAGE YO');
+    store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.SUMMARY);
+  });
 }
 
 function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {
@@ -66,4 +82,5 @@ export {
   showLessonSelectionTopicPage,
   showLessonSelectionSearchPage,
   showLessonContentPreview,
+  updateLessons,
 };
