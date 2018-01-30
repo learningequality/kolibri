@@ -142,7 +142,7 @@
   .k-select-inline
     display: inline-block
     vertical-align: bottom
-    width: auto
+    width: 100px
     margin-right: 16px
 
 </style>
