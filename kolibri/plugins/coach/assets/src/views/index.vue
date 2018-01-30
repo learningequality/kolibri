@@ -43,6 +43,7 @@
   // lessons
   import { LessonsPageNames } from '../lessonsConstants';
   import LessonsRootPage from './lessons/LessonsRootPage';
+  import LessonSummaryPage from './lessons/LessonSummaryPage';
 
   export default {
     name: 'coachRoot',
@@ -68,6 +69,7 @@
       classSelector,
       // lessons
       LessonsRootPage,
+      LessonSummaryPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -97,6 +99,7 @@
 
           // lessons
           [LessonsPageNames.ROOT]: 'LessonsRootPage',
+          [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
         };
         return pageNameToComponentMap[this.pageName];
       },

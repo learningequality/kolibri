@@ -67,7 +67,7 @@
   import { LessonsPageNames } from '../../../lessonsConstants';
 
   export default {
-    name: 'CreateLessonModal',
+    name: 'createLessonModal',
     components: {
       coreModal,
       kButton,
@@ -106,7 +106,7 @@
       },
     },
     methods: {
-      submitLessonModal(){
+      submitLessonModal() {
         this.formIsSubmitted = true;
         let assignedGroups;
         if (this.learnerGroups.length === 0) {
@@ -115,11 +115,21 @@
           assignedGroups = [...this.learnerGroups];
         }
 
-        if(this.formIsValid){
-          this.createNewLesson(assignedGroups).then();
+        if (this.formIsValid) {
+          this.createNewLesson(assignedGroups).then(
+            lesson => {
+              this.$router.push({
+                name: LessonsPageNames.SUMMARY,
+                params: {
+                  classId: this.classId,
+                  lessonId: lesson.id,
+                },
+              });
+            }
+          );
         }
       },
-      toggleGroup(isChecked, id){
+      toggleGroup(isChecked, id) {
         if(isChecked){
           this.learnerGroups.push(id);
         } else {
@@ -149,18 +159,7 @@
             assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
           };
 
-          return LessonResource.createModel(payload).save().then(
-            lesson => {
-              this.updateLessons(this.classId);
-              this.$router.push({
-                name: LessonsPageNames.SUMMARY,
-                params: {
-                  classId: this.classId,
-                  lessonId: lesson.id,
-                },
-              });
-            }
-          );
+          return LessonResource.createModel(payload).save();
         },
         updateLessons,
       },
