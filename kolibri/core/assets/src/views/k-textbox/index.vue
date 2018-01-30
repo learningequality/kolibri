@@ -16,7 +16,7 @@
       :enforceMaxlength="true"
       :floatingLabel="true"
       :multiLine="textArea"
-      :rows="4"
+      :rows="3"
       @input="updateText"
       @keydown="emitKeydown"
       @focus="$emit('focus')"
