@@ -16,8 +16,6 @@
       <k-textbox
         :label="$tr('description')"
         :maxlength="200"
-        :invalid="descriptionIsInvalid"
-        :invalidText="descriptionIsInvalidText"
         v-model="description"
       />
 
@@ -61,7 +59,11 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import { LessonResource } from 'kolibri.resources';
+  import { updateLessons } from '../../../state/actions/lessons';
+  import { PageNames } from '../../../constants';
 
+  const { LESSONS: lessonPageNames } = PageNames;
   export default {
     name: 'LessonRootPageCreateLessonModal',
     components: {
@@ -97,31 +99,23 @@
         return !!this.titleIsInvalidText;
 
       },
-      descriptionIsInvalidText() {
-        if (this.descriptionIsVisited || this.formIsSubmitted) {
-          if (this.description === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      descriptionIsInvalid() {
-        return !!this.descriptionIsInvalidText;
+      formIsValid() {
+        return !(this.titleIsInvalid)
       },
     },
     methods: {
       submitLessonModal(){
         this.formIsSubmitted = true;
-        // TODO validation
-        // If learnerGroups is empty, then assume entire class is assigned pass in array
-        // Otherwise, pass in whole learnerGroups array
         let assignedGroups;
         if (this.learnerGroups.length === 0) {
           assignedGroups = [this.classId];
         } else {
           assignedGroups = [...this.learnerGroups];
         }
-        this.createNewLesson(assignedGroups).then();
+
+        if(this.formIsValid){
+          this.createNewLesson(assignedGroups).then();
+        }
       },
       toggleGroup(isChecked, id){
         if(isChecked){
@@ -139,7 +133,7 @@
     },
     vuex: {
       getters: {
-        groups(){
+        groups() {
           return [
             {name: 'Group 0', id: '123'},
             {name: 'Group 1', id: '124'},
@@ -152,14 +146,6 @@
       actions: {
         // POSTs a new Lesson object to the server
         createNewLesson(store, assignedGroups) {
-          const LessonResource = {
-            createModel() {
-              return {
-                save: () => Promise.resolve(),
-              };
-            },
-          };
-
           const payload = {
             name: this.title,
             description: this.description,
@@ -168,13 +154,26 @@
             assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
           };
 
-          return LessonResource.createModel(payload).save();
-        }
+          return LessonResource.createModel(payload).save().then(
+            lesson => {
+              this.updateLessons(this.classId);
+              this.$router.push({
+                name: lessonPageNames.SUMMARY,
+                params: {
+                  classId: this.classId,
+                  lessonId: lesson.id,
+                },
+              });
+            }
+          );
+        },
+        updateLessons,
       },
     },
     $trs: {
       // TODO make these labels more semantic
       cancel: 'Cancel',
+      required: 'This is required',
       continue: 'Continue',
       description: 'Description',
       entireClass: 'Entire class',
