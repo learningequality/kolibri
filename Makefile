@@ -11,11 +11,12 @@ help:
 	@echo "dist: create distributed source packages in dist/"
 	@echo "pex: builds a portable .pex file for each .whl in dist/"
 	@echo "assets: builds javascript assets"
-	@echo "staticdeps: downloads/updates all static deps bundled into the dist"
+	@echo "staticdeps: downloads/updates all static Python dependencies bundled into the dist"
+	@echo "staticdeps-cext: downloads/updates Python C extensions for all supported platforms"
 	@echo "clean: restores code tree to a clean state"
 	@echo "clean-build: remove build artifacts"
 	@echo "clean-pyc: remove Python file artifacts"
-	@echo "clean-assets: removes javascript assets"
+	@echo "clean-assets: removes JavaScript build assets"
 	@echo "writeversion: updates the kolibri/VERSION file"
 	@echo "release: package and upload a release"
 	@echo "buildconfig: [unsupported] runs a special script for building a source package with special requirements.txt"
@@ -23,13 +24,13 @@ help:
 	@echo "Development"
 	@echo "-----------"
 	@echo ""
-	@echo "lint: check style with flake8"
+	@echo "lint: check Python style with flake8"
 	@echo "test: run tests quickly with the default Python"
-	@echo "test-all: run tests on every Python version with tox"
-	@echo "coverage: check code coverage quickly with the default Python"
+	@echo "test-all: run tests on every Python version with Tox"
+	@echo "coverage: run tests, recording and printing out Python code coverage"
 	@echo "docs: generate all documentation"
 	@echo "docs-user: generate just the user docs"
-	@echo "docs-developer: generate just developer + API docs"
+	@echo "docs-developer: generate just developer and API docs"
 	@echo ""
 	@echo "Internationalization"
 	@echo "--------------------"
@@ -105,13 +106,17 @@ release:
 	twine upload -s dist/*
 
 staticdeps:
-	rm -r kolibri/dist/* || true # remove everything
+	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
-	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
-	pip install -t kolibri/dist -r "requirements/cext_noarch.txt" --no-deps
-	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
+
+staticdeps-cext:
+	rm -rf kolibri/dist/cext || true # remove everything
+	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
+	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	pip install -t kolibri/dist -r "requirements/cext_noarch.txt" --no-deps
 	# This expression checks that everything in kolibri/dist has an __init__.py
 	# To prevent namespaced packages from suddenly showing up
 	# https://github.com/learningequality/kolibri/pull/2972
@@ -125,11 +130,12 @@ writeversion:
 buildconfig:
 	rm -r requirements.txt || true # remove requirements.txt
 	git checkout -- requirements.txt # restore requirements.txt
+	python build_tools/customize_requirements.py
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps buildconfig assets compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
