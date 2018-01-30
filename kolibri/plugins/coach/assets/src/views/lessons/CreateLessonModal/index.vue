@@ -16,6 +16,7 @@
       <k-textbox
         :label="$tr('description')"
         :maxlength="200"
+        :textArea="true"
         v-model="description"
       />
 

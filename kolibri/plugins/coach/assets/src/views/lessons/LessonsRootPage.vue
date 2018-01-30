@@ -119,7 +119,7 @@
         CollectionKinds.CLASSROOM) {
           return this.$tr('entireClass');
         }
-          return this.$tr('numberOfGroups', { count: numOfAssignments });
+        return this.$tr('numberOfGroups', { count: numOfAssignments });
       },
     },
     vuex: {
