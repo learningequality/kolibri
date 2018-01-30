@@ -83,6 +83,15 @@ class TestKolibriVersion(unittest.TestCase):
         v = get_version((0, 1, 0, "alpha", 1))
         self.assertIn("0.1.0a1", v)
 
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.7.1b1.dev+git-2-gfd48a7a")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    def test_version_file_local_git_version(self, describe_mock, file_mock):
+        """
+        Test that a version file with git describe output is correctly parsed
+        """
+        v = get_version((0, 7, 1, "beta", 1))
+        self.assertIn("0.7.1b1.dev+git-2-gfd48a7a", v)
+
     @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
     @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
     def test_alpha_0_inconsistent_version_file(self, get_git_changeset_mock, describe_mock):
@@ -145,12 +154,12 @@ class TestKolibriVersion(unittest.TestCase):
 
     @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0b1")
     @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.0.1")
-    @mock.patch('kolibri.utils.version.get_git_changeset', return_value="-git123")
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value="+git123")
     def test_version_file_ignored(self, get_git_changeset_mock, describe_mock, file_mock):
         """
         Test that the VERSION file is NOT used where git data is available
         """
-        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev0-git123"
+        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev+git123"
 
     def test_alpha_1_inconsistent_git(self):
         """
@@ -185,7 +194,7 @@ class TestKolibriVersion(unittest.TestCase):
         """
         Test that we get the git describe data when it's there
         """
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev-123-abcdfe12"
+        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev+git-123-abcdfe12"
 
     @mock.patch('subprocess.Popen')
     def test_git_describe_parser(self, popen_mock):
@@ -196,7 +205,7 @@ class TestKolibriVersion(unittest.TestCase):
         attrs = {'communicate.return_value': ('v0.1.0-beta1-123-abcdfe12', '')}
         process_mock.configure_mock(**attrs)
         popen_mock.return_value = process_mock
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev-123-abcdfe12"
+        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev+git-123-abcdfe12"
 
     @mock.patch('subprocess.Popen')
     @mock.patch('kolibri.utils.version.get_version_file', return_value=None)

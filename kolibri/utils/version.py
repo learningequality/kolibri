@@ -177,7 +177,7 @@ def get_git_changeset():
         # repo - it's safe.
         timestamp = git_log.communicate()[0]
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
-        return "{}-git".format(timestamp.strftime('%Y%m%d%H%M%S'))
+        return "+git-{}".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
         return None
 
@@ -233,7 +233,7 @@ def get_version_from_git(get_git_describe_string):
         major, minor, patch = version_split
 
     suffix = m.group('suffix')
-    suffix = ".dev" + suffix if suffix else ""
+    suffix = ".dev+git" + suffix if suffix else ""
 
     return get_complete_version((
         int(major),
@@ -283,7 +283,7 @@ def get_prerelease_version(version):
                 # Throw away the description from git
                 suffix = get_git_changeset()
                 # Replace 'alpha' with .dev
-                return major + ".dev0" + suffix
+                return major + ".dev" + suffix
 
             # If the tag was not of a final version, we will fail.
             elif not git_version[4] == 'final' and git_version[:3] > version[:3]:
