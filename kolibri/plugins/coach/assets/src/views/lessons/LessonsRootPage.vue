@@ -115,11 +115,11 @@
       },
       getLessonVisibility(assignedGroups) {
         const numOfAssignments = assignedGroups.length;
-        if (numOfAssignments > 1 && assignedGroups[0].collection_kind ===
+        if (numOfAssignments === 1 && assignedGroups[0].collection_kind ===
         CollectionKinds.CLASSROOM) {
-          return this.$tr('numberOfGroups', { count: numOfAssignments });
+          return this.$tr('entireClass');
         }
-        return this.$tr('entireClass');
+          return this.$tr('numberOfGroups', { count: numOfAssignments });
       },
     },
     vuex: {

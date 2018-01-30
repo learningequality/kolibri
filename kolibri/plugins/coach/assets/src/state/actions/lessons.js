@@ -50,33 +50,19 @@ function showLessonSummaryPage(store, classId, lessonId) {
   });
 }
 
-function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {
-  console.log('test');
-}
+function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
 
-function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {
-  console.log('test');
-}
+function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
 
-function showLessonReviewPage(store, classId, lessonId) {
-  console.log('test');
-}
+function showLessonReviewPage(store, classId, lessonId) {}
 
-function showLessonSelectionPage(store, classId, lessonId) {
-  console.log('test');
-}
+function showLessonSelectionPage(store, classId, lessonId) {}
 
-function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {
-  console.log('test');
-}
+function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {}
 
-function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {
-  console.log('test');
-}
+function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
 
-function showLessonContentPreview(store, classId, lessonId, contentId) {
-  console.log('test');
-}
+function showLessonContentPreview(store, classId, lessonId, contentId) {}
 
 export {
   showLessonRootPage,
