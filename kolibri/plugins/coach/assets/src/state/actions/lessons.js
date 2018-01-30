@@ -1,4 +1,5 @@
-import { PageNames } from '../../constants';
+import { LessonsPageNames } from '../../lessonsConstants';
+
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
 
@@ -16,10 +17,10 @@ function showLessonRootPage(store, classId) {
   return Promise.all(loadRequirements).then(
     ([learnerGroups]) => {
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
-      store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.ROOT);
+      store.dispatch('SET_PAGE_NAME', LessonsPageNames.ROOT);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => {
+    () => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
@@ -45,8 +46,7 @@ function showLessonSummaryPage(store, classId, lessonId) {
   Promise.all(loadRequirements).then(([lesson]) => {
     store.dispatch('SET_CURRENT_LESSON', lesson);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
-    console.log('LESSON SUMMARY PAGE YO');
-    store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.SUMMARY);
+    store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
   });
 }
 

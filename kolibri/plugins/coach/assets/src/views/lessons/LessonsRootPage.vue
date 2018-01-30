@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    LessonRootPage
+    LessonsRootPage
     <k-button
       :primary="true"
       text="New Lesson"
@@ -15,7 +15,7 @@
         <td>{{ lesson.name }}</td>
       </tr>
     </table>
-    <lesson-root-page-create-lesson-modal
+    <create-lesson-modal
       v-if="showModal"
       @cancel="showModal=false"
     />
@@ -26,14 +26,14 @@
 
 <script>
 
-  import LessonRootPageCreateLessonModal from './LessonRootPageCreateLessonModal';
+  import CreateLessonModal from './CreateLessonModal';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'LessonRootPage',
+    name: 'LessonsRootPage',
     components: {
       kButton,
-      LessonRootPageCreateLessonModal,
+      CreateLessonModal,
     },
     data() {
       return {

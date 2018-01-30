@@ -45,6 +45,7 @@
 <script>
 
   import * as Constants from '../../constants';
+    import { LessonsPageNames } from '../../lessonsConstants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   export default {
@@ -97,7 +98,7 @@
       },
       lessonsLink() {
         return {
-          name: Constants.PageNames.LESSONS.ROOT,
+          name: LessonsPageNames.ROOT,
           params: { classId: this.classId },
         };
       },

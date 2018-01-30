@@ -41,7 +41,8 @@
   import classSelector from './class-selector';
 
   // lessons
-  import LessonRootPage from './lessons/LessonRootPage';
+  import { LessonsPageNames } from '../lessonsConstants';
+  import LessonsRootPage from './lessons/LessonsRootPage';
 
   export default {
     name: 'coachRoot',
@@ -66,7 +67,7 @@
       learnerListPage,
       classSelector,
       // lessons
-      LessonRootPage,
+      LessonsRootPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -95,7 +96,7 @@
           [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
 
           // lessons
-          [PageNames.LESSONS.ROOT]: 'LessonRootPage',
+          [LessonsPageNames.ROOT]: 'LessonsRootPage',
         };
         return pageNameToComponentMap[this.pageName];
       },

@@ -62,11 +62,10 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
-  import { PageNames } from '../../../constants';
+  import { LessonsPageNames } from '../../../lessonsConstants';
 
-  const { LESSONS: lessonPageNames } = PageNames;
   export default {
-    name: 'LessonRootPageCreateLessonModal',
+    name: 'CreateLessonModal',
     components: {
       coreModal,
       kButton,
@@ -152,7 +151,7 @@
             lesson => {
               this.updateLessons(this.classId);
               this.$router.push({
-                name: lessonPageNames.SUMMARY,
+                name: LessonsPageNames.SUMMARY,
                 params: {
                   classId: this.classId,
                   lessonId: lesson.id,
