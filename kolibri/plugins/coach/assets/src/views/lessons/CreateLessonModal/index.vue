@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('newLesson')"
     @cancel="closeModal()"
+    width="400px"
   >
     <form @submit.prevent="submitLessonModal">
       <k-textbox
@@ -186,5 +187,9 @@
     border: none
     margin: 0
     padding: 0
+
+  legend
+    padding-top: 16px
+    padding-bottom: 8px
 
 </style>
