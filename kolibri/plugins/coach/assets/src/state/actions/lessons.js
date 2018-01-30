@@ -1,19 +1,27 @@
 /* eslint-disable */
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
-import { LessonResource } from 'kolibri.resources';
+import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
 
 function showLessonRootPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     lessons: [],
+    learnerGroups: [],
   });
-  store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.ROOT);
-  setClassState(store, classId).then(
-    () => updateLessons(store, classId),
+  const loadRequirements = [
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    updateLessons(store, classId),
+    setClassState(store, classId),
+  ];
+  return Promise.all(loadRequirements).then(
+    ([learnerGroups]) => {
+      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+      store.dispatch('SET_PAGE_NAME', PageNames.LESSONS.ROOT);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
     error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      console.log(error);
     }
   );
 }

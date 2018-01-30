@@ -133,14 +133,7 @@
     },
     vuex: {
       getters: {
-        groups() {
-          return [
-            {name: 'Group 0', id: '123'},
-            {name: 'Group 1', id: '124'},
-            {name: 'Group 2', id: '456'},
-            {name: 'Group 3', id: '436'},
-          ];
-        },
+        groups: state => state.pageState.learnerGroups,
         classId: state => state.classId,
       },
       actions: {
