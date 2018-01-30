@@ -2,6 +2,12 @@
 
   <div>
     <h1>{{ $tr('classLessons') }}</h1>
+    <k-select
+      :label="$tr('viewBy')"
+      :options="filterOptions"
+      :inline="true"
+      v-model="filterSelection"
+    />
     <k-button
       :primary="true"
       :text="$tr('newLesson')"
@@ -15,7 +21,7 @@
         <th>{{ $tr('visibleTo') }}</th>
         <th>{{ $tr('status') }}</th>
       </tr>
-      <tr v-for="lesson in lessons" :key="lesson.id">
+      <tr v-for="lesson in filteredLessons" :key="lesson.id">
         <td>
           <content-icon :kind="lessonKind" />
         </td>
@@ -44,6 +50,7 @@
 
   import CreateLessonModal from './CreateLessonModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
@@ -53,6 +60,7 @@
     name: 'LessonsRootPage',
     components: {
       kButton,
+      kSelect,
       CreateLessonModal,
       contentIcon,
       StatusIcon,
@@ -61,7 +69,40 @@
       return {
         showModal: false,
         lessonKind: ContentNodeKinds.LESSON,
+        filterSelection: {},
       };
+    },
+    computed: {
+      filterOptions() {
+        return [
+          {
+            label: this.$tr('allLessons'),
+            value: this.$tr('allLessons'),
+          },
+          {
+            label: this.$tr('activeLessons'),
+            value: this.$tr('activeLessons'),
+          },
+
+          {
+            label: this.$tr('inactiveLessons'),
+            value: this.$tr('inactiveLessons'),
+          },
+        ];
+      },
+      filteredLessons() {
+        switch(this.filterSelection.value) {
+          case this.$tr('activeLessons'):
+            return this.lessons.filter(lesson => lesson.is_active);
+          case this.$tr('inactiveLessons'):
+            return this.lessons.filter(lesson => !lesson.is_active);
+          default:
+            return this.lessons;
+        }
+      },
+    },
+    beforeMount() {
+      this.filterSelection = this.filterOptions[0];
     },
     methods: {
       generateLessonLink(lessonId) {
@@ -69,13 +110,13 @@
           name: LessonsPageNames.SUMMARY,
           params: {
             lessonId,
-          }
+          },
         };
       },
       getLessonVisibility(assignedGroups) {
-         const numOfAssignments = assignedGroups.length;
-        if (numOfAssignments > 1 &&
-          assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM) {
+        const numOfAssignments = assignedGroups.length;
+        if (numOfAssignments > 1 && assignedGroups[0].collection_kind ===
+        CollectionKinds.CLASSROOM) {
           return this.$tr('numberOfGroups', { count: numOfAssignments });
         }
         return this.$tr('entireClass');
@@ -88,6 +129,10 @@
     },
     $trs: {
       classLessons: '[class name] lessons',
+      viewBy: 'View by',
+      allLessons: 'All lessons',
+      activeLessons: 'Active lessons',
+      inactiveLessons: 'Inactive lessons',
       newLesson: 'New lesson',
       title: 'Title',
       size: 'Size',
