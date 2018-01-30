@@ -27,7 +27,7 @@
         <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
         <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
         <td>
-
+          <status-icon :active="lesson.is_active" />
         </td>
       </tr>
     </table>
@@ -47,6 +47,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
+  import StatusIcon from './StatusIcon';
 
   export default {
     name: 'LessonsRootPage',
@@ -54,6 +55,7 @@
       kButton,
       CreateLessonModal,
       contentIcon,
+      StatusIcon,
     },
     data() {
       return {
