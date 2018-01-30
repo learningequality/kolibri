@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
@@ -31,7 +30,6 @@ function updateLessons(store, classId) {
     .fetch({}, true)
     ._promise.then(lessons => {
       store.dispatch('SET_CLASS_LESSONS', lessons);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
