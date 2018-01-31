@@ -30,6 +30,11 @@
       v-if="currentAction==='deleteLesson'"
       @cancel="currentAction=null"
     />
+
+    <change-lesson-status-modal
+      v-if="currentAction==='changeLessonStatus'"
+      @cancel="currentAction=null"
+    />
   </div>
 
 </template>
@@ -38,16 +43,21 @@
 <script>
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  // TODO consolidate all modals into a single ManageLessonsModal
   import DeleteLessonModal from '../ManageLessonModals/DeleteLessonModal';
+  import ChangeLessonStatusModal from '../ManageLessonModals/ChangeLessonStatusModal';
 
   const lessonActions = [
     'editLessonDetails',
     'copyLesson',
     'deleteLesson',
+    // TODO remove from dropdown
+    'changeLessonStatus',
   ];
 
   export default {
     components: {
+      ChangeLessonStatusModal,
       DeleteLessonModal,
       dropdownMenu,
     },
@@ -84,6 +94,7 @@
     $trs: {
       // TODO make labels more semantic
       active: 'Active',
+      changeLessonStatus: 'Change',
       copyLesson: 'Copy to',
       deleteLesson: 'Delete',
       description: 'Description',

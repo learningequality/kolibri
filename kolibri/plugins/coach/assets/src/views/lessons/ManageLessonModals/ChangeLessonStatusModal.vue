@@ -36,11 +36,15 @@
 
 <script>
 
+  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { LessonResource } from 'kolibri.resources';
 
   export default {
     components: {
+      coreModal,
+      kButton,
       kRadioButton,
     },
     data() {

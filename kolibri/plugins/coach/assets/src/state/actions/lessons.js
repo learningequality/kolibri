@@ -35,7 +35,9 @@ export function updateLessons(store, classId) {
 
 export function showLessonSummaryPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', {
+    currentLesson: {},
+  });
 
   const loadRequirements = [
     LessonResource.getModel(lessonId).fetch(),
