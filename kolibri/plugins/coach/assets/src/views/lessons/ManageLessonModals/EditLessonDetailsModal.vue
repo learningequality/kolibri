@@ -57,6 +57,7 @@
 
 <script>
 
+  import xor from 'lodash/xor';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -64,7 +65,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
-  import { LessonsPageNames, CollectionTypes } from '../../../lessonsConstants';
+  import { CollectionTypes } from '../../../lessonsConstants';
 
   export default {
     name: 'editLessonDetailsModal',
@@ -104,6 +105,27 @@
       formIsValid() {
         return !(this.titleIsInvalid)
       },
+      selectedCollectionIds() {
+        if (this.learnerGroups.length === 0) {
+          return [this.classId];
+        } else {
+          return  [...this.learnerGroups];
+        }
+      },
+      currentCollectionIds() {
+        return this.currentLesson.assigned_groups.map(g => g.collection);
+      },
+      groupsHaveChanged() {
+        const unsharedIds = xor(this.selectedCollectionIds, this.currentCollectionIds);
+        return unsharedIds.length > 0;
+      },
+      lessonDetailsHaveChanged() {
+        return (
+          this.currentLesson.name !== this.title ||
+          this.currentLesson.description !== this.description ||
+          this.groupsHaveChanged
+        );
+      }
     },
     created() {
       this.title = this.currentLesson.name,
@@ -114,27 +136,29 @@
     },
     methods: {
       submitLessonModal() {
+        if (!this.lessonDetailsHaveChanged) {
+          return this.closeModal();
+        }
         this.formIsSubmitted = true;
-        let assignedGroups;
-        if (this.learnerGroups.length === 0) {
-          assignedGroups = [this.classId];
-        } else {
-          assignedGroups = [...this.learnerGroups];
-        }
-
         if (this.formIsValid) {
-          this.createNewLesson(assignedGroups).then(
-            lesson => {
-              this.$router.push({
-                name: LessonsPageNames.SUMMARY,
-                params: {
-                  classId: this.classId,
-                  lessonId: lesson.id,
-                },
-              });
-            }
-          );
+          return this.updateLessonDetails(this.selectedCollectionIds)
+            .then(() => {
+              this.closeModal();
+            })
+            .catch((error) => {
+              // TODO handle error properly
+              console.log(error);
+            })
         }
+      },
+      updateLessonDetails(assignedGroups) {
+        return LessonResource.getModel(this.currentLesson.id).save({
+          name: this.title,
+          description: this.description,
+          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
+        })
+          ._promise
+          .then(lesson => this.updateCurrentLesson(lesson));
       },
       toggleGroup(isChecked, id) {
         if(isChecked){
@@ -157,6 +181,9 @@
         currentLesson: state => state.pageState.currentLesson,
       },
       actions: {
+        updateCurrentLesson(store, lesson) {
+          store.dispatch('SET_CURRENT_LESSON', lesson);
+        },
         // POSTs a new Lesson object to the server
         createNewLesson(store, assignedGroups) {
           const payload = {
