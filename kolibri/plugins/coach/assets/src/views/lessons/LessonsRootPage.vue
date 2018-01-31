@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classLessons') }}</h1>
+    <h1>{{ $tr('classLessons', { className }) }}</h1>
     <k-select
-      :label="$tr('viewBy')"
+      :label="$tr('show')"
       :options="filterOptions"
       :inline="true"
       v-model="filterSelection"
@@ -14,28 +14,32 @@
       @click="showModal=true"
     />
     <table class="lessons-list">
-      <tr>
-        <th></th>
-        <th>{{ $tr('title') }}</th>
-        <th>{{ $tr('size') }}</th>
-        <th>{{ $tr('visibleTo') }}</th>
-        <th>{{ $tr('status') }}</th>
-      </tr>
-      <tr v-for="lesson in filteredLessons" :key="lesson.id">
-        <td>
-          <content-icon :kind="lessonKind" />
-        </td>
-        <td>
-          <router-link :to="generateLessonLink(lesson.id)">
-            {{ lesson.name }}
-          </router-link>
-        </td>
-        <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-        <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
-        <td>
-          <status-icon :active="lesson.is_active" />
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ $tr('title') }}</th>
+          <th>{{ $tr('size') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th>{{ $tr('status') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="lesson in filteredLessons" :key="lesson.id">
+          <td>
+            <content-icon :kind="lessonKind" />
+          </td>
+          <td>
+            <router-link :to="generateLessonLink(lesson.id)">
+              {{ lesson.name }}
+            </router-link>
+          </td>
+          <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
+          <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
+          <td>
+            <status-icon :active="lesson.is_active" />
+          </td>
+        </tr>
+      </tbody>
     </table>
     <create-lesson-modal
       v-if="showModal"
@@ -125,11 +129,12 @@
     vuex: {
       getters: {
         lessons: state => state.pageState.lessons,
+        className: state => state.className,
       },
     },
     $trs: {
-      classLessons: '[class name] lessons',
-      viewBy: 'View by',
+      classLessons: '{ className } lessons',
+      show: 'View by',
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
@@ -147,4 +152,35 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  table
+    font-size: 14px
+    thead
+      border-bottom-width: 1px
+      border-bottom-style: solid
+      border-bottom-color: $core-grey
+      tr
+        color: $core-text-annotation
+        text-align: left
+        font-weight: bold
+        font-size: 10px
+
+    th, td
+      padding-top: 12px
+      padding-right: 24px
+      padding-bottom: 12px
+      padding-left: 0
+
+    a
+      font-weight: bold
+
+    tbody
+      tr
+        border-bottom-width: 1px
+        border-bottom-style: solid
+        border-bottom-color: $core-grey
+
+</style>
