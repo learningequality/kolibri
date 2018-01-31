@@ -1,9 +1,8 @@
 import { LessonsPageNames } from '../../lessonsConstants';
-
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
 
-function showLessonRootPage(store, classId) {
+export function showLessonRootPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     lessons: [],
@@ -26,7 +25,7 @@ function showLessonRootPage(store, classId) {
   );
 }
 
-function updateLessons(store, classId) {
+export function updateLessons(store, classId) {
   return LessonResource.getCollection({ collection: classId })
     .fetch({}, true)
     ._promise.then(lessons => {
@@ -34,7 +33,7 @@ function updateLessons(store, classId) {
     });
 }
 
-function showLessonSummaryPage(store, classId, lessonId) {
+export function showLessonSummaryPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {});
 
@@ -50,29 +49,16 @@ function showLessonSummaryPage(store, classId, lessonId) {
   });
 }
 
-function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
+export function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
 
-function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
+export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
 
-function showLessonReviewPage(store, classId, lessonId) {}
+export function showLessonReviewPage(store, classId, lessonId) {}
 
-function showLessonSelectionPage(store, classId, lessonId) {}
+export function showLessonSelectionPage(store, classId, lessonId) {}
 
-function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {}
+export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {}
 
-function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
+export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
 
-function showLessonContentPreview(store, classId, lessonId, contentId) {}
-
-export {
-  showLessonRootPage,
-  showLessonSummaryPage,
-  showLessonResourceSummaryPage,
-  showLessonResourceUserSummaryPage,
-  showLessonReviewPage,
-  showLessonSelectionPage,
-  showLessonSelectionTopicPage,
-  showLessonSelectionSearchPage,
-  showLessonContentPreview,
-  updateLessons,
-};
+export function showLessonContentPreview(store, classId, lessonId, contentId) {}
