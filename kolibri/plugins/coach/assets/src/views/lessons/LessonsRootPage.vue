@@ -41,6 +41,24 @@
         </tr>
       </tbody>
     </table>
+
+    <p>
+      <template v-if="!lessons.length">
+        {{ $tr('noLessons') }}
+      </template>
+      <template
+        v-else-if="!filteredLessons.length && filterSelection.value === $tr('activeLessons')"
+      >
+        {{ $tr('noActiveLessons') }}
+
+      </template>
+      <template
+        v-else-if="!filteredLessons.length && filterSelection.value === $tr('inactiveLessons')"
+      >
+        {{ $tr('noInactiveLessons') }}
+      </template>
+    </p>
+
     <create-lesson-modal
       v-if="showModal"
       @cancel="showModal=false"
@@ -134,7 +152,7 @@
     },
     $trs: {
       classLessons: '{ className } lessons',
-      show: 'View by',
+      show: 'Show',
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
@@ -146,6 +164,9 @@
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       status: 'Status',
       numberOfResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      noLessons: 'No lessons',
+      noActiveLessons: 'No active lessons',
+      noInactiveLessons: 'No inactive lessons'
     },
   };
 
