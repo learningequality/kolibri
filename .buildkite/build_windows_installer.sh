@@ -22,7 +22,7 @@ cp $PARENT_PATH/dist/*.whl $KOLIBRI_WINDOWS_PATH
 
 # Build kolibri windows installer docker image.
 cd $KOLIBRI_DOCKER_PATH
-KOLIBRI_VERSION=$(cat $PARENT_PATH/kolibri/VERSION)
+KOLIBRI_VERSION=$(cat $PARENT_PATH/kolibri/VERSION | sed -s 's/+/_/g')
 DOCKER_BUILD_CMD="docker build -t $KOLIBRI_VERSION-build ."
 $DOCKER_BUILD_CMD
 if [ $? -ne 0 ]; then

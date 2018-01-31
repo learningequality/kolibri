@@ -144,6 +144,11 @@ Copy the entries from the changelog into Github's "Release notes".
     chronology will break. Do not add tags in feature branches or in the master
     branch. You can add tags for pre-releases in ``develop``, for releases that don't yet have a release branch.
 
+.. warning:: Tagging is known to break after rebasing, so in case you rebase
+    a branch after tagging it, delete the tag and add it again. Basically,
+    ``git describe --tags`` detects the closest tag, but after a rebase, its
+    concept of distance is misguided.
+
 
 Release to PyPI
 ~~~~~~~~~~~~~~~

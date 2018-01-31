@@ -106,7 +106,7 @@ dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 	ls -l dist
 
 pex: writeversion
-	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
+	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 makedocsmessages:
 	make -C docs/ gettext
@@ -134,10 +134,10 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t learningequality/kolibri:$$(cat kolibri/VERSION) -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')" -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')"
 
 kolibripippex:
 	git clone https://github.com/learningequality/pip.git
