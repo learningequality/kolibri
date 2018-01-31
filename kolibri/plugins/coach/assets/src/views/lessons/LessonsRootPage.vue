@@ -13,11 +13,12 @@
       :text="$tr('newLesson')"
       @click="showModal=true"
     />
-    <div class="table-wrapper">
-      <table class="lessons-list">
+
+    <core-table>
+      <table>
         <thead>
           <tr>
-            <th></th>
+            <th class="icon-col"></th>
             <th>{{ $tr('title') }}</th>
             <th>{{ $tr('size') }}</th>
             <th>{{ $tr('visibleTo') }}</th>
@@ -25,11 +26,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="lesson in filteredLessons" :key="lesson.id">
-            <td>
-              <content-icon :kind="lessonKind" class="lesson-icon" />
+          <tr
+            v-for="lesson in filteredLessons"
+            :key="lesson.id"
+          >
+            <td class="icon-col">
+              <content-icon
+                :kind="lessonKind"
+                class="lesson-icon"
+              />
             </td>
-            <td>
+            <td class="main-col">
               <router-link :to="generateLessonLink(lesson.id)">
                 {{ lesson.name }}
               </router-link>
@@ -42,7 +49,7 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </core-table>
 
     <p v-if="!lessons.length">
       {{ $tr('noLessons') }}
@@ -73,6 +80,7 @@
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
   import StatusIcon from './StatusIcon';
+  import CoreTable from './CoreTable'
 
   export default {
     name: 'LessonsRootPage',
@@ -82,6 +90,7 @@
       CreateLessonModal,
       contentIcon,
       StatusIcon,
+      CoreTable,
     },
     data() {
       return {
@@ -179,39 +188,5 @@
     height: 24px
     >>>.ui-icon
       vertical-align: inherit
-
-  .table-wrapper
-    overflow-x: auto
-
-  table
-    font-size: 14px
-    width: 100%
-    thead
-      border-bottom-width: 1px
-      border-bottom-style: solid
-      border-bottom-color: $core-grey
-      tr
-        color: $core-text-annotation
-        text-align: left
-        font-size: 12px
-
-    tbody
-      tr
-        border-bottom-width: 1px
-        border-bottom-style: solid
-        border-bottom-color: $core-grey
-
-    th, td
-      padding-top: 12px
-      padding-right: 16px
-      padding-bottom: 12px
-      padding-left: 0
-
-    th:not(:first-child),
-    td:not(:first-child)
-      min-width: 120px
-
-    a
-      font-weight: bold
 
 </style>
