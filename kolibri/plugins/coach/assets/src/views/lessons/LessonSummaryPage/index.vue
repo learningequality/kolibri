@@ -1,6 +1,11 @@
 <template>
 
   <div>
+    <dropdown-menu
+      :name="$tr('options')"
+      :options="lessonOptions"
+      @select="handleSelectOption"
+    />
     <h1> {{ lessonTitle }} </h1>
     <div> Options DD </div>
     <p>
@@ -20,6 +25,11 @@
       <p>{{ $tr('resources') }}</p>
       <table></table>
     </div>
+
+    <delete-lesson-modal
+      v-if="currentAction==='deleteLesson'"
+      @cancel="currentAction=null"
+    />
   </div>
 
 </template>
@@ -27,15 +37,37 @@
 
 <script>
 
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import DeleteLessonModal from '../ManageLessonModals/DeleteLessonModal';
+
+  const lessonActions = [
+    'editLessonDetails',
+    'copyLesson',
+    'deleteLesson',
+  ];
+
   export default {
     components: {
-
+      DeleteLessonModal,
+      dropdownMenu,
+    },
+    data() {
+      return {
+        currentAction: null,
+      }
     },
     computed: {
-
+      lessonOptions() {
+        return lessonActions.map(action => ({
+          label: this.$tr(action),
+          action,
+        }));
+      }
     },
     methods: {
-
+      handleSelectOption({ action }) {
+        this.currentAction = action;
+      }
     },
     vuex: {
       getters: {
@@ -51,13 +83,16 @@
     },
     $trs: {
       // TODO make labels more semantic
-      options: 'Options',
-      status: 'Status',
-      description: 'Description',
-      visibleTo: 'Visible to',
-      resources: 'Resources',
       active: 'Active',
+      copyLesson: 'Copy to',
+      deleteLesson: 'Delete',
+      description: 'Description',
+      editLessonDetails: 'Edit details',
       inactive: 'Inactive',
+      options: 'Options',
+      resources: 'Resources',
+      status: 'Status',
+      visibleTo: 'Visible to',
     }
   };
 
