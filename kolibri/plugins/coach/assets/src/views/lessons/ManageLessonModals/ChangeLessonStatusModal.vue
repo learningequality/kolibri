@@ -4,7 +4,7 @@
     :title="$tr('changeLessonStatusTitle')"
     @cancel="closeModal()"
   >
-    <form @submit="updateLessonStatus">
+    <form @submit.prevent="updateLessonStatus">
       <k-radio-button
         :label="$tr('activeOption')"
         :radiovalue="true"
@@ -73,8 +73,10 @@
           is_active: this.activeIsSelected,
         })
           ._promise
-          .then(lesson => this.updateCurrentLesson(lesson))
-          .then(() => this.closeModal())
+          .then(lesson => {
+            this.updateCurrentLesson(lesson);
+            this.closeModal();
+          })
           .catch(err => {
             // TODO handle error properly
             console.error(err)
