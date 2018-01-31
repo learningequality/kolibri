@@ -40,6 +40,11 @@
       v-if="currentAction==='editLessonDetails'"
       @cancel="currentAction=null"
     />
+
+    <copy-lesson-modal
+      v-if="currentAction==='copyLesson'"
+      @cancel="currentAction=null"
+    />
   </div>
 
 </template>
@@ -52,6 +57,7 @@
   import DeleteLessonModal from '../ManageLessonModals/DeleteLessonModal';
   import ChangeLessonStatusModal from '../ManageLessonModals/ChangeLessonStatusModal';
   import EditLessonDetailsModal from '../ManageLessonModals/EditLessonDetailsModal';
+  import CopyLessonModal from '../ManageLessonModals/CopyLessonModal';
 
   const lessonActions = [
     'editLessonDetails',
@@ -64,6 +70,7 @@
   export default {
     components: {
       ChangeLessonStatusModal,
+      CopyLessonModal,
       DeleteLessonModal,
       EditLessonDetailsModal,
       dropdownMenu,
