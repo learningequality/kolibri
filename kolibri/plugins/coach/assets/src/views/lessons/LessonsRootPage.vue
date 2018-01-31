@@ -15,40 +15,38 @@
     />
 
     <core-table>
-      <table>
-        <thead>
-          <tr>
-            <th class="icon-col"></th>
-            <th>{{ $tr('title') }}</th>
-            <th>{{ $tr('size') }}</th>
-            <th>{{ $tr('visibleTo') }}</th>
-            <th>{{ $tr('status') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="lesson in filteredLessons"
-            :key="lesson.id"
-          >
-            <td class="icon-col">
-              <content-icon
-                :kind="lessonKind"
-                class="lesson-icon"
-              />
-            </td>
-            <td class="main-col">
-              <router-link :to="generateLessonLink(lesson.id)">
-                {{ lesson.name }}
-              </router-link>
-            </td>
-            <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-            <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
-            <td>
-              <status-icon :active="lesson.is_active" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <thead slot="thead">
+        <tr>
+          <th class="icon-col"></th>
+          <th>{{ $tr('title') }}</th>
+          <th>{{ $tr('size') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th>{{ $tr('status') }}</th>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <tr
+          v-for="lesson in filteredLessons"
+          :key="lesson.id"
+        >
+          <td class="icon-col">
+            <content-icon
+              :kind="lessonKind"
+              class="lesson-icon"
+            />
+          </td>
+          <td class="main-col">
+            <router-link :to="generateLessonLink(lesson.id)">
+              {{ lesson.name }}
+            </router-link>
+          </td>
+          <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
+          <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
+          <td>
+            <status-icon :active="lesson.is_active" />
+          </td>
+        </tr>
+      </tbody>
     </core-table>
 
     <p v-if="!lessons.length">

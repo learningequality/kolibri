@@ -1,7 +1,10 @@
 <template>
 
   <div class="core-table">
-    <slot></slot>
+    <table>
+      <slot name="thead"></slot>
+      <slot name="tbody"></slot>
+    </table>
   </div>
 
 </template>
