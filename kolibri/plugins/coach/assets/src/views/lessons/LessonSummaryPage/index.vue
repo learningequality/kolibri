@@ -35,6 +35,11 @@
       v-if="currentAction==='changeLessonStatus'"
       @cancel="currentAction=null"
     />
+
+    <edit-lesson-details-modal
+      v-if="currentAction==='editLessonDetails'"
+      @cancel="currentAction=null"
+    />
   </div>
 
 </template>
@@ -46,6 +51,7 @@
   // TODO consolidate all modals into a single ManageLessonsModal
   import DeleteLessonModal from '../ManageLessonModals/DeleteLessonModal';
   import ChangeLessonStatusModal from '../ManageLessonModals/ChangeLessonStatusModal';
+  import EditLessonDetailsModal from '../ManageLessonModals/EditLessonDetailsModal';
 
   const lessonActions = [
     'editLessonDetails',
@@ -59,6 +65,7 @@
     components: {
       ChangeLessonStatusModal,
       DeleteLessonModal,
+      EditLessonDetailsModal,
       dropdownMenu,
     },
     data() {

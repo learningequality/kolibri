@@ -9,3 +9,8 @@ export const LessonsPageNames = {
   SELECTION_SEARCH: 'SELECTION_SEARCH',
   CONTENT_PREVIEW: 'CONTENT_PREVIEW',
 };
+
+export const CollectionTypes = {
+  LEARNERGROUP: 'learnergroup',
+  CLASSROOM: 'classroom',
+};

@@ -41,10 +41,12 @@ export function showLessonSummaryPage(store, classId, lessonId) {
 
   const loadRequirements = [
     LessonResource.getModel(lessonId).fetch(),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     setClassState(store, classId),
   ];
 
-  Promise.all(loadRequirements).then(([lesson]) => {
+  Promise.all(loadRequirements).then(([lesson, learnerGroups]) => {
+    store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
     store.dispatch('SET_CURRENT_LESSON', lesson);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
