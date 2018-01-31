@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>{{ $tr('allUsers') }}</h1>
-      <span> ( {{ $tr('usersLength', { usersLength: visibleUsers.length }) }} ) </span>
+      <span> ( {{ $formatNumber(visibleUsers.length) }} ) </span>
     </div>
 
     <div class="toolbar">
@@ -249,7 +249,6 @@
       },
     },
     $trs: {
-      usersLength: '{usersLength, number, integer}',
       filterUserType: 'User kind',
       searchText: 'Search for a user...',
       allUsers: 'All',

@@ -19,7 +19,7 @@
         type="text"
         :label="$tr('fullName')"
         :autofocus="true"
-        :maxlength="$tr('nameMaxLength', { nameMaxLength: 120 })"
+        :maxlength="$formatNumber(120)"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
@@ -30,7 +30,7 @@
         ref="username"
         type="text"
         :label="$tr('username')"
-        :maxlength="$tr('userMaxLength', { userMaxLength: 30 })"
+        :maxlength="$formatNumber(30)"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
@@ -79,8 +79,6 @@
   export default {
     name: 'editUserModal',
     $trs: {
-      nameMaxLength: '{nameMaxLength, number, integer}',
-      userMaxLength: '{userMaxLength, number, integer}',
       editUser: 'Edit user',
       fullName: 'Full name',
       username: 'Username',

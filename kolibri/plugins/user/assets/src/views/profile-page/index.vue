@@ -53,7 +53,7 @@
         :autofocus="false"
         :label="$tr('name')"
         :disabled="busy"
-        :maxlength="$tr('nameMaxLength', { nameMaxLength: 120 })"
+        :maxlength="$formatNumber(120)"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         v-model="name"
@@ -70,7 +70,7 @@
         autocomplete="username"
         :label="$tr('username')"
         :disabled="busy"
-        :maxlength="$tr('userMaxLength', { userMaxLength: 30 })"
+        :maxlength="$formatNumber(30)"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
@@ -122,8 +122,6 @@
   export default {
     name: 'profilePage',
     $trs: {
-      nameMaxLength: '{nameMaxLength, number, integer}',
-      userMaxLength: '{userMaxLength, number, integer}',
       genericError: 'Something went wrong',
       success: 'Profile details updated!',
       username: 'Username',
