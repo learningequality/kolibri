@@ -8,12 +8,12 @@
       <k-radio-button
         :label="$tr('activeOption')"
         :radiovalue="true"
-        v-model="lessonStatus"
+        v-model="activeIsSelected"
       />
       <k-radio-button
         :label="$tr('inactiveOption')"
         :radiovalue="false"
-        v-model="lessonStatus"
+        v-model="activeIsSelected"
       />
 
       <div class="core-modal-buttons">
@@ -49,16 +49,16 @@
     },
     data() {
       return {
-        lessonStatus: null,
+        activeIsSelected: null,
       };
     },
     computed: {
       statusHasChanged() {
-        return this.lessonStatus !== this.lessonIsActive;
+        return this.activeIsSelected !== this.currentLessonIsActive;
       },
     },
     created() {
-      this.lessonStatus = this.lessonIsActive;
+      this.activeIsSelected = this.currentLessonIsActive;
     },
     methods: {
       closeModal() {
@@ -70,7 +70,7 @@
           return this.closeModal();
         }
         return LessonResource.getModel(this.lessonId).save({
-          is_active: this.lessonStatus,
+          is_active: this.activeIsSelected,
         })
           ._promise
           .then(lesson => this.updateCurrentLesson(lesson))
@@ -84,7 +84,7 @@
     vuex: {
       getters: {
         lessonId: state => state.pageState.currentLesson.id,
-        lessonIsActive: state => state.pageState.currentLesson.is_active,
+        currentLessonIsActive: state => state.pageState.currentLesson.is_active,
       },
       actions: {
         updateCurrentLesson(store, lesson) {
