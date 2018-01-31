@@ -25,12 +25,11 @@ function _classState(classData) {
 function setClassState(store, classId = null) {
   const classCollection = ClassroomResource.getCollection();
   return classCollection.fetch().then(classes => {
-    store.dispatch(
-      'SET_CLASS_INFO',
-      classId,
-      classes.find(classroom => classroom.id === classId).name,
-      classes.map(_classState)
-    );
+    let className = null;
+    if (classId) {
+      className = classes.find(classroom => classroom.id === classId).name;
+    }
+    store.dispatch('SET_CLASS_INFO', classId, className, classes.map(_classState));
   });
 }
 
