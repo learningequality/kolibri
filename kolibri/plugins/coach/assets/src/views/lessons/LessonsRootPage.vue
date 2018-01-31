@@ -13,50 +13,46 @@
       :text="$tr('newLesson')"
       @click="showModal=true"
     />
-    <table class="lessons-list">
-      <thead>
-        <tr>
-          <th></th>
-          <th>{{ $tr('title') }}</th>
-          <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('visibleTo') }}</th>
-          <th>{{ $tr('status') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="lesson in filteredLessons" :key="lesson.id">
-          <td>
-            <content-icon :kind="lessonKind" />
-          </td>
-          <td>
-            <router-link :to="generateLessonLink(lesson.id)">
-              {{ lesson.name }}
-            </router-link>
-          </td>
-          <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-          <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
-          <td>
-            <status-icon :active="lesson.is_active" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrapper">
+      <table class="lessons-list">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{ $tr('title') }}</th>
+            <th>{{ $tr('size') }}</th>
+            <th>{{ $tr('visibleTo') }}</th>
+            <th>{{ $tr('status') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="lesson in filteredLessons" :key="lesson.id">
+            <td>
+              <content-icon :kind="lessonKind" />
+            </td>
+            <td>
+              <router-link :to="generateLessonLink(lesson.id)">
+                {{ lesson.name }}
+              </router-link>
+            </td>
+            <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
+            <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
+            <td>
+              <status-icon :active="lesson.is_active" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <p>
-      <template v-if="!lessons.length">
-        {{ $tr('noLessons') }}
-      </template>
-      <template
-        v-else-if="!filteredLessons.length && filterSelection.value === $tr('activeLessons')"
-      >
-        {{ $tr('noActiveLessons') }}
+    <p v-if="!lessons.length">
+      {{ $tr('noLessons') }}
+    </p>
+    <p v-else-if="!filteredLessons.length && filterSelection.value === $tr('activeLessons')">
+      {{ $tr('noActiveLessons') }}
 
-      </template>
-      <template
-        v-else-if="!filteredLessons.length && filterSelection.value === $tr('inactiveLessons')"
-      >
-        {{ $tr('noInactiveLessons') }}
-      </template>
+    </p>
+    <p v-else-if="!filteredLessons.length && filterSelection.value === $tr('inactiveLessons')">
+      {{ $tr('noInactiveLessons') }}
     </p>
 
     <create-lesson-modal
@@ -177,6 +173,10 @@
 
   @require '~kolibri.styles.definitions'
 
+
+  .table-wrapper
+    overflow-x: auto
+
   table
     font-size: 14px
     thead
@@ -189,19 +189,23 @@
         font-weight: bold
         font-size: 10px
 
+    tbody
+      tr
+        border-bottom-width: 1px
+        border-bottom-style: solid
+        border-bottom-color: $core-grey
+
     th, td
       padding-top: 12px
       padding-right: 24px
       padding-bottom: 12px
       padding-left: 0
 
+    th:not(:first-child),
+    td:not(:first-child)
+      min-width: 150px
+
     a
       font-weight: bold
-
-    tbody
-      tr
-        border-bottom-width: 1px
-        border-bottom-style: solid
-        border-bottom-color: $core-grey
 
 </style>
