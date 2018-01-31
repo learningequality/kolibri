@@ -36,9 +36,10 @@
             />
           </td>
           <td class="main-col">
-            <router-link :to="generateLessonLink(lesson.id)">
-              {{ lesson.name }}
-            </router-link>
+            <k-router-link
+              :to="generateLessonLink(lesson.id)"
+              :text="lesson.name"
+            />
           </td>
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
           <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
@@ -75,6 +76,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
   import StatusIcon from './StatusIcon';
@@ -87,6 +90,7 @@
       kSelect,
       CreateLessonModal,
       contentIcon,
+      kRouterLink,
       StatusIcon,
       CoreTable,
     },
