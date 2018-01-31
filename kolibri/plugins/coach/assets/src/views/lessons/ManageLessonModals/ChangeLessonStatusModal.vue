@@ -4,16 +4,15 @@
     :title="$tr('changeLessonStatusTitle')"
     @cancel="closeModal()"
   >
-
     <form @submit="updateLessonStatus">
       <k-radio-button
         :label="$tr('activeOption')"
-        radiovalue="active"
+        :radiovalue="true"
         v-model="lessonStatus"
       />
       <k-radio-button
         :label="$tr('inactiveOption')"
-        radiovalue="inactive"
+        :radiovalue="false"
         v-model="lessonStatus"
       />
 
@@ -46,19 +45,28 @@
     },
     data() {
       return {
-        lessonStatus: '',
+        lessonStatus: null,
       };
     },
+    computed: {
+      statusHasChanged() {
+        return this.lessonStatus !== this.lessonIsActive;
+      },
+    },
     created() {
-      this.lessonStatus = this.lessonIsActive.is_active ? 'active' : 'inactive';
+      this.lessonStatus = this.lessonIsActive;
     },
     methods: {
       closeModal() {
-        this.$emit('cancel');
+        return this.$emit('cancel');
       },
       updateLessonStatus() {
+        // If status has not changed, do nothing
+        if (!this.statusHasChanged) {
+          return this.closeModal();
+        }
         return LessonResource.getModel(this.lessonId).save({
-          is_active: this.lessonStatus === 'active',
+          is_active: this.lessonStatus,
         })
           ._promise
           .then(lesson => this.updateCurrentLesson(lesson))
