@@ -144,6 +144,11 @@ Copy the entries from the changelog into Github's "Release notes".
     chronology will break. Do not add tags in feature branches or in the master
     branch. You can add tags for pre-releases in ``develop``, for releases that don't yet have a release branch.
 
+.. warning:: Tagging is known to break after rebasing, so in case you rebase
+    a branch after tagging it, delete the tag and add it again. Basically,
+    ``git describe --tags`` detects the closest tag, but after a rebase, its
+    concept of distance is misguided.
+
 
 Release to PyPI
 ~~~~~~~~~~~~~~~
@@ -165,6 +170,8 @@ Post-release TODO
 Most of these TODOs are targeted towards more public distribution of Kolibri, and as such have not been widely implemented in the past. Once Kolibri is publicly released, these will be increasingly important to support our community.
 
 * Release on PyPI
+* Merge the release branch to current master if it's the newest stable release.
+* Change ``kolibri.VERSION`` to track the next development stage. Example: After releasing ``1.0.0``, change ``kolibri.VERSION`` to ``(1, 0, 1, 'alpha', 0)`` and commit to the ``release-v1.0.x`` branch.
 * Update any redirects on learningequality.org for the latest release.
 * Announce release on dev list and newsletter if appropriate.
 * Close, if fixed, or change milestone of any issues on this release milestone.
