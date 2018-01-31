@@ -27,7 +27,7 @@
         <tbody>
           <tr v-for="lesson in filteredLessons" :key="lesson.id">
             <td>
-              <content-icon :kind="lessonKind" />
+              <content-icon :kind="lessonKind" class="lesson-icon" />
             </td>
             <td>
               <router-link :to="generateLessonLink(lesson.id)">
@@ -173,12 +173,19 @@
 
   @require '~kolibri.styles.definitions'
 
+  .lesson-icon
+    font-size: 24px
+    display: inline-block
+    height: 24px
+    >>>.ui-icon
+      vertical-align: inherit
 
   .table-wrapper
     overflow-x: auto
 
   table
     font-size: 14px
+    width: 100%
     thead
       border-bottom-width: 1px
       border-bottom-style: solid
@@ -186,8 +193,7 @@
       tr
         color: $core-text-annotation
         text-align: left
-        font-weight: bold
-        font-size: 10px
+        font-size: 12px
 
     tbody
       tr
@@ -197,13 +203,13 @@
 
     th, td
       padding-top: 12px
-      padding-right: 24px
+      padding-right: 16px
       padding-bottom: 12px
       padding-left: 0
 
     th:not(:first-child),
     td:not(:first-child)
-      min-width: 150px
+      min-width: 120px
 
     a
       font-weight: bold

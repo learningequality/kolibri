@@ -10,7 +10,7 @@
     <mat-svg
       v-else
       category="image"
-      name="panorama_fish_eye"
+      name="lens"
       class="status-icon-inactive"
     />
     <template v-if="active">
