@@ -40,18 +40,18 @@
         return this.$emit('cancel')
       },
       goToLessonsRootPage() {
-        this.$router.replace({
+        return this.$router.replace({
           name: LessonsPageNames.ROOT,
           params: {
             classId: this.classId,
             lessonId: this.lessonId,
           },
-        })
+        });
       },
       handleDeleteLesson() {
         return LessonResource.getModel(this.lessonId).delete()
           ._promise
-          .then(() => this.updateLessons())
+          .then(() => this.updateLessons(this.classId))
           .then(() => this.goToLessonsRootPage())
           .catch((error) => {
             // TODO handle error inside the current apge
