@@ -31,3 +31,4 @@ Please feel free to add your name on this list if you do a PR!
 * Lingyi Wang (lyw07)
 * Richard Amodia (mrpau-richard)
 * Eugene Oliveros (mrpau-eugene)
+* Geoff Rich (geoffrey1218)
