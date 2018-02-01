@@ -10,6 +10,7 @@ import * as reportsActions from './state/actions/reports';
 import { initialState, mutations } from './state/store';
 import { PageNames } from './constants';
 import { LessonsPageNames } from './lessonsConstants';
+import router from 'kolibri.coreVue.router';
 
 import {
   showLessonRootPage,
@@ -23,6 +24,17 @@ import {
   showLessonContentPreview,
 } from './state/actions/lessons';
 
+// Redirect to the Lessons List of a different classroom if
+// classroom switcher is used in e.g. a Lesson Summary page
+function redirectToLessonsList(classId) {
+  router.push({
+    name: LessonsPageNames.ROOT,
+    params: {
+      classId,
+    },
+  });
+}
+
 const lessonRoutes = [
   {
     name: LessonsPageNames.ROOT,
@@ -34,8 +46,11 @@ const lessonRoutes = [
   {
     name: LessonsPageNames.SUMMARY,
     path: '/:classId/lessons/:lessonId',
-    handler: toRoute => {
-      showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
+    handler: (toRoute, fromRoute) => {
+      if (toRoute.params.classId !== fromRoute.params.classId) {
+        return redirectToLessonsList(toRoute.params.classId);
+      }
+      return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
