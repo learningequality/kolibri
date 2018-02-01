@@ -34,4 +34,4 @@ To upgrade Kolibri, follow these steps.
 
 #. Download the new version of `Kolibri PEX installer <https://learningequality.org/r/kolibri-pex-latest>`_.
 #. Start Kolibri as during the first install.
-#. Go explore the new and improved Kolibri features!
+#. Go explore the new and improved Kolibri features! 695464026

@@ -113,7 +113,7 @@ Content types
 Exercises
 """""""""
 
-Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a checkmark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solve the problem.
+Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a check mark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solve the problem.
 
 Independent of the required action (writing an answer yourself or choosing one of the options), these are the steps to follow.
 
@@ -121,7 +121,7 @@ Independent of the required action (writing an answer yourself or choosing one o
 #. Write the answer or choose one of the provided options.
 #. When you are ready to submit, click the **Check answer** button.
 
-   * If the answer is correct and a checkmark appears, click the **Next question** button to proceed.
+   * If the answer is correct and a check mark appears, click the **Next question** button to proceed.
    * If the answer is incorrect, click the **Get a hint** button, read the suggestions, and try to answer again.
    * The progress bar below the exercise is taking into account only the most recent answers you give, and that means that you need to have the required number of correct answers (*check marks*) **in the row** for the exercise to be considered completed.
 
@@ -210,4 +210,3 @@ If your teacher/coach scheduled an exam for you or your class, it will be availa
 
 .. figure:: img/exam-result.png
 	:alt: exams tab
-
