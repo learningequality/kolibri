@@ -33,7 +33,7 @@
           <td class="icon-col">
             <content-icon
               :kind="row.kind"
-              class="icon"
+              class="core-table-content-icon"
             />
           </td>
           <name-cell
@@ -66,7 +66,6 @@
   import * as mainGetters from '../../state/getters/main';
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -77,7 +76,6 @@
     components: {
       CoreTable,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       activityCell,
@@ -148,14 +146,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  // Copied from LessonRootPage
-  .icon
-    font-size: 24px
-    display: inline-block
-    height: 24px
-    >>>.ui-icon
-      vertical-align: inherit
-
-</style>
+<style lang="stylus" scoped></style>

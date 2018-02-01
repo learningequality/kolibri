@@ -61,6 +61,13 @@
     .main-col
       font-weight: bold
 
+    .core-table-content-icon
+      font-size: 24px
+      display: inline-block
+      height: 24px
+      >>>.ui-icon
+        vertical-align: inherit
+
     th:not(.icon-col),
     td:not(.icon-col)
       min-width: 120px

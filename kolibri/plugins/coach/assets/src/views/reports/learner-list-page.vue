@@ -14,9 +14,10 @@
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
-    <report-table v-if="standardDataTable.length">
+    <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
+          <th class="icon-col"></th>
           <header-cell
             :align="alignStart"
             :text="$tr('name')"
@@ -46,6 +47,12 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="icon-col">
+            <content-icon
+              :kind="row.kind"
+              class="core-table-content-icon"
+            />
+          </td>
           <name-cell
             :kind="row.kind"
             :title="row.title"
@@ -60,7 +67,7 @@
           <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -69,13 +76,13 @@
 
 <script>
 
+  import CoreTable from '../lessons/CoreTable';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as CoachConstants from '../../constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as ReportConstants from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -86,9 +93,9 @@
   export default {
     name: 'learnerReportPage',
     components: {
+      CoreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       progressCell,
