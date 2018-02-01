@@ -2,17 +2,21 @@
 
   <div>
     <template v-if="showRecentOnly">
-      <h1>{{ $tr('recentTitle') }}</h1>  
+      <h1>{{ $tr('recentTitle') }}</h1>
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
       <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
-    </template> 
+    </template>
     <template v-else>
       <h1>{{ $tr('topicsTitle') }}</h1>
       <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
     </template>
-    <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
+    <core-table
+      v-if="standardDataTable.length"
+      :caption="$tr('channelList')"
+    >
       <thead slot="thead">
         <tr>
+          <th class="icon-col"></th>
           <header-cell
             :text="$tr('channels')"
             :align="alignStart"
@@ -30,6 +34,12 @@
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
+            <td class="icon-col">
+              <content-icon
+                :kind="CHANNEL"
+                class="core-table-content-icon"
+              />
+            </td>
             <name-cell
               :kind="CHANNEL"
               :title="channel.title"
@@ -43,7 +53,7 @@
           </tr>
         </template>
       </tbody>
-    </report-table>
+    </core-table>
   </div>
 
 </template>
@@ -51,6 +61,8 @@
 
 <script>
 
+  import CoreTable from '../lessons/CoreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
@@ -64,6 +76,8 @@
   export default {
     name: 'coachRecentPageChannelList',
     components: {
+      contentIcon,
+      CoreTable,
       reportTable,
       headerCell,
       nameCell,
