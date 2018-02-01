@@ -49,7 +49,7 @@
         border-bottom-style: solid
         border-bottom-color: $core-grey
 
-    th, td
+    >>>th, >>>td
       padding-top: 12px
       padding-right: 16px
       padding-bottom: 12px
