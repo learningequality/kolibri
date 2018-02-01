@@ -2,6 +2,7 @@
 
   <div class="core-table">
     <table>
+      <slot></slot>
       <slot name="thead"></slot>
       <slot name="tbody"></slot>
     </table>
@@ -44,6 +45,8 @@
         font-size: 12px
 
     tbody
+      tr
+        text-align: left
       tr:not(:last-child)
         border-bottom-width: 1px
         border-bottom-style: solid
