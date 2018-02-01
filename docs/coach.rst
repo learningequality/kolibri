@@ -1,6 +1,6 @@
 .. _coach:
 
-Coach Your Learners in Kolibri
+Coach your Learners in Kolibri
 ##############################
  
 You can track progress of the **Learner** users, create and assign **Exams** to classes or learner groups from the **Coach** dashboard. The default view of the **Coach** dashboard presents the list of **Classes** with number of learners enrolled to each class.
@@ -51,7 +51,7 @@ When learner answers exercise questions in Kolibri, the progress bar below the e
 	    The correct answers in the image above are not in a row; this exercise will be completed only after learner gives 5 correct answers one after another.
 
 	.. figure:: img/topic-view-detail.png
-	    :alt: View average progress for a single exercise or resouce in a topic.
+	    :alt: View average progress for a single exercise or resource in a topic.
 
 In the example above, the progress bar for this exercise will appear as 40%, because the student has given 2 correct answers within the most recent set of 5 attempts. If this student had earlier made, for example, 20 incorrect attempts before the 4 displayed attempts, those 20 incorrect attempts don't get factored into the progress bar.
 

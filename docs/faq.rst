@@ -11,7 +11,7 @@ It is FREE – both free as in “free speech” and free as in “free beer”!
 Do I need the internet to run Kolibri?
 --------------------------------------
 
-Short answer - no. You can bring or send a storage device (USB or HDD unit) with Kolibri installer and content channels downloaded somewhere with available internet connection, and install everything on an completely offline device.
+Short answer: **No!** You can bring or send a storage device (USB or HDD unit) with Kolibri installer and content channels downloaded somewhere with available internet connection, and install everything on an completely offline device.
 
 In a nutshell, Kolibri can run independently of internet availability, but you need to procure the installer and content channels from somewhere for the initial installation and for subsequent upgrades. 
 
@@ -52,7 +52,7 @@ What are the typical deployment scenarios?
 
 There is no typical deployment scenario. However, we can share with you what we’ve learned from our community of KA Lite and Kolibri users. A typical school deployment varies depending on whether or not a school already has a computer lab.
 
-* School with an existing computer lab: In this case, Kolibri would be deployed as a server on one of the existing computers. Students would connect using client devices over the local intranet.
+* School with an existing computer lab: In this case, Kolibri would be deployed as a server on one of the existing computers. Students would connect using client devices over the local network.
 * School with no existing computer lab: For schools that do not have an existing computer lab, a Kolibri deployment would involve obtaining a device that can run as a Kolibri server (most computers) and other devices to be used as clients. One common configuration is using a Raspberry Pi or other inexpensive computer as a server and relatively cheap tablets as client devices.
 
 
@@ -93,19 +93,19 @@ Refer to the :ref:`Troubleshoot and Support <support>` section of this guide.
 Who maintains the Kolibri project?
 ----------------------------------
 
-Kolibri is created, maintained, and operated by **Learning Equality, Inc**, a California-based nonprofit organization.
+Kolibri is created, maintained, and operated by `Learning Equality, Inc <http://learningequality.org/about/>`_, a California-based nonprofit organization.
 
 
 How do you operate in the field?
 --------------------------------
 
-The Learning Equality team primarily works in our San Diego offices, building software and shaping our roadmap based on our interactions with our partners around the world. We work with individual humanitarians and NGOs of all sizes to help them distribute Kolibri to offline communities around the world, and will work on site for research and training purposes.
+The Learning Equality team primarily works in our San Diego offices, building software and shaping our road map based on our interactions with our partners around the world. We work with individual humanitarians and NGOs of all sizes to help them distribute Kolibri to offline communities around the world, and will work on site for research and training purposes.
 
 
 What is Kolibri’s affiliation with Khan Academy?
 ------------------------------------------------
 
-Kolibri is an independent, open-source project maintained by Learning Equality, and is not officially affiliated with Khan Academy, although they are very supportive of the Kolibri project, and are one of our key partners.
+Kolibri is an independent, open-source project maintained by `Learning Equality <http://learningequality.org/about/>`_, and is not officially affiliated with Khan Academy, although they are very supportive of the Kolibri project, and are one of our key partners.
 
 
 Can I contribute to Kolibri as a developer?
