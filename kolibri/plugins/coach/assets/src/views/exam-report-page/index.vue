@@ -11,55 +11,60 @@
       </h1>
     </div>
 
-    <div class="table-wrapper" v-if="!noExamData">
-      <table class="roster">
-        <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
-        <thead class="table-header">
-          <tr>
-            <th scope="col" class="table-text">{{ $tr('name') }}</th>
-            <th scope="col" class="table-data">{{ $tr('status') }}</th>
-            <th scope="col" class="table-data">{{ $tr('score') }}</th>
-            <th scope="col" class="table-data">{{ $tr('group') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
-            <th scope="row" class="table-text">
-              <k-router-link
-                v-if="examTaker.progress !== undefined"
-                :text="examTaker.name"
-                :to="examDetailPageLink(examTaker.id)"
-                class="table-name"
-              />
-              <span v-else class="table-name">
-                {{ examTaker.name }}
-              </span>
-            </th>
+    <core-table v-if="!noExamData">
+      <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
+      <thead slot="thead">
+        <tr>
+          <th class="icon-col"></th>
+          <th>{{ $tr('name') }}</th>
+          <th>{{ $tr('status') }}</th>
+          <th>{{ $tr('score') }}</th>
+          <th>{{ $tr('group') }}</th>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
+          <td class="icon-col">
+            <content-icon
+              :kind="USER"
+              class="core-table-content-icon"
+            />
+          </td>
+          <td class="main-col">
+            <k-router-link
+              v-if="examTaker.progress !== undefined"
+              :text="examTaker.name"
+              :to="examDetailPageLink(examTaker.id)"
+              class="table-name"
+            />
+            <span v-else class="table-name">
+              {{ examTaker.name }}
+            </span>
+          </td>
 
-            <td class="table-data">
-              <span v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
-                {{ $tr('completed') }}
-              </span>
-              <span v-else-if="examTaker.progress !== undefined">
-                {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
-              </span>
-              <span v-else>
-                {{ $tr('notstarted') }}
-              </span>
-            </td>
+          <td>
+            <span v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
+              {{ $tr('completed') }}
+            </span>
+            <span v-else-if="examTaker.progress !== undefined">
+              {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
+            </span>
+            <span v-else>
+              {{ $tr('notstarted') }}
+            </span>
+          </td>
 
-            <td class="table-data">
-              <span v-if="examTaker.score === undefined">–</span>
-              <span v-else>
-                {{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}
-              </span>
-            </td>
+          <td>
+            <span v-if="examTaker.score === undefined">–</span>
+            <span v-else>
+              {{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}
+            </span>
+          </td>
 
-            <td class="table-data">{{ examTaker.group.name || '–' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          <td>{{ examTaker.group.name || '–' }}</td>
+        </tr>
+      </tbody>
+    </core-table>
 
     <p v-else>{{ $tr('noExamData') }}</p>
 
@@ -70,16 +75,26 @@
 
 <script>
 
+  import CoreTable from '../lessons/CoreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import { USER } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'examReportPage',
-    components: { kRouterLink },
+    components: {
+      contentIcon,
+      CoreTable,
+      kRouterLink,
+    },
     computed: {
       noExamData() {
         return this.examTakers.length === 0;
+      },
+      USER() {
+        return USER;
       },
       averageScore() {
         const totalScores = sumBy(this.examsInProgress, 'score');
@@ -135,29 +150,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .roster
-    width: 100%
-    border-spacing: 8px
-    border-collapse: collapse
-
-  .table-wrapper
-    overflow-x: auto
-
-  thead th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
-
-  .table-row
-    height: 40px
-    border-bottom: 2px solid $core-text-disabled
-
-  .table-text
-    text-align: left
-
-  .table-data
-    text-align: center
 
   .header
     position: relative
