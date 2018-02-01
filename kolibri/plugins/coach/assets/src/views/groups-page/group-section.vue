@@ -1,6 +1,6 @@
 <template>
 
-  <div class="group-section"> 
+  <div class="group-section">
 
     <div class="pure-g">
       <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
@@ -39,8 +39,8 @@
       </div>
     </div>
 
-    <table v-if="group.users.length">
-      <thead>
+    <core-table v-if="group.users.length">
+      <thead slot="thead">
         <tr>
           <th class="col-checkbox">
             <k-checkbox
@@ -55,7 +55,7 @@
           <th class="col-username">{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody">
         <tr
           v-for="user in group.users"
           :key="user.id"
@@ -71,11 +71,11 @@
               @click.native.stop
             />
           </td>
-          <td class="col-name"><strong>{{ user.full_name }}</strong></td>
+          <td class="col-name main-col">{{ user.full_name }}</td>
           <td class="col-username">{{ user.username }}</td>
         </tr>
       </tbody>
-    </table>
+    </core-table>
     <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
@@ -84,6 +84,7 @@
 
 <script>
 
+  import CoreTable from '../lessons/CoreTable';
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -107,6 +108,7 @@
       selectLearner: 'Select learner',
     },
     components: {
+      CoreTable,
       kButton,
       kCheckbox,
       uiButton,
