@@ -17,7 +17,7 @@
           class="user-field"
           :label="$tr('name')"
           :autofocus="true"
-          :maxlength="$formatNumber(120)"
+          :maxlength="120"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
           @blur="nameBlurred = true"
@@ -28,7 +28,7 @@
           type="text"
           class="user-field"
           :label="$tr('username')"
-          :maxlength="$formatNumber(30)"
+          :maxlength="30"
           :invalid="usernameIsInvalid"
           :invalidText="usernameIsInvalidText"
           @blur="usernameBlurred = true"
@@ -97,6 +97,8 @@
   export default {
     name: 'userCreateModal',
     $trs: {
+      nameMaxLength: '{nameMaxLength, number, integer}',
+      userMaxLength: '{userMaxLength, number, integer}',
       addNewAccountTitle: 'Add new account',
       cancel: 'Cancel',
       name: 'Full name',
