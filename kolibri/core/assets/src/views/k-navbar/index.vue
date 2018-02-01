@@ -44,8 +44,8 @@
   import throttle from 'lodash/throttle';
 
   /**
-    * Used for navigation between sub-pages of a top-level Kolibri section
-    */
+   * Used for navigation between sub-pages of a top-level Kolibri section
+   */
   export default {
     name: 'kNavbar',
     mixins: [responsiveElement],

@@ -62,8 +62,8 @@
 <script>
 
   /**
-    * Used for toggling boolean user input
-    */
+   * Used for toggling boolean user input
+   */
   export default {
     name: 'kCheckbox',
     props: {
@@ -140,8 +140,8 @@
       markInactive() {
         this.isActive = false;
         /**
-          * Emits blur event, useful for validation
-          */
+         * Emits blur event, useful for validation
+         */
         this.$emit('blur');
       },
     },
