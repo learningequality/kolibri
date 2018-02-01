@@ -161,6 +161,16 @@ class TestKolibriVersion(unittest.TestCase):
         """
         assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev+git123"
 
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
+    def test_version_file_final(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION specifying a final version will work when the
+        kolibri.VERSION tuple is consistent.
+        """
+        assert get_version((0, 1, 0, "final", 0)) == "0.1.0"
+
     def test_alpha_1_inconsistent_git(self):
         """
         Test that we fail when git returns inconsistent data
