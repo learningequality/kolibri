@@ -97,8 +97,6 @@
   export default {
     name: 'userCreateModal',
     $trs: {
-      nameMaxLength: '{nameMaxLength, number, integer}',
-      userMaxLength: '{userMaxLength, number, integer}',
       addNewAccountTitle: 'Add new account',
       cancel: 'Cancel',
       name: 'Full name',

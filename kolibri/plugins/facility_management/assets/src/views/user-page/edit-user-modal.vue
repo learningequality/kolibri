@@ -19,7 +19,7 @@
         type="text"
         :label="$tr('fullName')"
         :autofocus="true"
-        :maxlength="30"
+        :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
