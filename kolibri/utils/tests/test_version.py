@@ -274,3 +274,51 @@ class TestKolibriVersion(unittest.TestCase):
         v = get_version((0, 1, 1, "final", 1))
         self.assertEqual(v, "0.1.1.post1")
         assert describe_mock.call_count == 0
+
+    def test_version_compat(self):
+        """
+        Test that our version glue works for some really old releases of
+        setuptools, like the one in Ubuntu 14.04.
+
+        We don't have a reference implementation, but parse_version will return
+        a tuple, and this is from a live system::
+
+            test@test-VirtualBox:~$ python
+            Python 2.7.6 (default, Jun 22 2015, 17:58:13)
+            [GCC 4.8.2] on linux2
+            Type "help", "copyright", "credits" or "license" for more information.
+            >>> from pkg_resources import parse_version
+            >>> parse_version("1.2.3")
+            ('00000001', '00000002', '00000003', '*final')
+            >>> parse_version("1.2.3.dev0")
+            ('00000001', '00000002', '00000003', '*@', '*final')
+            >>> parse_version("1.2.3a1")
+            ('00000001', '00000002', '00000003', '*a', '00000001', '*final')
+            >>> parse_version("1.2.3a0")
+            ('00000001', '00000002', '00000003', '*a', '*final')
+            >>> parse_version("1.2.3b1")
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*final')
+            >>> parse_version("1.2.3b1+git-123")
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+
+        """
+        from kolibri.utils.compat import VersionCompat
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*@', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*a', '00000001', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+        ).base_version == "1.2.3"

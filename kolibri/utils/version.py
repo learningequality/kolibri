@@ -110,8 +110,7 @@ import pkgutil
 import re
 import subprocess
 
-from pkg_resources import parse_version
-
+from .compat import parse_version
 from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
