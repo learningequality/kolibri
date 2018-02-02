@@ -2,7 +2,13 @@
 
   <div>
     <div class="lesson-summary-header">
-      <h1 class="lesson-summary-header-title"> {{ lessonTitle }} </h1>
+      <div class="lesson-summary-header-title-block">
+        <content-icon
+          kind="lesson"
+          class="title-lesson-icon"
+        />
+        <h1 class="lesson-summary-header-title"> {{ lessonTitle }} </h1>
+      </div>
       <div class="lesson-summary-header-options">
         <dropdown-menu
           :name="$tr('options')"
@@ -19,6 +25,12 @@
         </dt>
         <dd>
           <status-icon :active="lessonActive" />
+          <k-button
+            appearance="basic-link"
+            class="change-status-button"
+            :text="$tr('changeLessonStatus')"
+            @click="currentAction = LessonActions.CHANGE_STATUS"
+          />
         </dd>
         <dt>
           <!-- TODO wrapp strings -->
@@ -59,24 +71,21 @@
 <script>
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
   import { LessonActions } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
 
-  const actionsToLabelMap = {
-    [LessonActions.COPY]: 'copyLesson',
-    [LessonActions.DELETE]: 'deleteLesson',
-    [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
-    // TODO remove from dropdown
-    [LessonActions.CHANGE_STATUS]: 'changeLessonStatus',
-  };
 
   export default {
     components: {
       dropdownMenu,
       ManageLessonModals,
       StatusIcon,
+      contentIcon,
+      kButton,
     },
     data() {
       return {
@@ -85,11 +94,21 @@
     },
     computed: {
       lessonOptions() {
-        return map(actionsToLabelMap, (label, action) => ({
+        return map(this.actionsToLabelMap, (label, action) => ({
           label: this.$tr(label),
           action,
         }))
-      }
+      },
+      actionsToLabelMap() {
+        return {
+          [LessonActions.COPY]: 'copyLesson',
+          [LessonActions.DELETE]: 'deleteLesson',
+          [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
+        };
+      },
+      LessonActions() {
+        return LessonActions;
+      },
     },
     methods: {
       handleSelectOption({ action }) {
@@ -133,9 +152,14 @@
   // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
   display: table
   width: 100%
+
   &-title
-    display: table-cell
-    text-align: left
+    display: inline-block
+
+    &-block
+      display: table-cell
+      text-align: left
+
   &-options
     display: table-cell
     text-align: right
@@ -159,5 +183,16 @@ dd
     &:not(:last-child)::after
       // is this kosher?
       content: ','
+
+.title-lesson-icon
+  display: inline-block
+  font-size: 1.8em
+  margin-right: 0.5em
+  >>>.ui-icon
+    vertical-align: bottom
+
+.change-status-button
+  vertical-align: sub // hack for now?
+  margin-left: 0.5em
 
 </style>
