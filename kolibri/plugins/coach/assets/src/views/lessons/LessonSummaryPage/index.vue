@@ -70,8 +70,16 @@
         </dd>
       </dl>
 
-      <!-- Maybe use the dt above?? -->
-      <h2>{{ $tr('resources') }}</h2>
+      <div class="resource-list">
+        <div class="resource-list-header">
+          <div class="resource-list-header-title-block">
+            <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
+          </div>
+          <div class="resource-list-header-add-resource-button">
+            <k-button :text="$tr('addResourcesButtonPrompt')" :primary="true" />
+          </div>
+        </div>
+      </div>
       <table></table>
 
       <manage-lesson-modals
@@ -172,6 +180,7 @@
       status: 'Status',
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
       visibleTo: 'Visible to',
+      addResourcesButtonPrompt: 'Add Resources',
     }
   };
 
@@ -186,6 +195,7 @@
 
   .lesson-summary-header
     // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
+    // TODO make this a shared class or mixin
     display: table
     width: 100%
 
@@ -236,7 +246,26 @@
       vertical-align: bottom
 
   .change-status-button
-    vertical-align: sub // hack for now?
+    vertical-align: sub // hack for now
     margin-left: 0.5em
+
+
+  .resource-list-header
+    // TODO use shared class or mixin
+    // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
+    display: table
+    width: 100%
+
+    &-title
+      display: inline-block
+      font-size: 1em
+
+      &-block
+        display: table-cell
+        text-align: left
+
+    &-add-resource-button
+      display: table-cell
+      text-align: right
 
 </style>
