@@ -46,22 +46,27 @@
             @click="currentAction=LessonActions.CHANGE_STATUS"
           />
         </dd>
+
+        <dt>
+          {{ $tr('description') }}
+        </dt>
+        <dd>
+          {{ lessonDescription || $tr('noDescription') }}
+        </dd>
+
         <dt>
           {{ $tr('visibleTo') }}
         </dt>
         <dd>
           <ul class="group-list">
-            <li class="group-list-item" v-for="group in lessonGroups" :key="group.id">
-              <!-- TODO gonna have to call contentnode api for title -->
-              {{ group.id }}
+            <li
+              class="group-list-item"
+              v-for="assignment in lessonAssignments"
+              :key="assignment.id"
+            >
+              <span>{{ groupName(assignment) }}</span>
             </li>
           </ul>
-        </dd>
-        <dt>
-          {{ $tr('description') }}
-        </dt>
-        <dd>
-          {{ lessonDescription }}
         </dd>
       </dl>
 
@@ -86,7 +91,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
-  import { LessonActions } from '../../../lessonsConstants';
+  import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
@@ -128,15 +133,23 @@
     methods: {
       handleSelectOption({ action }) {
         this.currentAction = action;
-      }
+      },
+      groupName(group) {
+        if (group.collection_kind === CollectionTypes.CLASSROOM) {
+          return this.$tr('entireClass');
+        }
+        const match = this.learnerGroups.find((lg) => lg.id === group.collection);
+        return match.name;
+      },
     },
     vuex: {
       getters: {
         lessonTitle: state => state.pageState.currentLesson.name,
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
-        lessonGroups: state => state.pageState.currentLesson.assigned_groups,
+        lessonAssignments: state => state.pageState.currentLesson.assigned_groups,
         lessonResources: state => state.pageState.currentLesson.resources,
+        learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
 
@@ -150,14 +163,15 @@
       deleteLesson: 'Delete',
       description: 'Description',
       editLessonDetails: 'Edit details',
+      entireClass: 'Entire class',
       inactive: 'Inactive',
-      options: 'Options',
       lessonStatusDescription: 'Lesson status description',
+      noDescription: 'No description',
+      options: 'Options',
       resources: 'Resources',
       status: 'Status',
-      visibleTo: 'Visible to',
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
-
+      visibleTo: 'Visible to',
     }
   };
 
@@ -209,9 +223,9 @@
     &-item
       margin: 0
       list-style: none
+      display: inline
       &:not(:last-child)::after
-        // is this kosher?
-        content: ','
+        content: ', '
 
   .title-lesson-icon
     display: inline-block
