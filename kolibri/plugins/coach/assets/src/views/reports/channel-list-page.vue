@@ -1,11 +1,15 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" class="header">
-      <h1>{{ $tr('recentTitle') }}</h1>
-      <report-subheading />
-    </div>
-
+    <template v-if="showRecentOnly">
+      <h1>{{ $tr('recentTitle') }}</h1>  
+      <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
+      <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
+    </template> 
+    <template v-else>
+      <h1>{{ $tr('topicsTitle') }}</h1>
+      <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
+    </template>
     <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
@@ -13,12 +17,14 @@
             :text="$tr('channels')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME" />
+            :column="tableColumns.NAME"
+          />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE" />
+            :column="tableColumns.DATE"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -51,7 +57,6 @@
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -60,17 +65,20 @@
     name: 'coachRecentPageChannelList',
     components: {
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       activityCell,
     },
     mixins: [alignMixin],
     $trs: {
-      recentTitle: 'Recent Activity',
+      recentTitle: 'Recent activity',
+      topicsTitle: 'Content',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
+      showingRecent: 'Showing activity in past {threshold} days',
+      noRecent: 'There has been no activity in the past {threshold} days',
+      noChannels: 'You do not have any content yet',
     },
     computed: {
       CHANNEL() {
@@ -78,6 +86,9 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      threshold() {
+        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {

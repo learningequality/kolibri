@@ -9,7 +9,10 @@
       >
         <div
           class="side-nav-header"
-          :style="{ height: headerHeight + 'px', width: `${width}px`, paddingTop: mobile ? '4px' : '8px' }"
+          :style="{
+            height: headerHeight + 'px',
+            width: `${width}px`, paddingTop: mobile ? '4px' : '8px'
+          }"
         >
           <ui-icon-button
             ref="toggleButton"
@@ -20,7 +23,7 @@
             icon="close"
             @click="toggleNav"
           />
-          <span class="side-nav-header-name">Kolibri</span>
+          <span class="side-nav-header-name">{{ $tr('Kolibri') }}</span>
         </div>
 
         <div
@@ -87,6 +90,7 @@
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
+      Kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
       facility: 'Facility',
@@ -156,7 +160,7 @@
             label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
             icon: 'settings_input_antenna',
-            href: '/management/facility',
+            href: '/facility',
           });
         }
         if (this.canManageContent || this.isSuperuser) {
@@ -164,7 +168,7 @@
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
             icon: 'tablet_mac',
-            href: '/management/device',
+            href: '/device',
           });
         }
         options.push({ type: 'divider' });
@@ -178,12 +182,18 @@
           options.push({
             label: this.$tr('signOut'),
             icon: 'exit_to_app',
+            iconProps: {
+              mirror: this.isRtl,
+            },
             action: this.signOut,
           });
         } else {
           options.push({
             label: this.$tr('signIn'),
             icon: 'exit_to_app',
+            iconProps: {
+              mirror: this.isRtl,
+            },
             href: '/user',
           });
         }
@@ -249,7 +259,9 @@
   @require '~kolibri.styles.definitions'
 
   // matches angular material's spec
-  $side-nav-box-shadow = 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
+  $side-nav-box-shadow =  0 2px 4px -1px rgba(0, 0, 0, 0.2),
+                          0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                          0 1px 10px 0 rgba(0, 0, 0, 0.12)
 
   // matches keen-ui toolbar's spec
   $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)

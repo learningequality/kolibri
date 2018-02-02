@@ -5,8 +5,14 @@
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
-    :examCreation="true">
-    <k-button slot="randomize-button" :text="$tr('randomize')" :primary="true" @click="$emit('randomize')" />
+    :examCreation="true"
+  >
+    <k-button
+      slot="randomize-button"
+      :text="$tr('randomize')"
+      :primary="true"
+      @click="$emit('randomize')"
+    />
   </preview-exam-modal>
 
 </template>

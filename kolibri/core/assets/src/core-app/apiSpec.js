@@ -72,9 +72,11 @@ import tetherTooltip from 'tether-tooltip';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
+import heartbeat from '../heartbeat';
 
 export default {
   client,
+  heartbeat,
   lib: {
     logging,
     vue,

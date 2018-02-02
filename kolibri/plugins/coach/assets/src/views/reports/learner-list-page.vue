@@ -10,9 +10,11 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
-    <report-subheading />
-    <p v-if="!standardDataTable.length" class="center-text"><strong>{{ $tr('noLearners') }}</strong></p>
-    <report-table v-else>
+    <h1 v-else>{{ $tr('learners') }}</h1>
+
+    <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
+
+    <report-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
           <header-cell
@@ -74,7 +76,6 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -88,7 +89,6 @@
       contentIcon,
       breadcrumbs,
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       progressCell,
@@ -96,13 +96,16 @@
     },
     mixins: [alignMixin],
     $trs: {
+      learners: 'Learner reports',
       name: 'Name',
       group: 'Group',
       exerciseProgress: 'Exercise progress',
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      exerciseCountText:
+        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText:
+        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
       noLearners: 'You do not have any learners registered yet',
     },
     computed: {

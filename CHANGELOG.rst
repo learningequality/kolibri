@@ -1,20 +1,39 @@
-.. :changelog:
-
 Release Notes
 =============
 
 Changes are ordered reverse-chronologically.
 
-0.7 (unreleased)
-----------------
-
- - Officially supporting Python 3.6
-
-
-0.6.1 (unreleased)
+0.8.0 (unreleased)
 ------------------
 
- - Added mobile-friendly content cards
+ - TBA
+
+
+0.7.1 (unreleased)
+------------------
+
+ - TBA
+
+
+0.7.0
+-----
+
+ - Completed RTL language support
+ - Languages: English, Spanish, Arabic, Farsi, Swahili, Urdu, and French
+ - Support for Python 3.6
+ - Split user and developer documentation
+ - Improved lost-connection and session timeout handling
+ - Added 'device info' administrator page
+ - Content search integration with Studio
+ - Granular content import and export
+
+
+0.6.1
+-----
+
+ - Many mobile-friendly updates across the app
+ - Update French, Portuguese, and Swahili translations
+ - Upgraded Windows installer
 
 
 0.6.0

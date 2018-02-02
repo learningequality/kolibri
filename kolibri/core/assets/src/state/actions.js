@@ -1,12 +1,6 @@
 import * as getters from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
-import {
-  MasteryLoggingMap,
-  AttemptLoggingMap,
-  InteractionTypes,
-  LoginErrors,
-  ConnectionSnackbars,
-} from '../constants';
+import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -24,6 +18,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
+import heartbeat from 'kolibri.heartbeat';
 
 const name = 'coreTitles';
 
@@ -184,8 +179,8 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const facilityURL = urls['kolibri:managementplugin:management']();
-      const deviceURL = urls['kolibri:managementplugin:device_management']();
+      const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
+      const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
@@ -730,20 +725,8 @@ function updateMasteryAttemptState(
   });
 }
 
-function tryToReconnect(store) {
-  showTryingToReconnectSnackbar(store);
-}
-
-function showDisconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
-}
-
-function showTryingToReconnectSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.TRYING_TO_RECONNECT);
-}
-
-function showSuccessfullyReconnectedSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.SUCCESSFULLY_RECONNECTED);
+function tryToReconnect() {
+  heartbeat.beat();
 }
 
 function clearSnackbar(store) {
@@ -778,8 +761,5 @@ export {
   updateAttemptLogInteractionHistory,
   fetchPoints,
   tryToReconnect,
-  showDisconnectedSnackbar,
-  showTryingToReconnectSnackbar,
-  showSuccessfullyReconnectedSnackbar,
   clearSnackbar,
 };

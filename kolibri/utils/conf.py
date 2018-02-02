@@ -25,7 +25,7 @@ from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
 
-KOLIBRI_HOME = os.environ["KOLIBRI_HOME"]
+KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 
 # Creating KOLIBRI_HOME atm. has to happen here as for instance utils.cli is not
 # called through py.test. This file is the first basic entry point of
@@ -48,7 +48,8 @@ try:
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
-        "kolibri.plugins.management",
+        "kolibri.plugins.facility_management",
+        "kolibri.plugins.device_management",
         "kolibri.plugins.learn",
         "kolibri.plugins.document_pdf_render",
         "kolibri.plugins.html5_app_renderer",

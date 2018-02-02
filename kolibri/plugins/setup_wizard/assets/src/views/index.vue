@@ -68,9 +68,9 @@
           case 2:
             return facilityNameForm;
           case 3:
-            return superuserCredentialsForm;
-          case 4:
             return facilityPermissionsForm;
+          case 4:
+            return superuserCredentialsForm;
           default:
             return null;
         }

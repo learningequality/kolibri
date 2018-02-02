@@ -5,7 +5,7 @@
     :description="$tr('facilityNamingFormDescription')"
     :submitText="submitText"
     @submit="setFacilityName"
-    >
+  >
     <k-textbox
       :autofocus="true"
       v-model="facilityName"
@@ -39,6 +39,7 @@
         'A Facility is the location where you are installing Kolibri, such as a school or training center.',
       facilityNameFieldLabel: 'Facility name',
       facilityNameFieldEmptyErrorMessage: 'Facility cannot be empty',
+      facilityNameFieldMaxLengthReached: 'Facility name cannot be more than 100 characters',
     },
     props: {
       submitText: {
@@ -56,6 +57,9 @@
       facilityNameErrorMessage() {
         if (this.facilityName === '') {
           return this.$tr('facilityNameFieldEmptyErrorMessage');
+        }
+        if (this.facilityName.length > 100) {
+          return this.$tr('facilityNameFieldMaxLengthReached');
         }
         return '';
       },

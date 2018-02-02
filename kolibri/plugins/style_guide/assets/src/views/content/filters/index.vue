@@ -45,10 +45,10 @@
       <li>
         Text
         <ul>
-            <li>
-              Text filters will search for and show any results for the
-              provided keyword
-            </li>
+          <li>
+            Text filters will search for and show any results for the
+            provided keyword
+          </li>
         </ul>
       </li>
       <li>

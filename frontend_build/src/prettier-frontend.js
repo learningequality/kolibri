@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const prettier = require('prettier');
 const compiler = require('vue-template-compiler');
 const fs = require('fs');
@@ -29,8 +30,14 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
         } else if (vueComponent && vueComponent.script) {
           const start = vueComponent.script.start;
           const end = vueComponent.script.end;
-          const code = source.slice(start, end).replace(/(\n)  /g, '$1');
-          let formattedJs = prettier.format(code, options);
+          const code = source.slice(start, end).replace(/(\n) {2}/g, '$1');
+          // Prettier strips the 2 space indentation that we enforce within script tags for vue
+          // components. So here we account for those 2 spaces that will be added.
+          const vueComponentOptions = options;
+          vueComponentOptions.printWidth = vueComponentOptions.printWidth - 2;
+          // Force the prettier parser to parse this as JS
+          vueComponentOptions.filepath = 'dummy.js';
+          let formattedJs = prettier.format(code, vueComponentOptions);
           // Ensure that the beginning and end of the JS has two newlines to fit our
           // Component linting conventions
           // Ensure it is indented by two spaces

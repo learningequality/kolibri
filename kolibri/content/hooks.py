@@ -24,9 +24,12 @@ _JSON_CONTENT_TYPES_CACHE = {}
 class ContentRendererHook(WebpackBundleHook):
     """
     An inheritable hook that allows special behaviour for a frontend module that defines
-    a content renderer.
+    a content renderer. Reads a JSON file detailing the kinds and file extensions that the
+    renderer can handle.
+    """
 
-    Reads a JSON file of this format:
+    """
+    JSON file format:
     {
         "kinds": [
             {
@@ -50,7 +53,6 @@ class ContentRendererHook(WebpackBundleHook):
             }
         ]
     }
-    Detailing the kinds and file extensions that the renderer can handle.
     """
 
     # Set local path to content type JSON that details the kind, extension pairs this deals with.

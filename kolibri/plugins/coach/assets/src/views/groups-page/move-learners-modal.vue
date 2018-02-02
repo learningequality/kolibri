@@ -1,7 +1,10 @@
 <template>
 
-  <core-modal :title="$tr('moveLearners')" @cancel="close">
-    <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
+  <core-modal
+    :title="$tr('moveLearners')"
+    @cancel="close"
+  >
+    <p>{{ $tr('moveLearnerCount', {count: usersToMove.length }) }}</p>
     <k-radio-button
       v-for="group in groupsExcludingCurrent"
       :key="group.id"
@@ -19,7 +22,7 @@
       />
     </div>
 
-    <div class="button-section">
+    <div class="core-modal-buttons button-section">
       <k-button
         :text="$tr('cancel')"
         appearance="flat-button"
@@ -39,17 +42,21 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import {
+    displayModal,
+    addUsersToGroup,
+    removeUsersFromGroup,
+    moveUsersBetweenGroups,
+  } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   export default {
     name: 'moveLearnersModal',
     $trs: {
-      moveLearners: 'Move Learners',
-      moveThe: 'Move the',
-      to: 'to',
-      learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
+      moveLearners: 'Move learners',
+      moveLearnerCount:
+        'Move {count, number, integer} {count, plural, one {learner} other {learners}} to:',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
       move: 'Move',
@@ -109,10 +116,10 @@
     },
     vuex: {
       actions: {
-        displayModal: groupActions.displayModal,
-        addUsersToGroup: groupActions.addUsersToGroup,
-        removeUsersFromGroup: groupActions.removeUsersFromGroup,
-        moveUsersBetweenGroups: groupActions.moveUsersBetweenGroups,
+        displayModal,
+        addUsersToGroup,
+        removeUsersFromGroup,
+        moveUsersBetweenGroups,
       },
     },
   };
@@ -129,6 +136,5 @@
 
   .button-section
     margin-top: 1em
-    text-align: right
 
 </style>

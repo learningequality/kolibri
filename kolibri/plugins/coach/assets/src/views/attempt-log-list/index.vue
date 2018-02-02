@@ -7,39 +7,37 @@
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
           @click="setSelectedAttemptLog(index)"
-          :class="{
-            selected: isSelected(index),
-            clickable: true
-          }"
+          class="clickable attempt-item"
+          :class="{selected: isSelected(index)}"
           :key="index"
         >
-            <mat-svg
-              v-if="attemptLog.noattempt"
-              class="item svg-item svg-noattempt"
-              category="navigation"
-              name="cancel"
-            />
-            <mat-svg
-              v-else-if="attemptLog.correct"
-              class="item svg-item svg-correct"
-              category="action"
-              name="check_circle"
-            />
-            <mat-svg
-              v-else-if="!attemptLog.correct"
-              class="item svg-item svg-wrong"
-              category="navigation"
-              name="cancel"
-            />
-            <mat-svg
-              v-else-if="attemptLog.hinted"
-              class="item svg-item svg-hint"
-              category="action"
-              name="lightbulb_outline"
-            />
-            <h3 class="item">
-              {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
-            </h3>
+          <mat-svg
+            v-if="attemptLog.noattempt"
+            class="item svg-item svg-noattempt"
+            category="navigation"
+            name="cancel"
+          />
+          <mat-svg
+            v-else-if="attemptLog.correct"
+            class="item svg-item svg-correct"
+            category="action"
+            name="check_circle"
+          />
+          <mat-svg
+            v-else-if="!attemptLog.correct"
+            class="item svg-item svg-wrong"
+            category="navigation"
+            name="cancel"
+          />
+          <mat-svg
+            v-else-if="attemptLog.hinted"
+            class="item svg-item svg-hint"
+            category="action"
+            name="lightbulb_outline"
+          />
+          <h3 class="item">
+            {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
+          </h3>
         </li>
       </template>
     </ul>
@@ -65,6 +63,7 @@
         required: true,
       },
       selectedQuestionNumber: {
+        type: Number,
         required: true,
         default: 1,
       },
@@ -93,6 +92,7 @@
     margin: 0
     padding-left: 20px
     padding-top: 10px
+    padding-bottom: 10px
 
   .history-list
     list-style-type: none
@@ -108,6 +108,7 @@
     vertical-align: middle
     height: auto
     width: 32px
+    margin-right: 8px
 
   .svg-hint
     fill: $core-text-annotation
@@ -121,7 +122,7 @@
   .svg-noattempt
     fill: $core-text-annotation
 
-  li
+  .attempt-item
     clear: both
     min-width: 120px
     border-bottom: 2px solid $core-text-disabled

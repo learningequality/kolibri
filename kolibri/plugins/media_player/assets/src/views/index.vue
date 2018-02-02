@@ -5,12 +5,17 @@
       <loading-spinner />
     </div>
     <div
-       v-show="!loading"
-       class="fill-space"
-       :class="{ 'mimic-fullscreen': mimicFullscreen }">
+      v-show="!loading"
+      class="fill-space"
+      :class="{ 'mimic-fullscreen': mimicFullscreen }"
+    >
       <video v-if="isVideo" ref="player" class="video-js custom-skin">
         <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type="`video/${video.extension}`" :key="video.storage_url">
+          <source
+            :src="video.storage_url"
+            :type="`video/${video.extension}`"
+            :key="video.storage_url"
+          >
         </template>
         <template v-for="track in trackSources">
           <track
@@ -26,7 +31,11 @@
 
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
-          <source :src="audio.storage_url" :type="`audio/${audio.extension}`" :key="audio.storage_url">
+          <source
+            :src="audio.storage_url"
+            :type="`audio/${audio.extension}`"
+            :key="audio.storage_url"
+          >
         </template>
       </audio>
     </div>
@@ -206,7 +215,9 @@
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
               'Volume Level': this.$tr('volumeLevel'),
-              'A network error caused the media download to fail part-way.': this.$tr('networkError'),
+              'A network error caused the media download to fail part-way.': this.$tr(
+                'networkError'
+              ),
               'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
                 'formatError'
               ),
@@ -304,11 +315,22 @@
         wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
       handleSeek() {
+        // record progress before updating the times,
+        // to capture any progress that happened pre-seeking
         this.recordProgress();
+
+        // now, update all the timestamps to set the new time location
+        // as the baseline starting point
         this.dummyTime = this.player.currentTime();
         this.lastUpdateTime = this.dummyTime;
+        this.progressStartingPoint = this.dummyTime;
       },
       updateTime() {
+        // skip out of here if we're currently seeking,
+        // so we don't update this.dummyTime before calculating old progress
+        if (this.player.seeking()) {
+          return;
+        }
         this.dummyTime = this.player.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
@@ -316,7 +338,11 @@
         }
       },
       setPlayState(state) {
-        this.recordProgress();
+        // avoid recording progress if we're currently seeking,
+        // as timers are in an intermediate state
+        if (!this.player.seeking()) {
+          this.recordProgress();
+        }
         if (state === true) {
           this.$emit('startTracking');
         } else {
@@ -357,9 +383,9 @@
 <style lang="stylus" scoped>
 
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import '../../../node_modules/video.js/dist/video-js.css'
+  @import './videojs-style/video-js.min.css'
   // Custom build icons.
-  @import '../videojs-font/css/videojs-icons.css'
+  @import './videojs-style/videojs-font/css/videojs-icons.css'
 
   .wrapper
     width: 854px
@@ -384,12 +410,12 @@
     height: 100%
     background-color: black
 
-</style>
 
-
-<style lang="stylus">
+  /***** PLAYER OVERRIDES *****/
 
   @require '~kolibri.styles.definitions'
+
+  /*!!rtl:begin:ignore*/
 
   $dark-grey = #212121
   $grey = #303030
@@ -400,13 +426,13 @@
 
 
   /* Hide control bar when playing & inactive */
-  .vjs-has-started.vjs-playing.vjs-user-inactive
+  >>>.vjs-has-started.vjs-playing.vjs-user-inactive
     .vjs-control-bar
       visibility: hidden
 
 
   /*** CUSTOM VIDEOJS SKIN ***/
-  .custom-skin
+  >>>.custom-skin
     $button-height-normal = 40px
     $button-font-size-normal = 24px
 
@@ -538,7 +564,7 @@
 
 
   /*** MEDIUM: < 600px ***/
-  .player-medium
+  >>>.player-medium
     /* Seek bar moves up. */
     .vjs-progress-control
       position: absolute
@@ -554,7 +580,7 @@
 
 
   /*** SMALL: < 480px ***/
-  .player-small
+  >>>.player-small
     $button-height-small = 44px
     $button-font-size-normal = 24px
 
@@ -611,7 +637,7 @@
 
 
   /*** TINY: < 360px ***/
-  .player-tiny
+  >>>.player-tiny
     /* Time divider is hidden */
     .vjs-time-divider
       display: none
@@ -631,5 +657,7 @@
     /* Adjust forward button position. */
     .vjs-icon-forward_10
       left: 75%
+
+  /*!!rtl:end:ignore*/
 
 </style>

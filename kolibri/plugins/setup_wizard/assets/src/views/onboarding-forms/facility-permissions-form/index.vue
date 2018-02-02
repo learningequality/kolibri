@@ -8,7 +8,8 @@
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       @cancel="hideFacilityPermissionsDetails"
       :enableBgClickCancel="true"
-      v-if="permissionPresetDetailsModalShown">
+      v-if="permissionPresetDetailsModalShown"
+    >
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
@@ -49,27 +50,29 @@
         </dd>
       </dl>
 
-      <span class="permission-preset-modal-dismiss-button-wrapper">
+      <div class="core-modal-buttons">
         <k-button
           class="permission-preset-modal-dismiss-button"
           :text="$tr('permissionsModalDismissText')"
           :primary="true"
           @click="hideFacilityPermissionsDetails"
         />
-      </span>
+      </div>
 
     </core-modal>
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
       :submitText="submitText"
-      @submit="setPermissions">
+      @submit="setPermissions"
+    >
 
       <template slot="description">
         {{ $tr('facilityPermissionsSetupFormDescription') }}
         <k-button
           appearance="basic-link"
           :text="$tr('facilityPermissionsPresetDetailsLink')"
+          ref="details"
           @click="showFacilityPermissionsDetails"
         />
       </template>
@@ -90,7 +93,6 @@
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          :autofocus="true"
           radiovalue="formal"
           :label="$tr('adminManagedSetupTitle')"
         />
@@ -109,7 +111,7 @@
         <span class="permission-preset-description">
           {{ $tr('informalSetupDescription') }}
         </span>
-    </label>
+      </label>
 
     </onboarding-form>
 
@@ -171,6 +173,9 @@
         permissionPresetDetailsModalShown: false,
       };
     },
+    mounted() {
+      this.$refs.details.$el.focus();
+    },
     methods: {
       setPermissions() {
         this.submitFacilityPermissions(this.selectedPreset);
@@ -220,11 +225,6 @@
     &-modal
       &-dismiss-button
         text-transform: uppercase
-        &-wrapper
-          display: block
-          text-align: right
-          width: 100%
-
 
   .permission-preset-human
     margin-bottom: 8px

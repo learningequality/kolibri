@@ -1,6 +1,7 @@
 <template>
 
-  <div class="group-section">
+  <div class="group-section"> 
+
     <div class="pure-g">
       <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
         <h2 class="group-name right-margin">{{ group.name }}</h2>
@@ -75,7 +76,7 @@
         </tr>
       </tbody>
     </table>
-    <span v-else>{{ $tr('noLearners') }}</span>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>
@@ -96,12 +97,12 @@
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
       actions: 'Actions',
-      renameGroup: 'Rename Group',
-      deleteGroup: 'Delete Group',
+      renameGroup: 'Rename group',
+      deleteGroup: 'Delete group',
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
-      noLearners: 'No Learners in this group',
+      noLearners: 'No learners in this group',
       selectAll: 'Select all',
       selectLearner: 'Select learner',
     },

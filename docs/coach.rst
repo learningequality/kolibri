@@ -33,10 +33,10 @@ Use this view to access the full report of activity progress for the selected cl
 	  :alt: activity by topic view
 
 
-.. include:: manage_groups.rst
+.. include:: manage/_groups.rst
 
 
-.. include:: manage_exams.rst
+.. include:: manage/_exams.rst
 
 
 

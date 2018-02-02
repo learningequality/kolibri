@@ -6,7 +6,7 @@ Access Kolibri
 
 .. note::
   	* If you are using Kolibri in your school, education center or facility, your coach or administrator will provide the instructions how to open the sign-in page, and username and password if necessary.
-  	* If you are using Kolibri on your own, outside an education center or facility, follow the instructions how to :doc:`access` according to your operating system. 
+  	* If you are using Kolibri on your own, outside an education center or facility, follow the instructions how to :doc:`access` according to your operating system.
 
 To sign in to **Kolibri** and start learning follow these steps:
 
@@ -44,7 +44,7 @@ To sign out from Kolibri you can either:
 Learn
 =====
 
-Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches (not visible if you are browsing as a guest). 
+Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches (not visible if you are browsing as a guest).
 
 Recommended
 ^^^^^^^^^^^
@@ -52,9 +52,9 @@ Recommended
 In the **Recommended** tab you can see various sections:
 
 * **Most popular** section which displays the most frequently used materials in your school or facility.
-* **Next steps** section which displays suggestions according to your previously visited activities. 
+* **Next steps** section which displays suggestions according to your previously visited activities.
 * **Resume section** displays activities that you started but haven’t finished yet.
-* **Featured in...** section.  
+* **Featured in...** section.
 
 You can browse through learning materials in all sections by using the arrow icons at the beginning and the end of the section rows.
 
@@ -66,7 +66,7 @@ You can browse through learning materials in all sections by using the arrow ico
 Topics
 ^^^^^^
 
-**Topics** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri. Use it as you wish, or according to indications from your teachers and coaches. 
+**Topics** tab offers you the option to navigate through the complete set of learning topics and materials available in Kolibri. Use it as you wish, or according to indications from your teachers and coaches.
 
 In Kolibri **Topic tab** content from different sources is grouped in **Channels**. Depending on how your school and teachers or coaches decided to organize the content, you may have one or more **Channels** available here. Follow the indications by your teachers or coaches on how to use the content from each available **Channel**.
 
@@ -78,7 +78,7 @@ In Kolibri **Topic tab** content from different sources is grouped in **Channels
 Navigate Kolibri topics with breadcrumb links
 """""""""""""""""""""""""""""""""""""""""""""
 
-When you are browsing a topic in Kolibri, the **Breadcrumb** links indicate previously visited, more general topics. Current topic is at the last position, and you can click any of the previous links in the breadcrumb to go back to a specific broader topic. 
+When you are browsing a topic in Kolibri, the **Breadcrumb** links indicate previously visited, more general topics. Current topic is at the last position, and you can click any of the previous links in the breadcrumb to go back to a specific broader topic.
 
 	.. figure:: img/breadcrumbs.png
 		:alt: Use breadcrumbs links to navigate back through Kolibri topics.
@@ -106,12 +106,12 @@ Content types
 Exercises
 """""""""
 
-Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a checkmark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solve the problem. 
+Kolibri **Exercises** can require you to do different things: fill in a missing number, write a formula, choose one of the available options, etc. Each correct answer gets you a checkmark, and majority of exercises require 5 correct answers in a row to be completed. Some exercises can offer one or more hints, to help you solve the problem.
 
 Independent of the required action (writing an answer yourself or choosing one of the options), these are the steps to follow.
 
 #. **Read the question carefully**.
-#. Write the answer or choose one of the provided options. 
+#. Write the answer or choose one of the provided options.
 #. When you are ready to submit, click the **Check answer** button.
 
    * If the answer is correct and a checkmark appears, click the **Next question** button to proceed.
@@ -177,21 +177,21 @@ If your teacher/coach scheduled an exam for you or your class, it will be availa
 		:alt: exams tab
 
 
-#. Press the button **Start** when you are ready to start taking exam. 
+#. Press the button **Start** when you are ready to start taking exam.
 #. You can go on answering the questions in the order you prefer: move through questions with Previous and Next question buttons, or click on the question number in the column on the left side.
 
 	.. figure:: img/exam-detail.png
 		:alt: exams tab
 
 #. Each time you fill in the answer field, or select one of the available options, the question will be marked by a colored dot in the column on the left side.
-#. You can review and correct your answers to all questions as many times you need before submitting. 
-#. Press the *Back to exam list* if you want to pause the exam and come back later. 
+#. You can review and correct your answers to all questions as many times you need before submitting.
+#. Press the *Back to exam list* if you want to pause the exam and come back later.
 #. Press the button **Continue** to resume when you are ready.
 
 	.. figure:: img/exam-continue.png
 		:alt: exams tab
 
-#. Press the button Submit exam when you are positive that you answered all the questions, and you want to finish the exam. 
+#. Press the button Submit exam when you are positive that you answered all the questions, and you want to finish the exam.
 #. You will see instant feedback with the result of your exam.
 
 	.. figure:: img/exam-result.png

@@ -10,7 +10,7 @@
       :isMobile="isMobile"
     />
 
-    <h3 class="text">{{ title }}</h3>
+    <h3 class="text" dir="auto">{{ title }}</h3>
 
   </router-link>
 
@@ -20,7 +20,6 @@
 <script>
 
   import values from 'lodash/values';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
@@ -29,7 +28,6 @@
     components: {
       cardThumbnail,
     },
-    mixins: [responsiveElement], // not used, but carousel seems to break without it
     props: {
       title: {
         type: String,
@@ -80,10 +78,14 @@
     width: $thumb-width-desktop
     border-radius: 2px
     background-color: $core-bg-light
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12)
     transition: box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
     &:hover, &:focus
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
+                  0 5px 5px -3px rgba(0, 0, 0, 0.2)
 
   .text
     color: $core-text-default

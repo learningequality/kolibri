@@ -4,11 +4,12 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="scrollLeft"
+      @click="isRtl ? scrollRight() : scrollLeft()"
     >
       <mat-svg
         name="keyboard_arrow_left"
         category="hardware"
+        :class="{ 'rtl-icon': isRtl }"
       />
     </button>
 
@@ -24,11 +25,12 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="scrollRight"
+      @click="isRtl ? scrollLeft() : scrollRight()"
     >
       <mat-svg
         name="keyboard_arrow_right"
         category="hardware"
+        :class="{ 'rtl-icon': isRtl }"
       />
     </button>
   </nav>
@@ -42,8 +44,8 @@
   import throttle from 'lodash/throttle';
 
   /**
-    * Used for navigation between sub-pages of a top-level Kolibri section
-    */
+   * Used for navigation between sub-pages of a top-level Kolibri section
+   */
   export default {
     name: 'kNavbar',
     mixins: [responsiveElement],

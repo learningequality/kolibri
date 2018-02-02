@@ -6,8 +6,8 @@ Kolibri
   :target: https://pypi.python.org/pypi/kolibri/
 .. image:: https://travis-ci.org/learningequality/kolibri.svg?branch=develop
   :target: https://travis-ci.org/learningequality/kolibri
-.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
-  :target: http://codecov.io/github/learningequality/kolibri?branch=master
+.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=develop
+  :target: http://codecov.io/github/learningequality/kolibri?branch=develop
 .. image:: https://img.shields.io/badge/docs-user-ff69b4.svg
   :target: http://kolibri.readthedocs.org/en/latest/
 .. image:: https://img.shields.io/badge/docs-developer-69ffb4.svg
@@ -42,15 +42,10 @@ See `our website <https://learningequality.org/kolibri/>`_ for more information.
 How can I use it?
 -----------------
 
-Kolibri is under active development and is not yet ready to be used in real
-deployments. We expect a public release to be available during second half of 2017.
-
-In the meantime, take a look at
-`KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
-is already deployed around the world.
+An initial version of Kolibri is `now available for download! <https://learningequality.org/download/>`_
 
 
 How can I contribute?
 ---------------------
 
-Thanks for your interest! Please see the 'contributing' section of our `online documentation <http://kolibri.readthedocs.io/>`_.
+Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`_ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`_.

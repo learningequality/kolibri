@@ -156,7 +156,8 @@ class WebpackBundleHook(hooks.KolibriHook):
         customize this.
 
         :returns: A dict with information expected by webpack parsing process,
-        or None if the src_file does not exist.
+            or None if the src_file does not exist.
+
         """
         if os.path.exists(os.path.join(os.path.dirname(self._build_path), self.src_file)):
             return {

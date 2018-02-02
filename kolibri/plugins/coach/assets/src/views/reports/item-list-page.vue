@@ -24,20 +24,24 @@
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME" />
+            :column="tableColumns.NAME"
+          />
           <header-cell
             :text="$tr('avgExerciseProgress')"
             :sortable="true"
-            :column="tableColumns.EXERCISE" />
+            :column="tableColumns.EXERCISE"
+          />
           <header-cell
             :text="$tr('avgContentProgress')"
             :sortable="true"
-            :column="tableColumns.CONTENT" />
+            :column="tableColumns.CONTENT"
+          />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE" />
+            :column="tableColumns.DATE"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -92,8 +96,10 @@
       avgExerciseProgress: 'Avg. exercise progress',
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      exerciseCountText:
+        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText:
+        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     computed: {
       tableColumns() {

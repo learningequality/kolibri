@@ -5,7 +5,8 @@
     :class="buttonClasses"
     :type="type"
     :disabled="disabled"
-    @click="handleClick">
+    @click="handleClick"
+  >
     {{ text }}
   </button>
 

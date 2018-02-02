@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('activateExam')" @cancel="close">
+  <core-modal
+    :title="$tr('activateExam')"
+    @cancel="close"
+  >
     <p>
       <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('willBeVisible') }}
@@ -9,13 +12,23 @@
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="(group, index) in examVisibility.groups" :key="index"><strong>{{ group.collection.name }}</strong></li>
+          <li v-for="(group, index) in examVisibility.groups" :key="index">
+            <strong>{{ group.collection.name }}</strong>
+          </li>
         </ul>
       </span>
     </p>
-    <div class="footer">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
-      <k-button :text="$tr('activate')" :primary="true" @click="activateExam(examId)" />
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('activate')"
+        :primary="true"
+        @click="activateExam(examId)"
+      />
     </div>
   </core-modal>
 
@@ -75,9 +88,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: right
-
-</style>
+<style lang="stylus"></style>

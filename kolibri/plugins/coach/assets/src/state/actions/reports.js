@@ -55,7 +55,7 @@ const ContentReportResource = new ContentReportResourceConstructor();
  * @param {string} classId -
  * @returns {Promise} that resolves channel with lastActive value in object:
  *   { 'channelId': dateOfLastActivity }
-*/
+ */
 function channelLastActivePromise(channel, userScope, userScopeId) {
   const summaryPayload = {
     channel_id: channel.id,

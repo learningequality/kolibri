@@ -4,8 +4,7 @@
 
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
-    <report-subheading />
-
+    <p v-if="!standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</p>
     <report-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
@@ -13,16 +12,19 @@
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME" />
+            :column="tableColumns.NAME"
+          />
           <header-cell
             :text="$tr('progress')"
             :sortable="true"
-            :column="tableColumns.CONTENT" />
+            :column="tableColumns.CONTENT"
+          />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE" />
+            :column="tableColumns.DATE"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -56,7 +58,6 @@
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
   import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -68,7 +69,6 @@
     components: {
       breadcrumbs,
       reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       activityCell,
@@ -77,7 +77,7 @@
     },
     mixins: [alignMixin],
     $trs: {
-      title: 'Recent Activity',
+      title: 'Recent activity',
       name: 'Name',
       progress: 'Class progress',
       reportProgress: '{completed} {descriptor}',
@@ -86,10 +86,14 @@
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
+      noRecentProgress: 'No activity in past {threshold} days',
     },
     computed: {
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      threshold() {
+        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {

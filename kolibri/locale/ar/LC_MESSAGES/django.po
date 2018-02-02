@@ -1,0 +1,107 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-11-22 18:11-0800\n"
+"PO-Revision-Date: 2017-12-05 19:25-0500\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Arabic\n"
+"Language: ar_SA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ar\n"
+"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:12
+#: kolibri/plugins/management/kolibri_plugin.py:29
+msgid "Facility"
+msgstr "مرفق تعليمي"
+
+#: kolibri/auth/constants/collection_kinds.py:13
+msgid "Classroom"
+msgstr "الفصل"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+msgid "Learner group"
+msgstr "مجموعة متعلمين"
+
+#: kolibri/auth/constants/role_kinds.py:10
+msgid "Admin"
+msgstr "مشرف"
+
+#: kolibri/auth/constants/role_kinds.py:11
+msgid "Coach"
+msgstr "مدرّب"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "اسم المستخدم"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "مطلوب. 30 حرفا أو أقل. حروف وأرقام فقط"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "أدخل إسم مستخدم صالح. يمكنك استخدام الأحرف والأرقام والمحارف السفلية فقط."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "الاسم الكامل"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "تاريخ الانضمام"
+
+#: kolibri/auth/serializers.py:31
+msgid "An account with that username already exists"
+msgstr "يوجد بالفعل حساب بهذا الاسم"
+
+#: kolibri/content/api.py:355
+msgid "The requested channel does not exist on the content server"
+msgstr "القناة المطلوبة غير موجودة على خادم المحتوى"
+
+#: kolibri/content/models.py:183
+msgid "Unknown format"
+msgstr "صيغة غير معروفة"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "هذه اللغة غير معتمدة في كوليبري"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "كوليبري"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "متصفح غير مدعوم"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "نعتذر، الإصدار الحالي لمتصفحك غير مدعوم."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "لاستهدام كوليبري، ننصح باستخدام متصفح فايرفوكس أو متصفح كروم."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي."
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "حدث خطأ في الشبكة."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "حدث خطأ أثناء الوصول إلى القرص."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "حصل خطأ غير معروف."
+

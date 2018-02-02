@@ -205,3 +205,9 @@ store.registerModule = ({ state, mutations } = { state: {}, mutations: {} }) => 
   store.replaceState(Object.assign(state, initialState));
   store.__initialized = true;
 };
+
+store.factory = ({ state, mutations } = { state: {}, mutations: {} }) => {
+  store.__initialized = false;
+  store.registerModule({ state, mutations });
+  return store;
+};

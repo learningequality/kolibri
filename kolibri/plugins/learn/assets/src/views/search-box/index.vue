@@ -3,7 +3,8 @@
   <form
     class="search-box"
     @submit.prevent="search"
-    @keydown.esc.prevent="handleEscKey">
+    @keydown.esc.prevent="handleEscKey"
+  >
     <div class="search-box-row">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
@@ -30,6 +31,7 @@
             type="secondary"
             color="white"
             class="search-submit-button"
+            :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
             :icon="icon"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"

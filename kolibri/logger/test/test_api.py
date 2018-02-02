@@ -12,6 +12,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from kolibri.content.models import ChannelMetadata, ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.logger.models import ExamLog
 
@@ -326,6 +327,17 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
+    def test_csv_download_deleted_content(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        expected_count = ContentSummaryLog.objects.count()
+        ContentNode.objects.all().delete()
+        ChannelMetadata.objects.all().delete()
+        response = self.client.get(reverse('contentsummarylogcsv-list'))
+        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        for row in results[1:]:
+            self.assertEqual(len(results[0]), len(row))
+        self.assertEqual(len(results[1:]), expected_count)
+
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
 
@@ -347,6 +359,17 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
     def test_csv_download(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSessionLog.objects.count()
+        response = self.client.get(reverse('contentsessionlogcsv-list'))
+        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        for row in results[1:]:
+            self.assertEqual(len(results[0]), len(row))
+        self.assertEqual(len(results[1:]), expected_count)
+
+    def test_csv_download_deleted_content(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        expected_count = ContentSessionLog.objects.count()
+        ContentNode.objects.all().delete()
+        ChannelMetadata.objects.all().delete()
         response = self.client.get(reverse('contentsessionlogcsv-list'))
         results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
         for row in results[1:]:

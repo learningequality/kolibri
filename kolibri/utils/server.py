@@ -1,11 +1,13 @@
 import atexit
 import logging
 import os
+import threading
 
 import cherrypy
 import ifcfg
 import requests
 from django.conf import settings
+from django.core.management import call_command
 from kolibri.content.utils import paths
 
 from .system import kill_pid, pid_exists
@@ -58,6 +60,9 @@ def start(port=8080):
     :param: port: Port number (default: 8080)
     """
 
+    # start the pingback thread
+    PingbackThread.start_command()
+
     # Write the new PID
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
@@ -68,12 +73,29 @@ def start(port=8080):
     from kolibri.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
 
+    # This is also run every time the server is started to clear all the tasks
+    # in the queue
+    from kolibri.tasks.client import get_client
+    get_client().clear(force=True)
+
     def rm_pid_file():
         os.unlink(PID_FILE)
 
     atexit.register(rm_pid_file)
 
     run_server(port=port)
+
+
+class PingbackThread(threading.Thread):
+
+    @classmethod
+    def start_command(cls):
+        thread = cls()
+        thread.daemon = True
+        thread.start()
+
+    def run(self):
+        call_command("ping")
 
 
 def stop(pid=None, force=False):
@@ -189,9 +211,10 @@ def get_status():  # noqa: max-complexity=16
     The behavior is also quite redundant given that `kalite start` should
     always create a PID file, and if its been started directly with the
     runserver command, then its up to the developer to know what's happening.
+
     :returns: (PID, address, port), where address is not currently detected in
-              a valid way because it's not configurable, and we might be
-              listening on several IPs.
+        a valid way because it's not configurable, and we might be
+        listening on several IPs.
     :raises: NotRunning
     """
 

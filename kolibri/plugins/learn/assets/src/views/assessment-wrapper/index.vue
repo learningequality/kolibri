@@ -33,7 +33,8 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress" />
+        @updateProgress="updateProgress"
+      />
     </div>
 
     <div>
@@ -181,7 +182,10 @@ oriented data synchronization.
           .reverse();
       },
       mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
+        return MasteryModelGenerators[this.masteryModel.type](
+          this.assessmentIds,
+          this.masteryModel
+        );
       },
       totalCorrectRequiredM() {
         return this.mOfNMasteryModel.m;

@@ -1,6 +1,16 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
+  <core-modal
+    :title="$tr('preview')"
+    @cancel="close"
+    width="100%"
+    height="100%"
+  >
+    <k-button
+      :text="$tr('close')"
+      :primary="false"
+      @click="close"
+    />
     <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
@@ -13,14 +23,17 @@
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
               <li
-                v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)"
+                v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                 :key="questionIndex"
               >
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
                   appearance="flat-button"
-                  :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
+                  :text="$tr(
+                    'question',
+                    { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                  )"
                 />
               </li>
             </ol>
@@ -40,10 +53,11 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false" />
-          </div>
+            :allowHints="false"
+          />
+        </div>
       </div>
-      </div>
+    </div>
   </core-modal>
 
 </template>
@@ -64,7 +78,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{ num } questions',
+      numQuestions: '{num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -159,6 +173,9 @@
       close() {
         this.displayExamModal(false);
       },
+      getExerciseQuestions(exerciseId) {
+        return this.questions.filter(q => q.contentId === exerciseId);
+      },
     },
     vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };
@@ -176,7 +193,6 @@
 
   .question-selector, .exercise-container
     overflow-y: auto
-
 
   ol
     padding: 0

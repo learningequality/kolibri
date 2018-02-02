@@ -32,10 +32,13 @@ class KolibriReportPermissions(permissions.BasePermission):
         collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        if 'user' == collection_kind:
-            return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
-        else:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
+        try:
+            if 'user' == collection_kind:
+                return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
+            else:
+                return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
+        except (FacilityUser.DoesNotExist, Collection.DoesNotExist):
+            return False
 
 
 class UserReportViewSet(viewsets.ModelViewSet):
@@ -68,15 +71,6 @@ class ContentSummaryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         channel_id = self.kwargs['channel_id']
         return ContentNode.objects.filter(channel_id=channel_id).order_by('lft')
-
-
-class UserSummaryViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (KolibriReportPermissions,)
-    serializer_class = UserReportSerializer
-
-    def get_queryset(self):
-        return FacilityUser.objects.all()
 
 
 class RecentReportViewSet(viewsets.ModelViewSet):

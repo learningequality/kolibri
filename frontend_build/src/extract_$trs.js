@@ -118,15 +118,19 @@ extract$trs.prototype.apply = function(compiler) {
                     // Check that the trs id is camelCase.
                     if (!isCamelCase(message.key.name)) {
                       logging.error(
-                        `$trs id "${message.key
-                          .name}" should be in camelCase. Found in ${module.resource}`
+                        `$trs id "${message.key.name}" should be in camelCase. Found in ${
+                          module.resource
+                        }`
                       );
                     }
                     // Check that the value is valid, and not an expression
                     if (!message.value.value) {
                       logging.error(
-                        `The value for $trs "${message.key
-                          .name}", is not valid. Make sure it is not an expression. Found in ${module.resource}.`
+                        `The value for $trs "${
+                          message.key.name
+                        }", is not valid. Make sure it is not an expression. Found in ${
+                          module.resource
+                        }.`
                       );
                     } else {
                       messages[message.key.name] = message.value.value;
@@ -220,7 +224,9 @@ extract$trs.prototype.apply = function(compiler) {
                     messageNameSpace = varScope[firstArg.name].value;
                   } else {
                     logging.warn(
-                      `Translator object called with undefined name space argument in ${module.resource}`
+                      `Translator object called with undefined name space argument in ${
+                        module.resource
+                      }`
                     );
                   }
                 }
@@ -235,7 +241,9 @@ extract$trs.prototype.apply = function(compiler) {
                     messages = generateMessagesObject(varScope[secondArg.name]);
                   } else {
                     logging.warn(
-                      `Translator object called with undefined messages argument in ${module.resource}`
+                      `Translator object called with undefined messages argument in ${
+                        module.resource
+                      }`
                     );
                   }
                 }

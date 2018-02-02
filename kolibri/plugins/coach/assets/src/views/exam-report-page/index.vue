@@ -50,7 +50,9 @@
 
             <td class="table-data">
               <span v-if="examTaker.score === undefined">–</span>
-              <span v-else>{{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}</span>
+              <span v-else>
+                {{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}
+              </span>
             </td>
 
             <td class="table-data">{{ examTaker.group.name || '–' }}</td>
@@ -113,7 +115,7 @@
     },
     $trs: {
       examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
-      averageScore: 'Average Score: {num, number, percent}',
+      averageScore: 'Average score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',

@@ -2,7 +2,8 @@
 
   <div>
 
-    <page-header :title="content.title" />
+    <!-- TODO: RTL - Remove ta-l -->
+    <page-header :title="content.title" dir="auto" class="ta-l" />
 
     <content-renderer
       v-if="!content.assessment"
@@ -19,8 +20,16 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
+      :initSession="initSession"
+    >
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </content-renderer>
 
     <assessment-wrapper
@@ -39,18 +48,29 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
-      :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right" />
+      :initSession="initSession"
+    >
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </assessment-wrapper>
 
-    <p v-html="description"></p>
+    <!-- TODO: RTL - Remove ta-l -->
+    <p v-html="description" dir="auto" class="ta-l"></p>
 
 
     <div class="metadata">
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
@@ -62,7 +82,8 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <p v-if="licenceDescriptionIsVisible">
+          <!-- TODO: RTL - Do not interpolate strings -->
+          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
           </p>
         </template>
@@ -81,7 +102,8 @@
       <content-card-group-carousel
         :genContentLink="genContentLink"
         :header="recommendedText"
-        :contents="recommended" />
+        :contents="recommended"
+      />
     </template>
 
     <template v-if="progress >= 1 && wasIncomplete">
@@ -89,8 +111,15 @@
         v-if="showPopup"
         @close="markAsComplete"
         :kind="content.next_content.kind"
-        :title="content.next_content.title">
-        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right" />
+        :title="content.next_content.title"
+      >
+        <k-button
+          :primary="true"
+          slot="nextItemBtn"
+          @click="nextContentClicked"
+          :text="$tr('nextContent')"
+          alignment="right"
+        />
       </points-popup>
 
       <transition v-else name="slidein" appear>
@@ -276,5 +305,8 @@
 
   .download-button
     display: block
+
+  .ta-l
+    text-align: left
 
 </style>

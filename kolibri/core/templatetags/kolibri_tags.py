@@ -98,11 +98,11 @@ def kolibri_set_server_time():
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse('{2}'), {3});"
+            "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
             "model.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
-                               JSONRenderer().render(response.data).decode('utf-8'),
+                               json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
                                json.dumps(url_params)))
     return mark_safe(html)
 
@@ -110,13 +110,13 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse('{4}'));"
+            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
             "collection.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
                                json.dumps(url_params),
                                json.dumps(kwargs),
-                               JSONRenderer().render(response.data).decode('utf-8'),
+                               json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
                                ))
     return mark_safe(html)
 

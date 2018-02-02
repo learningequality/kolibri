@@ -1,19 +1,21 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classExams', {className}) }}</h1>
+    <h1>{{ $tr('classExams') }}</h1>
+    <p v-if="!exams.length">{{ $tr('noExams') }}</p>   
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
       :inline="true"
       v-model="statusSelected"
+      v-if="sortedExams.length"
     />
     <k-button
       :primary="true"
       appearance="raised-button"
-      class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
+      :class="{'pull-right': sortedExams.length}"
     />
     <table v-if="sortedExams.length">
       <thead>
@@ -42,7 +44,6 @@
         />
       </tbody>
     </table>
-    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -118,14 +119,14 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      classExams: '{className} Exams',
+      classExams: 'Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
-      newExam: 'New Exam',
+      newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: `You do not have any exams. Start by creating a new exam above.`,
+      noExams: 'You do not have any exams yet',
     },
     components: {
       kButton,
@@ -265,7 +266,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .create-button
+  .pull-right
     float: right
     margin-top: 1em
     margin-bottom: 1em

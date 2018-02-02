@@ -5,7 +5,7 @@
       <ui-icon
         icon="assignment"
         :ariaLabel="String(examActive)"
-        :class="examActive ? 'icon-active' : 'icon-inactive'"
+        :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
       />
       <span v-if="examActive" class="active-circle"></span>
     </td>

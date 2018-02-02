@@ -38,10 +38,6 @@ def get_path_with_arch(platform, path):
     platform = platform.replace('x86-64', 'x86_64')
     platform = platform.replace('manylinux1', 'linux')
 
-    # For cryptography module, all the macosxs >= 10.9 are supported
-    if 'macosx' in platform:
-        platform = 'macosx'
-
     path = os.path.join(path, platform)
 
     return path
@@ -91,8 +87,18 @@ def parse_package_page(files, pk_version):
     for file in files.find_all('a'):
         file_name = file.string.split('-')
 
-        # If the file format is tar.gz or the package version is not the latest, ignore
-        if file_name[-1].split('.')[-1] != 'whl' or file_name[1] != pk_version or file_name[2][2:] == '26':
+        # We are not going to install the packages if they are:
+        #   * not a whl file
+        #   * not the version specified in requirements.txt
+        #   * not python versions that kolibri supports
+        #   * for macosx or any 64-bit platforms, since the process of setup wizard has been fast enough
+        if (
+                file_name[-1].split('.')[-1] != 'whl' or
+                file_name[1] != pk_version or
+                file_name[2][2:] == '26' or
+                'macosx' in file_name[4].split('.')[0] or
+                '64' in file_name[4].split('.')[0]):
+
             continue
 
         print('Installing {}...'.format(file.string))

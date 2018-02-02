@@ -1,11 +1,9 @@
 import logging as logger
 import os
 
-from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...models import LocalFile
-from ...utils import paths, transfer
+from ...utils import paths, transfer, import_export_content
 
 logging = logger.getLogger(__name__)
 
@@ -58,15 +56,8 @@ class Command(AsyncCommand):
         exclude_node_ids = options["exclude_node_ids"]
         logging.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
 
-        files = LocalFile.objects.filter(files__contentnode__channel_id=channel_id, available=True)
-
-        if node_ids:
-            files = files.filter(files__contentnode__in=node_ids)
-
-        if exclude_node_ids:
-            files = files.exclude(files__contentnode__in=exclude_node_ids)
-
-        total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
+        files, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
+            channel_id, node_ids, exclude_node_ids, True)
 
         exported_files = []
 

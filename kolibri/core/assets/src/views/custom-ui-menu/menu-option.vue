@@ -15,6 +15,7 @@
           :icon="icon"
           :removeText="iconProps.removeText"
           :useSvg="iconProps.useSvg"
+          :mirror="iconProps.mirror"
 
           v-if="icon"
         />

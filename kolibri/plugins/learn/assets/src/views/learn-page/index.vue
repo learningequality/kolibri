@@ -60,6 +60,7 @@
     </template>
 
     <template v-for="(contents, channelId) in featured" v-if="contents.length">
+      <!-- TODO: RTL - Do not interpolate strings -->
       <content-card-group-header
         :key="channelId"
         :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
