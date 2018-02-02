@@ -47,7 +47,7 @@ const lessonRoutes = [
     name: LessonsPageNames.SUMMARY,
     path: '/:classId/lessons/:lessonId',
     handler: (toRoute, fromRoute) => {
-      if (toRoute.params.classId !== fromRoute.params.classId) {
+      if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
         return redirectToLessonsList(toRoute.params.classId);
       }
       return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
