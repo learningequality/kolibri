@@ -17,19 +17,35 @@ Each Kolibri content channel has its own **token/ID** in `Kolibri Studio <https:
 .. warning:: The term **Channel ID** was valid for Kolibri versions up to 0.6, while from the Kolibri version 0.7 onward, we will start using exclusively the term **token** to uniquely designate each channel.
 
 Import Content into Kolibri
----------------------------------
+---------------------------
+
+.. warning:: **Important**: You **cannot** import your own files (videos, documents, etc.) as learning resources directly into Kolibri from your computer. Kolibri can **only** import content from:
+
+  * already curated **content channels** on `Kolibri Studio <https://studio.learningequality.org/accounts/login/>`_, if the computer running Kolibri is connected to internet
+
+  OR 
+
+  * an external storage drive (USB or hard drive) where content channels have been previously exported to from another Kolibri installation, if the computer running Kolibri is not connected to internet
+
+  **To import your own files for use in Kolibri**, you need to register at `Kolibri Studio <https://studio.learningequality.org/accounts/login/>`_ site (it's free), and build your own content channel that you can subsequently import into Kolibri. Read more about how to do this in our `Kolibri Studio user guide <http://kolibri-studio.readthedocs.io/en/latest/index.html>`_. 
+
+
+.. tip::
+  As a precaution, we recommend you avoid other interactions with Kolibri (navigate away or manage users, for example) while content import is in progress.
+
 
 To import content into Kolibri, follow these steps.
 
 #. Click **Import** button in the **Content** page.
-#. Choose the source option (*Kolibri Studio* or *Attached drive or memory card*).
+#. Choose the source option: **Kolibri Studio** or **Attached drive or memory card**.
 
-	.. image:: img/import-choose-source.png
-	  :alt: choose source for importing content
+.. image:: img/import-choose-source.png
+  :alt: choose source for importing content
+
 
 
 Import Content from Kolibri Studio
-******************************************
+**********************************
 
 If the computer where Kolibri is running has an Internet connection with the sufficient bandwidth, follow these steps to import content channels.
 
@@ -68,17 +84,17 @@ Import Content from a Local Drive
 
 If the computer where Kolibri server is running does not have access to Internet or has insufficient bandwidth, you have the option to receive content channels stored on an external drive (USB stick or hard disk). Follow these steps to import content channels.
 
-#. Insert the USB drive in your computer.
+#. Connect the external USB drive to your computer.
 #. Choose option for *Attached drive or memory card*, and click **Continue**.
 #. Kolibri will automatically detect and display the drive(s) with available Kolibri content files.
 #. Select the drive where the desired channel is stored, and click **Continue**.
 #. Click **Select** button for the desired channel, and follow the same steps for selecting topics and resources as for the :ref:`import from Kolibri Studio <central_server>`.
 
-	.. image:: img/import-local-drive2.png
-	  :alt: import channel from detected local drive
+  .. image:: img/import-local-drive2.png
+    :alt: import channel from detected local drive
 
 
-.. tip:: **Workaround for import from local drive on older devices.**
+.. tip:: **Workaround for import from external drive on older devices.**
 
 	If Kolibri is installed on an older or a low-resource device, you can try the following procedure for importing content channels for faster results.
 
@@ -89,6 +105,8 @@ If the computer where Kolibri server is running does not have access to Internet
 	#. Confirm the merge of the two folders.
 	#. Restart Kolibri, and the new channels should now be available.
 
+
+.. _home:
 
      +---------------------------+-----------------------------------------+
      | **Operating system**      | **Location**                            |
@@ -129,3 +147,12 @@ If you want to make available the content you have imported on your Kolibri devi
 
 	.. image:: img/kolibri-data-osx.png
 	  :alt: structure of the local drive folders with exported content channels
+
+
+Peer-to-Peer Content Synchronization
+------------------------------------
+
+``Stay tuned!``
+
+
+.. Not yet. Peer to peer sync is a priority for Kolibri in the near future, but is not available yet.

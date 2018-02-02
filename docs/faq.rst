@@ -1,121 +1,126 @@
 Frequently Asked Questions
 ==========================
 
-Network Terminology
--------------------
 
-About IP addresses
-~~~~~~~~~~~~~~~~~~
+How much does Kolibri cost to install?
+--------------------------------------
 
-* ``0.0.0.0`` = A special IP address on the **server** (your device running Kolibri and "serving" its content to others in the local network), which actually means "all available IP addresses". It's a kind of alias. But accessing ``0.0.0.0`` from another computer doesn't make sense and doesn't work. By default, Kolibri will serve on ``0.0.0.0``, which essentially means all IP addresses that are available on the device will render Kolibri accessible.
-* ``127.0.0.1`` = A device's local IP address, meaning "myself". Some people joke and say "There's no place like 127.0.0.1", meaning "there's no place like home" :) This can be used on the serving device itself to test that Kolibri is running, in case you need a failsafe way of checking that Kolibri is in fact running and responsive.
-* ``192.x.y.z`` = Addresses starting with ``192`` are local network IP addresses. The same thing can be said about ``10.x.y.z``. The address that you wanna use to enter on the clients/tablets in order to contact the server will in most cases start with ``192`` or ``10``.
-* Port number: Kolibri runs on port ``8080``. When you access something on an IP address, you need a port. Ports can be open or closed on the server, but they can also be regulated by firewall rules on the way. ``http://`` <- this is the protocol that the browser reads out from the "URL", which is just some text that describes Kolibri.
-* ``http://192.168.1.1:8080`` means: "Connect to IP address ``192.168.1.1`` on port ``8080`` with the HTTP protocol". The browser will the continue to try to reach this address, but may fail for instance if Kolibri isn't running, or if a step along the way blocks access.
+It is FREE – both free as in “free speech” and free as in “free beer”! To learn more about free software, see this `Free Software Foundation article <http://www.fsf.org/about/what-is-free-software>`_.
 
 
-Troubleshoot Network Problems
------------------------------
+Do I need the internet to run Kolibri?
+--------------------------------------
 
-#. Can you access Kolibri via ``http://127.0.0.1:8080``?
-#. Can you access anything from the external IP of the device running Kolibri **FROM** the device itself?
-#. Can you ping the external IP address from another device on the network?
+Short answer: **No!** You can bring or send a storage device (USB or HDD unit) with Kolibri installer and content channels downloaded somewhere with available internet connection, and install everything on an completely offline device.
+
+In a nutshell, Kolibri can run independently of internet availability, but you need to procure the installer and content channels from somewhere for the initial installation and for subsequent upgrades. 
+
+One possibility is to have Kolibri installed in one location with internet connection, where you can import content channels from `Kolibri Studio <https://studio.learningequality.org/>`_ (curriculum tool and content curation server), and then export them to removable USB drives that you bring or send to offline locations (rural schools, refugee camps, etc.) to import locally.
 
 
-Working with Kolibri from the Command Line
+What languages is Kolibri available in?
+---------------------------------------
+
+Both Kolibri and `Kolibri Studio <https://studio.learningequality.org/>`_ are translation-ready and currently available in these languages:
+
++---------------------------+-----------------+-----------------+ 
+| Language                  | Kolibri         | Kolibri Studio  | 
++===========================+=================+=================+  
+| English                   | ✓               | ✓               |
++---------------------------+-----------------+-----------------+
+| Spanish (Spain)           | ✓               | ✓               |
++---------------------------+-----------------+-----------------+
+| Spanish (Mexico)          | ⨯   (✓ ver 0.5) | ✓               |
++---------------------------+-----------------+-----------------+ 
+| French                    | ✓               | ⨯               |
++---------------------------+-----------------+-----------------+
+| Swahili (Tanzania)        | ✓               | ⨯               |
++---------------------------+-----------------+-----------------+
+| Arabic                    | ✓               | ⨯               |
++---------------------------+-----------------+-----------------+
+| Farsi                     | ✓               | ⨯               |
++---------------------------+-----------------+-----------------+
+| Urdu (Pakistan)           | ✓               | ⨯               |
++---------------------------+-----------------+-----------------+
+| Hindi                     | ⨯   (✓ ver 0.4) | ⨯               |
++---------------------------+-----------------+-----------------+
+
+To contribute to Kolibri and Kolibri Studio as a translator, you can get started over on our `translations and internationalization page <http://learningequality.org/translate/>`_.
+
+What are the typical deployment scenarios?
 ------------------------------------------
 
-.. warning::
-  In Windows you need to open ``cmd.exe`` Command prompt in the folder where Kolibri executable is located: ``c:/Python27/Scripts``.
+There is no typical deployment scenario. However, we can share with you what we’ve learned from our community of KA Lite and Kolibri users. A typical school deployment varies depending on whether or not a school already has a computer lab.
 
-If you see errors in the prompt/terminal output while running the commands below, ask for help at our `Community Forums <https://community.learningequality.org/>`_, or `file an issue on GitHub <https://github.com/learningequality/kolibri/issues/new>`_.
-
-
-Start/Stop Kolibri
-~~~~~~~~~~~~~~~~~~
-
-In case you need to troubleshoot potential problems while running Kolibri, you may try to start it manually from the command line.
-
-.. code-block:: bash
-
-  kolibri start --debug --foreground
+* School with an existing computer lab: In this case, Kolibri would be deployed as a server on one of the existing computers. Students would connect using client devices over the local network.
+* School with no existing computer lab: For schools that do not have an existing computer lab, a Kolibri deployment would involve obtaining a device that can run as a Kolibri server (most computers) and other devices to be used as clients. One common configuration is using a Raspberry Pi or other inexpensive computer as a server and relatively cheap tablets as client devices.
 
 
-.. code-block:: bash
+What are some possible hardware configurations for deploying Kolibri?
+---------------------------------------------------------------------
 
-  kolibri stop
+To deploy Kolibri for multiple users you will need:
 
+#. **Server device**: a computer that is running the Kolibri software (e.g. a desktop computer, laptop, or Raspberry Pi).
+#. One or more **client devices** that have web browsers (laptops, tablets, desktop computers, etc)
 
-Import Content Channels from Internet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
+  For a single-device deployment (1) and (2) can be the same computer, with the browser connecting to the locally running Kolibri server. To make the software accessible to multiple client devices, you will need to put them on the same local network as the Kolibri server device (1), e.g. through a WIFI access point.
 
-To import content channels from Internet, run these two commands in sequence. The first downloads the channel database, and the second downloads the resources (videos, documents, etc.). *Make sure not to include the angle brackets “< >” in the command.*
-
-.. code-block:: bash
-
-  kolibri manage importchannel -- network <Channel ID>
-  kolibri manage importcontent -- network <Channel ID>
+To read more details, see the full `Kolibri Hardware Guide <https://learningequality.org/r/hardware-guide>`_ and examples of `Hardware Configurations for Kolibri <https://learningequality.org/r/hardware>`_ (PDF documents).
 
 
-Import Content Channels from a Local Drive
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How can I generate content aligned to local curriculum?
+-------------------------------------------------------
 
-To import content channels from the local drive, run these two commands in sequence. Local drive should have a folder ``KOLIBRI_DATA`` at the root, with Kolibri ``content`` inside.
-
-.. code-block:: bash
-
-  kolibri manage importchannel -- local <Channel ID> /path/to/local/drive
-  kolibri manage importcontent -- local <Channel ID> /path/to/local/drive
+Use `Kolibri Studio <https://studio.learningequality.org/>`_ curriculum tool to curate content channels aligned to your local requirements. Once you finish creating the channels on Studio, you can import them on all your Kolibri deployments for use in learning environments.
 
 
-Export Content Channels
-~~~~~~~~~~~~~~~~~~~~~~~
+Bulk Downloads of Content Channels
+----------------------------------
 
-To export Kolibri content channels on a local drive in order to share it with another device, run these two commands in sequence. The first exports the channel database, and the second exports the resources (videos, documents, etc.). 
+``Coming soon!``
 
-.. code-block:: bash
-
-  kolibri manage exportchannel -- <Channel ID> /path/to/local/drive/KOLIBRI_DATA 
-  kolibri manage exportcontent -- <Channel ID> /mount/mydrive/KOLIBRI_DATA 
-
-The path should be to a folder named ``KOLIBRI_DATA`` at the root of the local drive, so it will get picked up later for importing via the Web UI.
+At this time we do not support bulk downloads of content channel outside the Kolibri platform.  In the near future, we will consider offering bit torrents for certain global content channels.
 
 
-Create a New Super User
-~~~~~~~~~~~~~~~~~~~~~~~
+Something isn’t working!
+------------------------
 
-In case you need to create another Super user, either to address additional need of managing facility, or if you lost the password for the old one, run the following command:
-
-.. code-block:: bash
-
-  kolibri manage createsuperuser
-
-You will be prompted to input the **Username** and **Password** and the new **Super user** user account will be created.
+Refer to the :ref:`Troubleshoot and Support <support>` section of this guide.
 
 
-Change Language
-~~~~~~~~~~~~~~~
+Who maintains the Kolibri project?
+----------------------------------
 
-.. code-block:: bash
+Kolibri is created, maintained, and operated by `Learning Equality, Inc <http://learningequality.org/about/>`_, a California-based nonprofit organization.
 
-  kolibri language setdefault <langcode>
 
-+-----------------------+-----------------+ 
-| Available languages in Kolibri          | 
-+=======================+=================+ 
-| English               | ``en``          |
-+-----------------------+-----------------+
-| Spanish (Spain)       | ``es-es``       | 
-+-----------------------+-----------------+ 
-| Spanish (Mexico)      | ``es-mx``       | 
-+-----------------------+-----------------+ 
-| French                | ``fr``          | 
-+-----------------------+-----------------+
-| Portuguese (Portugal) | ``pt-pt``       | 
-+-----------------------+-----------------+
-| Portuguese (Brazil)   | ``pt-br``       |
-+-----------------------+-----------------+
-| Swahili (Tanzania)    | ``sw-tz``       | 
-+-----------------------+-----------------+
-|                       |                 | 
-+-----------------------+-----------------+
+How do you operate in the field?
+--------------------------------
+
+The Learning Equality team primarily works in our San Diego offices, building software and shaping our road map based on our interactions with our partners around the world. We work with individual humanitarians and NGOs of all sizes to help them distribute Kolibri to offline communities around the world, and will work on site for research and training purposes.
+
+
+What is Kolibri’s affiliation with Khan Academy?
+------------------------------------------------
+
+Kolibri is an independent, open-source project maintained by `Learning Equality <http://learningequality.org/about/>`_, and is not officially affiliated with Khan Academy, although they are very supportive of the Kolibri project, and are one of our key partners.
+
+
+Can I contribute to Kolibri as a developer?
+-------------------------------------------
+
+Yes! Kolibri is an `open source project <https://github.com/learningequality/>`_, and developers are encouraged to contribute!
+
+
+Can I contribute to Kolibri as a translator?
+--------------------------------------------
+
+Yes, absolutely! To contribute to Kolibri and Kolibri Studio as a translator, you can get started over on our `translations and internationalization page <http://learningequality.org/translate/>`_.
+
+
+How do I find out more about LE and Kolibri?
+--------------------------------------------
+
+To stay up-to-date on all our activities, follow our `blog <https://blog.learningequality.org/>`_, `Twitter <https://twitter.com/LearnEQ/>`_, and `Facebook <https://www.facebook.com/learningequality>`_!

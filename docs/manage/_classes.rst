@@ -63,7 +63,7 @@ To edit class name, follow these steps.
 Enroll users to class
 *********************
 
-#. Click **Enroll users** button.
+#. Click the **Enroll users** button on the class details page.
 
     .. image:: img/add-users-to-class.png
       :alt: add users to class

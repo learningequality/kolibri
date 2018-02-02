@@ -1,5 +1,10 @@
+import getpass
+import sys
+
 import requests
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.core.validators import URLValidator
 from django.utils.six.moves import input
 from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.auth.models import FacilityUser
@@ -8,6 +13,8 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.tasks.management.commands.base import AsyncCommand
 from morango.certificates import Certificate, Filter, ScopeDefinition
 from morango.controller import MorangoProfileController
+from morango.models import InstanceIDModel
+from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
 
@@ -42,7 +49,7 @@ class Command(AsyncCommand):
         server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
         if not server_certs:
             print('Server does not have any certificates for dataset_id: {}'.format(dataset_id))
-            return
+            sys.exit(1)
         server_cert = server_certs[0]
 
         # check for the certs we own for the specific facility
@@ -57,13 +64,13 @@ class Command(AsyncCommand):
             # prompt user for creds if not already specified
             if not username or not password:
                 username = input('Please enter username: ')
-                password = input('Please enter password: ')
+                password = getpass.getpass('Please enter password: ')
             client_cert = nc.certificate_signing_request(server_cert, FULL_FACILITY, {'dataset_id': dataset_id},
                                                          userargs=username, password=password)
         else:
             client_cert = owned_certs[0]
 
-        return client_cert, server_cert
+        return client_cert, server_cert, username
 
     def create_superuser_and_provision_device(self, username, dataset_id):
         # Prompt user to pick a superuser if one does not currently exist
@@ -89,9 +96,30 @@ class Command(AsyncCommand):
             device_settings.save()
 
     def handle_async(self, *args, **options):
+        # validate url that is passed in
+        try:
+            URLValidator()((options['base_url']))
+        except ValidationError:
+            print('Base-url is not valid. Please retry command and enter a valid url.')
+            sys.exit(1)
+
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
-                call_command("loaddata", "scopedefinitions")
+            call_command("loaddata", "scopedefinitions")
+
+        # ping server at url with info request
+        info_url = urljoin(options['base_url'], 'api/morango/v1/morangoinfo/1/')
+        try:
+            info_resp = requests.get(info_url)
+        except ConnectionError:
+            print('Can not connect to server with base-url: {}'.format(options['base_url']))
+            sys.exit(1)
+
+        # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
+        if InstanceIDModel.get_or_create_current_instance()[0].id == info_resp.json()['instance_id']:
+            print('Device can not sync with itself. Please re-check base-url and try again.')
+            sys.exit(1)
+
         controller = MorangoProfileController('facilitydata')
         with self.start_progress(total=7) as progress_update:
             network_connection = controller.create_network_connection(options['base_url'])
@@ -100,8 +128,8 @@ class Command(AsyncCommand):
             options['dataset_id'] = self.get_dataset_id(options['base_url'], options['dataset_id'])
             progress_update(1)
 
-            client_cert, server_cert = self.get_client_and_server_certs(options['username'], options['password'],
-                                                                        options['dataset_id'], network_connection)
+            client_cert, server_cert, options['username'] = self.get_client_and_server_certs(options['username'], options['password'],
+                                                                                             options['dataset_id'], network_connection)
             progress_update(1)
 
             sync_client = network_connection.create_sync_session(client_cert, server_cert)
