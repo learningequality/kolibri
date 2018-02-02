@@ -34,7 +34,7 @@
         </dd>
         <dt>
           <!-- TODO wrapp strings -->
-          Visibility
+          Visible to
         </dt>
         <dd>
           <ul class="group-list">
@@ -46,7 +46,7 @@
         </dd>
         <dt>
           <!-- TODO wrapp strings -->
-          Description:
+          Description
         </dt>
         <dd>
           {{ lessonDescription }}
@@ -148,51 +148,57 @@
 
 <style lang="stylus" scoped>
 
-.lesson-summary-header
-  // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
-  display: table
-  width: 100%
+  @require '~kolibri.styles.definitions'
+  $table-header-size = 12px
 
-  &-title
-    display: inline-block
 
-    &-block
+  .lesson-summary-header
+    // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
+    display: table
+    width: 100%
+
+    &-title
+      display: inline-block
+
+      &-block
+        display: table-cell
+        text-align: left
+
+    &-options
       display: table-cell
-      text-align: left
+      text-align: right
 
-  &-options
-    display: table-cell
-    text-align: right
+  // TODO use classes
+  dt
+    color: $core-text-annotation // same as table header
+    font-size: $table-header-size
+    // TODO replace with verified values
+    margin-top: 1em
+    margin-bottom: 1em
 
-// TODO use classes
-dt
-  font-weight: bold
-  // TODO replace with verified values
-  margin-top: 1em
-  margin-bottom: 1em
+  dd
+    margin-left: 0
+    margin-bottom: 1.5em
 
-dd
-  margin: 0
-
-.group-list
-  margin: 0
-  padding: 0
-  &-item
+  .group-list
     margin: 0
-    list-style: none
-    &:not(:last-child)::after
-      // is this kosher?
-      content: ','
+    padding: 0
+    &-item
+      margin: 0
+      list-style: none
+      &:not(:last-child)::after
+        // is this kosher?
+        content: ','
 
-.title-lesson-icon
-  display: inline-block
-  font-size: 1.8em
-  margin-right: 0.5em
-  >>>.ui-icon
-    vertical-align: bottom
+  .title-lesson-icon
+    display: inline-block
+    font-size: 1.8em
+    margin-right: 0.5em
+    >>>.ui-icon
+      vertical-align: bottom
 
-.change-status-button
-  vertical-align: sub // hack for now?
-  margin-left: 0.5em
+  .change-status-button
+    vertical-align: sub // hack for now?
+    margin-left: 0.5em
 
 </style>
