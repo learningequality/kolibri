@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.6.2
+-----
+
+ - Consistent ordering of channels in learner views
+
+
 0.6.1
 -----
 
