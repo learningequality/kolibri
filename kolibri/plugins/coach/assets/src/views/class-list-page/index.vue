@@ -18,9 +18,7 @@
         <tbody slot="tbody">
           <tr v-for="cl in sortedClasses" :key="cl.id">
             <td class="icon-col">
-              <ui-icon class="core-table-content-icon">
-                <mat-svg category="social" name="people" />
-              </ui-icon>
+              <ui-icon icon="people" class="core-table-content-icon" />
             </td>
             <th scope="row" class="main-col">
               <k-router-link
