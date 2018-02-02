@@ -56,7 +56,9 @@ class VersionCompat:
 
         # Otherwise assume we have the old tuple with strings.
 
+        # Remove leading 0's
         self.tpl_or_version = map(lambda s: s.lstrip("0"), self.tpl_or_version)
+        self.tpl_or_version = map(lambda s: s or "0", self.tpl_or_version)
         # When map returns a map object in Python 3...
         self.tpl_or_version = tuple(self.tpl_or_version)
 

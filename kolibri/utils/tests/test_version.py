@@ -152,6 +152,16 @@ class TestKolibriVersion(unittest.TestCase):
         """
         assert get_version((0, 1, 0, "beta", 1)) == "0.1.0b2"
 
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.7.1b1.dev+git-12-g2a8fe31")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
+    def test_beta_1_consistent_dev_release_version_file(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION file can overwrite an beta-1 state in case the
+        version was bumped in ``kolibri.VERSION``.
+        """
+        assert get_version((0, 7, 1, "alpha", 0)) == "0.7.1b1.dev+git-12-g2a8fe31"
+
     @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0b1")
     @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.0.1")
     @mock.patch('kolibri.utils.version.get_git_changeset', return_value="+git123")
@@ -322,3 +332,7 @@ class TestKolibriVersion(unittest.TestCase):
         assert VersionCompat(
             ('00000001', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
         ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000000', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+        ).base_version == "0.2.3"
