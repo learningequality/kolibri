@@ -13,12 +13,7 @@
       name="lens"
       class="status-icon-inactive"
     />
-    <template v-if="active">
-      {{ $tr('active') }}
-    </template>
-    <template v-else>
-      {{ $tr('inactive') }}
-    </template>
+    <span class="active-text">{{ active ? $tr('active') : $tr('inactive') }}</span>
   </span>
 
 </template>
@@ -59,5 +54,9 @@
 
   .status-icon-inactive
     fill: $core-grey
+
+  .active-text
+    margin-left: 8px
+    vertical-align: inherit
 
 </style>

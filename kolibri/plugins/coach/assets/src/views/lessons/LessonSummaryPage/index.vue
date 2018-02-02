@@ -18,7 +18,7 @@
           Status
         </dt>
         <dd>
-          {{ lessonActive ? $tr('active') : $tr('inactive') }}
+          <status-icon :active="lessonActive" />
         </dd>
         <dt>
           <!-- TODO wrapp strings -->
@@ -62,6 +62,7 @@
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
   import { LessonActions } from '../../../lessonsConstants';
+  import StatusIcon from '../StatusIcon';
 
   const actionsToLabelMap = {
     [LessonActions.COPY]: 'copyLesson',
@@ -75,6 +76,7 @@
     components: {
       dropdownMenu,
       ManageLessonModals,
+      StatusIcon,
     },
     data() {
       return {
