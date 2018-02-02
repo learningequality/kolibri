@@ -1,3 +1,45 @@
+kolibri-source (0.7.1~b1.dev0+git.13.gf1d43ed-0ubuntu2) trusty; urgency=medium
+
+  * Quilt patches for removing Python 2 syntax
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Feb 2018 14:48:55 +0100
+
+kolibri-source (0.7.1~b1.dev0+git.13.gf1d43ed-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Feb 2018 02:49:25 +0100
+
+kolibri-source (0.7.1~b1.dev0+git.12.g2a8fe31-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Feb 2018 00:10:47 +0100
+
+kolibri-source (0.7.1~b1.dev0+git.10.gb0f4ff4-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 01 Feb 2018 00:27:18 +0100
+
+kolibri-source (0.7.1~b1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 28 Jan 2018 23:02:20 +0100
+
+kolibri-source (0.7.0-0ubuntu1) xenial; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 11 Dec 2017 17:34:50 +0100
+
+kolibri-source (0.7.0~beta5-0ubuntu1) xenial; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 04 Dec 2017 16:27:05 +0100
+
 kolibri-source (0.6.0-0ubuntu4) xenial; urgency=medium
 
   * Drop Trusty support for now.
