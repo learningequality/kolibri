@@ -7,9 +7,7 @@
     <!-- Classroom Selection Form -->
     <div v-if="stage===Stages.SELECT_CLASSROOM">
       <p>{{ $tr('copyLessonExplanation') }}</p>
-      <form
-        @submit.prevent="goToAvailableGroups()"
-      >
+      <form @submit.prevent="goToAvailableGroups()">
         <template v-for="classroom in availableClassrooms">
           <k-radio-button
             :key="classroom.id"

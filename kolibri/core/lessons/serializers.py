@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, JSONField, SerializerMethodField
+from rest_framework.serializers import ModelSerializer, JSONField, SerializerMethodField, ValidationError
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from .models import Lesson, LessonAssignment
@@ -89,6 +89,11 @@ class LessonSerializer(ModelSerializer):
 
         instance.save()
         return instance
+
+    def validate_assigned_groups(self, value):
+        if len(value) == 0:
+            raise ValidationError('Lessons must be assigned to at least one Collection')
+        return value
 
     def _create_lesson_assignment(self, **params):
         return LessonAssignment.objects.create(
