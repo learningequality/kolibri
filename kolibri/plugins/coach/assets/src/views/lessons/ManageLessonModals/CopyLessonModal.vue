@@ -80,7 +80,6 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
-  import { updateLessons } from '../../../state/actions/lessons';
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
@@ -171,7 +170,7 @@
       createLessonCopy() {
         const { name, description, resources } = this.currentLesson;
         const payload = {
-          name: this.$tr('copyOfLesson', { lessonName: name }),
+          name: this.$tr('copyOfLesson', { lessonName: name }).substring(0, 50),
           description,
           resources,
           collection: this.selectedClassroomId,
