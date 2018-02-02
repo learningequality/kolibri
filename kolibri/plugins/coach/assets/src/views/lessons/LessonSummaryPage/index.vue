@@ -215,7 +215,8 @@
   .info-icon
     font-size: $table-header-size + 2 // scaling so that the 'i' fits
     vertical-align: top
-    color: $core-text-annotation
+    color: $core-accent-color
+    cursor: pointer
 
   .group-list
     margin: 0
