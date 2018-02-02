@@ -7,7 +7,9 @@
           kind="lesson"
           class="title-lesson-icon"
         />
-        <h1 class="lesson-summary-header-title"> {{ lessonTitle }} </h1>
+        <h1 class="lesson-summary-header-title">
+          {{ lessonTitle }}
+        </h1>
       </div>
       <div class="lesson-summary-header-options">
         <dropdown-menu
@@ -20,8 +22,20 @@
     <div>
       <dl>
         <dt>
-          <!-- TODO wrapp strings -->
-          Status
+          {{ $tr('status') }}
+          <ui-icon
+            ref="info-icon"
+            class="info-icon"
+            :ariaLabel="$tr('lessonStatusDescription')"
+            icon="info_outline"
+          />
+          <ui-tooltip
+            class="info-icon-tooltip"
+            position="bottom left"
+            trigger="info-icon"
+          >
+            {{ $tr('statusTooltipText') }}
+          </ui-tooltip>
         </dt>
         <dd>
           <status-icon :active="lessonActive" />
@@ -29,12 +43,11 @@
             appearance="basic-link"
             class="change-status-button"
             :text="$tr('changeLessonStatus')"
-            @click="currentAction = LessonActions.CHANGE_STATUS"
+            @click="currentAction=LessonActions.CHANGE_STATUS"
           />
         </dd>
         <dt>
-          <!-- TODO wrapp strings -->
-          Visible to
+          {{ $tr('visibleTo') }}
         </dt>
         <dd>
           <ul class="group-list">
@@ -45,8 +58,7 @@
           </ul>
         </dd>
         <dt>
-          <!-- TODO wrapp strings -->
-          Description
+          {{ $tr('description') }}
         </dt>
         <dd>
           {{ lessonDescription }}
@@ -77,7 +89,8 @@
   import { LessonActions } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-
+  import uiTooltip from 'keen-ui/src/UiTooltip';
+  import uiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     components: {
@@ -86,6 +99,8 @@
       StatusIcon,
       contentIcon,
       kButton,
+      uiIcon,
+      uiTooltip
     },
     data() {
       return {
@@ -137,9 +152,12 @@
       editLessonDetails: 'Edit details',
       inactive: 'Inactive',
       options: 'Options',
+      lessonStatusDescription: 'Lesson status description',
       resources: 'Resources',
       status: 'Status',
       visibleTo: 'Visible to',
+      statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
+
     }
   };
 
@@ -179,6 +197,11 @@
   dd
     margin-left: 0
     margin-bottom: 1.5em
+
+  .info-icon
+    font-size: $table-header-size + 2 // scaling so that the 'i' fits
+    vertical-align: top
+    color: $core-text-annotation
 
   .group-list
     margin: 0
