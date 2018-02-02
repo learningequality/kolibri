@@ -152,6 +152,16 @@ class TestKolibriVersion(unittest.TestCase):
         """
         assert get_version((0, 1, 0, "beta", 1)) == "0.1.0b2"
 
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.7.1b1.dev+git-12-g2a8fe31")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
+    def test_beta_1_consistent_dev_release_version_file(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION file can overwrite an beta-1 state in case the
+        version was bumped in ``kolibri.VERSION``.
+        """
+        assert get_version((0, 7, 1, "alpha", 0)) == "0.7.1b1.dev+git-12-g2a8fe31"
+
     @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0b1")
     @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.0.1")
     @mock.patch('kolibri.utils.version.get_git_changeset', return_value="+git123")
@@ -160,6 +170,16 @@ class TestKolibriVersion(unittest.TestCase):
         Test that the VERSION file is NOT used where git data is available
         """
         assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev+git123"
+
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
+    def test_version_file_final(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION specifying a final version will work when the
+        kolibri.VERSION tuple is consistent.
+        """
+        assert get_version((0, 1, 0, "final", 0)) == "0.1.0"
 
     def test_alpha_1_inconsistent_git(self):
         """
@@ -264,3 +284,55 @@ class TestKolibriVersion(unittest.TestCase):
         v = get_version((0, 1, 1, "final", 1))
         self.assertEqual(v, "0.1.1.post1")
         assert describe_mock.call_count == 0
+
+    def test_version_compat(self):
+        """
+        Test that our version glue works for some really old releases of
+        setuptools, like the one in Ubuntu 14.04.
+
+        We don't have a reference implementation, but parse_version will return
+        a tuple, and this is from a live system::
+
+            test@test-VirtualBox:~$ python
+            Python 2.7.6 (default, Jun 22 2015, 17:58:13)
+            [GCC 4.8.2] on linux2
+            Type "help", "copyright", "credits" or "license" for more information.
+            >>> from pkg_resources import parse_version
+            >>> parse_version("1.2.3")
+            ('00000001', '00000002', '00000003', '*final')
+            >>> parse_version("1.2.3.dev0")
+            ('00000001', '00000002', '00000003', '*@', '*final')
+            >>> parse_version("1.2.3a1")
+            ('00000001', '00000002', '00000003', '*a', '00000001', '*final')
+            >>> parse_version("1.2.3a0")
+            ('00000001', '00000002', '00000003', '*a', '*final')
+            >>> parse_version("1.2.3b1")
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*final')
+            >>> parse_version("1.2.3b1+git-123")
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+
+        """
+        from kolibri.utils.compat import VersionCompat
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*@', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*a', '00000001', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000001', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+        ).base_version == "1.2.3"
+
+        assert VersionCompat(
+            ('00000000', '00000002', '00000003', '*b', '00000001', '*+', '*git', '*final-', '00000123', '*final')
+        ).base_version == "0.2.3"
