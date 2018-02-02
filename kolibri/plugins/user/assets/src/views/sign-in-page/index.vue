@@ -93,12 +93,7 @@
         <language-switcher-footer class="footer-cell" />
       </div>
     </div>
-    <core-snackbar
-      v-if="showSignedOutDueToInactivitySnackbar"
-      :text="$tr('signedOut')"
-      :actionText="$tr('dismiss')"
-      @actionClicked="clearSnackbar"
-    />
+
   </div>
 
 </template>
@@ -106,11 +101,11 @@
 
 <script>
 
-  import { kolibriLogin, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import { facilityConfig, currentFacilityId, currentSnackbar } from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import { LoginErrors, SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
+  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
@@ -119,7 +114,6 @@
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import languageSwitcherFooter from '../language-switcher-footer';
-  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
 
   export default {
     name: 'signInPage',
@@ -136,8 +130,6 @@
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      signedOut: 'You were automatically signed out due to inactivity',
-      dismiss: 'Dismiss',
     },
     components: {
       kButton,
@@ -148,7 +140,6 @@
       uiAutocompleteSuggestion,
       uiAlert,
       languageSwitcherFooter,
-      coreSnackbar,
     },
     data: () => ({
       username: '',
@@ -209,9 +200,6 @@
       },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
-      },
-      showSignedOutDueToInactivitySnackbar() {
-        return this.currentSnackbar === SignedOutDueToInactivitySnackbar;
       },
     },
     watch: { username: 'setSuggestionTerm' },
@@ -321,11 +309,9 @@
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
-        currentSnackbar,
       },
       actions: {
         kolibriLogin,
-        clearSnackbar,
       },
     },
   };

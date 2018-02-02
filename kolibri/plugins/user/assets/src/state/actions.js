@@ -1,5 +1,5 @@
 import { PageNames } from '../constants';
-import { SignedOutDueToInactivitySnackbar } from 'kolibri.coreVue.vuex.constants';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -84,11 +84,18 @@ export function showProfilePage(store) {
 }
 
 export function showSignInPage(store) {
-  if (Lockr.get(SignedOutDueToInactivitySnackbar)) {
-    store.dispatch('CORE_SET_CURRENT_SNACKBAR', SignedOutDueToInactivitySnackbar);
-    Lockr.set(SignedOutDueToInactivitySnackbar, null);
+  const trs = createTranslator('signedOutSnackbar', {
+    signedOut: 'You were automatically signed out due to inactivity',
+    dismiss: 'Dismiss',
+  });
+  if (Lockr.get(SIGNED_OUT_DUE_TO_INACTIVITY)) {
+    coreActions.createSnackbar(store, {
+      text: trs.$tr('signedOut'),
+      actionText: trs.$tr('dismiss'),
+      actionCallback: () => coreActions.clearSnackbar(store),
+    });
+    Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
-
   resetAndSetPageName(store, {
     pageName: PageNames.SIGN_IN,
     title: translator.$tr('userSignInPageTitle'),

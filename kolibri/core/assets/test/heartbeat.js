@@ -6,11 +6,16 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { ConnectionSnackbars } from 'kolibri.coreVue.vuex.constants';
-import { currentSnackbar, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
+import {
+  snackbarIsVisible,
+  snackbarOptions,
+  connected,
+  reconnectTime,
+} from 'kolibri.coreVue.vuex.getters';
 
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
+import { trs } from '../src/disconnection';
 
 describe('HeartBeat', function() {
   describe('constructor method', function() {
@@ -101,7 +106,8 @@ describe('HeartBeat', function() {
       assert.notEqual(reconnectTime(this.store.state), null);
     });
     it('should set current snackbar to disconnected', function() {
-      assert.equal(currentSnackbar(this.store.state), ConnectionSnackbars.DISCONNECTED);
+      assert.equal(snackbarIsVisible(this.store.state), true);
+      assert.equal(snackbarOptions(this.store.state), trs.$tr('disconnected'));
     });
     it('should not do anything if it already knows it is disconnected', function() {
       this.store.dispatch('CORE_SET_RECONNECT_TIME', 'fork');
@@ -152,7 +158,8 @@ describe('HeartBeat', function() {
       });
       it('should set snackbar to trying to reconnect', function() {
         this.heartBeat.checkSession();
-        assert.equal(currentSnackbar(this.store.state), ConnectionSnackbars.TRYING_TO_RECONNECT);
+        assert.equal(snackbarIsVisible(this.store.state), true);
+        assert.equal(snackbarOptions(this.store.state), trs.$tr('tryingToReconnect'));
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
@@ -161,7 +168,8 @@ describe('HeartBeat', function() {
           server.respondWith([errorCode, {}, '']);
           server.autoRespond = true;
           return this.heartBeat.checkSession().finally(() => {
-            assert.equal(currentSnackbar(this.store.state), ConnectionSnackbars.DISCONNECTED);
+            assert.equal(snackbarIsVisible(this.store.state), true);
+            assert.equal(snackbarOptions(this.store.state), trs.$tr('disconnected'));
             server.restore();
           });
         });
@@ -190,10 +198,8 @@ describe('HeartBeat', function() {
         });
         it('should set snackbar to reconnected', function() {
           return this.heartBeat.checkSession().finally(() => {
-            assert.equal(
-              currentSnackbar(this.store.state),
-              ConnectionSnackbars.SUCCESSFULLY_RECONNECTED
-            );
+            assert.equal(snackbarIsVisible(this.store.state), true);
+            assert.equal(snackbarOptions(this.store.state), trs.$tr('successfullyReconnected'));
           });
         });
         it('should set connected to true', function() {
