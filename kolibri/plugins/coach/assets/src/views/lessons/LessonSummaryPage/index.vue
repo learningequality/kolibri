@@ -45,23 +45,8 @@
       <h2>{{ $tr('resources') }}</h2>
       <table></table>
 
-      <delete-lesson-modal
-        v-if="currentAction==='deleteLesson'"
-        @cancel="currentAction=null"
-      />
-
-      <change-lesson-status-modal
-        v-if="currentAction==='changeLessonStatus'"
-        @cancel="currentAction=null"
-      />
-
-      <edit-lesson-details-modal
-        v-if="currentAction==='editLessonDetails'"
-        @cancel="currentAction=null"
-      />
-
-      <copy-lesson-modal
-        v-if="currentAction==='copyLesson'"
+      <manage-lesson-modals
+        :currentAction="currentAction"
         @cancel="currentAction=null"
       />
     </div>
@@ -74,27 +59,22 @@
 <script>
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
-  // TODO consolidate all modals into a single ManageLessonsModal
-  import DeleteLessonModal from '../ManageLessonModals/DeleteLessonModal';
-  import ChangeLessonStatusModal from '../ManageLessonModals/ChangeLessonStatusModal';
-  import EditLessonDetailsModal from '../ManageLessonModals/EditLessonDetailsModal';
-  import CopyLessonModal from '../ManageLessonModals/CopyLessonModal';
+  import map from 'lodash/map';
+  import ManageLessonModals from '../ManageLessonModals';
+  import { LessonActions } from '../../../lessonsConstants';
 
-  const lessonActions = [
-    'editLessonDetails',
-    'copyLesson',
-    'deleteLesson',
+  const actionsToLabelMap = {
+    [LessonActions.COPY]: 'copyLesson',
+    [LessonActions.DELETE]: 'deleteLesson',
+    [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
     // TODO remove from dropdown
-    'changeLessonStatus',
-  ];
+    [LessonActions.CHANGE_STATUS]: 'changeLessonStatus',
+  };
 
   export default {
     components: {
-      ChangeLessonStatusModal,
-      CopyLessonModal,
-      DeleteLessonModal,
-      EditLessonDetailsModal,
       dropdownMenu,
+      ManageLessonModals,
     },
     data() {
       return {
@@ -103,10 +83,10 @@
     },
     computed: {
       lessonOptions() {
-        return lessonActions.map(action => ({
-          label: this.$tr(action),
+        return map(actionsToLabelMap, (label, action) => ({
+          label: this.$tr(label),
           action,
-        }));
+        }))
       }
     },
     methods: {

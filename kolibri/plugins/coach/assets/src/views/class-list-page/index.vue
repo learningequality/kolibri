@@ -56,9 +56,6 @@
       kRouterLink,
       uiIcon,
     },
-    data: () => ({
-      currentClassDelete: null,
-    }),
     computed: {
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
