@@ -35,8 +35,6 @@
         v-model="searchFilter"
         class="searchbar"
       />
-
-
     </div>
 
     <!-- Modals -->
@@ -48,52 +46,56 @@
       :userid="currentUserRemove.id"
     />
 
-    <table class="roster">
-
+    <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
-      <thead v-if="usersMatchFilter">
+      <thead slot="thead" v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
-          <th class="col-header" scope="col">
+          <th class="icon-col"></th>
+          <th>{{ $tr('username') }}</th>
+          <th>
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
-          <th class="col-header" scope="col"></th>
+          <th>{{ $tr('fullName') }}</th>
+          <th></th>
         </tr>
       </thead>
 
       <!-- Table body -->
-      <tbody v-if="usersMatchFilter">
+      <tbody slot="tbody" v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers" :key="user.id">
-          <!-- Username field -->
-          <th class="table-cell table-username" scope="col">
-            {{ user.username }}
-          </th>
-
-          <!-- Logic for role tags -->
-          <td class="table-cell table-role">
+          <td class="icon-col">
+            <ui-icon
+              class="core-table-content-icon"
+              icon="person"
+            />
           </td>
 
+          <!-- Username field -->
+          <th class="main-col">{{ user.username }}</th>
+
+          <!-- Logic for role tags -->
+          <td></td>
+
           <!-- Full Name field -->
-          <td scope="row" class="table-cell full-name">
-            <span class="table-name">
-              {{ user.full_name }}
-            </span>
+          <td>
+            <span class="table-name">{{ user.full_name }}</span>
           </td>
 
           <!-- Edit field -->
-          <td class="table-cell">
-            <div class="remove-user-btn" @click="openRemoveUserModal(user)">
-              {{ $tr('remove') }}
-            </div>
+          <td>
+            <k-button
+              appearance="flat-button"
+              @click="openRemoveUserModal(user)"
+              :text="$tr('remove')"
+            />
           </td>
 
         </tr>
       </tbody>
 
-    </table>
+    </core-table>
 
     <p class="empty-list" v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
     <p class="empty-list" v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
@@ -105,6 +107,8 @@
 
 <script>
 
+  import CoreTable from '../../../../../coach/assets/src/views/lessons/CoreTable';
+  import UiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import * as actions from '../../state/actions';
@@ -112,6 +116,7 @@
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
     name: 'classEnrollPage',
@@ -130,10 +135,13 @@
       allUsersFilteredOut: 'No matching users',
     },
     components: {
+      CoreTable,
       classRenameModal,
       userRemoveModal,
+      kButton,
       kRouterLink,
       kFilterTextbox,
+      UiIcon,
     },
     data: () => ({
       searchFilter: '',
@@ -207,10 +215,11 @@
 
   @require '~kolibri.styles.definitions'
 
-  // Padding height that separates rows from eachother
-  $row-padding = 1.8em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
+
+  .toolbar
+    margin-bottom: 32px
 
   .searchbar
     margin-top: 5px
@@ -250,27 +259,6 @@
     display: inline-block
     font-weight: normal
 
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
-
-  tr
-    text-align: left
-
-  tbody tr:nth-child(odd)
-    background-color: $core-bg-canvas
-
-  .roster
-    min-width: 600px
-    margin-top: 20px
-
-  th
-    text-align: inherit
-
-  th, td
-    vertical-align: middle
-
   .remove-user-btn
     color: $core-action-normal
     font-weight: bold
@@ -278,22 +266,6 @@
     padding: 8px
     cursor: pointer
     margin-right: 4px
-
-  .col-header
-    padding-bottom: (0.7 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
-    width: 30%
-
-  .table-cell
-    color: $core-text-default
-
-  .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
-    display: inline-block
 
   .user-roster
     overflow-x: auto
