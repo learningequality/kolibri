@@ -40,6 +40,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { LessonResource } from 'kolibri.resources';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     components: {
@@ -69,17 +70,23 @@
         if (!this.statusHasChanged) {
           return this.closeModal();
         }
-        return LessonResource.getModel(this.lessonId).save({
-          is_active: this.activeIsSelected,
-        })
-          ._promise
-          .then(lesson => {
+        return LessonResource.getModel(this.lessonId)
+          .save({
+            is_active: this.activeIsSelected,
+          })
+          ._promise.then(lesson => {
             this.updateCurrentLesson(lesson);
             this.closeModal();
+            this.createSnackbar({
+              text: this.activeIsSelected
+                ? this.$tr('lessonIsNowActive')
+                : this.$tr('lessonIsNowInactive'),
+              autoDismiss: true,
+            });
           })
           .catch(err => {
             // TODO handle error properly
-            console.error(err)
+            console.error(err);
           });
       },
     },
@@ -92,6 +99,7 @@
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
         },
+        createSnackbar,
       },
     },
     $trs: {
@@ -100,6 +108,8 @@
       cancel: 'Cancel',
       activeOption: 'Active. Learners can see this lesson.',
       inactiveOption: 'Inactive. Lesson is hidden from learners.',
+      lessonIsNowActive: 'Lesson is now active',
+      lessonIsNowInactive: 'Lesson is now inactive',
     },
   };
 
