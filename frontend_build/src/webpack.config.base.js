@@ -150,6 +150,7 @@ var config = {
   node: {
     __filename: true,
   },
+  stats: 'minimal',
 };
 
 // Only lint in dev mode if LINT env is set. Always lint in production.
