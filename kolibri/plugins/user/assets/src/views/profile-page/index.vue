@@ -38,11 +38,11 @@
         {{ $tr('success') }}
       </ui-alert>
       <ui-alert
-        v-if="error"
+        v-if="unknownError"
         type="error"
         :dismissible="false"
       >
-        {{ errorMessage || $tr('genericError') }}
+        {{ errorMessage }}
       </ui-alert>
 
       <k-textbox
@@ -74,6 +74,7 @@
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
+        @input="resetProfileState"
         v-model="username"
       />
       <template v-else>
@@ -139,6 +140,7 @@
       required: 'This field is required',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
+      usernameAlreadyExists: 'An account with that username already exists',
     },
     components: {
       kButton,
@@ -215,11 +217,26 @@
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
+          }
         }
         return '';
       },
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
+      },
+      usernameAlreadyExists() {
+        return this.errorCode === 400;
+      },
+      unknownError() {
+        if (this.errorCode) {
+          return this.errorCode !== 400;
+        }
+        return false;
+      },
+      errorMessage() {
+        return this.backendErrorMessage || this.$tr('genericError');
       },
       formIsValid() {
         return !this.usernameIsInvalid;
@@ -265,8 +282,8 @@
         totalPoints,
         session: state => state.core.session,
         busy: state => state.pageState.busy,
-        error: state => state.pageState.error,
-        errorMessage: state => state.pageState.errorMessage,
+        errorCode: state => state.pageState.errorCode,
+        backendErrorMessage: state => state.pageState.errorMessage,
         success: state => state.pageState.success,
         getUserRole,
         getUserPermissions,

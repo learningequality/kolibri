@@ -70,6 +70,7 @@ export function updateUserProfile(store, { edits, session }) {
       store.dispatch('SET_PROFILE_ERROR', {
         isError: true,
         errorMessage,
+        errorCode: status.code,
       });
     }
   );
