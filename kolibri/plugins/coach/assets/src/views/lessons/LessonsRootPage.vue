@@ -81,7 +81,7 @@
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
   import StatusIcon from './StatusIcon';
-  import CoreTable from './CoreTable'
+  import CoreTable from './CoreTable';
 
   export default {
     name: 'LessonsRootPage',
@@ -120,7 +120,7 @@
         ];
       },
       filteredLessons() {
-        switch(this.filterSelection.value) {
+        switch (this.filterSelection.value) {
           case this.$tr('activeLessons'):
             return this.lessons.filter(lesson => lesson.is_active);
           case this.$tr('inactiveLessons'):
@@ -144,8 +144,10 @@
       },
       getLessonVisibility(assignedGroups) {
         const numOfAssignments = assignedGroups.length;
-        if (numOfAssignments === 1 && assignedGroups[0].collection_kind ===
-        CollectionKinds.CLASSROOM) {
+        if (
+          numOfAssignments === 1 &&
+          assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM
+        ) {
           return this.$tr('entireClass');
         }
         return this.$tr('numberOfGroups', { count: numOfAssignments });
@@ -170,10 +172,11 @@
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       status: 'Status',
-      numberOfResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      numberOfResources:
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
       noLessons: 'No lessons',
       noActiveLessons: 'No active lessons',
-      noInactiveLessons: 'No inactive lessons'
+      noInactiveLessons: 'No inactive lessons',
     },
   };
 

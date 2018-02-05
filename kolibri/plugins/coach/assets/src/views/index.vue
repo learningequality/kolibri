@@ -1,9 +1,13 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="$tr('coachTitle')"
+    :navBarNeeded="!isLoading && !currentPageIsImmersive"
+  >
 
     <div class="content">
-      <template v-if="showTopNav">
+      <template v-if="!isLoading && !currentPageIsImmersive">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav />
       </template>
@@ -21,6 +25,7 @@
 
 <script>
 
+  import { currentPageIsImmersive } from '../state/getters/main';
   import { PageNames } from '../constants';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -128,12 +133,14 @@
     },
     vuex: {
       getters: {
+        currentPageIsImmersive,
         pageName: state => state.pageName,
         isAdmin,
         isCoach,
         isSuperuser,
         classList: state => state.classList,
         classId: state => state.classId,
+        isLoading: state => state.core.loading,
       },
     },
   };
