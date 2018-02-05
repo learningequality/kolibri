@@ -1,3 +1,4 @@
+cherrypy-6.2.0.diff
 rm-py2only.diff
 ifcfg.diff
 kolibri_exercise_perseus_plugin.diff

@@ -1,3 +1,57 @@
+--- a/kolibri/dist/py2only/_dummy_thread/__init__.py
++++ /dev/null
+@@ -1,10 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from dummy_thread import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/_markupbase/__init__.py
++++ /dev/null
+@@ -1,10 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from markupbase import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/_thread/__init__.py
++++ /dev/null
+@@ -1,10 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from thread import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/builtins/__init__.py
++++ /dev/null
+@@ -1,12 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from __builtin__ import *
+-    # Overwrite any old definitions with the equivalent future.builtins ones:
+-    from future.builtins import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
 --- a/kolibri/dist/py2only/concurrent/__init__.py
 +++ /dev/null
 @@ -1,3 +0,0 @@
@@ -32,7 +86,7 @@
 -    pass
 --- a/kolibri/dist/py2only/concurrent/futures/_base.py
 +++ /dev/null
-@@ -1,631 +0,0 @@
+@@ -1,667 +0,0 @@
 -# Copyright 2009 Brian Quinlan. All Rights Reserved.
 -# Licensed to PSF under a Contributor Agreement.
 -
@@ -207,6 +261,29 @@
 -
 -    return waiter
 -
+-
+-def _yield_finished_futures(fs, waiter, ref_collect):
+-    """
+-    Iterate on the list *fs*, yielding finished futures one by one in
+-    reverse order.
+-    Before yielding a future, *waiter* is removed from its waiters
+-    and the future is removed from each set in the collection of sets
+-    *ref_collect*.
+-
+-    The aim of this function is to avoid keeping stale references after
+-    the future is yielded and before the iterator resumes.
+-    """
+-    while fs:
+-        f = fs[-1]
+-        for futures_set in ref_collect:
+-            futures_set.remove(f)
+-        with f._condition:
+-            f._waiters.remove(waiter)
+-        del f
+-        # Careful not to keep a reference to the popped value
+-        yield fs.pop()
+-
+-
 -def as_completed(fs, timeout=None):
 -    """An iterator over the given futures that yields each as it completes.
 -
@@ -229,16 +306,19 @@
 -        end_time = timeout + time.time()
 -
 -    fs = set(fs)
+-    total_futures = len(fs)
 -    with _AcquireFutures(fs):
 -        finished = set(
 -                f for f in fs
 -                if f._state in [CANCELLED_AND_NOTIFIED, FINISHED])
 -        pending = fs - finished
 -        waiter = _create_and_install_waiters(fs, _AS_COMPLETED)
--
+-    finished = list(finished)
 -    try:
--        for future in finished:
--            yield future
+-        for f in _yield_finished_futures(finished, waiter,
+-                                         ref_collect=(fs,)):
+-            f = [f]
+-            yield f.pop()
 -
 -        while pending:
 -            if timeout is None:
@@ -248,7 +328,7 @@
 -                if wait_timeout < 0:
 -                    raise TimeoutError(
 -                            '%d (of %d) futures unfinished' % (
--                            len(pending), len(fs)))
+-                            len(pending), total_futures))
 -
 -            waiter.event.wait(wait_timeout)
 -
@@ -257,11 +337,15 @@
 -                waiter.finished_futures = []
 -                waiter.event.clear()
 -
--            for future in finished:
--                yield future
--                pending.remove(future)
+-            # reverse to keep finishing order
+-            finished.reverse()
+-            for f in _yield_finished_futures(finished, waiter,
+-                                             ref_collect=(fs, pending)):
+-                f = [f]
+-                yield f.pop()
 -
 -    finally:
+-        # Remove waiter from unfinished futures
 -        for f in fs:
 -            with f._condition:
 -                f._waiters.remove(waiter)
@@ -357,17 +441,20 @@
 -        with self._condition:
 -            if self._state == FINISHED:
 -                if self._exception:
--                    return '<Future at %s state=%s raised %s>' % (
--                        hex(id(self)),
+-                    return '<%s at %#x state=%s raised %s>' % (
+-                        self.__class__.__name__,
+-                        id(self),
 -                        _STATE_TO_DESCRIPTION_MAP[self._state],
 -                        self._exception.__class__.__name__)
 -                else:
--                    return '<Future at %s state=%s returned %s>' % (
--                        hex(id(self)),
+-                    return '<%s at %#x state=%s returned %s>' % (
+-                        self.__class__.__name__,
+-                        id(self),
 -                        _STATE_TO_DESCRIPTION_MAP[self._state],
 -                        self._result.__class__.__name__)
--            return '<Future at %s state=%s>' % (
--                    hex(id(self)),
+-            return '<%s at %#x state=%s>' % (
+-                    self.__class__.__name__,
+-                    id(self),
 -                   _STATE_TO_DESCRIPTION_MAP[self._state])
 -
 -    def cancel(self):
@@ -390,7 +477,7 @@
 -        return True
 -
 -    def cancelled(self):
--        """Return True if the future has cancelled."""
+-        """Return True if the future was cancelled."""
 -        with self._condition:
 -            return self._state in [CANCELLED, CANCELLED_AND_NOTIFIED]
 -
@@ -608,7 +695,7 @@
 -        raise NotImplementedError()
 -
 -    def map(self, fn, *iterables, **kwargs):
--        """Returns a iterator equivalent to map(fn, iter).
+-        """Returns an iterator equivalent to map(fn, iter).
 -
 -        Args:
 -            fn: A callable that will take as many arguments as there are
@@ -635,11 +722,14 @@
 -        # before the first iterator value is required.
 -        def result_iterator():
 -            try:
--                for future in fs:
+-                # reverse to keep finishing order
+-                fs.reverse()
+-                while fs:
+-                    # Careful not to keep a reference to the popped future
 -                    if timeout is None:
--                        yield future.result()
+-                        yield fs.pop().result()
 -                    else:
--                        yield future.result(end_time - time.time())
+-                        yield fs.pop().result(end_time - time.time())
 -            finally:
 -                for future in fs:
 -                    future.cancel()
@@ -1032,7 +1122,7 @@
 -atexit.register(_python_exit)
 --- a/kolibri/dist/py2only/concurrent/futures/thread.py
 +++ /dev/null
-@@ -1,149 +0,0 @@
+@@ -1,160 +0,0 @@
 -# Copyright 2009 Brian Quinlan. All Rights Reserved.
 -# Licensed to PSF under a Contributor Agreement.
 -
@@ -1040,6 +1130,7 @@
 -
 -import atexit
 -from concurrent.futures import _base
+-import itertools
 -import Queue as queue
 -import threading
 -import weakref
@@ -1125,12 +1216,17 @@
 -
 -
 -class ThreadPoolExecutor(_base.Executor):
--    def __init__(self, max_workers=None):
+-
+-    # Used to assign unique thread names when thread_name_prefix is not supplied.
+-    _counter = itertools.count().next
+-
+-    def __init__(self, max_workers=None, thread_name_prefix=''):
 -        """Initializes a new ThreadPoolExecutor instance.
 -
 -        Args:
 -            max_workers: The maximum number of threads that can be used to
 -                execute the given calls.
+-            thread_name_prefix: An optional name prefix to give our threads.
 -        """
 -        if max_workers is None:
 -            # Use this number because ThreadPoolExecutor is often
@@ -1144,6 +1240,8 @@
 -        self._threads = set()
 -        self._shutdown = False
 -        self._shutdown_lock = threading.Lock()
+-        self._thread_name_prefix = (thread_name_prefix or
+-                                    ("ThreadPoolExecutor-%d" % self._counter()))
 -
 -    def submit(self, fn, *args, **kwargs):
 -        with self._shutdown_lock:
@@ -1165,8 +1263,11 @@
 -            q.put(None)
 -        # TODO(bquinlan): Should avoid creating new threads if there are more
 -        # idle threads than items in the work queue.
--        if len(self._threads) < self._max_workers:
--            t = threading.Thread(target=_worker,
+-        num_threads = len(self._threads)
+-        if num_threads < self._max_workers:
+-            thread_name = '%s_%d' % (self._thread_name_prefix or self,
+-                                     num_threads)
+-            t = threading.Thread(name=thread_name, target=_worker,
 -                                 args=(weakref.ref(self, weakref_cb),
 -                                       self._work_queue))
 -            t.daemon = True
@@ -1182,3 +1283,483 @@
 -            for t in self._threads:
 -                t.join(sys.maxint)
 -    shutdown.__doc__ = _base.Executor.shutdown.__doc__
+--- a/kolibri/dist/py2only/copyreg/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    from copy_reg import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/html/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    from future.moves.html import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/html/entities.py
++++ /dev/null
+@@ -1,7 +0,0 @@
+-from __future__ import absolute_import
+-from future.utils import PY3
+-
+-if PY3:
+-    from html.entities import *
+-else:
+-    from future.moves.html.entities import *
+--- a/kolibri/dist/py2only/html/parser.py
++++ /dev/null
+@@ -1,8 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] == 3:
+-    raise ImportError('Cannot import module from python-future source folder')
+-else:
+-    from future.moves.html.parser import *
+--- a/kolibri/dist/py2only/http/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    pass
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/http/client.py
++++ /dev/null
+@@ -1,91 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-
+-from httplib import *
+-from httplib import HTTPMessage
+-
+-# These constants aren't included in __all__ in httplib.py:
+-
+-from httplib import (HTTP_PORT,
+-                     HTTPS_PORT,
+-
+-                     _CS_IDLE,
+-                     _CS_REQ_STARTED,
+-                     _CS_REQ_SENT,
+-
+-                     CONTINUE,
+-                     SWITCHING_PROTOCOLS,
+-                     PROCESSING,
+-
+-                     OK,
+-                     CREATED,
+-                     ACCEPTED,
+-                     NON_AUTHORITATIVE_INFORMATION,
+-                     NO_CONTENT,
+-                     RESET_CONTENT,
+-                     PARTIAL_CONTENT,
+-                     MULTI_STATUS,
+-                     IM_USED,
+-
+-                     MULTIPLE_CHOICES,
+-                     MOVED_PERMANENTLY,
+-                     FOUND,
+-                     SEE_OTHER,
+-                     NOT_MODIFIED,
+-                     USE_PROXY,
+-                     TEMPORARY_REDIRECT,
+-
+-                     BAD_REQUEST,
+-                     UNAUTHORIZED,
+-                     PAYMENT_REQUIRED,
+-                     FORBIDDEN,
+-                     NOT_FOUND,
+-                     METHOD_NOT_ALLOWED,
+-                     NOT_ACCEPTABLE,
+-                     PROXY_AUTHENTICATION_REQUIRED,
+-                     REQUEST_TIMEOUT,
+-                     CONFLICT,
+-                     GONE,
+-                     LENGTH_REQUIRED,
+-                     PRECONDITION_FAILED,
+-                     REQUEST_ENTITY_TOO_LARGE,
+-                     REQUEST_URI_TOO_LONG,
+-                     UNSUPPORTED_MEDIA_TYPE,
+-                     REQUESTED_RANGE_NOT_SATISFIABLE,
+-                     EXPECTATION_FAILED,
+-                     UNPROCESSABLE_ENTITY,
+-                     LOCKED,
+-                     FAILED_DEPENDENCY,
+-                     UPGRADE_REQUIRED,
+-
+-                     INTERNAL_SERVER_ERROR,
+-                     NOT_IMPLEMENTED,
+-                     BAD_GATEWAY,
+-                     SERVICE_UNAVAILABLE,
+-                     GATEWAY_TIMEOUT,
+-                     HTTP_VERSION_NOT_SUPPORTED,
+-                     INSUFFICIENT_STORAGE,
+-                     NOT_EXTENDED,
+-
+-                     MAXAMOUNT,
+-                    )
+-
+-# These are not available on Python 2.6.x:
+-try:
+-    from httplib import LineTooLong, LineAndFileWrapper
+-except ImportError:
+-    pass
+-
+-# These may not be available on all versions of Python 2.6.x or 2.7.x
+-try:
+-    from httplib import (
+-                         _MAXLINE,
+-                         _MAXHEADERS,
+-                         _is_legal_header_name,
+-                         _is_illegal_header_value,
+-                         _METHODS_EXPECTING_BODY
+-                        )
+-except ImportError:
+-    pass
+--- a/kolibri/dist/py2only/http/cookiejar.py
++++ /dev/null
+@@ -1,6 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-
+-from cookielib import *
+--- a/kolibri/dist/py2only/http/cookies.py
++++ /dev/null
+@@ -1,7 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-
+-from Cookie import *
+-from Cookie import Morsel    # left out of __all__ on Py2.7!
+--- a/kolibri/dist/py2only/http/server.py
++++ /dev/null
+@@ -1,18 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-
+-from BaseHTTPServer import *
+-from CGIHTTPServer import *
+-from SimpleHTTPServer import *
+-try:
+-    from CGIHTTPServer import _url_collapse_path     # needed for a test
+-except ImportError:
+-    try:
+-        # Python 2.7.0 to 2.7.3
+-        from CGIHTTPServer import (
+-            _url_collapse_path_split as _url_collapse_path)
+-    except ImportError:
+-        # Doesn't exist on Python 2.6.x. Ignore it.
+-        pass
+--- a/kolibri/dist/py2only/queue/__init__.py
++++ /dev/null
+@@ -1,10 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from Queue import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/reprlib/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    from repr import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/socketserver/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    from SocketServer import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/tkinter/__init__.py
++++ /dev/null
+@@ -1,12 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    from Tkinter import *
+-    from Tkinter import (_cnfmerge, _default_root, _flatten, _join, _setit,
+-                         _splitdict, _stringify, _support_default_root, _test,
+-                         _tkinter)
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/tkinter/colorchooser.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.colorchooser import *
+-else:
+-    try:
+-        from tkColorChooser import *
+-    except ImportError:
+-        raise ImportError('The tkColorChooser module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/commondialog.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.commondialog import *
+-else:
+-    try:
+-        from tkCommonDialog import *
+-    except ImportError:
+-        raise ImportError('The tkCommonDialog module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/constants.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.constants import *
+-else:
+-    try:
+-        from Tkconstants import *
+-    except ImportError:
+-        raise ImportError('The Tkconstants module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/dialog.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.dialog import *
+-else:
+-    try:
+-        from Dialog import *
+-    except ImportError:
+-        raise ImportError('The Dialog module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/dnd.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.dnd import *
+-else:
+-    try:
+-        from Tkdnd import *
+-    except ImportError:
+-        raise ImportError('The Tkdnd module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/filedialog.py
++++ /dev/null
+@@ -1,17 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.filedialog import *
+-else:
+-    try:
+-        from FileDialog import *
+-    except ImportError:
+-        raise ImportError('The FileDialog module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-    try:
+-        from tkFileDialog import *
+-    except ImportError:
+-        raise ImportError('The tkFileDialog module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+--- a/kolibri/dist/py2only/tkinter/font.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.font import *
+-else:
+-    try:
+-        from tkFont import *
+-    except ImportError:
+-        raise ImportError('The tkFont module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/messagebox.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.messagebox import *
+-else:
+-    try:
+-        from tkMessageBox import *
+-    except ImportError:
+-        raise ImportError('The tkMessageBox module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/scrolledtext.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.scrolledtext import *
+-else:
+-    try:
+-        from ScrolledText import *
+-    except ImportError:
+-        raise ImportError('The ScrolledText module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/simpledialog.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.simpledialog import *
+-else:
+-    try:
+-        from SimpleDialog import *
+-    except ImportError:
+-        raise ImportError('The SimpleDialog module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/tix.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.tix import *
+-else:
+-    try:
+-        from Tix import *
+-    except ImportError:
+-        raise ImportError('The Tix module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/tkinter/ttk.py
++++ /dev/null
+@@ -1,13 +0,0 @@
+-from __future__ import absolute_import
+-
+-from future.utils import PY3
+-
+-if PY3:
+-    from tkinter.ttk import *
+-else:
+-    try:
+-        from ttk import *
+-    except ImportError:
+-        raise ImportError('The ttk module is missing. Does your Py2 '
+-                          'installation include tkinter?')
+-
+--- a/kolibri/dist/py2only/winreg/__init__.py
++++ /dev/null
+@@ -1,10 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-__future_module__ = True
+-
+-if sys.version_info[0] < 3:
+-    from _winreg import *
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/xmlrpc/__init__.py
++++ /dev/null
+@@ -1,9 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-if sys.version_info[0] < 3:
+-    pass
+-else:
+-    raise ImportError('This package should not be accessible on Python 3. '
+-                      'Either you are trying to run from the python-future src folder '
+-                      'or your installation of python-future is corrupted.')
+--- a/kolibri/dist/py2only/xmlrpc/client.py
++++ /dev/null
+@@ -1,5 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-from xmlrpclib import *
+--- a/kolibri/dist/py2only/xmlrpc/server.py
++++ /dev/null
+@@ -1,5 +0,0 @@
+-from __future__ import absolute_import
+-import sys
+-
+-assert sys.version_info[0] < 3
+-from xmlrpclib import *

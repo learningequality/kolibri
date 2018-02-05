@@ -1,3 +1,16 @@
+kolibri-source (0.7.1-0ubuntu2) trusty; urgency=medium
+
+  * Further Py3 support patches for source dist built on Python 2
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 05 Feb 2018 16:44:02 +0100
+
+kolibri-source (0.7.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Update quilt patches for Python 2 build
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Feb 2018 16:37:57 +0100
+
 kolibri-source (0.7.1~b1.dev0+git.13.gf1d43ed-0ubuntu2) trusty; urgency=medium
 
   * Quilt patches for removing Python 2 syntax
