@@ -7,7 +7,7 @@
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
     :autoDismiss="snackbarOptions.autoDismiss"
-    @actionClicked="() => snackbarOptions.actionCallback()"
+    @actionClicked="snackbarOptions.actionCallback()"
   />
 
 </template>

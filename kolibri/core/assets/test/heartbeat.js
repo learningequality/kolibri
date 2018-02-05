@@ -18,7 +18,7 @@ import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 import { setUpVueIntl } from 'kolibri.utils.i18n';
 
-describe.only('HeartBeat', function() {
+describe('HeartBeat', function() {
   // TODO: Make this more general so it is set up for all tests
   beforeEach(function() {
     setUpVueIntl();
