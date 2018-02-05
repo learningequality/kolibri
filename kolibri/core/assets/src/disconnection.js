@@ -26,7 +26,7 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   store.dispatch('CORE_CREATE_SNACKBAR', {
     text: generateDisconnectedSnackbarText(),
     actionText: trs.$tr('tryNow'),
-    actionCallback: () => beatCallback(),
+    actionCallback: beatCallback,
     backdrop: true,
     forceReuse: true,
   });

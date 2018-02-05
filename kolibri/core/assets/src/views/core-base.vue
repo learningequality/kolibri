@@ -51,7 +51,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import globalSnackbar from './global-snackbar/index.vue';
+  import globalSnackbar from './global-snackbar';
 
   export default {
     name: 'coreBasePage',
