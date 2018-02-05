@@ -1,13 +1,18 @@
 import logger from 'kolibri.lib.logging';
 import { currentUserId, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
-import { SignedOutDueToInactivitySnackbar, ConnectionSnackbars } from './constants';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import baseClient from './core-app/baseClient';
 import mime from 'rest/interceptor/mime';
 import interceptor from 'rest/interceptor';
 import errorCodes from './disconnectionErrorCodes';
+import {
+  createTryingToReconnectSnackbar,
+  createDisconnectedSnackbar,
+  createReconnectedSnackbar,
+} from './disconnection';
 
 const logging = logger.getLogger(__filename);
 
@@ -75,7 +80,7 @@ export class HeartBeat {
     let client = baseClient.wrap(mime, { mime: 'application/json' });
     if (!connected(store.state)) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
-      store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.TRYING_TO_RECONNECT);
+      createTryingToReconnectSnackbar(store);
       client = client.wrap(
         interceptor({
           // Define an interceptor to monitor the response that gets returned.
@@ -90,7 +95,6 @@ export class HeartBeat {
             }
             // If we have got here, then the error code meant that the server is still not reachable
             // set the snackbar to disconnected.
-            store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
             // See what the previous reconnect interval was.
             const reconnect = reconnectTime(store.state);
             // Set a new reconnect interval.
@@ -99,6 +103,7 @@ export class HeartBeat {
               // Multiply the previous interval by our multiplier, but max out at a high interval.
               Math.min(reconnectMultiplier * reconnect, maxReconnectTime)
             );
+            createDisconnectedSnackbar(store, heartbeat.beat);
             return response;
           },
         })
@@ -137,7 +142,7 @@ export class HeartBeat {
       // We have not already registered that we have been disconnected
       store.dispatch('CORE_SET_CONNECTED', false);
       store.dispatch('CORE_SET_RECONNECT_TIME', minReconnectTime);
-      store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.DISCONNECTED);
+      createDisconnectedSnackbar(store, this.beat);
       this.wait();
     }
   }
@@ -148,7 +153,7 @@ export class HeartBeat {
   setConnected() {
     store.dispatch('CORE_SET_CONNECTED', true);
     store.dispatch('CORE_SET_RECONNECT_TIME', null);
-    store.dispatch('CORE_SET_CURRENT_SNACKBAR', ConnectionSnackbars.SUCCESSFULLY_RECONNECTED);
+    createReconnectedSnackbar(store);
     this.wait();
   }
   /*
@@ -156,7 +161,7 @@ export class HeartBeat {
    */
   signOutDueToInactivity() {
     // Store that this sign out was for inactivity in local storage.
-    Lockr.set(SignedOutDueToInactivitySnackbar, true);
+    Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
     // Just navigate to the root URL and let the server sort out where
     // we should be.
     window.location = window.origin;

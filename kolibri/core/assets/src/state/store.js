@@ -45,7 +45,8 @@ export const initialState = {
     facilityConfig: {},
     facilities: [],
     connection: baseConnectionState,
-    currentSnackbar: null,
+    snackbarIsVisible: false,
+    snackbarOptions: {},
   },
 };
 
@@ -186,8 +187,21 @@ export const coreMutations = {
     state.core.channels.list = channelList;
   },
 
-  CORE_SET_CURRENT_SNACKBAR(state, snackbar) {
-    state.core.currentSnackbar = snackbar;
+  CORE_CREATE_SNACKBAR(state, snackbarOptions = {}) {
+    // reset
+    state.core.snackbarIsVisible = false;
+    state.core.snackbarOptions = {};
+    // set new options
+    state.core.snackbarIsVisible = true;
+    state.core.snackbarOptions = snackbarOptions;
+  },
+
+  CORE_CLEAR_SNACKBAR(state) {
+    state.core.snackbarIsVisible = false;
+    state.core.snackbarOptions = {};
+  },
+  CORE_SET_SNACKBAR_TEXT(state, text) {
+    state.core.snackbarOptions.text = text;
   },
 };
 

@@ -14,7 +14,6 @@ import router from 'kolibri.coreVue.router';
 import * as CoreActions from 'kolibri.coreVue.vuex.actions';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { EXAM_MODIFICATION_SNACKBAR } from '../../examConstants';
 import { setClassState } from './main';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -637,10 +636,6 @@ function showExamReportDetailPage(
   );
 }
 
-function showExamModificationSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', EXAM_MODIFICATION_SNACKBAR);
-}
-
 export {
   displayExamModal,
   showExamsPage,
@@ -658,5 +653,4 @@ export {
   addExercise,
   removeExercise,
   getAllExercisesWithinTopic,
-  showExamModificationSnackbar,
 };

@@ -153,7 +153,7 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
-function setUpVueIntl() {
+export function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/

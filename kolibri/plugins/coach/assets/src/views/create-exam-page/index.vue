@@ -118,13 +118,6 @@
       :examNumQuestions="inputNumQuestions"
       @randomize="seed = generateRandomSeed()"
     />
-
-    <core-snackbar
-      v-if="examModificationSnackbarIsVisible"
-      :key="snackbarText"
-      :text="snackbarText"
-      :autoDismiss="true"
-    />
   </div>
 
 </template>
@@ -141,26 +134,22 @@
     addExercise,
     removeExercise,
     displayExamModal,
-    showExamModificationSnackbar,
   } from '../../state/actions/exam';
   import { className } from '../../state/getters/main';
-  import { Modals as ExamModals, EXAM_MODIFICATION_SNACKBAR } from '../../examConstants';
+  import { Modals as ExamModals } from '../../examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
-  import { currentSnackbar } from 'kolibri.coreVue.vuex.getters';
-
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   export default {
     name: 'createExamPage',
     components: {
-      coreSnackbar,
       uiProgressLinear,
       kButton,
       kTextbox,
@@ -206,7 +195,6 @@
         selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
-        snackbarText: null,
       };
     },
     computed: {
@@ -357,9 +345,6 @@
           number_of_questions: 1,
         }));
       },
-      examModificationSnackbarIsVisible() {
-        return this.currentSnackbar === EXAM_MODIFICATION_SNACKBAR;
-      },
     },
     methods: {
       changeSelection() {
@@ -381,24 +366,23 @@
       handleAddExercise(exercise) {
         this.selectionMade = true;
         this.addExercise(exercise);
-        this.snackbarText = `${this.$tr('added')} ${exercise.title}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('added')} ${exercise.title}`, autoDismiss: true });
       },
       handleRemoveExercise(exercise) {
         this.removeExercise(exercise);
-        this.snackbarText = `${this.$tr('removed')} ${exercise.title}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({
+          text: `${this.$tr('removed')} ${exercise.title}`,
+          autoDismiss: true,
+        });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
-        this.snackbarText = `${this.$tr('added')} ${topicTitle}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
-        this.snackbarText = `${this.$tr('removed')} ${topicTitle}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
       },
       preview() {
         this.previewOrSubmissionAttempt = true;
@@ -461,7 +445,6 @@
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
         exams: state => state.pageState.exams,
-        currentSnackbar,
       },
       actions: {
         fetchContent,
@@ -469,7 +452,7 @@
         addExercise,
         removeExercise,
         displayExamModal,
-        showExamModificationSnackbar,
+        createSnackbar,
       },
     },
   };
@@ -506,11 +489,6 @@
       content: '/'
       padding-right: 0.5em
       padding-left: 0.5em
-
-  .snackbar-container
-    position: fixed
-    bottom: 0
-    z-index: 6
 
   .fade-enter-active, .fade-leave-active
     transition: opacity 0.1s
