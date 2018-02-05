@@ -158,11 +158,11 @@
       handleSelectOption({ action }) {
         this.currentAction = action;
       },
-      groupName(group) {
-        if (group.collection_kind === CollectionTypes.CLASSROOM) {
+      groupName(assignment) {
+        if (assignment.collection_kind === CollectionTypes.CLASSROOM) {
           return this.$tr('entireClass');
         }
-        const match = this.learnerGroups.find(lg => lg.id === group.collection);
+        const match = this.learnerGroups.find(lg => lg.id === assignment.collection);
         return match.name;
       },
     },
