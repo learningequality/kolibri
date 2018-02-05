@@ -29,6 +29,7 @@
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     components: {
@@ -37,7 +38,7 @@
     },
     methods: {
       closeModal() {
-        return this.$emit('cancel')
+        return this.$emit('cancel');
       },
       goToLessonsRootPage() {
         return this.$router.replace({
@@ -49,15 +50,21 @@
         });
       },
       handleDeleteLesson() {
-        return LessonResource.getModel(this.lessonId).delete()
-          ._promise
-          .then(() => this.updateLessons(this.classId))
-          .then(() => this.goToLessonsRootPage())
-          .catch((error) => {
+        return LessonResource.getModel(this.lessonId)
+          .delete()
+          ._promise.then(() => this.updateLessons(this.classId))
+          .then(() => {
+            this.goToLessonsRootPage();
+            this.createSnackbar({
+              text: this.$tr('lessonDeleted'),
+              autoDismiss: true,
+            });
+          })
+          .catch(error => {
             // TODO handle error inside the current apge
             console.log(error);
           });
-      }
+      },
     },
     vuex: {
       getters: {
@@ -67,14 +74,16 @@
       },
       actions: {
         updateLessons,
+        createSnackbar,
       },
     },
     $trs: {
       cancel: 'Cancel',
       delete: 'Delete',
       deleteLesson: 'Delete lesson',
-      lessonDeletionConfirmation: 'Are you sure you want to delete \'{title}\'?',
-    }
+      lessonDeletionConfirmation: "Are you sure you want to delete '{title}'?",
+      lessonDeleted: 'Lesson deleted',
+    },
   };
 
 </script>
