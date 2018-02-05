@@ -44,6 +44,7 @@
   import { LessonsPageNames } from '../lessonsConstants';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
+  import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
 
   export default {
     name: 'coachRoot',
@@ -70,6 +71,7 @@
       // lessons
       LessonsRootPage,
       LessonSummaryPage,
+      LessonResourceSelectionPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -100,6 +102,8 @@
           // lessons
           [LessonsPageNames.ROOT]: 'LessonsRootPage',
           [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
+          [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
+          [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
         };
         return pageNameToComponentMap[this.pageName];
       },

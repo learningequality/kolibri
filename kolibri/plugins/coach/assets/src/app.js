@@ -18,7 +18,7 @@ import {
   showLessonResourceSummaryPage,
   showLessonResourceUserSummaryPage,
   showLessonReviewPage,
-  showLessonSelectionPage,
+  showLessonResourceSelectionRootPage,
   showLessonSelectionTopicPage,
   showLessonSelectionSearchPage,
   showLessonContentPreview,
@@ -89,7 +89,7 @@ const lessonRoutes = [
     name: LessonsPageNames.SELECTION_ROOT,
     path: '/:classId/lessons/:lessonId/selection',
     handler: toRoute => {
-      showLessonSelectionPage(store, toRoute.params.classId, toRoute.params.lessonId);
+      showLessonResourceSelectionRootPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {

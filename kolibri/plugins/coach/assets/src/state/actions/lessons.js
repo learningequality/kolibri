@@ -53,13 +53,34 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   });
 }
 
+/* eslint-disable*/
 export function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
 
 export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
 
 export function showLessonReviewPage(store, classId, lessonId) {}
 
-export function showLessonSelectionPage(store, classId, lessonId) {}
+export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_STATE', {
+    currentLesson: lessonId,
+  });
+  const loadRequirements = [
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    updateLessons(store, classId),
+    setClassState(store, classId),
+  ];
+  return Promise.all(loadRequirements).then(
+    ([learnerGroups]) => {
+      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+      store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
+}
 
 export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {}
 

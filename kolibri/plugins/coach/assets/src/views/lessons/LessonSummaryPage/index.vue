@@ -76,7 +76,12 @@
             <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
           </div>
           <div class="resource-list-header-add-resource-button">
-            <k-button :text="$tr('addResourcesButtonPrompt')" :primary="true" />
+            <k-router-link
+              :to="lessonSelectionRootPage"
+              :text="$tr('addResourcesButtonPrompt')"
+              :primary="true"
+              appearance="raised-button"
+            />
           </div>
         </div>
       </div>
@@ -97,9 +102,10 @@
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
-  import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
+  import { LessonActions, CollectionTypes, LessonsPageNames } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
@@ -112,20 +118,21 @@
       StatusIcon,
       contentIcon,
       kButton,
+      kRouterLink,
       uiIcon,
-      uiTooltip
+      uiTooltip,
     },
     data() {
       return {
         currentAction: null,
-      }
+      };
     },
     computed: {
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({
           label: this.$tr(label),
           action,
-        }))
+        }));
       },
       actionsToLabelMap() {
         return {
@@ -137,6 +144,15 @@
       LessonActions() {
         return LessonActions;
       },
+      lessonSelectionRootPage() {
+        return {
+          name: LessonsPageNames.SELECTION_ROOT,
+          params: {
+            lessonId: this.lessonId,
+            classId: this.classId,
+          },
+        };
+      },
     },
     methods: {
       handleSelectOption({ action }) {
@@ -146,12 +162,14 @@
         if (group.collection_kind === CollectionTypes.CLASSROOM) {
           return this.$tr('entireClass');
         }
-        const match = this.learnerGroups.find((lg) => lg.id === group.collection);
+        const match = this.learnerGroups.find(lg => lg.id === group.collection);
         return match.name;
       },
     },
     vuex: {
       getters: {
+        classId: state => state.classId,
+        lessonId: state => state.pageState.currentLesson.id,
         lessonTitle: state => state.pageState.currentLesson.name,
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
@@ -159,9 +177,7 @@
         lessonResources: state => state.pageState.currentLesson.resources,
         learnerGroups: state => state.pageState.learnerGroups,
       },
-      actions: {
-
-      },
+      actions: {},
     },
     $trs: {
       // TODO make labels more semantic
@@ -181,7 +197,7 @@
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
       visibleTo: 'Visible to',
       addResourcesButtonPrompt: 'Add Resources',
-    }
+    },
   };
 
 </script>
