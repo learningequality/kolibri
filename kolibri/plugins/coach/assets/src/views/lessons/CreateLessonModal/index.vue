@@ -65,6 +65,7 @@
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     name: 'createLessonModal',
@@ -99,10 +100,9 @@
       },
       titleIsInvalid() {
         return !!this.titleIsInvalidText;
-
       },
       formIsValid() {
-        return !(this.titleIsInvalid)
+        return !this.titleIsInvalid;
       },
     },
     methods: {
@@ -116,21 +116,23 @@
         }
 
         if (this.formIsValid) {
-          this.createNewLesson(assignedGroups).then(
-            lesson => {
-              this.$router.push({
-                name: LessonsPageNames.SUMMARY,
-                params: {
-                  classId: this.classId,
-                  lessonId: lesson.id,
-                },
-              });
-            }
-          );
+          this.createNewLesson(assignedGroups).then(lesson => {
+            this.$router.push({
+              name: LessonsPageNames.SUMMARY,
+              params: {
+                classId: this.classId,
+                lessonId: lesson.id,
+              },
+            });
+            this.createSnackbar({
+              text: this.$tr('newLessonCreated'),
+              autoDismiss: true,
+            });
+          });
         }
       },
       toggleGroup(isChecked, id) {
-        if(isChecked){
+        if (isChecked) {
           this.learnerGroups.push(id);
         } else {
           this.learnerGroups = this.learnerGroups.filter(groupId => id !== groupId);
@@ -141,7 +143,7 @@
       },
       closeModal() {
         this.$emit('cancel');
-      }
+      },
     },
     vuex: {
       getters: {
@@ -162,6 +164,7 @@
           return LessonResource.createModel(payload).save();
         },
         updateLessons,
+        createSnackbar,
       },
     },
     $trs: {
@@ -174,6 +177,7 @@
       newLesson: 'New lesson',
       recipient: 'Recipient',
       title: 'Title',
+      newLessonCreated: 'New lesson created',
     },
   };
 
