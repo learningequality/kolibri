@@ -78,6 +78,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
@@ -114,7 +115,7 @@
       },
       availableClassrooms() {
         // put current classroom on the top
-        return sortBy(this.classList, classroom => this.isCurrentClassroom(classroom) ? -1 : 1);
+        return sortBy(this.classList, classroom => (this.isCurrentClassroom(classroom) ? -1 : 1));
       },
       selectedCollectionIds() {
         if (this.entireClassIsSelected) {
@@ -134,13 +135,14 @@
           return;
         }
         this.blockControls = true;
-        return LearnerGroupResource.getCollection({ parent: this.selectedClassroomId }).fetch()
+        return LearnerGroupResource.getCollection({ parent: this.selectedClassroomId })
+          .fetch()
           .then(groups => {
             this.availableGroups = groups;
             this.stage = Stages.SELECT_GROUPS;
             this.blockControls = false;
           })
-          .catch((err) => {
+          .catch(err => {
             console.log(err);
             this.blockControls = false;
           });
@@ -174,9 +176,15 @@
           collection: this.selectedClassroomId,
           assigned_groups: this.selectedCollectionIds.map(id => ({ collection: id })),
         };
-        return LessonResource.createModel(payload).save()
-          ._promise
-          .then(() => this.closeModal())
+        return LessonResource.createModel(payload)
+          .save()
+          ._promise.then(() => {
+            this.closeModal();
+            this.createSnackbar({
+              text: this.$tr('copiedLessonTo', { classroomName: this.selectedClassroomName }),
+              autoDismiss: true,
+            });
+          })
           .catch(error => {
             console.log(error);
           });
@@ -188,6 +196,9 @@
         classList: state => state.classList,
         isCurrentClassroom: state => classroom => classroom.id === state.classId,
         currentLesson: state => state.pageState.currentLesson,
+      },
+      actions: {
+        createSnackbar,
       },
     },
     $trs: {
@@ -201,6 +212,7 @@
       destinationClassroomExplanation: 'This lesson will be copied to {classroomName}',
       lessonVisibilityQuestion: 'Who should this lesson be visible to in this class?',
       copyOfLesson: 'Copy of {lessonName}',
+      copiedLessonTo: 'Copied lesson to { classroomName }',
     },
   };
 
