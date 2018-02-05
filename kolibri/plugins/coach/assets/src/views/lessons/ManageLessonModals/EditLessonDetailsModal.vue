@@ -66,6 +66,7 @@
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
   import { CollectionTypes } from '../../../lessonsConstants';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     name: 'editLessonDetailsModal',
@@ -100,16 +101,15 @@
       },
       titleIsInvalid() {
         return !!this.titleIsInvalidText;
-
       },
       formIsValid() {
-        return !(this.titleIsInvalid)
+        return !this.titleIsInvalid;
       },
       selectedCollectionIds() {
         if (this.learnerGroups.length === 0) {
           return [this.classId];
         } else {
-          return  [...this.learnerGroups];
+          return [...this.learnerGroups];
         }
       },
       currentCollectionIds() {
@@ -125,14 +125,14 @@
           this.currentLesson.description !== this.description ||
           this.groupsHaveChanged
         );
-      }
+      },
     },
     created() {
-      this.title = this.currentLesson.name,
-      this.description = this.currentLesson.description,
-      this.learnerGroups = this.currentLesson.assigned_groups
-        .filter(g => g.collection_kind === CollectionTypes.LEARNERGROUP)
-        .map(g => g.collection);
+      (this.title = this.currentLesson.name),
+        (this.description = this.currentLesson.description),
+        (this.learnerGroups = this.currentLesson.assigned_groups
+          .filter(g => g.collection_kind === CollectionTypes.LEARNERGROUP)
+          .map(g => g.collection));
     },
     methods: {
       submitLessonModal() {
@@ -144,24 +144,28 @@
           return this.updateLessonDetails(this.selectedCollectionIds)
             .then(() => {
               this.closeModal();
+              this.createSnackbar({
+                text: this.$tr('changesToLessonSaved'),
+                autoDismiss: true,
+              });
             })
-            .catch((error) => {
+            .catch(error => {
               // TODO handle error properly
               console.log(error);
-            })
+            });
         }
       },
       updateLessonDetails(assignedGroups) {
-        return LessonResource.getModel(this.currentLesson.id).save({
-          name: this.title,
-          description: this.description,
-          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
-        })
-          ._promise
-          .then(lesson => this.updateCurrentLesson(lesson));
+        return LessonResource.getModel(this.currentLesson.id)
+          .save({
+            name: this.title,
+            description: this.description,
+            assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
+          })
+          ._promise.then(lesson => this.updateCurrentLesson(lesson));
       },
       toggleGroup(isChecked, id) {
-        if(isChecked){
+        if (isChecked) {
           this.learnerGroups.push(id);
         } else {
           this.learnerGroups = this.learnerGroups.filter(groupId => id !== groupId);
@@ -172,7 +176,7 @@
       },
       closeModal() {
         this.$emit('cancel');
-      }
+      },
     },
     vuex: {
       getters: {
@@ -197,6 +201,7 @@
           return LessonResource.createModel(payload).save();
         },
         updateLessons,
+        createSnackbar,
       },
     },
     $trs: {
@@ -209,6 +214,7 @@
       lessonDetailsTitle: 'Editing lesson details',
       recipient: 'Visible to',
       title: 'Title',
+      changesToLessonSaved: 'Changes to lesson saved',
     },
   };
 
