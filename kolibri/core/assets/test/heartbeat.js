@@ -16,8 +16,13 @@ import {
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
+import { setUpVueIntl } from 'kolibri.utils.i18n';
 
-describe('HeartBeat', function() {
+describe.only('HeartBeat', function() {
+  // TODO: Make this more general so it is set up for all tests
+  beforeEach(function() {
+    setUpVueIntl();
+  });
   describe('constructor method', function() {
     it('should set the delay property to the first argument', function() {
       const delay = 10000;
@@ -106,8 +111,12 @@ describe('HeartBeat', function() {
       assert.notEqual(reconnectTime(this.store.state), null);
     });
     it('should set current snackbar to disconnected', function() {
-      assert.equal(snackbarIsVisible(this.store.state), true);
-      assert.equal(snackbarOptions(this.store.state), trs.$tr('disconnected'));
+      assert.ok(snackbarIsVisible(this.store.state));
+      assert.ok(
+        snackbarOptions(this.store.state).text.startsWith(
+          'Disconnected from server. Will try to reconnect in'
+        )
+      );
     });
     it('should not do anything if it already knows it is disconnected', function() {
       this.store.dispatch('CORE_SET_RECONNECT_TIME', 'fork');
@@ -158,8 +167,8 @@ describe('HeartBeat', function() {
       });
       it('should set snackbar to trying to reconnect', function() {
         this.heartBeat.checkSession();
-        assert.equal(snackbarIsVisible(this.store.state), true);
-        assert.equal(snackbarOptions(this.store.state), trs.$tr('tryingToReconnect'));
+        assert.ok(snackbarIsVisible(this.store.state));
+        assert.ok(snackbarOptions(this.store.state).text, trs.$tr('tryingToReconnect'));
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
@@ -168,8 +177,12 @@ describe('HeartBeat', function() {
           server.respondWith([errorCode, {}, '']);
           server.autoRespond = true;
           return this.heartBeat.checkSession().finally(() => {
-            assert.equal(snackbarIsVisible(this.store.state), true);
-            assert.equal(snackbarOptions(this.store.state), trs.$tr('disconnected'));
+            assert.ok(snackbarIsVisible(this.store.state));
+            assert.ok(
+              snackbarOptions(this.store.state).text.startsWith(
+                'Disconnected from server. Will try to reconnect in'
+              )
+            );
             server.restore();
           });
         });
@@ -198,8 +211,8 @@ describe('HeartBeat', function() {
         });
         it('should set snackbar to reconnected', function() {
           return this.heartBeat.checkSession().finally(() => {
-            assert.equal(snackbarIsVisible(this.store.state), true);
-            assert.equal(snackbarOptions(this.store.state), trs.$tr('successfullyReconnected'));
+            assert.ok(snackbarIsVisible(this.store.state));
+            assert.ok(snackbarOptions(this.store.state).text, trs.$tr('successfullyReconnected'));
           });
         });
         it('should set connected to true', function() {
