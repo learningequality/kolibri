@@ -14,7 +14,7 @@ iceqube==0.0.4
 porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
-le-utils==0.1.4
+le-utils==0.1.5
 kolibri_exercise_perseus_plugin==0.7.4
 jsonfield==2.0.2
 morango==0.2.2
