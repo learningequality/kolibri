@@ -7,7 +7,7 @@
   >
 
     <div class="content">
-      <template v-if="!isLoading && !currentPageIsImmersive">
+      <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav />
       </template>
@@ -113,7 +113,11 @@
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== PageNames.CLASS_LIST && this.userCanAccessPage;
+        return (
+          this.pageName !== PageNames.CLASS_LIST &&
+          this.userCanAccessPage &&
+          !this.currentPageIsImmersive
+        );
       },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
