@@ -6,18 +6,18 @@
     :navBarNeeded="!isLoading && !currentPageIsImmersive"
   >
 
-    <div v-if="userCanAccessPage">
+    <template v-if="userCanAccessPage">
       <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav />
       </template>
 
       <component
-        :class="{ content: !currentPageIsImmersive }"
+        class="content"
         :is="currentPage"
       />
 
-    </div>
+    </template>
 
     <auth-message v-else authorizedRole="adminOrCoach" />
 
@@ -160,8 +160,6 @@
   @require '~kolibri.styles.definitions'
 
   .content
-    background-color: $core-bg-light
-    padding: 1em
-    margin-top: 1em
+    margin-top: 32px
 
 </style>
