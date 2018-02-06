@@ -6,17 +6,20 @@
     :navBarNeeded="!isLoading && !currentPageIsImmersive"
   >
 
-    <div class="content">
+    <div v-if="userCanAccessPage">
       <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav />
       </template>
 
-      <div v-if="userCanAccessPage">
-        <component :is="currentPage" />
-      </div>
-      <auth-message v-else authorizedRole="adminOrCoach" />
+      <component
+        :class="{ content: !currentPageIsImmersive }"
+        :is="currentPage"
+      />
+
     </div>
+
+    <auth-message v-else authorizedRole="adminOrCoach" />
 
   </core-base>
 
@@ -159,5 +162,6 @@
   .content
     background-color: $core-bg-light
     padding: 1em
+    margin-top: 1em
 
 </style>
