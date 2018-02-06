@@ -3,7 +3,7 @@ export function SET_CLASS_LESSONS(state, lessons) {
 }
 
 export function SET_CURRENT_LESSON(state, lesson) {
-  state.pageState.currentLesson = lesson;
+  state.pageState.currentLesson = { ...lesson };
 }
 
 export function SET_LEARNER_GROUPS(state, learnerGroups) {
