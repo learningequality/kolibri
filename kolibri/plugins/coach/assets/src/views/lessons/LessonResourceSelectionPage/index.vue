@@ -28,6 +28,14 @@
         :showAllCrumbs="true"
       />
 
+      <content-card
+        v-for="content in contentList"
+        :key="content.id"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :link="{to:'', params: {}}"
+      />
       Lesson Resource Selection Page
     </div>
   </div>
@@ -38,6 +46,7 @@
 <script>
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
+  import contentCard from './content-card';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
@@ -46,6 +55,7 @@
       uiToolbar,
       kBreadcrumbs,
       searchBox,
+      contentCard,
     },
     computed: {
       lessonPage() {
@@ -79,6 +89,7 @@
         classId: state => state.classId,
         // ancestors: state => state.pageState.ancestors,
         ancestors: () => [],
+        contentList: state => state.pageState.contentList,
       },
       actions: {},
     },

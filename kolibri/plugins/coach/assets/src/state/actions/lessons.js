@@ -1,6 +1,8 @@
 import { LessonsPageNames } from '../../lessonsConstants';
+import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
+import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('lessonsPageTitles', {
@@ -72,6 +74,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: lessonId,
+    contentList: [],
   });
   const loadRequirements = [
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
@@ -79,7 +82,19 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
     setClassState(store, classId),
   ];
   return Promise.all(loadRequirements).then(
-    ([learnerGroups]) => {
+    ([learnerGroups, channels]) => {
+      store.dispatch(
+        'SET_CONTENT_LIST',
+        getChannels(store.state).map(channel => {
+          return {
+            id: channel.id,
+            description: channel.description,
+            title: channel.title,
+            thumbnail: channel.thumbnail,
+            kind: ContentNodeKinds.CHANNEL,
+          };
+        })
+      );
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));

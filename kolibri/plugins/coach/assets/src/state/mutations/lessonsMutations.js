@@ -9,3 +9,7 @@ export function SET_CURRENT_LESSON(state, lesson) {
 export function SET_LEARNER_GROUPS(state, learnerGroups) {
   state.pageState.learnerGroups = learnerGroups;
 }
+
+export function SET_CONTENT_LIST(state, contentList) {
+  state.pageState.contentList = [...contentList];
+}
