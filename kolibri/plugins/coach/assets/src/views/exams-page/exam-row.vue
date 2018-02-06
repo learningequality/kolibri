@@ -3,7 +3,7 @@
   <tr>
     <td class="icon-col prel">
       <ui-icon
-        icon="assignment"
+        icon="assignment_late"
         :ariaLabel="String(examActive)"
         class="core-table-content-icon"
         :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
