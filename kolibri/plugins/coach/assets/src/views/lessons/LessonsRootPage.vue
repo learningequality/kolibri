@@ -2,17 +2,19 @@
 
   <div>
     <h1>{{ $tr('classLessons', { className }) }}</h1>
-    <k-select
-      :label="$tr('show')"
-      :options="filterOptions"
-      :inline="true"
-      v-model="filterSelection"
-    />
-    <k-button
-      :primary="true"
-      :text="$tr('newLesson')"
-      @click="showModal=true"
-    />
+    <div class="filter-and-button">
+      <k-select
+        :label="$tr('show')"
+        :options="filterOptions"
+        :inline="true"
+        v-model="filterSelection"
+      />
+      <k-button
+        :primary="true"
+        :text="$tr('newLesson')"
+        @click="showModal=true"
+      />
+    </div>
 
     <core-table>
       <thead slot="thead">
@@ -204,5 +206,12 @@
     height: 24px
     >>>.ui-icon
       vertical-align: inherit
+
+  .filter-and-button
+    display: flex
+    flex-wrap: wrap-reverse
+    justify-content: space-between
+    button
+      align-self: flex-end
 
 </style>
