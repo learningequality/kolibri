@@ -1,6 +1,12 @@
 import { LessonsPageNames } from '../../lessonsConstants';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const translator = createTranslator('lessonsPageTitles', {
+  lessons: 'Lessons',
+  selectResources: 'Select resources',
+});
 
 export function showLessonRootPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -17,6 +23,7 @@ export function showLessonRootPage(store, classId) {
     ([learnerGroups]) => {
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.ROOT);
+      store.dispatch('CORE_SET_TITLE', translator.$tr('lessons'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     () => {
@@ -50,6 +57,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
     store.dispatch('SET_CURRENT_LESSON', lesson);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
+    store.dispatch('CORE_SET_TITLE', lesson.name);
   });
 }
 
@@ -74,6 +82,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
     ([learnerGroups]) => {
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
+      store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     () => {
