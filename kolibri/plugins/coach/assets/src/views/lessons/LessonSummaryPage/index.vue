@@ -50,13 +50,22 @@
           {{ $tr('visibleTo') }}
         </dt>
         <dd>
-          <ul class="group-list">
+          <template v-if="!lessonAssignments.length">
+            {{ this.$tr('noOne') }}
+          </template>
+          <template v-else-if="lessonIsAssignedToClass(lessonAssignments)">
+            {{ this.$tr('entireClass') }}
+          </template>
+          <ul
+            v-else
+            class="group-list"
+          >
             <li
               class="group-list-item"
               v-for="assignment in lessonAssignments"
               :key="assignment.id"
             >
-              <span>{{ groupName(assignment) }}</span>
+              <span>{{ getGroupName(assignment) }}</span>
             </li>
           </ul>
         </dd>
@@ -148,12 +157,13 @@
       handleSelectOption({ action }) {
         this.currentAction = action;
       },
-      groupName(assignment) {
-        if (assignment.collection_kind === CollectionTypes.CLASSROOM) {
-          return this.$tr('entireClass');
-        }
-        const match = this.learnerGroups.find(lg => lg.id === assignment.collection);
-        return match.name;
+      lessonIsAssignedToClass(assignments) {
+        return (
+          assignments.length === 1 && assignments[0].collection_kind === CollectionTypes.CLASSROOM
+        );
+      },
+      getGroupName(assignment) {
+        return this.learnerGroups.find(lg => lg.id === assignment.collection).name;
       },
     },
     vuex: {
@@ -178,6 +188,8 @@
       description: 'Description',
       editLessonDetails: 'Edit details',
       entireClass: 'Entire class',
+      numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
+      noOne: 'No one',
       inactive: 'Inactive',
       lessonStatusDescription: 'Lesson status description',
       noDescription: 'No description',

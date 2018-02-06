@@ -155,7 +155,9 @@
       },
       getLessonVisibility(assignedGroups) {
         const numOfAssignments = assignedGroups.length;
-        if (
+        if (numOfAssignments === 0) {
+          return this.$tr('noOne');
+        } else if (
           numOfAssignments === 1 &&
           assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM
         ) {
@@ -182,6 +184,7 @@
       visibleTo: 'Visible to',
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
+      noOne: 'No one',
       status: 'Status',
       numberOfResources:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
