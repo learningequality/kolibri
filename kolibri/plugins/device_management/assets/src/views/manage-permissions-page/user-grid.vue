@@ -5,18 +5,18 @@
     <div v-if="visibleUsers.length === 0">
       {{ $tr('noUsersMatching', { searchFilter }) }}
     </div>
-    <table v-else class="table">
-      <thead class="table-header">
+    <core-table v-else>
+      <thead slot="thead">
         <tr>
-          <th></th>
+          <th class="icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
           <th></th>
         </tr>
       </thead>
 
-      <tbody>
-        <tr v-for="user in visibleUsers" :key="user.id" class="table-row">
+      <tbody slot="tbody">
+        <tr v-for="user in visibleUsers" :key="user.id">
           <td class="icon-col">
             <permissions-icon
               v-if="!!getPermissionType(user.id)"
@@ -30,7 +30,7 @@
           <td>
             {{ user.username }}
           </td>
-          <td class="align-right">
+          <td>
             <k-button
               @click="goToUserPermissionsPage(user.id)"
               appearance="flat-button"
@@ -39,7 +39,7 @@
           </td>
         </tr>
       </tbody>
-    </table>
+    </core-table>
   </div>
 
 </template>
@@ -51,12 +51,14 @@
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
 
   export default {
     name: 'userGrid',
     components: {
       kButton,
       permissionsIcon,
+      CoreTable,
     },
     props: {
       searchFilter: {
@@ -114,28 +116,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .table
-    text-align: left
-    width: 100%
-
-  .align-right
-    text-align: right
-
-  .table-row, thead tr
-    border-bottom: 1px solid #D6D6D6
-
-  .table-row:last-child
-    border-bottom: none
-
-  .table-header th
-    padding: 1em 0
-    font-weight: normal
-    font-size: 0.8em
-
-  .icon-col
-    width: 24px
-    padding-right: 16px
-
-</style>
+<style lang="stylus" scoped></style>
