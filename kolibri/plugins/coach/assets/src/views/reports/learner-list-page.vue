@@ -76,7 +76,7 @@
 
 <script>
 
-  import CoreTable from '../lessons/CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as CoachConstants from '../../constants';
   import * as reportGetters from '../../state/getters/reports';

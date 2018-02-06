@@ -107,7 +107,7 @@
 
 <script>
 
-  import CoreTable from '../../../../../coach/assets/src/views/lessons/CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';

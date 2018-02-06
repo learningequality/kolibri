@@ -90,7 +90,7 @@
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
   import StatusIcon from './StatusIcon';
-  import CoreTable from './CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import InfoIcon from './InfoIcon';
 
   export default {

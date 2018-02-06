@@ -75,7 +75,7 @@
 
 <script>
 
-  import CoreTable from '../lessons/CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';

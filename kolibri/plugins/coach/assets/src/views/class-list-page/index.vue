@@ -41,7 +41,7 @@
 
 <script>
 
-  import CoreTable from '../lessons/CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import uiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import orderBy from 'lodash/orderBy';

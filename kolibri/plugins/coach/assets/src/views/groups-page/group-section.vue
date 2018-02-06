@@ -84,7 +84,7 @@
 
 <script>
 
-  import CoreTable from '../lessons/CoreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
