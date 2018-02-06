@@ -23,19 +23,11 @@
       <dl>
         <dt>
           {{ $tr('status') }}
-          <ui-icon
-            ref="info-icon"
-            class="info-icon"
-            :ariaLabel="$tr('lessonStatusDescription')"
-            icon="info_outline"
+          <info-icon
+            :iconAriaLabel="$tr('lessonStatusDescription')"
+            :tooltipText="$tr('statusTooltipText')"
+            tooltipPosition="bottom left"
           />
-          <ui-tooltip
-            class="info-icon-tooltip"
-            position="bottom left"
-            trigger="info-icon"
-          >
-            {{ $tr('statusTooltipText') }}
-          </ui-tooltip>
         </dt>
         <dd>
           <status-icon :active="lessonActive" />
@@ -108,8 +100,7 @@
   import { LessonActions, CollectionTypes, LessonsPageNames } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import uiTooltip from 'keen-ui/src/UiTooltip';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import InfoIcon from '../InfoIcon';
 
   export default {
     components: {
@@ -119,8 +110,7 @@
       contentIcon,
       kButton,
       kRouterLink,
-      uiIcon,
-      uiTooltip,
+      InfoIcon,
     },
     data() {
       return {
@@ -237,12 +227,6 @@
   dd
     margin-left: 0
     margin-bottom: 1.5em
-
-  .info-icon
-    font-size: $table-header-size + 2 // scaling so that the 'i' fits
-    vertical-align: top
-    color: $core-accent-color
-    cursor: pointer
 
   .group-list
     margin: 0

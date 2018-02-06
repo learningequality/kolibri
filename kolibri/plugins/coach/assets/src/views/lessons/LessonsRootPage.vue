@@ -21,7 +21,14 @@
           <th>{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
           <th>{{ $tr('visibleTo') }}</th>
-          <th>{{ $tr('status') }}</th>
+          <th>
+            {{ $tr('status') }}
+            <info-icon
+              :iconAriaLabel="$tr('lessonStatusDescription')"
+              :tooltipText="$tr('statusTooltipText')"
+              tooltipPosition="bottom right"
+            />
+          </th>
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -82,6 +89,7 @@
   import { LessonsPageNames } from '../../lessonsConstants';
   import StatusIcon from './StatusIcon';
   import CoreTable from './CoreTable';
+  import InfoIcon from './InfoIcon';
 
   export default {
     name: 'LessonsRootPage',
@@ -93,6 +101,7 @@
       kRouterLink,
       StatusIcon,
       CoreTable,
+      InfoIcon,
     },
     data() {
       return {
@@ -177,6 +186,8 @@
       noLessons: 'No lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
+      lessonStatusDescription: 'Lesson status description',
+      statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
     },
   };
 
