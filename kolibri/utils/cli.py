@@ -1,4 +1,6 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import importlib  # noqa
 import logging  # noqa
@@ -105,7 +107,10 @@ def version_file():
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    return os.path.join(os.environ['KOLIBRI_HOME'], '.data_version')
+    return os.path.join(
+        os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"])),
+        '.data_version'
+    )
 
 
 def initialize(debug=False):

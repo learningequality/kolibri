@@ -8,24 +8,28 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-# import kolibri, so we can get the path to the module.
-import kolibri
 import pytz
+from tzlocal import get_localzone
+
+import kolibri
+from kolibri.utils import conf
+from kolibri.utils import i18n
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf, i18n
-from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
-KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
+KOLIBRI_HOME = conf.KOLIBRI_HOME
 
 KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
 
