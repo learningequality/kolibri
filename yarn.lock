@@ -6126,9 +6126,9 @@ vue-html-loader@^1.2.3:
     loader-utils "^1.0.2"
     object-assign "^4.1.0"
 
-vue-intl@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-2.1.0.tgz#81071233accbd3d889f79b06a496a53cab475179"
+vue-intl@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-2.1.1.tgz#ab476d8fdb747ea7c615a0b69c7e3db6e8a5e39f"
   dependencies:
     babel-runtime "^6.26.0"
     intl-format-cache "^2.0.5"

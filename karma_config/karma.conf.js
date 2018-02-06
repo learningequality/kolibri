@@ -38,6 +38,8 @@ webpack_config.resolve.alias = aliases;
 
 webpack_config.externals = {
   kolibri: 'kolibriGlobal',
+  'intl-locale': 'intlLocale',
+  'vue-intl-locale': 'vueIntlLocale',
 };
 
 module.exports = function(config) {
@@ -80,7 +82,6 @@ module.exports = function(config) {
     colors: true,
 
     // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
     // enable / disable watching file and executing tests whenever any file changes
