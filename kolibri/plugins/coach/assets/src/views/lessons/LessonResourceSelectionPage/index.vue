@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="selection-page">
     <ui-toolbar
       title="Select Resources"
       textColor="white"
@@ -36,7 +36,6 @@
         :kind="content.kind"
         :link="{to:'', params: {}}"
       />
-      Lesson Resource Selection Page
     </div>
   </div>
 
@@ -116,8 +115,14 @@
       left: 0
       right: 0
       top: 0
+      z-index: 4 // material spec
     &-content
-      margin-top: 58px // height of action bar
+      position: absolute
+      top: 58px // height of action bar
+      left: 0
+      right: 0
+      bottom: 0
+      overflow-y: scroll
       padding: 2em
 
 </style>

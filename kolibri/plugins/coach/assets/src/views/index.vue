@@ -6,7 +6,7 @@
     :navBarNeeded="!isLoading && !currentPageIsImmersive"
   >
 
-    <template v-if="userCanAccessPage">
+    <div class="coach" v-if="userCanAccessPage">
       <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
         <top-nav />
@@ -17,7 +17,7 @@
         :is="currentPage"
       />
 
-    </template>
+    </div>
 
     <auth-message v-else authorizedRole="adminOrCoach" />
 
@@ -158,6 +158,9 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .coach
+    overflow: auto
 
   .content
     margin-top: 32px
