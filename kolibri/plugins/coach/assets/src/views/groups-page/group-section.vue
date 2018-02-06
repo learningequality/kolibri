@@ -42,7 +42,7 @@
     <core-table v-if="group.users.length">
       <thead slot="thead">
         <tr>
-          <th class="col-checkbox">
+          <th class="icon-col">
             <k-checkbox
               :label="$tr('selectAll')"
               :showLabel="false"
@@ -51,8 +51,8 @@
               @change="toggleSelectAll"
             />
           </th>
-          <th class="col-name">{{ $tr('name') }}</th>
-          <th class="col-username">{{ $tr('username') }}</th>
+          <th class="main-col">{{ $tr('name') }}</th>
+          <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -62,7 +62,7 @@
           :class="isSelected(user.id) ? 'selectedrow' : ''"
           @click="toggleSelection(user.id)"
         >
-          <td class="col-checkbox">
+          <td class="icon-col">
             <k-checkbox
               :label="$tr('selectLearner')"
               :showLabel="false"
@@ -71,8 +71,8 @@
               @click.native.stop
             />
           </td>
-          <td class="col-name main-col">{{ user.full_name }}</td>
-          <td class="col-username">{{ user.username }}</td>
+          <td class="main-col">{{ user.full_name }}</td>
+          <td>{{ user.username }}</td>
         </tr>
       </tbody>
     </core-table>
@@ -216,34 +216,16 @@
   .vertically-align
     line-height: 50px
 
-  table
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: left
-
-  td, th
-    padding: 8px
-
   tbody
     tr
       cursor: pointer
       &:hover
         background-color: $core-grey
 
-  thead
-    .col-name, .col-username
-      color: $core-text-annotation
-      font-size: small
-
   .selectedrow
     background-color: $core-bg-canvas
 
-  .col-checkbox
-    width: 4%
-
-  .col-name, .col-username
-    width: 48%
+  >>>.k-checkbox-container
+    margin: 0 0 0 2px
 
 </style>

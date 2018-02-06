@@ -80,7 +80,7 @@
 
           <!-- Full Name field -->
           <td>
-            <span class="table-name">{{ user.full_name }}</span>
+            <span>{{ user.full_name }}</span>
           </td>
 
           <!-- Edit field -->
