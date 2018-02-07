@@ -2,27 +2,33 @@
 
   <router-link @click.native="$emit('clack')" :to="link" class="card">
 
-    <card-thumbnail
-      class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :isMobile="true"
-    />
+    <div class="content-card">
+      <card-thumbnail
+        class="thumbnail"
+        :thumbnail="thumbnail"
+        :kind="kind"
+        :isMobile="true"
+      />
 
-    <div class="text">
-      <h3 class="title" dir="auto">{{ title }}</h3>
-      <p class="description">
-        <!-- eslint-disable -->
-        <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
-        <!-- eslint-enable -->
-        <k-button
-          v-if="descriptionIsTooLong"
-          @click.stop="descriptionExpanded=!descriptionExpanded"
-          appearance="basic-link"
-          :text="descriptionExpanded ? 'View less' : 'View More'"
-        />
+      <div class="text">
+        <h3 class="title" dir="auto">{{ title }}</h3>
+        <p class="description">
+          <!-- eslint-disable -->
+          <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
+          <!-- eslint-enable -->
+          <k-button
+            v-if="descriptionIsTooLong"
+            @click.stop="descriptionExpanded=!descriptionExpanded"
+            appearance="basic-link"
+            :text="descriptionExpanded ? 'View less' : 'View More'"
+          />
 
-      </p>
+        </p>
+      </div>
+
+      <div v-if="message" class="message">
+        {{ message }}
+      </div>
     </div>
 
   </router-link>
@@ -69,6 +75,10 @@
         type: Object,
         required: true,
         validator: validateLinkObject,
+      },
+      message: {
+        type: String,
+        default: '',
       },
     },
     data() {
@@ -143,5 +153,14 @@
   .truncated::after
     content: '\2026\0020'
     display: inline
+
+  .content-card
+    position: relative
+
+  .message
+    color: $core-text-default
+    position: absolute
+    top: 16px
+    right: 16px
 
 </style>
