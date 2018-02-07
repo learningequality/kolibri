@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+import Vue from 'vue-test'; // eslint-disable-line no-unused-vars, import/no-unresolved
 import assert from 'assert';
 import elapsedTime from '../../src/views/elapsed-time';
 import { shallow } from 'avoriaz';
