@@ -65,7 +65,6 @@
   import { PageNames } from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -75,7 +74,6 @@
     components: {
       contentIcon,
       CoreTable,
-      reportTable,
       headerCell,
       nameCell,
       activityCell,
