@@ -13,3 +13,7 @@ export function SET_LEARNER_GROUPS(state, learnerGroups) {
 export function SET_CONTENT_LIST(state, contentList) {
   state.pageState.contentList = [...contentList];
 }
+
+export function SET_ANCESTORS(state, ancestors) {
+  state.pageState.ancestors = [...ancestors];
+}

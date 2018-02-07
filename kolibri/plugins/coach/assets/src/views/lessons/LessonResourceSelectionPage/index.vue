@@ -52,6 +52,16 @@
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
+  function getAncestorLink(ancestor, params) {
+    return {
+      text: ancestor.title,
+      link: {
+        name: LessonsPageNames.SELECTION,
+        params,
+      },
+    };
+  }
+
   export default {
     components: {
       uiToolbar,
@@ -70,17 +80,22 @@
         };
       },
       selectionCrumbs() {
+        const defaultParams = {
+          lessonId: this.lessonId,
+          classId: this.classId,
+        };
         const channelBreadcrumbObject = {
           text: this.$tr('channelBreadcrumbLabel'),
           link: {
             name: LessonsPageNames.SELECTION_ROOT,
-            params: {
-              lessonId: this.lessonId,
-              classId: this.classId,
-            },
+            params: defaultParams,
           },
         };
-        return [channelBreadcrumbObject, ...this.ancestors];
+        return [
+          channelBreadcrumbObject,
+          // TODO ancestors might be missing one link
+          ...this.ancestors.map(a => getAncestorLink(a, { ...defaultParams, topicId: a.pk })),
+        ];
         // just include "channel" at first, bring in topics/more as the routes change
       },
     },
@@ -112,8 +127,7 @@
       getters: {
         lessonId: state => state.pageState.currentLesson,
         classId: state => state.classId,
-        // ancestors: state => state.pageState.ancestors,
-        ancestors: () => [],
+        ancestors: state => state.pageState.ancestors || [],
         contentList: state => state.pageState.contentList,
       },
       actions: {},

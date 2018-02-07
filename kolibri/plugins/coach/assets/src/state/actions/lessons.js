@@ -130,7 +130,6 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
   ];
   return Promise.all(loadRequirements).then(
     ([learnerGroups, topicNode, childNodes, ancestors]) => {
-      console.log(ancestors);
       store.dispatch(
         'SET_CONTENT_LIST',
         childNodes.map(node => {
@@ -144,6 +143,7 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
         })
       );
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+      store.dispatch('SET_ANCESTORS', ancestors);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
