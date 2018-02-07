@@ -18,7 +18,7 @@
           <!-- eslint-enable -->
           <k-button
             v-if="descriptionIsTooLong"
-            @click.stop="descriptionExpanded=!descriptionExpanded"
+            @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
             appearance="basic-link"
             :text="descriptionExpanded ? 'View less' : 'View More'"
           />
