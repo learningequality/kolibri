@@ -8,7 +8,7 @@
     <core-table v-else>
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
+          <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
           <th></th>
@@ -17,7 +17,7 @@
 
       <tbody slot="tbody">
         <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="icon-col">
+          <td class="core-table-icon-col">
             <permissions-icon
               v-if="!!getPermissionType(user.id)"
               :permissionType="getPermissionType(user.id)"

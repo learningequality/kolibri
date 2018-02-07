@@ -6,21 +6,21 @@
     <p>{{ $tr('pageDescription') }}</p>
 
     <div class="table-wrapper" v-if="!noClassesExist">
-      <core-table class="main-table">
+      <core-table>
         <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
         <thead slot="thead">
           <tr>
-            <th class="icon-col"></th>
-            <th>{{ $tr('className') }}</th>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('className') }}</th>
             <th>{{ $tr('members') }}</th>
           </tr>
         </thead>
         <tbody slot="tbody">
           <tr v-for="cl in sortedClasses" :key="cl.id">
-            <td class="icon-col">
-              <ui-icon icon="people" class="core-table-content-icon" />
+            <td class="core-table-icon-col">
+              <ui-icon icon="people" />
             </td>
-            <th scope="row" class="main-col">
+            <th scope="row" class="core-table-main-col">
               <k-router-link
                 :text="cl.name"
                 :to="recentPageLink(cl.id)"

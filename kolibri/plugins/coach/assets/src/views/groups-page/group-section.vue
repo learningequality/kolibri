@@ -42,7 +42,7 @@
     <core-table v-if="group.users.length">
       <thead slot="thead">
         <tr>
-          <th class="icon-col">
+          <th class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectAll')"
               :showLabel="false"
@@ -51,18 +51,18 @@
               @change="toggleSelectAll"
             />
           </th>
-          <th class="main-col">{{ $tr('name') }}</th>
+          <th class="core-table-main-col">{{ $tr('name') }}</th>
           <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody slot="tbody">
+      <tbody slot="tbody" class="core-table-rows-selectable">
         <tr
           v-for="user in group.users"
           :key="user.id"
-          :class="isSelected(user.id) ? 'selectedrow' : ''"
+          :class="isSelected(user.id) ? 'core-table-row-selected' : ''"
           @click="toggleSelection(user.id)"
         >
-          <td class="icon-col">
+          <td class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectLearner')"
               :showLabel="false"
@@ -71,7 +71,7 @@
               @click.native.stop
             />
           </td>
-          <td class="main-col">{{ user.full_name }}</td>
+          <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
         </tr>
       </tbody>
@@ -215,17 +215,5 @@
 
   .vertically-align
     line-height: 50px
-
-  tbody
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $core-grey
-
-  .selectedrow
-    background-color: $core-bg-canvas
-
-  >>>.k-checkbox-container
-    margin: 0 0 0 2px
 
 </style>

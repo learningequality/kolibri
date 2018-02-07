@@ -19,8 +19,8 @@
     <core-table>
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
-          <th>{{ $tr('title') }}</th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
           <th>{{ $tr('visibleTo') }}</th>
           <th>
@@ -38,13 +38,10 @@
           v-for="lesson in filteredLessons"
           :key="lesson.id"
         >
-          <td class="icon-col">
-            <content-icon
-              :kind="lessonKind"
-              class="lesson-icon"
-            />
+          <td class="core-table-icon-col">
+            <content-icon :kind="lessonKind" />
           </td>
-          <td class="main-col">
+          <td class="core-table-main-col">
             <k-router-link
               :to="generateLessonLink(lesson.id)"
               :text="lesson.name"
@@ -202,13 +199,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .lesson-icon
-    font-size: 24px
-    display: inline-block
-    height: 24px
-    >>>.ui-icon
-      vertical-align: inherit
 
   .filter-and-button
     display: flex

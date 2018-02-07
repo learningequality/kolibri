@@ -20,10 +20,10 @@
     <core-table v-if="sortedExams.length">
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
-          <th class="col-title">{{ $tr('title') }}</th>
-          <th class="col-visibility">{{ $tr('visibleTo') }}</th>
-          <th class="col-action"></th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('title') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th></th>
         </tr>
       </thead>
       <tbody slot="tbody">

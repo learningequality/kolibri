@@ -25,8 +25,8 @@
       <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
-          <th>{{ $tr('className') }}</th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('className') }}</th>
           <th>{{ $tr('members') }}</th>
           <th>{{ $tr('actions') }}</th>
         </tr>
@@ -36,13 +36,10 @@
           v-for="classModel in sortedClasses"
           :key="classModel.id"
         >
-          <td class="icon-col">
-            <ui-icon
-              class="core-table-content-icon"
-              icon="people"
-            />
+          <td class="core-table-icon-col">
+            <ui-icon icon="people" />
           </td>
-          <th class="main-col">
+          <th class="core-table-main-col">
             <k-router-link
               :text="classModel.name"
               :to="classEditLink(classModel.id)"

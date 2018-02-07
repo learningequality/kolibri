@@ -17,7 +17,7 @@
     <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :align="alignStart"
             :text="$tr('name')"
@@ -47,11 +47,8 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
-          <td class="icon-col">
-            <content-icon
-              :kind="row.kind"
-              class="core-table-content-icon"
-            />
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
           </td>
           <name-cell
             :kind="row.kind"

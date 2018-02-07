@@ -16,7 +16,7 @@
     >
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('channels')"
             :align="alignStart"
@@ -34,11 +34,8 @@
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
-            <td class="icon-col">
-              <content-icon
-                :kind="CHANNEL"
-                class="core-table-content-icon"
-              />
+            <td class="core-table-icon-col">
+              <content-icon :kind="CHANNEL" />
             </td>
             <name-cell
               :kind="CHANNEL"

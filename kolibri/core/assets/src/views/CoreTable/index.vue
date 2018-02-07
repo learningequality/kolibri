@@ -1,7 +1,7 @@
 <template>
 
-  <div class="core-table">
-    <table>
+  <div class="core-table-container">
+    <table class="core-table">
       <slot></slot>
       <slot name="thead"></slot>
       <slot name="tbody"></slot>
@@ -15,7 +15,7 @@
 
   export default {
     name: 'CoreTable',
-   };
+  };
 
 </script>
 
@@ -25,54 +25,65 @@
   @require '~kolibri.styles.definitions'
 
   // SPECIAL CLASSES
-  // icon-col - For icons
-  // main-col - For main content
+  // core-table-icon-col - Icon Column
+  // core-table-main-col - Main Column
+  // core-table-checkbox-col - Checkbox column
+  // core-table-rows-selectable - Rows are selectable
+  // core-table-row-selected - Row is selected
 
-  .core-table
+  .core-table-container
     overflow-x: auto
 
-    table
-      font-size: 14px
-      width: 100%
+  .core-table
+    width: 100%
+    font-size: 14px
 
-    thead
-      border-bottom-width: 1px
-      border-bottom-style: solid
-      border-bottom-color: $core-grey
-      tr
-        color: $core-text-annotation
-        text-align: left
-        font-size: 12px
+  >>>thead
+    border-bottom: solid 1px $core-grey
+    tr
+      font-size: 12px
+      color: $core-text-annotation
 
-    tbody
-      tr
-        text-align: left
-      tr:not(:last-child)
-        border-bottom-width: 1px
-        border-bottom-style: solid
-        border-bottom-color: $core-grey
+  >>>tbody
+    tr:not(:last-child)
+      border-bottom: solid 1px $core-grey
 
-    >>>th, >>>td
-      padding-top: 12px
-      padding-right: 16px
-      padding-bottom: 12px
-      padding-left: 0
+  >>>tr
+    text-align: left
 
-    .icon-col
-      width: 40px
+  >>>th, >>>td
+    padding: 12px 16px 12px 0
 
-    .main-col
-      font-weight: bold
+  >>>th:not(.core-table-icon-col):not(.core-table-checkbox-col),
+  >>>td:not(.core-table-icon-col):not(.core-table-checkbox-col)
+    min-width: 120px
 
-    .core-table-content-icon
-      font-size: 24px
+  >>>.core-table-icon-col,
+  >>>.core-table-checkbox-col
+    width: 40px
+
+  >>>.core-table-main-col
+    font-weight: bold
+
+
+  >>>.core-table-icon-col
+    .ui-icon
       display: inline-block
       height: 24px
-      >>>.ui-icon
-        vertical-align: inherit
+      font-size: 24px
+      vertical-align: inherit
 
-    th:not(.icon-col),
-    td:not(.icon-col)
-      min-width: 120px
+  >>>.core-table-checkbox-col
+    .k-checkbox-container
+      margin: 0 0 0 2px
+
+  >>>.core-table-rows-selectable
+    tr
+      cursor: pointer
+      &:hover
+        background-color: $core-grey
+
+  >>>.core-table-row-selected
+    background-color: $core-bg-canvas
 
 </style>

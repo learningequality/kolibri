@@ -1,17 +1,17 @@
 <template>
 
   <tr>
-    <td class="icon-col prel">
+    <td class="core-table-icon-col prel">
       <ui-icon
         icon="assignment_late"
         :ariaLabel="String(examActive)"
-        class="core-table-content-icon"
+
         :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
       />
       <span v-if="examActive" class="active-circle"></span>
     </td>
 
-    <td class="main-col">{{ examTitle }}</td>
+    <td class="core-table-main-col">{{ examTitle }}</td>
 
     <td>{{ visibilityString }}</td>
 

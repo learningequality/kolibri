@@ -15,8 +15,8 @@
       <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
       <thead slot="thead">
         <tr>
-          <th class="icon-col"></th>
-          <th>{{ $tr('name') }}</th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('name') }}</th>
           <th>{{ $tr('status') }}</th>
           <th>{{ $tr('score') }}</th>
           <th>{{ $tr('group') }}</th>
@@ -24,13 +24,10 @@
       </thead>
       <tbody slot="tbody">
         <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
-          <td class="icon-col">
-            <content-icon
-              :kind="USER"
-              class="core-table-content-icon"
-            />
+          <td class="core-table-icon-col">
+            <content-icon :kind="USER" />
           </td>
-          <td class="main-col">
+          <td class="core-table-main-col">
             <k-router-link
               v-if="examTaker.progress !== undefined"
               :text="examTaker.name"

@@ -1,6 +1,6 @@
 <template>
 
-  <td scope="row" class="main-col">
+  <td scope="row" class="core-table-main-col">
     <div class="wrapper">
       <k-router-link v-if="link" :text="title" :to="link" class="link" />
       <span v-else>{{ title }}</span>

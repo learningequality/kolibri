@@ -37,8 +37,8 @@
       <!-- Table Headers -->
       <thead slot="thead" v-if="usersMatchFilter">
         <tr>
-          <th class="icon-col"></th>
-          <th>{{ $tr('username') }}</th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('username') }}</th>
           <th>
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
@@ -50,14 +50,11 @@
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="icon-col">
-            <ui-icon
-              icon="person"
-              class="core-table-content-icon"
-            />
+          <td class="core-table-icon-col">
+            <ui-icon icon="person" />
           </td>
           <!-- Username field -->
-          <th class="main-col">{{ user.username }}</th>
+          <th class="core-table-main-col">{{ user.username }}</th>
 
           <!-- Logic for role tags -->
           <td>
