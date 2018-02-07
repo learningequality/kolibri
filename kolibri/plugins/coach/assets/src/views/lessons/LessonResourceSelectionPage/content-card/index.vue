@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="card">
+  <router-link @click.native="$emit('clack')" :to="link" class="card">
 
     <card-thumbnail
       class="thumbnail"
@@ -9,7 +9,21 @@
       :isMobile="true"
     />
 
-    <h3 class="text" dir="auto">{{ title }}</h3>
+    <div class="text">
+      <h3 class="title" dir="auto">{{ title }}</h3>
+      <p class="description">
+        <!-- eslint-disable -->
+        <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
+        <!-- eslint-enable -->
+        <k-button
+          v-if="descriptionIsTooLong"
+          @click.stop="descriptionExpanded=!descriptionExpanded"
+          appearance="basic-link"
+          :text="descriptionExpanded ? 'View less' : 'View More'"
+        />
+
+      </p>
+    </div>
 
   </router-link>
 
@@ -19,16 +33,24 @@
 <script>
 
   import values from 'lodash/values';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
 
+  const defaultDescriptionLimit = 140;
+
   export default {
     components: {
       cardThumbnail,
+      kButton,
     },
     props: {
       title: {
+        type: String,
+        required: true,
+      },
+      description: {
         type: String,
         required: true,
       },
@@ -49,6 +71,30 @@
         validator: validateLinkObject,
       },
     },
+    data() {
+      return {
+        descriptionExpanded: false,
+      };
+    },
+    computed: {
+      descriptionHead() {
+        if (this.descriptionExpanded) {
+          return this.description;
+        }
+        return this.description.slice(0, defaultDescriptionLimit);
+      },
+      descriptionTail() {
+        return this.description.slice(defaultDescriptionLimit);
+      },
+      descriptionIsTooLong() {
+        return this.description.length > defaultDescriptionLimit;
+      },
+      truncatedClass() {
+        return {
+          truncated: this.descriptionIsTooLong && !this.descriptionExpanded,
+        };
+      },
+    },
   };
 
 </script>
@@ -61,17 +107,16 @@
 
   .card
     text-decoration: none
-    display: inline-block
+    display: block
     border-radius: 2px
     background-color: $core-bg-light
     width: 100%
     height: $thumb-height
     margin-bottom: 16px
+    overflow: auto
 
-    .thumbnail
-      position: absolute
     .text
-      margin-left: $thumb-width + 16
+      margin-left: $thumb-width
 
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2),
@@ -84,8 +129,19 @@
 
   .text
     color: $core-text-default
+    height: 100%
     overflow: hidden
-    margin: 16px
-    height: 54px
+    max-width: 50%
+    padding: 16px
+  .title
+    font-size: 16px
+    margin-top: 8px
+
+  .description
+    font-size: 12px
+
+  .truncated::after
+    content: '\2026\0020'
+    display: inline
 
 </style>

@@ -33,6 +33,7 @@
         :key="content.id"
         :title="content.title"
         :thumbnail="content.thumbnail"
+        :description="content.description"
         :kind="content.kind"
         :link="{to:'', params: {}}"
       />

@@ -97,7 +97,7 @@
   @require './card.styl'
 
   .card-thumbnail-wrapper
-    position: relative
+    position: absolute
     background-size: cover
     background-position: center
     background-color: $core-grey
