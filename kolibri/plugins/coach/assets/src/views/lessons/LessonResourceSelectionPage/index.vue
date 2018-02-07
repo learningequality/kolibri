@@ -35,7 +35,7 @@
         :thumbnail="content.thumbnail"
         :description="content.description"
         :kind="content.kind"
-        :link="{to:'', params: {}}"
+        :link="contentLink(content)"
       />
     </div>
   </div>
@@ -50,6 +50,8 @@
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+
   export default {
     components: {
       uiToolbar,
@@ -82,7 +84,30 @@
         // just include "channel" at first, bring in topics/more as the routes change
       },
     },
-    methods: {},
+    methods: {
+      contentLink(content) {
+        const defaultParams = {
+          lessonId: this.lessonId,
+          classId: this.classId,
+        };
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          return {
+            name: LessonsPageNames.SELECTION,
+            params: {
+              ...defaultParams,
+              topicId: content.id,
+            },
+          };
+        }
+        return {
+          name: LessonsPageNames.CONTENT_PREVIEW,
+          params: {
+            ...defaultParams,
+            contentId: content.id,
+          },
+        };
+      },
+    },
     vuex: {
       getters: {
         lessonId: state => state.pageState.currentLesson,

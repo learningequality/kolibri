@@ -1,6 +1,6 @@
 <template>
 
-  <router-link @click.native="$emit('clack')" :to="link" class="card">
+  <router-link :to="link" class="card">
 
     <div class="content-card">
       <card-thumbnail
