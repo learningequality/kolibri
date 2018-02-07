@@ -31,7 +31,7 @@ function isLearnerPage(state) {
 
 // Whenever page is immersive, disable core-page and other default navigations
 function currentPageIsImmersive(state) {
-  const immersivePages = [LessonsPageNames.SELECTION_ROOT];
+  const immersivePages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
   return immersivePages.includes(state.pageName);
 }
 

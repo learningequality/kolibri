@@ -63,7 +63,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   });
 }
 
-/* eslint-disable*/
+/* eslint-disable no-unused-vars */
 export function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
 
 export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
@@ -76,13 +76,9 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
     currentLesson: lessonId,
     contentList: [],
   });
-  const loadRequirements = [
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    updateLessons(store, classId),
-    setClassState(store, classId),
-  ];
+  const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
-    ([learnerGroups, channels]) => {
+    () => {
       store.dispatch(
         'SET_CONTENT_LIST',
         getChannels(store.state).map(channel => {
@@ -95,7 +91,6 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
           };
         })
       );
-      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -121,7 +116,6 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
     contentList: [],
   });
   const loadRequirements = [
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     ContentNodeResource.getModel(topicId).fetch(),
     ContentNodeResource.getCollection({ parent: topicId }).fetch(),
     ContentNodeResource.fetchAncestors(topicId),
@@ -129,7 +123,7 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
     setClassState(store, classId),
   ];
   return Promise.all(loadRequirements).then(
-    ([learnerGroups, topicNode, childNodes, ancestors]) => {
+    ([topicNode, childNodes, ancestors]) => {
       store.dispatch(
         'SET_CONTENT_LIST',
         childNodes.map(node => {
@@ -142,9 +136,8 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
           };
         })
       );
-      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('SET_ANCESTORS', ancestors);
-      store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
+      store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
