@@ -27,7 +27,7 @@
       active: {
         type: Boolean,
         default: false,
-      }
+      },
     },
     $trs: {
       active: 'Active',

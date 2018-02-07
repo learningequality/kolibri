@@ -106,7 +106,7 @@
       textArea: {
         type: Boolean,
         default: false,
-      }
+      },
     },
     data() {
       return { currentText: this.value };

@@ -33,7 +33,7 @@
     computed: {
       currentModal() {
         return actionToModalMap[this.currentAction] || null;
-      }
+      },
     },
   };
 
