@@ -85,7 +85,10 @@ class LessonSerializer(ModelSerializer):
                 )
 
             ids_to_delete = set(current_group_ids) - set(new_group_ids)
-            LessonAssignment.objects.filter(collection_id__in=ids_to_delete).delete()
+            LessonAssignment.objects.filter(
+                lesson_id=instance.id,
+                collection_id__in=ids_to_delete
+            ).delete()
 
         instance.save()
         return instance
