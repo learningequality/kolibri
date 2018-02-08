@@ -106,10 +106,11 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
-  import { LessonActions, CollectionTypes, LessonsPageNames } from '../../../lessonsConstants';
+  import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
+  import { selectionRootLink } from '../lessonsRouterUtils';
 
   export default {
     components: {
@@ -144,13 +145,7 @@
         return LessonActions;
       },
       lessonSelectionRootPage() {
-        return {
-          name: LessonsPageNames.SELECTION_ROOT,
-          params: {
-            lessonId: this.lessonId,
-            classId: this.classId,
-          },
-        };
+        return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
       },
     },
     methods: {

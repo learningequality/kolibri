@@ -80,7 +80,7 @@
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonSummaryLink } from '../lessonsRouterUtils';
+  import { lessonSummaryLink, selectionRootLink } from '../lessonsRouterUtils';
 
   function getAncestorLink(ancestor, params) {
     return {
@@ -103,37 +103,27 @@
     },
     computed: {
       lessonPage() {
-        return lessonSummaryLink({ classId: this.classId, lessonId: this.lessonId });
+        return lessonSummaryLink(this.routerParams);
+      },
+      routerParams() {
+        return { classId: this.classId, lessonId: this.lessonId };
       },
       selectionCrumbs() {
-        const defaultParams = {
-          lessonId: this.lessonId,
-          classId: this.classId,
-        };
-        const channelBreadcrumbObject = {
-          text: this.$tr('channelBreadcrumbLabel'),
-          link: {
-            name: LessonsPageNames.SELECTION_ROOT,
-            params: defaultParams,
-          },
-        };
         return [
-          channelBreadcrumbObject,
-          ...this.ancestors.map(a => getAncestorLink(a, { ...defaultParams, topicId: a.pk })),
+          // "Channels" breadcrumbs
+          { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(this.routerParams) },
+          // The current topic is injected into `ancestors` in the showPage action
+          ...this.ancestors.map(a => getAncestorLink(a, { ...this.routerParams, topicId: a.pk })),
         ];
       },
     },
     methods: {
       contentLink(content) {
-        const defaultParams = {
-          lessonId: this.lessonId,
-          classId: this.classId,
-        };
         if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
           return {
             name: LessonsPageNames.SELECTION,
             params: {
-              ...defaultParams,
+              ...this.routerParams,
               topicId: content.id,
             },
           };
@@ -141,7 +131,7 @@
         return {
           name: LessonsPageNames.CONTENT_PREVIEW,
           params: {
-            ...defaultParams,
+            ...this.routerParams,
             contentId: content.id,
           },
         };
