@@ -12,7 +12,6 @@
 // (specified in package.json)
 require('engine-strict').check();
 
-var path = require('path');
 var readBundlePlugins = require('./read_bundle_plugins');
 
-module.exports = readBundlePlugins(path.join(__dirname, '..', '..'));
+module.exports = readBundlePlugins();

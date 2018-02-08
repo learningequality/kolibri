@@ -7,8 +7,6 @@
 var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
 var _ = require('lodash');
-var path = require('path');
-var mkdirp = require('mkdirp');
 var webpack = require('webpack');
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
@@ -41,24 +39,16 @@ function setNodePaths(nodePaths) {
  * Take a Python plugin file name as input, and extract the information regarding front end plugin
  * configuration from it using a Python script to import the relevant plugins and then run methods
  * against them to retrieve the config data.
- * @param {string} base_dir - The absolute path of the base directory for writing files to.
  * module names to the global namespace at which those modules can be accessed.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
-var readBundlePlugins = function(base_dir) {
-  var bundles = [];
-  var externals = {};
+var readBundlePlugins = function() {
+  var bundles = readWebpackJson()
+    .map(parseBundlePlugin)
+    .filter(function(bundle) {
+      return bundle;
+    });
 
-  var results = readWebpackJson();
-
-  for (var i = 0; i < results.length; i++) {
-    var message = results[i];
-
-    var output = parseBundlePlugin(message, base_dir);
-    if (typeof output !== 'undefined') {
-      bundles.push(output);
-    }
-  }
   if (bundles.length > 0) {
     for (var k = 0; k < bundles.length; k++) {
       for (var j = 0; j < bundles.length; j++) {
@@ -101,9 +91,9 @@ var readBundlePlugins = function(base_dir) {
     // Only the default bundle is built for library output to a global variable
     if (bundle.output.library !== kolibriName) {
       // If this is not the core bundle, then we need to add the external library mappings.
-      bundle.externals = _.extend({}, externals, core_externals);
+      bundle.externals = core_externals;
     } else {
-      bundle.externals = _.extend({ kolibri: bundle.output.library }, externals);
+      bundle.externals = { kolibri: bundle.output.library };
       if (coreAPISpec) {
         bundle.plugins.push(
           new webpack.ProvidePlugin({
@@ -119,10 +109,6 @@ var readBundlePlugins = function(base_dir) {
       }
     }
   });
-
-  var locale_dir = path.join(base_dir, 'kolibri', 'locale');
-
-  mkdirp.sync(locale_dir);
 
   var nodePaths = [];
 
