@@ -38,13 +38,15 @@ Everything that a plugin does is expected to be defined through
 
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import importlib
 import logging
 
-from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.conf.urls import url
 
 from .base import KolibriPluginBase
 
@@ -57,16 +59,20 @@ __registry = []
 __initialized = False
 
 
-def initialize():
+def initialize(apps=None):
     """
     Called once at load time to register hook callbacks.
     """
     global __initialized, __registry
 
+    if not apps:
+        from django.conf import settings
+        apps = settings.INSTALLED_APPS
+
     if not __initialized:
         logger.debug("Loading kolibri plugin registry...")
 
-        for app in settings.INSTALLED_APPS:
+        for app in apps:
             try:
 
                 # Handle AppConfig INSTALLED_APPS string
