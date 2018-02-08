@@ -38,7 +38,7 @@
             <k-checkbox
               class="content-checkbox"
               :label="content.title"
-              v-if="isLeafNode(content.kind)"
+              v-if="!contentIsDirectoryKind(content)"
               :showLabel="false"
               :checked="isSelected(content.id)"
               @change="toggleSelected($event, content.id)"
@@ -80,17 +80,7 @@
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonSummaryLink, selectionRootLink } from '../lessonsRouterUtils';
-
-  function getAncestorLink(ancestor, params) {
-    return {
-      text: ancestor.title,
-      link: {
-        name: LessonsPageNames.SELECTION,
-        params,
-      },
-    };
-  }
+  import { lessonSummaryLink, selectionRootLink, topicListingLink } from '../lessonsRouterUtils';
 
   export default {
     name: 'lessonResourceSelectionPage',
@@ -111,23 +101,24 @@
       },
       selectionCrumbs() {
         return [
-          // "Channels" breadcrumbs
+          // The "Channels" breadcrumb
           { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(this.routerParams) },
-          // The current topic is injected into `ancestors` in the showPage action
-          ...this.ancestors.map(a => getAncestorLink(a, { ...this.routerParams, topicId: a.pk })),
+          // Ancestors breadcrumbs
+          // NOTE: The current topic is injected into `ancestors` in the showPage action
+          ...this.ancestors.map(a => ({
+            text: a.title,
+            link: topicListingLink({ ...this.routerParams, topicId: a.pk }),
+          })),
         ];
       },
     },
     methods: {
+      contentIsDirectoryKind({ kind }) {
+        return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
+      },
       contentLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
-          return {
-            name: LessonsPageNames.SELECTION,
-            params: {
-              ...this.routerParams,
-              topicId: content.id,
-            },
-          };
+        if (this.contentIsDirectoryKind(content)) {
+          return topicListingLink({ ...this.routerParams, topicId: content.id });
         }
         return {
           name: LessonsPageNames.CONTENT_PREVIEW,
@@ -150,9 +141,6 @@
         } else {
           this.removeFromSelectedResources(contentId);
         }
-      },
-      isLeafNode(contentKind) {
-        return contentKind !== ContentNodeKinds.TOPIC && contentKind !== ContentNodeKinds.CHANNEL;
       },
     },
     vuex: {
