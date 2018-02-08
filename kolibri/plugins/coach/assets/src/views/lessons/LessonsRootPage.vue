@@ -35,7 +35,8 @@
       </thead>
       <tbody slot="tbody">
         <tr
-          v-for="lesson in filteredLessons"
+          v-for="lesson in lessons"
+          v-show="showLesson(lesson)"
           :key="lesson.id"
         >
           <td class="core-table-icon-col">
@@ -59,11 +60,10 @@
     <p v-if="!lessons.length">
       {{ $tr('noLessons') }}
     </p>
-    <p v-else-if="!filteredLessons.length && filterSelection.value === $tr('activeLessons')">
+    <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
       {{ $tr('noActiveLessons') }}
-
     </p>
-    <p v-else-if="!filteredLessons.length && filterSelection.value === $tr('inactiveLessons')">
+    <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
       {{ $tr('noInactiveLessons') }}
     </p>
 
@@ -78,29 +78,29 @@
 
 <script>
 
+  import countBy from 'lodash/countBy';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import CreateLessonModal from './CreateLessonModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import InfoIcon from './InfoIcon';
+  import StatusIcon from './StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../lessonsConstants';
-  import StatusIcon from './StatusIcon';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import InfoIcon from './InfoIcon';
 
   export default {
-    name: 'LessonsRootPage',
+    name: 'lessonsRootPage',
     components: {
-      kButton,
-      kSelect,
-      CreateLessonModal,
-      contentIcon,
-      kRouterLink,
-      StatusIcon,
       CoreTable,
+      CreateLessonModal,
       InfoIcon,
+      StatusIcon,
+      contentIcon,
+      kButton,
+      kRouterLink,
+      kSelect,
     },
     data() {
       return {
@@ -111,37 +111,30 @@
     },
     computed: {
       filterOptions() {
-        return [
-          {
-            label: this.$tr('allLessons'),
-            value: this.$tr('allLessons'),
-          },
-          {
-            label: this.$tr('activeLessons'),
-            value: this.$tr('activeLessons'),
-          },
-
-          {
-            label: this.$tr('inactiveLessons'),
-            value: this.$tr('inactiveLessons'),
-          },
-        ];
+        const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
+        return filters.map(filter => ({
+          label: this.$tr(filter),
+          value: filter,
+        }));
       },
-      filteredLessons() {
-        switch (this.filterSelection.value) {
-          case this.$tr('activeLessons'):
-            return this.lessons.filter(lesson => lesson.is_active);
-          case this.$tr('inactiveLessons'):
-            return this.lessons.filter(lesson => !lesson.is_active);
-          default:
-            return this.lessons;
-        }
+      activeLessonCounts() {
+        return countBy(this.lessons, 'is_active');
       },
     },
     beforeMount() {
       this.filterSelection = this.filterOptions[0];
     },
     methods: {
+      showLesson(lesson) {
+        switch (this.filterSelection.value) {
+          case 'activeLessons':
+            return lesson.is_active;
+          case 'inactiveLessons':
+            return !lesson.is_active;
+          default:
+            return true;
+        }
+      },
       generateLessonLink(lessonId) {
         return {
           name: LessonsPageNames.SUMMARY,
@@ -197,8 +190,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .filter-and-button
     display: flex
