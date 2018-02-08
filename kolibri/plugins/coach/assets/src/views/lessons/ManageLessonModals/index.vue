@@ -13,14 +13,14 @@
   import ChangeLessonStatusModal from './ChangeLessonStatusModal';
   import CopyLessonModal from './CopyLessonModal';
   import DeleteLessonModal from './DeleteLessonModal';
-  import EditLessonDetailsModal from './EditLessonDetailsModal';
+  import LessonDetailsModal from './LessonDetailsModal';
   import { LessonActions } from '../../../lessonsConstants';
 
   const actionToModalMap = {
     [LessonActions.CHANGE_STATUS]: ChangeLessonStatusModal,
     [LessonActions.COPY]: CopyLessonModal,
     [LessonActions.DELETE]: DeleteLessonModal,
-    [LessonActions.EDIT_DETAILS]: EditLessonDetailsModal,
+    [LessonActions.EDIT_DETAILS]: LessonDetailsModal,
   };
 
   export default {

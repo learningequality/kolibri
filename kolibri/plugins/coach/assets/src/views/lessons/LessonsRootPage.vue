@@ -67,7 +67,7 @@
       {{ $tr('noInactiveLessons') }}
     </p>
 
-    <create-lesson-modal
+    <lesson-details-modal
       v-if="showModal"
       @cancel="showModal=false"
     />
@@ -80,7 +80,7 @@
 
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import CreateLessonModal from './ManageLessonModals/EditLessonDetailsModal';
+  import LessonDetailsModal from './ManageLessonModals/LessonDetailsModal';
   import InfoIcon from './InfoIcon';
   import StatusIcon from './StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -94,7 +94,7 @@
     name: 'lessonsRootPage',
     components: {
       CoreTable,
-      CreateLessonModal,
+      LessonDetailsModal,
       InfoIcon,
       StatusIcon,
       contentIcon,
