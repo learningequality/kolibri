@@ -1,3 +1,5 @@
+.. _access:
+
 Access Kolibri
 ##############
 
@@ -23,7 +25,7 @@ While it is running, **Kolibri** will display an icon in the Windows taskbar (us
 
 * Use the **Load in browser** option to open Kolibri in the browser.
 * By default **Kolibri** will start running every time you start the computer where it is installed. Uncheck the **Run Kolibri at system startup** option if you prefer to start it manually from the desktop shortcut.
-* When installed, **Kolibri** will open in the browser everytime it is started. Uncheck the option **Open browser when Kolibri starts** if you prefer to have it running in the background, and to open it manually in the browser by typing the URL http://127.0.0.1:8080 in the address bar.
+* When installed, **Kolibri** will open in the browser every time it is started. Uncheck the option **Open browser when Kolibri starts** if you prefer to have it running in the background, and to open it manually in the browser by typing the URL http://127.0.0.1:8080 in the address bar.
 * Select **Exit** to stop **Kolibri**. You will be prompted to confirm the selection, after which **Kolibri** will stop. You will have to close the browser (or the tab) manually.
 
 .. note::
@@ -58,14 +60,14 @@ Starting Kolibri on Android
 ===========================
 
 .. warning::
-  Final **Kolibri** installer for Android is not released yet, so these steps are *Work in Progress*!
+  Final **Kolibri** installer for Android is not released yet, support is *experimental*!
 
 Go to **Apps** on your device and tap the **Kolibri** icon.
 
-    .. figure:: img/android-apps.png
-      :alt: Tap the Kolibri icon among your device apps to start.
+.. figure:: img/android-apps.png
+  :alt: Tap the Kolibri icon among your device apps to start.
 
-      Tap the Kolibri icon among your device apps to start.
+  Tap the Kolibri icon among your device apps to start.
 
 
 .. _access_LAN:
@@ -81,12 +83,12 @@ While **Kolibri** is up and running on the device where you installed it, other 
 
 * You can check the IP (**Server URL**) of the device where Kolibri is running by going to **Info** tab in the **Device** dashboard, .
 
-    .. figure:: img/device-info.png
-      :alt: Find out the IP/Server URL in the Device > Info tab.
+  .. figure:: img/device-info.png
+    :alt: Find out the IP/Server URL in the Device > Info tab.
 
-      Find out the IP/Server URL in the Device > Info tab.
+    Find out the IP/Server URL in the Device > Info tab.
 
-.. note::
+.. tip::
   You can also use the ``ipconfig`` command on Windows or ``ifconfig`` command on Linux/OSX to find out the IP address of the device running the **Kolibri**.
 
 

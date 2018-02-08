@@ -9,10 +9,11 @@ Changes are ordered reverse-chronologically.
  - TBA
 
 
-0.7.1 (unreleased)
-------------------
+0.7.1
+-----
 
- - TBA
+ - Improvements and fixes to installers including Windows & Debian
+ - Updated documentation
 
 
 0.7.0
