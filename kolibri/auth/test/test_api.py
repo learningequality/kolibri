@@ -1,18 +1,19 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import collections
-import factory
 import sys
 
+import factory
+from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
-
 from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
-from django.contrib.sessions.models import Session
-
-from .helpers import create_superuser, provision_device
 
 from .. import models
+from .helpers import create_superuser
+from .helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 
@@ -379,6 +380,7 @@ class FacilityDatasetAPITestCase(APITestCase):
     def setUp(self):
         provision_device()
         self.facility = FacilityFactory.create()
+        self.facility2 = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
@@ -399,3 +401,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
+
+    def test_facility_user_cannot_delete_dataset(self):
+        response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
+        self.assertEqual(response.status_code, 403)
