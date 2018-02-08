@@ -80,6 +80,7 @@
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { lessonSummaryLink } from '../lessonsRouterUtils';
 
   function getAncestorLink(ancestor, params) {
     return {
@@ -102,13 +103,7 @@
     },
     computed: {
       lessonPage() {
-        return {
-          name: LessonsPageNames.SUMMARY,
-          params: {
-            classId: this.classId,
-            lessonId: this.lessonId,
-          },
-        };
+        return lessonSummaryLink({ classId: this.classId, lessonId: this.lessonId });
       },
       selectionCrumbs() {
         const defaultParams = {

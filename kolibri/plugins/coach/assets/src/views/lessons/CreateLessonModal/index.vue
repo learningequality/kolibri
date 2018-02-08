@@ -64,8 +64,8 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { LessonResource } from 'kolibri.resources';
   import { updateLessons } from '../../../state/actions/lessons';
-  import { LessonsPageNames } from '../../../lessonsConstants';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { lessonSummaryLink } from '../lessonsRouterUtils';
 
   export default {
     name: 'createLessonModal',
@@ -117,13 +117,7 @@
 
         if (this.formIsValid) {
           this.createNewLesson(assignedGroups).then(lesson => {
-            this.$router.push({
-              name: LessonsPageNames.SUMMARY,
-              params: {
-                classId: this.classId,
-                lessonId: lesson.id,
-              },
-            });
+            this.$router.push(lessonSummaryLink({ classId: this.classId, lessonId: lesson.id }));
             this.createSnackbar({
               text: this.$tr('newLessonCreated'),
               autoDismiss: true,

@@ -44,7 +44,7 @@
           </td>
           <td class="core-table-main-col">
             <k-router-link
-              :to="generateLessonLink(lesson.id)"
+              :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
               :text="lesson.name"
             />
           </td>
@@ -88,7 +88,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-  import { LessonsPageNames } from '../../lessonsConstants';
+  import { lessonSummaryLink } from './lessonsRouterUtils';
 
   export default {
     name: 'lessonsRootPage',
@@ -135,14 +135,7 @@
             return true;
         }
       },
-      generateLessonLink(lessonId) {
-        return {
-          name: LessonsPageNames.SUMMARY,
-          params: {
-            lessonId,
-          },
-        };
-      },
+      lessonSummaryLink,
       getLessonVisibility(assignedGroups) {
         const numOfAssignments = assignedGroups.length;
         if (numOfAssignments === 0) {
@@ -160,6 +153,7 @@
       getters: {
         lessons: state => state.pageState.lessons,
         className: state => state.className,
+        classId: state => state.classId,
       },
     },
     $trs: {
