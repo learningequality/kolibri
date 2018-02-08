@@ -364,14 +364,6 @@ class WebpackInclusionHook(hooks.KolibriHook):
 
 class FrontEndCoreAssetHook(WebpackBundleHook):
 
-    @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
-        dct = super(FrontEndCoreAssetHook, self).webpack_bundle_data
-        dct['core_name'] = conf.KOLIBRI_CORE_JS_NAME
-        dct['external'] = True
-        return dct
-
     def render_to_page_load_sync_html(self):
         """
         Generates the appropriate script tags for the core bundle, be they JS or CSS
