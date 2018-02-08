@@ -1,11 +1,11 @@
 <template>
 
   <core-modal
-    :title="$tr('lessonDetailsTitle')"
+    :title="modalTexts.title"
     @cancel="closeModal()"
     width="400px"
   >
-    <form @submit.prevent="submitLessonModal">
+    <form @submit.prevent="submitLessonData">
       <k-textbox
         :label="$tr('title')"
         :maxlength="50"
@@ -22,7 +22,7 @@
       />
 
       <fieldset>
-        <legend>{{ $tr('recipient') }}</legend>
+        <legend>{{ $tr('visibleTo') }}</legend>
         <k-radio-button
           :radiovalue="true"
           :label="$tr('entireClass')"
@@ -44,7 +44,7 @@
           @click="closeModal()"
         />
         <k-button
-          :text="$tr('continue')"
+          :text="modalTexts.submitButton"
           type="submit"
           :primary="true"
         />
@@ -64,12 +64,12 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { LessonResource } from 'kolibri.resources';
-  import { updateLessons } from '../../../state/actions/lessons';
   import { CollectionTypes } from '../../../lessonsConstants';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { lessonSummaryLink } from '../lessonsRouterUtils';
 
   export default {
-    name: 'editLessonDetailsModal',
+    name: 'lessonDetailsModal',
     components: {
       coreModal,
       kButton,
@@ -79,6 +79,7 @@
     },
     data() {
       return {
+        isInEditMode: false,
         title: '',
         description: '',
         titleIsVisited: false,
@@ -88,6 +89,22 @@
       };
     },
     computed: {
+      modalTexts() {
+        if (this.isInEditMode) {
+          // For existing Lesson
+          return {
+            title: this.$tr('editingLessonDetails'),
+            submitButton: this.$tr('save'),
+            snackbarText: this.$tr('changesToLessonSaved'),
+          };
+        }
+        // For new Lesson
+        return {
+          title: this.$tr('newLesson'),
+          submitButton: this.$tr('continue'),
+          snackbarText: this.$tr('newLessonCreated'),
+        };
+      },
       entireClassIsSelected() {
         return !this.learnerGroups.length;
       },
@@ -128,41 +145,70 @@
       },
     },
     created() {
-      (this.title = this.currentLesson.name),
-        (this.description = this.currentLesson.description),
-        (this.learnerGroups = this.currentLesson.assigned_groups
+      // If currentLesson is in state, this means we are editing
+      if (this.currentLesson) {
+        this.isInEditMode = true;
+        this.title = this.currentLesson.name;
+        this.description = this.currentLesson.description;
+        this.learnerGroups = this.currentLesson.assigned_groups
           .filter(g => g.collection_kind === CollectionTypes.LEARNERGROUP)
-          .map(g => g.collection));
+          .map(g => g.collection);
+      }
     },
     methods: {
-      submitLessonModal() {
-        if (!this.lessonDetailsHaveChanged) {
+      showSuccessSnackbar() {
+        this.createSnackbar({
+          text: this.modalTexts.snackbarText,
+          autoDismiss: true,
+        });
+      },
+      submitLessonData() {
+        if (this.isInEditMode && !this.lessonDetailsHaveChanged) {
           return this.closeModal();
         }
         this.formIsSubmitted = true;
         if (this.formIsValid) {
-          return this.updateLessonDetails(this.selectedCollectionIds)
-            .then(() => {
-              this.closeModal();
-              this.createSnackbar({
-                text: this.$tr('changesToLessonSaved'),
-                autoDismiss: true,
+          if (this.isInEditMode) {
+            return this.updateLesson(this.selectedCollectionIds)
+              .then(updatedLesson => {
+                this.closeModal();
+                this.showSuccessSnackbar();
+                return this.updateCurrentLesson(updatedLesson);
+              })
+              .catch(error => {
+                // TODO handle error properly
+                console.log(error);
               });
-            })
-            .catch(error => {
-              // TODO handle error properly
-              console.log(error);
-            });
+          } else {
+            return this.createLesson(this.selectedCollectionIds)
+              .then(newLesson => {
+                this.closeModal();
+                this.showSuccessSnackbar();
+                return this.$router.push(
+                  lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
+                );
+              })
+              .catch(error => {
+                console.log(error);
+              });
+          }
         }
       },
-      updateLessonDetails(assignedGroups) {
-        return LessonResource.getModel(this.currentLesson.id)
-          .save({
-            name: this.title,
-            description: this.description,
-            assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
-          })
-          ._promise.then(lesson => this.updateCurrentLesson(lesson));
+      createLesson(assignedGroups) {
+        return LessonResource.createModel({
+          name: this.title,
+          description: this.description,
+          resources: [],
+          collection: this.classId,
+          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
+        }).save();
+      },
+      updateLesson(assignedGroups) {
+        return LessonResource.getModel(this.currentLesson.id).save({
+          name: this.title,
+          description: this.description,
+          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
+        });
       },
       toggleGroup(isChecked, id) {
         if (isChecked) {
@@ -180,16 +226,17 @@
     },
     vuex: {
       getters: {
-        groups: state => state.pageState.learnerGroups,
         classId: state => state.classId,
-        currentLesson: state => state.pageState.currentLesson,
+        currentLesson: state => state.pageState.currentLesson || null,
+        groups: state => state.pageState.learnerGroups,
       },
       actions: {
+        createSnackbar,
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
         },
         // POSTs a new Lesson object to the server
-        createNewLesson(store, assignedGroups) {
+        createLesson(store, assignedGroups) {
           const payload = {
             name: this.title,
             description: this.description,
@@ -200,21 +247,22 @@
 
           return LessonResource.createModel(payload).save();
         },
-        updateLessons,
-        createSnackbar,
       },
     },
     $trs: {
       // TODO make these labels more semantic
       cancel: 'Cancel',
-      required: 'This is required',
-      continue: 'Save',
-      description: 'Description',
-      entireClass: 'Entire class',
-      lessonDetailsTitle: 'Editing lesson details',
-      recipient: 'Visible to',
-      title: 'Title',
       changesToLessonSaved: 'Changes to lesson saved',
+      continue: 'Continue',
+      description: 'Description',
+      editingLessonDetails: 'Editing lesson details',
+      entireClass: 'Entire class',
+      newLesson: 'New lesson',
+      newLessonCreated: 'New lesson created',
+      required: 'This is required',
+      save: 'Save',
+      title: 'Title',
+      visibleTo: 'Visible to',
     },
   };
 

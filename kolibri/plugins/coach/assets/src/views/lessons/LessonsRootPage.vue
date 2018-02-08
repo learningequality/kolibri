@@ -80,7 +80,7 @@
 
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import CreateLessonModal from './CreateLessonModal';
+  import CreateLessonModal from './ManageLessonModals/EditLessonDetailsModal';
   import InfoIcon from './InfoIcon';
   import StatusIcon from './StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
