@@ -17,6 +17,7 @@ env.set_env()
 import kolibri  # noqa
 import django  # noqa
 from django.core.management import call_command  # noqa
+from django.core.exceptions import AppRegistryNotReady  # noqa
 from docopt import docopt  # noqa
 
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -102,6 +103,14 @@ class PluginDoesNotExist(Exception):
     """
 
 
+class PluginBaseLoadsApp(Exception):
+    """
+    An exception raised in case a kolibri_plugin.py results in loading of the
+    Django app stack.
+    """
+    pass
+
+
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
@@ -169,6 +178,7 @@ def _migrate_databases():
     from django.conf import settings
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
+
 
 def _first_run():
     """
@@ -440,13 +450,21 @@ def get_kolibri_plugin(plugin_name):
             if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
-        if str(e).startswith("No module named"):
-            raise PluginDoesNotExist(
-                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".
-                format(plugin_name)
-            )
+        # Python 2: message, Python 3: msg
+        exc_message = getattr(e, 'message', getattr(e, 'msg', None))
+        if exc_message.startswith("No module named"):
+            msg = (
+                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
+            ).format(plugin_name)
+            raise PluginDoesNotExist(msg)
         else:
             raise
+    except AppRegistryNotReady:
+        msg = (
+            "Plugin '{}' loads the Django app registry, which it isn't "
+            "allowed to do while enabling or disabling itself."
+        ).format(plugin_name)
+        raise PluginBaseLoadsApp(msg)
 
     if not plugin_classes:
         # There's no clear use case for a plugin without a KolibriPluginBase
@@ -458,19 +476,19 @@ def get_kolibri_plugin(plugin_name):
     return plugin_classes
 
 
-def plugin(plugin_name, **args):
+def plugin(plugin_name, **kwargs):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
     from kolibri.utils import conf
 
-    if args.get('enable', False):
+    if kwargs.get('enable', False):
         plugin_classes = get_kolibri_plugin(plugin_name)
         for klass in plugin_classes:
             klass.enable()
 
-    if args.get('disable', False):
+    if kwargs.get('disable', False):
         try:
             plugin_classes = get_kolibri_plugin(plugin_name)
             for klass in plugin_classes:
