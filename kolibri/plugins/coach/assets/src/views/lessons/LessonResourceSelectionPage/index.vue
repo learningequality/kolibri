@@ -19,7 +19,7 @@
     </ui-toolbar>
 
     <div class="immersive-content">
-      <form @submit.prevent="saveResources">
+      <form class="selection-form" @submit.prevent="saveResources">
         <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
 
         <search-box />
@@ -35,16 +35,16 @@
             :key="content.id"
             v-for="content in contentList"
           >
-            <div class="checkbox-container">
-              <k-checkbox
-                :label="content.title"
-                v-if="isLeafNode(content.kind)"
-                :showLabel="false"
-                :checked="isSelected(content.id)"
-                @change="toggleSelected($event, content.id)"
-              />
-            </div>
+            <k-checkbox
+              class="content-checkbox"
+              :label="content.title"
+              v-if="isLeafNode(content.kind)"
+              :showLabel="false"
+              :checked="isSelected(content.id)"
+              @change="toggleSelected($event, content.id)"
+            />
             <content-card
+              class="content-card"
               :title="content.title"
               :thumbnail="content.thumbnail"
               :description="content.description"
@@ -63,8 +63,6 @@
           />
         </div>
       </form>
-
-
     </div>
   </div>
 
@@ -126,10 +124,8 @@
         };
         return [
           channelBreadcrumbObject,
-          // TODO ancestors might be missing one link
           ...this.ancestors.map(a => getAncestorLink(a, { ...defaultParams, topicId: a.pk })),
         ];
-        // just include "channel" at first, bring in topics/more as the routes change
       },
     },
     methods: {
@@ -214,14 +210,29 @@
 
   .content-list
     list-style: none
+    display: block
+    padding: 0
 
   .content-list-item
     position: relative
+    text-align: right
+    display: block
 
-  .checkbox-container
+  .content-checkbox
+    display: inline-block
     position: absolute
-    top: 35%
-    left: -40px
+    top: 34% // offset accouting for shadow on card
+    left: -32px
+
+  .content-card
+    width: 100%
+
+  .selection-form
+    // offset to maintain straight lines in form w/ dynamic checkbox
+    margin-left:64px
+
+  .information
+    text-align: right
 
   .immersive
     &-header
@@ -237,6 +248,6 @@
       right: 0
       bottom: 0
       overflow-y: scroll
-      padding: 2em
+      padding: 32px
 
 </style>

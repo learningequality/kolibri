@@ -117,13 +117,13 @@
 
   .card
     text-decoration: none
-    display: block
+    display: inline-block
     border-radius: 2px
     background-color: $core-bg-light
-    width: 100%
     height: $thumb-height
     margin-bottom: 16px
     overflow: auto
+    text-align: left
 
     .text
       margin-left: $thumb-width
