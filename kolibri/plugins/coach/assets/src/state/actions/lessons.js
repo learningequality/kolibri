@@ -73,8 +73,9 @@ export function showLessonReviewPage(store, classId, lessonId) {}
 export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
-    currentLesson: lessonId,
+    currentLesson: {},
     contentList: [],
+    selectedResources: store.state.pageState.selectedResources || [],
   });
   const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
@@ -83,13 +84,17 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
         'SET_CONTENT_LIST',
         getChannels(store.state).map(channel => {
           return {
-            id: channel.id,
+            id: channel.root_id,
             description: channel.description,
             title: channel.title,
             thumbnail: channel.thumbnail,
             kind: ContentNodeKinds.CHANNEL,
           };
         })
+      );
+      store.dispatch(
+        'SET_CURRENT_LESSON',
+        store.state.pageState.lessons.find(lesson => lesson.id === lessonId)
       );
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
@@ -112,8 +117,10 @@ function getThumbnailUrl(contentnode) {
 export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
-    currentLesson: lessonId,
+    currentLesson: {},
     contentList: [],
+    selectedResources: store.state.pageState.selectedResources || [],
+    lessons: [],
   });
   const loadRequirements = [
     ContentNodeResource.getModel(topicId).fetch(),
@@ -136,7 +143,12 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
           };
         })
       );
-      store.dispatch('SET_ANCESTORS', ancestors);
+
+      store.dispatch('SET_ANCESTORS', [...ancestors, topicNode]);
+      store.dispatch(
+        'SET_CURRENT_LESSON',
+        store.state.pageState.lessons.find(lesson => lesson.id === lessonId)
+      );
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -145,6 +157,12 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
+}
+
+export function saveLessonResources(store, lessonId, resourceArray) {
+  LessonResource.getModel(lessonId).save({
+    resources: resourceArray.map(resourceId => ({ contentnode_id: resourceId })),
+  });
 }
 
 export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}

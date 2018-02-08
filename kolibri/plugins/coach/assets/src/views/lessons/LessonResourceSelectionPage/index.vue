@@ -19,24 +19,44 @@
     </ui-toolbar>
 
     <div class="immersive-content">
-      <h1 class="selection-header"> Add resources to your lesson </h1>
+      <form @submit.prevent="saveResources">
+        <!-- TODO wrap strings -->
+        <h1 class="selection-header"> Add resources to your lesson </h1>
 
-      <search-box />
+        <search-box />
 
-      <k-breadcrumbs
-        :items="selectionCrumbs"
-        :showAllCrumbs="true"
-      />
+        <k-breadcrumbs
+          :items="selectionCrumbs"
+          :showAllCrumbs="true"
+        />
 
-      <content-card
-        v-for="content in contentList"
-        :key="content.id"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :description="content.description"
-        :kind="content.kind"
-        :link="contentLink(content)"
-      />
+        <div :key="content.id" v-for="content in contentList">
+          <!-- TODO wrap strings -->
+          <!-- label="Select {{content.title}}" -->
+          <k-checkbox
+            label="check this"
+            v-if="isLeafNode(content.kind)"
+            :showLabel="false"
+            :checked="isSelected(content.id)"
+            @change="toggleSelected($event, content.id)"
+          />
+          <content-card
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :description="content.description"
+            :kind="content.kind"
+            :link="contentLink(content)"
+          />
+        </div>
+
+        <div class="information-">
+          <!-- TODO wrap strings -->
+          <p> Total resource selected: {{ selectedResources.length }} </p>
+          <k-button type="submit" :primary="true" text="save" />
+        </div>
+      </form>
+
+
     </div>
   </div>
 
@@ -48,6 +68,9 @@
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import contentCard from './content-card';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import { saveLessonResources } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -68,6 +91,8 @@
       kBreadcrumbs,
       searchBox,
       contentCard,
+      kButton,
+      kCheckbox,
     },
     computed: {
       lessonPage() {
@@ -122,15 +147,41 @@
           },
         };
       },
+      saveResources() {
+        this.saveLessonResources(this.lessonId, this.selectedResources);
+      },
+      isSelected(contentId) {
+        // resource id is a content pk, but the pk === id in vuex
+        return this.selectedResources.includes(contentId);
+      },
+      toggleSelected(checked, contentId) {
+        if (checked) {
+          this.addToSelectedResources(contentId);
+        } else {
+          this.removeFromSelectedResources(contentId);
+        }
+      },
+      isLeafNode(contentKind) {
+        return contentKind !== ContentNodeKinds.TOPIC && contentKind !== ContentNodeKinds.CHANNEL;
+      },
     },
     vuex: {
       getters: {
-        lessonId: state => state.pageState.currentLesson,
+        lessonId: state => state.pageState.currentLesson.id,
+        selectedResources: state => state.pageState.selectedResources,
         classId: state => state.classId,
         ancestors: state => state.pageState.ancestors || [],
         contentList: state => state.pageState.contentList,
       },
-      actions: {},
+      actions: {
+        saveLessonResources,
+        addToSelectedResources(store, contentId) {
+          store.dispatch('ADD_TO_SELECTED_RESOURCES', contentId);
+        },
+        removeFromSelectedResources(store, contentId) {
+          store.dispatch('REMOVE_FROM_SELECTED_RESOURCES', contentId);
+        },
+      },
     },
     $trs: {
       channelBreadcrumbLabel: 'Channels',
