@@ -2,7 +2,7 @@
 
   <div class="selection-page">
     <ui-toolbar
-      title="Select Resources"
+      :title="$tr('toolbarTitle')"
       textColor="white"
       type="colored"
       class="immersive-header"
@@ -20,8 +20,7 @@
 
     <div class="immersive-content">
       <form @submit.prevent="saveResources">
-        <!-- TODO wrap strings -->
-        <h1 class="selection-header"> Add resources to your lesson </h1>
+        <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
 
         <search-box />
 
@@ -30,29 +29,38 @@
           :showAllCrumbs="true"
         />
 
-        <div :key="content.id" v-for="content in contentList">
-          <!-- TODO wrap strings -->
-          <!-- label="Select {{content.title}}" -->
-          <k-checkbox
-            label="check this"
-            v-if="isLeafNode(content.kind)"
-            :showLabel="false"
-            :checked="isSelected(content.id)"
-            @change="toggleSelected($event, content.id)"
-          />
-          <content-card
-            :title="content.title"
-            :thumbnail="content.thumbnail"
-            :description="content.description"
-            :kind="content.kind"
-            :link="contentLink(content)"
-          />
-        </div>
+        <ul class="content-list">
+          <li
+            class="content-list-item"
+            :key="content.id"
+            v-for="content in contentList"
+          >
+            <div class="checkbox-container">
+              <k-checkbox
+                :label="content.title"
+                v-if="isLeafNode(content.kind)"
+                :showLabel="false"
+                :checked="isSelected(content.id)"
+                @change="toggleSelected($event, content.id)"
+              />
+            </div>
+            <content-card
+              :title="content.title"
+              :thumbnail="content.thumbnail"
+              :description="content.description"
+              :kind="content.kind"
+              :link="contentLink(content)"
+            />
+          </li>
+        </ul>
 
-        <div class="information-">
-          <!-- TODO wrap strings -->
-          <p> Total resource selected: {{ selectedResources.length }} </p>
-          <k-button type="submit" :primary="true" text="save" />
+        <div class="information">
+          <p> {{ $tr('totalResourcesSelected', { total: selectedResources.length }) }} </p>
+          <k-button
+            type="submit"
+            :primary="true"
+            :text="$tr('save')"
+          />
         </div>
       </form>
 
@@ -148,7 +156,7 @@
         };
       },
       saveResources() {
-        this.saveLessonResources(this.lessonId, this.selectedResources);
+        return this.saveLessonResources(this.lessonId, this.selectedResources);
       },
       isSelected(contentId) {
         // resource id is a content pk, but the pk === id in vuex
@@ -184,7 +192,11 @@
       },
     },
     $trs: {
+      addResourcesHeader: 'Add resources to your lesson',
       channelBreadcrumbLabel: 'Channels',
+      save: 'Save',
+      toolbarTitle: 'Select resources',
+      totalResourcesSelected: 'Total resources selected: {total, number, integer}',
     },
   };
 
@@ -199,6 +211,17 @@
     fill: white
     margin-left: 0.5em
     font-size: 1rem
+
+  .content-list
+    list-style: none
+
+  .content-list-item
+    position: relative
+
+  .checkbox-container
+    position: absolute
+    top: 35%
+    left: -40px
 
   .immersive
     &-header
