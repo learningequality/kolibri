@@ -91,6 +91,8 @@ function specModule(filePath) {
 
 var apiSpec = specModule(specFilePath);
 
+var kolibriName = require('./kolibriName');
+
 function requireName(pathArray) {
   return ['kolibri'].concat(pathArray.slice(1)).join('.');
 }
@@ -103,8 +105,6 @@ var baseAliases = {
     '../../kolibri/core/assets/src/content_renderer_module'
   ),
 };
-
-var kolibriName = 'kolibriGlobal';
 
 function coreExternals() {
   /*

@@ -27,7 +27,8 @@ from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
 
-KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+with open(os.path.join(os.path.dirname(__file__), 'KOLIBRI_CORE_JS_NAME')) as f:
+    KOLIBRI_CORE_JS_NAME = f.read().strip()
 
 KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 

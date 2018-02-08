@@ -17,7 +17,7 @@ var coreExternals = require('./apiSpecExportTools').coreExternals;
 
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
-var kolibriName = 'kolibriGlobal';
+var kolibriName = require('./kolibriName');
 
 function setNodePaths(nodePaths) {
   /*
@@ -46,7 +46,6 @@ function setNodePaths(nodePaths) {
  * @returns {Array} bundles - An array containing webpack config objects.
  */
 var readBundlePlugins = function(base_dir) {
-  // Takes a module file path and turns it into a Python module path.
   var bundles = [];
   var externals = {};
 
