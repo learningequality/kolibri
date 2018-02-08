@@ -113,6 +113,7 @@
   import { selectionRootLink } from '../lessonsRouterUtils';
 
   export default {
+    name: 'lessonSummaryPage',
     components: {
       dropdownMenu,
       ManageLessonModals,

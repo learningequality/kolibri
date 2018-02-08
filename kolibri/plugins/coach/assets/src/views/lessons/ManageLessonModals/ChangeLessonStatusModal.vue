@@ -43,6 +43,7 @@
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   export default {
+    name: 'changeLessonStatusModal',
     components: {
       coreModal,
       kButton,

@@ -93,6 +93,7 @@
   }
 
   export default {
+    name: 'lessonResourceSelectionPage',
     components: {
       uiToolbar,
       kBreadcrumbs,
