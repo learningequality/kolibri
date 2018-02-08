@@ -1,3 +1,5 @@
+/* eslint-env node, mocha */
+
 var assert = require('assert');
 var rewire = require('rewire');
 var _ = require('lodash');
@@ -34,7 +36,7 @@ describe('parseBundlePlugin', function() {
   });
   describe('input is valid, bundles output', function() {
     it('should have one entry', function(done) {
-      assert(typeof parseBundlePlugin(data, '/')[0] !== 'undefined');
+      assert(typeof parseBundlePlugin(data, '/') !== 'undefined');
       done();
     });
   });
@@ -87,22 +89,6 @@ describe('parseBundlePlugin', function() {
       done();
     });
   });
-  describe('input is valid, has externals flag and core_name value, externals output', function() {
-    it('should have one entry', function(done) {
-      data.external = true;
-      data.core_name = 'test_core';
-      assert(typeof parseBundlePlugin(data, '/')[1] !== 'undefined');
-      done();
-    });
-  });
-  describe('input is valid, has core flag', function() {
-    it('should have its name set to kolibriGlobal', function(done) {
-      data.external = true;
-      data.core_name = 'kolibriGlobal';
-      assert.equal(parseBundlePlugin(data, '/')[0].output.library, data.core_name);
-      done();
-    });
-  });
 });
 
 describe('readBundlePlugins', function() {
@@ -138,42 +124,6 @@ describe('readBundlePlugins', function() {
       delete badData1.src_file;
       data = [badData, badData1];
       assert(readBundlePlugins('', '').length === 0);
-      done();
-    });
-  });
-  describe('two external flags on inputs, one with core_name value, externals output', function() {
-    it('should have two entries', function(done) {
-      var coreData = _.clone(baseData);
-      coreData.external = true;
-      coreData.core_name = 'test_global';
-      var coreData1 = _.clone(baseData1);
-      coreData1.external = true;
-      data = [coreData, coreData1];
-      assert(
-        Object.keys(
-          readBundlePlugins('', function() {
-            return {};
-          })[0].externals
-        ).length === 2
-      );
-      done();
-    });
-  });
-  describe('two core bundles specified', function() {
-    it('should throw an error', function(done) {
-      var coreData = _.clone(baseData);
-      coreData.external = true;
-      coreData.core_name = 'test_global';
-      var coreData1 = _.clone(baseData1);
-      coreData1.name = coreData.name;
-      coreData1.external = true;
-      coreData1.core_name = 'test_global';
-      data = [coreData, coreData1];
-      assert.throws(function() {
-        readBundlePlugins('', function() {
-          return {};
-        });
-      });
       done();
     });
   });

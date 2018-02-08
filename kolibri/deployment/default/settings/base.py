@@ -31,8 +31,6 @@ BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = conf.KOLIBRI_HOME
 
-KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
-
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
 ]

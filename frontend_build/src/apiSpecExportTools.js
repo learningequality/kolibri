@@ -104,12 +104,14 @@ var baseAliases = {
   ),
 };
 
-function coreExternals(kolibri_name) {
+var kolibriName = 'kolibriGlobal';
+
+function coreExternals() {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
    */
   var externalsObj = {
-    kolibri: kolibri_name,
+    kolibri: kolibriName,
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
     if (typeof obj === 'object') {
@@ -124,7 +126,7 @@ function coreExternals(kolibri_name) {
       externalsObj[requireName(pathArray)] = pathArray.join('.');
     }
   }
-  recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
+  recurseObjectKeysAndExternalize(apiSpec, [kolibriName]);
   return externalsObj;
 }
 

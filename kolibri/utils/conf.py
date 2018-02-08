@@ -15,7 +15,9 @@ This module should be easier to document, for instance by having VARIABLES
 instead of a dict.
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import json
 import logging
@@ -24,6 +26,8 @@ import os
 from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
+
+KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
 
 KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 

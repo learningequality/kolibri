@@ -4,18 +4,20 @@ Kolibri Content hooks
 
 Hooks for managing the display and rendering of content.
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import json
 import logging
 import os
 
-from django.conf import settings as django_settings
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from kolibri.core.webpack.hooks import WebpackBundleHook
 from le_utils.constants import content_kinds
+
+from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +89,7 @@ class ContentRendererHook(WebpackBundleHook):
         urls = [chunk['url'] for chunk in self.bundle]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
-                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
                 content_types=json.dumps(self._content_type_json),
