@@ -1,0 +1,107 @@
+from django.db.models import Sum
+from kolibri.auth.models import Classroom
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
+from kolibri.logger.models import ExamLog
+from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import SerializerMethodField
+
+
+class ExamProgressSerializer(ModelSerializer):
+    """
+    Annotates an Exam with progress information based on logs generated
+    by the requesting User
+    """
+    class Meta:
+        model = Exam
+        fields = (
+            'active',
+            'id',
+            'progress',
+            'question_count',
+            'title',
+        )
+
+    progress = SerializerMethodField()
+
+    # Mostly copied from UserExamSerializer.to_representation, but working directly
+    # from Exam Model instead of ExamAssignment
+    def get_progress(self, instance):
+        try:
+            examlogs = instance.examlogs.get(user=self.context['user'])
+            return {
+                'score': examlogs.attemptlogs.aggregate(Sum('correct')).get('correct__sum'),
+                'answer_count': examlogs.attemptlogs.count(),
+                'closed': examlogs.closed,
+            }
+        except ExamLog.DoesNotExist:
+            return {
+                'score': None,
+                'answer_count': None,
+                'closed': None,
+            }
+
+
+class LessonProgressSerializer(ModelSerializer):
+    """
+    Annotates a Lesson with progress information based on logs generated
+    by the requesting User
+    """
+    progress = SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = (
+            'description',
+            'id',
+            'is_active',
+            'name',
+            'progress',
+            'resources',
+        )
+
+    def get_progress(self, instance):
+        return {
+            'resources_completed': None,
+            'total_resources': len(instance.resources),
+        }
+
+class LearnerClassroomSerializer(ModelSerializer):
+    assignments = SerializerMethodField()
+
+    class Meta:
+        model = Classroom
+        fields = (
+            'id',
+            'name',
+            'assignments',
+        )
+
+    def get_assignments(self, instance):
+        """
+        Returns all Exams and Lessons (and progress) assigned to the requesting User
+        """
+        current_user = self.context['request'].user
+        memberships = current_user.memberships.all()
+        learner_groups = [m.collection for m in memberships]
+
+        # Return only active Lessons that are assigned to the requesting user's groups
+        # TODO move this to a permission_class on Lesson
+        filtered_lessons = Lesson.objects.filter(
+            assigned_groups__collection__in=learner_groups,
+            is_active=True
+        )
+
+        filtered_exams = Exam.objects.filter(
+            assignments__collection__in=learner_groups,
+            active=True
+        )
+
+        return {
+            'lessons': LessonProgressSerializer(filtered_lessons, many=True).data,
+            'exams': ExamProgressSerializer(
+                filtered_exams,
+                many=True,
+                context={'user': current_user}
+            ).data,
+        }
