@@ -13,7 +13,7 @@ import { LessonsPageNames } from './lessonsConstants';
 import router from 'kolibri.coreVue.router';
 
 import {
-  showLessonRootPage,
+  showLessonsRootPage,
   showLessonSummaryPage,
   showLessonResourceSummaryPage,
   showLessonResourceUserSummaryPage,
@@ -40,7 +40,7 @@ const lessonRoutes = [
     name: LessonsPageNames.ROOT,
     path: '/:classId/lessons',
     handler: toRoute => {
-      showLessonRootPage(store, toRoute.params.classId);
+      showLessonsRootPage(store, toRoute.params.classId);
     },
   },
   {

@@ -10,13 +10,15 @@ const translator = createTranslator('lessonsPageTitles', {
   selectResources: 'Select resources',
 });
 
-export function showLessonRootPage(store, classId) {
+// Show the Lessons Root Page, where all the Lessons are listed for a given Classroom
+export function showLessonsRootPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     lessons: [],
     learnerGroups: [],
   });
   const loadRequirements = [
+    // Fetch learner groups for the New Lesson Modal
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     updateLessons(store, classId),
     setClassState(store, classId),
