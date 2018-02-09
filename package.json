@@ -110,6 +110,7 @@
     "svg-icon-inline-loader": "^3.0.0",
     "temp": "^0.8.3",
     "url-loader": "^0.5.7",
+    "virtual-module-webpack-plugin": "^0.3.0",
     "vue-hot-reload-api": "^2.0.6",
     "vue-html-loader": "^1.2.3",
     "vue-loader": "https://github.com/vuejs/vue-loader/",

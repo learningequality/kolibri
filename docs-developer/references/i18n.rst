@@ -81,5 +81,4 @@ These messages will then be discovered for any registered plugins and loaded int
 Adding a new language
 ---------------------
 
-In order to add a new supported language to Kolibri, the appropriate language tuple must be added to the ``LANGUAGES`` variable in ``kolibri/deployment/default/settings/base.py``. In addition, the appropriate Intl polyfill file must be added to ``kolibri/core/assets/src/utils/import-intl-locale.js``.
-
+In order to add a new supported language to Kolibri, the appropriate language information object must be added to the array in ``kolibri/locale/supported_languages.json``.
