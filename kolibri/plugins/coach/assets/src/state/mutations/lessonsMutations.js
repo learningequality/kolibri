@@ -1,5 +1,5 @@
 export function SET_CLASS_LESSONS(state, lessons) {
-  state.pageState.lessons = lessons;
+  state.pageState.lessons = [...lessons];
 }
 
 export function SET_CURRENT_LESSON(state, lesson) {
@@ -7,7 +7,7 @@ export function SET_CURRENT_LESSON(state, lesson) {
 }
 
 export function SET_LEARNER_GROUPS(state, learnerGroups) {
-  state.pageState.learnerGroups = learnerGroups;
+  state.pageState.learnerGroups = [...learnerGroups];
 }
 
 export function SET_RESOURCE_CONTENT_NODES(state, resourceContentNodes) {
