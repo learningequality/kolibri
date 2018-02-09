@@ -82,31 +82,38 @@ export function showLessonReviewPage(store, classId, lessonId) {}
 
 export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_STATE', {
-    currentLesson: {},
-    contentList: [],
-    // TODO handle the resources that area already a part of the lesson
-    selectedResources: store.state.pageState.selectedResources || [],
-  });
   const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
     () => {
-      store.dispatch(
-        'SET_CONTENT_LIST',
-        getChannels(store.state).map(channel => {
-          return {
-            id: channel.root_id,
-            description: channel.description,
-            title: channel.title,
-            thumbnail: channel.thumbnail,
-            kind: ContentNodeKinds.CHANNEL,
-          };
-        })
+      const currentLesson = store.state.pageState.lessons.find(lesson => lesson.id === lessonId);
+      // contains all selections, including those that haven't been committed to server
+      const pendingSelections = store.state.pageState.selectedResources || [];
+      // contains selections that were commited to server prior to opening this page
+      const preselectedResources = currentLesson.resources.map(
+        resourceObj => resourceObj.contentnode_id
       );
-      store.dispatch(
-        'SET_CURRENT_LESSON',
-        store.state.pageState.lessons.find(lesson => lesson.id === lessonId)
-      );
+      const currentResources = () =>
+        pendingSelections.length ? pendingSelections : preselectedResources;
+
+      const pageState = {
+        currentLesson: {},
+        contentList: [],
+        // carry pendingSelections over from other interactions in this modal
+        selectedResources: currentResources(),
+      };
+      const channelContentList = getChannels(store.state).map(channel => {
+        return {
+          id: channel.root_id,
+          description: channel.description,
+          title: channel.title,
+          thumbnail: channel.thumbnail,
+          kind: ContentNodeKinds.CHANNEL,
+        };
+      });
+
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('SET_CONTENT_LIST', channelContentList);
+      store.dispatch('SET_CURRENT_LESSON', currentLesson);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SELECTION_ROOT);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
