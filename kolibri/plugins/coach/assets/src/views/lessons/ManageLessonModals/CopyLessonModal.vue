@@ -37,18 +37,10 @@
       <p>{{ $tr('destinationClassroomExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ $tr('lessonVisibilityQuestion') }}</p>
       <form @submit.prevent="createLessonCopy">
-        <k-radio-button
-          :radiovalue="true"
-          :label="$tr('entireClass')"
-          :value="entireClassIsSelected"
-          @change="selectedGroupIds=[]"
-        />
-        <k-checkbox
-          v-for="group in availableGroups"
-          :key="group.id"
-          :label="group.name"
-          :checked="groupIsChecked(group.id)"
-          @change="toggleGroup($event, group.id)"
+        <recipient-selector
+          v-model="selectedCollectionIds"
+          :groups="availableGroups"
+          :classId="selectedClassroomId"
         />
         <div class="core-modal-buttons">
           <k-button
@@ -75,10 +67,10 @@
   import find from 'lodash/find';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import RecipientSelector from './RecipientSelector';
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
@@ -90,8 +82,8 @@
     components: {
       coreModal,
       kButton,
-      kCheckbox,
       kRadioButton,
+      RecipientSelector,
     },
     data() {
       return {
@@ -99,7 +91,7 @@
         availableGroups: [],
         blockControls: false,
         selectedClassroomId: null,
-        selectedGroupIds: [],
+        selectedCollectionIds: [],
         stage: Stages.SELECT_CLASSROOM,
       };
     },
@@ -110,19 +102,9 @@
         }
         return find(this.classList, { id: this.selectedClassroomId }).name;
       },
-      entireClassIsSelected() {
-        return this.selectedGroupIds.length === 0;
-      },
       availableClassrooms() {
         // put current classroom on the top
         return sortBy(this.classList, classroom => (this.isCurrentClassroom(classroom) ? -1 : 1));
-      },
-      selectedCollectionIds() {
-        if (this.entireClassIsSelected) {
-          return [this.selectedClassroomId];
-        } else {
-          return [...this.selectedGroupIds];
-        }
       },
     },
     created() {
@@ -135,6 +117,8 @@
           return;
         }
         this.blockControls = true;
+        // Select Entire Classroom by default
+        this.selectedCollectionIds = [this.selectedClassroomId];
         return LearnerGroupResource.getCollection({ parent: this.selectedClassroomId })
           .fetch()
           .then(groups => {
@@ -155,16 +139,6 @@
       },
       closeModal() {
         return this.$emit('cancel');
-      },
-      groupIsChecked(groupId) {
-        return this.selectedGroupIds.includes(groupId);
-      },
-      toggleGroup(isChecked, id) {
-        if (isChecked) {
-          this.selectedGroupIds.push(id);
-        } else {
-          this.selectedGroupIds = this.selectedGroupIds.filter(groupId => id !== groupId);
-        }
       },
       // POSTs a new Lesson object to the server
       createLessonCopy() {
@@ -208,7 +182,6 @@
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Make copy',
-      entireClass: 'Entire class',
       destinationClassroomExplanation: 'This lesson will be copied to {classroomName}',
       lessonVisibilityQuestion: 'Who should this lesson be visible to in this class?',
       copyOfLesson: 'Copy of {lessonName}',

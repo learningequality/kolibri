@@ -23,18 +23,10 @@
 
       <fieldset>
         <legend>{{ $tr('visibleTo') }}</legend>
-        <k-radio-button
-          :radiovalue="true"
-          :label="$tr('entireClass')"
-          :value="entireClassIsSelected"
-          @change="learnerGroups = []"
-        />
-        <k-checkbox
-          v-for="group in groups"
-          :key="group.id"
-          :label="group.name"
-          :checked="groupIsChecked(group.id)"
-          @change="toggleGroup($event, group.id)"
+        <recipient-selector
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
         />
       </fieldset>
       <div class="core-modal-buttons">
@@ -60,22 +52,19 @@
   import xor from 'lodash/xor';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { LessonResource } from 'kolibri.resources';
-  import { CollectionTypes } from '../../../lessonsConstants';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { lessonSummaryLink } from '../lessonsRouterUtils';
+  import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'lessonDetailsModal',
     components: {
       coreModal,
       kButton,
-      kCheckbox,
-      kRadioButton,
       kTextbox,
+      RecipientSelector,
     },
     data() {
       return {
@@ -84,11 +73,18 @@
         description: '',
         titleIsVisited: false,
         descriptionIsVisited: false,
-        learnerGroups: [],
+        selectedCollectionIds: [],
         formIsSubmitted: false,
       };
     },
     computed: {
+      formData() {
+        return {
+          name: this.title,
+          description: this.description,
+          assigned_groups: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
+        };
+      },
       modalTexts() {
         if (this.isInEditMode) {
           // For existing Lesson
@@ -105,9 +101,6 @@
           snackbarText: this.$tr('newLessonCreated'),
         };
       },
-      entireClassIsSelected() {
-        return !this.learnerGroups.length;
-      },
       titleIsInvalidText() {
         if (this.titleIsVisited || this.formIsSubmitted) {
           if (this.title === '') {
@@ -121,13 +114,6 @@
       },
       formIsValid() {
         return !this.titleIsInvalid;
-      },
-      selectedCollectionIds() {
-        if (this.learnerGroups.length === 0) {
-          return [this.classId];
-        } else {
-          return [...this.learnerGroups];
-        }
       },
       currentCollectionIds() {
         return this.currentLesson.assigned_groups.map(g => g.collection);
@@ -150,9 +136,9 @@
         this.isInEditMode = true;
         this.title = this.currentLesson.name;
         this.description = this.currentLesson.description;
-        this.learnerGroups = this.currentLesson.assigned_groups
-          .filter(g => g.collection_kind === CollectionTypes.LEARNERGROUP)
-          .map(g => g.collection);
+        this.selectedCollectionIds = this.currentLesson.assigned_groups.map(g => g.collection);
+      } else {
+        this.selectedCollectionIds = [this.classId];
       }
     },
     methods: {
@@ -169,7 +155,7 @@
         this.formIsSubmitted = true;
         if (this.formIsValid) {
           if (this.isInEditMode) {
-            return this.updateLesson(this.selectedCollectionIds)
+            return this.updateLesson()
               .then(updatedLesson => {
                 this.closeModal();
                 this.showSuccessSnackbar();
@@ -180,7 +166,7 @@
                 console.log(error);
               });
           } else {
-            return this.createLesson(this.selectedCollectionIds)
+            return this.createLesson()
               .then(newLesson => {
                 this.closeModal();
                 this.showSuccessSnackbar();
@@ -194,31 +180,15 @@
           }
         }
       },
-      createLesson(assignedGroups) {
+      createLesson() {
         return LessonResource.createModel({
-          name: this.title,
-          description: this.description,
+          ...this.formData,
           resources: [],
           collection: this.classId,
-          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
         }).save();
       },
-      updateLesson(assignedGroups) {
-        return LessonResource.getModel(this.currentLesson.id).save({
-          name: this.title,
-          description: this.description,
-          assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
-        });
-      },
-      toggleGroup(isChecked, id) {
-        if (isChecked) {
-          this.learnerGroups.push(id);
-        } else {
-          this.learnerGroups = this.learnerGroups.filter(groupId => id !== groupId);
-        }
-      },
-      groupIsChecked(groupId) {
-        return this.learnerGroups.includes(groupId);
+      updateLesson() {
+        return LessonResource.getModel(this.currentLesson.id).save({ ...this.formData });
       },
       closeModal() {
         this.$emit('cancel');
@@ -235,18 +205,6 @@
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
         },
-        // POSTs a new Lesson object to the server
-        createLesson(store, assignedGroups) {
-          const payload = {
-            name: this.title,
-            description: this.description,
-            resources: [],
-            collection: this.classId,
-            assigned_groups: assignedGroups.map(groupId => ({ collection: groupId })),
-          };
-
-          return LessonResource.createModel(payload).save();
-        },
       },
     },
     $trs: {
@@ -256,7 +214,6 @@
       continue: 'Continue',
       description: 'Description',
       editingLessonDetails: 'Editing lesson details',
-      entireClass: 'Entire class',
       newLesson: 'New lesson',
       newLessonCreated: 'New lesson created',
       required: 'This is required',
