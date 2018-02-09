@@ -22,6 +22,9 @@ export function SET_ANCESTORS(state, ancestors) {
   state.pageState.ancestors = [...ancestors];
 }
 
+export function SET_SELECTED_RESOURCES(state, selectedResources) {
+  state.pageState.selectedResources = selectedResources;
+}
 export function ADD_TO_SELECTED_RESOURCES(state, contentId) {
   state.pageState.selectedResources.push(contentId);
 }

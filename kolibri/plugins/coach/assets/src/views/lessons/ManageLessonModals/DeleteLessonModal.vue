@@ -27,7 +27,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { LessonResource } from 'kolibri.resources';
-  import { updateLessons } from '../../../state/actions/lessons';
+  import { updateClassLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
@@ -53,7 +53,7 @@
       handleDeleteLesson() {
         return LessonResource.getModel(this.lessonId)
           .delete()
-          ._promise.then(() => this.updateLessons(this.classId))
+          ._promise.then(() => this.updateClassLessons(this.classId))
           .then(() => {
             this.goToLessonsRootPage();
             this.createSnackbar({
@@ -63,7 +63,9 @@
           })
           .catch(error => {
             // TODO handle error inside the current apge
+            /* eslint-disable */
             console.log(error);
+            /* eslint-enable */
           });
       },
     },
@@ -74,7 +76,7 @@
         lessonTitle: state => state.pageState.currentLesson.name,
       },
       actions: {
-        updateLessons,
+        updateClassLessons,
         createSnackbar,
       },
     },

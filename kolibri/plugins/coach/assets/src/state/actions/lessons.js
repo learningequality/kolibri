@@ -21,7 +21,7 @@ export function showLessonsRootPage(store, classId) {
   const loadRequirements = [
     // Fetch learner groups for the New Lesson Modal
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    updateLessons(store, classId),
+    updateClassLessons(store, classId),
     setClassState(store, classId),
   ];
   return Promise.all(loadRequirements).then(
@@ -37,12 +37,27 @@ export function showLessonsRootPage(store, classId) {
   );
 }
 
-export function updateLessons(store, classId) {
+export function updateClassLessons(store, classId) {
   return LessonResource.getCollection({ collection: classId })
     .fetch({}, true)
     ._promise.then(lessons => {
       store.dispatch('SET_CLASS_LESSONS', lessons);
+      // resolve lessons in case it's needed
+      return lessons;
     });
+}
+
+export function updateCurrentLesson(store, lessonId) {
+  return (
+    LessonResource.getModel(lessonId)
+      .fetch()
+      // is lesson set appropriately here?
+      .then(lesson => {
+        store.dispatch('SET_CURRENT_LESSON', lesson);
+        // resolve lesson in case it's needed
+        return lesson;
+      })
+  );
 }
 
 export function showLessonSummaryPage(store, classId, lessonId) {
@@ -53,20 +68,20 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   });
 
   const loadRequirements = [
-    LessonResource.getModel(lessonId).fetch(),
+    updateCurrentLesson(store, lessonId),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     setClassState(store, classId),
   ];
 
   Promise.all(loadRequirements).then(([lesson, learnerGroups]) => {
     const resourcePromises = lesson.resources.map(resource =>
+      // have to retrieve each contentNode individually
       ContentNodeResource.getModel(resource.contentnode_id).fetch()
     );
 
     Promise.all(resourcePromises).then(resourceContentNodes => {
       store.dispatch('SET_RESOURCE_CONTENT_NODES', resourceContentNodes);
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
-      store.dispatch('SET_CURRENT_LESSON', lesson);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
       store.dispatch('CORE_SET_TITLE', lesson.name);
@@ -89,11 +104,18 @@ function showResourceSelectionPage(
   pageName,
   ancestors = []
 ) {
+  const pageState = {
+    currentLesson: {},
+    contentList: [],
+    ancestors: [],
+    selectedResources: [],
+  };
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
+  store.dispatch('SET_PAGE_STATE', pageState);
+
+  const loadRequirements = [updateCurrentLesson(store, lessonId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
-    () => {
-      const currentLesson = store.state.pageState.lessons.find(lesson => lesson.id === lessonId);
+    ([currentLesson]) => {
       // contains all selections, including those that haven't been committed to server
       const pendingSelections = store.state.pageState.selectedResources || [];
       // contains selections that were commited to server prior to opening this page
@@ -103,22 +125,13 @@ function showResourceSelectionPage(
       const currentResources = () =>
         pendingSelections.length ? pendingSelections : preselectedResources;
 
-      const pageState = {
-        currentLesson: {},
-        contentList: [],
-        ancestors: [],
-        // carry pendingSelections over from other interactions in this modal
-        selectedResources: currentResources(),
-      };
-
-      store.dispatch('SET_PAGE_STATE', pageState);
-
       if (ancestors.length) {
         store.dispatch('SET_ANCESTORS', ancestors);
       }
 
+      // carry pendingSelections over from other interactions in this modal
+      store.dispatch('SET_SELECTED_RESOURCES', currentResources());
       store.dispatch('SET_CONTENT_LIST', contentList);
-      store.dispatch('SET_CURRENT_LESSON', currentLesson);
       store.dispatch('SET_PAGE_NAME', pageName);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
