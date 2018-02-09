@@ -36,10 +36,9 @@ function setNodePaths(nodePaths) {
 }
 
 /**
- * Take a Python plugin file name as input, and extract the information regarding front end plugin
- * configuration from it using a Python script to import the relevant plugins and then run methods
- * against them to retrieve the config data.
- * module names to the global namespace at which those modules can be accessed.
+ * Extract the information regarding front end plugin configuration using a
+ * Python script to import information about the relevant plugins and then run methods
+ * against them to create the config data.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
 var readBundlePlugins = function() {
@@ -80,8 +79,9 @@ var readBundlePlugins = function() {
     logging.warn('You have more than one coreAPISpec modification specified.');
   }
 
-  // For that bundle, we replace all references to library modules (like Vue) that we bundle into
-  // the core app with references to the core app itself, so if someone does
+  // All references to the core API spec will be referenced as subproperties of the global
+  // Kolibri object in the browser, so any references to anything we bundle in the core API
+  // will be replaced by a property reference to the global object, e.g. for a Vue import:
   // `import Vue from 'vue';` webpack will replace it with a reference to Vue bundled into the
   // core Kolibri app.
   var core_externals = coreExternals();

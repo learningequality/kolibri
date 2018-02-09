@@ -102,8 +102,7 @@ var parseBundlePlugin = function(data) {
       ],
     },
     resolveLoader: {
-      // Add local and global resolution paths for loaders to allow any plugin to
-      // access kolibri/node_modules loaders during bundling.
+      // Add local resolution paths for loaders
       modules: [path.join(data.plugin_path, 'node_modules')],
     },
     plugins: [

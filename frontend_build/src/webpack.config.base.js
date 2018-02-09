@@ -145,13 +145,14 @@ var config = {
     extensions: ['.js', '.vue', '.styl'],
     alias: {},
     modules: [
-      // Add local resolution paths
+      // Add resolution paths for modules to allow any plugin to
+      // access kolibri/node_modules modules during bundling.
       base_dir,
       path.join(base_dir, 'node_modules'),
     ],
   },
   resolveLoader: {
-    // Add local and global resolution paths for loaders to allow any plugin to
+    // Add resolution paths for loaders to allow any plugin to
     // access kolibri/node_modules loaders during bundling.
     modules: [base_dir, path.join(base_dir, 'node_modules')],
   },
