@@ -105,22 +105,27 @@ release:
 	@read __
 	twine upload -s dist/*
 
+test-namespaced-packages:
+	# This expression checks that everything in kolibri/dist has an __init__.py
+	# To prevent namespaced packages from suddenly showing up
+	# https://github.com/learningequality/kolibri/pull/2972
+	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
+
 staticdeps:
 	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
+	make test-namespaced-packages
 
 staticdeps-cext:
 	rm -rf kolibri/dist/cext || true # remove everything
 	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
-	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	pip install -t kolibri/dist -r "requirements/cext_noarch.txt" --no-deps
-	# This expression checks that everything in kolibri/dist has an __init__.py
-	# To prevent namespaced packages from suddenly showing up
-	# https://github.com/learningequality/kolibri/pull/2972
-	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
+	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	make test-namespaced-packages
 
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
