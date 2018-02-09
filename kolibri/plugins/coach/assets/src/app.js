@@ -19,7 +19,7 @@ import {
   showLessonResourceUserSummaryPage,
   showLessonReviewPage,
   showLessonResourceSelectionRootPage,
-  showLessonSelectionTopicPage,
+  showLessonResourceSelectionTopicPage,
   showLessonSelectionSearchPage,
   showLessonContentPreview,
 } from './state/actions/lessons';
@@ -96,7 +96,7 @@ const lessonRoutes = [
     name: LessonsPageNames.SELECTION,
     path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
     handler: toRoute => {
-      showLessonSelectionTopicPage(
+      showLessonResourceSelectionTopicPage(
         store,
         toRoute.params.classId,
         toRoute.params.lessonId,

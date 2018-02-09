@@ -164,7 +164,7 @@
         selectedResources: state => state.pageState.selectedResources,
         // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
-        ancestors: state => state.pageState.ancestors || [],
+        ancestors: state => state.pageState.ancestors,
         contentList: state => state.pageState.contentList,
       },
       actions: {

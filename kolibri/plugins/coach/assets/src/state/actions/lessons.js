@@ -81,7 +81,14 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
 
 export function showLessonReviewPage(store, classId, lessonId) {}
 
-function showSelectionPage(store, classId, lessonId, contentList, pageName, ancestors = []) {
+function showResourceSelectionPage(
+  store,
+  classId,
+  lessonId,
+  contentList,
+  pageName,
+  ancestors = []
+) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
@@ -99,6 +106,7 @@ function showSelectionPage(store, classId, lessonId, contentList, pageName, ance
       const pageState = {
         currentLesson: {},
         contentList: [],
+        ancestors: [],
         // carry pendingSelections over from other interactions in this modal
         selectedResources: currentResources(),
       };
@@ -108,6 +116,7 @@ function showSelectionPage(store, classId, lessonId, contentList, pageName, ance
       if (ancestors.length) {
         store.dispatch('SET_ANCESTORS', ancestors);
       }
+
       store.dispatch('SET_CONTENT_LIST', contentList);
       store.dispatch('SET_CURRENT_LESSON', currentLesson);
       store.dispatch('SET_PAGE_NAME', pageName);
@@ -131,37 +140,45 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
     };
   });
 
-  showSelectionPage(store, classId, lessonId, channelContentList, LessonsPageNames.SELECTION_ROOT);
+  showResourceSelectionPage(
+    store,
+    classId,
+    lessonId,
+    channelContentList,
+    LessonsPageNames.SELECTION_ROOT
+  );
 }
 
-function getThumbnailUrl(contentnode) {
-  const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
-  if (fileWithThumbnail) {
-    return fileWithThumbnail.storage_url;
+export function showLessonResourceSelectionTopicPage(store, classId, lessonId, topicId) {
+  function getTopicThumbnail(contentnode) {
+    const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
+    if (fileWithThumbnail) {
+      return fileWithThumbnail.storage_url;
+    }
+    return null;
   }
-  return null;
-}
 
-export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) {
   const loadRequirements = [
     ContentNodeResource.getModel(topicId).fetch(),
     ContentNodeResource.getCollection({ parent: topicId }).fetch(),
     ContentNodeResource.fetchAncestors(topicId),
   ];
+
   return Promise.all(loadRequirements).then(
     ([topicNode, childNodes, ancestors]) => {
       const topicAncestors = [...ancestors, topicNode];
+      // map to state
       const topicContentList = childNodes.map(node => {
         return {
           id: node.pk,
           description: node.description,
           title: node.title,
-          thumbnail: getThumbnailUrl(node),
+          thumbnail: getTopicThumbnail(node),
           kind: node.kind,
         };
       });
 
-      showSelectionPage(
+      showResourceSelectionPage(
         store,
         classId,
         lessonId,
@@ -177,6 +194,7 @@ export function showLessonSelectionTopicPage(store, classId, lessonId, topicId) 
 }
 
 export function saveLessonResources(store, lessonId, resources) {
+  // light validation of data shape
   if (every(resources, resource => resource.contentnode_id)) {
     return LessonResource.getModel(lessonId).save({ resources });
   }
