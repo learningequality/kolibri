@@ -83,9 +83,10 @@ staticdeps:
 	rm -r kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r $(REQUIREMENTS)
-	python install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
+	python build_tools/install_cexts.py --file $(REQUIREMENTS_CEXT) # pip install c extensions
 	pip install -t kolibri/dist -r $(REQUIREMENTS_CEXT_NOARCH) --no-deps
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	# This expression checks that everything in kolibri/dist has an __init__.py
 	# To prevent namespaced packages from suddenly showing up
 	# https://github.com/learningequality/kolibri/pull/2972
@@ -111,7 +112,7 @@ dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 	ls -l dist
 
 pex: writeversion
-	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
+	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 makedocsmessages:
 	make -C docs/ gettext
@@ -139,10 +140,10 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t learningequality/kolibri:$$(cat kolibri/VERSION) -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')" -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')"
 
 kolibripippex:
 	git clone https://github.com/learningequality/pip.git

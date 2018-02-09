@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>{{ $tr('allUsers') }}</h1>
-      <span> ( {{ visibleUsers.length }} ) </span>
+      <span> ( {{ $formatNumber(visibleUsers.length) }} ) </span>
     </div>
 
     <div class="toolbar">
