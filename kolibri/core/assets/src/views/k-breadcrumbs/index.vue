@@ -244,8 +244,8 @@
   @require '~kolibri.styles.definitions'
 
   .breadcrumbs
-    margin-top: 24px
-    margin-bottom: 24px
+    margin-top: 8px
+    margin-bottom: 8px
     font-size: 16px
     font-weight: bold
 
@@ -269,7 +269,7 @@
 
   .breadcrumbs-dropdown-item
     display: block
-    padding-top: 8px
+    padding-top: px
     padding-bottom: 8px
     a
       overflow: hidden
