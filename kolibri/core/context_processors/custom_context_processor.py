@@ -1,12 +1,13 @@
 import json
 
-from django.conf import settings
-from kolibri.auth.api import SessionViewSet
 from user_agents import parse
+
+from kolibri.auth.api import SessionViewSet
+from kolibri.utils import conf
 
 
 def return_session(request):
-    return {'session': json.dumps(SessionViewSet().get_session(request)), 'kolibri': settings.KOLIBRI_CORE_JS_NAME}
+    return {'session': json.dumps(SessionViewSet().get_session(request)), 'kolibri': conf.KOLIBRI_CORE_JS_NAME}
 
 
 browser_requirements = [

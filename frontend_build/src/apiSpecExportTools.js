@@ -91,6 +91,8 @@ function specModule(filePath) {
 
 var apiSpec = specModule(specFilePath);
 
+var kolibriName = require('./kolibriName');
+
 function requireName(pathArray) {
   return ['kolibri'].concat(pathArray.slice(1)).join('.');
 }
@@ -104,12 +106,12 @@ var baseAliases = {
   ),
 };
 
-function coreExternals(kolibri_name) {
+function coreExternals() {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
    */
   var externalsObj = {
-    kolibri: kolibri_name,
+    kolibri: kolibriName,
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
     if (typeof obj === 'object') {
@@ -124,7 +126,7 @@ function coreExternals(kolibri_name) {
       externalsObj[requireName(pathArray)] = pathArray.join('.');
     }
   }
-  recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
+  recurseObjectKeysAndExternalize(apiSpec, [kolibriName]);
   return externalsObj;
 }
 
