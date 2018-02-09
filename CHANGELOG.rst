@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.7.2
+-----
+
+ - Fix issue with importing large channels on Windows
+
+
 0.7.1
 -----
 
