@@ -386,22 +386,34 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(self.admin)
 
-    def test_return_dataset_that_user_is_an_admin_for(self):
+    def test_return_all_datasets_for_an_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
-        self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
+
+    def test_admin_can_edit_dataset_for_which_they_are_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}),
+                                     {'description': 'This is not a drill'}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_cant_edit_dataset_for_which_they_are_not_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility2.dataset_id}),
+                                      {'description': 'This is not a drill'}, format="json")
+        self.assertEqual(response.status_code, 403)
 
     def test_return_all_datasets_for_superuser(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
-    def test_return_dataset_for_facility_user(self):
+    def test_return_all_datasets_for_facility_user(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
     def test_facility_user_cannot_delete_dataset(self):
+        self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
         self.assertEqual(response.status_code, 403)
