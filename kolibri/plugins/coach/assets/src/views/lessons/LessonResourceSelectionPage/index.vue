@@ -77,6 +77,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import { saveLessonResources } from '../../../state/actions/lessons';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -129,7 +130,21 @@
         };
       },
       saveResources() {
-        return this.saveLessonResources(this.lessonId, this.selectedResources);
+        const modelResources = this.selectedResources.map(resourceId => ({
+          contentnode_id: resourceId,
+        }));
+        this.saveLessonResources(this.lessonId, modelResources).then(() => {
+          const snackBarOptions = {
+            text: this.$tr('resourceSaveConfirmation'),
+            autoDismiss: true,
+          };
+
+          // route to summary page with confirmation message
+          this.createSnackbar(snackBarOptions);
+          this.$router.push({
+            name: LessonsPageNames.SUMMARY,
+          });
+        });
       },
       isSelected(contentId) {
         // resource id is a content pk, but the pk === id in vuex
@@ -147,12 +162,14 @@
       getters: {
         lessonId: state => state.pageState.currentLesson.id,
         selectedResources: state => state.pageState.selectedResources,
+        // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
         ancestors: state => state.pageState.ancestors || [],
         contentList: state => state.pageState.contentList,
       },
       actions: {
         saveLessonResources,
+        createSnackbar,
         addToSelectedResources(store, contentId) {
           store.dispatch('ADD_TO_SELECTED_RESOURCES', contentId);
         },
@@ -162,11 +179,13 @@
       },
     },
     $trs: {
+      // TODO semantic string names
       addResourcesHeader: 'Add resources to your lesson',
       channelBreadcrumbLabel: 'Channels',
       save: 'Save',
       toolbarTitle: 'Select resources',
       totalResourcesSelected: 'Total resources selected: {total, number, integer}',
+      resourceSaveConfirmation: 'Changes to lesson saved',
     },
   };
 
