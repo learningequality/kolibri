@@ -9,13 +9,10 @@
     <div class="coach" v-if="userCanAccessPage">
       <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
-        <top-nav />
+        <top-nav class="top-nav" />
       </template>
 
-      <component
-        class="content"
-        :is="currentPage"
-      />
+      <component :is="currentPage" />
 
     </div>
 
@@ -162,7 +159,7 @@
   .coach
     overflow: auto
 
-  .content
-    margin-top: 32px
+  .top-nav
+    margin-bottom: 32px
 
 </style>
