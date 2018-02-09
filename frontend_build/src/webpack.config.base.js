@@ -17,9 +17,6 @@ var path = require('path');
 var merge = require('webpack-merge');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var VirtualModulePlugin = require('virtual-module-webpack-plugin');
-
-var i18nModules = require('./intl_code_gen');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
@@ -133,16 +130,7 @@ var config = {
       },
     ],
   },
-  plugins: [
-    new VirtualModulePlugin({
-      moduleName: 'intl-locale',
-      contents: i18nModules.intlModule,
-    }),
-    new VirtualModulePlugin({
-      moduleName: 'vue-intl-locale',
-      contents: i18nModules.vueIntlModule,
-    }),
-  ],
+  plugins: [],
   resolve: {
     extensions: ['.js', '.vue', '.styl'],
     alias: {},

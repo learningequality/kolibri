@@ -38,8 +38,6 @@ webpack_config.resolve.alias = aliases;
 
 webpack_config.externals = {
   kolibri: 'kolibriGlobal',
-  'intl-locale': 'intlLocale',
-  'vue-intl-locale': 'vueIntlLocale',
 };
 
 module.exports = function(config) {

@@ -1,10 +1,7 @@
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
-/* eslint-disable import/no-unresolved */
-// These modules are dynamically generated, and hence the import is not resolved
-import importIntlLocale from 'intl-locale';
-import importVueIntlLocaleData from 'vue-intl-locale';
-/* eslint-enable */
+import importIntlLocale from './intl-locale-data';
+import importVueIntlLocaleData from './vue-intl-locale-data';
 
 const logging = logger.getLogger(__filename);
 
