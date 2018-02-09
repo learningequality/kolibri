@@ -86,7 +86,45 @@
           </div>
         </div>
       </div>
-      <table></table>
+
+      <core-table>
+        <!-- TODO wrap strings -->
+        <thead slot="thead">
+          <tr>
+            <th>
+              Name
+            </th>
+            <th>
+              Resource Progress
+            </th>
+            <th class="visuallyhidden">
+              Resource Removal Button
+            </th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr :key="resource.pk" v-for="resource in resourceContentNodes">
+            <td>
+              {{ resource.title }}
+            </td>
+            <td>
+              <!-- stubbed. Need progress endpoint that scopes by user -->
+              <progress-bar
+                class="resource-progress-bar"
+                :progress="Number(resource.progress_fraction)"
+                :showPercentage="false"
+              />
+            </td>
+            <td>
+              <!-- TODO label strings -->
+              <k-button
+                text="remove"
+                appearance="flat-button"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </core-table>
 
       <manage-lesson-modals
         :currentAction="currentAction"
@@ -103,7 +141,10 @@
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import progressBar from 'kolibri.coreVue.components.progressBar';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  // why PascalCase?
+  import coreTable from 'kolibri.coreVue.components.CoreTable';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
   import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
@@ -122,6 +163,8 @@
       kButton,
       kRouterLink,
       InfoIcon,
+      coreTable,
+      progressBar,
     },
     data() {
       return {
@@ -170,7 +213,8 @@
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
         lessonAssignments: state => state.pageState.currentLesson.assigned_groups,
-        lessonResources: state => state.pageState.currentLesson.resources,
+        // consider loading this async?
+        resourceContentNodes: state => state.pageState.resourceContentNodes,
         learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {},

@@ -46,6 +46,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
+    resourceContentNodes: [],
   });
 
   const loadRequirements = [
@@ -55,11 +56,18 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   ];
 
   Promise.all(loadRequirements).then(([lesson, learnerGroups]) => {
-    store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
-    store.dispatch('SET_CURRENT_LESSON', lesson);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
-    store.dispatch('CORE_SET_TITLE', lesson.name);
+    const resourcePromises = lesson.resources.map(resource =>
+      ContentNodeResource.getModel(resource.contentnode_id).fetch()
+    );
+
+    Promise.all(resourcePromises).then(resourceContentNodes => {
+      store.dispatch('SET_RESOURCE_CONTENT_NODES', resourceContentNodes);
+      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+      store.dispatch('SET_CURRENT_LESSON', lesson);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
+      store.dispatch('CORE_SET_TITLE', lesson.name);
+    });
   });
 }
 
@@ -75,6 +83,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
     contentList: [],
+    // TODO handle the resources that area already a part of the lesson
     selectedResources: store.state.pageState.selectedResources || [],
   });
   const loadRequirements = [updateLessons(store, classId), setClassState(store, classId)];
