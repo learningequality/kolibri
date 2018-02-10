@@ -236,7 +236,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_messages(self):
         global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code):
+        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or django_settings.DEBUG:
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with open(frontend_message_file) as f:
