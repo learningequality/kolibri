@@ -88,17 +88,16 @@
       </div>
 
       <core-table>
-        <!-- TODO wrap strings -->
         <thead slot="thead">
           <tr>
             <th>
-              Name
+              {{ $tr('nameColumnHeaderForTable') }}
             </th>
             <th>
-              Resource Progress
+              {{ $tr('resourceProgressColumnHeaderForTable') }}
             </th>
             <th class="visuallyhidden">
-              Resource Removal Button
+              {{ $tr('resourceRemovalColumnHeaderForTable') }}
             </th>
           </tr>
         </thead>
@@ -106,7 +105,6 @@
           <tr :key="resourceId" v-for="resourceId in workingResources">
             <td>
               {{ resourceContentNodes[resourceId].title }}
-              <!-- {{ resourceContentNodes[resourceId].title }} -->
             </td>
             <td>
               <!-- stubbed. Need progress endpoint that scopes by user -->
@@ -117,9 +115,8 @@
               />
             </td>
             <td>
-              <!-- TODO label strings -->
               <k-button
-                text="remove"
+                :text="$tr('resourceRemovalButtonLabel')"
                 @click="removeResource(resourceId)"
                 appearance="flat-button"
               />
@@ -260,7 +257,11 @@
       status: 'Status',
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
       visibleTo: 'Visible to',
-      addResourcesButtonPrompt: 'Add Resources',
+      addResourcesButtonPrompt: 'Add resources',
+      nameColumnHeaderForTable: 'Name',
+      resourceProgressColumnHeaderForTable: 'Resource progress',
+      resourceRemovalColumnHeaderForTable: 'Removal button',
+      resourceRemovalButtonLabel: 'Remove',
     },
   };
 
