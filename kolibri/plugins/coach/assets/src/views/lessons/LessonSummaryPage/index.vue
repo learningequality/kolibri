@@ -90,6 +90,9 @@
       <core-table>
         <thead slot="thead">
           <tr>
+            <th class="visuallyhidden">
+              {{ $tr('resourceReorderColumnHeaderForTable') }}
+            </th>
             <th>
               {{ $tr('nameColumnHeaderForTable') }}
             </th>
@@ -101,8 +104,13 @@
             </th>
           </tr>
         </thead>
+        <!-- TODO simple transitions -->
         <tbody slot="tbody">
-          <tr :key="resourceId" v-for="resourceId in workingResources">
+          <tr :key="resourceId" v-for="(resourceId, resourceIndex) in workingResources">
+            <td>
+              <k-button @click="moveUp(resourceIndex)" text="up" />
+              <k-button @click="moveDown(resourceIndex)" text="down" />
+            </td>
             <td>
               {{ resourceContentNodes[resourceId].title }}
             </td>
@@ -208,13 +216,21 @@
         // IDEA update resourceContentNodes?
         this.removeFromWorkingResources(resourceId);
         this.autoSave();
+        // TODO showactionbar
       },
       autoSave() {
         // TODO debounce
         const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
-        this.saveLessonResources(this.lessonId, modelResources);
+        return this.saveLessonResources(this.lessonId, modelResources);
+      },
+      moveUp(index) {
+        const before = [...this.workingResources];
+        const resourceId = before.splice(index, 1);
+        before.splice(index - 1, 0, resourceId);
+        // TODO better name
+        this.setWorkingResources(before);
       },
     },
     vuex: {
@@ -235,6 +251,9 @@
         saveLessonResources,
         removeFromWorkingResources(store, resourceId) {
           store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
+        },
+        setWorkingResources(store, resourceArray) {
+          store.dispatch('SET_WORKING_RESOURCES', resourceArray);
         },
       },
     },
@@ -258,6 +277,7 @@
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
       visibleTo: 'Visible to',
       addResourcesButtonPrompt: 'Add resources',
+      resourceReorderColumnHeaderForTable: 'Reorder buttons',
       nameColumnHeaderForTable: 'Name',
       resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable: 'Removal button',
