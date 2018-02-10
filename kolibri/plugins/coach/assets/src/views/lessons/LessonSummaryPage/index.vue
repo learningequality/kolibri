@@ -103,15 +103,16 @@
           </tr>
         </thead>
         <tbody slot="tbody">
-          <tr :key="resource.pk" v-for="resource in resourceContentNodes">
+          <tr :key="resourceId" v-for="resourceId in workingResources">
             <td>
-              {{ resource.title }}
+              {{ resourceContentNodes[resourceId].title }}
+              <!-- {{ resourceContentNodes[resourceId].title }} -->
             </td>
             <td>
               <!-- stubbed. Need progress endpoint that scopes by user -->
               <progress-bar
                 class="resource-progress-bar"
-                :progress="Number(resource.progress_fraction)"
+                :progress="resourceContentNodes[resourceId].progress"
                 :showPercentage="false"
               />
             </td>
@@ -119,6 +120,7 @@
               <!-- TODO label strings -->
               <k-button
                 text="remove"
+                @click="removeResource(resourceId)"
                 appearance="flat-button"
               />
             </td>
@@ -152,6 +154,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
   import { selectionRootLink } from '../lessonsRouterUtils';
+  import { saveLessonResources } from '../../../state/actions/lessons';
 
   export default {
     name: 'lessonSummaryPage',
@@ -204,6 +207,18 @@
       getGroupName(assignment) {
         return this.learnerGroups.find(lg => lg.id === assignment.collection).name;
       },
+      removeResource(resourceId) {
+        // IDEA update resourceContentNodes?
+        this.removeFromWorkingResources(resourceId);
+        this.autoSave();
+      },
+      autoSave() {
+        // TODO debounce
+        const modelResources = this.workingResources.map(resourceId => ({
+          contentnode_id: resourceId,
+        }));
+        this.saveLessonResources(this.lessonId, modelResources);
+      },
     },
     vuex: {
       getters: {
@@ -213,11 +228,18 @@
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
         lessonAssignments: state => state.pageState.currentLesson.assigned_groups,
+        lessonResources: state => state.pageState.currentLesson.resources,
+        workingResources: state => state.pageState.workingResources,
         // consider loading this async?
         resourceContentNodes: state => state.pageState.resourceContentNodes,
         learnerGroups: state => state.pageState.learnerGroups,
       },
-      actions: {},
+      actions: {
+        saveLessonResources,
+        removeFromWorkingResources(store, resourceId) {
+          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
+        },
+      },
     },
     $trs: {
       // TODO make labels more semantic

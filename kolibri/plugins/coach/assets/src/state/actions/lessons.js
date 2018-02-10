@@ -48,8 +48,10 @@ export function updateClassLessons(store, classId) {
 }
 
 export function updateCurrentLesson(store, lessonId) {
+  const currentLessonId = lessonId || store.state.pageState.lessonId;
+
   return (
-    LessonResource.getModel(lessonId)
+    LessonResource.getModel(currentLessonId)
       .fetch()
       // is lesson set appropriately here?
       .then(lesson => {
@@ -61,10 +63,38 @@ export function updateCurrentLesson(store, lessonId) {
 }
 
 export function showLessonSummaryPage(store, classId, lessonId) {
+  function updateResourceContentNodes(resourceIds) {
+    const contentNodeMap = {};
+    const resourcePromises = resourceIds.map(resourceId =>
+      // have to retrieve each contentNode individually
+      ContentNodeResource.getModel(resourceId).fetch()
+    );
+
+    return Promise.all(resourcePromises).then(contentNodeArray => {
+      contentNodeArray.forEach(
+        // should map directly to resourceIds
+        // TODO include route information? See selection page
+        // TODO make this a state mapper?
+        contentNode =>
+          (contentNodeMap[contentNode.pk] = {
+            title: contentNode.title,
+            // TODO calculate progress
+            progress: Number(contentNode.progress_fraction),
+            id: contentNode.pk,
+          })
+      );
+
+      store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
+
+      // TODO make sure this is resolved properly
+      return contentNodeMap;
+    });
+  }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
     resourceContentNodes: [],
+    workingResources: [],
   });
 
   const loadRequirements = [
@@ -73,18 +103,16 @@ export function showLessonSummaryPage(store, classId, lessonId) {
     setClassState(store, classId),
   ];
 
-  Promise.all(loadRequirements).then(([lesson, learnerGroups]) => {
-    const resourcePromises = lesson.resources.map(resource =>
-      // have to retrieve each contentNode individually
-      ContentNodeResource.getModel(resource.contentnode_id).fetch()
-    );
+  Promise.all(loadRequirements).then(([currentLesson, learnerGroups]) => {
+    // TODO state mapper
+    const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
-    Promise.all(resourcePromises).then(resourceContentNodes => {
-      store.dispatch('SET_RESOURCE_CONTENT_NODES', resourceContentNodes);
+    updateResourceContentNodes(resourceIds).then(() => {
+      store.dispatch('SET_WORKING_RESOURCES', resourceIds);
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
-      store.dispatch('CORE_SET_TITLE', lesson.name);
+      store.dispatch('CORE_SET_TITLE', currentLesson.name);
     });
   });
 }
@@ -108,7 +136,7 @@ function showResourceSelectionPage(
     currentLesson: {},
     contentList: [],
     ancestors: [],
-    selectedResources: [],
+    workingResources: [],
   };
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', pageState);
@@ -117,7 +145,7 @@ function showResourceSelectionPage(
   return Promise.all(loadRequirements).then(
     ([currentLesson]) => {
       // contains all selections, including those that haven't been committed to server
-      const pendingSelections = store.state.pageState.selectedResources || [];
+      const pendingSelections = store.state.pageState.workingResources || [];
       // contains selections that were commited to server prior to opening this page
       const preselectedResources = currentLesson.resources.map(
         resourceObj => resourceObj.contentnode_id
@@ -130,7 +158,7 @@ function showResourceSelectionPage(
       }
 
       // carry pendingSelections over from other interactions in this modal
-      store.dispatch('SET_SELECTED_RESOURCES', currentResources());
+      store.dispatch('SET_WORKING_RESOURCES', currentResources());
       store.dispatch('SET_CONTENT_LIST', contentList);
       store.dispatch('SET_PAGE_NAME', pageName);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));

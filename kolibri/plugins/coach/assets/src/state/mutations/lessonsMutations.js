@@ -22,15 +22,15 @@ export function SET_ANCESTORS(state, ancestors) {
   state.pageState.ancestors = [...ancestors];
 }
 
-export function SET_SELECTED_RESOURCES(state, selectedResources) {
-  state.pageState.selectedResources = selectedResources;
+export function SET_WORKING_RESOURCES(state, workingResources) {
+  state.pageState.workingResources = [...workingResources];
 }
-export function ADD_TO_SELECTED_RESOURCES(state, contentId) {
-  state.pageState.selectedResources.push(contentId);
+export function ADD_TO_WORKING_RESOURCES(state, contentId) {
+  state.pageState.workingResources.push(contentId);
 }
 
-export function REMOVE_FROM_SELECTED_RESOURCES(state, contentId) {
-  state.pageState.selectedResources = state.pageState.selectedResources.filter(
+export function REMOVE_FROM_WORKING_RESOURCES(state, contentId) {
+  state.pageState.workingResources = state.pageState.workingResources.filter(
     resourceId => resourceId !== contentId
   );
 }

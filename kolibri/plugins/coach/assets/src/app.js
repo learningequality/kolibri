@@ -48,9 +48,9 @@ const lessonRoutes = [
     path: '/:classId/lessons/:lessonId',
     handler: (toRoute, fromRoute) => {
       if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
-        return redirectToLessonsList(toRoute.params.classId);
+        redirectToLessonsList(toRoute.params.classId);
       }
-      return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
+      showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {

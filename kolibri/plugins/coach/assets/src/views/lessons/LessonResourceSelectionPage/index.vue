@@ -55,7 +55,7 @@
         </ul>
 
         <div class="information">
-          <p> {{ $tr('totalResourcesSelected', { total: selectedResources.length }) }} </p>
+          <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
           <k-button
             type="submit"
             :primary="true"
@@ -130,7 +130,7 @@
         };
       },
       saveResources() {
-        const modelResources = this.selectedResources.map(resourceId => ({
+        const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
         this.saveLessonResources(this.lessonId, modelResources).then(() => {
@@ -141,14 +141,12 @@
 
           // route to summary page with confirmation message
           this.createSnackbar(snackBarOptions);
-          this.$router.push({
-            name: LessonsPageNames.SUMMARY,
-          });
+          this.$router.push(lessonSummaryLink(this.routerParams));
         });
       },
       isSelected(contentId) {
         // resource id is a content pk, but the pk === id in vuex
-        return this.selectedResources.includes(contentId);
+        return this.workingResources.includes(contentId);
       },
       toggleSelected(checked, contentId) {
         if (checked) {
@@ -161,7 +159,7 @@
     vuex: {
       getters: {
         lessonId: state => state.pageState.currentLesson.id,
-        selectedResources: state => state.pageState.selectedResources,
+        workingResources: state => state.pageState.workingResources,
         // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
         ancestors: state => state.pageState.ancestors,
@@ -171,10 +169,10 @@
         saveLessonResources,
         createSnackbar,
         addToSelectedResources(store, contentId) {
-          store.dispatch('ADD_TO_SELECTED_RESOURCES', contentId);
+          store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
         },
         removeFromSelectedResources(store, contentId) {
-          store.dispatch('REMOVE_FROM_SELECTED_RESOURCES', contentId);
+          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', contentId);
         },
       },
     },
