@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import json
 import os
 
 import pytz
@@ -152,15 +153,9 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('sw-tz', 'Kiswahili'),
-    ('es-es', 'Español'),
-    ('fr-fr', 'Français'),
-    ('ar', 'العَرَبِيَّة‎‎'),
-    ('fa', 'فارسی'),
-    ('ur-pk', 'اُردو (پاکستان)‏'),
-]
+with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+
+    LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
