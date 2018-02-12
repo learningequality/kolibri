@@ -31,6 +31,12 @@ Changes are ordered reverse-chronologically.
  - Granular content import and export
 
 
+0.6.2
+-----
+
+ - Consistent ordering of channels in learner views
+
+
 0.6.1
 -----
 
