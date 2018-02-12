@@ -90,10 +90,10 @@
       <core-table>
         <thead slot="thead">
           <tr>
-            <th class="visuallyhidden">
+            <th class="visuallyhidden core-table-icon-col">
               {{ $tr('resourceReorderColumnHeaderForTable') }}
             </th>
-            <th>
+            <th class="core-table-main-col">
               {{ $tr('nameColumnHeaderForTable') }}
             </th>
             <th>
@@ -105,18 +105,25 @@
           </tr>
         </thead>
         <!-- TODO simple transitions -->
-        <tbody slot="tbody">
+        <tbody slot="tbody" class="core-table-rows-selectable">
+          <!-- IDEA incorporate row selected? -->
           <tr :key="resourceId" v-for="(resourceId, index) in workingResources">
-            <td>
-              <k-button
+            <td class="core-table-icon-col">
+              <ui-icon-button
+                type="flat"
+                icon="keyboard_arrow_up"
+                :ariaLabel="$tr('moveResourceUpButtonDescription')"
                 :disabled="index === 0"
                 @click="moveUpOne(index)"
-                text="up"
+                class="position-adjustment-button"
               />
-              <k-button
+              <ui-icon-button
+                type="flat"
+                icon="keyboard_arrow_down"
+                :ariaLabel="$tr('moveResourceDownButtonDescription')"
                 :disabled="index === (workingResources.length - 1)"
                 @click="moveDownOne(index)"
-                text="down"
+                class="position-adjustment-button"
               />
             </td>
             <td>
@@ -156,6 +163,7 @@
 
   import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   // why PascalCase?
@@ -178,6 +186,7 @@
       StatusIcon,
       contentIcon,
       kButton,
+      uiIconButton,
       kRouterLink,
       InfoIcon,
       coreTable,
@@ -337,6 +346,8 @@
       resourceRemovalButtonLabel: 'Remove',
       resourceReorderConfirmationMessage: 'New lesson order saved',
       resourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
+      moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
+      moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
     },
   };
 
@@ -417,5 +428,9 @@
     &-add-resource-button
       display: table-cell
       text-align: right
+
+  .position-adjustment-button
+    display: block
+    margin: 0
 
 </style>
