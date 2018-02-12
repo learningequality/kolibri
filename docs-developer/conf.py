@@ -26,6 +26,10 @@ builddir = os.path.join(cwd, '_build')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
 os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
 
+# This is necessary because the directory needs to exist for Kolibri to run when
+# not invoked through CLI.
+if not os.path.exists(os.environ["KOLIBRI_HOME"]):
+    os.makedirs(os.environ["KOLIBRI_HOME"])
 
 # This import *must* come after the path insertion, otherwise sphinx won't be able to find the kolibri module
 import kolibri  # noqa
