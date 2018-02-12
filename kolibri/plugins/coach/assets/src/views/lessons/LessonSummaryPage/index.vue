@@ -106,19 +106,27 @@
         </thead>
         <!-- TODO simple transitions -->
         <tbody slot="tbody">
-          <tr :key="resourceId" v-for="(resourceId, resourceIndex) in workingResources">
+          <tr :key="resourceId" v-for="(resourceId, index) in workingResources">
             <td>
-              <k-button @click="moveUp(resourceIndex)" text="up" />
-              <k-button @click="moveDown(resourceIndex)" text="down" />
+              <k-button
+                :disabled="index === 0"
+                @click="moveUpOne(index)"
+                text="up"
+              />
+              <k-button
+                :disabled="index === (workingResources.length - 1)"
+                @click="moveDownOne(index)"
+                text="down"
+              />
             </td>
             <td>
-              {{ resourceContentNodes[resourceId].title }}
+              {{ resourceTitle(resourceId) }}
             </td>
             <td>
               <!-- stubbed. Need progress endpoint that scopes by user -->
               <progress-bar
                 class="resource-progress-bar"
-                :progress="resourceContentNodes[resourceId].progress"
+                :progress="resourceProgress(resourceId)"
                 :showPercentage="false"
               />
             </td>
@@ -159,7 +167,8 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
   import { selectionRootLink } from '../lessonsRouterUtils';
-  import { saveLessonResources } from '../../../state/actions/lessons';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   export default {
     name: 'lessonSummaryPage',
@@ -177,6 +186,7 @@
     data() {
       return {
         currentAction: null,
+        resourceBackup: [...this.lessonResources],
       };
     },
     computed: {
@@ -212,25 +222,66 @@
       getGroupName(assignment) {
         return this.learnerGroups.find(lg => lg.id === assignment.collection).name;
       },
+      resourceTitle(resourceId) {
+        return this.resourceContentNodes[resourceId].title;
+      },
+      resourceProgress(resourceId) {
+        return this.resourceContentNodes[resourceId].progress;
+      },
       removeResource(resourceId) {
         // IDEA update resourceContentNodes?
+        const removalMessage = this.$tr('resourceRemovalConfirmationMessage', {
+          resourceTitle: this.resourceTitle(resourceId),
+        });
+
         this.removeFromWorkingResources(resourceId);
-        this.autoSave();
-        // TODO showactionbar
+        this.autoSave(removalMessage);
       },
-      autoSave() {
-        // TODO debounce
+      autoSave(notification) {
+        // TODO debounce - talk to design about what this looks like?
+
+        // set a new backup point before making these changes
+        this.resourceBackup = [...this.lessonResources];
+
         const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
-        return this.saveLessonResources(this.lessonId, modelResources);
+        return this.saveLessonResources(this.lessonId, modelResources).then(() => {
+          this.createSnackbar({
+            text: notification,
+            autoDismiss: true,
+          });
+          // TODO undo - allow custom snackbar
+          // QUESTION how to track if undo was clicked?
+          this.updateCurrentLesson(this.lessonId);
+        });
       },
-      moveUp(index) {
-        const before = [...this.workingResources];
-        const resourceId = before.splice(index, 1);
-        before.splice(index - 1, 0, resourceId);
-        // TODO better name
-        this.setWorkingResources(before);
+      moveUpOne(oldIndex) {
+        this.shiftOne(oldIndex, oldIndex - 1);
+      },
+      moveDownOne(oldIndex) {
+        this.shiftOne(oldIndex, oldIndex + 1);
+      },
+      shiftOne(oldIndex, newIndex) {
+        // TODO measure performance to see if this is worth it
+        const resources = [...this.workingResources];
+        const oldResourceId = resources[newIndex];
+        resources[newIndex] = resources[oldIndex];
+        resources[oldIndex] = oldResourceId;
+
+        this.setWorkingResources(resources);
+        this.autoSave(this.$tr('resourceReorderConfirmationMessage'));
+      },
+      shiftMany(oldIndex, newIndex) {
+        // to be used w/ drag and drop if we do this
+        const resources = [...this.workingResources];
+        // remove the resourceId from the array, store here
+        const [resourceId] = resources.splice(oldIndex, 1);
+        // re-add resourceId at the new index
+        resources.splice(newIndex, 0, resourceId);
+
+        this.setWorkingResources(resources);
+        this.autoSave();
       },
     },
     vuex: {
@@ -248,7 +299,9 @@
         learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
+        createSnackbar,
         saveLessonResources,
+        updateCurrentLesson,
         removeFromWorkingResources(store, resourceId) {
           store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
         },
@@ -282,6 +335,8 @@
       resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable: 'Removal button',
       resourceRemovalButtonLabel: 'Remove',
+      resourceReorderConfirmationMessage: 'New lesson order saved',
+      resourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
     },
   };
 
