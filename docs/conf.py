@@ -3,11 +3,9 @@
 # Kolibri 'user docs' documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing dir.
-
-
-from datetime import datetime
 import os
 import sys
+from datetime import datetime
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -27,7 +25,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.sett
 os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
 
 if not os.path.exists(os.environ["KOLIBRI_HOME"]):
-    os.mkdir(os.environ["KOLIBRI_HOME"])
+    os.makedirs(os.environ["KOLIBRI_HOME"])
 
 
 # -- General configuration -----------------------------------------------------
