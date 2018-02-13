@@ -10,7 +10,8 @@ import {
   showLearnContent,
 } from './state/actions/recommended';
 import { initialState, mutations } from './state/store';
-import { PageNames } from './constants';
+import { PageNames, ClassesPageNames } from './constants';
+import { showAllClassesPage } from './state/actions/classesActions';
 import store from 'kolibri.coreVue.vuex.store';
 
 const routes = [
@@ -103,10 +104,10 @@ const routes = [
     },
   },
   {
-    name: PageNames.EXAM_LIST,
-    path: '/exams',
+    name: ClassesPageNames.ALL_CLASSES,
+    path: '/classes',
     handler: () => {
-      actions.showExamList(store);
+      return showAllClassesPage(store);
     },
   },
   {

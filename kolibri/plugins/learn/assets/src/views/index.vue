@@ -24,12 +24,12 @@
           :link="channelsLink"
         />
         <k-navbar-link
-          name="exam-link"
+          name="classes-link"
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
-          :title="$tr('exams')"
-          icon="assignment_late"
-          :link="examsLink"
+          :title="$tr('classes')"
+          icon="business"
+          :link="allClassesLink"
         />
       </k-navbar>
     </div>
@@ -50,7 +50,7 @@
 
 <script>
 
-  import { PageNames, RecommendedPages } from '../constants';
+  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -65,12 +65,25 @@
   import searchPage from './search-page';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
-  import examList from './exam-list';
   import examPage from './exam-page';
   import totalPoints from './total-points';
+  import AllClassesPage from './AllClassesPage';
   import actionBarSearchBox from './action-bar-search-box';
 
   const BOTTOM_SPACED_RESERVED = 88;
+
+  const pageNameToComponentMap = {
+    [PageNames.TOPICS_ROOT]: channelsPage,
+    [PageNames.TOPICS_CHANNEL]: topicsPage,
+    [PageNames.TOPICS_TOPIC]: topicsPage,
+    [PageNames.TOPICS_CONTENT]: contentPage,
+    [PageNames.RECOMMENDED_CONTENT]: contentPage,
+    [PageNames.RECOMMENDED]: learnPage,
+    [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
+    [PageNames.SEARCH]: searchPage,
+    [PageNames.EXAM]: examPage,
+    [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
+  };
 
   export default {
     name: 'learn',
@@ -78,22 +91,13 @@
       learnTitle: 'Learn',
       recommended: 'Recommended',
       channels: 'Channels',
-      exams: 'Exams',
+      classes: 'Classes',
     },
     components: {
-      channelsPage,
-      topicsPage,
-      contentPage,
-      learnPage,
-      recommendedSubpage,
-      contentUnavailablePage,
       coreBase,
       breadcrumbs,
-      searchPage,
       kNavbar,
       kNavbarLink,
-      examList,
-      examPage,
       totalPoints,
       actionBarSearchBox,
     },
@@ -106,40 +110,10 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (this.pageName === PageNames.TOPICS_ROOT) {
-          return 'channels-page';
-        }
-        if (
-          this.pageName === PageNames.TOPICS_CHANNEL ||
-          this.pageName === PageNames.TOPICS_TOPIC
-        ) {
-          return 'topics-page';
-        }
-        if (
-          this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT
-        ) {
-          return 'content-page';
-        }
-        if (this.pageName === PageNames.RECOMMENDED) {
-          return 'learn-page';
-        }
-        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
-          return 'content-unavailable-page';
-        }
-        if (this.pageName === PageNames.SEARCH) {
-          return 'search-page';
-        }
-        if (this.pageName === PageNames.EXAM_LIST) {
-          return 'exam-list';
-        }
-        if (this.pageName === PageNames.EXAM) {
-          return 'exam-page';
-        }
         if (RecommendedPages.includes(this.pageName)) {
-          return 'recommended-subpage';
+          return recommendedSubpage;
         }
-        return null;
+        return pageNameToComponentMap[this.pageName] || null;
       },
       isWithinSearchPage() {
         return this.pageName === PageNames.SEARCH;
@@ -162,14 +136,16 @@
           name: PageNames.TOPICS_ROOT,
         };
       },
-      examsLink() {
+      allClassesLink() {
         return {
-          name: PageNames.EXAM_LIST,
+          name: ClassesPageNames.ALL_CLASSES,
         };
       },
       bottomSpaceReserved() {
-        const isAssessment =
-          this.currentPage === 'content-page' && this.content && this.content.assessment;
+        const isContentPage =
+          this.pageName === PageNames.TOPICS_CONTENT ||
+          this.pageName === PageNames.RECOMMENDED_CONTENT;
+        const isAssessment = isContentPage && this.content && this.content.assessment;
         // height of .attemptprogress-container.mobile in assessment-wrapper
         return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
       },
