@@ -4,7 +4,6 @@ import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
-import every from 'lodash/every';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -236,7 +235,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
 
 export function saveLessonResources(store, lessonId, resources) {
   // light validation of data shape
-  if (every(resources, resource => resource.contentnode_id)) {
+  if (resources.every(resource => resource.contentnode_id)) {
     return LessonResource.getModel(lessonId).save({ resources });
   }
   return Promise.reject();
