@@ -23,8 +23,7 @@ function _classState(classData) {
 }
 
 function setClassState(store, classId = null) {
-  const classCollection = ClassroomResource.getCollection();
-  return classCollection.fetch().then(classes => {
+  return ClassroomResource.getCollection().fetch().then(classes => {
     let className = null;
     if (classId) {
       className = classes.find(classroom => classroom.id === classId).name;
