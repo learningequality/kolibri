@@ -1,11 +1,12 @@
 from django.db import models
 from jsonfield import JSONField
 
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
-
 from .permissions import UserCanReadExamAssignmentData
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import AbstractFacilityDataModel
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.permissions.base import RoleBasedPermissions
 
 class Exam(AbstractFacilityDataModel):
     """
@@ -67,10 +68,10 @@ class ExamAssignment(AbstractFacilityDataModel):
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
-            can_be_created_by=(),
+            can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_deleted_by=(),
+            can_be_updated_by=(),
+            can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
         ) | UserCanReadExamAssignmentData()
     )
     exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)

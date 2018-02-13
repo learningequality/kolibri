@@ -48,13 +48,17 @@ class ExamViewset(viewsets.ModelViewSet):
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.ExamAssignmentSerializer
     pagination_class = OptionalPageNumberPagination
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
         return models.ExamAssignment.objects.all()
+
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'create':
+            return serializers.ExamAssignmentCreationSerializer
+        return serializers.ExamAssignmentRetrieveSerializer
 
 
 class UserExamViewset(viewsets.ModelViewSet):

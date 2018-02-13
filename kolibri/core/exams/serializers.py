@@ -1,9 +1,14 @@
+from collections import OrderedDict
+
 from django.db.models import Sum
-from kolibri.auth.models import Collection, FacilityUser
-from kolibri.core.exams.models import Exam, ExamAssignment
-from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.logger.models import ExamLog
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
@@ -24,10 +29,10 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
             'id', 'exam', 'collection',
         )
 
-class ExamAssignmentSerializer(serializers.ModelSerializer):
 
-    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    collection = NestedCollectionSerializer(read_only=False)
+class ExamAssignmentCreationSerializer(serializers.ModelSerializer):
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
+    collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
 
     class Meta:
         model = ExamAssignment
@@ -36,13 +41,29 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('assigned_by',)
 
-    def create(self, validated_data):
-        validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
-        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
+    def to_internal_value(self, data):
+        # Make a new OrderedDict from the input, which could be an immutable QueryDict
+        data = OrderedDict(data)
+        data['assigned_by'] = self.context['request'].user.id
+        return super(ExamAssignmentCreationSerializer, self).to_internal_value(data)
+
+
+class ExamAssignmentRetrieveSerializer(serializers.ModelSerializer):
+
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    collection = NestedCollectionSerializer(read_only=True)
+
+    class Meta:
+        model = ExamAssignment
+        fields = (
+            'id', 'exam', 'collection', 'assigned_by',
+        )
+        read_only_fields = ('assigned_by', 'collection', )
+
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = ExamAssignmentSerializer(many=True, read_only=True)
+    assignments = ExamAssignmentRetrieveSerializer(many=True, read_only=True)
     question_sources = serializers.JSONField(default='[]')
 
     class Meta:

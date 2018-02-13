@@ -10,6 +10,8 @@ from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
 
+DUMMY_PASSWORD = "password"
+
 class UserExamAPITestCase(APITestCase):
 
     def setUp(self):
@@ -89,19 +91,20 @@ class ExamAssignmentAPITestCase(APITestCase):
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="MyFac")
-        user = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.facility.add_admin(self.admin)
         self.exam = models.Exam.objects.create(
             title="title",
             channel_id="test",
             question_count=1,
             active=True,
             collection=self.facility,
-            creator=user
+            creator=self.admin
         )
         self.assignment = models.ExamAssignment.objects.create(
             exam=self.exam,
             collection=self.facility,
-            assigned_by=user,
+            assigned_by=self.admin,
         )
 
     def test_logged_in_user_examassignment_no_delete(self):
@@ -114,3 +117,26 @@ class ExamAssignmentAPITestCase(APITestCase):
 
         response = self.client.delete(reverse("examassignment-detail", kwargs={'pk': self.assignment.id}))
         self.assertEqual(response.status_code, 403)
+
+    def test_logged_in_admin_examassignment_can_delete(self):
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.delete(reverse("examassignment-detail", kwargs={'pk': self.assignment.id}))
+        self.assertEqual(response.status_code, 204)
+
+    def test_logged_in_admin_examassignment_can_create(self):
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+
+        self.assignment.delete()
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("examassignment-list"), {
+            "exam": self.exam.id,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 201)
