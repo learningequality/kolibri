@@ -105,9 +105,18 @@
           </tr>
         </thead>
         <!-- TODO simple transitions -->
-        <tbody slot="tbody" class="core-table-rows-selectable">
+        <transition-group
+          name="resource-reorder"
+          slot="tbody"
+          class="core-table-rows-selectable"
+          tag="tbody"
+        >
           <!-- IDEA incorporate row selected? -->
-          <tr :key="resourceId" v-for="(resourceId, index) in workingResources">
+          <tr
+            v-if="!removals.includes(resourceId)"
+            :key="resourceId"
+            v-for="(resourceId, index) in workingResources"
+          >
             <td class="core-table-icon-col">
               <ui-icon-button
                 type="flat"
@@ -145,7 +154,7 @@
               />
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </core-table>
 
       <manage-lesson-modals
@@ -433,4 +442,7 @@
     display: block
     margin: 0
 
+  .resource-reorder-move
+    transition: transform 0.5s
+    background-color: $core-bg-canvas // duping color set in core-table for selected
 </style>
