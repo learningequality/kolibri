@@ -6,23 +6,30 @@
     <p>{{ $tr('pageDescription') }}</p>
 
     <div class="table-wrapper" v-if="!noClassesExist">
-      <table class="main-table">
+      <core-table>
         <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
-        <thead>
+        <thead slot="thead">
           <tr>
-            <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('members') }}</th>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('className') }}</th>
+            <th>{{ $tr('members') }}</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody slot="tbody">
           <tr v-for="cl in sortedClasses" :key="cl.id">
-            <th scope="row" class="table-text">
-              <k-router-link :text="cl.name" :to="recentPageLink(cl.id)" />
+            <td class="core-table-icon-col">
+              <ui-icon icon="people" />
+            </td>
+            <th scope="row" class="core-table-main-col">
+              <k-router-link
+                :text="cl.name"
+                :to="recentPageLink(cl.id)"
+              />
             </th>
-            <td class="table-data">{{ cl.memberCount }}</td>
+            <td>{{ cl.memberCount }}</td>
           </tr>
         </tbody>
-      </table>
+      </core-table>
     </div>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
@@ -34,16 +41,19 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import uiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
     name: 'coachClassListPage',
-    components: { kRouterLink },
-    data: () => ({
-      currentClassDelete: null,
-    }),
+    components: {
+      CoreTable,
+      kRouterLink,
+      uiIcon,
+    },
     computed: {
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
@@ -78,27 +88,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .main-table
-    width: 100%
-    border-spacing: 8px
-    border-collapse: separate
-
-  thead th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
-
-  .table-text
-    text-align: left
-
-  .table-data
-    text-align: center
-
-  .table-wrapper
-    overflow-x: auto
-
-</style>
+<style lang="stylus" scoped></style>

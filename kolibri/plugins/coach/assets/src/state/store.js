@@ -1,23 +1,27 @@
 import Vue from 'kolibri.lib.vue';
+import * as lessonsMutations from './mutations/lessonsMutations';
 
 export const initialState = {
   pageName: '',
   pageState: {},
   classId: null,
+  className: null,
   classList: [],
   busy: false,
 };
 
 export const mutations = {
   // coach-wide
+  ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CLASS_INFO(state, classId, classList) {
+  SET_CLASS_INFO(state, classId, className, classList) {
     state.classId = classId;
+    state.className = className;
     state.classList = classList;
   },
 

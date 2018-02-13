@@ -2,17 +2,21 @@
 
   <div>
     <template v-if="showRecentOnly">
-      <h1>{{ $tr('recentTitle') }}</h1>  
+      <h1>{{ $tr('recentTitle') }}</h1>
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
       <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
-    </template> 
+    </template>
     <template v-else>
       <h1>{{ $tr('topicsTitle') }}</h1>
       <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
     </template>
-    <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
+    <core-table
+      v-if="standardDataTable.length"
+      :caption="$tr('channelList')"
+    >
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('channels')"
             :align="alignStart"
@@ -30,6 +34,9 @@
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
+            <td class="core-table-icon-col">
+              <content-icon :kind="CHANNEL" />
+            </td>
             <name-cell
               :kind="CHANNEL"
               :title="channel.title"
@@ -43,7 +50,7 @@
           </tr>
         </template>
       </tbody>
-    </report-table>
+    </core-table>
   </div>
 
 </template>
@@ -51,12 +58,13 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -64,7 +72,8 @@
   export default {
     name: 'coachRecentPageChannelList',
     components: {
-      reportTable,
+      contentIcon,
+      CoreTable,
       headerCell,
       nameCell,
       activityCell,

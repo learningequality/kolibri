@@ -1,7 +1,7 @@
 <template>
 
   <th scope="col" :style="{ textAlign: align }">
-    <button v-if="sortable" class="header-text" @click="setSortOrder">
+    <button v-if="sortable" class="header-text no-padding" @click="setSortOrder">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
         <mat-svg
@@ -102,17 +102,6 @@
 
   $size = 15px
 
-  th
-    white-space: nowrap
-    vertical-align: middle
-    border-bottom: 1px solid $core-text-annotation
-    font-weight: normal
-
-  .header-text
-    border: none
-    display: block
-    color: $core-text-annotation
-
   .icon-wrapper
     display: inline-block
     position: relative
@@ -130,5 +119,8 @@
 
   .sorted
     opacity: 100
+
+  .no-padding
+    padding: 0
 
 </style>

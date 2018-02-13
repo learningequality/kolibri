@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('classExams') }}</h1>
-    <p v-if="!exams.length">{{ $tr('noExams') }}</p>   
+    <p v-if="!exams.length">{{ $tr('noExams') }}</p>
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
@@ -17,16 +17,16 @@
       :text="$tr('newExam')"
       :class="{'pull-right': sortedExams.length}"
     />
-    <table v-if="sortedExams.length">
-      <thead>
+    <core-table v-if="sortedExams.length">
+      <thead slot="thead">
         <tr>
-          <th class="col-icon"></th>
-          <th class="col-title">{{ $tr('title') }}</th>
-          <th class="col-visibility">{{ $tr('visibleTo') }}</th>
-          <th class="col-action"></th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('title') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody">
         <exam-row
           v-for="exam in filteredExams"
           :key="exam.id"
@@ -43,7 +43,7 @@
           @deleteExam="openDeleteExamModal"
         />
       </tbody>
-    </table>
+    </core-table>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -99,6 +99,7 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { className } from '../../state/getters/main';
   import * as ExamActions from '../../state/actions/exam';
   import { Modals as ExamModals } from '../../examConstants';
@@ -129,6 +130,7 @@
       noExams: 'You do not have any exams yet',
     },
     components: {
+      CoreTable,
       kButton,
       kSelect,
       examRow,
@@ -273,20 +275,5 @@
 
   .center-text
     text-align: center
-
-  table
-    margin-top: 3em
-    width: 100%
-
-  .col-title
-    text-align: left
-
-  .col-visibility
-    text-align: left
-
-  th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
 
 </style>

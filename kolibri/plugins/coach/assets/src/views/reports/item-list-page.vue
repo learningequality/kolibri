@@ -17,9 +17,10 @@
       </ul>
     </div>
 
-    <report-table>
+    <core-table>
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('name')"
             :align="alignStart"
@@ -46,6 +47,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell :kind="row.kind" :title="row.title" :link="genRowLink(row)">
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
@@ -56,7 +60,7 @@
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -65,13 +69,13 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as CoachConstants from '../../constants';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as reportConstants from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -82,9 +86,9 @@
   export default {
     name: 'itemReportPage',
     components: {
+      CoreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       progressCell,
