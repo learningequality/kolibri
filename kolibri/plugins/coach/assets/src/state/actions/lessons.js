@@ -72,7 +72,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
     return Promise.all(resourcePromises).then(contentNodeArray => {
       contentNodeArray.forEach(
         // should map directly to resourceIds
-        // TODO include route information? See selection page
+        // TODO include route information? Also selection page. Simplify component logic
         // TODO make this a state mapper?
         contentNode =>
           (contentNodeMap[contentNode.pk] = {

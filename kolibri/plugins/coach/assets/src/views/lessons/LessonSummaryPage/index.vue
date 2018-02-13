@@ -104,14 +104,12 @@
             </th>
           </tr>
         </thead>
-        <!-- TODO simple transitions -->
         <transition-group
           name="resource-reorder"
           slot="tbody"
           class="core-table-rows-selectable"
           tag="tbody"
         >
-          <!-- IDEA incorporate row selected? -->
           <tr
             v-if="!removals.includes(resourceId)"
             :key="resourceId"
@@ -301,7 +299,6 @@
           contentnode_id: resourceId,
         }));
         return this.saveLessonResources(this.lessonId, modelResources).then(() => {
-          // QUESTION how to track if undo was clicked?
           this.updateCurrentLesson(this.lessonId);
         });
       }, saveDebounceTime),
@@ -312,7 +309,7 @@
         this.shiftOne(oldIndex, oldIndex + 1);
       },
       shiftOne(oldIndex, newIndex) {
-        // TODO measure performance to see if this is worth it
+        // TODO measure performance, see if worth keeping over generalized shiftMany
         const resources = [...this.workingResources];
         const oldResourceId = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
@@ -410,7 +407,6 @@
 
   .lesson-summary-header
     // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
-    // TODO make this a shared class or mixin
     display: table
     width: 100%
 
@@ -429,9 +425,8 @@
   dt
     color: $core-text-annotation // same as table header
     font-size: $table-header-size
-    // TODO replace with verified values
-    margin-top: 1em
-    margin-bottom: 1em
+    margin-top: 16px
+    margin-bottom: 16px
 
   dd
     margin-left: 0
