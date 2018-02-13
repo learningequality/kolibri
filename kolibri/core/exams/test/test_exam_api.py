@@ -64,14 +64,17 @@ class ExamAPITestCase(APITestCase):
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="MyFac")
-        user = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
         self.exam = models.Exam.objects.create(
             title="title",
             channel_id="test",
             question_count=1,
             active=True,
             collection=self.facility,
-            creator=user
+            creator=self.admin
         )
 
     def test_logged_in_user_exam_no_delete(self):
@@ -83,6 +86,73 @@ class ExamAPITestCase(APITestCase):
         self.client.login(username=user.username, password="pass")
 
         response = self.client.delete(reverse("exam-detail", kwargs={'pk': self.exam.id}))
+        self.assertEqual(response.status_code, 403)
+
+    def test_logged_in_admin_exam_delete(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.delete(reverse("exam-detail", kwargs={'pk': self.exam.id}))
+        self.assertEqual(response.status_code, 204)
+
+    def test_logged_in_admin_exam_create(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 201)
+
+    def test_logged_in_user_exam_no_create(self):
+
+        user = FacilityUser.objects.create(username="learner", facility=self.facility)
+        user.set_password("pass")
+        user.save()
+
+        self.client.login(username=user.username, password="pass")
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 403)
+
+    def test_logged_in_admin_exam_update(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.put(reverse("exam-detail", kwargs={'pk': self.exam.id}), {
+            "title": "title",
+            "channel_id": "test",
+            "question_count": 2,
+            "active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_in_user_exam_no_update(self):
+
+        user = FacilityUser.objects.create(username="learner", facility=self.facility)
+        user.set_password("pass")
+        user.save()
+
+        self.client.login(username=user.username, password="pass")
+
+        response = self.client.put(reverse("exam-detail", kwargs={'pk': self.exam.id}), {
+            "title": "title",
+            "channel_id": "test",
+            "question_count": 2,
+            "active": True,
+            "collection": self.facility.id,
+        })
         self.assertEqual(response.status_code, 403)
 
 

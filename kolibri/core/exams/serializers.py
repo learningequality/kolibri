@@ -65,14 +65,15 @@ class ExamSerializer(serializers.ModelSerializer):
 
     assignments = ExamAssignmentRetrieveSerializer(many=True, read_only=True)
     question_sources = serializers.JSONField(default='[]')
+    creator = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
 
     class Meta:
         model = Exam
         fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments',
+            'active', 'collection', 'archive', 'assignments', 'creator',
         )
-        read_only_fields = ('creator',)
+        read_only_fields = ('assignments',)
 
         validators = [
             UniqueTogetherValidator(
@@ -81,8 +82,17 @@ class ExamSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def create(self, validated_data):
-        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
+    def to_internal_value(self, data):
+        # Make a new OrderedDict from the input, which could be an immutable QueryDict
+        data = OrderedDict(data)
+        if 'creator' not in data:
+            if self.context['view'].action == 'create':
+                data['creator'] = self.context['request'].user.id
+            else:
+                # Otherwise we are just updating the exam, so allow a partial update
+                self.partial = True
+        return super(ExamSerializer, self).to_internal_value(data)
+
 
 class UserExamSerializer(serializers.ModelSerializer):
 
