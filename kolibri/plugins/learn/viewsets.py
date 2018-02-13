@@ -1,15 +1,19 @@
 from .serializers import LearnerClassroomSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from kolibri.auth.models import Classroom, KolibriAnonymousUser
+from kolibri.auth.models import Classroom
+from kolibri.auth.serializers import ClassroomSerializer
+from kolibri.auth.models import KolibriAnonymousUser
 from kolibri.auth.api import KolibriAuthPermissionsFilter
 from rest_framework.exceptions import PermissionDenied
 
 
 class LearnerClassroomViewset(ReadOnlyModelViewSet):
     """
-    Returns all Classrooms for which the requesting user is a member.
+    Returns all Classrooms for which the requesting User is a member.
+
+    Use the ?no_assignments flag to just get the name and ID of the Classroom
+    (e.g. when listing classes in which User is enrolled)
     """
-    serializer_class = LearnerClassroomSerializer
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
@@ -21,3 +25,9 @@ class LearnerClassroomViewset(ReadOnlyModelViewSet):
             collection__kind='classroom',
         ).values('collection_id')
         return Classroom.objects.filter(id__in=memberships)
+
+    def get_serializer_class(self):
+        if ('no_assignments' in self.request.query_params):
+            return ClassroomSerializer
+        else:
+            return LearnerClassroomSerializer
