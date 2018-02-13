@@ -87,7 +87,7 @@
           })
           .catch(err => {
             // TODO handle error properly
-            console.error(err);
+            console.error(err); // eslint-disable-line
           });
       },
     },

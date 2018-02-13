@@ -163,7 +163,7 @@
               })
               .catch(error => {
                 // TODO handle error properly
-                console.log(error);
+                console.log(error); // eslint-disable-line
               });
           } else {
             return this.createLesson()
@@ -175,7 +175,7 @@
                 );
               })
               .catch(error => {
-                console.log(error);
+                console.log(error); // eslint-disable-line
               });
           }
         }

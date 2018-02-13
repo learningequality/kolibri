@@ -127,7 +127,7 @@
             this.blockControls = false;
           })
           .catch(err => {
-            console.log(err);
+            console.log(err); // eslint-disable-line
             this.blockControls = false;
           });
       },
@@ -160,7 +160,7 @@
             });
           })
           .catch(error => {
-            console.log(error);
+            console.log(error); // eslint-disable-line
           });
       },
     },
