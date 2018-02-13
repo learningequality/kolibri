@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from django.db import models
 from jsonfield import JSONField
-from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
+from kolibri.auth.models import AbstractFacilityDataModel
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.constants import role_kinds
 

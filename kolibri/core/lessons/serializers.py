@@ -1,4 +1,7 @@
-from rest_framework.serializers import ModelSerializer, JSONField, SerializerMethodField, ValidationError
+from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import JSONField
+from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import ValidationError
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from .models import Lesson, LessonAssignment
