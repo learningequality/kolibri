@@ -149,7 +149,7 @@
             <td>
               <k-button
                 :text="$tr('resourceRemovalButtonLabel')"
-                @click="removeResource(resourceId)"
+                @click="stageRemoval(index, resourceId)"
                 appearance="flat-button"
               />
             </td>
@@ -184,8 +184,22 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
   import { selectionRootLink } from '../lessonsRouterUtils';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
+  import debounce from 'lodash/debounce';
+
+  const removalSnackbarTime = 5000;
+  const saveDebounceTime = 6000;
+
+  // debounced function, pulling out of direct binding to preserve cancel() function
+  const commitRemovals = debounce(function() {
+    const remainingResources = this.workingResources.filter(
+      resourceId => !this.removals.includes(resourceId)
+    );
+    this.removals = [];
+    this.setWorkingResources(remainingResources);
+    this.autoSave();
+  }, removalSnackbarTime);
 
   export default {
     name: 'lessonSummaryPage',
@@ -204,7 +218,7 @@
     data() {
       return {
         currentAction: null,
-        resourceBackup: [...this.lessonResources],
+        removals: [],
       };
     },
     computed: {
@@ -227,6 +241,21 @@
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
       },
+      removalMessage() {
+        const numberOfRemovals = this.removals.length;
+
+        if (!numberOfRemovals) {
+          return '';
+        } else if (numberOfRemovals === 1) {
+          return this.$tr('singleResourceRemovalConfirmationMessage', {
+            resourceTitle: this.resourceTitle(this.removals[0]),
+          });
+        }
+
+        return this.$tr('multipleResourceRemovalsConfirmationMessage', {
+          numberOfRemovals,
+        });
+      },
     },
     methods: {
       handleSelectOption({ action }) {
@@ -246,34 +275,37 @@
       resourceProgress(resourceId) {
         return this.resourceContentNodes[resourceId].progress;
       },
-      removeResource(resourceId) {
-        // IDEA update resourceContentNodes?
-        const removalMessage = this.$tr('resourceRemovalConfirmationMessage', {
-          resourceTitle: this.resourceTitle(resourceId),
+      stageRemoval(index, resourceId) {
+        this.removals.push(resourceId);
+
+        this.createSnackbar({
+          text: this.removalMessage,
+          duration: removalSnackbarTime,
+          autoDismiss: true,
+          actionText: this.$tr('undoActionPrompt'),
+          actionCallback: () => {
+            this.removals = [];
+            this.clearSnackbar();
+          },
         });
 
-        this.removeFromWorkingResources(resourceId);
-        this.autoSave(removalMessage);
+        // cancel any pending calls to reset timer
+        this.cancelCommitRemovals();
+        this.commitRemovals();
       },
-      autoSave(notification) {
-        // TODO debounce - talk to design about what this looks like?
-
-        // set a new backup point before making these changes
-        this.resourceBackup = [...this.lessonResources];
+      commitRemovals,
+      cancelCommitRemovals: commitRemovals.cancel,
+      autoSave: debounce(function() {
+        // IDEA check for changes? might be handled by resources layer
 
         const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
         return this.saveLessonResources(this.lessonId, modelResources).then(() => {
-          this.createSnackbar({
-            text: notification,
-            autoDismiss: true,
-          });
-          // TODO undo - allow custom snackbar
           // QUESTION how to track if undo was clicked?
           this.updateCurrentLesson(this.lessonId);
         });
-      },
+      }, saveDebounceTime),
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
       },
@@ -288,7 +320,12 @@
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.autoSave(this.$tr('resourceReorderConfirmationMessage'));
+        this.autoSave();
+
+        this.createSnackbar({
+          text: this.$tr('resourceReorderConfirmationMessage'),
+          autoDismiss: true,
+        });
       },
       shiftMany(oldIndex, newIndex) {
         // to be used w/ drag and drop if we do this
@@ -318,6 +355,7 @@
       },
       actions: {
         createSnackbar,
+        clearSnackbar,
         saveLessonResources,
         updateCurrentLesson,
         removeFromWorkingResources(store, resourceId) {
@@ -354,9 +392,11 @@
       resourceRemovalColumnHeaderForTable: 'Removal button',
       resourceRemovalButtonLabel: 'Remove',
       resourceReorderConfirmationMessage: 'New lesson order saved',
-      resourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
+      singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
+      multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
       moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
+      undoActionPrompt: 'Undo',
     },
   };
 
