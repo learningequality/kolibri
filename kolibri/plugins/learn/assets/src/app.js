@@ -11,7 +11,7 @@ import {
 } from './state/actions/recommended';
 import { initialState, mutations } from './state/store';
 import { PageNames, ClassesPageNames } from './constants';
-import { showAllClassesPage } from './state/actions/classesActions';
+import { showAllClassesPage, showClassAssignmentsPage } from './state/actions/classesActions';
 import store from 'kolibri.coreVue.vuex.store';
 
 const routes = [
@@ -108,6 +108,14 @@ const routes = [
     path: '/classes',
     handler: () => {
       return showAllClassesPage(store);
+    },
+  },
+  {
+    name: ClassesPageNames.CLASS_ASSIGNMENTS,
+    path: '/classes/:classId',
+    handler: toRoute => {
+      const { classId } = toRoute.params;
+      return showClassAssignmentsPage(store, classId);
     },
   },
   {

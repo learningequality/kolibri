@@ -3,6 +3,7 @@ from kolibri.auth.models import Classroom
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ExamLog
+from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
@@ -48,6 +49,7 @@ class LessonProgressSerializer(ModelSerializer):
     by the requesting User
     """
     progress = SerializerMethodField()
+    resources = JSONField(default='[]')
 
     class Meta:
         model = Lesson

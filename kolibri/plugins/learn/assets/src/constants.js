@@ -34,4 +34,5 @@ export const RecommendedPages = [
 
 export const ClassesPageNames = {
   ALL_CLASSES: 'ALL_CLASSES',
+  CLASS_ASSIGNMENTS: 'CLASS_ASSIGNMENTS',
 };
