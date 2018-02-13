@@ -14,6 +14,10 @@ from kolibri.content.utils.annotation import update_channel_metadata
 logger = logging.getLogger(__name__)
 
 
+if os.environ['KOLIBRI_LISTEN_PORT']:
+    RunserverCommand.default_port = int(os.environ['KOLIBRI_LISTEN_PORT'])
+
+
 class Command(RunserverCommand):
     """
     Subclass the RunserverCommand from Staticfiles to optionally run webpack.
