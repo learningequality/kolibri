@@ -139,8 +139,9 @@
               {{ resourceTitle(resourceId) }}
             </td>
             <td>
-              <!-- stubbed. Need progress endpoint that scopes by user -->
+              <!-- TODO stubbed. Need progress endpoint that scopes by user -->
               <progress-bar
+                v-if="false"
                 class="resource-progress-bar"
                 :progress="resourceProgress(resourceId)"
                 :showPercentage="false"
@@ -296,8 +297,6 @@
       commitRemovals,
       cancelCommitRemovals: commitRemovals.cancel,
       autoSave: debounce(function() {
-        // IDEA check for changes? might be handled by resources layer
-
         const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
@@ -485,4 +484,5 @@
   .resource-reorder-move
     transition: transform 0.5s
     background-color: $core-bg-canvas // duping color set in core-table for selected
+
 </style>
