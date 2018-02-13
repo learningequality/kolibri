@@ -68,7 +68,6 @@ class IdFilter(FilterSet):
 class ContentNodeFilter(IdFilter):
     search = CharFilter(method='title_description_filter')
     recommendations_for = CharFilter(method="filter_recommendations_for")
-    in_lesson = CharFilter(method="filter_in_lesson")
     next_steps = CharFilter(method="filter_next_steps")
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
@@ -203,12 +202,6 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
-
-    def filter_in_lesson(self, queryset, name, value):
-        """
-        Get the (non-topic) ContentNodes that have been included in a Lesson.
-        """
-        pass
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
