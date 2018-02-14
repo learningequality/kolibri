@@ -91,12 +91,14 @@ class LearnerClassroomSerializer(ModelSerializer):
         # TODO move this to a permission_class on Lesson
         filtered_lessons = Lesson.objects.filter(
             assigned_groups__collection__in=learner_groups,
-            is_active=True
+            collection=instance,
+            is_active=True,
         )
 
         filtered_exams = Exam.objects.filter(
             assignments__collection__in=learner_groups,
-            active=True
+            collection=instance,
+            active=True,
         )
 
         return {
@@ -104,6 +106,6 @@ class LearnerClassroomSerializer(ModelSerializer):
             'exams': ExamProgressSerializer(
                 filtered_exams,
                 many=True,
-                context={'user': current_user}
+                context={'user': current_user},
             ).data,
         }
