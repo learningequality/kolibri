@@ -46,7 +46,7 @@
       },
       progress: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0,
         validator(value) {
           return value >= 0.0 && value <= 1.0;

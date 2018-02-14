@@ -31,7 +31,7 @@
       <content-icon :kind="kind" class="content-icon" />
     </div>
 
-    <div class="progress-bar-wrapper">
+    <div v-if="progress !== undefined" class="progress-bar-wrapper">
       <div
         class="progress-bar"
         :style="{ width: `${progress * 100}%` }"
@@ -71,7 +71,7 @@
       },
       progress: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0,
         validator(value) {
           return value >= 0.0 && value <= 1.0;
@@ -106,20 +106,14 @@
         return `${topLeft} ${topRight} ${bottomLeft}`;
       },
       contentIconBgColor() {
-        if (this.kind === 'exercise') {
-          return { fill: '#0eafaf' };
-        } else if (this.kind === 'video') {
-          return { fill: '#3938A5' };
-        } else if (this.kind === 'audio') {
-          return { fill: '#E65997' };
-        } else if (this.kind === 'document') {
-          return { fill: '#ED2828' };
-        } else if (this.kind === 'topic') {
-          return { fill: '#262626' };
-        } else if (this.kind === 'html5') {
-          return { fill: '#FF8B41' };
-        }
-        return {};
+        const kindToFillHex = {
+          exercise: '#0eafaf',
+          video: '#3938A5',
+          audio: '#E65997',
+          topic: '#262626',
+          html5: '#FF8B41',
+        };
+        return { fill: kindToFillHex[this.kind] };
       },
     },
   };
