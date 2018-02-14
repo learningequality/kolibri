@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    Class Assignments
+    <h1 class="classroom-name">
+      {{ currentClassroom.name }}
+    </h1>
+    <assigned-exams-table class="exams-table" :exams="exams" />
     <pre>
       {{ JSON.stringify(currentClassroom, null, 2) }}
     </pre>
@@ -12,13 +15,18 @@
 
 <script>
 
+  import AssignedExamsTable from './AssignedExamsTable';
+
   export default {
-    components: {},
+    components: {
+      AssignedExamsTable,
+    },
     computed: {},
     methods: {},
     vuex: {
       getters: {
         currentClassroom: state => state.pageState.currentClassroom,
+        exams: state => state.pageState.currentClassroom.assignments.exams,
       },
       actions: {},
     },
@@ -28,4 +36,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .classroom-name
+    margin-bottom: 32px
+
+  .exams-table
+    margin-bottom: 120px
+
+</style>
