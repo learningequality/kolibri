@@ -62,6 +62,12 @@
         name="person"
         :class="[colorClass]"
       />
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.CLASSROOM)"
+        category="communication"
+        name="business"
+        :class="[colorClass]"
+      />
     </ui-icon>
     <ui-tooltip trigger="type-icon" position="top middle">{{ tooltipText }}</ui-tooltip>
   </span>

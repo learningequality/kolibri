@@ -21,6 +21,8 @@ const ContentNodeKinds = {
   CHANNEL: 'channel', // e.g. a root topic
   EXAM: 'exam',
   LESSON: 'lesson',
+  COMPLETED_LESSON: 'COMPLETED_LESSON', // needs to be distinguished from incomplete Lesson
+  CLASSROOM: 'CLASSROOM',
 };
 
 // used internally on the client as a hack to allow content-icons to display users

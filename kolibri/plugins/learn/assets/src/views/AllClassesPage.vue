@@ -4,15 +4,16 @@
     <h1>{{ $tr('allClassesHeader') }}</h1>
 
     <div class="classrooms">
-      <router-link
+      <content-card
+        class="content-card"
         v-for="c in classrooms"
         :key="c.id"
-        :to="assignmentsLink(c)"
-      >
-        <p>
-          {{ c.name }}
-        </p>
-      </router-link>
+        :link="assignmentsLink(c)"
+        :showContentIcon="false"
+        :title="c.name"
+        :kind="CLASSROOM"
+        :isMobile="isMobile"
+      />
     </div>
   </div>
 
@@ -21,7 +22,10 @@
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ClassesPageNames } from '../constants';
+  import ContentCard from './content-card';
 
   function assignmentsLink({ id }) {
     return {
@@ -31,8 +35,18 @@
   }
 
   export default {
-    components: {},
-    computed: {},
+    components: {
+      ContentCard,
+    },
+    mixins: [responsiveWindow],
+    computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 1;
+      },
+      CLASSROOM() {
+        return ContentNodeKinds.CLASSROOM;
+      },
+    },
     methods: {
       assignmentsLink,
     },
@@ -49,4 +63,10 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .content-card
+    margin-right: 16px
+    margin-bottom: 16px
+
+</style>

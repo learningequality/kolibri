@@ -4,10 +4,7 @@
 
     <card-thumbnail
       class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :progress="progress"
-      :isMobile="isMobile"
+      v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
 
     <h3 class="text" dir="auto">{{ title }}</h3>
@@ -43,6 +40,10 @@
         validator(value) {
           return values(ContentNodeKinds).includes(value);
         },
+      },
+      showContentIcon: {
+        type: Boolean,
+        default: true,
       },
       progress: {
         type: Number,
