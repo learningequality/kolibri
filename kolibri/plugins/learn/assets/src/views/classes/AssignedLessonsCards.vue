@@ -1,9 +1,14 @@
 <template>
 
   <div>
-    <h2>
-      {{ $tr('lessonsHeader') }}
-    </h2>
+    <div class="header">
+      <h2>
+        {{ $tr('lessonsHeader') }}
+      </h2>
+      <p v-if="lessons.length===0">
+        {{ $tr('noLessonsMessage') }}
+      </p>
+    </div>
     <content-card
       class="content-card"
       v-for="lesson in lessons"
@@ -54,6 +59,7 @@
     },
     $trs: {
       lessonsHeader: 'Lessons',
+      noLessonsMessage: 'You have no lessons assigned',
     },
   };
 
