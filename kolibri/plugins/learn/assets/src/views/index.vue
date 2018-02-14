@@ -67,7 +67,7 @@
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import examPage from './exam-page';
   import totalPoints from './total-points';
-  import AllClassesPage from './AllClassesPage';
+  import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import actionBarSearchBox from './action-bar-search-box';
 

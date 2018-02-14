@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('allClassesHeader') }}</h1>
+    <h2>{{ $tr('allClassesHeader') }}</h2>
 
     <div class="classrooms">
       <content-card
@@ -24,8 +24,8 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ClassesPageNames } from '../constants';
-  import ContentCard from './content-card';
+  import { ClassesPageNames } from '../../constants';
+  import ContentCard from '../content-card';
 
   function assignmentsLink({ id }) {
     return {
@@ -35,6 +35,7 @@
   }
 
   export default {
+    name: 'allClassesPage',
     components: {
       ContentCard,
     },
