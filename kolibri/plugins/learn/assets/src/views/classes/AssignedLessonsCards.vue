@@ -16,7 +16,7 @@
       :link="{}"
       :showContentIcon="false"
       :title="lesson.name"
-      :kind="lessonIsCompleted(lesson) ? COMPLETED_LESSON : LESSON"
+      :kind="LESSON"
       :isMobile="isMobile"
       :progress="getLessonProgress(lesson)"
     />
@@ -46,15 +46,12 @@
       },
     },
     computed: {
-      COMPLETED_LESSON: () => ContentNodeKinds.COMPLETED_LESSON,
       LESSON: () => ContentNodeKinds.LESSON,
     },
     methods: {
-      lessonIsCompleted(lesson) {
-        return false;
-      },
       getLessonProgress(lesson) {
-        return 1.0;
+        const { resources_completed, total_resources } = lesson.progress;
+        return resources_completed / total_resources;
       },
     },
     $trs: {

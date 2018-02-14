@@ -6,13 +6,10 @@
     </h1>
     <assigned-exams-table class="exams-table" :exams="exams" />
 
-    <assigned-lessons-cards
-      :lessons="lessons"
-      :isMobile="isMobile"
-    />
-    <pre>
+    <assigned-lessons-cards :lessons="lessons" :isMobile="isMobile" />
+    <!-- <pre>
       {{ JSON.stringify(currentClassroom, null, 2) }}
-    </pre>
+    </pre> -->
   </div>
 
 </template>

@@ -1,7 +1,9 @@
 from django.db.models import Sum
 from kolibri.auth.models import Classroom
+from kolibri.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
+from kolibri.logger.models import ContentSummaryLog
 from kolibri.logger.models import ExamLog
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
@@ -63,8 +65,20 @@ class LessonProgressSerializer(ModelSerializer):
         )
 
     def get_progress(self, instance):
+        contentnode_ids = [resource['contentnode_id'] for resource in instance.resources]
+        # Get all ContentNode models
+        contentnodes = ContentNode.objects.filter(id__in=contentnode_ids).values('content_id')
+        content_ids = [cnode['content_id'] for cnode in contentnodes]
+
+        num_completed_logs = ContentSummaryLog.objects \
+            .exclude(completion_timestamp__isnull=True) \
+            .filter(
+                user=self.context['user'],
+                content_id__in=content_ids
+            ) \
+            .count()
         return {
-            'resources_completed': None,
+            'resources_completed': num_completed_logs,
             'total_resources': len(instance.resources),
         }
 
@@ -102,7 +116,11 @@ class LearnerClassroomSerializer(ModelSerializer):
         )
 
         return {
-            'lessons': LessonProgressSerializer(filtered_lessons, many=True).data,
+            'lessons': LessonProgressSerializer(
+                filtered_lessons,
+                many=True,
+                context={'user': current_user},
+            ).data,
             'exams': ExamProgressSerializer(
                 filtered_exams,
                 many=True,
