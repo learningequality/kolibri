@@ -2,13 +2,9 @@
 
   <div>
     <label
-      :class="[
-        'language-list-selected',
-        'language-list-items',
-        (isMobile ? 'mobile' : '')
-      ]"
+      :class="[ 'selected', 'items', isMobile ? 'mobile' : '']"
     >
-      <div class="language-list-selected-label">
+      <div class="selected-label">
         {{ $tr('selectedLanguageLabel') }}
       </div>
       <div>
@@ -18,7 +14,7 @@
 
     <k-button
       v-for="language in buttonLanguages"
-      class="language-list-button-option language-list-items"
+      class="button-option items"
       @click="switchLanguage(language.id)"
       :key="language.id"
       :raised="false"
@@ -33,7 +29,7 @@
       :inline="true"
       v-model="moreLanguagesSelection"
       @change="switchLanguage($event.value)"
-      class="language-list-dropdown"
+      class="dropdown"
     />
   </div>
 
@@ -115,32 +111,32 @@
     text-transform: uppercase
     max-width: 100%
 
-  .language-list
-    &-items
-      margin: 0
-      display: inline-block
-      margin-right: 16px
-      margin-bottom: 8px
-
-    &-selected
-      display: inline-block
-      font-weight: bold
-      &.mobile
-        display: block
-
-      &-label
-        display: block
-        font-weight: normal
-        font-size: 10px
-        margin-bottom: 8px
-
-    &-button-option
-      color: $core-action-dark
-
-  .language-list-dropdown
+  .items
+    margin: 0
+    display: inline-block
+    margin-right: 16px
     margin-bottom: 8px
 
-  .language-list-dropdown.k-select-inline
+  .selected
+    display: inline-block
+    font-weight: bold
+
+    &.mobile
+      display: block
+
+  .selected-label
+      display: block
+      font-weight: normal
+      font-size: 10px
+      margin-bottom: 8px
+
+  .button-option
+      color: $core-action-dark
+
+  .dropdown
+    margin-bottom: 8px
+
+  .dropdown.k-select-inline
       width: auto
 
   >>>.ui-select__label-text.is-inline

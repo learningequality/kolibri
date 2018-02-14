@@ -4,9 +4,9 @@
 
     <div :style="contentControlsContainerStyles">
 
-      <div class="content-carousel-previous-control" @click="previousSet">
+      <div class="previous-control" @click="previousSet">
         <ui-icon-button
-          class="content-carousel-previous-control-button"
+          class="control-button"
           :style="buttonTransforms"
           v-show="!isFirstSet"
           :disabled="isFirstSet"
@@ -25,7 +25,7 @@
       >
 
         <content-card
-          class="content-carousel-card"
+          class="card"
           v-for="(content, index) in contents"
           v-if="isInThisSet(index)"
           :style="positionCalc(index)"
@@ -38,9 +38,9 @@
         />
       </transition-group>
 
-      <div class="content-carousel-next-control" @click="nextSet">
+      <div class="next-control" @click="nextSet">
         <ui-icon-button
-          class="content-carousel-next-control-button"
+          class="control-button"
           :style="buttonTransforms"
           v-show="!isLastSet"
           :disabled="isLastSet"
@@ -261,43 +261,38 @@
     clearfix()
     position: relative
 
-    &-control-container
-      overflow: visible
-      position: relative
+  .card
+    left: 0
+    transition: left 0.4s linear
+    position: absolute
 
-    &-card
-      left: 0
-      transition: left 0.4s linear
-      position: absolute
+  .next-control, .previous-control
+    // styles that apply to both control buttons
+    &:active
+      z-index: 8 // material
 
-    &-next-control, &-previous-control
+    z-index: 2 // material
+    position: absolute
+    top: ($card-height / 2)
+    transform: translateY(-($control-hit-height / 2))
+    height: $control-hit-height
+    width: $control-hit-width
+    text-align: center
+    vertical-align: middle
 
-      // styles that apply to both control buttons
-      &:active
-        z-index: 8 // material
+  // position-specific styles for each control button
+  .next-control
+    right: -($control-hit-width/2)
+  .previous-control
+    left: -($control-hit-width/2)
 
-      z-index: 2 // material
-      position: absolute
-      top: ($card-height / 2)
-      transform: translateY(-($control-hit-height / 2))
-      height: $control-hit-height
-      width: $control-hit-width
-      text-align: center
-      vertical-align: middle
-
-      &-button
-        &:active
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
-        // center align within hitbox
-        position: absolute
-        top: 50%
-        left: 50%
-
-    // position-specific styles for each control button
-    &-next-control
-      right: -($control-hit-width/2)
-    &-previous-control
-      left: -($control-hit-width/2)
+  .control-button
+    &:active
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+    // center align within hitbox
+    position: absolute
+    top: 50%
+    left: 50%
 
 </style>

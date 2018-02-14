@@ -4,12 +4,12 @@
     ref="docViewer"
     class="doc-viewer"
     :style="minViewerHeight"
-    :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }"
+    :class="{ 'mimic-fullscreen': mimicFullscreen }"
     allowfullscreen
   >
 
     <k-button
-      class="btn doc-viewer-controls button-fullscreen"
+      class="btn controls fullscreen-btn"
       aria-controls="pdf-container"
       :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       :primary="true"
@@ -17,7 +17,7 @@
     />
 
     <ui-icon-button
-      class="doc-viewer-controls button-zoom-in"
+      class="controls zoom-btn zoom-in-btn"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="add"
@@ -25,7 +25,7 @@
       @click="zoomIn"
     />
     <ui-icon-button
-      class="doc-viewer-controls button-zoom-out"
+      class="controls zoom-btn zoom-out-btn"
       :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
@@ -347,20 +347,17 @@
       min-height: inherit
       max-height: inherit
 
-    &-mimic-fullscreen
-      position: fixed
-      top: 0
-      right: 0
-      bottom: 0
-      left: 0
-      z-index: 24
-      max-width: 100%
-      max-height: 100%
-      width: 100%
-      height: 100%
-
-    &-controls
-      position: absolute
+  .mimic-fullscreen
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 24
+    max-width: 100%
+    max-height: 100%
+    width: 100%
+    height: 100%
 
   #pdf-container
     height: 100%
@@ -371,29 +368,29 @@
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding
 
-  .doc-viewer-controls
+  .controls
+    position: absolute
     z-index: 6 // material spec - snackbar and FAB
 
-  .button
-    &-fullscreen
-      transform: translateX(-50%)
-      left: 50%
-      top: $page-padding
+  .fullscreen-btn
+    transform: translateX(-50%)
+    left: 50%
+    top: $page-padding
 
-    &-zoom
-      &-in, &-out
-        right: ($keen-button-height / 2)
-      &-in
-        bottom: $keen-button-height * 2.5
-      &-out
-        bottom: $keen-button-height
+  .zoom-btn
+    right: ($keen-button-height / 2)
 
-      // Align to top when there's a chance bottom-aligned controls are below the fold
-      &-in.short-display
-        top: $keen-button-height
-      &-out.short-display
-        top: $keen-button-height * 2.5
+  .zoom-in-button
+    bottom: $keen-button-height * 2.5
+    .short-display
+      // Align to top
+      top: $keen-button-height
 
+  .zoom-out-button
+    bottom: $keen-button-height
+    .short-display
+      // Align to top
+      top: $keen-button-height * 2.5
 
   .progress-bar
     top: 50%

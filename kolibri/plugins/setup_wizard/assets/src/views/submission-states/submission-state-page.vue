@@ -1,13 +1,13 @@
 <template>
 
   <div class="submission-state-page">
-    <loading-spinner :delay="0" class="submission-state-page-spinner" />
+    <loading-spinner :delay="0" class="spinner" />
 
-    <h1 class="submission-state-page-header">
+    <h1 class="header">
       {{ header }}
     </h1>
 
-    <div class="submission-state-page-body">
+    <div class="body">
       <slot></slot>
     </div>
 
@@ -41,18 +41,18 @@
   .submission-state-page
     text-align: center
 
-    &-header
-      font-size: 21px
-      color: $core-accent-color
-      margin-top: 0
-      margin-bottom: 24px
+  .header
+    font-size: 21px
+    color: $core-accent-color
+    margin-top: 0
+    margin-bottom: 24px
 
-    &-body
-      font-size: 14px
+  .body
+    font-size: 14px
 
-    &-spinner
-      height: 125px // setting to the height of the spinner gif to make the wrapper hug it
-      margin-bottom: 40px
-      display: inline-block
+  .spinner
+    height: 125px // setting to the height of the spinner gif to make the wrapper hug it
+    margin-bottom: 40px
+    display: inline-block
 
 </style>

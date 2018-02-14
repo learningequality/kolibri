@@ -12,48 +12,48 @@
       v-if="permissionPresetDetailsModalShown"
     >
 
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
+      <dl class="modal-item">
+        <dt class="modal-item-title">
           {{ $tr('selfManagedSetupTitle') }}
         </dt>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('enabledUserSelfSignupPermissionDetail') }}
         </dd>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
 
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
+      <dl class="modal-item">
+        <dt class="modal-item-title">
           {{ $tr('adminManagedSetupTitle') }}
         </dt>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('disabledUserSelfSignupPermissionDetail') }}
         </dd>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('enabledUserPasswordlessLoginPermissionDetail') }}
         </dd>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('disabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
 
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
+      <dl class="modal-item">
+        <dt class="modal-item-title">
           {{ $tr('informalSetupTitle') }}
         </dt>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('disabledUserSelfSignupPermissionDetail') }}
         </dd>
-        <dd class="permission-preset-human-detail">
+        <dd class="modal-item-detail">
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
 
       <div class="core-modal-buttons">
         <k-button
-          class="permission-preset-modal-dismiss-button"
+          class="dismiss-button"
           :text="$tr('permissionsModalDismissText')"
           :primary="true"
           @click="hideFacilityPermissionsDetails"
@@ -80,36 +80,36 @@
 
       <label class="permission-preset">
         <k-radio-button
-          class="permission-preset-radio-button"
+          class="radio-button"
           v-model="selectedPreset"
           radiovalue="nonformal"
           :label="$tr('selfManagedSetupTitle')"
         />
-        <span class="permission-preset-description">
+        <span class="description">
           {{ $tr('selfManagedSetupDescription') }}
         </span>
       </label>
 
       <label class="permission-preset">
         <k-radio-button
-          class="permission-preset-radio-button"
+          class="radio-button"
           v-model="selectedPreset"
           radiovalue="formal"
           :label="$tr('adminManagedSetupTitle')"
         />
-        <span class="permission-preset-description">
+        <span class="description">
           {{ $tr('adminManagedSetupDescription') }}
         </span>
       </label>
 
       <label class="permission-preset">
         <k-radio-button
-          class="permission-preset-radio-button"
+          class="radio-button"
           v-model="selectedPreset"
           radiovalue="informal"
           :label="$tr('informalSetupTitle')"
         />
-        <span class="permission-preset-description">
+        <span class="description">
           {{ $tr('informalSetupDescription') }}
         </span>
       </label>
@@ -211,29 +211,31 @@
   .permission-preset
     cursor: pointer
 
-    &-radio-button
-      margin: 0
-      margin-top: 16px
-      font-size: 14px
-      font-weight: bold
+  .radio-button
+    margin: 0
+    margin-top: 16px
+    font-size: 14px
+    font-weight: bold
 
-    &-description
-      color: $core-text-annotation
-      font-size: 12px
-      display: inline-block
-      margin-left: $margin-of-radio-button-text
+  .description
+    color: $core-text-annotation
+    font-size: 12px
+    display: inline-block
+    margin-left: $margin-of-radio-button-text
 
-    &-modal
-      &-dismiss-button
-        text-transform: uppercase
+  /* Styles related to the modal pop-up */
+  .modal-dismiss-button
+    text-transform: uppercase
 
-  .permission-preset-human
+  .modal-item
     margin-bottom: 8px
-    &-title
-      font-weight: bold
-    &-detail
-      line-height: 1.4em
-      display: list-item
-      margin-left: 20px
+
+  .modal-item-title
+    font-weight: bold
+
+  .modal-item-detail
+    line-height: 1.4em
+    display: list-item
+    margin-left: 20px
 
 </style>

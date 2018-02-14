@@ -4,12 +4,12 @@
 
     <error-page
       v-if="error"
-      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+      :class="['body', (isMobile ? 'mobile' : '')]"
     />
 
     <loading-page
       v-else-if="loading"
-      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+      :class="['body', (isMobile ? 'mobile' : '')]"
     />
 
     <template v-else>
@@ -24,7 +24,7 @@
         :submitText="submitText"
         :isMobile="isMobile"
         @submit="continueOnboarding"
-        :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+        :class="['body', (isMobile ? 'mobile' : '')]"
       />
     </template>
 
@@ -121,15 +121,17 @@
   .onboarding
     width: 100%
     clearfix() // child margin leaks up into otherwise empty parent
-    &-body
-      margin-top: 64px
-      margin-left: auto
-      margin-right: auto
-      width: 90%
-      max-width: 550px
-      &.mobile
-        margin: 48px
-        width: auto
-        margin-top: 40px
+
+  .body
+    margin-top: 64px
+    margin-left: auto
+    margin-right: auto
+    width: 90%
+    max-width: 550px
+
+    .mobile
+      margin: 48px
+      width: auto
+      margin-top: 40px
 
 </style>
