@@ -6,7 +6,12 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { getChannelObject, isUserLoggedIn, getChannels } from 'kolibri.coreVue.vuex.getters';
+import {
+  getChannelObject,
+  isUserLoggedIn,
+  getChannels,
+  currentUserId,
+} from 'kolibri.coreVue.vuex.getters';
 import {
   setChannelInfo,
   handleError,
@@ -400,72 +405,59 @@ function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-function showExam(store, id, questionNumber) {
+function showExam(store, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
-  if (!store.state.core.session.user_id) {
+  const userId = currentUserId(store.state);
+  const examParams = { user: userId, exam: examId };
+
+  if (!userId) {
     store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   } else {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
-    const examPromise = UserExamResource.getModel(id).fetch();
-    const examLogPromise = ExamLogResource.getCollection({
-      user: store.state.core.session.user_id,
-      exam: id,
-    }).fetch();
-    const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
-      user: store.state.core.session.user_id,
-      exam: id,
-    }).fetch();
-    ConditionalPromise.all([
-      examPromise,
-      examLogPromise,
-      examAttemptLogPromise,
+    const promises = [
+      UserExamResource.getModel(examId).fetch(),
+      ExamLogResource.getCollection(examParams).fetch(),
+      ExamAttemptLogResource.getCollection(examParams).fetch(),
       setAndCheckChannels(store),
-    ]).only(
+    ];
+    ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
         if (exam.closed) {
-          router.getInstance().replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
-          return;
+          return router.getInstance().replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
         }
 
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
-          router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-          return;
+          return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         }
 
+        // Local copy of exam attempt logs
         const attemptLogs = {};
 
-        if (store.state.core.session.user_id) {
+        if (userId) {
           if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
             store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
           } else {
-            const examLogModel = ExamLogResource.createModel({
-              user: store.state.core.session.user_id,
-              exam: id,
-              closed: false,
-            });
-            examLogModel.save().then(newExamLog => {
-              store.dispatch('SET_EXAM_LOG', newExamLog);
-              ExamLogResource.unCacheCollection({
-                user: store.state.core.session.user_id,
-                exam: id,
+            ExamLogResource.createModel({ ...examParams, closed: false })
+              .save()
+              .then(newExamLog => {
+                store.dispatch('SET_EXAM_LOG', newExamLog);
+                return ExamLogResource.unCacheCollection(examParams);
               });
-            });
           }
           // Sort through all the exam attempt logs retrieved and organize them into objects
           // keyed first by content_id and then item id under that.
-          if (examAttemptLogs.length > 0) {
-            examAttemptLogs.forEach(log => {
-              if (!attemptLogs[log.content_id]) {
-                attemptLogs[log.content_id] = {};
-              }
-              attemptLogs[log.content_id][log.item] = Object.assign({}, log);
-            });
-          }
+          examAttemptLogs.forEach(log => {
+            const { content_id, item } = log;
+            if (!attemptLogs[content_id]) {
+              attemptLogs[content_id] = {};
+            }
+            attemptLogs[content_id][item] = { ...log };
+          });
         }
 
         const seed = exam.seed;
@@ -513,11 +505,8 @@ function showExam(store, id, questionNumber) {
                 handleError(store, `This exam has no valid questions`);
               } else {
                 const itemId = questions[questionNumber].itemId;
-
                 const channelId = exam.channel_id;
-
                 const currentQuestion = questions[questionNumber];
-
                 const questionsAnswered = Math.max(
                   store.state.pageState.questionsAnswered || 0,
                   calcQuestionsAnswered(attemptLogs)
