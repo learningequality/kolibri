@@ -61,6 +61,7 @@ function getAllLessonContentNodes(lessonResources) {
     lessonResources.map(resource => ContentNodeResource.getModel(resource.contentnode_id).fetch())
   );
 }
+
 // For a given Lesson, shows a "playlist" of all the resources in the Lesson
 export function showLessonPlaylist(store, { lessonId }) {
   preparePage(store, {

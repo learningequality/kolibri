@@ -391,35 +391,6 @@ function showSearch(store, searchTerm) {
   });
 }
 
-function showExamList(store) {
-  const userIsLoggedIn = isUserLoggedIn(store.state);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXAM_LIST);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  // if user is not logged in, this action is a noop
-  if (!userIsLoggedIn) {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    return Promise.resolve();
-  }
-
-  return UserExamResource.getCollection()
-    .fetch()
-    .only(
-      samePageCheckGenerator(store),
-      exams => {
-        const pageState = {};
-        pageState.exams = exams.map(_examState);
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch('CORE_SET_TITLE', translator.$tr('examsListPageTitle'));
-      },
-      error => {
-        handleApiError(store, error);
-      }
-    );
-}
-
 function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
   Object.keys(attemptLogs).forEach(key => {
@@ -691,7 +662,6 @@ export {
   clearSearch,
   showSearch,
   showExam,
-  showExamList,
   setAndSaveCurrentExamAttemptLog,
   closeExam,
   prepareLearnApp,
