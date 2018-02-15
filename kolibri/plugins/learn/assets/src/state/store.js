@@ -49,4 +49,7 @@ export const mutations = {
       topic.progress = progress.progress_fraction;
     });
   },
+  SET_LESSON_CONTENTNODES(state, contentNodes) {
+    state.pageState.contentNodes = [...contentNodes];
+  },
 };

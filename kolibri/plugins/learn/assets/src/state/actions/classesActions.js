@@ -1,10 +1,12 @@
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
+import { ContentNodeResource, LessonResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('classesPageTitles', {
   allClasses: 'All classes',
   classAssignments: 'Class assignments',
+  lessonContents: 'Lesson contents',
 });
 
 function preparePage(store, params) {
@@ -48,5 +50,31 @@ export function showClassAssignmentsPage(store, classId) {
     .catch(error => {
       // TODO Handle 404
       console.log(error); // eslint-disable-line
+    });
+}
+
+function getAllLessonContentNodes(lessonResources) {
+  return Promise.all(
+    lessonResources.map(resource => ContentNodeResource.getModel(resource.contentnode_id).fetch())
+  );
+}
+// For a given Lesson, shows a "playlist" of all the resources in the Lesson
+export function showLessonPlaylist(store, { lessonId }) {
+  preparePage(store, {
+    pageName: ClassesPageNames.LESSON_PLAYLIST,
+    title: translator.$tr('lessonContents'),
+  });
+  return LessonResource.getModel(lessonId)
+    .fetch({}, true)
+    ._promise.then(lesson => {
+      store.dispatch('SET_PAGE_STATE', {
+        currentLesson: { ...lesson },
+        contentNodes: [],
+      });
+      return getAllLessonContentNodes(lesson.resources);
+    })
+    .then(contentNodes => {
+      store.dispatch('SET_LESSON_CONTENTNODES', contentNodes);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }

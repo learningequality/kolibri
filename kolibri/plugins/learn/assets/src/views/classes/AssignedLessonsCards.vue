@@ -13,7 +13,7 @@
       class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"
-      :link="{}"
+      :link="lessonPlaylistLink(lesson)"
       :showContentIcon="false"
       :title="lesson.name"
       :kind="LESSON"
@@ -29,6 +29,16 @@
 
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ClassesPageNames } from '../../constants';
+
+  function lessonPlaylistLink(lesson) {
+    return {
+      name: ClassesPageNames.LESSON_PLAYLIST,
+      params: {
+        lessonId: lesson.id,
+      },
+    };
+  }
 
   export default {
     name: 'assignedLessonsCards',
@@ -53,6 +63,7 @@
         const { resources_completed, total_resources } = lesson.progress;
         return resources_completed / total_resources;
       },
+      lessonPlaylistLink,
     },
     $trs: {
       lessonsHeader: 'Lessons',

@@ -10,8 +10,8 @@ import {
   showLearnContent,
 } from './state/actions/recommended';
 import { initialState, mutations } from './state/store';
-import { PageNames, ClassesPageNames } from './constants';
-import { showAllClassesPage, showClassAssignmentsPage } from './state/actions/classesActions';
+import { PageNames } from './constants';
+import classesRoutes from './classesRoutes';
 import store from 'kolibri.coreVue.vuex.store';
 
 const routes = [
@@ -104,21 +104,6 @@ const routes = [
     },
   },
   {
-    name: ClassesPageNames.ALL_CLASSES,
-    path: '/classes',
-    handler: () => {
-      return showAllClassesPage(store);
-    },
-  },
-  {
-    name: ClassesPageNames.CLASS_ASSIGNMENTS,
-    path: '/classes/:classId',
-    handler: toRoute => {
-      const { classId } = toRoute.params;
-      return showClassAssignmentsPage(store, classId);
-    },
-  },
-  {
     name: PageNames.EXAM,
     path: '/exams/:id/:questionNumber',
     handler: toRoute => {
@@ -131,6 +116,7 @@ const routes = [
     path: '/:channel_id/exams/:id',
     redirect: '/:channel_id/exams/:id/0',
   },
+  ...classesRoutes,
   {
     path: '*',
     redirect: '/',
