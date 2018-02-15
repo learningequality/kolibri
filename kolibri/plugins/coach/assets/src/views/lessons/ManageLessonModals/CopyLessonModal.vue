@@ -176,16 +176,16 @@
       },
     },
     $trs: {
-      copyLessonTitle: 'Copy to class',
-      copyLessonExplanation: 'Send a copy of this lesson to another class',
+      copyLessonTitle: 'Copy lesson',
+      copyLessonExplanation: 'Make a copy of this lesson in which class?',
       currentClass: '(current class)',
       continue: 'Continue',
       cancel: 'Cancel',
-      makeCopy: 'Make copy',
-      destinationClassroomExplanation: 'This lesson will be copied to {classroomName}',
+      makeCopy: 'Copy',
+      destinationClassroomExplanation: `This lesson will be copied to '{classroomName}'`,
       lessonVisibilityQuestion: 'Who should this lesson be visible to in this class?',
       copyOfLesson: 'Copy of {lessonName}',
-      copiedLessonTo: 'Copied lesson to { classroomName }',
+      copiedLessonTo: `Copied lesson to '{classroomName}'`,
     },
   };
 

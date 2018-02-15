@@ -213,7 +213,7 @@
       changesToLessonSaved: 'Changes to lesson saved',
       continue: 'Continue',
       description: 'Description',
-      editingLessonDetails: 'Editing lesson details',
+      editingLessonDetails: 'Edit lesson details',
       newLesson: 'New lesson',
       newLessonCreated: 'New lesson created',
       required: 'This is required',

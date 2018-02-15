@@ -366,7 +366,7 @@
       // TODO make labels more semantic
       active: 'Active',
       changeLessonStatus: 'Change',
-      copyLesson: 'Copy to',
+      copyLesson: 'Copy lesson',
       deleteLesson: 'Delete',
       description: 'Description',
       editLessonDetails: 'Edit details',
