@@ -131,11 +131,13 @@ function showResourceSelectionPage(
   pageName,
   ancestors = []
 ) {
+  const pendingSelections = store.state.pageState.workingResources || [];
   const pageState = {
     currentLesson: {},
     contentList: [],
     ancestors: [],
-    workingResources: [],
+    // contains all selections, including those that haven't been committed to server
+    workingResources: pendingSelections,
   };
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', pageState);
@@ -143,21 +145,20 @@ function showResourceSelectionPage(
   const loadRequirements = [updateCurrentLesson(store, lessonId), setClassState(store, classId)];
   return Promise.all(loadRequirements).then(
     ([currentLesson]) => {
-      // contains all selections, including those that haven't been committed to server
-      const pendingSelections = store.state.pageState.workingResources || [];
+      // TODO make a state mapper
       // contains selections that were commited to server prior to opening this page
-      const preselectedResources = currentLesson.resources.map(
-        resourceObj => resourceObj.contentnode_id
-      );
-      const currentResources = () =>
-        pendingSelections.length ? pendingSelections : preselectedResources;
+      if (!pendingSelections.length) {
+        const preselectedResources = currentLesson.resources.map(
+          resourceObj => resourceObj.contentnode_id
+        );
+        store.dispatch('SET_WORKING_RESOURCES', preselectedResources);
+      }
 
       if (ancestors.length) {
         store.dispatch('SET_ANCESTORS', ancestors);
       }
 
       // carry pendingSelections over from other interactions in this modal
-      store.dispatch('SET_WORKING_RESOURCES', currentResources());
       store.dispatch('SET_CONTENT_LIST', contentList);
       store.dispatch('SET_PAGE_NAME', pageName);
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
