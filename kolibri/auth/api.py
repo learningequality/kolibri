@@ -86,10 +86,10 @@ class KolibriAuthPermissions(permissions.BasePermission):
             else:
                 data = [request.data]
 
-            model = view.serializer_class.Meta.model
+            model = view.get_serializer_class().Meta.model
 
             def validate(datum):
-                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(datum))
+                validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
                 return request.user.can_create(model, validated_data)
             return all(validate(datum) for datum in data)
 
