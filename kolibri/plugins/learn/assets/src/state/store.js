@@ -1,4 +1,5 @@
 import * as constants from '../constants';
+import * as classesMutations from './mutations/classesMutations';
 
 export const initialState = {
   pageName: constants.PageNames.TOPICS_CHANNEL,
@@ -15,6 +16,7 @@ export const initialState = {
 };
 
 export const mutations = {
+  ...classesMutations,
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
@@ -48,8 +50,5 @@ export const mutations = {
       const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
       topic.progress = progress.progress_fraction;
     });
-  },
-  SET_LESSON_CONTENTNODES(state, contentNodes) {
-    state.pageState.contentNodes = [...contentNodes];
   },
 };

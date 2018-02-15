@@ -51,6 +51,6 @@
     margin-bottom: 32px
 
   .exams-table
-    margin-bottom: 120px
+    margin-bottom: 96px
 
 </style>

@@ -10,9 +10,10 @@ const translator = createTranslator('classesPageTitles', {
 });
 
 function preparePage(store, params) {
-  const { pageName, title } = params;
+  const { pageName, title, initialState } = params;
   store.dispatch('SET_PAGE_NAME', pageName);
   store.dispatch('CORE_SET_TITLE', title);
+  store.dispatch('SET_PAGE_STATE', initialState);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 }
 
@@ -21,13 +22,14 @@ export function showAllClassesPage(store) {
   preparePage(store, {
     pageName: ClassesPageNames.ALL_CLASSES,
     title: translator.$tr('allClasses'),
+    initialState: {
+      classrooms: [],
+    },
   });
   return LearnerClassroomResource.getCollection({ no_assignments: true })
     .fetch()
     .then(classrooms => {
-      store.dispatch('SET_PAGE_STATE', {
-        classrooms: [...classrooms],
-      });
+      store.dispatch('SET_LEARNER_CLASSROOMS', classrooms);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
@@ -37,14 +39,15 @@ export function showClassAssignmentsPage(store, classId) {
   preparePage(store, {
     pageName: ClassesPageNames.CLASS_ASSIGNMENTS,
     title: translator.$tr('classAssignments'),
+    initialState: {
+      currentClassroom: {},
+    },
   });
   // Force fetch, so it doesn't re-use the assignments-less version in the cache
   return LearnerClassroomResource.getModel(classId)
     .fetch({}, true)
     ._promise.then(classroom => {
-      store.dispatch('SET_PAGE_STATE', {
-        currentClassroom: { ...classroom },
-      });
+      store.dispatch('SET_CURRENT_CLASSROOM', classroom);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
@@ -63,14 +66,15 @@ export function showLessonPlaylist(store, { lessonId }) {
   preparePage(store, {
     pageName: ClassesPageNames.LESSON_PLAYLIST,
     title: translator.$tr('lessonContents'),
+    initialState: {
+      currentLesson: {},
+      contentNodes: [],
+    },
   });
   return LessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
-      store.dispatch('SET_PAGE_STATE', {
-        currentLesson: { ...lesson },
-        contentNodes: [],
-      });
+      store.dispatch('SET_CURRENT_LESSON', lesson);
       return getAllLessonContentNodes(lesson.resources);
     })
     .then(contentNodes => {
