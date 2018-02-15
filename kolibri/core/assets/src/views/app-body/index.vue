@@ -7,6 +7,7 @@
       <slot></slot>
     </template>
 
+    <!-- used for offline notifications, potentially used in other places -->
     <global-snackbar />
   </div>
 

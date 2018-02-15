@@ -3,7 +3,7 @@
   <div>
     <!-- could avoid explicit v-on withe a dispatch in child -->
     <immersive-app-bar
-      :title="appBarTitle"
+      :appBarTitle="appBarTitle"
       :icon="icon"
       :height="headerHeight"
       @nav-icon-click="$emit('navIconClick')"

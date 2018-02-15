@@ -1,7 +1,8 @@
 <template>
 
   <div>
-    <div v-if="navBarNeeded">
+    <!-- temporary hack, resolves flicker when using other templates -->
+    <div v-if="!loading || navBarNeeded">
       <app-bar
         class="app-bar align-to-parent"
         :title="appBarTitle"
@@ -43,19 +44,13 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
-  import errorBox from './error-box';
   import appBody from './app-body';
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import globalSnackbar from './global-snackbar';
 
   export default {
     name: 'coreBasePage',
     components: {
       appBar,
       sideNav,
-      errorBox,
-      loadingSpinner,
-      globalSnackbar,
       appBody,
     },
     mixins: [responsiveWindow],
@@ -90,8 +85,6 @@
     vuex: {
       getters: {
         loading: state => state.core.loading,
-        error: state => state.core.error,
-        title: state => state.core.title,
       },
     },
     data: () => ({ navShown: false }),
