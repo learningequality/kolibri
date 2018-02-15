@@ -66,13 +66,13 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames } from '../../constants';
+  import { ClassesPageNames } from '../../constants';
 
   function generateExamLink(exam) {
     return {
-      name: PageNames.EXAM,
+      name: ClassesPageNames.EXAM_VIEWER,
       params: {
-        id: exam.id,
+        examId: exam.id,
         questionNumber: 0,
       },
     };

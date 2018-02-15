@@ -15,10 +15,9 @@ import {
 } from 'kolibri.coreVue.vuex.actions';
 import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames } from '../../constants';
+import { PageNames, ClassesPageNames } from '../../constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
-
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
@@ -402,11 +401,8 @@ function calcQuestionsAnswered(attemptLogs) {
 }
 
 function showExam(store, id, questionNumber) {
-  if (store.state.pageName !== PageNames.EXAM) {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
-    store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
-  }
-
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   if (!store.state.core.session.user_id) {
     store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
     store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -431,7 +427,7 @@ function showExam(store, id, questionNumber) {
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
         if (exam.closed) {
-          router.getInstance().replace({ name: PageNames.EXAM_LIST });
+          router.getInstance().replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
           return;
         }
 

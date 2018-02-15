@@ -83,7 +83,7 @@
     [PageNames.RECOMMENDED]: learnPage,
     [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
     [PageNames.SEARCH]: searchPage,
-    [PageNames.EXAM]: examPage,
+    [ClassesPageNames.EXAM_VIEWER]: examPage,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
     [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
     [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,

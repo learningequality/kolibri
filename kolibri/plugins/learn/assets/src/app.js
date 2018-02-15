@@ -103,19 +103,6 @@ const routes = [
       showLearnContent(store, toRoute.params.id);
     },
   },
-  {
-    name: PageNames.EXAM,
-    path: '/exams/:id/:questionNumber',
-    handler: toRoute => {
-      const { id, questionNumber } = toRoute.params;
-      actions.showExam(store, id, questionNumber);
-    },
-  },
-  {
-    name: PageNames.EXAM_ROOT,
-    path: '/:channel_id/exams/:id',
-    redirect: '/:channel_id/exams/:id/0',
-  },
   ...classesRoutes,
   {
     path: '*',

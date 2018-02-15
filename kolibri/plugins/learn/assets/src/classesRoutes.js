@@ -4,6 +4,7 @@ import {
   showClassAssignmentsPage,
   showLessonPlaylist,
 } from './state/actions/classesActions';
+import { showExam } from './state/actions/main';
 import store from 'kolibri.coreVue.vuex.store';
 
 export default [
@@ -28,6 +29,14 @@ export default [
     handler: toRoute => {
       const { classId, lessonId } = toRoute.params;
       return showLessonPlaylist(store, { classId, lessonId });
+    },
+  },
+  {
+    name: ClassesPageNames.EXAM_VIEWER,
+    path: '/classes/:classId/exam/:examId/:questionNumber',
+    handler: toRoute => {
+      const { examId, questionNumber } = toRoute.params;
+      showExam(store, examId, questionNumber);
     },
   },
 ];
