@@ -69,6 +69,7 @@
   import totalPoints from './total-points';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
+  import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import actionBarSearchBox from './action-bar-search-box';
 
   const BOTTOM_SPACED_RESERVED = 88;
@@ -85,6 +86,7 @@
     [PageNames.EXAM]: examPage,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
     [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
+    [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,
   };
 
   export default {

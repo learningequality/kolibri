@@ -39,7 +39,6 @@
         lessons: state => state.pageState.currentClassroom.assignments.lessons,
       },
     },
-    $trs: {},
   };
 
 </script>
