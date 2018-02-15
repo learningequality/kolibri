@@ -1,0 +1,23 @@
+project_identifier: kolibri
+api_key_env: CROWDIN_API_KEY
+
+base_path: ..
+
+preserve_hierachy: false
+
+files:
+  - source: '/kolibri/locale/en/LC_FRONTEND_MESSAGES/*.json'
+    translation: '/kolibri/locale/%locale_with_underscore%/LC_FRONTEND_MESSAGES/%original_file_name%'
+    languages_mapping:
+      locale_with_underscore:
+        ar: ar
+        es: es
+        hi: hi
+
+  - source: '/kolibri/locale/en/LC_MESSAGES/*.po'
+    translation: '/kolibri/locale/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'
+    languages_mapping:
+      locale_with_underscore:
+        ar: ar
+        es: es
+        hi: hi

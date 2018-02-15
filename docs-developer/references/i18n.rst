@@ -76,6 +76,55 @@ In this way, messages are namespaced, and then available off the ``$tr`` method 
 
 These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
 
+
+.. _crowdin:
+
+Translation CrowdIn workflow
+----------------------------
+
+Translations are maintained in release branches on CrowdIn in the following projects:
+  
+* `CrowdIn: kolibri <http://crowdin.com/project/kolibri>`__
+* `CrowdIn: kolibri-docs <http://crowdin.com/project/kolibri-docs>`__
+
+To build translated user documentation, please see the `kolibri-docs repository <https://github.com/learningequality/kolibri-docs/>`__.
+
+In order to pull the latest messages, invoke the following commands, fetching your API key using `these instructions <https://support.crowdin.com/api/api-integration-setup/>`__. Notice that you have to specify from which branch you are pulling the translations.
+
+.. code-block:: bash
+
+    $ CROWDIN_API_KEY="your-secret-key" make translation-crowdin-download branch=release-v0.7.x
+
+.. warning:: By default Crowdin will download all translations, not just approved ones, and will often download untranslated strings also. Do not just add all the files that are downloaded, as this will lead to untranslated and poor quality strings being included.
+
+
+Fetching and building translations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each 30 minutes, you can fetch updated translations from CrowdIn. After changing and approving translations on CrowdIn, you should download them and build them to see if they work before releasing them.
+
+UI (backend & frontend):
+
+.. code-block:: bash
+
+    $ CROWDIN_API_KEY="your-secret-key" make translation-crowdin-download branch=release-v0.7.x
+    $ make translation-django-compilemessages
+
+
+Translation workflow prerequisites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Translation relies on having `crowdin-cli <https://support.crowdin.com/cli-tool/>`__ available as a jar, and you need Java to run this. Make sure you have completed the following steps:
+
+.. code-block:: bash
+  
+    # Install crowdin-cli
+    $ make translation-crowdin-install
+
+.. note:: The Make shortcuts for working with translation are not set up for Windows. The configured paths etc. are different on a Windows system, so you have to both rewrite the `CrowdIn Configuration <https://support.crowdin.com/configuration-file/#cli-2>`__.
+
+
+
 .. _new_language:
 
 Adding a new language
@@ -94,4 +143,4 @@ The language must be described using the following keys, with everything in lowe
 
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
 
-If a language is added that is not part of the natively supported languages for Django, then a Django mo file must be compiled for that language using ``make compilemessages``, and the resulting mo file committed to the code base.
+If a language is added that is not part of the natively supported languages for Django, then a Django mo file must be compiled for that language using ``make translation-django-compilemessages``, and the resulting mo file committed to the code base.
