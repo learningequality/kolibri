@@ -4,7 +4,7 @@
     :title="appBarTitle"
     textColor="white"
     type="colored"
-    :icon="icon"
+    :navIcon="icon"
     :showIcon="showIcon"
     @nav-icon-click="$emit('navIconClick')"
     :style="{ height: height + 'px' }"
@@ -19,6 +19,7 @@
           class="icon"
         />
       </router-link>
+
     </div>
   </ui-toolbar>
 

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="navBarNeeded" :class="`gutter-${windowSize.gutterWidth}`">
+    <div v-if="navBarNeeded">
       <app-bar
         class="app-bar align-to-parent"
         :title="appBarTitle"
@@ -20,23 +20,17 @@
         :topLevelPageName="topLevelPageName"
         @toggleSideNav="navShown=!navShown"
       />
-      <div :style="contentStyle" class="content-container">
-        <loading-spinner v-if="loading" class="align-to-parent" />
-        <template v-else>
-          <error-box v-if="error" />
-          <slot></slot>
-        </template>
-      </div>
-    </div>
-    <div v-else>
-      <loading-spinner v-if="loading" class="align-to-parent" />
-      <template v-else>
-        <error-box v-if="error" />
-        <slot></slot>
-      </template>
     </div>
 
-    <global-snackbar />
+    <app-body
+      :topGap="headerHeight"
+      :bottomGap="bottomMargin"
+      :class="`gutter-${windowSize.gutterWidth}`"
+      :padding="mobile ? 16 : 32"
+    >
+      <slot></slot>
+    </app-body>
+
   </div>
 
 </template>
@@ -50,6 +44,7 @@
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
+  import appBody from './app-body';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import globalSnackbar from './global-snackbar';
 
@@ -61,6 +56,7 @@
       errorBox,
       loadingSpinner,
       globalSnackbar,
+      appBody,
     },
     mixins: [responsiveWindow],
     props: {
@@ -109,34 +105,6 @@
       navWidth() {
         return this.headerHeight * 4;
       },
-      contentStyle() {
-        const padding = (this.mobile ? 16 : 32) + 'px';
-        return {
-          top: `${this.headerHeight}px`,
-          [this.isRtl ? 'right' : 'left']: 0,
-          paddingTop: padding,
-          paddingLeft: padding,
-          paddingRight: padding,
-          marginBottom: this.bottomMargin + 'px',
-        };
-      },
-    },
-    watch: {
-      title: 'updateDocumentTitle',
-    },
-    created() {
-      this.updateDocumentTitle();
-    },
-    methods: {
-      updateDocumentTitle() {
-        document.title = this.title
-          ? this.$tr('kolibriTitleMessage', { title: this.title })
-          : this.$tr('kolibriMessage');
-      },
-    },
-    $trs: {
-      kolibriMessage: 'Kolibri',
-      kolibriTitleMessage: '{ title } - Kolibri',
     },
   };
 
