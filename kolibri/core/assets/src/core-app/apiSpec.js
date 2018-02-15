@@ -31,6 +31,7 @@ import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
 import permissionsIcon from '../views/permissions-icon';
 import coreBase from '../views/core-base';
+import coreImmersivePage from '../views/core-immersive-page';
 import coreModal from '../views/core-modal';
 import sideNav from '../views/side-nav';
 import kButton from '../views/buttons-and-links/k-button';
@@ -105,6 +106,7 @@ export default {
       progressIcon,
       permissionsIcon,
       coreBase,
+      coreImmersivePage,
       coreModal,
       sideNav,
       kButton,
