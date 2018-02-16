@@ -3,7 +3,10 @@
   <div>
     <section class="lesson-details">
       <div>
-        <h1 class="title">{{ currentLesson.name }}</h1>
+        <h1 class="title">
+          {{ currentLesson.name }}
+          <progress-icon v-if="lessonHasResources" :progress="lessonProgress" />
+        </h1>
       </div>
       <div v-if="currentLesson.description!==''">
         <h3>{{ $tr('teacherNote') }}</h3>
@@ -34,6 +37,8 @@
 
 <script>
 
+  import sumBy from 'lodash/sumBy';
+  import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentCard from '../content-card';
 
   // TODO Make this utility
@@ -57,6 +62,20 @@
   export default {
     components: {
       ContentCard,
+      ProgressIcon,
+    },
+    computed: {
+      // HACK: Infer the Learner's progress by summing the progress_fractions
+      // on all the ContentNodes
+      lessonHasResources() {
+        return this.contentNodes.length > 0;
+      },
+      lessonProgress() {
+        if (this.lessonHasResources) {
+          const total = sumBy(this.contentNodes, cn => cn.progress_fraction || 0);
+          return total / this.contentNodes.length;
+        }
+      },
     },
     methods: {
       getContentNodeThumbnail,
