@@ -90,7 +90,7 @@
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
-      Kolibri: 'Kolibri',
+      kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
       facility: 'Facility',
