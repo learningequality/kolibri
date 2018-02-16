@@ -40,8 +40,8 @@ django.setup()
 
 # Monkey patch this so we don't have any complaints during Sphinx inspect
 from django.db.models.fields import files  # noqa
-files.FileDescriptor.__get__ = lambda *args: None
 
+files.FileDescriptor.__get__ = lambda *args: None
 
 # Auto list fields from django models - from https://djangosnippets.org/snippets/2533/#c5977
 def process_docstring(app, what, name, obj, options, lines):
