@@ -3,6 +3,11 @@
   <div class="learn-breadcrumbs">
     <k-breadcrumbs v-if="inLearn" :items="learnBreadcrumbs" />
     <k-breadcrumbs v-else-if="inTopics" :items="topicsBreadcrumbs" />
+    <k-breadcrumbs
+      v-else-if="showClassesBreadcrumbs"
+      :items="classesBreadcrumbs"
+      :showAllCrumbs="true"
+    />
   </div>
 
 </template>
@@ -13,6 +18,7 @@
   import { PageNames, PageModes } from '../../constants';
   import { pageMode } from '../../state/getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import classesBreadcrumbItems from '../classes/classesBreadcrumbItems';
   export default {
     name: 'learnBreadcrumbs',
     $trs: {
@@ -20,6 +26,7 @@
       channels: 'Channels',
     },
     components: { kBreadcrumbs },
+    mixins: [classesBreadcrumbItems],
     computed: {
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
