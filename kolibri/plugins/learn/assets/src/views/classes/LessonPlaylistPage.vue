@@ -14,7 +14,7 @@
       </div>
     </section>
 
-    <section class="lesson-content-cards">
+    <section>
       <content-card
         v-for="c in contentNodes"
         :key="c.pk"
@@ -26,10 +26,11 @@
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
       />
+
+      <p v-if="!lessonHasResources" class="no-resources-message">
+        {{ $tr('noResourcesInLesson') }}
+      </p>
     </section>
-    <!-- <pre>
-      {{ JSON.stringify(contentNodes, null, 2) }}
-    </pre> -->
   </div>
 
 </template>
@@ -40,6 +41,7 @@
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentCard from '../content-card';
+  import { PageNames } from '../../constants';
 
   // TODO Make this utility
   function getContentNodeThumbnail(contentnode) {
@@ -52,7 +54,7 @@
 
   function lessonContentNodeLink(contentNode) {
     return {
-      name: 'TOPICS_CONTENT',
+      name: PageNames.TOPICS_CONTENT,
       params: {
         id: contentNode.pk,
       },
@@ -60,18 +62,19 @@
   }
 
   export default {
+    name: 'lessonPlaylistPage',
     components: {
       ContentCard,
       ProgressIcon,
     },
     computed: {
-      // HACK: Infer the Learner's progress by summing the progress_fractions
-      // on all the ContentNodes
       lessonHasResources() {
         return this.contentNodes.length > 0;
       },
       lessonProgress() {
         if (this.lessonHasResources) {
+          // HACK: Infer the Learner's progress by summing the progress_fractions
+          // on all the ContentNodes
           const total = sumBy(this.contentNodes, cn => cn.progress_fraction || 0);
           return total / this.contentNodes.length;
         }
@@ -89,6 +92,7 @@
     },
     $trs: {
       teacherNote: 'Teacher note:',
+      noResourcesInLesson: 'There are no resources in this lesson!',
     },
   };
 
@@ -103,10 +107,13 @@
   .title
     display: inline-block
 
-  .lesson-content-cards
-    max-width: 800px
-
   .content-card
     margin-bottom: 16px
+    max-width: 800px
+
+  .no-resources-message
+    text-align: center
+    font-weight: bold
+    padding: 48px 0
 
 </style>
