@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="lesson-summary">
     <div class="lesson-summary-header">
       <div class="lesson-summary-header-title-block">
         <content-icon
@@ -87,7 +87,7 @@
         </div>
       </div>
 
-      <core-table>
+      <core-table class="resources-table">
         <thead slot="thead">
           <tr>
             <th class="visuallyhidden core-table-icon-col">
@@ -478,5 +478,8 @@
   .resource-reorder-move
     transition: transform 0.5s
     background-color: $core-bg-canvas // duping color set in core-table for selected
+
+  .lesson-summary
+    margin-bottom: 30px
 
 </style>
