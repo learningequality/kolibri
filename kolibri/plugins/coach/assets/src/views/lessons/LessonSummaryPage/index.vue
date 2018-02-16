@@ -87,7 +87,7 @@
         </div>
       </div>
 
-      <core-table class="resources-table">
+      <core-table>
         <thead slot="thead">
           <tr>
             <th class="visuallyhidden core-table-icon-col">
@@ -154,6 +154,10 @@
           </tr>
         </transition-group>
       </core-table>
+
+      <p v-if="workingResources.length===0" class="no-resources-message">
+        {{ $tr('noResourcesInLesson') }}
+      </p>
 
       <manage-lesson-modals
         :currentAction="currentAction"
@@ -375,6 +379,7 @@
       inactive: 'Inactive',
       lessonStatusDescription: 'Lesson status description',
       noDescription: 'No description',
+      noResourcesInLesson: 'No resources in this lesson',
       options: 'Options',
       resources: 'Resources',
       status: 'Status',
@@ -481,5 +486,9 @@
 
   .lesson-summary
     margin-bottom: 30px
+
+  .no-resources-message
+    text-align: center
+    padding: 48px 0
 
 </style>
