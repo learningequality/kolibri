@@ -229,9 +229,9 @@
       },
       actionsToLabelMap() {
         return {
+          [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
           [LessonActions.COPY]: 'copyLesson',
           [LessonActions.DELETE]: 'deleteLesson',
-          [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
         };
       },
       LessonActions() {
