@@ -61,6 +61,7 @@
     methods: {
       getLessonProgress(lesson) {
         const { resources_completed, total_resources } = lesson.progress;
+        if (total_resources === 0) return undefined;
         return resources_completed / total_resources;
       },
       lessonPlaylistLink,
