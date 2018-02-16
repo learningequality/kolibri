@@ -107,7 +107,6 @@
         <transition-group
           name="resource-reorder"
           slot="tbody"
-          class="core-table-rows-selectable"
           tag="tbody"
         >
           <tr
