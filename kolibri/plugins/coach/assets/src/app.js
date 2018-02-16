@@ -47,10 +47,12 @@ const lessonRoutes = [
     name: LessonsPageNames.SUMMARY,
     path: '/:classId/lessons/:lessonId',
     handler: (toRoute, fromRoute) => {
+      // If switching classes while viewing a Lesson summary, redirect to the lessons list
       if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
-        redirectToLessonsList(toRoute.params.classId);
+        return redirectToLessonsList(toRoute.params.classId);
+      } else {
+        return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
       }
-      showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {

@@ -57,6 +57,7 @@
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { lessonSummaryLink } from '../lessonsRouterUtils';
   import RecipientSelector from './RecipientSelector';
+  import { LessonsPageNames } from '../../../lessonsConstants';
 
   export default {
     name: 'lessonDetailsModal',
@@ -68,7 +69,6 @@
     },
     data() {
       return {
-        isInEditMode: false,
         title: '',
         description: '',
         titleIsVisited: false,
@@ -131,9 +131,7 @@
       },
     },
     created() {
-      // If currentLesson is in state, this means we are editing
-      if (this.currentLesson) {
-        this.isInEditMode = true;
+      if (this.isInEditMode) {
         this.title = this.currentLesson.name;
         this.description = this.currentLesson.description;
         this.selectedCollectionIds = this.currentLesson.assigned_groups.map(g => g.collection);
@@ -199,6 +197,8 @@
         classId: state => state.classId,
         currentLesson: state => state.pageState.currentLesson || null,
         groups: state => state.pageState.learnerGroups,
+        // If the page name is (Lesson) SUMMARY, then should be in edit mode
+        isInEditMode: state => state.pageName === LessonsPageNames.SUMMARY,
       },
       actions: {
         createSnackbar,
