@@ -18,7 +18,7 @@
         class="content-card"
         :isMobile="true"
         :kind="c.kind"
-        :link="{}"
+        :link="lessonContentNodeLink(c)"
         :progress="c.progress_fraction"
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
@@ -45,12 +45,22 @@
     return null;
   }
 
+  function lessonContentNodeLink(contentNode) {
+    return {
+      name: 'TOPICS_CONTENT',
+      params: {
+        id: contentNode.pk,
+      },
+    };
+  }
+
   export default {
     components: {
       ContentCard,
     },
     methods: {
       getContentNodeThumbnail,
+      lessonContentNodeLink,
     },
     vuex: {
       getters: {
