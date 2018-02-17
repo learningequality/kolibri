@@ -14,7 +14,7 @@
         <!-- TODO add aria label? -->
         <ui-icon-button
           type="flat"
-          @click="callCallback"
+          @click="$emit('navIconClick')"
           :icon="icon"
           class="icon"
         />
