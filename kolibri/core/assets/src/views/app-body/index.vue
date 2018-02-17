@@ -6,9 +6,6 @@
       <error-box v-if="error" />
       <slot></slot>
     </template>
-
-    <!-- used for offline notifications, potentially used in other places -->
-    <global-snackbar />
   </div>
 
 </template>
@@ -18,13 +15,11 @@
 
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import errorBox from '../error-box';
-  import globalSnackbar from '../global-snackbar';
 
   export default {
     components: {
       loadingSpinner,
       errorBox,
-      globalSnackbar,
     },
     props: {
       padding: {

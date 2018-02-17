@@ -2,26 +2,39 @@
 
   <div>
     <!-- temporary hack, resolves flicker when using other templates -->
-    <div v-if="!loading || navBarNeeded">
-      <app-bar
-        class="app-bar align-to-parent"
-        :title="appBarTitle"
+    <template v-if="!loading && navBarNeeded">
+
+      <immersive-app-bar
+        v-if="immersivePage"
+        :appBarTitle="appBarTitle"
+        :icon="icon"
+        :route="route"
         :height="headerHeight"
-        :navShown="navShown"
-        @toggleSideNav="navShown=!navShown"
-      >
-        <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"></slot>
-        </div>
-      </app-bar>
-      <side-nav
-        :navShown="navShown"
-        :headerHeight="headerHeight"
-        :width="navWidth"
-        :topLevelPageName="topLevelPageName"
-        @toggleSideNav="navShown=!navShown"
+        @nav-icon-click="$emit('navIconClick')"
       />
-    </div>
+
+      <template v-else>
+        <app-bar
+          class="app-bar align-to-parent"
+          :title="appBarTitle"
+          :height="headerHeight"
+          :navShown="navShown"
+          @toggleSideNav="navShown=!navShown"
+        >
+          <div slot="app-bar-actions" class="app-bar-actions">
+            <slot name="app-bar-actions"></slot>
+          </div>
+        </app-bar>
+        <side-nav
+          :navShown="navShown"
+          :headerHeight="headerHeight"
+          :width="navWidth"
+          :topLevelPageName="topLevelPageName"
+          @toggleSideNav="navShown=!navShown"
+        />
+      </template>
+
+    </template>
 
     <app-body
       :topGap="headerHeight"
@@ -32,6 +45,8 @@
       <slot></slot>
     </app-body>
 
+    <global-snackbar />
+
   </div>
 
 </template>
@@ -40,18 +55,22 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import immersiveAppBar from './immersive-app-bar';
+  import globalSnackbar from './global-snackbar';
+  import appBody from './app-body';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
-  import appBody from './app-body';
 
   export default {
     name: 'coreBasePage',
     components: {
       appBar,
+      immersiveAppBar,
       sideNav,
       appBody,
+      globalSnackbar,
     },
     mixins: [responsiveWindow],
     props: {
@@ -80,6 +99,20 @@
       bottomMargin: {
         type: Number,
         default: 0,
+      },
+      // IMMERSIVE-SPECIFIC
+      immersivePage: {
+        type: Boolean,
+        required: false,
+      },
+      icon: {
+        type: String,
+        required: false,
+        default: 'close',
+      },
+      route: {
+        type: Object,
+        required: false,
       },
     },
     vuex: {
