@@ -58,7 +58,6 @@ output/*.html
 output/*/index.html
 
 # Sphinx
-docs/_build
 docs-developer/_build
 
 # api-docs
@@ -104,4 +103,3 @@ Icon
 
 # ignore the VERSION file we use to track the version for whl files
 VERSION
-/docs/crowdin-cli.jar

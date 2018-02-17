@@ -4,6 +4,16 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+# This is necessary because:
+# 1. The list generator has an unpredictable order, and when items swap places
+#    then this would be picked up as a change in Django if we had used
+# 2. These choices can be changed in facility_configuration_presets.json
+#    and such change should not warrant warnings that models are inconsistent
+#    as it has no impact.
+# Notice: The 'choices' property of a field does NOT have any impact on DB
+# See: https://github.com/learningequality/kolibri/pull/3180
+from ..constants.facility_presets import choices as facility_choices
+
 
 class Migration(migrations.Migration):
 
@@ -15,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='facilitydataset',
             name='preset',
-            field=models.CharField(choices=[('informal', 'Informal and personal use'), ('nonformal', 'Self-managed'), ('formal', 'Admin-managed')], default='nonformal', max_length=50),
+            field=models.CharField(choices=facility_choices, default='nonformal', max_length=50),
         ),
         migrations.AlterUniqueTogether(
             name='facilityuser',
