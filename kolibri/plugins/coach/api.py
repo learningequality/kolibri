@@ -60,7 +60,7 @@ class ContentReportViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         content_node_id = self.kwargs['content_node_id']
-        return ContentNode.objects.filter(parent=content_node_id).order_by('lft')
+        return ContentNode.objects.filter(Q(parent=content_node_id) & Q(available=True)).order_by('lft')
 
 
 class ContentSummaryViewSet(viewsets.ModelViewSet):
@@ -70,7 +70,7 @@ class ContentSummaryViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         channel_id = self.kwargs['channel_id']
-        return ContentNode.objects.filter(channel_id=channel_id).order_by('lft')
+        return ContentNode.objects.filter(Q(channel_id=channel_id) & Q(available=True)).order_by('lft')
 
 
 class RecentReportViewSet(viewsets.ModelViewSet):
