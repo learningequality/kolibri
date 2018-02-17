@@ -237,6 +237,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
 export function saveLessonResources(store, lessonId, resources) {
   // light validation of data shape
   if (resources.every(resource => resource.contentnode_id)) {
+    // IDEA update current lesson here
     return LessonResource.getModel(lessonId).save({ resources });
   }
   return Promise.reject();

@@ -297,14 +297,12 @@
       },
       commitRemovals,
       cancelCommitRemovals: commitRemovals.cancel,
-      autoSave: debounce(function() {
+      autoSave() {
         const modelResources = this.workingResources.map(resourceId => ({
           contentnode_id: resourceId,
         }));
-        return this.saveLessonResources(this.lessonId, modelResources).then(() => {
-          this.updateCurrentLesson(this.lessonId);
-        });
-      }, saveDebounceTime),
+        return this.debouncedSaveLessonResources(this.lessonId, modelResources);
+      },
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
       },
@@ -340,6 +338,7 @@
     },
     vuex: {
       getters: {
+        // IDEA refactor, make actions get all this information themselves.
         classId: state => state.classId,
         lessonId: state => state.pageState.currentLesson.id,
         lessonTitle: state => state.pageState.currentLesson.title,
@@ -355,7 +354,7 @@
       actions: {
         createSnackbar,
         clearSnackbar,
-        saveLessonResources,
+        debouncedSaveLessonResources: debounce(saveLessonResources, saveDebounceTime),
         updateCurrentLesson,
         removeFromWorkingResources(store, resourceId) {
           store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
