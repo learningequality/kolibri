@@ -13,7 +13,7 @@
       class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"
-      :link="lessonPlaylistLink(lesson)"
+      :link="lessonPlaylistLink(lesson.id)"
       :showContentIcon="false"
       :title="lesson.name"
       :kind="LESSON"
@@ -29,7 +29,7 @@
 
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonPlaylistLink } from './classPageLinks'
+  import { lessonPlaylistLink } from './classPageLinks';
 
   export default {
     name: 'assignedLessonsCards',

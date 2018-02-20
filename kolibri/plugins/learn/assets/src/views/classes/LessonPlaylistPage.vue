@@ -3,6 +3,10 @@
   <div>
     <section class="lesson-details">
       <div>
+        <content-icon
+          kind="lesson"
+          class="lesson-icon"
+        />
         <h1 class="title">
           {{ currentLesson.name }}
           <progress-icon v-if="lessonHasResources" :progress="lessonProgress" />
@@ -41,6 +45,7 @@
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentCard from '../content-card';
+  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   // TODO Make this utility
@@ -56,6 +61,7 @@
     name: 'lessonPlaylistPage',
     components: {
       ContentCard,
+      ContentIcon,
       ProgressIcon,
     },
     computed: {
@@ -106,5 +112,13 @@
     text-align: center
     font-weight: bold
     padding: 48px 0
+
+  // Copied from LessonSummaryPage
+  .lesson-icon
+    display: inline-block
+    font-size: 1.8em
+    margin-right: 0.5em
+    >>>.ui-icon
+      vertical-align: bottom
 
 </style>

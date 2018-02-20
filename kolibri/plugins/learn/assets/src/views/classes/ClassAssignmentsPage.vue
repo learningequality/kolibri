@@ -37,7 +37,7 @@
     },
     vuex: {
       getters: {
-        currentClassroom: state => state.pageState.currentClassroom,
+        classroomName: state => state.pageState.currentClassroom.name,
         exams: state => state.pageState.currentClassroom.assignments.exams,
         lessons: state => state.pageState.currentClassroom.assignments.lessons,
       },
