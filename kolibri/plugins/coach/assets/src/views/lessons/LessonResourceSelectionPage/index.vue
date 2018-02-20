@@ -80,6 +80,7 @@
         return { classId: this.classId, lessonId: this.lessonId };
       },
       selectionCrumbs() {
+        // IDEA refactor router logic into actions
         return [
           // The "Channels" breadcrumb
           { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(this.routerParams) },
@@ -93,10 +94,11 @@
       },
     },
     methods: {
-      // TODO refactor router logic into actions
+      // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
       },
+      // IDEA refactor router logic into actions
       contentLink(content) {
         if (this.contentIsDirectoryKind(content)) {
           return topicListingLink({ ...this.routerParams, topicId: content.id });

@@ -151,6 +151,7 @@
         }
       },
       immersivePageIcon() {
+        // TODO going to need to set a backgrund color
         if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
           return 'arrow_back';
         }

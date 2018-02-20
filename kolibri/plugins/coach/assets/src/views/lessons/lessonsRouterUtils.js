@@ -1,5 +1,6 @@
 import { LessonsPageNames } from '../../lessonsConstants';
 
+// IDEA kill these in favor of using vuex param autocomplete
 // Creates a Link to the Lesson Summary Page
 export function lessonSummaryLink({ classId, lessonId }) {
   return {
