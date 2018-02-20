@@ -5,8 +5,9 @@ Kolibri Webpack hooks
 To manage assets, we use the webpack format. In order to have assets bundled in,
 you should put them in ``yourapp/assets/src``.
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import json
 import logging
@@ -14,17 +15,19 @@ import os
 import time
 from functools import partial
 
-from pkg_resources import resource_filename
-
-import kolibri
 from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language, get_language_info, to_locale
-from kolibri.plugins import hooks
+from django.utils.translation import get_language
+from django.utils.translation import get_language_info
+from django.utils.translation import to_locale
+from pkg_resources import resource_filename
 
+import kolibri
 from . import settings
+from kolibri.plugins import hooks
+from kolibri.utils import conf
 
 # We load quite a few JSON files from disk, as cached properties of
 # the WebpackBundleHook - but these are only cached per instance
@@ -156,7 +159,8 @@ class WebpackBundleHook(hooks.KolibriHook):
         customize this.
 
         :returns: A dict with information expected by webpack parsing process,
-        or None if the src_file does not exist.
+            or None if the src_file does not exist.
+
         """
         if os.path.exists(os.path.join(os.path.dirname(self._build_path), self.src_file)):
             return {
@@ -232,7 +236,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_messages(self):
         global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code):
+        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or django_settings.DEBUG:
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with open(frontend_message_file) as f:
@@ -260,7 +264,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_message_tag(self):
         if self.frontend_messages():
             return ['<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 lang_code=get_language(),
                 messages=self.frontend_messages(),
@@ -298,7 +302,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
-                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
                 events=json.dumps(self.events),
@@ -359,14 +363,6 @@ class WebpackInclusionHook(hooks.KolibriHook):
 
 
 class FrontEndCoreAssetHook(WebpackBundleHook):
-
-    @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
-        dct = super(FrontEndCoreAssetHook, self).webpack_bundle_data
-        dct['core_name'] = django_settings.KOLIBRI_CORE_JS_NAME
-        dct['external'] = True
-        return dct
 
     def render_to_page_load_sync_html(self):
         """

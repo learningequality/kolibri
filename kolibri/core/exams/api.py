@@ -1,12 +1,17 @@
 from django.db.models.query import F
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.core.exams import models, serializers
-from rest_framework import pagination, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from rest_framework import pagination
+from rest_framework import viewsets
 from rest_framework.response import Response
+
+from kolibri.auth.api import KolibriAuthPermissions
+from kolibri.auth.api import KolibriAuthPermissionsFilter
+from kolibri.auth.filters import HierarchyRelationsFilter
+from kolibri.core.exams import models
+from kolibri.core.exams import serializers
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -27,7 +32,7 @@ class ExamFilter(FilterSet):
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filter_class = ExamFilter
 
@@ -43,19 +48,23 @@ class ExamViewset(viewsets.ModelViewSet):
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.ExamAssignmentSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
         return models.ExamAssignment.objects.all()
 
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'create':
+            return serializers.ExamAssignmentCreationSerializer
+        return serializers.ExamAssignmentRetrieveSerializer
+
 
 class UserExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.UserExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):

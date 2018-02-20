@@ -67,48 +67,52 @@
           />
         </div>
       </div>
-      <table>
-        <thead>
+      <core-table>
+        <thead slot="thead">
           <tr>
-            <th class="col-checkbox">
+            <th class="core-table-checkbox-col">
               <k-checkbox
                 :label="$tr('selectAllOnPage')"
                 :showLabel="false"
                 :checked="selectAllIsChecked"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
-                class="inline-block check"
               />
             </th>
-            <th class="col-username">{{ $tr('username') }}</th>
-            <th class="col-role">{{ $tr('role') }}</th>
-            <th class="col-name">{{ $tr('name') }}</th>
+            <th class="core-table-main-col">{{ $tr('username') }}</th>
+            <th>{{ $tr('role') }}</th>
+            <th>{{ $tr('name') }}</th>
           </tr>
         </thead>
 
-        <tbody name="row" is="transition-group">
+        <tbody
+          slot="tbody"
+          name="row"
+          is="transition-group"
+          class="core-table-rows-selectable"
+        >
+
           <tr
             v-for="learner in visibleFilteredUsers"
-            :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            :class="isSelected(learner.id) ? 'core-table-row-selected' : ''"
             @click="toggleSelection(learner.id)"
             :key="learner.id"
           >
-            <td class="col-checkbox">
+            <td class="core-table-checkbox-col">
               <k-checkbox
                 :label="$tr('selectUser')"
                 :showLabel="false"
                 :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
-                class="inline-block check"
                 @click.native.stop
               />
             </td>
-            <th class="col-username">{{ learner.username }}</th>
-            <td class="col-role">{{ learner.kind }}</td>
-            <td class="col-name">{{ learner.full_name }}</td>
+            <th class="core-table-main-col">{{ learner.username }}</th>
+            <td>{{ learner.kind }}</td>
+            <td>{{ learner.full_name }}</td>
           </tr>
         </tbody>
-      </table>
+      </core-table>
 
       <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
       <p v-if="filteredUsers.length === 0 && filterInput !== ''">
@@ -164,6 +168,8 @@
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import uiCheckbox from 'keen-ui/src/UiCheckbox';
   import userRole from '../user-role';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+
   export default {
     name: 'managementClassEnroll',
     components: {
@@ -177,6 +183,7 @@
       confirmEnrollmentModal,
       uiCheckbox,
       userRole,
+      CoreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -357,10 +364,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  // based on material design data table spec
-  $table-row-selected = #F5F5F5
-  $table-row-hover = #EEEEEE
-
   >>>.switch
     margin-top: 20px
     .ui-switch__track
@@ -381,39 +384,6 @@
   .top-buttons
     position: relative
 
-  table
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: left
-
-  td, th
-    padding: 0.5em
-
-
-  thead
-    color: $core-text-annotation
-    font-size: small
-
-  tbody
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $table-row-hover
-
-  .selectedrow
-    background-color: $table-row-selected
-
-  .col-checkbox
-    width: 24px
-
-  .col-role
-    width: 30%
-
-  .col-username
-    width: 35%
-
   nav
     display: inline-block
 
@@ -425,9 +395,6 @@
 
   .invisible
     visibility: hidden
-
-  .check
-    margin-bottom: 0
 
   .row-enter-active, .row-leave-active
     transition: all 0.25s ease

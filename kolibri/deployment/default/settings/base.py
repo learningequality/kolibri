@@ -8,26 +8,29 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import json
 import os
 
-# import kolibri, so we can get the path to the module.
-import kolibri
 import pytz
+from tzlocal import get_localzone
+
+import kolibri
+from kolibri.utils import conf
+from kolibri.utils import i18n
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf, i18n
-from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
-KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
-
-KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+KOLIBRI_HOME = conf.KOLIBRI_HOME
 
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
@@ -63,6 +67,7 @@ INSTALLED_APPS = [
     'kolibri.core.exams',
     'kolibri.core.device',
     'kolibri.core.discovery',
+    'kolibri.core.lessons',
     'kolibri.core.analytics',
     'rest_framework',
     'django_js_reverse',
@@ -141,7 +146,8 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BASE_URL',
+                                                   'http://studio.learningequality.org')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -150,15 +156,9 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('sw-tz', 'Kiswahili'),
-    ('es-es', 'Español'),
-    ('fr-fr', 'Français'),
-    ('ar', 'العَرَبِيَّة‎‎'),
-    ('fa', 'فارسی'),
-    ('ur-pk', 'اُردو (پاکستان)‏'),
-]
+with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+
+    LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 

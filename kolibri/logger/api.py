@@ -154,7 +154,7 @@ class ExamLogFilter(BaseLogFilter):
 
     collection = ModelChoiceFilter(method="filter_collection", queryset=Collection.objects.all())
 
-    def filter_collection(self, queryset, collection):
+    def filter_collection(self, queryset, name, collection):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
             target_user=F('user'),
             ancestor_collection=collection,

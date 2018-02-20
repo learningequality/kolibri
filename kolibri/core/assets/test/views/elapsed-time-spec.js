@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line no-unused-vars, import/no-unresolved
 import assert from 'assert';
 import elapsedTime from '../../src/views/elapsed-time';
 import { shallow } from 'avoriaz';
@@ -126,37 +126,6 @@ describe('elapsed time component', () => {
     });
     const timeText = getTimeText(wrapper);
     assert.equal(/day/.test(timeText), true);
-  });
-
-  it('should use weeks if the date passed is 7 days ago', () => {
-    const date7DaysAgo = new Date(DUMMY_CURRENT_DATE);
-    date7DaysAgo.setDate(date7DaysAgo.getDate() - 7);
-    const wrapper = makeWrapper({
-      propsData: {
-        date: date7DaysAgo,
-      },
-    });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
-    const timeText = getTimeText(wrapper);
-    assert.equal(/week/.test(timeText), true);
-  });
-
-  it('should use weeks if the date passed is 1 week ago', () => {
-    const date1WeekAgo = new Date(DUMMY_CURRENT_DATE);
-    date1WeekAgo.setDate(date1WeekAgo.getDate() - 7);
-    const wrapper = makeWrapper({
-      propsData: {
-        date: date1WeekAgo,
-      },
-    });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
-    const timeText = getTimeText(wrapper);
-
-    assert.equal(/week/.test(timeText), true);
   });
 
   it('should use months if the date passed is 4 weeks ago', () => {

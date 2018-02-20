@@ -1,7 +1,7 @@
 var path = require('path');
 var resolve = require('resolve');
 var coreAliases = require('./apiSpecExportTools').coreAliases();
-var coreExternals = require('./apiSpecExportTools').coreExternals('kolibriGlobal');
+var coreExternals = require('./apiSpecExportTools').coreExternals();
 
 function packageFilter(pkg) {
   if (pkg['jsnext:main']) {

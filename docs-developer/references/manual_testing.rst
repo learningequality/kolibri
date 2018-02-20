@@ -16,10 +16,10 @@ Inclusive design benefits all users, and we strive to make Kolibri accessible fo
 
 Here are a few tools that we use in testing for accessibility:
 
-* WAVE Evaluation Tool - `Firefox Add-on <https://addons.mozilla.org/en-US/firefox/addon/wave-accessibility-tool/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/wave-evaluation-tool/jbbplnpkjmmeebjpijfedlgcdilocofh>`_.
+* WAVE Evaluation Tool - `Firefox Add-on <https://addons.mozilla.org/en-US/firefox/addon/wave-accessibility-tool/>`__ and `Chrome extension <https://chrome.google.com/webstore/detail/wave-evaluation-tool/jbbplnpkjmmeebjpijfedlgcdilocofh>`__.
 * `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome.
 * `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_ - Chrome extension.
-* aXe Accessibility Engine - `Firefox Add-on <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
+* aXe Accessibility Engine - `Firefox Add-on <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`__ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`__.
 
 There is a much longer list on our `Kolibri Accessibility Tools Wiki page <https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
 

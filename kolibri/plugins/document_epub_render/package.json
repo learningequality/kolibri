@@ -1,0 +1,9 @@
+{
+  "name": "kolibri-document-epub-render-plugin",
+  "description": "Document/EPUB Render Plugin for Kolibri",
+  "private": true,
+  "dependencies": {
+    "epubjs": "^0.3.57",
+    "screenfull": "^3.3.2"
+  }
+}

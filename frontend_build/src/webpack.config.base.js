@@ -10,16 +10,25 @@
  *  This file is not called directly by webpack.
  *  It copied once for each plugin by parse_bundle_plugin.js
  *  and used as a template, with additional plugin-specific
- *  modifications made on top.
+ *  modifications made on top. Any entries that require plugin specific
+ *  information are added in parse_bundle_plugin.js - such as access to
+ *  plugin name, plugin file paths, and version information.
  */
 
 var path = require('path');
 var merge = require('webpack-merge');
+var mkdirp = require('mkdirp');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 var lint = process.env.LINT || production;
+
+var base_dir = path.join(__dirname, '..', '..');
+
+var locale_dir = path.join(base_dir, 'kolibri', 'locale');
+
+mkdirp.sync(locale_dir);
 
 var postCSSLoader = {
   loader: 'postcss-loader',
@@ -53,6 +62,7 @@ var vueSassLoaders = [
 
 // primary webpack config
 var config = {
+  context: base_dir,
   module: {
     rules: [
       {
@@ -134,10 +144,22 @@ var config = {
   resolve: {
     extensions: ['.js', '.vue', '.styl'],
     alias: {},
+    modules: [
+      // Add resolution paths for modules to allow any plugin to
+      // access kolibri/node_modules modules during bundling.
+      base_dir,
+      path.join(base_dir, 'node_modules'),
+    ],
+  },
+  resolveLoader: {
+    // Add resolution paths for loaders to allow any plugin to
+    // access kolibri/node_modules loaders during bundling.
+    modules: [base_dir, path.join(base_dir, 'node_modules')],
   },
   node: {
     __filename: true,
   },
+  stats: 'minimal',
 };
 
 // Only lint in dev mode if LINT env is set. Always lint in production.
