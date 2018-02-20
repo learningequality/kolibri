@@ -2,14 +2,17 @@
 
   <div>
     <h1 class="classroom-name">
-      {{ currentClassroom.name }}
+      {{ classroomName }}
     </h1>
-    <assigned-exams-table class="exams-table" :exams="exams" />
+    <assigned-exams-table
+      class="exams-table"
+      :exams="exams"
+    />
 
-    <assigned-lessons-cards :lessons="lessons" :isMobile="isMobile" />
-    <!-- <pre>
-      {{ JSON.stringify(currentClassroom, null, 2) }}
-    </pre> -->
+    <assigned-lessons-cards
+      :lessons="lessons"
+      :isMobile="isMobile"
+    />
   </div>
 
 </template>
