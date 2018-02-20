@@ -146,7 +146,8 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "http://studio.learningequality.org"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BASE_URL',
+                                                   'http://studio.learningequality.org')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
