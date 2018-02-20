@@ -145,4 +145,7 @@
     width: 150px
     margin-right: 16px
 
+  >>>.ui-select__display-value
+    line-height: 1.3
+
 </style>
