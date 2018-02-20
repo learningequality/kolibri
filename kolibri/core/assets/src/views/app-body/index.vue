@@ -1,7 +1,8 @@
 <template>
 
-  <div class="body" :style="contentStyle">
-    <loading-spinner v-if="loading" class="align-to-parent" />
+  <!-- class unused, used as identifier when debugging from DOM -->
+  <div class="app-body" :style="contentStyle">
+    <loading-spinner v-if="loading" />
     <template v-else>
       <error-box v-if="error" />
       <slot></slot>
@@ -17,6 +18,7 @@
   import errorBox from '../error-box';
 
   export default {
+    name: 'appBody',
     components: {
       loadingSpinner,
       errorBox,
@@ -47,6 +49,8 @@
           padding: `${this.padding}px`,
           left: 0,
           right: 0,
+          position: 'fixed',
+          overflowX: 'hidden',
         };
       },
     },
@@ -81,10 +85,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .body
-    position: fixed
-    overflow-x: hidden
-
-</style>
+<style lang="stylus" scoped></style>

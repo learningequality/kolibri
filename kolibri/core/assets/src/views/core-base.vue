@@ -4,11 +4,11 @@
     <!-- temporary hack, resolves flicker when using other templates -->
     <template v-if="!loading && navBarNeeded">
 
-      <immersive-app-bar
+      <immersive-toolbar
         v-if="immersivePage"
         :appBarTitle="appBarTitle"
-        :icon="icon"
-        :route="route"
+        :icon="immersivePageIcon"
+        :route="immersivePageRoute"
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
@@ -55,7 +55,7 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import immersiveAppBar from './immersive-app-bar';
+  import immersiveToolbar from './immersive-toolbar';
   import globalSnackbar from './global-snackbar';
   import appBody from './app-body';
   import values from 'lodash/values';
@@ -67,7 +67,7 @@
     name: 'coreBasePage',
     components: {
       appBar,
-      immersiveAppBar,
+      immersiveToolbar,
       sideNav,
       appBody,
       globalSnackbar,
@@ -104,13 +104,14 @@
       immersivePage: {
         type: Boolean,
         required: false,
+        default: false,
       },
-      icon: {
+      immersivePageIcon: {
         type: String,
         required: false,
         default: 'close',
       },
-      route: {
+      immersivePageRoute: {
         type: Object,
         required: false,
       },

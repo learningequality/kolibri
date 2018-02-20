@@ -33,7 +33,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
-    name: 'immersiveAppBar',
+    name: 'immersiveToolbar',
     components: {
       uiToolbar,
       uiIconButton,
@@ -63,10 +63,10 @@
         validator: validateLinkObject,
       },
     },
-    data: () => {
-      return {
-        hasRoute: this.route,
-      };
+    computed: {
+      hasRoute() {
+        return !!this.route;
+      },
     },
   };
 
@@ -82,5 +82,6 @@
     // copied from keen
     height: 3em
     width: 3em
+    color: white
 
 </style>
