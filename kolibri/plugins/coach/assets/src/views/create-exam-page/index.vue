@@ -49,10 +49,13 @@
         <transition name="fade" mode="out-in">
           <ui-progress-linear v-if="loading" key="progress" />
 
-          <table v-else key="table">
-            <thead>
+          <core-table
+            v-else
+            key="table"
+          >
+            <thead slot="thead">
               <tr>
-                <th class="col-checkbox">
+                <th class="core-table-checkbox-col">
                   <k-checkbox
                     :label="$tr('selectAll')"
                     :showLabel="false"
@@ -61,11 +64,11 @@
                     @change="changeSelection"
                   />
                 </th>
-                <th class="col-title">{{ $tr('name') }}</th>
-                <th class="col-selection"></th>
+                <th class="core-table-main-col">{{ $tr('name') }}</th>
+                <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody slot="tbody">
               <exercise-row
                 v-for="exercise in exercises"
                 :key="exercise.id"
@@ -88,7 +91,7 @@
                 @removeTopicExercises="handleRemoveTopicExercises"
               />
             </tbody>
-          </table>
+          </core-table>
         </transition>
       </div>
     </div>
@@ -147,6 +150,8 @@
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+
   export default {
     name: 'createExamPage',
     components: {
@@ -158,6 +163,7 @@
       previewNewExamModal,
       kCheckbox,
       uiAlert,
+      CoreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -498,14 +504,5 @@
 
   .validation-error
     color: $core-text-error
-
-  table
-    width: 100%
-
-  .col-title
-    text-align: left
-
-  .col-checkbox
-    width: 40px
 
 </style>

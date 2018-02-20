@@ -1,15 +1,15 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import ExamReportPage from '../../src/views/exam-report-page';
-import { shallow } from 'avoriaz';
+import { mount } from 'avoriaz';
 
 function makeWrapper(options = {}) {
   const components = {
     'router-link': '<div></div>',
   };
-  return shallow(ExamReportPage, Object.assign(options, { components }));
+  return mount(ExamReportPage, { ...options, components });
 }
 
 function getElements(wrapper) {
@@ -21,8 +21,8 @@ function getElements(wrapper) {
 }
 
 function getTextInScoreColumn(tdEl) {
-  // in the second column
-  return tdEl.find('td')[1].text();
+  // in the fourth column
+  return tdEl.find('td')[3].text();
 }
 
 const initialState = () => ({

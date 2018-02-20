@@ -9,6 +9,128 @@ import * as examActions from './state/actions/exam';
 import * as reportsActions from './state/actions/reports';
 import { initialState, mutations } from './state/store';
 import { PageNames } from './constants';
+import { LessonsPageNames } from './lessonsConstants';
+import router from 'kolibri.coreVue.router';
+
+import {
+  showLessonsRootPage,
+  showLessonSummaryPage,
+  showLessonResourceSummaryPage,
+  showLessonResourceUserSummaryPage,
+  showLessonReviewPage,
+  showLessonResourceSelectionRootPage,
+  showLessonResourceSelectionTopicPage,
+  showLessonSelectionSearchPage,
+  showLessonContentPreview,
+} from './state/actions/lessons';
+
+// Redirect to the Lessons List of a different classroom if
+// classroom switcher is used in e.g. a Lesson Summary page
+function redirectToLessonsList(classId) {
+  router.push({
+    name: LessonsPageNames.ROOT,
+    params: {
+      classId,
+    },
+  });
+}
+
+const lessonRoutes = [
+  {
+    name: LessonsPageNames.ROOT,
+    path: '/:classId/lessons',
+    handler: toRoute => {
+      showLessonsRootPage(store, toRoute.params.classId);
+    },
+  },
+  {
+    name: LessonsPageNames.SUMMARY,
+    path: '/:classId/lessons/:lessonId',
+    handler: (toRoute, fromRoute) => {
+      // If switching classes while viewing a Lesson summary, redirect to the lessons list
+      if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
+        return redirectToLessonsList(toRoute.params.classId);
+      } else {
+        return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
+      }
+    },
+  },
+  {
+    name: LessonsPageNames.RESOURCE_SUMMARY,
+    path: '/:classId/lessons/:lessonId/resource/:contentId',
+    handler: toRoute => {
+      showLessonResourceSummaryPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId
+      );
+    },
+  },
+  {
+    name: LessonsPageNames.RESOURCE_USER_SUMMARY,
+    path: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
+    handler: toRoute => {
+      showLessonResourceUserSummaryPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId,
+        toRoute.params.userId
+      );
+    },
+  },
+  {
+    name: LessonsPageNames.REVIEW,
+    path: '/:classId/lessons/:lessonId/review',
+    handler: toRoute => {
+      showLessonReviewPage(store, toRoute.params.classId, toRoute.params.lessonId);
+    },
+  },
+  {
+    name: LessonsPageNames.SELECTION_ROOT,
+    path: '/:classId/lessons/:lessonId/selection',
+    handler: toRoute => {
+      showLessonResourceSelectionRootPage(store, toRoute.params.classId, toRoute.params.lessonId);
+    },
+  },
+  {
+    name: LessonsPageNames.SELECTION,
+    path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
+    handler: toRoute => {
+      showLessonResourceSelectionTopicPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.topicId
+      );
+    },
+  },
+  {
+    name: LessonsPageNames.SELECTION_SEARCH,
+    path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
+    handler: toRoute => {
+      showLessonSelectionSearchPage(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.searchTerm
+      );
+    },
+  },
+  {
+    name: LessonsPageNames.CONTENT_PREVIEW,
+    path: '/:classId/lessons/:lessonId/preview/:contentId',
+    handler: toRoute => {
+      showLessonContentPreview(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId
+      );
+    },
+  },
+];
 
 const routes = [
   {
@@ -235,6 +357,7 @@ const routes = [
       groupActions.showGroupsPage(store, to.params.classId);
     },
   },
+  ...lessonRoutes,
   {
     path: '*',
     redirect: '/',

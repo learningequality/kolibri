@@ -45,6 +45,18 @@
         :class="[colorClass]"
       />
       <mat-svg
+        v-if="is(Constants.ContentNodeKinds.EXAM)"
+        category="action"
+        name="assignment_late"
+        :class="[colorClass]"
+      />
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.LESSON)"
+        category="communication"
+        name="import_contacts"
+        :class="[colorClass]"
+      />
+      <mat-svg
         v-if="is(Constants.USER)"
         category="social"
         name="person"

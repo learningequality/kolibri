@@ -15,6 +15,8 @@
       :type="type"
       :enforceMaxlength="true"
       :floatingLabel="true"
+      :multiLine="textArea"
+      :rows="3"
       @input="updateText"
       @keydown="emitKeydown"
       @focus="$emit('focus')"
@@ -97,6 +99,13 @@
       type: {
         type: String,
         default: 'text',
+      },
+      /**
+       * Display as text area.
+       */
+      textArea: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

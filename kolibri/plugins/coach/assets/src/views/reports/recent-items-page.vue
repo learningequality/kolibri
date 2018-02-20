@@ -5,9 +5,10 @@
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
     <p v-if="!standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</p>
-    <report-table v-if="standardDataTable.length">
+    <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('name')"
             :align="alignStart"
@@ -29,6 +30,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell
             :kind="row.kind"
             :title="row.title"
@@ -41,7 +45,7 @@
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
 
   </div>
@@ -51,24 +55,24 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import * as CoachConstants from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import * as mainGetters from '../../state/getters/main';
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import alignMixin from './align-mixin';
   export default {
     name: 'coachRecentReports',
     components: {
+      CoreTable,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       activityCell,
