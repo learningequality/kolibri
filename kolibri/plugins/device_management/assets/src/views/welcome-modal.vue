@@ -6,11 +6,11 @@
     @enter="emitCloseModal"
     @cancel="emitCloseModal"
   >
-    <p class="welcome-modal-description">
+    <p class="description">
       {{ $tr('welcomeModalContentDescription') }}
     </p>
 
-    <p class="welcome-modal-description">
+    <p class="description">
       {{ $tr('welcomeModalPermissionsDescription') }}
     </p>
 
@@ -56,11 +56,7 @@
 
 <style scoped lang="stylus">
 
-  .welcome-modal
-    &-description
-      margin-top: 16px
-    &-dismiss-button
-      margin-top: 24px
-      margin-bottom: 16px
+  .description
+    margin-top: 16px
 
 </style>

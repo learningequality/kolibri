@@ -2,18 +2,18 @@
 
   <submission-state-page :header="$tr('errorPageHeader')">
 
-    <p class="error-page-subheader">
+    <p class="subheader">
       {{ $tr('errorPageSubheader') }}
     </p>
 
     <k-button
-      class="error-page-retry-button"
+      class="retry-button"
       :text="$tr('errorPageRetryButtonLabel')"
       primary="true"
       @click="refreshPage"
     />
 
-    <p class="error-page-subtext">
+    <p class="subtext">
       {{ $tr('errorPageAdditionalGuidance') }}
     </p>
 
@@ -52,13 +52,14 @@
 
   @require '~kolibri.styles.definitions'
 
-  .error-page
-    &-subheader
-      margin-bottom: 24px
-    &-retry-button
-      margin-bottom: 16px
-    &-subtext
-      font-size: 12px
-      color: $core-text-annotation
+  .subheader
+    margin-bottom: 24px
+
+  .retry-button
+    margin-bottom: 16px
+
+  .subtext
+    font-size: 12px
+    color: $core-text-annotation
 
 </style>

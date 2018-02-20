@@ -1,13 +1,13 @@
 <template>
 
   <div>
-    <h1 class="onboarding-form-header">
+    <h1 class="header">
       {{ header }}
     </h1>
 
     <form @submit.prevent="$emit('submit')">
-      <fieldset class="onboarding-form-fields">
-        <legend class="onboarding-form-legend">
+      <fieldset class="fields">
+        <legend class="legend">
           <span v-if="hasDescription" class="onboardng-form-description">
             <slot name="description"> {{ description }} </slot>
           </span>
@@ -18,7 +18,7 @@
       </fieldset>
 
       <k-button
-        class="onboarding-form-submit"
+        class="submit"
         :primary="true"
         type="submit"
         :text="submitText"
@@ -68,25 +68,24 @@
 
   $core-title-md = 21px // filling in for future typography styles
 
-  .onboarding-form
-    &-fields
-      border: none
-      padding: 0
-      margin: 0
-      margin-bottom: 24px
+  .fields
+    border: none
+    padding: 0
+    margin: 0
+    margin-bottom: 24px
 
-    &-header
-      margin-top: 0
-      font-size: $core-title-md
-      margin-bottom: 16px
+  .header
+    margin-top: 0
+    font-size: $core-title-md
+    margin-bottom: 16px
 
-    &-legend
-      margin-bottom: 8px
+  .legend
+    margin-bottom: 8px
 
-    &-description
-      margin-bottom: 8px
+  .description
+    margin-bottom: 8px
 
-    &-submit
-      margin: 0
+  .submit
+    margin: 0
 
 </style>

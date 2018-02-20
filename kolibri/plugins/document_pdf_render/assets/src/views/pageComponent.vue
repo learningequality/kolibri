@@ -4,7 +4,7 @@
     class="pdf-page-container"
     :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }"
   >
-    <span class="pdf-page-loading"> {{ $formatNumber(pageNum) }}</span>
+    <span class="loading"> {{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="active"
       class="canvas"
@@ -133,19 +133,19 @@
   // Also defined in index.vue
   $page-padding = 5px
 
-  .pdf-page
-    &-container
-      background: #FFFFFF
-      margin: $page-padding auto
-      position: relative
-      z-index: 2 // material spec - card (resting)
-    &-loading
-      position: absolute
-      top: 50%
-      left: 50%
-      transform: translate(-50%, -50%)
-      font-size: 2em
-      line-height: 100%
+  .pdf-page-container
+    background: #FFFFFF
+    margin: $page-padding auto
+    position: relative
+    z-index: 2 // material spec - card (resting)
+
+  .loading
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 2em
+    line-height: 100%
 
   .canvas
     position: absolute
