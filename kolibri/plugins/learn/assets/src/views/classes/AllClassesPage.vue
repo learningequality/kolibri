@@ -8,7 +8,7 @@
         class="content-card"
         v-for="c in classrooms"
         :key="c.id"
-        :link="assignmentsLink(c)"
+        :link="classAssignmentsLink(c.id)"
         :showContentIcon="false"
         :title="c.name"
         :kind="CLASSROOM"
@@ -24,15 +24,8 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ClassesPageNames } from '../../constants';
   import ContentCard from '../content-card';
-
-  function assignmentsLink({ id }) {
-    return {
-      name: ClassesPageNames.CLASS_ASSIGNMENTS,
-      params: { classId: id },
-    };
-  }
+  import { classAssignmentsLink } from './classPageLinks';
 
   export default {
     name: 'allClassesPage',
@@ -49,7 +42,7 @@
       },
     },
     methods: {
-      assignmentsLink,
+      classAssignmentsLink,
     },
     vuex: {
       getters: {

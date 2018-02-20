@@ -1,45 +1,41 @@
 import { ClassesPageNames } from '../../constants';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
 const translator = createTranslator('classesBreadcrumbItems', {
   allClassesBreadcrumb: 'Classes',
 });
 
-const allClassesCrumb = {
-  text: translator.$tr('allClassesBreadcrumb'),
-  link: {
-    name: ClassesPageNames.ALL_CLASSES,
-  },
-};
-
-const classAssignmentsCrumb = classroomName => {
-  return {
-    text: classroomName,
-    link: {
-      name: ClassesPageNames.CLASS_ASSIGNMENTS,
-    },
-  };
-};
-
-const lessonPlaylistCrumb = lessonName => {
-  return {
-    text: lessonName,
-    link: {
-      name: ClassesPageNames.LESSON_PLAYLIST,
-    },
-  };
-};
-
 // A mixin intended for use inside of learn plugin breadcrumbs
 export default {
   computed: {
     classesBreadcrumbs() {
-      const defaultCrumbs = [allClassesCrumb, classAssignmentsCrumb(this.currentClassroom.name)];
+      const defaultCrumbs = [
+        // Link to All Classes Page
+        {
+          text: translator.$tr('allClassesBreadcrumb'),
+          link: {
+            name: ClassesPageNames.ALL_CLASSES,
+          },
+        },
+        {
+          // Link to Classroom Assignments page
+          text: this.currentClassroom.name,
+          link: classAssignmentsLink(this.currentClassroom.id),
+        },
+      ];
       switch (this.pageName) {
         case ClassesPageNames.CLASS_ASSIGNMENTS:
           return defaultCrumbs;
         case ClassesPageNames.LESSON_PLAYLIST:
-          return [...defaultCrumbs, lessonPlaylistCrumb(this.currentLesson.name)];
+          return [
+            ...defaultCrumbs,
+            {
+              // Link to Lesson Playlist
+              text: this.currentLesson.name,
+              link: lessonPlaylistLink(this.currentLesson.id),
+            },
+          ];
         default:
           return [];
       }

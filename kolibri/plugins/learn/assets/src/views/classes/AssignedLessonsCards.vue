@@ -29,16 +29,7 @@
 
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ClassesPageNames } from '../../constants';
-
-  function lessonPlaylistLink(lesson) {
-    return {
-      name: ClassesPageNames.LESSON_PLAYLIST,
-      params: {
-        lessonId: lesson.id,
-      },
-    };
-  }
+  import { lessonPlaylistLink } from './classPageLinks'
 
   export default {
     name: 'assignedLessonsCards',

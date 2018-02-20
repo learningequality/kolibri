@@ -46,7 +46,7 @@
               <k-router-link
                 appearance="flat-button"
                 :text="!userHasStartedExam(exam) ? $tr('start') : $tr('continue')"
-                :to="generateExamLink(exam)"
+                :to="examViewerLink(exam.id)"
                 :primary="true"
               />
             </td>
@@ -66,17 +66,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ClassesPageNames } from '../../constants';
-
-  function generateExamLink(exam) {
-    return {
-      name: ClassesPageNames.EXAM_VIEWER,
-      params: {
-        examId: exam.id,
-        questionNumber: 0,
-      },
-    };
-  }
+  import { examViewerLink } from './classPageLinks';
 
   export default {
     name: 'assignedExamsTable',
@@ -120,7 +110,7 @@
           left: exam.question_count - exam.progress.answer_count,
         });
       },
-      generateExamLink,
+      examViewerLink,
     },
     $trs: {
       examsHeader: 'Exams',

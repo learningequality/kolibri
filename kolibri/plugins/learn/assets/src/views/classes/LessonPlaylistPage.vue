@@ -21,7 +21,7 @@
         class="content-card"
         :isMobile="true"
         :kind="c.kind"
-        :link="lessonContentNodeLink(c)"
+        :link="lessonResourceViewerLink(c.pk)"
         :progress="c.progress_fraction"
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
@@ -41,7 +41,7 @@
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentCard from '../content-card';
-  import { PageNames } from '../../constants';
+  import { lessonResourceViewerLink } from './classPageLinks';
 
   // TODO Make this utility
   function getContentNodeThumbnail(contentnode) {
@@ -50,15 +50,6 @@
       return fileWithThumbnail.storage_url;
     }
     return null;
-  }
-
-  function lessonContentNodeLink(contentNode) {
-    return {
-      name: PageNames.TOPICS_CONTENT,
-      params: {
-        id: contentNode.pk,
-      },
-    };
   }
 
   export default {
@@ -82,7 +73,7 @@
     },
     methods: {
       getContentNodeThumbnail,
-      lessonContentNodeLink,
+      lessonResourceViewerLink,
     },
     vuex: {
       getters: {
