@@ -23,7 +23,7 @@
             icon="close"
             @click="toggleNav"
           />
-          <span class="side-nav-header-name">{{ $tr('Kolibri') }}</span>
+          <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
         </div>
 
         <div
