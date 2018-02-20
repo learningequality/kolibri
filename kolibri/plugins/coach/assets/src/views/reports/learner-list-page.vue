@@ -10,13 +10,14 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
-    <report-subheading />
-    <p v-if="!standardDataTable.length" class="center-text">
-      <strong>{{ $tr('noLearners') }}</strong>
-    </p>
-    <report-table v-else>
+    <h1 v-else>{{ $tr('learners') }}</h1>
+
+    <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
+
+    <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :align="alignStart"
             :text="$tr('name')"
@@ -46,6 +47,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell
             :kind="row.kind"
             :title="row.title"
@@ -60,7 +64,7 @@
           <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -69,14 +73,13 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as CoachConstants from '../../constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as ReportConstants from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -87,10 +90,9 @@
   export default {
     name: 'learnerReportPage',
     components: {
+      CoreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
-      reportSubheading,
       headerCell,
       nameCell,
       progressCell,
@@ -98,6 +100,7 @@
     },
     mixins: [alignMixin],
     $trs: {
+      learners: 'Learner reports',
       name: 'Name',
       group: 'Group',
       exerciseProgress: 'Exercise progress',

@@ -20,7 +20,7 @@
       <k-button
         :text="$tr('createExam')"
         :primary="true"
-        :disabled="!selectedChannel"
+        :disabled="Object.keys(selectedChannel).length === 0"
         @click="routeToCreateExamPage"
       />
     </div>

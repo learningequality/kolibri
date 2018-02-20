@@ -83,8 +83,8 @@
         default: false,
       },
       /**
-      * Autofocus on mount
-      */
+       * Autofocus on mount
+       */
       autofocus: {
         type: Boolean,
         default: false,

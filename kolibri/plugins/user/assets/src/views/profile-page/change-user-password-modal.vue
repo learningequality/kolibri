@@ -7,21 +7,12 @@
     <form @submit.prevent="submitForm">
 
       <k-textbox
-        ref="currentPassword"
-        type="password"
-        :label="$tr('currentPasswordFieldLabel')"
-        :autofocus="true"
-        :invalid="currentPasswordIsInvalid"
-        :invalidText="currentPasswordInvalidErrorText"
-        @blur="currentPasswordBlurred = true"
-        v-model="currentPassword"
-      />
-      <k-textbox
         ref="newPassword"
         type="new-password"
         :label="$tr('newPasswordFieldLabel')"
         :invalid="newPasswordIsInvalid"
         :invalidText="newPasswordInvalidErrorText"
+        :autofocus="true"
         @blur="newPasswordBlurred = true"
         v-model="newPassword"
       />
@@ -73,28 +64,14 @@
     },
     data() {
       return {
-        currentPassword: '',
         newPassword: '',
         confirmedNewPassword: '',
-        currentPasswordBlurred: false,
         newPasswordBlurred: false,
         confirmedNewPasswordBlurred: false,
         submittedForm: false,
       };
     },
     computed: {
-      currentPasswordIsInvalid() {
-        return !!this.currentPasswordInvalidErrorText;
-      },
-      currentPasswordInvalidErrorText() {
-        // TODO add wrong password text
-        if (this.currentPasswordBlurred || this.submittedForm) {
-          if (this.currentPassword === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
       newPasswordInvalidErrorText() {
         if (this.newPasswordBlurred || this.submittedForm) {
           if (this.newPassword === '') {
@@ -151,7 +128,6 @@
     },
     $trs: {
       passwordChangeFormHeader: 'Change Password',
-      currentPasswordFieldLabel: 'Enter current password',
       newPasswordFieldLabel: 'Enter new password',
       confirmNewPasswordFieldLabel: 'Re-enter new password',
       passwordMismatchErrorMessage: 'New passwords do not match',

@@ -139,7 +139,7 @@ describe('channelsGrid component', () => {
         deleteModal = deleteChannelModal();
         assert(deleteModal.isVueComponent);
         const deleteButton = deleteModal.first('button[name="confirm"]');
-        assert.equal(deleteButton.text().trim(), 'Confirm');
+        assert.equal(deleteButton.text().trim(), 'Delete');
         deleteButton.trigger('click');
         return wrapper.vm.$nextTick();
       })

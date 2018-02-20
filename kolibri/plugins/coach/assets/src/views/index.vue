@@ -1,18 +1,22 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="$tr('coachTitle')"
+    :navBarNeeded="!isLoading && !currentPageIsImmersive"
+  >
 
-    <div class="content">
-      <template v-if="showTopNav">
+    <div class="coach" v-if="userCanAccessPage">
+      <template v-if="!isLoading && showTopNav">
         <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
-        <top-nav />
+        <top-nav class="top-nav" />
       </template>
 
-      <div v-if="userCanAccessPage">
-        <component :is="currentPage" />
-      </div>
-      <auth-message v-else authorizedRole="adminOrCoach" />
+      <component :is="currentPage" />
+
     </div>
+
+    <auth-message v-else authorizedRole="adminOrCoach" />
 
   </core-base>
 
@@ -21,6 +25,7 @@
 
 <script>
 
+  import { currentPageIsImmersive } from '../state/getters/main';
   import { PageNames } from '../constants';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -39,6 +44,13 @@
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
   import classSelector from './class-selector';
+
+  // lessons
+  import { LessonsPageNames } from '../lessonsConstants';
+  import LessonsRootPage from './lessons/LessonsRootPage';
+  import LessonSummaryPage from './lessons/LessonSummaryPage';
+  import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
+
   export default {
     name: 'coachRoot',
     $trs: {
@@ -61,6 +73,10 @@
       itemListPage,
       learnerListPage,
       classSelector,
+      // lessons
+      LessonsRootPage,
+      LessonSummaryPage,
+      LessonResourceSelectionPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -87,11 +103,21 @@
           [PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [PageNames.EXAM_REPORT]: 'exam-report-page',
           [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
+
+          // lessons
+          [LessonsPageNames.ROOT]: 'LessonsRootPage',
+          [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
+          [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
+          [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
         };
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== PageNames.CLASS_LIST && this.userCanAccessPage;
+        return (
+          this.pageName !== PageNames.CLASS_LIST &&
+          this.userCanAccessPage &&
+          !this.currentPageIsImmersive
+        );
       },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
@@ -111,12 +137,14 @@
     },
     vuex: {
       getters: {
+        currentPageIsImmersive,
         pageName: state => state.pageName,
         isAdmin,
         isCoach,
         isSuperuser,
         classList: state => state.classList,
         classId: state => state.classId,
+        isLoading: state => state.core.loading,
       },
     },
   };
@@ -128,8 +156,10 @@
 
   @require '~kolibri.styles.definitions'
 
-  .content
-    background-color: $core-bg-light
-    padding: 1em
+  .coach
+    overflow: auto
+
+  .top-nav
+    margin-bottom: 32px
 
 </style>

@@ -12,15 +12,13 @@ export default {
   SET_PROFILE_SUCCESS(state, isSuccessful) {
     state.pageState.success = isSuccessful;
   },
-  SET_PROFILE_ERROR(state, { isError, errorMessage = '' }) {
+  SET_PROFILE_ERROR(state, { isError, errorMessage = '', errorCode = null }) {
     state.pageState.error = isError;
     state.pageState.errorMessage = errorMessage;
+    state.pageState.errorCode = errorCode;
   },
   SET_PROFILE_PASSWORD_MODAL(state, isVisible) {
     state.pageState.passwordState.modal = isVisible;
-  },
-  SET_PROFILE_PASSWORD_SUCCESS(state, isSuccessful) {
-    state.pageState.passwordState.success = isSuccessful;
   },
   SET_PROFILE_PASSWORD_ERROR(state, { isError, errorMessage = '' }) {
     state.pageState.passwordState.error = isError;
@@ -39,6 +37,7 @@ export default {
       busy: false,
       success: false,
       error: false,
+      errorCode: null,
       errorMessage: '',
       passwordState: {
         modal: false,

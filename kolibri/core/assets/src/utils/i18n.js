@@ -1,6 +1,7 @@
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
-import importIntlLocale from './import-intl-locale';
+import importIntlLocale from './intl-locale-data';
+import importVueIntlLocaleData from './vue-intl-locale-data';
 
 const logging = logger.getLogger(__filename);
 
@@ -153,7 +154,7 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
-function setUpVueIntl() {
+export function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
@@ -182,7 +183,11 @@ function setUpVueIntl() {
     if (global.coreLanguageMessages) {
       vue.registerMessages(currentLanguage, global.coreLanguageMessages);
     }
+    return importVueIntlLocaleData(currentLanguage).then(localeData => {
+      VueIntl.addLocaleData(localeData);
+    });
   }
+  return Promise.resolve();
 }
 
 export function setUpIntl() {
@@ -210,8 +215,7 @@ export function setUpIntl() {
           requires[0]();
           // Executes function that requires intl locale data - needs intl to have run
           requires[1]();
-          setUpVueIntl();
-          resolve();
+          setUpVueIntl().then(() => resolve());
         },
         error => {
           logging.error(error);
@@ -220,8 +224,7 @@ export function setUpIntl() {
         }
       );
     } else {
-      setUpVueIntl();
-      resolve();
+      setUpVueIntl().then(() => resolve());
     }
   });
 }

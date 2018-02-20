@@ -33,8 +33,8 @@
     components: { uiIcon },
     props: {
       /**
-        * The type of tab. title, icon, or icon-and-title
-        */
+       * The type of tab. title, icon, or icon-and-title
+       */
       type: {
         type: String,
         validator(type) {
@@ -43,22 +43,22 @@
         required: true,
       },
       /**
-        * The text
-        */
+       * The text
+       */
       title: {
         type: String,
         required: false,
       },
       /**
-        * A material icon name
-        */
+       * A material icon name
+       */
       icon: {
         type: String,
         required: false,
       },
       /**
-        * A router link object
-        */
+       * A router link object
+       */
       link: {
         type: Object,
         required: true,

@@ -6,7 +6,7 @@ Getting started
 First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
 .. _dev_env_intro:
-  
+
 Setting up Kolibri for development
 ----------------------------------
 
@@ -263,6 +263,12 @@ To improve build times, and facilitate rapid development, Javascript linting is 
 Code Testing
 ~~~~~~~~~~~~
 
+First, install some additional dependencies related to running tests:
+
+.. code-block:: bash
+
+  pip install -r requirements/test.txt
+
 Kolibri comes with a Python test suite based on ``py.test``. To run tests in your current environment:
 
 .. code-block:: bash
@@ -365,7 +371,7 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Localization
  * Consistency
 
-For more information, see the next section on :doc:`manual_testing`.
+For more information, see the next section on :doc:`/references/manual_testing`.
 
 
 Submitting a Pull Request

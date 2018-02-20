@@ -18,7 +18,6 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
-import heartbeat from 'kolibri.heartbeat';
 
 const name = 'coreTitles';
 
@@ -725,12 +724,11 @@ function updateMasteryAttemptState(
   });
 }
 
-function tryToReconnect() {
-  heartbeat.beat();
+function createSnackbar(store, snackbarOptions) {
+  store.dispatch('CORE_CREATE_SNACKBAR', snackbarOptions);
 }
-
 function clearSnackbar(store) {
-  store.dispatch('CORE_SET_CURRENT_SNACKBAR', null);
+  store.dispatch('CORE_CLEAR_SNACKBAR');
 }
 
 export {
@@ -760,6 +758,6 @@ export {
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
-  tryToReconnect,
+  createSnackbar,
   clearSnackbar,
 };

@@ -36,7 +36,7 @@
       </template>
     </div>
 
-    <connection-snackbars />
+    <global-snackbar />
   </div>
 
 </template>
@@ -51,7 +51,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
   import errorBox from './error-box';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import connectionSnackbars from './connection-snackbars';
+  import globalSnackbar from './global-snackbar';
 
   export default {
     name: 'coreBasePage',
@@ -60,7 +60,7 @@
       sideNav,
       errorBox,
       loadingSpinner,
-      connectionSnackbars,
+      globalSnackbar,
     },
     mixins: [responsiveWindow],
     props: {

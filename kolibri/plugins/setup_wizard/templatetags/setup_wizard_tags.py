@@ -1,6 +1,6 @@
 """
 setup_wizard template tags
-===================
+==========================
 
 Tags for including setup_wizard app javascript assets ina template. To use:
 
