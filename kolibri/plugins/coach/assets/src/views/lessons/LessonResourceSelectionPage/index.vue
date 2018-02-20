@@ -1,70 +1,49 @@
 <template>
 
-  <div class="selection-page">
-    <ui-toolbar
-      :title="$tr('toolbarTitle')"
-      textColor="white"
-      type="colored"
-      class="immersive-header"
-    >
-      <div slot="icon">
-        <router-link :to="lessonPage">
-          <mat-svg
-            class="exit-button"
-            category="navigation"
-            name="close"
-          />
-        </router-link>
-      </div>
-    </ui-toolbar>
+  <form class="selection-form" @submit.prevent="saveResources">
+    <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
 
-    <div class="immersive-content">
-      <form class="selection-form" @submit.prevent="saveResources">
-        <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
+    <search-box />
 
-        <search-box />
+    <k-breadcrumbs
+      :items="selectionCrumbs"
+      :showAllCrumbs="true"
+    />
 
-        <k-breadcrumbs
-          :items="selectionCrumbs"
-          :showAllCrumbs="true"
+    <ul class="content-list">
+      <li
+        class="content-list-item"
+        :key="content.id"
+        v-for="content in contentList"
+      >
+        <k-checkbox
+          class="content-checkbox"
+          :label="content.title"
+          v-if="!contentIsDirectoryKind(content)"
+          :showLabel="false"
+          :checked="isSelected(content.id)"
+          @change="toggleSelected($event, content.id)"
         />
+        <content-card
+          class="content-card"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :description="content.description"
+          :kind="content.kind"
+          :link="contentLink(content)"
+        />
+      </li>
+    </ul>
 
-        <ul class="content-list">
-          <li
-            class="content-list-item"
-            :key="content.id"
-            v-for="content in contentList"
-          >
-            <k-checkbox
-              class="content-checkbox"
-              :label="content.title"
-              v-if="!contentIsDirectoryKind(content)"
-              :showLabel="false"
-              :checked="isSelected(content.id)"
-              @change="toggleSelected($event, content.id)"
-            />
-            <content-card
-              class="content-card"
-              :title="content.title"
-              :thumbnail="content.thumbnail"
-              :description="content.description"
-              :kind="content.kind"
-              :link="contentLink(content)"
-            />
-          </li>
-        </ul>
-
-        <div class="information">
-          <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-          <k-button
-            type="submit"
-            :primary="true"
-            :text="$tr('save')"
-          />
-        </div>
-      </form>
+    <div class="information">
+      <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
+      <k-button
+        type="submit"
+        :primary="true"
+        :text="$tr('save')"
+      />
     </div>
-  </div>
+  </form>
 
 </template>
 
@@ -114,6 +93,7 @@
       },
     },
     methods: {
+      // TODO refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
       },
@@ -181,7 +161,6 @@
       addResourcesHeader: 'Add resources to your lesson',
       channelBreadcrumbLabel: 'Channels',
       save: 'Save',
-      toolbarTitle: 'Select resources',
       totalResourcesSelected: 'Total resources selected: {total, number, integer}',
       resourceSaveConfirmation: 'Changes to lesson saved',
     },
@@ -194,10 +173,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .exit-button
-    fill: white
-    margin-left: 0.5em
-    font-size: 1rem
 
   .content-list
     list-style: none
@@ -224,21 +199,5 @@
 
   .information
     text-align: right
-
-  .immersive
-    &-header
-      position: fixed
-      left: 0
-      right: 0
-      top: 0
-      z-index: 4 // material spec
-    &-content
-      position: absolute
-      top: 58px // height of action bar
-      left: 0
-      right: 0
-      bottom: 0
-      overflow-y: scroll
-      padding: 32px
 
 </style>

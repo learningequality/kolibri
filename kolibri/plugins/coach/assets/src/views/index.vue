@@ -1,31 +1,34 @@
 <template>
 
-  <core-base
-    :topLevelPageName="topLevelPageName"
-    :appBarTitle="$tr('coachTitle')"
-    :navBarNeeded="!isLoading && !currentPageIsImmersive"
-  >
+  <div>
+    <core-base
+      :immersivePage="currentPageIsImmersive"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+      :immersivePageIcon="immersivePageIcon"
+      :immersivePageRoute="immersivePageRoute"
+    >
 
-    <div class="coach" v-if="userCanAccessPage">
-      <template v-if="!isLoading && showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass" />
+      <template v-if="showCoachNav">
+        <class-selector
+          :classes="classList"
+          :currentClassId="classId"
+          @changeClass="changeClass"
+        />
         <top-nav class="top-nav" />
       </template>
 
-      <component :is="currentPage" />
+      <!-- TODO need a better solution for passing in authMessage -->
+      <component authorizedRole="adminOrCoach" :is="currentPage" />
 
-    </div>
-
-    <auth-message v-else authorizedRole="adminOrCoach" />
-
-  </core-base>
+    </core-base>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { currentPageIsImmersive } from '../state/getters/main';
   import { PageNames } from '../constants';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -51,10 +54,15 @@
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
 
+  const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
+
+  const immersivePages = [...selectionPages, LessonsPageNames.CONTENT_PREVIEW];
+
   export default {
     name: 'coachRoot',
     $trs: {
-      coachTitle: 'Coach',
+      coachToolbarHeader: 'Coach',
+      selectPageToolbarHeader: 'Select resources',
     },
     components: {
       authMessage,
@@ -110,17 +118,43 @@
           [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
           [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
         };
+        if (!this.userCanAccessPage) {
+          // TODO better solution
+          return 'authMessage';
+        }
         return pageNameToComponentMap[this.pageName];
       },
-      showTopNav() {
+      showCoachNav() {
         return (
           this.pageName !== PageNames.CLASS_LIST &&
           this.userCanAccessPage &&
           !this.currentPageIsImmersive
         );
       },
+      currentPageIsImmersive() {
+        return immersivePages.includes(this.pageName);
+      },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
+      },
+      appBarTitle() {
+        if (selectionPages.includes(this.pageName)) {
+          return this.$tr('selectPageToolbarHeader');
+        }
+        return this.$tr('coachToolbarHeader');
+      },
+      immersivePageRoute() {
+        if (selectionPages.includes(this.pageName)) {
+          // params are inferred by vuex
+          // https://router.vuejs.org/en/essentials/dynamic-matching.html
+          return { name: LessonsPageNames.SUMMARY };
+        }
+      },
+      immersivePageIcon() {
+        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+          return 'arrow_back';
+        }
+        return 'close';
       },
     },
     methods: {
@@ -137,7 +171,6 @@
     },
     vuex: {
       getters: {
-        currentPageIsImmersive,
         pageName: state => state.pageName,
         isAdmin,
         isCoach,
@@ -155,9 +188,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .coach
-    overflow: auto
 
   .top-nav
     margin-bottom: 32px

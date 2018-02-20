@@ -371,6 +371,7 @@ class CoachToolsModule extends KolibriApp {
   get routes() {
     return routes;
   }
+  // IDEA swap base page components at root level?
   get RootVue() {
     return RootVue;
   }
