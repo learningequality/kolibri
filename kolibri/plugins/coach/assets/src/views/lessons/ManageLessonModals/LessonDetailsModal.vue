@@ -69,12 +69,12 @@
     },
     data() {
       return {
-        title: '',
         description: '',
-        titleIsVisited: false,
         descriptionIsVisited: false,
-        selectedCollectionIds: [],
         formIsSubmitted: false,
+        selectedCollectionIds: [],
+        title: '',
+        titleIsVisited: false,
       };
     },
     computed: {
@@ -115,11 +115,11 @@
       formIsValid() {
         return !this.titleIsInvalid;
       },
-      currentCollectionIds() {
-        return this.currentLesson.lesson_assignments.map(a => a.collection);
-      },
       groupsHaveChanged() {
-        const unsharedIds = xor(this.selectedCollectionIds, this.currentCollectionIds);
+        const unsharedIds = xor(
+          this.selectedCollectionIds,
+          this.currentLessonAssignedCollectionIds
+        );
         return unsharedIds.length > 0;
       },
       lessonDetailsHaveChanged() {
@@ -134,7 +134,7 @@
       if (this.isInEditMode) {
         this.title = this.currentLesson.title;
         this.description = this.currentLesson.description;
-        this.selectedCollectionIds = this.currentLesson.lesson_assignments.map(a => a.collection);
+        this.selectedCollectionIds = [...this.currentLessonAssignedCollectionIds];
       } else {
         this.selectedCollectionIds = [this.classId];
       }
@@ -199,6 +199,8 @@
         groups: state => state.pageState.learnerGroups,
         // If the page name is (Lesson) SUMMARY, then should be in edit mode
         isInEditMode: state => state.pageName === LessonsPageNames.SUMMARY,
+        currentLessonAssignedCollectionIds: state =>
+          state.pageState.currentLesson.lesson_assignments.map(a => a.collection),
       },
       actions: {
         createSnackbar,
