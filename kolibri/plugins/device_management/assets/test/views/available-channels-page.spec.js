@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import { mount } from 'avoriaz';
 import AvailableChannelsPage from '../../src/views/available-channels-page';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
-import UiSelect from 'keen-ui/src/UiSelect';
+import kSelect from 'kolibri.coreVue.components.kSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
@@ -95,7 +95,7 @@ function getElements(wrapper) {
     channelListItems: () => wrapper.find(ChannelListItem),
     channelTokenModal: () => wrapper.first(ChannelTokenModal),
     filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.first(UiSelect),
+    languageFilter: () => wrapper.first(kSelect),
     titleText: () => wrapper.first('.channels h1').text().trim(),
     titleFilter: () => wrapper.first(kFilterTextbox),
     unlistedChannelsSection: () => wrapper.find('section.unlisted-channels'),
@@ -254,10 +254,11 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper();
     const { languageFilter } = getElements(wrapper);
     const filter = languageFilter();
-    // Can't seem to trigger the event, so calling setValue method directly
-    filter.vm.setValue({ label: 'English', value: 'en' });
     return wrapper.vm.$nextTick().then(() => {
-      testChannelVisibility(wrapper, [true, false, false, false]);
+      filter.vm.selection = { label: 'English', value: 'en' };
+      return wrapper.vm.$nextTick().then(() => {
+        testChannelVisibility(wrapper, [true, false, false, false]);
+      });
     });
   });
 
@@ -278,10 +279,12 @@ describe('availableChannelsPage', () => {
     const { languageFilter, titleFilter } = getElements(wrapper);
     const lFilter = languageFilter();
     const tFilter = titleFilter();
-    lFilter.vm.setValue({ label: 'German', value: 'de' });
     tFilter.vm.model = 'hund';
     return wrapper.vm.$nextTick().then(() => {
-      testChannelVisibility(wrapper, [false, false, true, false]);
+      lFilter.vm.selection = { label: 'German', value: 'de' };
+      return wrapper.vm.$nextTick().then(() => {
+        testChannelVisibility(wrapper, [false, false, true, false]);
+      });
     });
   });
 
