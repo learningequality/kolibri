@@ -65,9 +65,13 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('lft',),
             },
-            managers=[
-                ('_default_manager', django.db.models.manager.Manager()),
-            ],
+            # Removed because django-mptt 0.8.7 patched up an error in
+            # Django 1.9 (fixed since 1.10).
+            # Ref: https://code.djangoproject.com/ticket/26643
+            # https://github.com/learningequality/kolibri/pull/3180
+            # managers=[
+            #     ('_default_manager', django.db.models.manager.Manager()),
+            # ],
         ),
         migrations.CreateModel(
             name='ContentTag',

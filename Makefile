@@ -15,7 +15,7 @@ help:
 	@echo "dist - package"
 	@echo "writeversion - updates the kolibri/VERSION file"
 
-clean: clean-build clean-pyc clean-docs clean-static
+clean: clean-build clean-pyc clean-static
 
 clean-static:
 	yarn run clean
@@ -44,7 +44,6 @@ clean-pyc:
 clean-docs:
 	rm -f docs-developer/py_modules/kolibri*rst
 	rm -f docs-developer/py_modules/modules.rst
-	$(MAKE) -C docs clean
 	$(MAKE) -C docs-developer clean
 
 lint:
@@ -64,14 +63,9 @@ coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
 
-docs-developer: clean-docs
+docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs-developer/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs-developer html
-
-docs-user: clean-docs
-	$(MAKE) -C docs html
-
-docs: docs-user docs-developer
 
 release:
 	ls -l dist/
@@ -108,12 +102,8 @@ dist: setrequirements writeversion staticdeps buildconfig assets compilemessages
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-makedocsmessages:
-	make -C docs/ gettext
-	cd docs && sphinx-intl update -p _build/locale -l en
-
-makemessages: assets makedocsmessages
-	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
+makemessages: assets
+	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 compilemessages:
 	python -m kolibri manage compilemessages
