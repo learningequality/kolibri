@@ -6,7 +6,7 @@
       :topLevelPageName="topLevelPageName"
       :appBarTitle="appBarTitle"
       :immersivePageIcon="immersivePageIcon"
-      :immersivePageRoute="immersivePageRoute"
+      :immersivePageRoute="toolbarRoute"
     >
 
       <template v-if="showCoachNav">
@@ -53,6 +53,7 @@
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
+  import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
 
   const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
 
@@ -63,6 +64,7 @@
     $trs: {
       coachToolbarHeader: 'Coach',
       selectPageToolbarHeader: 'Select resources',
+      previewContentPageToolbarHeader: 'Preview resources',
     },
     components: {
       authMessage,
@@ -85,6 +87,7 @@
       LessonsRootPage,
       LessonSummaryPage,
       LessonResourceSelectionPage,
+      LessonContentPreviewPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -117,6 +120,7 @@
           [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
           [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
           [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
+          [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
         };
         if (!this.userCanAccessPage) {
           // TODO better solution
@@ -140,15 +144,10 @@
       appBarTitle() {
         if (selectionPages.includes(this.pageName)) {
           return this.$tr('selectPageToolbarHeader');
+        } else if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+          return this.$tr('previewContentPageToolbarHeader');
         }
         return this.$tr('coachToolbarHeader');
-      },
-      immersivePageRoute() {
-        if (selectionPages.includes(this.pageName)) {
-          // params are inferred by vuex
-          // https://router.vuejs.org/en/essentials/dynamic-matching.html
-          return { name: LessonsPageNames.SUMMARY };
-        }
       },
       immersivePageIcon() {
         // TODO going to need to set a backgrund color
@@ -172,6 +171,7 @@
     },
     vuex: {
       getters: {
+        toolbarRoute: state => state.pageState.toolbarRoute,
         pageName: state => state.pageName,
         isAdmin,
         isCoach,

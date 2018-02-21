@@ -18,6 +18,11 @@ export function SET_CONTENT_LIST(state, contentList) {
   state.pageState.contentList = [...contentList];
 }
 
+// IDEA does this _have_ to be a mutation? Couldn't we just set in pagestate?
+export function SET_TOOLBAR_ROUTE(state, route) {
+  state.pageState.toolbarRoute = route;
+}
+
 export function SET_ANCESTORS(state, ancestors) {
   state.pageState.ancestors = [...ancestors];
 }

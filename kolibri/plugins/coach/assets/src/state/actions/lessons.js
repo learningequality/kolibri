@@ -1,5 +1,6 @@
 import { LessonsPageNames } from '../../lessonsConstants';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -64,30 +65,28 @@ export function updateCurrentLesson(store, lessonId) {
 export function showLessonSummaryPage(store, classId, lessonId) {
   function updateResourceContentNodes(resourceIds) {
     const contentNodeMap = {};
-    const resourcePromises = resourceIds.map(resourceId =>
-      // have to retrieve each contentNode individually
-      ContentNodeResource.getModel(resourceId).fetch()
-    );
 
-    return Promise.all(resourcePromises).then(contentNodeArray => {
-      contentNodeArray.forEach(
-        // should map directly to resourceIds
-        // TODO include route information? Also selection page. Simplify component logic
-        // TODO make this a state mapper?
-        contentNode =>
-          (contentNodeMap[contentNode.pk] = {
-            title: contentNode.title,
-            // TODO calculate progress
-            progress: Number(contentNode.progress_fraction),
-            id: contentNode.pk,
-          })
-      );
+    return ContentNodeResource.getCollection({ ids: resourceIds })
+      .fetch()
+      .then(contentNodeArray => {
+        contentNodeArray.forEach(
+          // should map directly to resourceIds
+          // TODO include route information? Also selection page. Simplify component logic
+          // TODO make this a state mapper?
+          contentNode =>
+            (contentNodeMap[contentNode.pk] = {
+              title: contentNode.title,
+              // TODO calculate progress
+              progress: Number(contentNode.progress_fraction),
+              id: contentNode.pk,
+            })
+        );
 
-      store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
+        store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
 
-      // TODO make sure this is resolved properly
-      return contentNodeMap;
-    });
+        // TODO make sure this is resolved properly
+        return contentNodeMap;
+      });
   }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
@@ -136,6 +135,7 @@ function showResourceSelectionPage(
     currentLesson: {},
     contentList: [],
     ancestors: [],
+    toolbarRoute: {},
     // contains all selections, including those that haven't been committed to server
     workingResources: pendingSelections,
   };
@@ -161,6 +161,7 @@ function showResourceSelectionPage(
       // carry pendingSelections over from other interactions in this modal
       store.dispatch('SET_CONTENT_LIST', contentList);
       store.dispatch('SET_PAGE_NAME', pageName);
+      store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -245,4 +246,36 @@ export function saveLessonResources(store, lessonId, resources) {
 
 export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
 
-export function showLessonContentPreview(store, classId, lessonId, contentId) {}
+export function showLessonContentPreview(store, classId, lessonId, contentId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  // TODO rule of thirds. break this out.
+  const pendingSelections = store.state.pageState.workingResources || [];
+  const pageState = {
+    currentContentNode: {},
+    questions: [],
+    toolbarRoute: {},
+    workingResources: pendingSelections,
+    // TODO is the question being displayed a part of the URL?
+    // working resources? to verify that it's here. Needs design - get from state if possible
+  };
+  Promise.all([
+    ContentNodeResource.getModel(contentId).fetch(),
+    LessonResource.getModel(lessonId).fetch(),
+  ]).then(([contentNode, lesson]) => {
+    pageState.currentContentNode = contentNode;
+    pageState.questions = assessmentMetaDataState(contentNode).assessmentIds;
+
+    store.dispatch('CORE_SET_TITLE', contentNode.title);
+    store.dispatch('SET_TOOLBAR_ROUTE', {
+      name: LessonsPageNames.SELECTION,
+      // everything else populated by router
+      params: {
+        topicId: contentNode.parent,
+      },
+    });
+    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
+}
