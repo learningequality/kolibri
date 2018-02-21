@@ -345,7 +345,7 @@
         lessonTitle: state => state.pageState.currentLesson.name,
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
-        lessonAssignments: state => state.pageState.currentLesson.assigned_groups,
+        lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,
         lessonResources: state => state.pageState.currentLesson.resources,
         workingResources: state => state.pageState.workingResources,
         // consider loading this async?

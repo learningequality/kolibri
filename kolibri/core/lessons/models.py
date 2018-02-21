@@ -73,7 +73,7 @@ class LessonAssignment(AbstractFacilityDataModel):
         )
     )
 
-    lesson = models.ForeignKey(Lesson, related_name='assigned_groups', blank=False, null=False)
+    lesson = models.ForeignKey(Lesson, related_name='lesson_assignments', blank=False, null=False)
     collection = models.ForeignKey(Collection, related_name='assigned_lessons', blank=False, null=False)
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_lessons', blank=False, null=False)
 

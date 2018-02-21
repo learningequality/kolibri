@@ -19,8 +19,8 @@ class LessonPermissions(KolibriAuthPermissions):
         model = view.get_serializer_class().Meta.model
         validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
         # Cannot have create assignments without creating the Lesson first,
-        # so this doesn't try to validate the Lesson with a non-empty assigned_groups list
-        validated_data.pop('assigned_groups')
+        # so this doesn't try to validate the Lesson with a non-empty lesson_assignments list
+        validated_data.pop('lesson_assignments')
         return request.user.can_create(model, validated_data)
 
 

@@ -31,7 +31,7 @@ class LessonAssignmentSerializer(ModelSerializer):
 class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
     created_by = PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
-    assigned_groups = LessonAssignmentSerializer(many=True)
+    lesson_assignments = LessonAssignmentSerializer(many=True)
     resources = JSONField(default='[]')
 
     class Meta:
@@ -44,7 +44,7 @@ class LessonSerializer(ModelSerializer):
             'is_active',
             'collection',  # classroom
             'classroom',  # details about classroom
-            'assigned_groups',
+            'lesson_assignments',
             'created_by',
         )
 
@@ -62,10 +62,10 @@ class LessonSerializer(ModelSerializer):
             "resources": [...], // Array of {contentnode_id, position}
             "is_active": false,
             "collection": "df6308209356328f726a09aa9bd323b7", // classroom ID
-            "assigned_groups": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
+            "lesson_assignments": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
         }
         """
-        assignees = validated_data.pop('assigned_groups')
+        assignees = validated_data.pop('lesson_assignments')
         new_lesson = Lesson.objects.create(**validated_data)
 
         # Create all of the new LessonAssignments
@@ -85,9 +85,9 @@ class LessonSerializer(ModelSerializer):
         instance.resources = validated_data.get('resources', instance.resources)
 
         # Add/delete any new/removed Assignments
-        if 'assigned_groups' in validated_data:
-            assignees = validated_data.pop('assigned_groups')
-            current_assignments = (instance.assigned_groups).all()
+        if 'lesson_assignments' in validated_data:
+            assignees = validated_data.pop('lesson_assignments')
+            current_assignments = (instance.lesson_assignments).all()
             current_group_ids = [x.collection.id for x in list(current_assignments)]
             new_group_ids = [x['collection'].id for x in list(assignees)]
 
@@ -106,11 +106,6 @@ class LessonSerializer(ModelSerializer):
 
         instance.save()
         return instance
-
-    def validate_assigned_groups(self, value):
-        if len(value) == 0:
-            raise ValidationError('Lessons must be assigned to at least one Collection')
-        return value
 
     def _create_lesson_assignment(self, **params):
         return LessonAssignment.objects.create(

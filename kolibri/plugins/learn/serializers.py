@@ -104,7 +104,7 @@ class LearnerClassroomSerializer(ModelSerializer):
         # Return only active Lessons that are assigned to the requesting user's groups
         # TODO move this to a permission_class on Lesson
         filtered_lessons = Lesson.objects.filter(
-            assigned_groups__collection__in=learner_groups,
+            lesson_assignments__collection__in=learner_groups,
             collection=instance,
             is_active=True,
         )

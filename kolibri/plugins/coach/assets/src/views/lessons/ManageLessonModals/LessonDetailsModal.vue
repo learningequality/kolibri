@@ -116,7 +116,7 @@
         return !this.titleIsInvalid;
       },
       currentCollectionIds() {
-        return this.currentLesson.assigned_groups.map(g => g.collection);
+        return this.currentLesson.lesson_assignments.map(a => a.collection);
       },
       groupsHaveChanged() {
         const unsharedIds = xor(this.selectedCollectionIds, this.currentCollectionIds);
@@ -134,7 +134,7 @@
       if (this.isInEditMode) {
         this.title = this.currentLesson.name;
         this.description = this.currentLesson.description;
-        this.selectedCollectionIds = this.currentLesson.assigned_groups.map(g => g.collection);
+        this.selectedCollectionIds = this.currentLesson.lesson_assignments.map(a => a.collection);
       } else {
         this.selectedCollectionIds = [this.classId];
       }

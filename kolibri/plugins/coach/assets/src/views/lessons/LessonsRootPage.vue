@@ -49,7 +49,7 @@
             />
           </td>
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-          <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
+          <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
           <td>
             <status-icon :active="lesson.is_active" />
           </td>
