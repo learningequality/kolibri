@@ -1,10 +1,14 @@
+from collections import OrderedDict
 from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import ValidationError
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
-from .models import Lesson, LessonAssignment
+from kolibri.auth.models import FacilityUser
+from .models import Lesson
+from .models import LessonAssignment
 
 
 class LessonAssignmentSerializer(ModelSerializer):
@@ -26,6 +30,7 @@ class LessonAssignmentSerializer(ModelSerializer):
 
 class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
+    created_by = PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
     assigned_groups = LessonAssignmentSerializer(many=True)
     resources = JSONField(default='[]')
 
@@ -40,7 +45,13 @@ class LessonSerializer(ModelSerializer):
             'collection',  # classroom
             'classroom',  # details about classroom
             'assigned_groups',
+            'created_by',
         )
+
+    def to_internal_value(self, data):
+        data = OrderedDict(data)
+        data['created_by'] = self.context['request'].user.id
+        return super(LessonSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
         """
@@ -55,8 +66,7 @@ class LessonSerializer(ModelSerializer):
         }
         """
         assignees = validated_data.pop('assigned_groups')
-        user = self.context['request'].user
-        new_lesson = Lesson.objects.create(created_by=user, **validated_data)
+        new_lesson = Lesson.objects.create(**validated_data)
 
         # Create all of the new LessonAssignments
         for assignee in assignees:

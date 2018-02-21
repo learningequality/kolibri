@@ -5,8 +5,29 @@ from kolibri.core.lessons.models import Lesson
 from rest_framework.viewsets import ModelViewSet
 
 
+def _ensure_raw_dict(d):
+    if hasattr(d, "dict"):
+        d = d.dict()
+    return dict(d)
+
+
+class LessonPermissions(KolibriAuthPermissions):
+    # Overrides the default validator to sanitize the Lesson POST Payload
+    # before validation
+    def validator(self, request, view, datum):
+        model = view.get_serializer_class().Meta.model
+        validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
+        # Cannot have create assignments without creating the Lesson first,
+        # so don't try to validate the assigned_groups array
+        validated_data.pop('assigned_groups')
+        return request.user.can_create(model, validated_data)
+
+
 class LessonViewset(ModelViewSet):
     serializer_class = LessonSerializer
     filter_backends = (KolibriAuthPermissionsFilter,)
-    permission_classes = (KolibriAuthPermissions,)
+    permission_classes = (LessonPermissions,)
     queryset = Lesson.objects.all()
+
+    def get_serializer_class(self):
+        return LessonSerializer
