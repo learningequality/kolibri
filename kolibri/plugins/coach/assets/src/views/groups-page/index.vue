@@ -6,6 +6,7 @@
     <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
 
     <k-button
+      class="new-group-button"
       :text="$tr('newGroup')"
       :primary="true"
       @click="openCreateGroupModal"
@@ -170,7 +171,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .new-group-button
+    float: right
 
   .header
     display: inline-block
