@@ -29,7 +29,7 @@ class LessonViewset(ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend,)
     filter_fields = ('collection',)
     permission_classes = (LessonPermissions,)
-    queryset = Lesson.objects.all().order_by('name')
+    queryset = Lesson.objects.all().order_by('-date_created')
 
     def get_serializer_class(self):
         return LessonSerializer

@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 from django.db import models
 from jsonfield import JSONField
+from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
-from kolibri.auth.constants import role_kinds
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 
 class Lesson(AbstractFacilityDataModel):
     """
@@ -36,9 +38,9 @@ class Lesson(AbstractFacilityDataModel):
 
     # The Classroom-type Collection for which the Lesson is created
     collection = models.ForeignKey(Collection, related_name='lessons', blank=False, null=False)
+
     created_by = models.ForeignKey(FacilityUser, related_name='lessons_created', blank=False, null=False)
-    # Set to True when the Lesson is 'deleted'
-    is_archived = models.BooleanField(default=False)
+    date_created = DateTimeTzField(default=local_now, editable=False)
 
     def __str__(self):
         return 'Lesson {} for Classroom {}'.format(
