@@ -15,10 +15,10 @@ class Lesson(AbstractFacilityDataModel):
 
     permissions = RoleBasedPermissions(
         target_field='collection',
-        can_be_created_by=(),
+        can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_deleted_by=(),
+        can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
     )
 
     name = models.CharField(max_length=50)

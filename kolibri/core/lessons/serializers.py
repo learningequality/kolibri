@@ -23,6 +23,7 @@ class LessonAssignmentSerializer(ModelSerializer):
     def get_collection_kind(self, instance):
         return instance.collection.kind
 
+
 class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
     assigned_groups = LessonAssignmentSerializer(many=True)
