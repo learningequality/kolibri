@@ -18,7 +18,7 @@ export function SET_CONTENT_LIST(state, contentList) {
   state.pageState.contentList = [...contentList];
 }
 
-// IDEA does this _have_ to be a mutation? Couldn't we just set in pagestate?
+// Including as mutation because used across pages. Might be appropriate for core.
 export function SET_TOOLBAR_ROUTE(state, route) {
   state.pageState.toolbarRoute = route;
 }

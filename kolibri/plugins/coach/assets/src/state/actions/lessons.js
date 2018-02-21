@@ -263,10 +263,12 @@ export function showLessonContentPreview(store, classId, lessonId, contentId) {
     ContentNodeResource.getModel(contentId).fetch(),
     LessonResource.getModel(lessonId).fetch(),
   ]).then(([contentNode, lesson]) => {
+    // set up intial pageState
     pageState.currentContentNode = contentNode;
     pageState.questions = assessmentMetaDataState(contentNode).assessmentIds;
 
-    store.dispatch('CORE_SET_TITLE', contentNode.title);
+    store.dispatch('SET_PAGE_STATE', pageState);
+
     store.dispatch('SET_TOOLBAR_ROUTE', {
       name: LessonsPageNames.SELECTION,
       // everything else populated by router
@@ -274,7 +276,7 @@ export function showLessonContentPreview(store, classId, lessonId, contentId) {
         topicId: contentNode.parent,
       },
     });
-    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('CORE_SET_TITLE', contentNode.title);
     store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
