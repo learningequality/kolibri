@@ -56,14 +56,13 @@
           v-model.trim="filterInput"
           @input="pageNum = 1"
         />
-        <div class="inline-block">
-          <ui-switch
-            name="showSelectedUsers"
-            :class="{ 'invisible' : filterInput }"
+        <div class="inline-block va-m">
+          <k-checkbox
+            v-show="!filterInput"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
-            v-model="showSelectedUsers"
-            class="switch"
-            @input="pageNum = 1"
+            :showLabel="true"
+            :checked="showSelectedUsers"
+            @change="showSelectedUsers = $event"
           />
         </div>
       </div>
@@ -166,7 +165,6 @@
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
-  import uiSwitch from 'keen-ui/src/UiSwitch';
   import userRole from '../user-role';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
 
@@ -181,7 +179,6 @@
       kFilterTextbox,
       userCreateModal,
       confirmEnrollmentModal,
-      uiSwitch,
       userRole,
       CoreTable,
     },
@@ -364,14 +361,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  >>>.switch
-    margin-top: 20px
-    .ui-switch__track
-      z-index: 0
-
-    .ui-switch__thumb
-      z-index: 1
-
   .align-right
     text-align: right
 
@@ -405,5 +394,8 @@
 
   .filter
     margin-right: 16px
+
+  .va-m
+    vertical-align: middle
 
 </style>
