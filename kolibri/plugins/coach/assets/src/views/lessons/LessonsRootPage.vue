@@ -42,7 +42,7 @@
           <td class="core-table-icon-col">
             <content-icon :kind="lessonKind" />
           </td>
-          <td class="core-table-main-col">
+          <td class="core-table-main-col lesson-title-col">
             <k-router-link
               :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
               :text="lesson.title"
@@ -184,6 +184,9 @@
 
 
 <style lang="stylus" scoped>
+
+  .lesson-title-col
+    width: 40%
 
   .filter-and-button
     display: flex
