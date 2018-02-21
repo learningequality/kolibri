@@ -13,12 +13,14 @@
         :invalid="titleIsInvalid"
         :invalidText="titleIsInvalidText"
         v-model="title"
+        :disabled="formIsSubmitted"
       />
       <k-textbox
         :label="$tr('description')"
         :maxlength="200"
         :textArea="true"
         v-model="description"
+        :disabled="formIsSubmitted"
       />
 
       <fieldset>
@@ -27,6 +29,7 @@
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
+          :disabled="formIsSubmitted"
         />
       </fieldset>
       <div class="core-modal-buttons">
@@ -146,7 +149,15 @@
           autoDismiss: true,
         });
       },
+      handleSubmitSuccess() {
+        this.closeModal();
+        this.showSuccessSnackbar();
+      },
       submitLessonData() {
+        // Return immediately if "submit" has already been clicked
+        if (this.formIsSubmitted) {
+          return;
+        }
         if (this.isInEditMode && !this.lessonDetailsHaveChanged) {
           return this.closeModal();
         }
@@ -155,24 +166,24 @@
           if (this.isInEditMode) {
             return this.updateLesson()
               .then(updatedLesson => {
-                this.closeModal();
-                this.showSuccessSnackbar();
+                this.handleSubmitSuccess();
                 return this.updateCurrentLesson(updatedLesson);
               })
               .catch(error => {
                 // TODO handle error properly
+                this.formIsSubmitted = false;
                 console.log(error); // eslint-disable-line
               });
           } else {
             return this.createLesson()
               .then(newLesson => {
-                this.closeModal();
-                this.showSuccessSnackbar();
+                this.handleSubmitSuccess();
                 return this.$router.push(
                   lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
                 );
               })
               .catch(error => {
+                this.formIsSubmitted = false;
                 console.log(error); // eslint-disable-line
               });
           }
