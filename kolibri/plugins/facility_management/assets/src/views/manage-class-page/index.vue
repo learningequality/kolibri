@@ -37,7 +37,7 @@
           :key="classModel.id"
         >
           <td class="core-table-icon-col">
-            <ui-icon icon="people" />
+            <ui-icon icon="business" />
           </td>
           <th class="core-table-main-col">
             <k-router-link
