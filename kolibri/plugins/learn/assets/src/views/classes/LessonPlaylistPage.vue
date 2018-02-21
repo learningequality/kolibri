@@ -18,7 +18,7 @@
       </div>
     </section>
 
-    <section>
+    <section class="content-cards">
       <content-card
         v-for="c in contentNodes"
         :key="c.pk"
@@ -104,9 +104,11 @@
   .title
     display: inline-block
 
+  .content-cards
+    max-width: 800px
+
   .content-card
     margin-bottom: 16px
-    max-width: 800px
 
   .no-resources-message
     text-align: center
