@@ -19,7 +19,7 @@ class LessonPermissions(KolibriAuthPermissions):
         model = view.get_serializer_class().Meta.model
         validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
         # Cannot have create assignments without creating the Lesson first,
-        # so don't try to validate the assigned_groups array
+        # so this doesn't try to validate the Lesson with a non-empty assigned_groups list
         validated_data.pop('assigned_groups')
         return request.user.can_create(model, validated_data)
 
@@ -29,7 +29,7 @@ class LessonViewset(ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend,)
     filter_fields = ('collection',)
     permission_classes = (LessonPermissions,)
-    queryset = Lesson.objects.all()
+    queryset = Lesson.objects.all().order_by('name')
 
     def get_serializer_class(self):
         return LessonSerializer
