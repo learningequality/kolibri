@@ -47,15 +47,11 @@
           top: `${this.topGap}px`,
           bottom: `${this.bottomGap}px`,
           padding: `${this.padding}px`,
-          left: 0,
-          right: 0,
-          position: 'fixed',
-          overflowX: 'hidden',
         };
       },
     },
     watch: {
-      title: 'updateDocumentTitle',
+      documentTitle: 'updateDocumentTitle',
     },
     created() {
       this.updateDocumentTitle();
@@ -85,4 +81,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .app-body
+    left: 0
+    right: 0
+    position: fixed
+    overflow-x: hidden
+
+</style>
