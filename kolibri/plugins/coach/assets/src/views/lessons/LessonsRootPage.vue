@@ -45,7 +45,7 @@
           <td class="core-table-main-col">
             <k-router-link
               :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-              :text="lesson.name"
+              :text="lesson.title"
             />
           </td>
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>

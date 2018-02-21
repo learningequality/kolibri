@@ -342,7 +342,7 @@
       getters: {
         classId: state => state.classId,
         lessonId: state => state.pageState.currentLesson.id,
-        lessonTitle: state => state.pageState.currentLesson.name,
+        lessonTitle: state => state.pageState.currentLesson.title,
         lessonActive: state => state.pageState.currentLesson.is_active,
         lessonDescription: state => state.pageState.currentLesson.description,
         lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,

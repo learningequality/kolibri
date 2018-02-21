@@ -73,7 +73,7 @@
       getters: {
         classId: state => state.classId,
         lessonId: state => state.pageState.currentLesson.id,
-        lessonTitle: state => state.pageState.currentLesson.name,
+        lessonTitle: state => state.pageState.currentLesson.title,
       },
       actions: {
         updateClassLessons,

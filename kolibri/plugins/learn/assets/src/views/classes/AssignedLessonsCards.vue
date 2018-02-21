@@ -15,7 +15,7 @@
       :key="lesson.id"
       :link="lessonPlaylistLink(lesson.id)"
       :showContentIcon="false"
-      :title="lesson.name"
+      :title="lesson.title"
       :kind="LESSON"
       :isMobile="isMobile"
       :progress="getLessonProgress(lesson)"

@@ -3,7 +3,6 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.serializers import ValidationError
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
@@ -38,7 +37,7 @@ class LessonSerializer(ModelSerializer):
         model = Lesson
         fields = (
             'id',
-            'name',
+            'title',
             'description',
             'resources',
             'is_active',
@@ -57,9 +56,9 @@ class LessonSerializer(ModelSerializer):
         """
         POST a new Lesson with the following payload
         {
-            "name": "Lesson Name",
+            "title": "Lesson Title",
             "description": "Lesson Description",
-            "resources": [...], // Array of {contentnode_id, position}
+            "resources": [...], // Array of {contentnode_id, channel_id, content_id}
             "is_active": false,
             "collection": "df6308209356328f726a09aa9bd323b7", // classroom ID
             "lesson_assignments": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
@@ -79,7 +78,7 @@ class LessonSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         # Update the scalar fields
-        instance.name = validated_data.get('name', instance.name)
+        instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.resources = validated_data.get('resources', instance.resources)

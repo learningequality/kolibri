@@ -80,9 +80,9 @@
     computed: {
       formData() {
         return {
-          name: this.title,
+          title: this.title,
           description: this.description,
-          assigned_groups: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
+          lesson_assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
         };
       },
       modalTexts() {
@@ -124,7 +124,7 @@
       },
       lessonDetailsHaveChanged() {
         return (
-          this.currentLesson.name !== this.title ||
+          this.currentLesson.title !== this.title ||
           this.currentLesson.description !== this.description ||
           this.groupsHaveChanged
         );
@@ -132,7 +132,7 @@
     },
     created() {
       if (this.isInEditMode) {
-        this.title = this.currentLesson.name;
+        this.title = this.currentLesson.title;
         this.description = this.currentLesson.description;
         this.selectedCollectionIds = this.currentLesson.lesson_assignments.map(a => a.collection);
       } else {

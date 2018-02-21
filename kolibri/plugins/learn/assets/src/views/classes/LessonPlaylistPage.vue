@@ -8,7 +8,7 @@
           class="lesson-icon"
         />
         <h1 class="title">
-          {{ currentLesson.name }}
+          {{ currentLesson.title }}
           <progress-icon v-if="lessonHasResources" :progress="lessonProgress" />
         </h1>
       </div>

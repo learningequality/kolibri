@@ -23,7 +23,7 @@ class Lesson(AbstractFacilityDataModel):
         can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
     )
 
-    name = models.CharField(max_length=50)
+    title = models.CharField(max_length=50)
     description = models.CharField(default='', blank=True, max_length=200)
     """
     Like Exams, we store an array of objects with the following form:
@@ -44,7 +44,7 @@ class Lesson(AbstractFacilityDataModel):
 
     def __str__(self):
         return 'Lesson {} for Classroom {}'.format(
-            self.name,
+            self.title,
             self.collection.name,
         )
 
@@ -78,8 +78,8 @@ class LessonAssignment(AbstractFacilityDataModel):
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_lessons', blank=False, null=False)
 
     def __str__(self):
-        return 'Lesson {} for Collection {}'.format(
-            self.lesson.name,
+        return 'Lesson Assignment {} for Collection {}'.format(
+            self.lesson.title,
             self.collection.name,
         )
 

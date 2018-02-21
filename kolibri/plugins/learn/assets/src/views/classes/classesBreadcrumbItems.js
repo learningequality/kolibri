@@ -32,7 +32,7 @@ export default {
             ...defaultCrumbs,
             {
               // Link to Lesson Playlist
-              text: this.currentLesson.name,
+              text: this.currentLesson.title,
               link: lessonPlaylistLink(this.currentLesson.id),
             },
           ];
