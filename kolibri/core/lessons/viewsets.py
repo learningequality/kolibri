@@ -1,6 +1,7 @@
 from .serializers import LessonSerializer
 from kolibri.auth.api import KolibriAuthPermissions
 from kolibri.auth.api import KolibriAuthPermissionsFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from kolibri.core.lessons.models import Lesson
 from rest_framework.viewsets import ModelViewSet
 
@@ -25,7 +26,8 @@ class LessonPermissions(KolibriAuthPermissions):
 
 class LessonViewset(ModelViewSet):
     serializer_class = LessonSerializer
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend,)
+    filter_fields = ('collection',)
     permission_classes = (LessonPermissions,)
     queryset = Lesson.objects.all()
 

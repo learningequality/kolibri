@@ -2,11 +2,11 @@ import { PageNames, ClassesPageNames } from '../../constants';
 
 export function classAssignmentsLink(classId) {
   return {
-      name: ClassesPageNames.CLASS_ASSIGNMENTS,
-      params: {
-        classId,
-      }
-  }
+    name: ClassesPageNames.CLASS_ASSIGNMENTS,
+    params: {
+      classId,
+    },
+  };
 }
 
 // TODO update with the new Lesson Resource Viewer Page
@@ -15,8 +15,8 @@ export function lessonResourceViewerLink(nodeId) {
     name: PageNames.TOPICS_CONTENT,
     params: {
       id: nodeId,
-    }
-  }
+    },
+  };
 }
 
 export function examViewerLink(examId) {
@@ -25,8 +25,8 @@ export function examViewerLink(examId) {
     params: {
       examId,
       questionNumber: 0,
-    }
-  }
+    },
+  };
 }
 
 export function lessonPlaylistLink(lessonId) {
@@ -35,5 +35,5 @@ export function lessonPlaylistLink(lessonId) {
     params: {
       lessonId,
     },
-  }
+  };
 }
