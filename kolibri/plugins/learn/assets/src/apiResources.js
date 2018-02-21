@@ -12,4 +12,14 @@ class LearnerClassroom extends Resource {
   }
 }
 
+/**
+ * Gets Lesson(s) that are assigned to the Learner
+ */
+class LearnerLesson extends Resource {
+  static resourceName() {
+    return 'kolibri:learnplugin:learnerlesson';
+  }
+}
+
 export const LearnerClassroomResource = new LearnerClassroom();
+export const LearnerLessonResource = new LearnerLesson();

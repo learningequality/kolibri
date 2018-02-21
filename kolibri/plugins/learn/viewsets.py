@@ -1,13 +1,13 @@
-from django.db.models.query import F
 from .serializers import LearnerClassroomSerializer
+from django.db.models.query import F
 from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom
-from kolibri.auth.models import KolibriAnonymousUser
 from kolibri.auth.serializers import ClassroomSerializer
-from kolibri.core.lessons.models import Lesson, LessonAssignment
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.lessons.serializers import LessonSerializer
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
@@ -19,12 +19,10 @@ class LearnerClassroomViewset(ReadOnlyModelViewSet):
     (e.g. when listing classes in which User is enrolled)
     """
     filter_backends = (KolibriAuthPermissionsFilter,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         current_user = self.request.user
-        if isinstance(current_user, KolibriAnonymousUser):
-            raise PermissionDenied()
-
         memberships = current_user.memberships.filter(
             collection__kind='classroom',
         ).values('collection_id')
@@ -43,6 +41,7 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
     The core Lesson Viewset is locked down to Admin users only.
     """
     serializer_class = LessonSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         assignments = HierarchyRelationsFilter(LessonAssignment.objects.all()) \
@@ -50,4 +49,4 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
                 target_user=self.request.user,
                 ancestor_collection=F('collection')
         )
-        return [a.lesson for a in assignments]
+        return Lesson.objects.filter(lesson_assignments__in=assignments)

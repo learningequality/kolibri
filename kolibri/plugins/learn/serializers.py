@@ -59,7 +59,7 @@ class LessonProgressSerializer(ModelSerializer):
             'description',
             'id',
             'is_active',
-            'name',
+            'title',
             'progress',
             'resources',
         )

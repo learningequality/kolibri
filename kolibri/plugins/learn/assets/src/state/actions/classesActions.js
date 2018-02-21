@@ -1,6 +1,6 @@
 import { ClassesPageNames } from '../../constants';
-import { LearnerClassroomResource } from '../../apiResources';
-import { ContentNodeResource, LessonResource } from 'kolibri.resources';
+import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
+import { ContentNodeResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('classesPageTitles', {
@@ -72,7 +72,7 @@ export function showLessonPlaylist(store, { lessonId }) {
       contentNodes: [],
     },
   });
-  return LessonResource.getModel(lessonId)
+  return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
       store.dispatch('SET_CURRENT_LESSON', lesson);
