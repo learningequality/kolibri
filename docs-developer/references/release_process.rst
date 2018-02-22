@@ -57,20 +57,9 @@ On Kolibri's ``develop`` branch, we sometimes allow the installers to track the 
 Update any translation files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If string interface text has changed, or more complete translations are available, translation files should be updated.
-This is currently done by running the ``make downloadmessages`` command. Following this, the specific files that have been updated with approved translations will need to be added to the repository.
+Make sure that the latest released translations are included for the appropriate release branch. Please see :ref:`crowdin` for details.
 
-Caveats:
-
-* The crowdin utility that this command invokes requires java, so you may need to run them in an ubuntu VM
-* You might need to manually install the crowdin debian package if the jar isn't working for you
-* The command might not be compatible with non-bash shells
-* You might be better off composing the crowdin commands manually, especially if your checked out branch is not a release branch
-* By default Crowdin will download all translations, not just approved ones, and will often download untranslated strings also. Do not just add all the files that are downloaded when ``make downloadmessages`` is run, as this will lead to untranslated and poor quality strings being included.
-
-If you need to add a new interface language to Kolibri, please see :ref:`new_language` for details.
-
-Finally, strings for any external Kolibri plugins (like kolibri-exercise-perseus-renderer) should also have been updated, a new release made, and the version updated in Kolibri. See the README of that repository for details.
+Finally, strings for any external Kolibri plugins (like ``kolibri-exercise-perseus-renderer``) should also have been updated, a new release made, and the version updated in Kolibri. See the README of that repository for details.
 
 
 Squash migrations
