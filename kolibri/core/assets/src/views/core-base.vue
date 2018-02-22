@@ -9,6 +9,7 @@
         :appBarTitle="appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
+        :primary="immersivePagePrimary"
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
@@ -117,6 +118,11 @@
       },
       immersivePageRoute: {
         type: Object,
+        required: false,
+      },
+      // determines the color, primary being the classic kolibri appbar color
+      immersivePagePrimary: {
+        type: Boolean,
         required: false,
       },
     },

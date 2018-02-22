@@ -7,6 +7,7 @@
     :navIcon="icon"
     :showIcon="showIcon"
     @nav-icon-click="$emit('navIconClick')"
+    :class="{ secondary: !primary }"
     :style="{ height: height + 'px' }"
   >
     <div v-if="hasRoute" slot="icon">
@@ -62,6 +63,11 @@
         required: false,
         validator: validateLinkObject,
       },
+      primary: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
     },
     computed: {
       hasRoute() {
@@ -83,5 +89,8 @@
     height: 3em
     width: 3em
     color: white
+
+  .secondary
+    background-color: $core-text-default
 
 </style>
