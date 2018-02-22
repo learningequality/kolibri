@@ -1,0 +1,31 @@
+run.config:
+  engine: python
+  engine.config:
+    runtime: python-2.7
+    pip_install: 'pip install -r requirements/base.txt -I'
+
+  extra_packages:
+    - nodejs-6.11.4
+    - gettext-tools
+
+  # without this, yarn would error out with readonly filesystem errors
+  cache_dirs:
+    - node_modules/
+    - dist/
+
+deploy.config:
+  # Building has to happen during transform and not extra_steps, because
+  # we need access to the environment variables for the build
+  transform:
+    - make dist pex
+
+data.storage:
+  image: nanobox/unfs:0.9
+
+  #
+  # Get sqlite3 stored on data.storage
+  #
+
+web.main:
+  start:
+    - python dist/kolibri*.pex start --foreground
