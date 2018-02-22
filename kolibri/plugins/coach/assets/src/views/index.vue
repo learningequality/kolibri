@@ -7,6 +7,7 @@
       :appBarTitle="appBarTitle"
       :immersivePageIcon="immersivePageIcon"
       :immersivePageRoute="toolbarRoute"
+      :immersivePagePrimary="immersivePagePrimary"
     >
 
       <template v-if="showCoachNav">
@@ -155,6 +156,13 @@
           return 'arrow_back';
         }
         return 'close';
+      },
+      immersivePagePrimary() {
+        // TODO going to need to set a backgrund color
+        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+          return false;
+        }
+        return true;
       },
     },
     methods: {
