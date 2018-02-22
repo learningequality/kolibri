@@ -90,7 +90,7 @@
     width: 100%
     height: $horizontal-split
 
-  // went with this approach because of noscroll page
+  // went with this approach because of noscroll page. Not great on mobile
   // might want to explore doing this with pure (original plan)
   .column
     position: absolute

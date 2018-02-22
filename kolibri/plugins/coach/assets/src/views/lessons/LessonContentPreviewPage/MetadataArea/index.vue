@@ -1,5 +1,7 @@
 <template>
 
+  <!-- TODO if not breaking up into child components, use single .vue file -->
+
   <div class="description-area">
     <!-- IDEA -a11y- add an invisible title entry in the dl below? -->
     <!-- h1's are technically not allowed within a dl -->
@@ -21,29 +23,34 @@
           {{ $tr('descriptionDataHeader') }}
         </dt>
         <!-- HTML for markdown -->
-        <dd v-html="description" class="description"></dd>
+        <dd v-html="description" dir="auto" class="description"></dd>
       </div>
 
       <div class="secondary-data" v-if="author">
         <dt>{{ $tr('authorDataHeader') }}</dt>
         <dd>
           <!-- single-quote wrapped user strings, per indirectlylit -->
-          '{{ content.author }}'
+          '{{ author }}'
         </dd>
       </div>
 
       <div class="secondary-data" v-if="license">
         <dt>{{ $tr('licenseDataHeader') }}</dt>
         <dd>
-          '{{ content.license_name }}'
-          <!-- TODO add description using infoIcon -->
+          '{{ license }}'
+          <info-icon
+            v-if="licenseInfo"
+            tooltipPosition="right middle"
+            :tooltipText="licenseInfo"
+            :iconAriaLabel="licenseInfo"
+          />
         </dd>
       </div>
 
       <div class="secondary-data" v-if="copyrightHolder">
         <dt>{{ $tr('copyrightHolderDataHeader') }}</dt>
         <dd>
-          '{{ content.license_owner }}'
+          '{{ copyrightHolder }}'
         </dd>
       </div>
     </dl>
@@ -53,6 +60,8 @@
 
 
 <script>
+
+  import InfoIcon from '../../InfoIcon';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
@@ -66,6 +75,9 @@
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',
+    },
+    components: {
+      InfoIcon,
     },
     props: {
       content: {
@@ -88,7 +100,6 @@
     computed: {
       completionRequirements() {
         const { m: correct, n: total } = this.completionData;
-        console.log(correct, total);
         return this.$tr('completionRequirements', { correct, total });
       },
       description() {
