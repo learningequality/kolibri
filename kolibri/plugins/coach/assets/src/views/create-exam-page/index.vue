@@ -151,6 +151,7 @@
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import flatMap from 'lodash/flatMap';
 
   export default {
     name: 'createExamPage',
@@ -290,11 +291,11 @@
         return !!this.formIsInvalidText;
       },
       allExercisesWithinCurrentTopic() {
-        let allExercises = [];
-        this.subtopics.forEach(subtopic => {
-          allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
-        });
-        return [allExercises, ...this.exercises];
+        const subtopicExercises = flatMap(
+          this.subtopics,
+          subtopic => subtopic.allExercisesWithinTopic
+        );
+        return [...subtopicExercises, ...this.exercises];
       },
       allExercisesWithinCurrentTopicSelected() {
         if (this.allExercisesWithinCurrentTopic.length === 0) {
