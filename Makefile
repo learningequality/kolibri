@@ -27,19 +27,18 @@ help:
 	@echo "lint: check Python style with flake8"
 	@echo "test: run tests quickly with the default Python"
 	@echo "test-all: run tests on every Python version with Tox"
+	@echo "test-namespaced-packages: verify that we haven't fetched anything namespaced into kolibri/dist"
 	@echo "coverage: run tests, recording and printing out Python code coverage"
-	@echo "docs: generate all documentation"
-	@echo "docs-user: generate just the user docs"
-	@echo "docs-developer: generate just developer and API docs"
+	@echo "docs: generate developer documentation"
 	@echo ""
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "makemessages: collects messages marked for translation in code+docs"
-	@echo "compilemessages: compiles message sources (run this to see changes locally)"
-	@echo "syncmessages: uploads and downloads contents from CrowdIn"
-	@echo "uploadmessages: uploads output of makemessages to CrowdIn"
-	@echo "downloadmessages: fetches new translations from CrowdIn"
+	@echo "translation-django-makemessages: creates source messages for django"
+	@echo "translation-django-compilemessagescompilemessages: compiles all language translation sources"
+	@echo "translation-crowdin-install: installs the CrowdIn CLI"
+	@echo "translation-crowdin-upload branch=<crowdin-branch>: uploads kolibri translation sources via CrowdIn"
+	@echo "translation-crowdin-download branch=<crowdin-branch>: downloads kolibri translated languages via CrowdIn"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -135,7 +134,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -143,22 +142,20 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-makemessages: assets
+translation-django-makemessages: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
-compilemessages:
+translation-django-compilemessages:
 	python -m kolibri manage compilemessages
 
-syncmessages: ensurecrowdinclient uploadmessages downloadmessages
+translation-crowdin-install:
+	@`[ -f build_tools/crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget -O build_tools/crowdin-cli.jar https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
 
-ensurecrowdinclient:
-	@`[ -f crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
+translation-crowdin-upload:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
 
-uploadmessages:
-	java -jar crowdin-cli.jar upload sources -b `git symbolic-ref HEAD | xargs basename`
-
-downloadmessages:
-	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
+translation-crowdin-download:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
 dockerenvclean:
 	docker container prune -f
