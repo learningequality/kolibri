@@ -17,7 +17,7 @@
           @click="$emit('select',index)"
           :class="{selected: index === selectedIndex}"
           class="button"
-          :text="$tr('questionLabel', {questionNumber: index + 1})"
+          :text="questionLabel(index)"
           appearance="flat-button"
         />
       </li>
@@ -46,10 +46,15 @@
         type: Array,
         required: true,
       },
-      // might be more appropriate in state?
       selectedIndex: {
         type: Number,
         required: true,
+      },
+      questionLabel: {
+        type: Function,
+        required: true,
+        // simple validator, makes sure the function returns a string
+        validator: value => typeof value(0) === 'string',
       },
     },
   };

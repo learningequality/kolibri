@@ -4,26 +4,22 @@
     <div class="description-area">
       Lesson Content Preview Page
     </div>
+
     <!-- TODO consolidate this and attemptloglist? -->
     <question-list
       class="question-list left column"
       @select="selectedQuestionIndex = $event"
       :questions="questions"
+      :questionLabel="questionLabel"
       :selectedIndex="selectedQuestionIndex"
     />
-    <content-renderer
+
+    <content-area
       class="content-area right column"
-      :id="exercise.pk"
-      :itemId="selectedQuestion"
-      :allowHints="false"
-      :kind="exercise.kind"
-      :files="exercise.files"
-      :contentId="exercise.content_id"
-      :channelId="exercise.channel_id"
-      :available="exercise.available"
-      :extraFields="exercise.extra_fields"
-      :interactive="false"
-      :assessment="true"
+      :header="questionLabel(selectedQuestionIndex)"
+      :selectedQuestion="selectedQuestion"
+      :content="content"
+      :isPerseusExercise="isPerseusExercise"
     />
   </div>
 
@@ -32,12 +28,17 @@
 
 <script>
 
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import questionList from '../../question-list';
+  import questionList from './question-list';
+  import contentArea from './content-area';
+
   export default {
+    name: 'LessonContentPreviewPage',
     components: {
-      contentRenderer,
       questionList,
+      contentArea,
+    },
+    $trs: {
+      questionLabel: 'Question { questionNumber, number }',
     },
     data() {
       return {
@@ -45,19 +46,28 @@
       };
     },
     computed: {
+      isPerseusExercise() {
+        return this.content.kind === 'exercise';
+      },
       selectedQuestion() {
-        return this.questions[this.selectedQuestionIndex];
+        if (this.isPerseusExercise) {
+          return this.questions[this.selectedQuestionIndex];
+        }
+        return '';
       },
     },
-    methods: {},
+    methods: {
+      questionLabel(questionIndex) {
+        const questionNumber = questionIndex + 1;
+        return this.$tr('questionLabel', { questionNumber });
+      },
+    },
     vuex: {
       getters: {
-        exercise: state => state.pageState.currentContentNode,
+        content: state => state.pageState.currentContentNode,
         questions: state => state.pageState.questions,
       },
-      actions: {},
     },
-    $trs: {},
   };
 
 </script>
@@ -80,6 +90,8 @@
     position: absolute
     bottom: 0
     top: $horizontal-split
+    background-color: white
+
     &.left
       left: 0
       right: 100% - $vertical-split

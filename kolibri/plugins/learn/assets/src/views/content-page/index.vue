@@ -60,6 +60,7 @@
       />
     </assessment-wrapper>
 
+    <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- TODO: RTL - Remove ta-l -->
     <p v-html="description" dir="auto" class="ta-l"></p>
 

@@ -253,11 +253,11 @@ export function showLessonContentPreview(store, classId, lessonId, contentId) {
   const pendingSelections = store.state.pageState.workingResources || [];
   const pageState = {
     currentContentNode: {},
-    questions: [],
     toolbarRoute: {},
+    // working resources verifies selection.
     workingResources: pendingSelections,
-    // TODO is the question being displayed a part of the URL?
-    // working resources? to verify that it's here. Needs design - get from state if possible
+    // only exist if exercises
+    questions: null,
   };
   Promise.all([
     ContentNodeResource.getModel(contentId).fetch(),
