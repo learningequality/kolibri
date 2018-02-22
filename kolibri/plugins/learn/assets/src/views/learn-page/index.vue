@@ -105,7 +105,7 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      featuredSectionHeader: 'Featured in { channelTitle }',
+      featuredSectionHeader: "Featured in '{ channelTitle }'",
     },
     components: {
       contentCardGroupCarousel,
