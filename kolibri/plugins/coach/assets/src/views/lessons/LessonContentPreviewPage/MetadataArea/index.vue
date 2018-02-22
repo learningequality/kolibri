@@ -5,15 +5,9 @@
   <div class="description-area">
     <!-- IDEA -a11y- add an invisible title entry in the dl below? -->
     <!-- h1's are technically not allowed within a dl -->
-    <div class="top-line primary-data">
-      <h1 class="header">
-        {{ content.title }}
-      </h1>
-      <span class="right-line-chunk">
-        <!-- slot for extra buttons, please use inline elements -->
-        <slot></slot>
-      </span>
-    </div>
+    <h1 class="header primary-data">
+      {{ content.title }}
+    </h1>
 
     <dl>
       <div class="primary-data" v-if="completionRequirements">
@@ -97,15 +91,21 @@
         type: Object,
         required: false,
         validator(data) {
-          // confirm with Richard. Currently, only accepts m_of_n types
-          return completionDataRequired.every(key => data[key]);
+          if (data) {
+            // confirm with Richard. Currently, only accepts m_of_n types
+            return completionDataRequired.every(key => data[key]);
+          }
+          return true;
         },
       },
     },
     computed: {
       completionRequirements() {
-        const { m: correct, n: total } = this.completionData;
-        return this.$tr('completionRequirements', { correct, total });
+        if (this.completionData) {
+          const { m: correct, n: total } = this.completionData;
+          return this.$tr('completionRequirements', { correct, total });
+        }
+        return false;
       },
       description() {
         return this.content.description;
@@ -162,11 +162,5 @@
   .top-line
     display: table
     width: 100%
-
-  // ensure that header and button are aligned on same line
-  .header, .right-line-chunk
-    display: table-cell
-  .right-line-chunk
-    text-align: right
 
 </style>

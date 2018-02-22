@@ -5,34 +5,17 @@
       class="top-row"
       :content="content"
       :completionData="completionData"
-    >
-      <template v-if="workingResources">
-        <template v-if="isSelected">
-          <!-- include check icon here -->
-          <mat-svg
-            class="selected-icon"
-            category="action"
-            name="check_circle"
-          />
-          {{ $tr('addedToLessonIndicator') }}
-          <k-button
-            @click="removeFromWorkingResources"
-            :text="$tr('undoButtonLabel')"
-            appearance="basic-link"
-          />
-          <!-- TODO include undo button here -->
-        </template>
-        <k-button
-          v-else
-          @click="addToWorkingResources"
-          :text="$tr('addToLessonButtonLabel')"
-        />
-
-      </template>
-    </metadata-area>
+    />
+    <select-options
+      v-if="workingResources"
+      class="select-options"
+      :workingResources="workingResources"
+      :contentId="content.pk"
+    />
 
     <question-list
-      class="question-list left column"
+      v-if="isPerseusExercise"
+      class="question-list bottom left"
       @select="selectedQuestionIndex = $event"
       :questions="questions"
       :questionLabel="questionLabel"
@@ -40,7 +23,8 @@
     />
 
     <content-area
-      class="content-area right column"
+      class="content-area bottom"
+      :class="{right: isPerseusExercise}"
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
       :content="content"
@@ -56,6 +40,7 @@
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
   import MetadataArea from './MetadataArea';
+  import SelectOptions from './SelectOptions';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
@@ -64,13 +49,11 @@
       QuestionList,
       ContentArea,
       MetadataArea,
+      SelectOptions,
       kButton,
     },
     $trs: {
       questionLabel: 'Question { questionNumber, number }',
-      undoButtonLabel: 'Undo',
-      addToLessonButtonLabel: 'Add to lesson',
-      addedToLessonIndicator: 'Added to lesson',
     },
     data() {
       return {
@@ -87,9 +70,6 @@
         }
         return '';
       },
-      isSelected() {
-        return this.workingResources.includes(this.content.pk);
-      },
     },
     methods: {
       questionLabel(questionIndex) {
@@ -103,16 +83,6 @@
         questions: state => state.pageState.questions,
         completionData: state => state.pageState.completionData,
         workingResources: state => state.pageState.workingResources,
-      },
-      actions: {
-        // Maybe break these out to actual actions.
-        // Used by select page, summary page, and here
-        addToWorkingResources(store) {
-          store.dispatch('ADD_TO_WORKING_RESOURCES', this.content.pk);
-        },
-        removeFromWorkingResources(store) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', this.content.pk);
-        },
       },
     },
   };
@@ -129,10 +99,13 @@
     height: 100% // establish containing-blocks' height
     position: relative // set the context for absolute elements within
 
-  .selected-icon
-    height: 20px
-    width: 20px
-    vertical-align: bottom
+  .select-options
+    position: absolute
+    // NOTE stylus specific - calc + variable interpolation
+    bottom: 'calc(100% - %s)' % 28px // should line up with header
+    margin-bottom: 0
+    right: 0
+
 
   .top-row
     width: 100%
@@ -140,18 +113,18 @@
 
   // went with this approach because of noscroll page. Not great on mobile
   // might want to explore doing this with pure (original plan)
-  .column
+  .bottom
     position: absolute
     bottom: 0
     top: $horizontal-split
     background-color: white
+    left: 0
+    right: 0
 
     &.left
-      left: 0
       right: 100% - $vertical-split
     &.right
       margin-left: 8px
-      right: 0
       left: $vertical-split
 
 </style>
