@@ -236,6 +236,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
 }
 
 export function saveLessonResources(store, lessonId, resources) {
+  // TODO add more information to resources being saved
   // light validation of data shape
   if (resources.every(resource => resource.contentnode_id)) {
     // IDEA update current lesson here
@@ -246,23 +247,21 @@ export function saveLessonResources(store, lessonId, resources) {
 
 export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
 
-export function showLessonContentPreview(store, classId, lessonId, contentId) {
+export function showLessonContentPreview(store, classId, lessonId, contentId, selectable = true) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
-  // TODO rule of thirds. break this out.
   const pendingSelections = store.state.pageState.workingResources || [];
   const pageState = {
     currentContentNode: {},
     toolbarRoute: {},
-    // working resources verifies selection.
-    workingResources: pendingSelections,
+    workingResources: selectable ? pendingSelections : null,
     // only exist if exercises
     questions: null,
     completionData: null,
   };
   Promise.all([
     ContentNodeResource.getModel(contentId).fetch(),
-    LessonResource.getModel(lessonId).fetch(),
+    updateCurrentLesson(store, lessonId),
   ]).then(([contentNode, lesson]) => {
     // set up intial pageState
     const contentMetadata = assessmentMetaDataState(contentNode);
@@ -271,6 +270,13 @@ export function showLessonContentPreview(store, classId, lessonId, contentId) {
     pageState.completionData = contentMetadata.masteryModel;
 
     store.dispatch('SET_PAGE_STATE', pageState);
+
+    if (selectable && !pendingSelections.length) {
+      // TODO state mapper
+      const preselectedResources = lesson.resources.map(resourceObj => resourceObj.contentnode_id);
+      // could still just use pageState...
+      store.dispatch('SET_WORKING_RESOURCES', preselectedResources);
+    }
 
     store.dispatch('SET_TOOLBAR_ROUTE', {
       name: LessonsPageNames.SELECTION,

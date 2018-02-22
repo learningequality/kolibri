@@ -5,8 +5,32 @@
       class="top-row"
       :content="content"
       :completionData="completionData"
-    />
-    <!-- TODO consolidate this and attemptloglist? -->
+    >
+      <template v-if="workingResources">
+        <template v-if="isSelected">
+          <!-- include check icon here -->
+          <mat-svg
+            class="selected-icon"
+            category="action"
+            name="check_circle"
+          />
+          {{ $tr('addedToLessonIndicator') }}
+          <k-button
+            @click="removeFromWorkingResources"
+            :text="$tr('undoButtonLabel')"
+            appearance="basic-link"
+          />
+          <!-- TODO include undo button here -->
+        </template>
+        <k-button
+          v-else
+          @click="addToWorkingResources"
+          :text="$tr('addToLessonButtonLabel')"
+        />
+
+      </template>
+    </metadata-area>
+
     <question-list
       class="question-list left column"
       @select="selectedQuestionIndex = $event"
@@ -32,16 +56,21 @@
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
   import MetadataArea from './MetadataArea';
+  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'LessonContentPreviewPage',
+    name: 'lessonContentPreviewPage',
     components: {
       QuestionList,
       ContentArea,
       MetadataArea,
+      kButton,
     },
     $trs: {
       questionLabel: 'Question { questionNumber, number }',
+      undoButtonLabel: 'Undo',
+      addToLessonButtonLabel: 'Add to lesson',
+      addedToLessonIndicator: 'Added to lesson',
     },
     data() {
       return {
@@ -58,6 +87,9 @@
         }
         return '';
       },
+      isSelected() {
+        return this.workingResources.includes(this.content.pk);
+      },
     },
     methods: {
       questionLabel(questionIndex) {
@@ -70,6 +102,17 @@
         content: state => state.pageState.currentContentNode,
         questions: state => state.pageState.questions,
         completionData: state => state.pageState.completionData,
+        workingResources: state => state.pageState.workingResources,
+      },
+      actions: {
+        // Maybe break these out to actual actions.
+        // Used by select page, summary page, and here
+        addToWorkingResources(store) {
+          store.dispatch('ADD_TO_WORKING_RESOURCES', this.content.pk);
+        },
+        removeFromWorkingResources(store) {
+          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', this.content.pk);
+        },
       },
     },
   };
@@ -85,6 +128,11 @@
   .content-preview-page
     height: 100% // establish containing-blocks' height
     position: relative // set the context for absolute elements within
+
+  .selected-icon
+    height: 20px
+    width: 20px
+    vertical-align: bottom
 
   .top-row
     width: 100%

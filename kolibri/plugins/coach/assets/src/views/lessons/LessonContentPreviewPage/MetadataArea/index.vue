@@ -5,15 +5,20 @@
   <div class="description-area">
     <!-- IDEA -a11y- add an invisible title entry in the dl below? -->
     <!-- h1's are technically not allowed within a dl -->
-    <h1 class="header primary-data">
-      {{ content.title }}
-    </h1>
+    <div class="top-line primary-data">
+      <h1 class="header">
+        {{ content.title }}
+      </h1>
+      <span class="right-line-chunk">
+        <!-- slot for extra buttons, please use inline elements -->
+        <slot></slot>
+      </span>
+    </div>
 
     <dl>
       <div class="primary-data" v-if="completionRequirements">
         <dt>{{ $tr('completionModelDataHeader') }}</dt>
         <dd>
-          <!-- single-quote wrapped user strings, per indirectlylit -->
           {{ completionRequirements }}
         </dd>
       </div>
@@ -133,7 +138,8 @@
 
   .header
     margin-top: 0
-    font-size: 28 // bumping half an increment
+    font-size: 28px // bumping half an increment
+    text-align: left
 
   .primary-data
     margin-bottom: $standard-data-spacing * 2
@@ -152,5 +158,15 @@
   dd
     &:not(.description)
       margin-left: 8px
+
+  .top-line
+    display: table
+    width: 100%
+
+  // ensure that header and button are aligned on same line
+  .header, .right-line-chunk
+    display: table-cell
+  .right-line-chunk
+    text-align: right
 
 </style>

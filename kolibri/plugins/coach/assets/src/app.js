@@ -48,6 +48,7 @@ const lessonRoutes = [
     path: '/:classId/lessons/:lessonId',
     handler: (toRoute, fromRoute) => {
       // If switching classes while viewing a Lesson summary, redirect to the lessons list
+      // TODO add this check to all lessonId-based URLs
       if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
         return redirectToLessonsList(toRoute.params.classId);
       } else {
