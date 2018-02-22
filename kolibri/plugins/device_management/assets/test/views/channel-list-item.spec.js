@@ -12,7 +12,7 @@ function makeStore() {
     state: {
       pageState: {
         taskList: [],
-        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11 }],
+        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11, available: true }],
       },
     },
     mutations: {

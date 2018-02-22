@@ -26,6 +26,7 @@ function makeStore() {
             ...defaultChannel,
             on_device_file_size: 2200000000,
             on_device_resources: 2000,
+            available: true,
           },
         ],
         taskList: [],
