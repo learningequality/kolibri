@@ -66,27 +66,30 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   function updateResourceContentNodes(resourceIds) {
     const contentNodeMap = {};
 
-    return ContentNodeResource.getCollection({ ids: resourceIds })
-      .fetch()
-      .then(contentNodeArray => {
-        contentNodeArray.forEach(
-          // should map directly to resourceIds
-          // TODO include route information? Also selection page. Simplify component logic
-          // TODO make this a state mapper?
-          contentNode =>
-            (contentNodeMap[contentNode.pk] = {
-              title: contentNode.title,
-              // TODO calculate progress
-              progress: Number(contentNode.progress_fraction),
-              id: contentNode.pk,
-            })
-        );
+    if (resourceIds.length) {
+      return ContentNodeResource.getCollection({ ids: resourceIds })
+        .fetch()
+        .then(contentNodeArray => {
+          contentNodeArray.forEach(
+            // should map directly to resourceIds
+            // TODO include route information? Also selection page. Simplify component logic
+            // TODO make this a state mapper?
+            contentNode =>
+              (contentNodeMap[contentNode.pk] = {
+                title: contentNode.title,
+                // TODO calculate progress
+                progress: Number(contentNode.progress_fraction),
+                id: contentNode.pk,
+              })
+          );
 
-        store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
+          store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
 
-        // TODO make sure this is resolved properly
-        return contentNodeMap;
-      });
+          // TODO make sure this is resolved properly
+          return contentNodeMap;
+        });
+    }
+    return Promise.resolve(contentNodeMap);
   }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
