@@ -50,31 +50,12 @@
         };
       },
     },
-    watch: {
-      documentTitle: 'updateDocumentTitle',
-    },
-    created() {
-      this.updateDocumentTitle();
-    },
-    methods: {
-      // move this responsibility to state?
-      updateDocumentTitle() {
-        document.title = this.documentTitle
-          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
-          : this.$tr('kolibriMessage');
-      },
-    },
     vuex: {
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
         documentTitle: state => state.core.title,
       },
-      actions: {},
-    },
-    $trs: {
-      kolibriMessage: 'Kolibri',
-      kolibriTitleMessage: '{ title } - Kolibri',
     },
   };
 

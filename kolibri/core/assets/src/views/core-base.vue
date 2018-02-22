@@ -65,6 +65,10 @@
 
   export default {
     name: 'coreBasePage',
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
+    },
     components: {
       appBar,
       immersiveToolbar,
@@ -118,7 +122,10 @@
     },
     vuex: {
       getters: {
+        // used to toggle app bar appearance
         loading: state => state.core.loading,
+        // set document title (window name)
+        documentTitle: state => state.core.title,
       },
     },
     data: () => ({ navShown: false }),
@@ -131,6 +138,20 @@
       },
       navWidth() {
         return this.headerHeight * 4;
+      },
+    },
+    watch: {
+      documentTitle: 'updateDocumentTitle',
+    },
+    created() {
+      this.updateDocumentTitle();
+    },
+    methods: {
+      // move this responsibility to state?
+      updateDocumentTitle() {
+        document.title = this.documentTitle
+          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
+          : this.$tr('kolibriMessage');
       },
     },
   };
