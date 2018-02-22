@@ -2,6 +2,9 @@
 
   <div class="content-preview-page">
     <div class="description-area">
+      <h1>
+        {{ content.title }}
+      </h1>
       Lesson Content Preview Page
     </div>
 
@@ -76,7 +79,7 @@
 <style lang="stylus" scoped>
 
   $vertical-split = 30%
-  $horizontal-split = 30%
+  $horizontal-split = 20%
 
   .content-preview-page
     height: 100% // establish containing-blocks' height
@@ -86,6 +89,8 @@
     width: 100%
     height: $horizontal-split
 
+  // went with this approach because of noscroll page
+  // might want to explore doing this with pure (original plan)
   .column
     position: absolute
     bottom: 0

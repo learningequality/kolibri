@@ -1,11 +1,15 @@
 <template>
 
-  <section :class="['content-area', isPerseusExercise || 'perseus']">
+  <section
+    class="content-area"
+    :class="{perseus: isPerseusExercise}"
+  >
     <h2 v-if="header" class="header">
       {{ header }}
     </h2>
     <content-renderer
       class="content"
+      :class="{perseus: isPerseusExercise}"
       :id="content.pk"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -61,17 +65,25 @@
 <style lang="stylus">
 
   $perseus-padding = 15px
+  $header-height = 56px // dupe from question-list
 
   .content-area
     padding: 0
     &.perseus
       padding-left: 1px // give same margin as question-list (16px)
 
-  // duping from question-list
+  .content
+    // NOTE stylus exclusive. Variable/calc interpolation
+    max-height: 'calc(100% - %s)' % $header-height
+    width: 100%
+    overflow-y: auto
+    &.perseus
+      overflow-x: hidden // .solutionarea's negative margin oversteps
+
   .header
     margin: 0
     margin-left: $perseus-padding
-    line-height: 56px
+    line-height: $header-height
     vertical-align: middle
     font-size: 16px // same as question-list
 
