@@ -27,7 +27,6 @@
           />
 
           <content-renderer
-            class="content-renderer"
             v-if="currentInteraction"
             :id="exercise.pk"
             :itemId="currentAttemptLog.item"

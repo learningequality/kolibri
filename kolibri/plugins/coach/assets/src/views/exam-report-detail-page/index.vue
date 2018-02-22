@@ -32,7 +32,6 @@
 
           <content-renderer
             v-if="currentInteraction"
-            class="content-renderer"
             :id="exercise.pk"
             :itemId="itemId"
             :allowHints="false"
@@ -48,7 +47,6 @@
           />
           <content-renderer
             v-else
-            class="content-renderer"
             :id="exercise.pk"
             :itemId="itemId"
             :allowHints="false"

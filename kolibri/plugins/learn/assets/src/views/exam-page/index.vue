@@ -32,7 +32,6 @@
             </div>
             <div class="exercise-container column">
               <content-renderer
-                class="content-renderer"
                 ref="contentRenderer"
                 v-if="itemId"
                 :id="content.id"

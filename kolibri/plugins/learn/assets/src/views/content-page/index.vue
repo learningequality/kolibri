@@ -8,7 +8,6 @@
     <content-renderer
       v-if="!content.assessment"
       v-show="!searchOpen"
-      class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
       @stopTracking="stopTracking"
@@ -35,7 +34,6 @@
     <assessment-wrapper
       v-else
       v-show="!searchOpen"
-      class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
       @stopTracking="stopTracking"
