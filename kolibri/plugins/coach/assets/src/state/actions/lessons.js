@@ -258,14 +258,17 @@ export function showLessonContentPreview(store, classId, lessonId, contentId) {
     workingResources: pendingSelections,
     // only exist if exercises
     questions: null,
+    completionData: null,
   };
   Promise.all([
     ContentNodeResource.getModel(contentId).fetch(),
     LessonResource.getModel(lessonId).fetch(),
   ]).then(([contentNode, lesson]) => {
     // set up intial pageState
+    const contentMetadata = assessmentMetaDataState(contentNode);
     pageState.currentContentNode = contentNode;
-    pageState.questions = assessmentMetaDataState(contentNode).assessmentIds;
+    pageState.questions = contentMetadata.assessmentIds;
+    pageState.completionData = contentMetadata.masteryModel;
 
     store.dispatch('SET_PAGE_STATE', pageState);
 

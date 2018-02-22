@@ -2,7 +2,9 @@
 
   <div class="content-preview-page">
     <metadata-area
+      class="top-row"
       :content="content"
+      :completionData="completionData"
     />
     <!-- TODO consolidate this and attemptloglist? -->
     <question-list
@@ -67,6 +69,7 @@
       getters: {
         content: state => state.pageState.currentContentNode,
         questions: state => state.pageState.questions,
+        completionData: state => state.pageState.completionData,
       },
     },
   };
@@ -77,13 +80,13 @@
 <style lang="stylus" scoped>
 
   $vertical-split = 30%
-  $horizontal-split = 20%
+  $horizontal-split = 25%
 
   .content-preview-page
     height: 100% // establish containing-blocks' height
     position: relative // set the context for absolute elements within
 
-  .description-area
+  .top-row
     width: 100%
     height: $horizontal-split
 

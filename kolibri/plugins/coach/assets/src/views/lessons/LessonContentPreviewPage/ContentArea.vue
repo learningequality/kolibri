@@ -62,7 +62,7 @@
 </script>
 
 
-<style lang="stylus">
+<style scoped lang="stylus">
 
   $perseus-padding = 15px
   $header-height = 56px // dupe from question-list
