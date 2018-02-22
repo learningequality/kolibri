@@ -1,14 +1,21 @@
 <template>
 
   <div>
-    <h1>Current</h1>
-    <pre>
-      {{ JSON.stringify(currentLessonResource, null, 2) }}
-    </pre>
-    <h1>NExt</h1>
-    <pre>
-      {{ JSON.stringify(nextLessonResource, null, 2) }}
-    </pre>
+    <content-page>
+      <div slot="below_content">
+        <template v-if="nextLessonResource">
+          <h1>{{ $tr('nextInLesson') }}</h1>
+          <content-card
+            :isMobile="true"
+            :kind="nextLessonResource.kind"
+            :link="nextResourceLink"
+            :progress="nextLessonResource.progress_fraction"
+            :thumbnail="getContentNodeThumbnail(nextLessonResource)"
+            :title="nextLessonResource.title"
+          />
+        </template>
+      </div>
+    </content-page>
   </div>
 
 </template>
@@ -16,20 +23,43 @@
 
 <script>
 
+  import ContentCard from '../content-card';
+  import ContentPage from '../content-page';
+  import { lessonResourceViewerLink } from './classPageLinks';
+
+  // TODO Make this utility
+  function getContentNodeThumbnail(contentnode) {
+    const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
+    if (fileWithThumbnail) {
+      return fileWithThumbnail.storage_url;
+    }
+    return null;
+  }
+
   export default {
-    components: {},
-    props: {},
-    computed: {},
-    methods: {},
+    components: {
+      ContentCard,
+      ContentPage,
+    },
+    computed: {
+      nextResourceLink() {
+        return lessonResourceViewerLink(+this.$route.params.resourceNumber + 1);
+      },
+    },
+    methods: {
+      getContentNodeThumbnail,
+    },
     vuex: {
       getters: {
         currentLesson: state => state.pageState.currentLesson,
-        currentLessonResource: state => state.pageState.currentLessonResource,
+        currentLessonResource: state => state.pageState.content,
         nextLessonResource: state => state.pageState.nextLessonResource,
       },
       actions: {},
     },
-    $trs: {},
+    $trs: {
+      nextInLesson: 'Next in Lesson:',
+    },
   };
 
 </script>

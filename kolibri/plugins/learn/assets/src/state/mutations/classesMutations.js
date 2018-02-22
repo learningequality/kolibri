@@ -15,7 +15,9 @@ export function SET_CURRENT_CLASSROOM(state, classroom) {
 }
 
 export function SET_CURRENT_AND_NEXT_LESSON_RESOURCES(state, resources) {
-  state.pageState.currentLessonResource = { ...resources[0] };
+  const firstResource = { ...resources[0] };
+  // HACK: duck-typing the pageState to work with content-page as-is
+  state.pageState.content = { ...firstResource, id: firstResource.pk };
   if (resources[1]) {
     state.pageState.nextLessonResource = { ...resources[1] };
   } else {

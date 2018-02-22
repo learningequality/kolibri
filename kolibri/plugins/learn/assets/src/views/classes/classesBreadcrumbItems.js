@@ -42,10 +42,9 @@ export default {
     },
     showClassesBreadcrumbs() {
       return [
-        // No breadcrumbs on ALL_CLASSES
+        // No breadcrumbs on ALL_CLASSES or LESSON_RESOURCE_VIEWER
         ClassesPageNames.CLASS_ASSIGNMENTS,
         ClassesPageNames.LESSON_PLAYLIST,
-        // TODO: Resource viewer
       ].includes(this.pageName);
     },
   },

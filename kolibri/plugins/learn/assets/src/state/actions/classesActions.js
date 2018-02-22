@@ -12,7 +12,7 @@ const translator = createTranslator('classesPageTitles', {
 function preparePage(store, params) {
   const { pageName, title, initialState } = params;
   store.dispatch('SET_PAGE_NAME', pageName);
-  store.dispatch('CORE_SET_TITLE', title);
+  store.dispatch('CORE_SET_TITLE', title || '');
   store.dispatch('SET_PAGE_STATE', initialState);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 }
@@ -98,7 +98,6 @@ export function showLessonPlaylist(store, { lessonId }) {
 export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
   preparePage(store, {
     pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    title: translator.$tr('lessonContents'),
     initialState: {
       currentLesson: {},
       currentLessonResource: {},
@@ -108,15 +107,17 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
   return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
+      const index = Number(resourceNumber);
       store.dispatch('SET_CURRENT_LESSON', lesson);
-      const currentResource = lesson.resources[resourceNumber];
+      const currentResource = lesson.resources[index];
       if (!currentResource) {
         return Promise.reject();
       }
-      const nextResource = lesson.resources[resourceNumber + 1];
+      const nextResource = lesson.resources[index + 1];
       return getAllLessonContentNodes([currentResource, nextResource].filter(x => x));
     })
     .then(resources => {
+      store.dispatch('CORE_SET_TITLE', resources[0].title);
       store.dispatch('SET_CURRENT_AND_NEXT_LESSON_RESOURCES', resources);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
