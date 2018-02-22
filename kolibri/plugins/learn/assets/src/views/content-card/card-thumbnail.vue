@@ -9,7 +9,7 @@
     <content-icon
       v-if="!thumbnail"
       :kind="kind"
-      class="thumbnail-icon"
+      class="type-icon"
     />
 
     <progress-icon
@@ -140,7 +140,7 @@
     background-position: center
     background-color: $core-grey
 
-  .thumbnail-icon
+  .type-icon
     position: absolute
     top: 50%
     left: 50%
@@ -194,7 +194,7 @@
 
   .mobile-thumbnail
 
-    .thumbnail-icon
+    .type-icon
       transform: translate(-50%, -50%) scale(2)
 
     .content-icon-wrapper

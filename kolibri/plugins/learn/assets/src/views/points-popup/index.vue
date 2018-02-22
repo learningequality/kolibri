@@ -65,11 +65,12 @@
       niceWork: 'Great work! Keep it up!',
       nextContent: 'Next Item',
       topic: 'Topic',
+      channel: 'Channel',
       exercise: 'Exercise',
       video: 'Video',
       audio: 'Audio',
       document: 'Document',
-      html5: 'HTML5 app',
+      html5: 'App',
       item: 'Item',
       close: 'Close',
       pointsForCompletion: 'Points for completion',
@@ -101,6 +102,8 @@
         const kind = this.kind;
         if (kind === ContentNodeKinds.TOPIC) {
           return this.$tr('topic');
+        } else if (kind === ContentNodeKinds.CHANNEL) {
+          return this.$tr('channel');
         } else if (kind === ContentNodeKinds.EXERCISE) {
           return this.$tr('exercise');
         } else if (kind === ContentNodeKinds.VIDEO) {
