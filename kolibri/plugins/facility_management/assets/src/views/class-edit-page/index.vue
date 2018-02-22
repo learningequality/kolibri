@@ -118,15 +118,13 @@
   export default {
     name: 'classEnrollPage',
     $trs: {
-      enrollUsers: 'Enroll learners',
-      tableTitle: 'Manage learners in this class',
-      searchText: 'Find a learner or coach...',
+      enrollUsers: 'Enroll users ',
+      tableTitle: 'Manage users in this class',
+      searchText: 'Find a user...',
       users: 'Users',
       fullName: 'Full name',
       username: 'Username',
       role: 'Role',
-      learner: 'Learner',
-      coach: 'Coach',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
       allUsersFilteredOut: 'No matching users',

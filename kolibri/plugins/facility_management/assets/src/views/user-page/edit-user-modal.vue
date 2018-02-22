@@ -39,7 +39,7 @@
 
       <k-select
         class="kind-select"
-        :label="$tr('userKind')"
+        :label="$tr('userType')"
         :options="userKinds"
         v-model="newKind"
       />
@@ -82,7 +82,7 @@
       editUser: 'Edit user',
       fullName: 'Full name',
       username: 'Username',
-      userKind: 'User kind',
+      userType: 'User type',
       admin: 'Admin',
       coach: 'Coach',
       learner: 'Learner',
