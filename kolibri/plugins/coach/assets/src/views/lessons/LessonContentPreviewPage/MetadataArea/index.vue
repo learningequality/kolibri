@@ -13,7 +13,8 @@
           {{ $tr('descriptionDataHeader') }}
         </dt>
         <dd>
-          {{ description }}
+          <!-- single-quote wrapped user strings, per indirectlylit -->
+          '{{ description }}'
         </dd>
       </template>
       <template v-if="author">
@@ -21,7 +22,7 @@
           {{ $tr('authorDataHeader') }}
         </dt>
         <dd>
-          {{ content.author }}
+          '{{ content.author }}'
         </dd>
       </template>
       <template v-if="license">
@@ -29,7 +30,7 @@
           {{ $tr('licenseDataHeader') }}
         </dt>
         <dd>
-          {{ content.license_name }}
+          '{{ content.license_name }}'
           <!-- TODO add description using infoIcon -->
         </dd>
       </template>
@@ -38,7 +39,7 @@
           {{ $tr('copyrightHolderDataHeader') }}
         </dt>
         <dd>
-          {{ content.license_owner }}
+          '{{ content.license_owner }}'
         </dd>
       </template>
     </dl>
