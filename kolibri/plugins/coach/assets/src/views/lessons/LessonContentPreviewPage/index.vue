@@ -1,13 +1,9 @@
 <template>
 
   <div class="content-preview-page">
-    <div class="description-area">
-      <h1>
-        {{ content.title }}
-      </h1>
-      Lesson Content Preview Page
-    </div>
-
+    <metadata-area
+      :content="content"
+    />
     <!-- TODO consolidate this and attemptloglist? -->
     <question-list
       class="question-list left column"
@@ -31,14 +27,16 @@
 
 <script>
 
-  import questionList from './question-list';
-  import contentArea from './content-area';
+  import QuestionList from './QuestionList';
+  import ContentArea from './ContentArea';
+  import MetadataArea from './MetadataArea';
 
   export default {
     name: 'LessonContentPreviewPage',
     components: {
-      questionList,
-      contentArea,
+      QuestionList,
+      ContentArea,
+      MetadataArea,
     },
     $trs: {
       questionLabel: 'Question { questionNumber, number }',
