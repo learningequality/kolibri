@@ -249,7 +249,7 @@
       },
     },
     $trs: {
-      filterUserType: 'User kind',
+      filterUserType: 'User type',
       searchText: 'Search for a user...',
       allUsers: 'All',
       admins: 'Admins',

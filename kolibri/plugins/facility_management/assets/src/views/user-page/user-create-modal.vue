@@ -56,7 +56,7 @@
         />
 
         <k-select
-          :label="$tr('typeOfUser')"
+          :label="$tr('userType')"
           :options="userKinds"
           v-model="kind"
           class="kind-select"
@@ -103,7 +103,7 @@
       username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
-      typeOfUser: 'Type of user',
+      userType: 'User type',
       createAccount: 'Create Account',
       learner: 'Learner',
       coach: 'Coach',
