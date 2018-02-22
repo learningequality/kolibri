@@ -141,8 +141,8 @@
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? You can customize these settings later.',
-      facilityPermissionsPresetDetailsLink: 'Setup details',
+        'How will you be using Kolibri? (You can customize these settings later)',
+      facilityPermissionsPresetDetailsLink: 'More information',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupTitle: 'Admin-managed',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',

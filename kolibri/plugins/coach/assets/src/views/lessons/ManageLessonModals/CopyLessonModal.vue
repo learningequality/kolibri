@@ -183,7 +183,7 @@
       cancel: 'Cancel',
       makeCopy: 'Copy',
       destinationClassroomExplanation: `This lesson will be copied to '{classroomName}'`,
-      lessonVisibilityQuestion: 'Who should this lesson be visible to in this class?',
+      lessonVisibilityQuestion: 'Who should this lesson be visible to?',
       copyOfLesson: 'Copy of {lessonName}',
       copiedLessonTo: `Copied lesson to '{classroomName}'`,
     },

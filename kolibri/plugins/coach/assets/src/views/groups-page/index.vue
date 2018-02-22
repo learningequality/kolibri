@@ -2,9 +2,9 @@
 
   <div>
     <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
-    
-    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>   
-    
+
+    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
+
     <k-button
       :text="$tr('newGroup')"
       :primary="true"
@@ -78,7 +78,7 @@
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
-      noGroups: 'You do not have any groups created yet',
+      noGroups: 'You do not have any groups',
     },
     components: {
       kButton,
