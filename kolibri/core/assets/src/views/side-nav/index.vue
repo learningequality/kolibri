@@ -318,14 +318,12 @@
     padding: 16px
 
   .side-nav-scrollable-area-footer-logo
-    width: 40px
-    height: 40px
+    height: 77px
+    max-width: 100%
 
   .side-nav-scrollable-area-footer-info
-    display: inline-block
-    margin-left: 8px
-    width: 140px
-    font-size: 10px
+    margin-top: 8px
+    font-size: 12px
     line-height: 16px
     p
       margin: 0

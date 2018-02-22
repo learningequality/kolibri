@@ -73,6 +73,7 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
+import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 
 export default {
   client,
@@ -141,6 +142,7 @@ export default {
     theme,
     definitions,
     keenVars,
+    buttonAndLinkStyles,
   },
   urls,
   utils: {
