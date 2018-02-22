@@ -1,4 +1,4 @@
-import { PageNames, ClassesPageNames } from '../../constants';
+import { ClassesPageNames } from '../../constants';
 
 export function classAssignmentsLink(classId) {
   return {
@@ -10,11 +10,11 @@ export function classAssignmentsLink(classId) {
 }
 
 // TODO update with the new Lesson Resource Viewer Page
-export function lessonResourceViewerLink(nodeId) {
+export function lessonResourceViewerLink(resourceNumber) {
   return {
-    name: PageNames.TOPICS_CONTENT,
+    name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
     params: {
-      id: nodeId,
+      resourceNumber,
     },
   };
 }

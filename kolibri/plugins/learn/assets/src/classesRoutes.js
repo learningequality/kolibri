@@ -3,6 +3,7 @@ import {
   showAllClassesPage,
   showClassAssignmentsPage,
   showLessonPlaylist,
+  showLessonResourceViewer,
 } from './state/actions/classesActions';
 import { showExam } from './state/actions/main';
 import store from 'kolibri.coreVue.vuex.store';
@@ -29,6 +30,14 @@ export default [
     handler: toRoute => {
       const { classId, lessonId } = toRoute.params;
       return showLessonPlaylist(store, { classId, lessonId });
+    },
+  },
+  {
+    name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
+    path: '/classes/:classId/lesson/:lessonId/item/:resourceNumber',
+    handler: toRoute => {
+      const { lessonId, resourceNumber } = toRoute.params;
+      showLessonResourceViewer(store, { lessonId, resourceNumber });
     },
   },
   {

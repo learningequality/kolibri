@@ -81,5 +81,46 @@ export function showLessonPlaylist(store, { lessonId }) {
     .then(contentNodes => {
       store.dispatch('SET_LESSON_CONTENTNODES', contentNodes);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(error => {
+      console.log(error); // eslint-disable-line
+    });
+}
+
+/**
+ * For a given Lesson and ContentNode Resource, render the ContentNode, and provide
+ * links to the Lesson, and the next Resource
+ * @param {string} params.lessonId -
+ * @param {string} params.resourceNumber - 0-based index to specify a Resource in
+ *   the Lesson Playlist
+ *
+ */
+export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
+  preparePage(store, {
+    pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
+    title: translator.$tr('lessonContents'),
+    initialState: {
+      currentLesson: {},
+      currentLessonResource: {},
+      nextLessonResource: {},
+    },
+  });
+  return LearnerLessonResource.getModel(lessonId)
+    .fetch({}, true)
+    ._promise.then(lesson => {
+      store.dispatch('SET_CURRENT_LESSON', lesson);
+      const currentResource = lesson.resources[resourceNumber];
+      if (!currentResource) {
+        return Promise.reject();
+      }
+      const nextResource = lesson.resources[resourceNumber + 1];
+      return getAllLessonContentNodes([currentResource, nextResource].filter(x => x));
+    })
+    .then(resources => {
+      store.dispatch('SET_CURRENT_AND_NEXT_LESSON_RESOURCES', resources);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(error => {
+      console.log(error); // eslint-disable-line
     });
 }

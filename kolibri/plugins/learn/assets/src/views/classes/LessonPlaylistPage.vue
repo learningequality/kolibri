@@ -20,12 +20,12 @@
 
     <section class="content-cards">
       <content-card
-        v-for="c in contentNodes"
+        v-for="(c, idx) in contentNodes"
         :key="c.pk"
         class="content-card"
         :isMobile="true"
         :kind="c.kind"
-        :link="lessonResourceViewerLink(c.pk)"
+        :link="lessonResourceViewerLink(idx)"
         :progress="c.progress_fraction"
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
