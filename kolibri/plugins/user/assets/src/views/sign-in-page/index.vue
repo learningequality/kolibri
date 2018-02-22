@@ -56,6 +56,7 @@
               :invalid="passwordIsInvalid"
               :invalidText="passwordIsInvalidText"
               @blur="passwordBlurred = true"
+              @input="handlePasswordChanged"
               v-model="password"
             />
           </transition>
@@ -151,6 +152,7 @@
       usernameBlurred: false,
       passwordBlurred: false,
       formSubmitted: false,
+      autoFilledByChromeAndNotEdited: false,
     }),
     computed: {
       simpleSignIn() {
@@ -184,6 +186,10 @@
         return '';
       },
       passwordIsInvalid() {
+        // prevent validation from showing when we only think that the password is empty
+        if (this.autoFilledByChromeAndNotEdited) {
+          return false;
+        }
         return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
@@ -203,6 +209,27 @@
       },
     },
     watch: { username: 'setSuggestionTerm' },
+    mounted() {
+      /*
+        Chrome has non-standard behavior with auto-filled text fields where
+        the value shows up as an empty string even though there is text in
+        the field:
+          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
+
+        As super-brittle hack to detect the presence of auto-filled text and
+        work-around it, we look for a change in background color as described
+        here:
+          https://stackoverflow.com/a/35783761
+      */
+      setTimeout(() => {
+        const bgColor = window.getComputedStyle(this.$refs.password.$el.querySelector('input'))
+          .backgroundColor;
+        if (bgColor === 'rgb(250, 255, 189)') {
+          this.$refs.password.$el.querySelector('input').focus();
+          this.autoFilledByChromeAndNotEdited = true;
+        }
+      }, 100);
+    },
     methods: {
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
@@ -281,6 +308,9 @@
       handleUsernameBlur() {
         this.usernameBlurred = true;
         this.showDropdown = false;
+      },
+      handlePasswordChanged() {
+        this.autoFilledByChromeAndNotEdited = false;
       },
       signIn() {
         this.formSubmitted = true;
