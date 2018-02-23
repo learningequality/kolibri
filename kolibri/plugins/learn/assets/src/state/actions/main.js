@@ -463,6 +463,7 @@ function showExam(store, id, questionNumber) {
           router.getInstance().replace({ name: PageNames.EXAM_LIST });
           return;
         }
+        exam.closed = true;
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
