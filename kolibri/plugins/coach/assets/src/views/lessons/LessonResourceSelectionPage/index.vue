@@ -3,12 +3,7 @@
   <form class="selection-form" @submit.prevent="saveResources">
     <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
 
-    <search-box />
-
-    <k-breadcrumbs
-      :items="selectionCrumbs"
-      :showAllCrumbs="true"
-    />
+    <search-tools />
 
     <ul class="content-list">
       <li
@@ -52,25 +47,23 @@
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import contentCard from './content-card';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import searchTools from './searchTools';
   import { saveLessonResources } from '../../../state/actions/lessons';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { LessonsPageNames } from '../../../lessonsConstants';
-  import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonSummaryLink, selectionRootLink, topicListingLink } from '../lessonsRouterUtils';
+  import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
 
   export default {
     name: 'lessonResourceSelectionPage',
     components: {
       uiToolbar,
-      kBreadcrumbs,
-      searchBox,
       contentCard,
       kButton,
       kCheckbox,
+      searchTools,
     },
     computed: {
       lessonPage() {
@@ -78,19 +71,6 @@
       },
       routerParams() {
         return { classId: this.classId, lessonId: this.lessonId };
-      },
-      selectionCrumbs() {
-        // IDEA refactor router logic into actions
-        return [
-          // The "Channels" breadcrumb
-          { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(this.routerParams) },
-          // Ancestors breadcrumbs
-          // NOTE: The current topic is injected into `ancestors` in the showPage action
-          ...this.ancestors.map(a => ({
-            text: a.title,
-            link: topicListingLink({ ...this.routerParams, topicId: a.pk }),
-          })),
-        ];
       },
     },
     methods: {
@@ -144,7 +124,6 @@
         workingResources: state => state.pageState.workingResources,
         // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
-        ancestors: state => state.pageState.ancestors,
         contentList: state => state.pageState.contentList,
       },
       actions: {
@@ -161,9 +140,13 @@
     $trs: {
       // TODO semantic string names
       addResourcesHeader: 'Add resources to your lesson',
-      channelBreadcrumbLabel: 'Channels',
       save: 'Save',
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
       totalResourcesSelected: 'Total resources selected: {total, number, integer}',
+      // only shown on search page
+      // TODO add search page check for this
+      sourceInformation: 'from {sourceName}',
       resourceSaveConfirmation: 'Changes to lesson saved',
     },
   };
