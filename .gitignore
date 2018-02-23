@@ -58,11 +58,11 @@ output/*.html
 output/*/index.html
 
 # Sphinx
-docs-developer/_build
+docs/_build
 
 # api-docs
-docs-developer/py_modules/kolibri*rst
-docs-developer/py_modules/modules.rst
+docs/py_modules/kolibri*rst
+docs/py_modules/modules.rst
 
 # node
 node_modules
