@@ -125,7 +125,15 @@ export function showSignInPage(store) {
     pageName: PageNames.SIGN_IN,
     title: translator.$tr('userSignInPageTitle'),
   });
-  store.dispatch('SET_PAGE_STATE', {});
+
+  FacilityResource.getCollection()
+    .fetch()
+    .then(facilities => {
+      store.dispatch('CORE_SET_FACILITIES', facilities);
+      store.dispatch('SET_PAGE_STATE', {
+        hasMultipleFacilities: facilities.length > 1,
+      });
+    });
 }
 
 export function showSignUpPage(store) {

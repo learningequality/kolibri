@@ -233,11 +233,11 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilityConfig(store) {
+function getFacilityConfig(store, facilityId = '') {
   // assumes session is loaded
   const currentFacilityId = getters.currentFacilityId(store.state);
   const facilityConfigCollection = FacilityDatasetResource.getCollection({
-    facility_id: currentFacilityId,
+    facility_id: facilityId || currentFacilityId,
   }).fetch();
   return facilityConfigCollection.then(facilityConfig => {
     let config = {};

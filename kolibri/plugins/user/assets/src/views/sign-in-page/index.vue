@@ -1,13 +1,20 @@
 <template>
 
   <div class="fh">
+
+    <facility-modal
+      v-if="facilityModalVisible"
+      :facilities="facilities"
+      @close="closeFacilityModal"
+    />
+
     <div class="wrapper-table">
       <div class="main-row"><div id="main-cell">
         <logo class="logo" />
         <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
         <form class="login-form" ref="form" @submit.prevent="signIn">
           <ui-alert
-            v-if="invalidCredentials"
+            v-if="invalidCredentials && showServerError"
             type="error"
             class="alert"
             :dismissible="false"
@@ -46,7 +53,7 @@
           </transition>
           <transition name="textbox">
             <k-textbox
-              v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+              v-if="needPasswordField"
               ref="password"
               id="password"
               type="password"
@@ -114,6 +121,7 @@
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import languageSwitcherFooter from '../language-switcher-footer';
+  import facilityModal from './facility-modal';
 
   export default {
     name: 'signInPage',
@@ -136,6 +144,7 @@
       kRouterLink,
       kExternalLink,
       kTextbox,
+      facilityModal,
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
@@ -145,6 +154,8 @@
       username: '',
       password: '',
       usernameSuggestions: [],
+      showServerError: !this.hasMultipleFacilities, //always show errors if only one facility
+      facilityModalVisible: false,
       suggestionTerm: '',
       showDropdown: true,
       highlightedIndex: -1,
@@ -201,9 +212,27 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
+      hasServerError() {
+        return !!(this.passwordMissing || this.invalidCredentials);
+      },
+      needPasswordField() {
+        const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
+        return !this.simpleSignIn || (isSimpleButHasError && this.showServerError);
+      },
     },
     watch: { username: 'setSuggestionTerm' },
     methods: {
+      setFacilityModal() {
+        // relies on the fact that it's only called on error for login
+        if (this.hasMultipleFacilities) {
+          this.showServerError = false;
+          this.facilityModalVisible = true;
+        }
+      },
+      closeFacilityModal() {
+        this.showServerError = true;
+        this.facilityModalVisible = false;
+      },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
           // Only check if defined or not null
@@ -289,7 +318,7 @@
             username: this.username,
             password: this.password,
             facility: this.facility,
-          });
+          }).catch(this.setFacilityModal());
         } else {
           this.focusOnInvalidField();
         }
@@ -304,8 +333,12 @@
     },
     vuex: {
       getters: {
+        // backend's default on page setup
         facility: currentFacilityId,
         facilityConfig,
+        facilities: state => state.core.facilities,
+        hasMultipleFacilities: () => true,
+        // hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
