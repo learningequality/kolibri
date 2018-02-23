@@ -275,7 +275,7 @@
           this.showDropdown = false;
           this.highlightedIndex = -1;
           // focus on input after selection
-          this.$refs.username.$el.querySelector('input').focus();
+          this.$refs.username.focus();
         }
       },
       handleUsernameBlur() {
