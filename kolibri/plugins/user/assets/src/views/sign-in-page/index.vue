@@ -213,7 +213,7 @@
         return this.$tr('poweredBy', { version: __version });
       },
       hasServerError() {
-        return !!(this.passwordMissing || this.invalidCredentials);
+        return Boolean(this.passwordMissing || this.invalidCredentials);
       },
       needPasswordField() {
         const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
