@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classLessons', { className }) }}</h1>
+    <h1>{{ $tr('classLessons') }}</h1>
     <div class="filter-and-button">
       <k-select
         :label="$tr('show')"
@@ -157,7 +157,7 @@
       },
     },
     $trs: {
-      classLessons: '{ className } lessons',
+      classLessons: 'Lessons',
       show: 'Show',
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
@@ -172,11 +172,11 @@
       status: 'Status',
       numberOfResources:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
-      noLessons: 'No lessons',
+      noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
       lessonStatusDescription: 'Lesson status description',
-      statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
+      statusTooltipText: 'Learners can only see active lessons',
     },
   };
 

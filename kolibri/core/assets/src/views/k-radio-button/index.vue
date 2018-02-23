@@ -111,9 +111,12 @@
     },
 
     methods: {
+      focus() {
+        this.$refs.kRadioInput.focus();
+      },
       select() {
         if (!this.disabled) {
-          this.$refs.kRadioInput.focus();
+          this.focus();
           this.model = this.radiovalue;
           this.emitChange();
         }

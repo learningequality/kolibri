@@ -9,9 +9,9 @@
       <fieldset class="onboarding-form-fields">
         <legend class="onboarding-form-legend">
           <span v-if="hasDescription" class="onboardng-form-description">
-            <slot name="description"> {{ description }} </slot>
+            <slot name="description">{{ description }}</slot>
           </span>
-          <span v-else class="visuallyhidden"> {{ header }} </span>
+          <span v-else class="visuallyhidden">{{ header }}</span>
         </legend>
 
         <slot></slot>
@@ -24,6 +24,9 @@
         :text="submitText"
       />
     </form>
+    <div class="form-footer">
+      <slot name="footer"></slot>
+    </div>
   </div>
 
 </template>
@@ -88,5 +91,8 @@
 
     &-submit
       margin: 0
+
+  .form-footer
+    margin-top: 24px
 
 </style>
