@@ -24,8 +24,8 @@ module.exports = {
     'eslint:recommended',
     'prettier',
     'plugin:vue/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
+//     'plugin:import/errors',
+//     'plugin:import/warnings',
   ],
   plugins: ['import', 'vue'],
 //   settings: {
@@ -40,8 +40,6 @@ module.exports = {
   rules: {
     'comma-style': 2,
     
-    'import/resolver': 0,
-
     'vue/no-dupe-keys': 2,
     'vue/no-reserved-keys': 2,
     'vue/no-shared-component-data': 2,
