@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <ui-icon>
+    <ui-icon ref="type-icon">
       <mat-svg
         v-if="is(Constants.ContentNodeKinds.CHANNEL)"
         category="navigation"
@@ -63,6 +63,7 @@
         :class="[colorClass]"
       />
     </ui-icon>
+    <ui-tooltip trigger="type-icon" position="top middle">{{ tooltipText }}</ui-tooltip>
   </span>
 
 </template>
@@ -73,8 +74,26 @@
   import * as Constants from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
   import uiIcon from 'keen-ui/src/UiIcon';
+  import uiTooltip from 'keen-ui/src/UiTooltip';
+
   export default {
-    components: { uiIcon },
+    name: 'contentIcon',
+    $trs: {
+      topic: 'Topic',
+      channel: 'Channel',
+      exercise: 'Exercise',
+      video: 'Video',
+      audio: 'Audio',
+      document: 'Document',
+      html5: 'App',
+      exam: 'Exam',
+      lesson: 'Lesson',
+      user: 'User',
+    },
+    components: {
+      uiIcon,
+      uiTooltip,
+    },
     props: {
       kind: {
         type: String,
@@ -96,6 +115,31 @@
       },
       colorClass() {
         return `color-${this.colorStyle}`;
+      },
+      tooltipText() {
+        const kind = this.kind;
+        if (kind === Constants.ContentNodeKinds.TOPIC) {
+          return this.$tr('topic');
+        } else if (kind === Constants.ContentNodeKinds.CHANNEL) {
+          return this.$tr('channel');
+        } else if (kind === Constants.ContentNodeKinds.EXERCISE) {
+          return this.$tr('exercise');
+        } else if (kind === Constants.ContentNodeKinds.VIDEO) {
+          return this.$tr('video');
+        } else if (kind === Constants.ContentNodeKinds.AUDIO) {
+          return this.$tr('audio');
+        } else if (kind === Constants.ContentNodeKinds.DOCUMENT) {
+          return this.$tr('document');
+        } else if (kind === Constants.ContentNodeKinds.HTML5) {
+          return this.$tr('html5');
+        } else if (kind === Constants.ContentNodeKinds.EXAM) {
+          return this.$tr('exam');
+        } else if (kind === Constants.ContentNodeKinds.LESSON) {
+          return this.$tr('lesson');
+        } else if (kind === Constants.USER) {
+          return this.$tr('user');
+        }
+        return '';
       },
     },
     methods: {
