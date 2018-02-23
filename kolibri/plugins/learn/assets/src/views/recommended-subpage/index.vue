@@ -26,7 +26,7 @@
       popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      featuredPageHeader: 'Featured in {channelTitle}',
+      featuredPageHeader: "Featured in '{channelTitle}'",
       recommended: 'Recommended',
     },
     components: {
