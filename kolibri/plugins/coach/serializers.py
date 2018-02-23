@@ -248,10 +248,18 @@ class LessonReportSerializer(serializers.ModelSerializer):
     been assigned the Lesson and have 'mastered' the Resource.
     """
     progress = serializers.SerializerMethodField()
+    total_learners = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
-        fields = ('id', 'title', 'progress',)
+        fields = ('id', 'title', 'progress', 'total_learners',)
+
+    def get_progress(self, instance):
+        learners = instance.get_all_learners()
+        return [self._resource_progress(r, learners) for r in instance.resources]
+
+    def get_total_learners(self, instance):
+        return len(instance.get_all_learners())
 
     def _resource_progress(self, resource, learners):
         try:
@@ -280,7 +288,3 @@ class LessonReportSerializer(serializers.ModelSerializer):
                 'num_learners_mastered': 0,
                 'available': False,
             }
-
-    def get_progress(self, instance):
-        learners = instance.get_all_learners()
-        return [self._resource_progress(r, learners) for r in instance.resources]
