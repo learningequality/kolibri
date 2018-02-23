@@ -28,17 +28,19 @@ module.exports = {
     'plugin:import/warnings',
   ],
   plugins: ['import', 'vue'],
-  settings: {
-    'import/resolver': {
-      [path.resolve(
-        path.join(path.dirname(__filename), './frontend_build/src/alias_import_resolver.js')
-      )]: {
-        extensions: ['.js', '.vue'],
-      },
-    },
-  },
+//   settings: {
+//     'import/resolver': {
+//       [path.resolve(
+//         path.join(path.dirname(__filename), './frontend_build/src/alias_import_resolver.js')
+//       )]: {
+//         extensions: ['.js', '.vue'],
+//       },
+//     },
+//   },
   rules: {
     'comma-style': 2,
+    
+    'import/resolver': 0,
 
     'vue/no-dupe-keys': 2,
     'vue/no-reserved-keys': 2,
