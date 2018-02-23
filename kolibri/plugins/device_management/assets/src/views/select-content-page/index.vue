@@ -166,8 +166,19 @@
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
         return this.downloadChannelMetadata().then(() => {
+          this.updateChannelTotalResouce();
           this.showUpdateProgressBar = false;
         });
+      },
+      updateChannelTotalResouce() {
+        let availableChannel = this.availableChannels;
+        for (let i = 0; i < availableChannel.length; i++) {
+          if (this.channel.id === availableChannel[i].id) {
+            // Update channel total resources.
+            this.channel.total_resources = availableChannel[i].total_resources;
+            this.channel.total_file_size = availableChannel[i].total_file_size;
+          }
+        }
       },
       startTransferringContent() {
         this.contentTransferError = false;
@@ -193,6 +204,7 @@
         selectedItems: state => wizardState(state).nodesForTransfer || {},
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
+        availableChannels: state => wizardState(state).availableChannels,
       },
       actions: {
         downloadChannelMetadata,
