@@ -20,7 +20,7 @@
             v-if="descriptionIsTooLong"
             @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
             appearance="basic-link"
-            :text="descriptionExpanded ? 'View less' : 'View More'"
+            :text="descriptionExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
           />
 
         </p>
@@ -104,6 +104,10 @@
           truncated: this.descriptionIsTooLong && !this.descriptionExpanded,
         };
       },
+    },
+    $trs: {
+      viewMoreButtonPrompt: 'View more',
+      viewLessButtonPrompt: 'View less',
     },
   };
 
