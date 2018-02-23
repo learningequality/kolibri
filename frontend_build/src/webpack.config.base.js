@@ -19,7 +19,7 @@ var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
-var lint = process.env.LINT || production;
+var lint = process.env.LINT;
 
 var postCSSLoader = {
   loader: 'postcss-loader',
