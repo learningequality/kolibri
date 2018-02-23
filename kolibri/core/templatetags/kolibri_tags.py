@@ -2,7 +2,9 @@
 Kolibri template tags
 =====================
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import copy
 import json
@@ -11,15 +13,22 @@ import re
 from django import template
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import resolve, reverse
+from django.core.urlresolvers import resolve
+from django.core.urlresolvers import reverse
 from django.utils.html import mark_safe
 from django.utils.timezone import now
-from django.utils.translation import get_language, get_language_bidi, get_language_info
-from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME, JS_VAR_NAME
+from django.utils.translation import get_language
+from django.utils.translation import get_language_bidi
+from django.utils.translation import get_language_info
+from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME
+from django_js_reverse.js_reverse_settings import JS_VAR_NAME
 from django_js_reverse.templatetags.js_reverse import js_reverse_inline
-from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from six import iteritems
+
+from kolibri.core.hooks import NavigationHook
+from kolibri.core.hooks import UserNavigationHook
+from kolibri.utils import conf
 
 register = template.Library()
 
@@ -79,7 +88,7 @@ def kolibri_set_urls(context):
     js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
     js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
     js = (js_reverse_inline(context) +
-          "Object.assign({0}.urls, {1}.{2})".format(settings.KOLIBRI_CORE_JS_NAME,
+          "Object.assign({0}.urls, {1}.{2})".format(conf.KOLIBRI_CORE_JS_NAME,
                                                     js_global_object_name,
                                                     js_var_name))
     return mark_safe(js)
@@ -89,7 +98,7 @@ def kolibri_set_urls(context):
 def kolibri_set_server_time():
     html = ("<script type='text/javascript'>"
             "{0}.utils.serverClock.setServerTime({1});"
-            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
                                json.dumps(now(), cls=DjangoJSONEncoder)))
     return mark_safe(html)
 
@@ -100,7 +109,7 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
     html = ("<script type='text/javascript'>"
             "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
             "model.synced = true;"
-            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
                                api_resource,
                                json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
                                json.dumps(url_params)))
@@ -112,7 +121,7 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
     html = ("<script type='text/javascript'>"
             "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
             "collection.synced = true;"
-            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
                                api_resource,
                                json.dumps(url_params),
                                json.dumps(kwargs),

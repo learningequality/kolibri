@@ -189,11 +189,11 @@ function showChannels(store) {
       ContentNodeResource.getCollection({ ids: channelRootIds })
         .fetch()
         .then(channelCollection => {
-          const rootNodes = _collectionState(channelCollection);
-          rootNodes.forEach(rootNode => {
-            rootNode.thumbnail = channels.find(
-              channel => channel.id === rootNode.channel_id
-            ).thumbnail;
+          // we want them to be in the same order as the channels list
+          const rootNodes = channels.map(channel => {
+            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+            node.thumbnail = channel.thumbnail;
+            return node;
           });
           const pageState = { rootNodes };
           store.dispatch('SET_PAGE_STATE', pageState);

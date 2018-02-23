@@ -7,6 +7,7 @@
     <core-modal
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       @cancel="hideFacilityPermissionsDetails"
+      @enter="hideFacilityPermissionsDetails"
       :enableBgClickCancel="true"
       v-if="permissionPresetDetailsModalShown"
     >

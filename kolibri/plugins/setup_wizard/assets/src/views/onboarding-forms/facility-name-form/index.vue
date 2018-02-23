@@ -64,7 +64,7 @@
         return '';
       },
       facilityNameIsInvalid() {
-        return this.fieldVisited && !!this.facilityNameErrorMessage;
+        return this.fieldVisited && Boolean(this.facilityNameErrorMessage);
       },
     },
     methods: {

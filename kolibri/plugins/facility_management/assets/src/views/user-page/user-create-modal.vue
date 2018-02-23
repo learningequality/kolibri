@@ -56,7 +56,7 @@
         />
 
         <k-select
-          :label="$tr('typeOfUser')"
+          :label="$tr('userType')"
           :options="userKinds"
           v-model="kind"
           class="kind-select"
@@ -103,7 +103,7 @@
       username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
-      typeOfUser: 'Type of user',
+      userType: 'User type',
       createAccount: 'Create Account',
       learner: 'Learner',
       coach: 'Coach',
@@ -148,7 +148,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
         return this.users.findIndex(user => user.username === this.username) !== -1;
@@ -168,7 +168,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -179,7 +179,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -193,7 +193,7 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       formIsValid() {
         return (

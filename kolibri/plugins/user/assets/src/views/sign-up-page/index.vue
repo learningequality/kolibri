@@ -187,7 +187,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
@@ -210,7 +210,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -221,7 +221,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -235,7 +235,7 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       noFacilitySelected() {
         return !this.selectedFacility.value;
@@ -249,7 +249,7 @@
         return '';
       },
       facilityIsInvalid() {
-        return !!this.facilityIsInvalidText;
+        return Boolean(this.facilityIsInvalidText);
       },
       formIsValid() {
         return (

@@ -14,6 +14,7 @@ if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
 import Mediator from '../src/core-app/mediator';
 import Vue from 'kolibri.lib.vue';
 import vueintl from 'vue-intl';
+
 Vue.use(vueintl, { defaultLocale: 'en-us' });
 
 describe('Mediator', function() {

@@ -106,7 +106,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       formIsValid() {
         return !this.nameIsInvalid;

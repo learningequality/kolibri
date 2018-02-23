@@ -49,10 +49,13 @@
         <transition name="fade" mode="out-in">
           <ui-progress-linear v-if="loading" key="progress" />
 
-          <table v-else key="table">
-            <thead>
+          <core-table
+            v-else
+            key="table"
+          >
+            <thead slot="thead">
               <tr>
-                <th class="col-checkbox">
+                <th class="core-table-checkbox-col">
                   <k-checkbox
                     :label="$tr('selectAll')"
                     :showLabel="false"
@@ -61,11 +64,11 @@
                     @change="changeSelection"
                   />
                 </th>
-                <th class="col-title">{{ $tr('name') }}</th>
-                <th class="col-selection"></th>
+                <th class="core-table-main-col">{{ $tr('name') }}</th>
+                <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody slot="tbody">
               <exercise-row
                 v-for="exercise in exercises"
                 :key="exercise.id"
@@ -88,7 +91,7 @@
                 @removeTopicExercises="handleRemoveTopicExercises"
               />
             </tbody>
-          </table>
+          </core-table>
         </transition>
       </div>
     </div>
@@ -118,13 +121,6 @@
       :examNumQuestions="inputNumQuestions"
       @randomize="seed = generateRandomSeed()"
     />
-
-    <core-snackbar
-      v-if="examModificationSnackbarIsVisible"
-      :key="snackbarText"
-      :text="snackbarText"
-      :autoDismiss="true"
-    />
   </div>
 
 </template>
@@ -141,26 +137,25 @@
     addExercise,
     removeExercise,
     displayExamModal,
-    showExamModificationSnackbar,
   } from '../../state/actions/exam';
   import { className } from '../../state/getters/main';
-  import { Modals as ExamModals, EXAM_MODIFICATION_SNACKBAR } from '../../examConstants';
+  import { Modals as ExamModals } from '../../examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
-  import { currentSnackbar } from 'kolibri.coreVue.vuex.getters';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import flatMap from 'lodash/flatMap';
 
   export default {
     name: 'createExamPage',
     components: {
-      coreSnackbar,
       uiProgressLinear,
       kButton,
       kTextbox,
@@ -169,6 +164,7 @@
       previewNewExamModal,
       kCheckbox,
       uiAlert,
+      CoreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -206,7 +202,6 @@
         selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
-        snackbarText: null,
       };
     },
     computed: {
@@ -231,7 +226,7 @@
         return '';
       },
       titleIsInvalid() {
-        return !!this.titleIsInvalidText;
+        return Boolean(this.titleIsInvalidText);
       },
       maxQuestionsFromSelection() {
         // in case numAssestments is null, return 0
@@ -267,7 +262,7 @@
         return '';
       },
       numQuestIsInvalid() {
-        return !!this.numQuestIsInvalidText;
+        return Boolean(this.numQuestIsInvalidText);
       },
       selectionIsInvalidText() {
         if (this.selectionMade || this.previewOrSubmissionAttempt) {
@@ -278,7 +273,7 @@
         return '';
       },
       selectionIsInvalid() {
-        return !!this.selectionIsInvalidText;
+        return Boolean(this.selectionIsInvalidText);
       },
       formIsInvalidText() {
         if (this.titleIsInvalid) {
@@ -293,14 +288,14 @@
         return '';
       },
       formIsInvalid() {
-        return !!this.formIsInvalidText;
+        return Boolean(this.formIsInvalidText);
       },
       allExercisesWithinCurrentTopic() {
-        let allExercises = [];
-        this.subtopics.forEach(subtopic => {
-          allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
-        });
-        return [allExercises, ...this.exercises];
+        const subtopicExercises = flatMap(
+          this.subtopics,
+          subtopic => subtopic.allExercisesWithinTopic
+        );
+        return [...subtopicExercises, ...this.exercises];
       },
       allExercisesWithinCurrentTopicSelected() {
         if (this.allExercisesWithinCurrentTopic.length === 0) {
@@ -357,9 +352,6 @@
           number_of_questions: 1,
         }));
       },
-      examModificationSnackbarIsVisible() {
-        return this.currentSnackbar === EXAM_MODIFICATION_SNACKBAR;
-      },
     },
     methods: {
       changeSelection() {
@@ -381,24 +373,23 @@
       handleAddExercise(exercise) {
         this.selectionMade = true;
         this.addExercise(exercise);
-        this.snackbarText = `${this.$tr('added')} ${exercise.title}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('added')} ${exercise.title}`, autoDismiss: true });
       },
       handleRemoveExercise(exercise) {
         this.removeExercise(exercise);
-        this.snackbarText = `${this.$tr('removed')} ${exercise.title}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({
+          text: `${this.$tr('removed')} ${exercise.title}`,
+          autoDismiss: true,
+        });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
-        this.snackbarText = `${this.$tr('added')} ${topicTitle}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
-        this.snackbarText = `${this.$tr('removed')} ${topicTitle}`;
-        this.showExamModificationSnackbar();
+        this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
       },
       preview() {
         this.previewOrSubmissionAttempt = true;
@@ -461,7 +452,6 @@
         selectedExercises: state => state.pageState.selectedExercises,
         examModalShown: state => state.pageState.examModalShown,
         exams: state => state.pageState.exams,
-        currentSnackbar,
       },
       actions: {
         fetchContent,
@@ -469,7 +459,7 @@
         addExercise,
         removeExercise,
         displayExamModal,
-        showExamModificationSnackbar,
+        createSnackbar,
       },
     },
   };
@@ -507,11 +497,6 @@
       padding-right: 0.5em
       padding-left: 0.5em
 
-  .snackbar-container
-    position: fixed
-    bottom: 0
-    z-index: 6
-
   .fade-enter-active, .fade-leave-active
     transition: opacity 0.1s
 
@@ -520,14 +505,5 @@
 
   .validation-error
     color: $core-text-error
-
-  table
-    width: 100%
-
-  .col-title
-    text-align: left
-
-  .col-checkbox
-    width: 40px
 
 </style>

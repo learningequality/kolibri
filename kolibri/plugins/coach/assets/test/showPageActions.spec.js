@@ -179,6 +179,7 @@ describe('showPage actions for coach exams section', () => {
     dispatchSpy.reset();
     examStub.reset();
     learnerGroupStub.reset();
+    dispatchSpy.reset();
   });
 
   describe('showExamsPage', () => {
@@ -188,12 +189,14 @@ describe('showPage actions for coach exams section', () => {
       classroomStub.returns(makeHappyFetchable(fakeItems));
       examStub.returns(makeHappyFetchable(fakeExams));
 
-      return examActions.showExamsPage(storeMock, 'class_1')._promise.then(() => {
+      // Using the weird naming from fakeItems
+      const classId = 'item_1';
+      return examActions.showExamsPage(storeMock, classId)._promise.then(() => {
         sinon.assert.calledWith(channelStub);
-        sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
+        sinon.assert.calledWith(learnerGroupStub, { parent: classId });
         sinon.assert.calledWith(classroomStub);
-        sinon.assert.calledWith(examStub, { collection: 'class_1' });
-        sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', 'class_1', [
+        sinon.assert.calledWith(examStub, { collection: classId });
+        sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', classId, 'item one', [
           { id: 'item_1', name: 'item one', memberCount: 5 },
           { id: 'item_2', name: 'item two', memberCount: 6 },
         ]);

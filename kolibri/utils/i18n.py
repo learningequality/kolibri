@@ -28,3 +28,14 @@ def get_installed_app_locale_path(appname):
 
     if os.path.isdir(module_locale_path):
         return module_locale_path
+
+
+def parse_supported_languages(language_list):
+    languages = []
+    for language in language_list:
+        lang = language.get("language_code", "")
+        for key in ["language_script", "script_code", "territory_code"]:
+            if key in language:
+                lang += "-" + language[key]
+        languages.append((lang, language["language_name"]))
+    return languages

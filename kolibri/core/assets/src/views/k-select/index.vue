@@ -142,7 +142,10 @@
   .k-select-inline
     display: inline-block
     vertical-align: bottom
-    width: 100px
+    width: 150px
     margin-right: 16px
+
+  >>>.ui-select__display-value
+    line-height: 1.3
 
 </style>

@@ -23,7 +23,7 @@
             icon="close"
             @click="toggleNav"
           />
-          <span class="side-nav-header-name">{{ $tr('Kolibri') }}</span>
+          <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
         </div>
 
         <div
@@ -90,7 +90,7 @@
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
-      Kolibri: 'Kolibri',
+      kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
       facility: 'Facility',

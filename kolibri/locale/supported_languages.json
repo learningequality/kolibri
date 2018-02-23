@@ -1,0 +1,34 @@
+[
+  {
+    "language_code": "en",
+    "language_name":"English"
+  },
+  {
+    "language_code": "sw",
+    "territory_code": "tz",
+    "language_name": "Kiswahili"
+  },
+  {
+    "language_code": "es",
+    "territory_code": "es",
+    "language_name": "Español"
+  },
+  {
+    "language_code": "fr",
+    "territory_code": "fr",
+    "language_name": "Français"
+  },
+  {
+    "language_code": "ar",
+    "language_name": "العَرَبِيَّة‎‎"
+  },
+  {
+    "language_code": "fa",
+    "language_name": "فارسی"
+  },
+  {
+    "language_code": "ur",
+    "territory_code": "pk",
+    "language_name": "اُردو (پاکستان)‏"
+  }
+]

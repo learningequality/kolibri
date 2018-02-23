@@ -57,20 +57,9 @@ On Kolibri's ``develop`` branch, we sometimes allow the installers to track the 
 Update any translation files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If string interface text has changed, or more complete translations are available, translation files should be updated.
-This is currently done by running the ``make downloadmessages`` command. Following this, the specific files that have been updated with approved translations will need to be added to the repository.
+Make sure that the latest released translations are included for the appropriate release branch. Please see :ref:`crowdin` for details.
 
-Caveats:
-
-* The crowdin utility that this command invokes requires java, so you may need to run them in an ubuntu VM
-* You might need to manually install the crowdin debian package if the jar isn't working for you
-* The command might not be compatible with non-bash shells
-* You might be better off composing the crowdin commands manually, especially if your checked out branch is not a release branch
-* By default Crowdin will download all translations, not just approved ones, and will often download untranslated strings also. Do not just add all the files that are downloaded when ``make downloadmessages`` is run, as this will lead to untranslated and poor quality strings being included.
-
-If you need to add a new interface language to Kolibri, please see :ref:`new_language` for details.
-
-Finally, strings for any external Kolibri plugins (like kolibri-exercise-perseus-renderer) should also have been updated, a new release made, and the version updated in Kolibri. See the README of that repository for details.
+Finally, strings for any external Kolibri plugins (like ``kolibri-exercise-perseus-renderer``) should also have been updated, a new release made, and the version updated in Kolibri. See the README of that repository for details.
 
 
 Squash migrations
@@ -150,6 +139,20 @@ Copy the entries from the changelog into Github's "Release notes".
     concept of distance is misguided.
 
 
+Update version data
+~~~~~~~~~~~~~~~~~~~
+
+* Merge the release branch to current master if it's the newest stable release.
+* Change ``kolibri.VERSION`` to track the next development stage. Example: After releasing ``1.0.0``, change ``kolibri.VERSION`` to ``(1, 0, 1, 'alpha', 0)`` and commit to the ``release-v1.0.x`` branch.
+
+
+Update milestone
+~~~~~~~~~~~~~~~~
+
+* Close, if fixed, or change milestone of any issues on this release milestone.
+* Close this milestone.
+
+
 Release to PyPI
 ~~~~~~~~~~~~~~~
 
@@ -162,21 +165,69 @@ Release with PyPI using the make command::
 
     $ make release
 
-Declare victory.
 
-Post-release TODO
-~~~~~~~~~~~~~~~~~
 
-Most of these TODOs are targeted towards more public distribution of Kolibri, and as such have not been widely implemented in the past. Once Kolibri is publicly released, these will be increasingly important to support our community.
 
-* Release on PyPI
-* Merge the release branch to current master if it's the newest stable release.
-* Change ``kolibri.VERSION`` to track the next development stage. Example: After releasing ``1.0.0``, change ``kolibri.VERSION`` to ``(1, 0, 1, 'alpha', 0)`` and commit to the ``release-v1.0.x`` branch.
-* Update any redirects on learningequality.org for the latest release.
+Sign Windows installer
+~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``osslsigncode`` to sign the windows installer::
+
+    $ osslsigncode verify KolibriSetup-0.6.2.signed.exe
+
+Sign and update the Debian PPA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[ TODO ]
+
+Upload Windows installer and PEX file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Upload the PEX file and the signed windows installer to:
+
+ * ``/var/www/downloads/kolibri/vX.Y.Z/kolibri-vX.Y.Z.pex``
+ * ``/var/www/downloads/kolibri/vX.Y.Z/kolibri-vX.Y.Z-windows-installer.exe``
+
+Make sure the files and parent directories are owned by the ``www-data`` user, e.g. by running::
+
+    sudo chown www-data:www-data [filename]
+
+Update the online demo
+~~~~~~~~~~~~~~~~~~~~~~
+
+Get ``kolibridemo.learningequality.org`` running the latest version:
+
+ * SSH into ``192.237.248.135``
+ * ``sudo su www-data``
+ * ``cd ~/``
+ * download new pex file and update the correct ``run...sh`` script
+
+Then...::
+
+    sudo -i -u aron
+    killall python
+    run_all
+
+Update learningequality.org
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update learningequality.org with the latest version number and release date. Currently, these two files need to be changed:
+
+ * ``fle_site/apps/main/templates/main/documentation.html``
+ * ``fle_site/apps/main/templates/main/download.html``
+
+Also, update the ``LATEST_KOLIBRI_VERSION`` variable at `this admin site <http://learningequality.org/admin/redirects/redirectvariable/>`_.
+
+Notifications
+~~~~~~~~~~~~~
+
+Tell the world!
+
+[ TODO ]
+
 * Announce release on dev list and newsletter if appropriate.
-* Close, if fixed, or change milestone of any issues on this release milestone.
-* Close this milestone.
 * For issues on this milestone that have been reported by the community, respond on the issues or other channels, notifying of the release that fixes this issues.
+
 
 
 More on version numbers
