@@ -35,7 +35,7 @@ help:
 	@echo "--------------------"
 	@echo ""
 	@echo "translation-django-makemessages: creates source messages for django"
-	@echo "translation-django-compilemessagescompilemessages: compiles all language translation sources"
+	@echo "translation-django-compilemessages: compiles all language translation sources"
 	@echo "translation-crowdin-install: installs the CrowdIn CLI"
 	@echo "translation-crowdin-upload branch=<crowdin-branch>: uploads kolibri translation sources via CrowdIn"
 	@echo "translation-crowdin-download branch=<crowdin-branch>: downloads kolibri translated languages via CrowdIn"
@@ -146,7 +146,7 @@ translation-django-makemessages: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
-	python -m kolibri manage compilemessages
+	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 translation-crowdin-install:
 	@`[ -f build_tools/crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget -O build_tools/crowdin-cli.jar https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar

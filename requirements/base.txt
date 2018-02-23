@@ -21,8 +21,8 @@ morango==0.2.4
 requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
-pytz==2017.3
+pytz==2018.3
 python-dateutil==2.6.1
 ifcfg==0.14
-sqlalchemy==1.2.2
+sqlalchemy==1.2.3
 user-agents==1.1.0
