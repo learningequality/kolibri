@@ -11,19 +11,19 @@
         :label="facility.name"
         :radiovalue="facility.id"
       />
-
-      <k-button
-        class="core-modal-buttons"
-        @click="emitClose"
-        :text="$tr('cancelFacilitySelectionButtonPrompt')"
-      />
-      <k-button
-        class="core-modal-buttons"
-        :text="$tr('submitFacilitySelectionButtonPrompt')"
-        :primary="true"
-        :type="submit"
-      />
-
+      <div>
+        <k-button
+          class="core-modal-buttons"
+          @click="emitClose"
+          :text="$tr('cancelFacilitySelectionButtonPrompt')"
+        />
+        <k-button
+          class="core-modal-buttons"
+          :text="$tr('submitFacilitySelectionButtonPrompt')"
+          :primary="true"
+          type="submit"
+        />
+      </div>
     </form>
   </core-modal>
 
@@ -49,7 +49,6 @@
         selectedFacility: this.currentFacilityId,
       };
     },
-    computed: {},
     methods: {
       emitClose() {
         this.$emit('close');

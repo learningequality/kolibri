@@ -13,7 +13,7 @@
         <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
         <form class="login-form" ref="form" @submit.prevent="signIn">
           <ui-alert
-            v-if="invalidCredentials && showServerError"
+            v-if="invalidCredentials"
             type="error"
             class="alert"
             :dismissible="false"
@@ -149,19 +149,20 @@
       uiAlert,
       languageSwitcherFooter,
     },
-    data: () => ({
-      username: '',
-      password: '',
-      usernameSuggestions: [],
-      showServerError: !this.hasMultipleFacilities, //always show errors if only one facility
-      facilityModalVisible: false,
-      suggestionTerm: '',
-      showDropdown: true,
-      highlightedIndex: -1,
-      usernameBlurred: false,
-      passwordBlurred: false,
-      formSubmitted: false,
-    }),
+    data() {
+      return {
+        username: '',
+        password: '',
+        usernameSuggestions: [],
+        facilityModalVisible: this.hasMultipleFacilities,
+        suggestionTerm: '',
+        showDropdown: true,
+        highlightedIndex: -1,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        formSubmitted: false,
+      };
+    },
     computed: {
       simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
@@ -216,13 +217,14 @@
       },
       needPasswordField() {
         const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
-        return !this.simpleSignIn || (isSimpleButHasError && this.showServerError);
+        return !this.simpleSignIn || isSimpleButHasError;
       },
     },
-    watch: { username: 'setSuggestionTerm' },
+    watch: {
+      username: 'setSuggestionTerm',
+    },
     methods: {
       closeFacilityModal() {
-        this.showServerError = true;
         this.facilityModalVisible = false;
       },
       setSuggestionTerm(newVal) {
@@ -310,13 +312,7 @@
             username: this.username,
             password: this.password,
             facility: this.facilityConfig.id,
-          }).catch(() => {
-            // open facility modal if failed to sign in to default facility
-            if (this.hasMultipleFacilities) {
-              this.showServerError = false;
-              this.facilityModalVisible = true;
-            }
-          });
+          }).catch();
         } else {
           this.focusOnInvalidField();
         }
@@ -332,10 +328,9 @@
     vuex: {
       getters: {
         // backend's default facility on load
-        facilityId: state => state.pageState.facilityId,
+        facilityId: state => state.facilityId,
         facilityConfig,
-        hasMultipleFacilities: () => true,
-        // hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
+        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,

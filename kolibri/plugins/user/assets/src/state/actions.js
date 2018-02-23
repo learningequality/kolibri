@@ -122,10 +122,6 @@ export function showSignInPage(store) {
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
-  resetAndSetPageName(store, {
-    pageName: PageNames.SIGN_IN,
-    title: translator.$tr('userSignInPageTitle'),
-  });
 
   FacilityResource.getCollection()
     .fetch()
@@ -135,6 +131,10 @@ export function showSignInPage(store) {
       store.dispatch('SET_FACILITY_ID', currentFacilityId(store.state));
       store.dispatch('SET_PAGE_STATE', {
         hasMultipleFacilities: facilities.length > 1,
+      });
+      resetAndSetPageName(store, {
+        pageName: PageNames.SIGN_IN,
+        title: translator.$tr('userSignInPageTitle'),
       });
     });
 }
