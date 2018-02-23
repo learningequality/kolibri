@@ -2,10 +2,8 @@
 
   <div class="task-progress">
     <div class="progress-icon dtc">
-      <mat-svg
+      <ui-progress-circular
         v-if="!taskHasFailed"
-        category="action"
-        name="autorenew"
         class="inprogress"
       />
       <mat-svg
@@ -51,6 +49,7 @@
 <script>
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import UiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
@@ -65,6 +64,7 @@
     name: 'taskProgress',
     components: {
       UiProgressLinear,
+      UiProgressCircular,
       kButton,
     },
     props: {
@@ -190,7 +190,7 @@
     text-align: center
     width: 5%
     .inprogress
-      fill: $core-status-progress
+      display: inline-block
     .error
       fill: $core-text-error
 
