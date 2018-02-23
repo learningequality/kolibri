@@ -1,4 +1,10 @@
-import * as getters from 'kolibri.coreVue.vuex.getters';
+import {
+  isUserLoggedIn,
+  currentUserId,
+  isSuperuser,
+  isAdmin,
+  currentFacilityId,
+} from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
@@ -183,7 +189,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
-      } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
+      } else if (isSuperuser(store.state) || isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
         redirectBrowser(window.location.origin + facilityURL);
       } else {
@@ -233,12 +239,12 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilityConfig(store, facilityId = '') {
-  // assumes session is loaded
-  const currentFacilityId = getters.currentFacilityId(store.state);
+function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
   const facilityConfigCollection = FacilityDatasetResource.getCollection({
-    facility_id: facilityId || currentFacilityId,
+    // getCollection for currentSession's facilityId if none was passed
+    facility_id: facilityId,
   }).fetch();
+
   return facilityConfigCollection.then(facilityConfig => {
     let config = {};
     const facility = facilityConfig[0];
@@ -404,8 +410,8 @@ function saveLogs(store) {
 }
 
 function fetchPoints(store) {
-  if (getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+  if (isUserLoggedIn(store.state)) {
+    const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
     });
@@ -436,8 +442,8 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (getters.isUserLoggedIn(store.state)) {
-      const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+    if (isUserLoggedIn(store.state)) {
+      const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
         userProgressModel.set({
@@ -644,7 +650,7 @@ function saveAndStoreAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
-  const user = getters.isUserLoggedIn(store.state) ? getters.currentUserId(store.state) : null;
+  const user = isUserLoggedIn(store.state) ? currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,
