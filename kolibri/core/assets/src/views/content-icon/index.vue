@@ -88,7 +88,7 @@
       html5: 'App',
       exam: 'Exam',
       lesson: 'Lesson',
-      item: 'Item',
+      user: 'User',
     },
     components: {
       uiIcon,
@@ -136,8 +136,10 @@
           return this.$tr('exam');
         } else if (kind === Constants.ContentNodeKinds.LESSON) {
           return this.$tr('lesson');
+        } else if (kind === Constants.USER) {
+          return this.$tr('user');
         }
-        return this.$tr('item');
+        return '';
       },
     },
     methods: {
