@@ -1,13 +1,12 @@
 from functools import reduce
-
 from dateutil.parser import parse
-from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
+from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When, Q
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.lessons.models import Lesson
 from le_utils.constants import content_kinds
 from rest_framework import serializers
-
 from .utils.return_users import get_members_or_user
 
 
@@ -240,3 +239,48 @@ class ContentSummarySerializer(ContentReportSerializer):
     def get_num_users(self, target_node):
         kwargs = self.context['view'].kwargs
         return get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']).count()
+
+
+class LessonReportSerializer(serializers.ModelSerializer):
+    """
+    Annotates a Lesson with a 'progress' array, which maps 1-to-1 with Lesson.resources.
+    Each entry in the 'progress' array gives the total number of Learners who have
+    been assigned the Lesson and have 'mastered' the Resource.
+    """
+    progress = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = ('id', 'title', 'progress',)
+
+    def _resource_progress(self, resource, learners):
+        try:
+            # TODO use the content_id directly
+            contentnode = ContentNode.objects.get(pk=resource['contentnode_id'])
+
+            completed_content_logs = ContentSummaryLog.objects \
+                .filter(
+                    content_id=contentnode.content_id,
+                    user__in=learners,
+                    progress=1.0,
+                ) \
+                .values('content_id') \
+                .annotate(total=Count('pk'))[0]
+            return {
+                'contentnode_id': resource['contentnode_id'],
+                'num_learners_mastered': completed_content_logs['total'],
+                'available': True,
+            }
+        except ContentNode.DoesNotExist:
+            # Handle case where underlying content was deleted
+            # Might be OK if we don't have to retrieve the CN Model and just go
+            # by strings in Lesson.resource
+            return {
+                'contentnode_id': resource['contentnode_id'],
+                'num_learners_mastered': 0,
+                'available': False,
+            }
+
+    def get_progress(self, instance):
+        learners = instance.get_all_learners()
+        return [self._resource_progress(r, learners) for r in instance.resources]
