@@ -25,7 +25,7 @@
               ref="username"
               id="username"
               autocomplete="username"
-              :autofocus="true"
+              :autofocus="!hasMultipleFacilities"
               :label="$tr('username')"
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
