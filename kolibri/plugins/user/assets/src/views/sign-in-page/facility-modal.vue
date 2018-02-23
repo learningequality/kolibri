@@ -1,32 +1,30 @@
 <template>
 
-  <core-modal @cancel="emitClose" title="Select a facility">
+  <core-modal @cancel="emitClose" :title="$tr('facilitySelectionModalHeader')">
     <form @submit.prevent="submitAndClose">
+      {{ $tr('facilitySelectionPrompt') }}
+
+      <k-radio-button
+        v-for="facility in facilities"
+        v-model="selectedFacility"
+        :key="facility.id"
+        :label="facility.name"
+        :radiovalue="facility.id"
+      />
+
+      <k-button
+        class="core-modal-buttons"
+        @click="emitClose"
+        :text="$tr('cancelFacilitySelectionButtonPrompt')"
+      />
+      <k-button
+        class="core-modal-buttons"
+        :text="$tr('submitFacilitySelectionButtonPrompt')"
+        :primary="true"
+        :type="submit"
+      />
 
     </form>
-    Which facility do you want to log into?
-
-    <k-radio-button
-      v-for="facility in facilities"
-      v-model="selectedFacility"
-      :key="facility.id"
-      :label="facility.name"
-      :radiovalue="facility.id"
-    />
-
-    <k-button
-      class="core-modal-buttons"
-      @click="emitClose"
-      text="Cancel"
-    />
-    <k-button
-      class="core-modal-buttons"
-      text="Continue"
-      :primary="true"
-      type="submit"
-    />
-
-
   </core-modal>
 
 </template>
@@ -46,15 +44,9 @@
       kRadioButton,
       kButton,
     },
-    props: {
-      facilities: {
-        type: Array,
-        required: true,
-      },
-    },
     data() {
       return {
-        selectedFacility: this.facilities[0].id,
+        selectedFacility: this.currentFacilityId,
       };
     },
     computed: {},
@@ -63,15 +55,29 @@
         this.$emit('close');
       },
       submitAndClose() {
-        this.getFacilityConfig(this.selectedFacility);
+        this.setFacilityId();
         this.clearLoginError();
+        this.getFacilityConfig(this.selectedFacility);
         this.emitClose();
       },
     },
-    $trs: {},
+    $trs: {
+      facilitySelectionPrompt: 'Which facility do you want to sign into?',
+      cancelFacilitySelectionButtonPrompt: 'cancel',
+      submitFacilitySelectionButtonPrompt: 'submit',
+      facilitySelectionModalHeader: 'Select a facility',
+    },
     vuex: {
+      getters: {
+        // currentFacilityId uses session, with is anonymous in sign-in-page
+        currentFacilityId: state => state.facilityId,
+        facilities: state => state.core.facilities,
+      },
       actions: {
         getFacilityConfig,
+        setFacilityId(store) {
+          store.dispatch('SET_FACILITY_ID', this.selectedFacility);
+        },
         clearLoginError(store) {
           store.dispatch('CORE_SET_LOGIN_ERROR', '');
         },

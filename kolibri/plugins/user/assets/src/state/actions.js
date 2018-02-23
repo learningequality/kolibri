@@ -1,6 +1,7 @@
 import { PageNames } from '../constants';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
@@ -130,6 +131,8 @@ export function showSignInPage(store) {
     .fetch()
     .then(facilities => {
       store.dispatch('CORE_SET_FACILITIES', facilities);
+      // grabs facilityId from session, which is the backend's default on sign in page
+      store.dispatch('SET_FACILITY_ID', currentFacilityId(store.state));
       store.dispatch('SET_PAGE_STATE', {
         hasMultipleFacilities: facilities.length > 1,
       });

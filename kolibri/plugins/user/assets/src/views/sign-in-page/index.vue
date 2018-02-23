@@ -4,7 +4,6 @@
 
     <facility-modal
       v-if="facilityModalVisible"
-      :facilities="facilities"
       @close="closeFacilityModal"
     />
 
@@ -110,7 +109,7 @@
 
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -222,13 +221,6 @@
     },
     watch: { username: 'setSuggestionTerm' },
     methods: {
-      setFacilityModal() {
-        // relies on the fact that it's only called on error for login
-        if (this.hasMultipleFacilities) {
-          this.showServerError = false;
-          this.facilityModalVisible = true;
-        }
-      },
       closeFacilityModal() {
         this.showServerError = true;
         this.facilityModalVisible = false;
@@ -317,8 +309,14 @@
           this.kolibriLogin({
             username: this.username,
             password: this.password,
-            facility: this.facility,
-          }).catch(this.setFacilityModal());
+            facility: this.facilityConfig.id,
+          }).catch(() => {
+            // open facility modal if failed to sign in to default facility
+            if (this.hasMultipleFacilities) {
+              this.showServerError = false;
+              this.facilityModalVisible = true;
+            }
+          });
         } else {
           this.focusOnInvalidField();
         }
@@ -333,10 +331,9 @@
     },
     vuex: {
       getters: {
-        // backend's default on page setup
-        facility: currentFacilityId,
+        // backend's default facility on load
+        facilityId: state => state.pageState.facilityId,
         facilityConfig,
-        facilities: state => state.core.facilities,
         hasMultipleFacilities: () => true,
         // hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
