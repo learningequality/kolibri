@@ -133,6 +133,7 @@
     &::placeholder
       color: $core-text-annotation
 
+    // removes the IE clear button
     &::-ms-clear
       display: none
 
