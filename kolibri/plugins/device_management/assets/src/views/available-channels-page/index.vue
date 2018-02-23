@@ -113,8 +113,7 @@
     },
     data() {
       return {
-        // Initialized with this filter, but localized label is added after mount
-        languageFilter: { value: 'ALL' },
+        languageFilter: {},
         titleFilter: '',
         showTokenModal: false,
       };
@@ -191,7 +190,7 @@
         };
       },
     },
-    mounted() {
+    beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
     },
     methods: {

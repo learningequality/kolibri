@@ -2,16 +2,24 @@
 
   <div class="task-progress">
     <div class="progress-icon dtc">
-      <ui-progress-circular
-        v-if="!taskHasFailed"
-        class="inprogress"
-      />
-      <mat-svg
-        v-else
-        category="alert"
-        name="error"
-        class="error"
-      />
+      <transition name="fade" mode="out-in">
+        <mat-svg
+          v-if="taskHasFailed"
+          category="alert"
+          name="error"
+          class="error"
+        />
+        <mat-svg
+          v-else-if="taskHasCompleted"
+          category="action"
+          name="check_circle"
+          class="complete"
+        />
+        <ui-progress-circular
+          v-else
+          class="inprogress"
+        />
+      </transition>
     </div>
 
     <div class="progress-bar dtc">
@@ -191,6 +199,8 @@
     width: 5%
     .inprogress
       display: inline-block
+    .complete
+      fill: $core-status-correct
     .error
       fill: $core-text-error
 
