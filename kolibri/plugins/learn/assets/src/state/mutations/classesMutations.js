@@ -1,3 +1,5 @@
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+
 export function SET_LESSON_CONTENTNODES(state, contentNodes) {
   state.pageState.contentNodes = [...contentNodes];
 }
@@ -17,7 +19,12 @@ export function SET_CURRENT_CLASSROOM(state, classroom) {
 export function SET_CURRENT_AND_NEXT_LESSON_RESOURCES(state, resources) {
   const firstResource = { ...resources[0] };
   // HACK: duck-typing the pageState to work with content-page as-is
-  state.pageState.content = { ...firstResource, id: firstResource.pk };
+  state.pageState.content = {
+    ...firstResource,
+    id: firstResource.pk,
+    ...assessmentMetaDataState(firstResource),
+  };
+  // Needed for the content renderer to work
   if (resources[1]) {
     state.pageState.nextLessonResource = { ...resources[1] };
   } else {
