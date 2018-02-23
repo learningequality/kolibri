@@ -42,6 +42,16 @@ class Lesson(AbstractFacilityDataModel):
     created_by = models.ForeignKey(FacilityUser, related_name='lessons_created', blank=False, null=False)
     date_created = DateTimeTzField(default=local_now, editable=False)
 
+    def get_all_learners(self):
+        """
+        Get all Learners that are somehow assigned to this Lesson
+        """
+        assignments = self.lesson_assignments.all()
+        learners = FacilityUser.objects.none()
+        for a in assignments:
+            learners = learners.union(a.collection.get_members())
+        return learners
+
     def __str__(self):
         return 'Lesson {} for Classroom {}'.format(
             self.title,
