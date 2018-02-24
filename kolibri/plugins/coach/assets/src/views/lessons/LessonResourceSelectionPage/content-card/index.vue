@@ -47,6 +47,7 @@
   const defaultDescriptionLimit = 140;
 
   export default {
+    name: 'lessonContentCard',
     components: {
       cardThumbnail,
       kButton,
