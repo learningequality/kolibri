@@ -114,6 +114,7 @@
             :key="resourceId"
             v-for="(resourceId, index) in workingResources"
           >
+            <!-- TODO add content type icon -->
             <td class="core-table-icon-col">
               <ui-icon-button
                 type="flat"

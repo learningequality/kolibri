@@ -55,16 +55,28 @@
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
+  import LessonResourceUserReportPage from './lessons/LessonResourceUserReportPage';
+  import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
+  // const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
   const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
+  const resourceUserPages = [
+    LessonsPageNames.RESOURCE_USER_SUMMARY,
+    LessonsPageNames.RESOURCE_USER_REPORT,
+  ];
 
-  const immersivePages = [...selectionPages, LessonsPageNames.CONTENT_PREVIEW];
+  const immersivePages = [
+    ...selectionPages,
+    ...resourceUserPages,
+    LessonsPageNames.CONTENT_PREVIEW,
+  ];
 
   export default {
     name: 'coachRoot',
     $trs: {
       coachToolbarHeader: 'Coach',
       selectPageToolbarHeader: 'Select resources',
+      resourceUserPageToolbarHeader: 'Lesson Report Details',
       previewContentPageToolbarHeader: 'Preview resources',
     },
     components: {
@@ -89,6 +101,8 @@
       LessonSummaryPage,
       LessonResourceSelectionPage,
       LessonContentPreviewPage,
+      LessonResourceUserSummaryPage,
+      LessonResourceUserReportPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -143,10 +157,16 @@
         return this.isCoach || this.isAdmin || this.isSuperuser;
       },
       appBarTitle() {
-        if (selectionPages.includes(this.pageName)) {
-          return this.$tr('selectPageToolbarHeader');
-        } else if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
-          return this.$tr('previewContentPageToolbarHeader');
+        if (this.currentPageIsImmersive) {
+          if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+            return this.$tr('previewContentPageToolbarHeader');
+          }
+          if (selectionPages.includes(this.pageName)) {
+            return this.$tr('selectPageToolbarHeader');
+          }
+          if (resourceUserPages.inclues(this.pageName)) {
+            return this.$tr('resourceUserPageToolbarHeader');
+          }
         }
         return this.$tr('coachToolbarHeader');
       },
