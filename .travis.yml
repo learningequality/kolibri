@@ -79,7 +79,6 @@ matrix:
 
 before_install:
   - git fetch
-  - git tag
   - git describe --tags --always
   # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112
   - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
