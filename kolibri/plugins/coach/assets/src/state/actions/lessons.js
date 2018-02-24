@@ -103,7 +103,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   const loadRequirements = [
     updateCurrentLesson(store, lessonId),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    LessonReportResource.getModel(lessonId).fetch(),
+    LessonReportResource.getModel(lessonId).fetch({}, true),
     setClassState(store, classId),
   ];
 
@@ -298,4 +298,12 @@ export function showLessonContentPreview(store, classId, lessonId, contentId, se
     store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
+}
+
+export function updateLessonReport(store, lesson) {
+  LessonReportResource.getModel(lesson.id)
+    .fetch({}, true)
+    .then(lessonReport => {
+      store.dispatch('SET_LESSON_REPORT', lessonReport);
+    });
 }
