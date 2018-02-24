@@ -123,11 +123,12 @@ export function showLessonSummaryPage(store, classId, lessonId) {
 }
 
 /* eslint-disable no-unused-vars */
-export function showLessonResourceSummaryPage(store, classId, lessonId, contentId) {}
+export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId) {
+  // TODO get strings in
+  // user list
+}
 
-export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId, userId) {}
-
-export function showLessonReviewPage(store, classId, lessonId) {}
+export function showLessonResourceUserReportPage(store, classId, lessonId, contentId, userId) {}
 
 function showResourceSelectionPage(
   store,

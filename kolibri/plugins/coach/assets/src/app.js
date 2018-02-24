@@ -15,9 +15,8 @@ import router from 'kolibri.coreVue.router';
 import {
   showLessonsRootPage,
   showLessonSummaryPage,
-  showLessonResourceSummaryPage,
   showLessonResourceUserSummaryPage,
-  showLessonReviewPage,
+  showLessonResourceUserReportPage,
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
   showLessonSelectionSearchPage,
@@ -57,10 +56,10 @@ const lessonRoutes = [
     },
   },
   {
-    name: LessonsPageNames.RESOURCE_SUMMARY,
+    name: LessonsPageNames.RESOURCE_USER_SUMMARY,
     path: '/:classId/lessons/:lessonId/resource/:contentId',
     handler: toRoute => {
-      showLessonResourceSummaryPage(
+      showLessonResourceUserSummaryPage(
         store,
         toRoute.params.classId,
         toRoute.params.lessonId,
@@ -69,23 +68,16 @@ const lessonRoutes = [
     },
   },
   {
-    name: LessonsPageNames.RESOURCE_USER_SUMMARY,
+    name: LessonsPageNames.RESOURCE_USER_REPORT,
     path: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
     handler: toRoute => {
-      showLessonResourceUserSummaryPage(
+      showLessonResourceUserReportPage(
         store,
         toRoute.params.classId,
         toRoute.params.lessonId,
         toRoute.params.contentId,
         toRoute.params.userId
       );
-    },
-  },
-  {
-    name: LessonsPageNames.REVIEW,
-    path: '/:classId/lessons/:lessonId/review',
-    handler: toRoute => {
-      showLessonReviewPage(store, toRoute.params.classId, toRoute.params.lessonId);
     },
   },
   {
