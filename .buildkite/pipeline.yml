@@ -14,10 +14,10 @@ steps:
 
   - wait
 
-  - label: Build the Android APK file
-    command: mkdir -p dist && .buildkite/build_apk.sh
+  # - label: Build the Android APK file
+  #   command: mkdir -p dist && .buildkite/build_apk.sh
 
-  - wait
-  
+  # - wait
+
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f -a
