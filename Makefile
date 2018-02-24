@@ -34,11 +34,10 @@ help:
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "translation-django-makemessages: creates source messages for django"
-	@echo "translation-django-compilemessages: compiles all language translation sources"
-	@echo "translation-crowdin-install: installs the CrowdIn CLI"
-	@echo "translation-crowdin-upload branch=<crowdin-branch>: uploads kolibri translation sources via CrowdIn"
-	@echo "translation-crowdin-download branch=<crowdin-branch>: downloads kolibri translated languages via CrowdIn"
+	@echo "translation-extract: extract strings from application"
+	@echo "translation-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
+	@echo "translation-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
+	@echo "translation-crowdin-install: installs the Crowdin CLI"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -161,7 +160,7 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-dja
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-django-makemessages: assets
+translation-extract: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
@@ -177,6 +176,7 @@ translation-crowdin-upload:
 
 translation-crowdin-download:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
+	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 dockerenvclean:
 	docker container prune -f
