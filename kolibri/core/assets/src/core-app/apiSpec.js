@@ -73,11 +73,8 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
-<<<<<<< HEAD
 import CoreTable from '../views/CoreTable';
-=======
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
->>>>>>> le/release-v0.7.x
 
 export default {
   client,
