@@ -22,7 +22,7 @@ var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
-var lint = process.env.LINT;
+var lint = process.env.LINT || production;
 
 var base_dir = path.join(__dirname, '..', '..');
 
