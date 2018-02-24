@@ -276,14 +276,24 @@ class LessonReportSerializer(serializers.ModelSerializer):
                     progress=1.0,
                 ) \
                 .values('content_id') \
-                .annotate(total=Count('pk'))[0]
-            return {
-                'contentnode_id': resource['contentnode_id'],
-                'num_learners_completed': completed_content_logs['total'],
-                'available': True,
-            }
+                .annotate(total=Count('pk'))
+
+            # If no logs for the Content Item,
+            if (len(completed_content_logs) is 0):
+                return {
+                    'contentnode_id': resource['contentnode_id'],
+                    'num_learners_completed': 0,
+                    'available': True,
+                }
+            else:
+                return {
+                    'contentnode_id': resource['contentnode_id'],
+                    'num_learners_completed': completed_content_logs[0]['total'],
+                    'available': True,
+                }
+
         except ContentNode.DoesNotExist:
-            # Handle case where underlying content was deleted
+            # Handle case where underlying content was deleted (DoesNotExist),
             # Might be OK if we don't have to retrieve the CN Model and just go
             # by strings in Lesson.resource
             return {
