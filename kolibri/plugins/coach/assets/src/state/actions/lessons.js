@@ -248,7 +248,9 @@ export function saveLessonResources(store, lessonId, resources) {
   return Promise.reject();
 }
 
-export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {}
+export function showLessonSelectionSearchPage(store, classId, lessonId, searchTerm) {
+  // TODO reuse selection page, pass search term in to activate search mode in <search-tools>
+}
 
 export function showLessonContentPreview(store, classId, lessonId, contentId, selectable = true) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);

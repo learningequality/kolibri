@@ -1,7 +1,12 @@
 <template>
 
-  <form class="selection-form" @submit.prevent="saveResources">
-    <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
+  <form
+    class="resource-selection-page"
+    @submit.prevent="saveResources"
+  >
+    <h1 class="selection-header">
+      {{ $tr('addResourcesHeader') }}
+    </h1>
 
     <search-tools />
 
@@ -39,6 +44,7 @@
       />
     </div>
   </form>
+
 
 </template>
 
@@ -178,7 +184,7 @@
   .content-card
     width: 100%
 
-  .selection-form
+  .resource-selection-page
     // offset to maintain straight lines in form w/ dynamic checkbox
     margin-left:64px
 
