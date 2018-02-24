@@ -4,7 +4,7 @@
     <!-- TODO make search box work, sets content on page -->
 
     <!-- TODO functionalize -->
-    <search-box />
+    <!-- <search-box /> -->
 
     <!-- TODO add conditionalsearch exit button -->
 
@@ -26,14 +26,14 @@
 
 <script>
 
-  import searchBox from '../../../../../../../learn/assets/src/views/search-box/';
+  // import searchBox from '../../../../../../../learn/assets/src/views/search-box/';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
   export default {
     name: 'searchTools',
     components: {
-      searchBox,
+      // searchBox,
       kBreadcrumbs,
     },
     data() {
