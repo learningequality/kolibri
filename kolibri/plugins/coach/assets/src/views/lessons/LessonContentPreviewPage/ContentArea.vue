@@ -4,7 +4,7 @@
     class="content-area"
     :class="{perseus: isPerseusExercise}"
   >
-    <h2 v-if="header" class="header">
+    <h2 v-if="isPerseusExercise" class="header">
       {{ header }}
     </h2>
     <content-renderer
@@ -57,6 +57,11 @@
         default: '',
       },
     },
+    computed: {
+      hasHeader() {
+        return Boolean(this.header);
+      },
+    },
   };
 
 </script>
@@ -74,10 +79,10 @@
 
   .content
     // NOTE stylus exclusive. Variable/calc interpolation
-    max-height: 'calc(100% - %s)' % $header-height
     width: 100%
     overflow-y: auto
     &.perseus
+      max-height: 'calc(100% - %s)' % $header-height
       overflow-x: hidden // .solutionarea's negative margin oversteps
 
   .header

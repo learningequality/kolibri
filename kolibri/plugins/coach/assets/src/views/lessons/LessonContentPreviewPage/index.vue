@@ -73,6 +73,9 @@
     },
     methods: {
       questionLabel(questionIndex) {
+        if (!this.isPerseusExercise) {
+          return '';
+        }
         const questionNumber = questionIndex + 1;
         return this.$tr('questionLabel', { questionNumber });
       },
