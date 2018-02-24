@@ -256,6 +256,9 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
     def get_progress(self, instance):
         learners = instance.get_all_learners()
+        if (len(learners) is 0):
+            return []
+
         return [self._resource_progress(r, learners) for r in instance.resources]
 
     def get_total_learners(self, instance):
@@ -276,7 +279,7 @@ class LessonReportSerializer(serializers.ModelSerializer):
                 .annotate(total=Count('pk'))[0]
             return {
                 'contentnode_id': resource['contentnode_id'],
-                'num_learners_mastered': completed_content_logs['total'],
+                'num_learners_completed': completed_content_logs['total'],
                 'available': True,
             }
         except ContentNode.DoesNotExist:
@@ -285,6 +288,6 @@ class LessonReportSerializer(serializers.ModelSerializer):
             # by strings in Lesson.resource
             return {
                 'contentnode_id': resource['contentnode_id'],
-                'num_learners_mastered': 0,
+                'num_learners_completed': 0,
                 'available': False,
             }

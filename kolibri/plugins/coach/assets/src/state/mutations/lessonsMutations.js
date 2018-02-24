@@ -39,3 +39,7 @@ export function REMOVE_FROM_WORKING_RESOURCES(state, contentId) {
     resourceId => resourceId !== contentId
   );
 }
+
+export function SET_LESSON_REPORT(state, report) {
+  state.pageState.lessonReport = { ...report };
+}

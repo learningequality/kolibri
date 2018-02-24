@@ -138,11 +138,14 @@
             <td>
               <!-- TODO stubbed. Need progress endpoint that scopes by user -->
               <progress-bar
-                v-if="false"
+                v-if="resourceProgress(resourceId) !== null"
                 class="resource-progress-bar"
                 :progress="resourceProgress(resourceId)"
                 :showPercentage="false"
               />
+              <span class="progress-message">
+                {{ resourceProgressMessage(resourceId) }}
+              </span>
             </td>
             <td>
               <k-button
@@ -275,7 +278,16 @@
         return this.resourceContentNodes[resourceId].title;
       },
       resourceProgress(resourceId) {
-        return this.resourceContentNodes[resourceId].progress;
+        if (this.totalLearners === 0) {
+          return null;
+        }
+        return this.numLearnersCompleted(resourceId) / this.totalLearners;
+      },
+      resourceProgressMessage(resourceId) {
+        return this.$tr('resourceProgressMessage', {
+          completed: this.numLearnersCompleted(resourceId),
+          total: this.totalLearners,
+        });
       },
       stageRemoval(index, resourceId) {
         this.removals.push(resourceId);
@@ -350,6 +362,16 @@
         // consider loading this async?
         resourceContentNodes: state => state.pageState.resourceContentNodes,
         learnerGroups: state => state.pageState.learnerGroups,
+        totalLearners: state => state.pageState.lessonReport.total_learners,
+        numLearnersCompleted(state) {
+          return function counter(contentNodeId) {
+            const report =
+              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
+              {};
+            // If progress couldn't be found, assume 0 learners completed
+            return report.num_learners_completed || 0;
+          };
+        },
       },
       actions: {
         createSnackbar,
@@ -396,6 +418,7 @@
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
       moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
       undoActionPrompt: 'Undo',
+      resourceProgressMessage: '{completed, number}/{total, number} completed',
     },
   };
 
@@ -489,5 +512,8 @@
   .no-resources-message
     text-align: center
     padding: 48px 0
+
+  .progress-message
+    margin-left: 8px
 
 </style>

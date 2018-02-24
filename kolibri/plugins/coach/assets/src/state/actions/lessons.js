@@ -3,6 +3,7 @@ import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
+import LessonReportResource from '../../apiResources/lessonReport';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 
@@ -94,6 +95,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
+    lessonReport: {},
     resourceContentNodes: [],
     workingResources: [],
   });
@@ -101,16 +103,18 @@ export function showLessonSummaryPage(store, classId, lessonId) {
   const loadRequirements = [
     updateCurrentLesson(store, lessonId),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    LessonReportResource.getModel(lessonId).fetch(),
     setClassState(store, classId),
   ];
 
-  Promise.all(loadRequirements).then(([currentLesson, learnerGroups]) => {
+  Promise.all(loadRequirements).then(([currentLesson, learnerGroups, lessonReport]) => {
     // TODO state mapper
     const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
     updateResourceContentNodes(resourceIds).then(() => {
       store.dispatch('SET_WORKING_RESOURCES', resourceIds);
       store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+      store.dispatch('SET_LESSON_REPORT', lessonReport);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
       store.dispatch('CORE_SET_TITLE', currentLesson.name);
