@@ -237,6 +237,17 @@ function showTopicsTopic(store, id, isRoot = false) {
         topic: _topicState(topic, ancestors),
         contents: topicContents,
       };
+      pageState.channel = currentChannel;
+      if (isRoot) {
+        pageState.topic = _topicState(
+          Object.assign(topic, {
+            description: currentChannel.description,
+          }),
+          ancestors
+        );
+      } else {
+        pageState.topic = _topicState(topic, ancestors);
+      }
 
       store.dispatch('SET_PAGE_STATE', pageState);
 
