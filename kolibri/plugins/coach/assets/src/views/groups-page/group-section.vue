@@ -22,9 +22,9 @@
           :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
-        <dropdown-menu
+        <k-dropdown-menu
           v-if="!isUngrouped"
-          :name="$tr('options')"
+          :text="$tr('options')"
           :options="menuOptions"
           @select="handleSelection"
         />
@@ -81,7 +81,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
 
   export default {
     name: 'coachGroupsTable',
@@ -103,7 +103,7 @@
       CoreTable,
       kButton,
       kCheckbox,
-      dropdownMenu,
+      kDropdownMenu,
     },
     mixins: [ResponsiveElement],
     props: {

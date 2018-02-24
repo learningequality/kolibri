@@ -8,6 +8,12 @@
     @click="handleClick"
   >
     {{ text }}
+    <mat-svg
+      v-if="hasDropdown"
+      category="navigation"
+      name="arrow_drop_down"
+      class="dropdown-arrow"
+    />
   </button>
 
 </template>
@@ -61,6 +67,14 @@
         type: String,
         default: 'button',
       },
+      /**
+       * Adds a dropdown arrow
+       */
+      hasDropdown: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     methods: {
       handleClick(event) {
@@ -79,5 +93,8 @@
 <style lang="stylus" scoped>
 
   @require './buttons.styl'
+
+  .dropdown-arrow
+    vertical-align: middle
 
 </style>
