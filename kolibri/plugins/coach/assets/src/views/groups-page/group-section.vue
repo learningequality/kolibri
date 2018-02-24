@@ -22,20 +22,12 @@
           :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
-        <ui-button
+        <dropdown-menu
           v-if="!isUngrouped"
-          color="primary"
-          ref="dropdownButton"
-          size="small"
-          :hasDropdown="true"
-        >
-          <ui-menu
-            slot="dropdown"
-            :options="menuOptions"
-            @select="handleSelection"
-            @close="close"
-          />
-        </ui-button>
+          :name="$tr('options')"
+          :options="menuOptions"
+          @select="handleSelection"
+        />
       </div>
     </div>
 
@@ -88,9 +80,8 @@
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import uiButton from 'keen-ui/src/UiButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
 
   export default {
     name: 'coachGroupsTable',
@@ -106,13 +97,13 @@
       noLearners: 'No learners in this group',
       selectAll: 'Select all',
       selectLearner: 'Select learner',
+      options: 'Options',
     },
     components: {
       CoreTable,
       kButton,
       kCheckbox,
-      uiButton,
-      uiMenu,
+      dropdownMenu,
     },
     mixins: [ResponsiveElement],
     props: {
@@ -155,9 +146,6 @@
         } else if (selectedOption === this.$tr('deleteGroup')) {
           this.$emit('delete', this.group.name, this.group.id);
         }
-      },
-      close() {
-        this.$refs.dropdownButton.closeDropdown();
       },
       isSelected(userId) {
         return this.selectedUsers.includes(userId);
