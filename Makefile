@@ -95,7 +95,23 @@ docs: clean-docs
 
 release:
 	@ls -l dist/
-	@echo "\nDo you want to upload everything in dist/*?\n\n CTRL+C to exit."
+	@echo "Release process documentation:"
+	@echo ""
+	@echo "http://kolibri-dev.readthedocs.io/en/develop/references/release_process.html"
+	@echo ""
+	@echo ""
+	@echo "Quick check list:"
+	@echo ""
+	@echo "1. Release notes?"
+	@echo "2. Downloaded CrowdIn translations?"
+	@echo "3. Pushed CrowdIn translations to repo?"
+	@echo "4. Version info as tag and in kolibri.VERSION?"
+	@echo "5. Did you do a signed commit and push to Github?"
+	@echo "6. Check that the .whl and .tar.gz dists work?"
+	@echo ""
+	@echo "Do you want to upload everything in dist/*?"
+	@echo ""
+	@echo "CTRL+C to exit. ENTER to continue."
 	@read __
 	twine upload -s dist/*
 
@@ -146,6 +162,8 @@ translation-django-makemessages: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
+	# Change working directory to kolibri/ such that compilemessages
+	# finds only the .po files nested there.
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 translation-crowdin-install:
