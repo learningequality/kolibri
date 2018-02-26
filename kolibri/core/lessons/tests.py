@@ -7,6 +7,7 @@ from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.models import LearnerGroup
+from kolibri.content.models import ContentNode
 from kolibri.auth.test.helpers import provision_device
 from kolibri.core.lessons.models import LessonAssignment
 from rest_framework.test import APITestCase
@@ -28,7 +29,37 @@ class LessonCreationTestCase(APITestCase):
 
         self.facility.add_coach(self.admin_user)
 
-    def test_create_new_lesson(self):
+        channel_id = '15f32edcec565396a1840c5413c92450'
+        content_ids = [
+            '15f32edcec565396a1840c5413c92451',
+            '15f32edcec565396a1840c5413c92452',
+            '15f32edcec565396a1840c5413c92453',
+        ]
+        contentnode_ids = [
+            '25f32edcec565396a1840c5413c92451',
+            '25f32edcec565396a1840c5413c92452',
+            '25f32edcec565396a1840c5413c92453',
+        ]
+
+        # Available ContentNode
+        self.available_node = ContentNode.objects.create(
+            title='Available Content',
+            available=True,
+            id=contentnode_ids[0],
+            content_id=content_ids[0],
+            channel_id=channel_id
+        )
+
+        # Unavailable ContentNode
+        self.unavailable_node = ContentNode.objects.create(
+            title='Unavailable Content',
+            available=False,
+            id=contentnode_ids[1],
+            content_id=content_ids[1],
+            channel_id=channel_id
+        )
+
+    def test_create_new_lesson_without_resources(self):
         self.client.login(username='admin', password='password')
         new_lesson = {
             'title': 'New Lesson',
@@ -73,3 +104,39 @@ class LessonCreationTestCase(APITestCase):
         new_assignments = LessonAssignment.objects.filter(lesson_id=lesson_id)
         self.assertEqual(len(new_assignments), 1)
         self.assertEqual(new_assignments[0].collection.id, lgroup3.id)
+
+    def test_validate_available_resources(self):
+        self.client.login(username='admin', password='password')
+        new_lesson = {
+            'title': 'All Resources Available',
+            'created_by': self.admin_user.id,
+            'lesson_assignments': [{'collection': self.classroom.id}],
+            'collection': self.classroom.id,
+            'resources': [
+                {
+                    'contentnode_id': self.available_node.id,
+                    'channel_id': self.available_node.channel_id,
+                    'content_id': self.available_node.content_id,
+                }
+            ]
+        }
+        post_response = self.client.post(reverse('lesson-list'), new_lesson, format='json')
+        self.assertEqual(post_response.status_code, 201)
+
+    def test_validate_unavailable_resources(self):
+        self.client.login(username='admin', password='password')
+        new_lesson = {
+            'title': 'No Resources Available',
+            'created_by': self.admin_user.id,
+            'lesson_assignments': [{'collection': self.classroom.id}],
+            'collection': self.classroom.id,
+            'resources': [
+                {
+                    'contentnode_id': self.unavailable_node.id,
+                    'channel_id': self.unavailable_node.channel_id,
+                    'content_id': self.unavailable_node.content_id,
+                }
+            ]
+        }
+        post_response = self.client.post(reverse('lesson-list'), new_lesson, format='json')
+        self.assertEqual(post_response.status_code, 400)

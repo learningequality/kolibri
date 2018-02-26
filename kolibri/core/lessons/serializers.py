@@ -3,9 +3,11 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import ValidationError
 from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
+from kolibri.content.models import ContentNode
 from .models import Lesson
 from .models import LessonAssignment
 
@@ -51,6 +53,22 @@ class LessonSerializer(ModelSerializer):
 
     def get_learner_ids(self, data):
         return [user.id for user in data.get_all_learners()]
+
+    def validate_resources(self, resources):
+        # Validates that every ContentNode passed into resources is actually installed
+        # on the server. NOTE that this could cause problems if content is deleted from
+        # device.
+        try:
+            for resource in resources:
+                ContentNode.objects.get(
+                    content_id=resource['content_id'],
+                    channel_id=resource['channel_id'],
+                    id=resource['contentnode_id'],
+                    available=True,
+                )
+            return resources
+        except ContentNode.DoesNotExist:
+            raise ValidationError('One or more of the selected resources is not available')
 
     def to_internal_value(self, data):
         data = OrderedDict(data)

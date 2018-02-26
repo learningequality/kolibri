@@ -4,7 +4,6 @@ import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../lessonsConstants';
 import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
-import { setClassState } from './main';
 
 /* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
  * data on the Lesson Summary Page.

@@ -256,7 +256,7 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
     def get_progress(self, instance):
         learners = instance.get_all_learners()
-        if (len(learners) is 0):
+        if (learners.count() is 0):
             return []
 
         return [self._resource_progress(r, learners) for r in instance.resources]
@@ -266,12 +266,9 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
     def _resource_progress(self, resource, learners):
         try:
-            # TODO use the content_id directly
-            contentnode = ContentNode.objects.get(pk=resource['contentnode_id'])
-
             completed_content_logs = ContentSummaryLog.objects \
                 .filter(
-                    content_id=contentnode.content_id,
+                    content_id=resource['content_id'],
                     user__in=learners,
                     progress=1.0,
                 ) \
@@ -279,7 +276,7 @@ class LessonReportSerializer(serializers.ModelSerializer):
                 .annotate(total=Count('pk'))
 
             # If no logs for the Content Item,
-            if (len(completed_content_logs) is 0):
+            if (completed_content_logs.count() is 0):
                 return {
                     'contentnode_id': resource['contentnode_id'],
                     'num_learners_completed': 0,
