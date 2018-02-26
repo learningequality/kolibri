@@ -83,7 +83,12 @@
         this.$refs.popover.close();
       },
       handleClose() {
-        this.$refs.button.$el.focus();
+        if (
+          document.activeElement.classList.contains('ui-popover') ||
+          document.activeElement.classList.contains('ui-popover__focus-redirector')
+        ) {
+          this.$refs.button.$el.focus();
+        }
       },
     },
   };
