@@ -136,6 +136,7 @@
           [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
           [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
           [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
+          [LessonsPageNames.RESOURCE_CLASSROOM_REPORT]: 'LessonResourceUserSummaryPage',
         };
         if (!this.userCanAccessPage) {
           // TODO better solution

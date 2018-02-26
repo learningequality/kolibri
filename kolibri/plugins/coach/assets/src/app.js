@@ -86,6 +86,7 @@ const lessonRoutes = [
     name: LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
     path: '/:classId/lessons/:lessonId/resource/:contentId/classroomreport',
     handler: toRoute => {
+      store.dispatch('SET_PAGE_NAME', toRoute.name);
       return showLessonResourceClassroomReport(store, toRoute.params);
     },
   },

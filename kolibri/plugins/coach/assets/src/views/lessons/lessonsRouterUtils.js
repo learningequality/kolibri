@@ -34,3 +34,14 @@ export function topicListingLink({ classId, lessonId, topicId }) {
     },
   };
 }
+
+// Creates Link to the Lesson Resource Whole-Classroom Report Page
+export function resourceClassroomReportLink(contentId) {
+  return {
+    name: LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+    // classId, lessonId filled in by router
+    params: {
+      contentId,
+    },
+  };
+}

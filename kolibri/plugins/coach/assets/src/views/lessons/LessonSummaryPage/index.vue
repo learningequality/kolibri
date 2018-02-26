@@ -134,12 +134,14 @@
               />
             </td>
             <td>
-              {{ resourceTitle(resourceId) }}
+              <k-router-link
+                :to="resourceClassroomReportLink(resourceId)"
+                :text="resourceTitle(resourceId)"
+              />
             </td>
             <td>
-              <!-- TODO stubbed. Need progress endpoint that scopes by user -->
               <progress-bar
-                v-if="resourceProgress(resourceId) !== null"
+                v-if="resourceProgress(resourceId)!==null"
                 class="resource-progress-bar"
                 :progress="resourceProgress(resourceId)"
                 :showPercentage="false"
@@ -189,7 +191,7 @@
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
-  import { selectionRootLink } from '../lessonsRouterUtils';
+  import { selectionRootLink, resourceClassroomReportLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
   import debounce from 'lodash/debounce';
@@ -264,6 +266,7 @@
       },
     },
     methods: {
+      resourceClassroomReportLink,
       handleSelectOption({ action }) {
         this.currentAction = action;
       },
