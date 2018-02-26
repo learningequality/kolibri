@@ -120,7 +120,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
         store.dispatch('SET_LESSON_REPORT', lessonReport);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
-        store.dispatch('CORE_SET_TITLE', currentLesson.name);
+        store.dispatch('CORE_SET_TITLE', currentLesson.title);
       });
     })
     .catch(() => {
