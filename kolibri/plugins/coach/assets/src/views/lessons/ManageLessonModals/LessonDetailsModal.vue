@@ -61,7 +61,7 @@
   import { lessonSummaryLink } from '../lessonsRouterUtils';
   import RecipientSelector from './RecipientSelector';
   import { LessonsPageNames } from '../../../lessonsConstants';
-  import { updateLessonReport } from '../../../state/actions/lessons';
+  import { refreshLessonReport } from '../../../state/actions/lessonReportsActions';
 
   export default {
     name: 'lessonDetailsModal',
@@ -218,7 +218,7 @@
         createSnackbar,
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
-          return updateLessonReport(store, lesson);
+          return refreshLessonReport(store, lesson.id);
         },
       },
     },
