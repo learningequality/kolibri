@@ -70,6 +70,7 @@
     ...selectionPages,
     ...resourceUserPages,
     LessonsPageNames.CONTENT_PREVIEW,
+    LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
   ];
 
   export default {
