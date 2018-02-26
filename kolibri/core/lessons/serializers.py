@@ -31,6 +31,7 @@ class LessonSerializer(ModelSerializer):
     classroom = ClassroomSerializer(source='collection', read_only=True)
     created_by = PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
     lesson_assignments = LessonAssignmentSerializer(many=True)
+    learner_ids = SerializerMethodField()
     resources = JSONField(default='[]')
 
     class Meta:
@@ -45,7 +46,11 @@ class LessonSerializer(ModelSerializer):
             'classroom',  # details about classroom
             'lesson_assignments',
             'created_by',
+            'learner_ids',
         )
+
+    def get_learner_ids(self, data):
+        return [user.id for user in data.get_all_learners()]
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
