@@ -463,6 +463,7 @@ function showExam(store, id, questionNumber) {
           router.getInstance().replace({ name: PageNames.EXAM_LIST });
           return;
         }
+
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -672,6 +673,7 @@ function closeExam(store) {
   examLog.closed = true;
   return ExamLogResource.getModel(examLog.id)
     .save(examLog)
+    .then(UserExamResource.clearCache())
     .catch(error => {
       handleApiError(store, error);
     });
