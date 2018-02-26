@@ -129,7 +129,10 @@ class _WindowsNullDevice:
     def write(self, s):
         pass
 
-def get_free_space(path=settings.KOLIBRI_HOME):
+def get_free_space(path=None):
+    if not path:
+        path = settings.KOLIBRI_HOME
+
     if sys.platform.startswith('win'):
         import ctypes
 
