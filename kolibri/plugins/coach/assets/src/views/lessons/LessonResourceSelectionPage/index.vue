@@ -97,17 +97,20 @@
         };
       },
       saveResources() {
-        const modelResources = this.workingResources.map(resourceId => ({
-          contentnode_id: resourceId,
-        }));
+        const modelResources = this.workingResources.map(resourceId => {
+          const node = this.contentList.find(n => n.id === resourceId);
+          return {
+            contentnode_id: node.id,
+            channel_id: node.channel_id,
+            content_id: node.content_id,
+          };
+        });
         this.saveLessonResources(this.lessonId, modelResources).then(() => {
-          const snackBarOptions = {
+          // route to summary page with confirmation message
+          this.createSnackbar({
             text: this.$tr('resourceSaveConfirmation'),
             autoDismiss: true,
-          };
-
-          // route to summary page with confirmation message
-          this.createSnackbar(snackBarOptions);
+          });
           this.$router.push(lessonSummaryLink(this.routerParams));
         });
       },

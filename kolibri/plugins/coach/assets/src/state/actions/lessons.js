@@ -81,6 +81,8 @@ export function showLessonSummaryPage(store, classId, lessonId) {
                 // TODO calculate progress
                 progress: Number(contentNode.progress_fraction),
                 id: contentNode.pk,
+                content_id: contentNode.content_id,
+                channel_id: contentNode.channel_id,
               })
           );
 
@@ -214,6 +216,8 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
       const topicContentList = childNodes.map(node => {
         return {
           id: node.pk,
+          content_id: node.content_id,
+          channel_id: node.channel_id,
           description: node.description,
           title: node.title,
           thumbnail: getTopicThumbnail(node),
@@ -237,9 +241,11 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
 }
 
 export function saveLessonResources(store, lessonId, resources) {
-  // TODO add more information to resources being saved
-  // light validation of data shape
-  if (resources.every(resource => resource.contentnode_id)) {
+  // Client-side validation of data shape
+  function validateResource(resource) {
+    return resource.contentnode_id && resource.channel_id && resource.content_id;
+  }
+  if (resources.every(validateResource)) {
     // IDEA update current lesson here
     return LessonResource.getModel(lessonId).save({ resources });
   }

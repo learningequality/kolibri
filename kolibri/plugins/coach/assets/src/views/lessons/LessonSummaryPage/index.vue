@@ -193,7 +193,7 @@
   import InfoIcon from '../InfoIcon';
   import { selectionRootLink, resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
+  import { saveLessonResources } from '../../../state/actions/lessons';
   import debounce from 'lodash/debounce';
 
   const removalSnackbarTime = 5000;
@@ -314,9 +314,14 @@
       commitRemovals,
       cancelCommitRemovals: commitRemovals.cancel,
       autoSave() {
-        const modelResources = this.workingResources.map(resourceId => ({
-          contentnode_id: resourceId,
-        }));
+        const modelResources = this.workingResources.map(resourceId => {
+          const node = this.resourceContentNodes[resourceId];
+          return {
+            contentnode_id: node.id,
+            channel_id: node.channel_id,
+            content_id: node.content_id,
+          };
+        });
         return this.debouncedSaveLessonResources(this.lessonId, modelResources);
       },
       moveUpOne(oldIndex) {
@@ -381,7 +386,6 @@
         createSnackbar,
         clearSnackbar,
         debouncedSaveLessonResources: debounce(saveLessonResources, saveDebounceTime),
-        updateCurrentLesson,
         removeFromWorkingResources(store, resourceId) {
           store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
         },
