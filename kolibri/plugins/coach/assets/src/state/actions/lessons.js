@@ -109,19 +109,23 @@ export function showLessonSummaryPage(store, classId, lessonId) {
     setClassState(store, classId),
   ];
 
-  Promise.all(loadRequirements).then(([currentLesson, learnerGroups, lessonReport]) => {
-    // TODO state mapper
-    const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
+  Promise.all(loadRequirements)
+    .then(([currentLesson, learnerGroups, lessonReport]) => {
+      // TODO state mapper
+      const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
-    updateResourceContentNodes(resourceIds).then(() => {
-      store.dispatch('SET_WORKING_RESOURCES', resourceIds);
-      store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
-      store.dispatch('SET_LESSON_REPORT', lessonReport);
+      return updateResourceContentNodes(resourceIds).then(() => {
+        store.dispatch('SET_WORKING_RESOURCES', resourceIds);
+        store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
+        store.dispatch('SET_LESSON_REPORT', lessonReport);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
+        store.dispatch('CORE_SET_TITLE', currentLesson.name);
+      });
+    })
+    .catch(() => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
-      store.dispatch('CORE_SET_TITLE', currentLesson.name);
     });
-  });
 }
 
 /* eslint-disable no-unused-vars */

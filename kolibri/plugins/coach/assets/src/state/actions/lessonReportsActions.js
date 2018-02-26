@@ -32,7 +32,6 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
     // Get group names
     // QUESTION can we pass in an array of id's like contentNode?
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    setClassState(store, classId),
   ];
 
   return Promise.all(loadRequirements)
@@ -86,8 +85,8 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
           store.dispatch('CORE_SET_PAGE_LOADING', false);
         });
     })
-    .catch(err => {
-      console.log(err); // eslint-disable-line
+    .catch(() => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
