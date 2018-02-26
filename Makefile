@@ -126,6 +126,9 @@ staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	# Remove unnecessary python2-syntax'ed file
+	# https://github.com/learningequality/kolibri/issues/3152
+	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
 	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
