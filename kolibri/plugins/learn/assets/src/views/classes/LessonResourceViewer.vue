@@ -37,6 +37,7 @@
   }
 
   export default {
+    name: 'LessonResourceViewer',
     components: {
       ContentCard,
       ContentPage,
@@ -65,6 +66,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-</style>
+<style lang="stylus" scoped></style>

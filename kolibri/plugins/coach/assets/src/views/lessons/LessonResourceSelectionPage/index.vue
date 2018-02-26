@@ -45,7 +45,6 @@
     </div>
   </form>
 
-
 </template>
 
 
@@ -163,7 +162,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
 
   .content-list
     list-style: none
