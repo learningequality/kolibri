@@ -311,7 +311,7 @@
           this.kolibriLogin({
             username: this.username,
             password: this.password,
-            facility: this.facilityConfig.id,
+            facility: this.facilityId,
           }).catch();
         } else {
           this.focusOnInvalidField();
