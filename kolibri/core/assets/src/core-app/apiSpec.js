@@ -74,6 +74,7 @@ import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import kDropdownMenu from '../views/k-dropdown-menu';
+import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 
 export default {
   client,
@@ -143,6 +144,7 @@ export default {
     theme,
     definitions,
     keenVars,
+    buttonAndLinkStyles,
   },
   urls,
   utils: {
