@@ -17,7 +17,7 @@ import {
 } from 'kolibri.resources';
 
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
-import UserReportResourceConstructor from '../../apiResources/userReport';
+import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -41,7 +41,6 @@ const translator = createTranslator('coachReportPageTitles', {
 });
 
 const RecentReportResource = new RecentReportResourceConstructor();
-const UserReportResource = new UserReportResourceConstructor();
 const ContentSummaryResource = new ContentSummaryResourceConstructor();
 const ContentReportResource = new ContentReportResourceConstructor();
 

@@ -43,3 +43,15 @@ export function REMOVE_FROM_WORKING_RESOURCES(state, contentId) {
 export function SET_LESSON_REPORT(state, report) {
   state.pageState.lessonReport = { ...report };
 }
+
+export function SET_LESSON_RESOURCE_REPORT(state, report) {
+  // The report for the entire Classroom is fetched, so this mutation filters the report
+  // for Learners who were assigned the Lesson.
+  const assignedLearnerIds = state.pageState.currentLesson.learner_ids;
+  const filteredReport = report.filter(({ pk }) => assignedLearnerIds.includes(pk));
+  state.pageState.lessonResourceReport = [...filteredReport];
+}
+
+export function SET_CURRENT_LESSON_RESOURCE(state, contentNode) {
+  state.pageState.lessonResource = { ...contentNode };
+}

@@ -23,6 +23,8 @@ import {
   showLessonContentPreview,
 } from './state/actions/lessons';
 
+import { showLessonResourceClassroomReport } from './state/actions/lessonReportsActions';
+
 // Redirect to the Lessons List of a different classroom if
 // classroom switcher is used in e.g. a Lesson Summary page
 function redirectToLessonsList(classId) {
@@ -78,6 +80,13 @@ const lessonRoutes = [
         toRoute.params.contentId,
         toRoute.params.userId
       );
+    },
+  },
+  {
+    name: LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+    path: '/:classId/lessons/:lessonId/resource/:contentId/classroomreport',
+    handler: toRoute => {
+      return showLessonResourceClassroomReport(store, toRoute.params);
     },
   },
   {
