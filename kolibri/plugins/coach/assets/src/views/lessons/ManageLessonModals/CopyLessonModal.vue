@@ -35,7 +35,7 @@
     <!-- Learner Group Selection Form -->
     <div v-else>
       <p>{{ $tr('destinationClassroomExplanation', { classroomName: selectedClassroomName }) }}</p>
-      <p>{{ $tr('lessonVisibilityQuestion') }}</p>
+      <p>{{ $tr('lessonVisibility') }}</p>
       <form @submit.prevent="createLessonCopy">
         <recipient-selector
           v-model="selectedCollectionIds"
@@ -177,13 +177,13 @@
     },
     $trs: {
       copyLessonTitle: 'Copy lesson',
-      copyLessonExplanation: 'Make a copy of this lesson in which class?',
+      copyLessonExplanation: 'Copy this lesson to:',
       currentClass: '(current class)',
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Copy',
       destinationClassroomExplanation: `This lesson will be copied to '{classroomName}'`,
-      lessonVisibilityQuestion: 'Who should this lesson be visible to?',
+      lessonVisibility: 'Make lesson visible to:',
       copyOfLesson: 'Copy of {lessonName}',
       copiedLessonTo: `Copied lesson to '{classroomName}'`,
     },
