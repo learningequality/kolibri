@@ -55,7 +55,7 @@
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
-  import LessonResourceUserReportPage from './lessons/LessonResourceUserReportPage';
+  import LessonResourceUserReportPage from './reports/learner-exercise-detail-page/learner-exercise-report';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   // const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
@@ -137,6 +137,7 @@
           [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
           [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
           [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'LessonResourceUserSummaryPage',
+          [LessonsPageNames.RESOURCE_USER_REPORT]: 'LessonResourceUserReportPage',
         };
         if (!this.userCanAccessPage) {
           // TODO better solution

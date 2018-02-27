@@ -312,7 +312,7 @@ function _showLearnerList(store, options) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function _showExerciseDetailView(
+export function showExerciseDetailView(
   store,
   classId,
   userId,
@@ -321,11 +321,11 @@ function _showExerciseDetailView(
   attemptLogIndex,
   interactionIndex
 ) {
-  ContentNodeResource.getModel(contentId)
+  return ContentNodeResource.getModel(contentId)
     .fetch()
-    .then(
+    ._promise.then(
       exercise => {
-        Promise.all([
+        return Promise.all([
           AttemptLogResource.getCollection({
             user: userId,
             content: exercise.content_id,
@@ -365,9 +365,13 @@ function _showExerciseDetailView(
             summaryLog: summaryLog[0],
             channelId,
             attemptLogIndex,
+            // hack, allows caryover of custom state
+            ...store.state.pageState,
           };
+
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
+          return pageState;
         });
       },
       error => {
@@ -468,7 +472,7 @@ export function showRecentLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentActivityLearnerDetailsReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,
@@ -558,7 +562,7 @@ export function showTopicLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnerDetailReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,
@@ -660,7 +664,7 @@ export function showLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersItemDetailsReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,

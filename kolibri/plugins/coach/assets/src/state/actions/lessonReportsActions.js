@@ -1,4 +1,5 @@
 import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
+import { showExerciseDetailView } from './reports.js';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../lessonsConstants';
@@ -91,4 +92,31 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
 }
 
 /* eslint-disable no-unused-vars */
-export function showLessonResourceUserReportPage(store, classId, lessonId, contentId, userId) {}
+export function showLessonResourceUserReportPage(
+  store,
+  classId,
+  lessonId,
+  contentId,
+  userId,
+  questionNumber,
+  interactionNumber
+) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
+  store.dispatch('SET_PAGE_STATE', { toolbarRoute: {} });
+  store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.RESOURCE_USER_SUMMARY });
+  // TODO set title
+  ContentNodeResource.getModel(contentId)
+    .fetch()
+    .then(contentNode => {
+      showExerciseDetailView(
+        store,
+        classId,
+        userId,
+        contentNode.channel_id,
+        contentId,
+        questionNumber,
+        interactionNumber
+      );
+    });
+}

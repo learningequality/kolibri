@@ -118,7 +118,7 @@
     methods: {
       userReportRoute(userId) {
         return {
-          name: LessonsPageNames.RESOURCE_USER_REPORT,
+          name: LessonsPageNames.RESOURCE_USER_REPORT_ROOT,
           params: {
             userId,
           },

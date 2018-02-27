@@ -71,15 +71,23 @@ const lessonRoutes = [
     },
   },
   {
-    name: LessonsPageNames.RESOURCE_USER_REPORT,
+    name: LessonsPageNames.RESOURCE_USER_REPORT_ROOT,
     path: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
+    redirect: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId/0/0',
+  },
+  {
+    name: LessonsPageNames.RESOURCE_USER_REPORT,
+    path:
+      '/:classId/lessons/:lessonId/resource/:contentId/user/:userId/:attemptLogIndex/:interactionIndex',
     handler: toRoute => {
       showLessonResourceUserReportPage(
         store,
         toRoute.params.classId,
         toRoute.params.lessonId,
         toRoute.params.contentId,
-        toRoute.params.userId
+        toRoute.params.userId,
+        Number(toRoute.params.attemptLogIndex),
+        Number(toRoute.params.interactionIndex)
       );
     },
   },
