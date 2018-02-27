@@ -11,14 +11,8 @@
         :label="facility.name"
         :radiovalue="facility.id"
       />
-      <div>
+      <div class="core-modal-buttons">
         <k-button
-          class="core-modal-buttons"
-          @click="emitClose"
-          :text="$tr('cancelFacilitySelectionButtonPrompt')"
-        />
-        <k-button
-          class="core-modal-buttons"
           :text="$tr('submitFacilitySelectionButtonPrompt')"
           :primary="true"
           type="submit"
@@ -61,9 +55,8 @@
       },
     },
     $trs: {
-      facilitySelectionPrompt: 'Which facility do you want to sign into?',
-      cancelFacilitySelectionButtonPrompt: 'cancel',
-      submitFacilitySelectionButtonPrompt: 'submit',
+      facilitySelectionPrompt: 'Which facility do you want to sign in to?',
+      submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
     },
     vuex: {
