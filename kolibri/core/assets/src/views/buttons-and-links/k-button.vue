@@ -68,6 +68,7 @@
         default: 'button',
       },
       /**
+       * @private
        * Adds a dropdown arrow
        */
       hasDropdown: {
