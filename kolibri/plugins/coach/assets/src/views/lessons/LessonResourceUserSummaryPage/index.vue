@@ -1,59 +1,75 @@
 <template>
 
-  <div>
-    lesson resource user summary
-    <section>
-      <!-- IDEA use datalist for this information -->
+  <div class="resource-user-summary-page">
+    <section class="top">
+      <div class="resource-data">
+        <!-- IDEA use datalist for this information -->
+        <h1>
+          <content-icon :kind="resourceKind" />
+          {{ resourceTitle }}
+        </h1>
+        <dl>
+          <dt class="visuallyhidden">
+            {{ $tr('channelTitleLabel') }}
+          </dt>
+          <dd>
+            {{ channelTitle }}
+          </dd>
+        </dl>
+      </div>
 
-      <!-- TODO resource icon -->
-      <h1>
-        <!-- TODO resource title -->
-      </h1>
-      <dl>
-        <dt>
-          <!-- TODO channel name Label -->
-        </dt>
-        <dd>
-          <!-- TODO channel name -->
-        </dd>
-      </dl>
+      <k-router-link
+        class="preview-button"
+        appearance="raised-button"
+        :text="$tr('previewContentButtonLabel')"
+        :to="previewButtonRoute"
+      />
     </section>
 
     <section>
-      <!-- TODO preview button on the right -->
-      <!-- TODO write action that displays the page without selection information -->
-
       <core-table>
         <thead>
           <tr>
             <th>
-              <!-- TODO name header -->
+              {{ $tr('nameTableColumnHeader') }}
             </th>
             <th>
-              <!-- TODO progress header -->
+              {{ progressHeader }}
             </th>
             <th>
-              <!-- TODO group header -->
+              {{ $tr('groupTableColumnHeader') }}
+
             </th>
             <th>
-              <!-- TODO last active header -->
+              {{ $tr('lastActiveTableColumnHeader') }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr
+            v-for="(learner, id) in learnerRows"
+            :key="id"
+          >
             <td>
-              <!-- TODO user icon -->
-              <!-- TODO user fullname -->
+              <!-- IDEA separate column? -->
+              <content-icon kind="user" />
+
+              <k-router-link
+                :text="learner.name"
+                :to="userReportRoute(id)"
+              />
             </td>
             <td>
-              <!-- TODO progress bar w/ progressPercentage -->
+              <progress-bar
+                :progress="learner.progress"
+                :showPercentage="true"
+              />
             </td>
             <td>
-              <!-- TODO group this user belongs to -->
+              {{ learner.groupName }}
             </td>
             <td>
-              <!-- TODO lastactive -->
+              {{ learner.lastActive }}
             </td>
           </tr>
         </tbody>
@@ -68,14 +84,47 @@
 <script>
 
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import progressBar from 'kolibri.coreVue.components.progressBar';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import contentNodeKinds from 'kolibri.coreVue.vuex.constants';
+  import { LessonsPageNames } from '../../../lessonsConstants';
 
   export default {
     name: 'lessonResourceUserSummaryPage',
     components: {
       contentIcon,
+      CoreTable,
+      progressBar,
+      kRouterLink,
     },
-    computed: {},
-    methods: {},
+    computed: {
+      isExercise() {
+        return this.resourceKind === contentNodeKinds;
+      },
+      progressHeader() {
+        if (this.isExercise) {
+          return this.$tr('exerciseProgressTableColumnHeader');
+        }
+        return this.$tr('progressTableColumnHeader');
+      },
+      previewButtonRoute() {
+        // TODO make separate route, remove the select/deselect ability + change back route
+        return {
+          name: LessonsPageNames.CONTENT_PREVIEW,
+        };
+      },
+    },
+    methods: {
+      userReportRoute(userId) {
+        return {
+          name: LessonsPageNames.RESOURCE_USER_REPORT,
+          params: {
+            userId,
+          },
+        };
+      },
+    },
     vuex: {
       getters: {
         resourceTitle: state => state.pageState.resourceTitle,
@@ -105,14 +154,27 @@
 
 <style lang="stylus" scoped>
 
-  .resource-title
-    display: inline-block
-
   .kind-icon
     display: inline-block
     font-size: 1.8em
     margin-right: 0.5em
     >>>.ui-icon
       vertical-align: bottom
+
+  dl, dt, dd
+    margin: 0
+    display: block
+
+  .top
+    position: relative
+
+  .preview-button
+    position: absolute
+    top: 0
+    right: 0
+    max-width: 10%
+
+  .resource-data
+    max-width: 90%
 
 </style>
