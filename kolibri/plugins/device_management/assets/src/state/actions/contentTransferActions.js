@@ -13,7 +13,9 @@ export const ErrorTypes = {
  *
  */
 export function downloadChannelMetadata(store) {
-  const { transferType, transferredChannel, selectedDrive } = wizardState(store.state);
+  const { transferType, transferredChannel, selectedDrive, availableChannels } = wizardState(
+    store.state
+  );
   let promise;
   if (transferType === TransferTypes.LOCALIMPORT) {
     promise = TaskResource.startDiskChannelImport({
@@ -34,6 +36,13 @@ export function downloadChannelMetadata(store) {
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
+        for (let i = 0; i < availableChannels.length; i++) {
+          if (transferredChannel.id === availableChannels[i].id) {
+            // Update channel total resources.
+            transferredChannel.total_resources = availableChannels[i].total_resources;
+            transferredChannel.total_file_size = availableChannels[i].total_file_size;
+          }
+        }
         return TaskResource.cancelTask(taskId).then(() => {
           return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })
             ._promise;
