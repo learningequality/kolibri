@@ -180,7 +180,7 @@ class MembershipFilter(FilterSet):
 
     class Meta:
         model = Membership
-        fields = ["user_ids", ]
+        fields = ["user", "collection", "user_ids", ]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
