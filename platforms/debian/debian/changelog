@@ -1,3 +1,10 @@
+kolibri-source (0.7.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Remove KOLIBRI_HOME from /etc/default/kolibri #16
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 27 Feb 2018 18:24:23 +0100
+
 kolibri-source (0.7.1-0ubuntu2) trusty; urgency=medium
 
   * Further Py3 support patches for source dist built on Python 2
