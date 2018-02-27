@@ -34,10 +34,11 @@ help:
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "translation-extract: extract strings from application"
+	@echo "translation-extract: extract all strings from application (both front- and back-end)"
 	@echo "translation-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
 	@echo "translation-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
 	@echo "translation-crowdin-install: installs the Crowdin CLI"
+	@echo "translation-django-compilemessages: compiles .po files to .mo files for Django"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -176,7 +177,6 @@ translation-crowdin-upload:
 
 translation-crowdin-download:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
-	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 dockerenvclean:
 	docker container prune -f

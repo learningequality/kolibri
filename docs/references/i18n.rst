@@ -150,6 +150,9 @@ You can download them using this command:
 
 This will update local translation files. Find and delete all files for unsupported or partially-translated languages. Then, check in new strings to git and submit them in a PR to the release branch.
 
+Finally, build the backend .mo files for Django:
+
+    $ make translation-django-compilemessages
 
 .. _new_language:
 
