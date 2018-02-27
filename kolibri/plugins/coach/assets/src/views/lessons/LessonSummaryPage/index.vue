@@ -12,8 +12,8 @@
         </h1>
       </div>
       <div class="lesson-summary-header-options">
-        <dropdown-menu
-          :name="$tr('options')"
+        <k-dropdown-menu
+          :text="$tr('options')"
           :options="lessonOptions"
           @select="handleSelectOption"
         />
@@ -172,7 +172,7 @@
 
 <script>
 
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import progressBar from 'kolibri.coreVue.components.progressBar';
@@ -206,7 +206,7 @@
   export default {
     name: 'lessonSummaryPage',
     components: {
-      dropdownMenu,
+      kDropdownMenu,
       ManageLessonModals,
       StatusIcon,
       contentIcon,

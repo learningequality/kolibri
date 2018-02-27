@@ -68,10 +68,11 @@
 
           <!-- Edit field -->
           <td>
-            <dropdown-menu
-              :name="$tr('manage')"
+            <k-dropdown-menu
+              :text="$tr('manage')"
               :options="manageUserOptions(user.id)"
               :disabled="!canEditUser(user)"
+              appearance="flat-button"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -128,7 +129,7 @@
   import deleteUserModal from './delete-user-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
@@ -143,7 +144,7 @@
       deleteUserModal,
       kButton,
       kFilterTextbox,
-      dropdownMenu,
+      kDropdownMenu,
       userRole,
       kSelect,
       CoreTable,
