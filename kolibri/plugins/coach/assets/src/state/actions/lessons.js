@@ -74,13 +74,13 @@ export function showLessonSummaryPage(store, classId, lessonId) {
           contentNodeArray.forEach(
             // should map directly to resourceIds
             // TODO include route information? Also selection page. Simplify component logic
-            // TODO make this a state mapper?
+            // TODO don't transform, use backend code directly
             contentNode =>
               (contentNodeMap[contentNode.pk] = {
                 title: contentNode.title,
-                // TODO calculate progress
                 progress: Number(contentNode.progress_fraction),
                 id: contentNode.pk,
+                kind: contentNode.kind,
                 content_id: contentNode.content_id,
                 channel_id: contentNode.channel_id,
               })

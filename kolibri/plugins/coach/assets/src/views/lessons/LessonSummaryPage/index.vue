@@ -93,6 +93,10 @@
             <th class="visuallyhidden core-table-icon-col">
               {{ $tr('resourceReorderColumnHeaderForTable') }}
             </th>
+            <td class="core-table-icon-col">
+              <!-- include header? -->
+            </td>
+
             <th class="core-table-main-col">
               {{ $tr('nameColumnHeaderForTable') }}
             </th>
@@ -132,6 +136,9 @@
                 @click="moveDownOne(index)"
                 class="position-adjustment-button"
               />
+            </td>
+            <td class="core-table-icon-col">
+              <content-icon :kind="resourceKind(resourceId)" />
             </td>
             <td>
               <k-router-link
@@ -280,6 +287,9 @@
       },
       resourceTitle(resourceId) {
         return this.resourceContentNodes[resourceId].title;
+      },
+      resourceKind(resourceId) {
+        return this.resourceContentNodes[resourceId].kind;
       },
       resourceProgress(resourceId) {
         if (this.totalLearners === 0) {
