@@ -43,3 +43,11 @@ export function REMOVE_FROM_WORKING_RESOURCES(state, contentId) {
 export function SET_LESSON_REPORT(state, report) {
   state.pageState.lessonReport = { ...report };
 }
+
+export function ADD_TO_RESOURCE_CACHE(state, node) {
+  if (node && node.id) {
+    state.pageState.resourceCache[node.id] = { ...node };
+  } else if (node && node.pk) {
+    state.pageState.resourceCache[node.pk] = { ...node, id: node.pk };
+  }
+}

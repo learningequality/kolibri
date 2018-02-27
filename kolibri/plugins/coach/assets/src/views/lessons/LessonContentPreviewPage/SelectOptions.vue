@@ -59,6 +59,7 @@
         // Maybe break these out to actual actions.
         // Used by select page, summary page, and here
         addToWorkingResources(store) {
+          this.$emit('addresource');
           store.dispatch('ADD_TO_WORKING_RESOURCES', this.contentId);
         },
         removeFromWorkingResources(store) {

@@ -12,6 +12,7 @@
       class="select-options"
       :workingResources="workingResources"
       :contentId="content.pk"
+      @addresource="addToCache"
     />
 
     <question-list
@@ -87,6 +88,11 @@
         questions: state => state.pageState.questions,
         completionData: state => state.pageState.completionData,
         workingResources: state => state.pageState.workingResources,
+      },
+      actions: {
+        addToCache(store) {
+          store.dispatch('ADD_TO_RESOURCE_CACHE', this.content);
+        },
       },
     },
   };

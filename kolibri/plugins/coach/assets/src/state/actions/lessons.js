@@ -138,6 +138,7 @@ function showResourceSelectionPage(
   ancestors = []
 ) {
   const pendingSelections = store.state.pageState.workingResources || [];
+  const cache = store.state.pageState.resourceCache || {};
   const pageState = {
     currentLesson: {},
     contentList: [],
@@ -145,6 +146,7 @@ function showResourceSelectionPage(
     toolbarRoute: {},
     // contains all selections, including those that haven't been committed to server
     workingResources: pendingSelections,
+    resourceCache: cache,
   };
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', pageState);
@@ -293,11 +295,13 @@ export function showLessonSelectionContentPreview(store, classId, lessonId, cont
 }
 
 function _prepLessonContentPreview(store, classId, lessonId, contentId) {
+  const cache = store.state.pageState.resourceCache || {};
   const pageState = {
     currentContentNode: {},
     toolbarRoute: {},
     // only exist if exercises
     workingResources: null,
+    resourceCache: cache,
     questions: null,
     completionData: null,
   };

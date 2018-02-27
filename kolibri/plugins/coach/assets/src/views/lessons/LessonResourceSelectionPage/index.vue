@@ -98,12 +98,20 @@
       },
       saveResources() {
         const modelResources = this.workingResources.map(resourceId => {
-          const node = this.contentList.find(n => n.id === resourceId);
-          return {
-            contentnode_id: node.id,
-            channel_id: node.channel_id,
-            content_id: node.content_id,
-          };
+          const lessonNode = this.currentLesson.resources.find(
+            r => r.contentnode_id === resourceId
+          );
+          if (lessonNode) {
+            return lessonNode;
+          }
+          const cachedNode = this.resourceCache[resourceId];
+          if (cachedNode) {
+            return {
+              contentnode_id: cachedNode.id,
+              channel_id: cachedNode.channel_id,
+              content_id: cachedNode.content_id,
+            };
+          }
         });
         this.saveLessonResources(this.lessonId, modelResources).then(() => {
           // route to summary page with confirmation message
@@ -128,16 +136,19 @@
     },
     vuex: {
       getters: {
+        currentLesson: state => state.pageState.currentLesson,
         lessonId: state => state.pageState.currentLesson.id,
         workingResources: state => state.pageState.workingResources,
         // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
         contentList: state => state.pageState.contentList,
+        resourceCache: state => state.pageState.resourceCache,
       },
       actions: {
         saveLessonResources,
         createSnackbar,
         addToSelectedResources(store, contentId) {
+          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
           store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
         },
         removeFromSelectedResources(store, contentId) {
