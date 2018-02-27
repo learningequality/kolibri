@@ -1,24 +1,64 @@
 <template>
 
   <div>
+    lesson resource user summary
     <section>
-      <content-icon
-        :kind="lessonResource.kind"
-        class="kind-icon"
-      />
-      <h1 class="resource-title">
-        {{ lessonResource.title }}
+      <!-- IDEA use datalist for this information -->
+
+      <!-- TODO resource icon -->
+      <h1>
+        <!-- TODO resource title -->
       </h1>
-      <h3>
-        {{ lessonResourceChannel.title }}
-      </h3>
+      <dl>
+        <dt>
+          <!-- TODO channel name Label -->
+        </dt>
+        <dd>
+          <!-- TODO channel name -->
+        </dd>
+      </dl>
     </section>
 
     <section>
-      <div v-for="student in lessonResourceReport" :key="student.pk">
-        <p>{{ student.full_name }}</p>
-        <p>{{ student.progress[0].total_progress }}</p>
-      </div>
+      <!-- TODO preview button on the right -->
+      <!-- TODO write action that displays the page without selection information -->
+
+      <core-table>
+        <thead>
+          <tr>
+            <th>
+              <!-- TODO name header -->
+            </th>
+            <th>
+              <!-- TODO progress header -->
+            </th>
+            <th>
+              <!-- TODO group header -->
+            </th>
+            <th>
+              <!-- TODO last active header -->
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <!-- TODO user icon -->
+              <!-- TODO user fullname -->
+            </td>
+            <td>
+              <!-- TODO progress bar w/ progressPercentage -->
+            </td>
+            <td>
+              <!-- TODO group this user belongs to -->
+            </td>
+            <td>
+              <!-- TODO lastactive -->
+            </td>
+          </tr>
+        </tbody>
+      </core-table>
+
     </section>
   </div>
 
@@ -38,21 +78,21 @@
     methods: {},
     vuex: {
       getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonResource: state => state.pageState.lessonResource,
-        learnerGroups: state => state.pageState.learnerGroups,
-        lessonResourceReport: state => state.pageState.lessonResourceReport,
-        lessonResourceChannel(state) {
-          const { channel_id } = state.pageState.lessonResource;
-          return state.core.channels.list.find(channel => channel.id === channel_id) || {};
-        },
+        resourceTitle: state => state.pageState.resourceTitle,
+        resourceKind: state => state.pageState.resourceKind,
+        channelTitle: state => state.pageState.channelTitle,
+        learnerRows: state => state.pageState.learnerRows,
       },
       actions: {},
     },
     $trs: {
+      channelTitleLabel: 'Channel',
+      resourceTitleLabel: 'Resource',
+      exerciseTitleLabel: 'Exercise',
       previewContentButtonLabel: 'Preview',
       nameTableColumnHeader: 'Name',
       progressTableColumnHeader: 'Resource Progress',
+      exerciseProgressTableColumnHeader: 'Exercise Progress',
       groupTableColumnHeader: 'Group',
       lastActiveTableColumnHeader: 'Last Active',
       lastActiveLabel: '{numberOfHours,number, integer} hours ago',

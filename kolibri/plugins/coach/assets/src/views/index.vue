@@ -136,7 +136,7 @@
           [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
           [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
           [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
-          [LessonsPageNames.RESOURCE_CLASSROOM_REPORT]: 'LessonResourceUserSummaryPage',
+          [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'LessonResourceUserSummaryPage',
         };
         if (!this.userCanAccessPage) {
           // TODO better solution
@@ -165,7 +165,7 @@
           if (selectionPages.includes(this.pageName)) {
             return this.$tr('selectPageToolbarHeader');
           }
-          if (resourceUserPages.inclues(this.pageName)) {
+          if (resourceUserPages.includes(this.pageName)) {
             return this.$tr('resourceUserPageToolbarHeader');
           }
         }

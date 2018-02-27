@@ -15,15 +15,16 @@ import router from 'kolibri.coreVue.router';
 import {
   showLessonsRootPage,
   showLessonSummaryPage,
-  showLessonResourceUserSummaryPage,
-  showLessonResourceUserReportPage,
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
   showLessonSelectionSearchPage,
   showLessonContentPreview,
 } from './state/actions/lessons';
 
-import { showLessonResourceClassroomReport } from './state/actions/lessonReportsActions';
+import {
+  showLessonResourceUserSummaryPage,
+  showLessonResourceUserReportPage,
+} from './state/actions/lessonReportsActions';
 
 // Redirect to the Lessons List of a different classroom if
 // classroom switcher is used in e.g. a Lesson Summary page
@@ -80,14 +81,6 @@ const lessonRoutes = [
         toRoute.params.contentId,
         toRoute.params.userId
       );
-    },
-  },
-  {
-    name: LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
-    path: '/:classId/lessons/:lessonId/resource/:contentId/classroomreport',
-    handler: toRoute => {
-      store.dispatch('SET_PAGE_NAME', toRoute.name);
-      return showLessonResourceClassroomReport(store, toRoute.params);
     },
   },
   {

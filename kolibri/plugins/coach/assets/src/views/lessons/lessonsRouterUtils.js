@@ -36,9 +36,9 @@ export function topicListingLink({ classId, lessonId, topicId }) {
 }
 
 // Creates Link to the Lesson Resource Whole-Classroom Report Page
-export function resourceClassroomReportLink(contentId) {
+export function resourceUserSummaryLink(contentId) {
   return {
-    name: LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+    name: LessonsPageNames.RESOURCE_USER_SUMMARY,
     // classId, lessonId filled in by router
     params: {
       contentId,

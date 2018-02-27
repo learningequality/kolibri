@@ -135,7 +135,7 @@
             </td>
             <td>
               <k-router-link
-                :to="resourceClassroomReportLink(resourceId)"
+                :to="resourceUserSummaryLink(resourceId)"
                 :text="resourceTitle(resourceId)"
               />
             </td>
@@ -191,7 +191,7 @@
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import InfoIcon from '../InfoIcon';
-  import { selectionRootLink, resourceClassroomReportLink } from '../lessonsRouterUtils';
+  import { selectionRootLink, resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
   import debounce from 'lodash/debounce';
@@ -266,7 +266,7 @@
       },
     },
     methods: {
-      resourceClassroomReportLink,
+      resourceUserSummaryLink,
       handleSelectOption({ action }) {
         this.currentAction = action;
       },
