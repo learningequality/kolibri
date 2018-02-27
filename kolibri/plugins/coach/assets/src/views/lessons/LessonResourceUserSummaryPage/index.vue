@@ -3,7 +3,7 @@
   <div class="resource-user-summary-page">
     <section class="top">
       <div class="resource-data">
-        <!-- IDEA use datalist for this information -->
+        <!-- IDEA use datalist for h1 too -->
         <h1>
           <content-icon :kind="resourceKind" />
           {{ resourceTitle }}
@@ -30,6 +30,10 @@
       <core-table>
         <thead>
           <tr>
+            <th class="visuallyhidden core-table-icon-col">
+              <!-- holds the user icon, header not necessary? -->
+              <!-- {{ $tr('userIconTableColumnHeader') }} -->
+            </th>
             <th>
               {{ $tr('nameTableColumnHeader') }}
             </th>
@@ -50,14 +54,20 @@
             v-for="(learner, id) in learnerRows"
             :key="id"
           >
-            <td>
+            <td class="core-table-icon-col">
               <!-- IDEA separate column? -->
               <content-icon kind="user" />
-
+            </td>
+            <td>
+              <!-- IDEA separate column? -->
               <k-router-link
+                v-if="isExercise"
                 :text="learner.name"
                 :to="userReportRoute(id)"
               />
+              <template v-else>
+                {{ learner.name }}
+              </template>
             </td>
             <td>
               <progress-bar

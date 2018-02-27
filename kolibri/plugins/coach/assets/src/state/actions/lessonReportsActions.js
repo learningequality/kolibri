@@ -103,8 +103,9 @@ export function showLessonResourceUserReportPage(
 ) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
-  store.dispatch('SET_PAGE_STATE', { toolbarRoute: {} });
-  store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.RESOURCE_USER_SUMMARY });
+  store.dispatch('SET_PAGE_STATE', {
+    toolbarRoute: { name: LessonsPageNames.RESOURCE_USER_SUMMARY },
+  });
   // TODO set title
   ContentNodeResource.getModel(contentId)
     .fetch()

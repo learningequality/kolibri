@@ -363,7 +363,7 @@ export function showExerciseDetailView(
             currentInteractionHistory,
             currentInteraction: currentInteractionHistory[interactionIndex],
             summaryLog: summaryLog[0],
-            channelId,
+            channelId, // not really needed
             attemptLogIndex,
             // hack, allows caryover of custom state
             ...store.state.pageState,
