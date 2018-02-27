@@ -210,7 +210,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
   return Promise.all(loadRequirements).then(
     ([topicNode, childNodes, ancestors]) => {
       const topicAncestors = [...ancestors, topicNode];
-      // map to state
+      // TODO state mapper
       const topicContentList = childNodes.map(node => {
         return {
           id: node.pk,
@@ -250,46 +250,59 @@ export function showLessonSelectionSearchPage(store, classId, lessonId, searchTe
   // TODO reuse selection page, pass search term in to activate search mode in <search-tools>
 }
 
-export function showLessonContentPreview(store, classId, lessonId, contentId, selectable = true) {
+export function showLessonResourceContentPreview(store, classId, lessonId, contentId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-
+  _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
+    store.dispatch('SET_TOOLBAR_ROUTE', {
+      name: LessonsPageNames.RESOURCE_USER_SUMMARY,
+    });
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
+}
+export function showLessonSelectionContentPreview(store, classId, lessonId, contentId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const pendingSelections = store.state.pageState.workingResources || [];
-  const pageState = {
-    currentContentNode: {},
-    toolbarRoute: {},
-    workingResources: selectable ? pendingSelections : null,
-    // only exist if exercises
-    questions: null,
-    completionData: null,
-  };
   Promise.all([
-    ContentNodeResource.getModel(contentId).fetch(),
+    _prepLessonContentPreview(store, classId, lessonId, contentId),
     updateCurrentLesson(store, lessonId),
   ]).then(([contentNode, lesson]) => {
-    // set up intial pageState
-    const contentMetadata = assessmentMetaDataState(contentNode);
-    pageState.currentContentNode = contentNode;
-    pageState.questions = contentMetadata.assessmentIds;
-    pageState.completionData = contentMetadata.masteryModel;
-
-    store.dispatch('SET_PAGE_STATE', pageState);
-
-    if (selectable && !pendingSelections.length) {
-      // TODO state mapper
-      const preselectedResources = lesson.resources.map(resourceObj => resourceObj.contentnode_id);
-      // could still just use pageState...
-      store.dispatch('SET_WORKING_RESOURCES', preselectedResources);
-    }
-
+    // TODO state mapper
+    const preselectedResources = lesson.resources.map(resourceObj => resourceObj.contentnode_id);
     store.dispatch('SET_TOOLBAR_ROUTE', {
       name: LessonsPageNames.SELECTION,
-      // everything else populated by router
       params: {
         topicId: contentNode.parent,
       },
     });
-    store.dispatch('CORE_SET_TITLE', contentNode.title);
-    store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+    store.dispatch(
+      'SET_WORKING_RESOURCES',
+      pendingSelections.length ? pendingSelections : preselectedResources
+    );
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
+}
+
+function _prepLessonContentPreview(store, classId, lessonId, contentId) {
+  const pageState = {
+    currentContentNode: {},
+    toolbarRoute: {},
+    // only exist if exercises
+    workingResources: null,
+    questions: null,
+    completionData: null,
+  };
+  return ContentNodeResource.getModel(contentId)
+    .fetch()
+    .then(contentNode => {
+      // set up intial pageState
+      const contentMetadata = assessmentMetaDataState(contentNode);
+      pageState.currentContentNode = contentNode;
+      pageState.questions = contentMetadata.assessmentIds;
+      pageState.completionData = contentMetadata.masteryModel;
+
+      store.dispatch('SET_PAGE_STATE', pageState);
+
+      store.dispatch('CORE_SET_TITLE', contentNode.title);
+      store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+    });
 }

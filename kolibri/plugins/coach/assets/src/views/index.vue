@@ -58,7 +58,8 @@
   import LessonResourceUserReportPage from './reports/learner-exercise-detail-page/learner-exercise-report';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
-  // const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
+  // IDEA set up routenames that all use the same PageName instead of doing this?
+  // See Content Preview routes in app.js + PageName handling here
   const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
   const resourceUserPages = [
     LessonsPageNames.RESOURCE_USER_SUMMARY,

@@ -2,7 +2,8 @@
 
   <div class="content-preview-page">
     <metadata-area
-      class="top-row"
+      class="top"
+      :class="{left: workingResources}"
       :content="content"
       :completionData="completionData"
     />
@@ -103,6 +104,7 @@
     position: relative // set the context for absolute elements within
 
   .select-options
+    max-width: 20%
     position: absolute
     // NOTE stylus specific - calc + variable interpolation
     bottom: 'calc(100% - %s)' % 28px // should line up with header
@@ -110,9 +112,10 @@
     right: 0
 
 
-  .top-row
-    width: 100%
+  .top
     height: $horizontal-split
+    &.left
+      max-width: 80%
 
   // went with this approach because of noscroll page. Not great on mobile
   // might want to explore doing this with pure (original plan)

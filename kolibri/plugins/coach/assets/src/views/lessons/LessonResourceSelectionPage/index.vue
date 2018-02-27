@@ -89,7 +89,7 @@
           return topicListingLink({ ...this.routerParams, topicId: content.id });
         }
         return {
-          name: LessonsPageNames.CONTENT_PREVIEW,
+          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,

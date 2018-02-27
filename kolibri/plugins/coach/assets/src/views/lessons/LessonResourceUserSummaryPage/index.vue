@@ -121,7 +121,7 @@
       previewButtonRoute() {
         // TODO make separate route, remove the select/deselect ability + change back route
         return {
-          name: LessonsPageNames.CONTENT_PREVIEW,
+          name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
         };
       },
     },

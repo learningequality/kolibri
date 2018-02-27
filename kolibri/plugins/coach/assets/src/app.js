@@ -18,7 +18,8 @@ import {
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
   showLessonSelectionSearchPage,
-  showLessonContentPreview,
+  showLessonSelectionContentPreview,
+  showLessonResourceContentPreview,
 } from './state/actions/lessons';
 
 import {
@@ -123,10 +124,22 @@ const lessonRoutes = [
     },
   },
   {
-    name: LessonsPageNames.CONTENT_PREVIEW,
-    path: '/:classId/lessons/:lessonId/preview/:contentId',
+    name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+    path: '/:classId/lessons/:lessonId/selection/preview/:contentId',
     handler: toRoute => {
-      showLessonContentPreview(
+      showLessonSelectionContentPreview(
+        store,
+        toRoute.params.classId,
+        toRoute.params.lessonId,
+        toRoute.params.contentId
+      );
+    },
+  },
+  {
+    name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+    path: '/:classId/lessons/:lessonId/resource/preview/:contentId',
+    handler: toRoute => {
+      showLessonResourceContentPreview(
         store,
         toRoute.params.classId,
         toRoute.params.lessonId,
