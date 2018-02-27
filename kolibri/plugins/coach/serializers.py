@@ -1,6 +1,6 @@
 from functools import reduce
 from dateutil.parser import parse
-from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When, Q
+from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
@@ -256,45 +256,31 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
     def get_progress(self, instance):
         learners = instance.get_all_learners()
-        if (learners.count() is 0):
+        if learners.count() is 0:
             return []
 
         return [self._resource_progress(r, learners) for r in instance.resources]
 
     def get_total_learners(self, instance):
-        return len(instance.get_all_learners())
+        return instance.get_all_learners().count()
 
     def _resource_progress(self, resource, learners):
-        try:
-            completed_content_logs = ContentSummaryLog.objects \
-                .filter(
-                    content_id=resource['content_id'],
-                    user__in=learners,
-                    progress=1.0,
-                ) \
-                .values('content_id') \
-                .annotate(total=Count('pk'))
+        response = {
+            'contentnode_id': resource['contentnode_id'],
+            'num_learners_completed': 0,
+        }
+        completed_content_logs = ContentSummaryLog.objects \
+            .filter(
+                content_id=resource['content_id'],
+                user__in=learners,
+                progress=1.0,
+            ) \
+            .values('content_id') \
+            .annotate(total=Count('pk'))
 
-            # If no logs for the Content Item,
-            if (completed_content_logs.count() is 0):
-                return {
-                    'contentnode_id': resource['contentnode_id'],
-                    'num_learners_completed': 0,
-                    'available': True,
-                }
-            else:
-                return {
-                    'contentnode_id': resource['contentnode_id'],
-                    'num_learners_completed': completed_content_logs[0]['total'],
-                    'available': True,
-                }
-
-        except ContentNode.DoesNotExist:
-            # Handle case where underlying content was deleted (DoesNotExist),
-            # Might be OK if we don't have to retrieve the CN Model and just go
-            # by strings in Lesson.resource
-            return {
-                'contentnode_id': resource['contentnode_id'],
-                'num_learners_completed': 0,
-                'available': False,
-            }
+        # If no logs for the Content Item,
+        if completed_content_logs.count() is 0:
+            return response
+        else:
+            response['num_learners_completed'] = completed_content_logs[0]['total']
+            return response

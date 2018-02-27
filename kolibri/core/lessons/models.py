@@ -29,7 +29,8 @@ class Lesson(AbstractFacilityDataModel):
     Like Exams, we store an array of objects with the following form:
     {
       contentnode_id: string,
-      position: integer // where the resource appears in the Lesson
+      content_id: string,
+      channel_id: string
     }
     """
     resources = JSONField(default=[], blank=True)
