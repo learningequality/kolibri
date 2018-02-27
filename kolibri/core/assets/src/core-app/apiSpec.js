@@ -37,7 +37,6 @@ import kButton from '../views/buttons-and-links/k-button';
 import kExternalLink from '../views/buttons-and-links/k-external-link';
 import kRouterLink from '../views/buttons-and-links/k-router-link';
 import kTextbox from '../views/k-textbox';
-import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
@@ -74,6 +73,7 @@ import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
+import kDropdownMenu from '../views/k-dropdown-menu';
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 
 export default {
@@ -112,7 +112,6 @@ export default {
       kExternalLink,
       kRouterLink,
       kTextbox,
-      dropdownMenu,
       kNavbar,
       kNavbarLink,
       languageSwitcherList,
@@ -131,6 +130,7 @@ export default {
       coreSnackbar,
       customUiMenu,
       CoreTable,
+      kDropdownMenu,
     },
     router,
     mixins: {
