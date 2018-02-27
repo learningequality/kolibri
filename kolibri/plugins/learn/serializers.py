@@ -65,11 +65,7 @@ class LessonProgressSerializer(ModelSerializer):
         )
 
     def get_progress(self, instance):
-        contentnode_ids = [resource['contentnode_id'] for resource in instance.resources]
-        # Get all ContentNode models
-        contentnodes = ContentNode.objects.filter(id__in=contentnode_ids).values('content_id')
-        content_ids = [cnode['content_id'] for cnode in contentnodes]
-
+        content_ids = [resource['content_id'] for resource in instance.resources]
         num_completed_logs = ContentSummaryLog.objects \
             .exclude(completion_timestamp__isnull=True) \
             .filter(
