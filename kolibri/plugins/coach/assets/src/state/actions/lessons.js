@@ -7,6 +7,7 @@ import LessonReportResource from '../../apiResources/lessonReport';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -33,7 +34,8 @@ export function showLessonsRootPage(store, classId) {
       store.dispatch('CORE_SET_TITLE', translator.$tr('lessons'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    () => {
+    error => {
+      handleApiError(store, error);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
@@ -46,6 +48,9 @@ export function updateClassLessons(store, classId) {
       store.dispatch('SET_CLASS_LESSONS', lessons);
       // resolve lessons in case it's needed
       return lessons;
+    })
+    .catch(error => {
+      return handleApiError(store, error);
     });
 }
 
@@ -56,11 +61,16 @@ export function updateCurrentLesson(store, lessonId) {
     LessonResource.getModel(currentLessonId)
       .fetch()
       // is lesson set appropriately here?
-      .then(lesson => {
-        store.dispatch('SET_CURRENT_LESSON', lesson);
-        // resolve lesson in case it's needed
-        return lesson;
-      })
+      .then(
+        lesson => {
+          store.dispatch('SET_CURRENT_LESSON', lesson);
+          // resolve lesson in case it's needed
+          return lesson;
+        },
+        error => {
+          return handleApiError(store, error);
+        }
+      )
   );
 }
 
@@ -71,30 +81,35 @@ export function showLessonSummaryPage(store, classId, lessonId) {
     if (resourceIds.length) {
       return ContentNodeResource.getCollection({ ids: resourceIds })
         .fetch()
-        .then(contentNodeArray => {
-          contentNodeArray.forEach(
-            // should map directly to resourceIds
-            // TODO include route information? Also selection page. Simplify component logic
-            // TODO don't transform, use backend data directly
-            contentNode => {
-              const channelObject = getChannelObject(store.state, contentNode.channel_id);
-              contentNodeMap[contentNode.pk] = {
-                title: contentNode.title,
-                channelTitle: channelObject.title,
-                progress: Number(contentNode.progress_fraction),
-                id: contentNode.pk,
-                kind: contentNode.kind,
-                content_id: contentNode.content_id,
-                channel_id: contentNode.channel_id,
-              };
-            }
-          );
+        .then(
+          contentNodeArray => {
+            contentNodeArray.forEach(
+              // should map directly to resourceIds
+              // TODO include route information? Also selection page. Simplify component logic
+              // TODO don't transform, use backend data directly
+              contentNode => {
+                const channelObject = getChannelObject(store.state, contentNode.channel_id);
+                contentNodeMap[contentNode.pk] = {
+                  title: contentNode.title,
+                  channelTitle: channelObject.title,
+                  progress: Number(contentNode.progress_fraction),
+                  id: contentNode.pk,
+                  kind: contentNode.kind,
+                  content_id: contentNode.content_id,
+                  channel_id: contentNode.channel_id,
+                };
+              }
+            );
 
-          store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
+            store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
 
-          // TODO make sure this is resolved properly
-          return contentNodeMap;
-        });
+            // TODO make sure this is resolved properly
+            return contentNodeMap;
+          },
+          error => {
+            return handleApiError(store, error);
+          }
+        );
     }
     return Promise.resolve(contentNodeMap);
   }
@@ -127,8 +142,9 @@ export function showLessonSummaryPage(store, classId, lessonId) {
         store.dispatch('CORE_SET_TITLE', currentLesson.title);
       });
     })
-    .catch(() => {
+    .catch(error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return handleApiError(store, error);
     });
 }
 
@@ -178,8 +194,9 @@ function showResourceSelectionPage(
       store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    () => {
+    error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return handleApiError(store, error);
     }
   );
 }
@@ -195,7 +212,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
     };
   });
 
-  showResourceSelectionPage(
+  return showResourceSelectionPage(
     store,
     classId,
     lessonId,
@@ -227,7 +244,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
         };
       });
 
-      showResourceSelectionPage(
+      return showResourceSelectionPage(
         store,
         classId,
         lessonId,
@@ -236,8 +253,9 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
         topicAncestors
       );
     },
-    () => {
+    error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return handleApiError(store, error);
     }
   );
 }
@@ -267,27 +285,33 @@ export function showLessonResourceContentPreview(store, classId, lessonId, conte
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
 }
+
 export function showLessonSelectionContentPreview(store, classId, lessonId, contentId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const pendingSelections = store.state.pageState.workingResources || [];
-  Promise.all([
+  return Promise.all([
     _prepLessonContentPreview(store, classId, lessonId, contentId),
     updateCurrentLesson(store, lessonId),
-  ]).then(([contentNode, lesson]) => {
-    // TODO state mapper
-    const preselectedResources = lesson.resources.map(resourceObj => resourceObj.contentnode_id);
-    store.dispatch('SET_TOOLBAR_ROUTE', {
-      name: LessonsPageNames.SELECTION,
-      params: {
-        topicId: contentNode.parent,
-      },
+  ])
+    .then(([contentNode, lesson]) => {
+      // TODO state mapper
+      const preselectedResources = lesson.resources.map(resourceObj => resourceObj.contentnode_id);
+      store.dispatch('SET_TOOLBAR_ROUTE', {
+        name: LessonsPageNames.SELECTION,
+        params: {
+          topicId: contentNode.parent,
+        },
+      });
+      store.dispatch(
+        'SET_WORKING_RESOURCES',
+        pendingSelections.length ? pendingSelections : preselectedResources
+      );
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(error => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return handleApiError(store, error);
     });
-    store.dispatch(
-      'SET_WORKING_RESOURCES',
-      pendingSelections.length ? pendingSelections : preselectedResources
-    );
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
 }
 
 function _prepLessonContentPreview(store, classId, lessonId, contentId) {
@@ -303,16 +327,19 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   };
   return ContentNodeResource.getModel(contentId)
     .fetch()
-    .then(contentNode => {
-      // set up intial pageState
-      const contentMetadata = assessmentMetaDataState(contentNode);
-      pageState.currentContentNode = contentNode;
-      pageState.questions = contentMetadata.assessmentIds;
-      pageState.completionData = contentMetadata.masteryModel;
-
-      store.dispatch('SET_PAGE_STATE', pageState);
-
-      store.dispatch('CORE_SET_TITLE', contentNode.title);
-      store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
-    });
+    .then(
+      contentNode => {
+        // set up intial pageState
+        const contentMetadata = assessmentMetaDataState(contentNode);
+        pageState.currentContentNode = contentNode;
+        pageState.questions = contentMetadata.assessmentIds;
+        pageState.completionData = contentMetadata.masteryModel;
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_TITLE', contentNode.title);
+        store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+      },
+      error => {
+        return handleApiError(store, error);
+      }
+    );
 }
