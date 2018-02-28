@@ -1,5 +1,5 @@
 import { LessonsPageNames } from '../../lessonsConstants';
-import { getChannels } from 'kolibri.coreVue.vuex.getters';
+import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
@@ -74,16 +74,19 @@ export function showLessonSummaryPage(store, classId, lessonId) {
           contentNodeArray.forEach(
             // should map directly to resourceIds
             // TODO include route information? Also selection page. Simplify component logic
-            // TODO don't transform, use backend code directly
-            contentNode =>
-              (contentNodeMap[contentNode.pk] = {
+            // TODO don't transform, use backend data directly
+            contentNode => {
+              const channelObject = getChannelObject(store.state, contentNode.channel_id);
+              contentNodeMap[contentNode.pk] = {
                 title: contentNode.title,
+                channelTitle: channelObject.title,
                 progress: Number(contentNode.progress_fraction),
                 id: contentNode.pk,
                 kind: contentNode.kind,
                 content_id: contentNode.content_id,
                 channel_id: contentNode.channel_id,
-              })
+              };
+            }
           );
 
           store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
