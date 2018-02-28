@@ -1,23 +1,22 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classExams') }}</h1>
-    <p v-if="!exams.length">{{ $tr('noExams') }}</p>
-    <k-select
-      :label="$tr('exams')"
-      :options="statusOptions"
-      :inline="true"
-      v-model="statusSelected"
-      v-if="sortedExams.length"
-    />
-    <k-button
-      :primary="true"
-      appearance="raised-button"
-      @click="openCreateExamModal"
-      :text="$tr('newExam')"
-      :class="{'pull-right': sortedExams.length}"
-    />
-    <core-table v-if="sortedExams.length">
+    <h1>{{ $tr('exams') }}</h1>
+    <div class="filter-and-button">
+      <k-select
+        :label="$tr('show')"
+        :options="statusOptions"
+        :inline="true"
+        v-model="statusSelected"
+      />
+      <k-button
+        :primary="true"
+        appearance="raised-button"
+        @click="openCreateExamModal"
+        :text="$tr('newExam')"
+      />
+    </div>
+    <core-table>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -32,7 +31,7 @@
           :key="exam.id"
           :examId="exam.id"
           :examTitle="exam.title"
-          :examActive="exam.active"
+          :examActive="exam.activeExams"
           :examVisibility="exam.visibility"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
@@ -44,6 +43,17 @@
         />
       </tbody>
     </core-table>
+
+    <p v-if="!exams.length">
+      {{ $tr('noExams') }}
+    </p>
+    <p v-else-if="statusSelected.value === 'activeExams' && !activeExams.length">
+      {{ $tr('noActiveExams') }}
+    </p>
+    <p v-else-if=" statusSelected.value === 'inactiveExams' && !inactiveExams.length">
+      {{ $tr('noInactiveExams') }}
+    </p>
+
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -120,14 +130,16 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      classExams: 'Exams',
-      all: 'All',
-      active: 'Active',
-      inactive: 'Inactive',
+      allExams: 'All exams',
+      activeExams: 'Active exams',
+      inactiveExams: 'Inactive exams',
       newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
       noExams: 'You do not have any exams',
+      noActiveExams: 'No acitve exams',
+      noInactiveExams: 'No inactive exams',
+      show: 'Show',
     },
     components: {
       CoreTable,
@@ -144,7 +156,7 @@
     },
     data() {
       return {
-        statusSelected: { label: this.$tr('all'), value: this.$tr('all') },
+        statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
         selectedExam: {
           title: '',
           id: '',
@@ -164,22 +176,22 @@
       },
       statusOptions() {
         return [
-          { label: this.$tr('all'), value: this.$tr('all') },
-          { label: this.$tr('active'), value: this.$tr('active') },
-          { label: this.$tr('inactive'), value: this.$tr('inactive') },
+          { label: this.$tr('allExams'), value: this.$tr('allExams') },
+          { label: this.$tr('activeExams'), value: this.$tr('activeExams') },
+          { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
         ];
       },
       activeExams() {
-        return this.sortedExams.filter(exam => exam.active === true);
+        return this.sortedExams.filter(exam => exam.activeExams === true);
       },
       inactiveExams() {
-        return this.sortedExams.filter(exam => exam.active === false);
+        return this.sortedExams.filter(exam => exam.activeExams === false);
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.$tr('active')) {
+        if (filter === this.$tr('activeExams')) {
           return this.activeExams;
-        } else if (filter === this.$tr('inactive')) {
+        } else if (filter === this.$tr('inactiveExams')) {
           return this.inactiveExams;
         }
         return this.sortedExams;
@@ -268,10 +280,12 @@
 
   @require '~kolibri.styles.definitions'
 
-  .pull-right
-    float: right
-    margin-top: 1em
-    margin-bottom: 1em
+  .filter-and-button
+    display: flex
+    flex-wrap: wrap-reverse
+    justify-content: space-between
+    button
+      align-self: flex-end
 
   .center-text
     text-align: center
