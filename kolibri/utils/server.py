@@ -1,6 +1,7 @@
 import atexit
 import logging
 import os
+import sys
 import threading
 
 import cherrypy
@@ -11,6 +12,7 @@ from django.core.management import call_command
 
 from .system import kill_pid
 from .system import pid_exists
+from .system import write_to_daemon_log
 from kolibri.content.utils import paths
 from kolibri.utils.conf import KOLIBRI_HOME
 
@@ -55,7 +57,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def start(port=8080):
+def start(port=8080, daemon=True):
     """
     Starts the server.
 
@@ -85,7 +87,7 @@ def start(port=8080):
 
     atexit.register(rm_pid_file)
 
-    run_server(port=port)
+    run_server(port=port, daemon=daemon)
 
 
 class PingbackThread(threading.Thread):
@@ -127,7 +129,7 @@ def stop(pid=None, force=False):
     os.unlink(PID_FILE)
 
 
-def run_server(port):
+def run_server(port, daemon=True):
 
     # Mount the application
     from kolibri.deployment.default.wsgi import application
@@ -157,6 +159,7 @@ def run_server(port):
 
     # Start the server engine (Option 1 *and* 2)
     cherrypy.engine.start()
+    show_url_info(port, daemon)
     cherrypy.engine.block()
 
 
@@ -302,3 +305,32 @@ def get_urls(listen_port=None):
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
+
+
+def show_url_info(port, daemon=True):
+    __, urls = get_urls(listen_port=port)
+    if not urls:
+        logger.error(
+            "Could not detect an IP address that Kolibri binds to, but try "
+            "opening up the following addresses:\n")
+        urls = [
+            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+        ]
+    else:
+        logger.info("Kolibri running on:\n")
+    for addr in urls:
+        sys.stderr.write("\t{}\n".format(addr))
+    sys.stderr.write("\n")
+
+    # Start to write to DAEMON_LOG instead of stdout, stderr
+    if daemon:
+        kwargs = {}
+        # Truncate the file
+        if os.path.isfile(DAEMON_LOG):
+            open(DAEMON_LOG, "w").truncate()
+        logger.info(
+            "Going to daemon mode, logging to {0}".format(DAEMON_LOG)
+        )
+        kwargs['out_log'] = DAEMON_LOG
+        kwargs['err_log'] = DAEMON_LOG
+        write_to_daemon_log(**kwargs)
