@@ -1,8 +1,28 @@
 import lessonsRoutes from './lessonsRoutes';
-import * as actions from '../state/actions/main';
-import * as groupActions from '../state/actions/group';
-import * as examActions from '../state/actions/exam';
-import * as reportsActions from '../state/actions/reports';
+import { showClassListPage } from '../state/actions/main';
+import { showGroupsPage } from '../state/actions/group';
+import {
+  showCreateExamPage,
+  showExamReportDetailPage,
+  showExamReportPage,
+  showExamsPage,
+} from '../state/actions/exam';
+import {
+  showLearnerChannelRoot,
+  showLearnerChannels,
+  showLearnerItemDetails,
+  showLearnerItemList,
+  showLearnerList,
+  showRecentChannels,
+  showRecentItemsForChannel,
+  showRecentLearnerItemDetails,
+  showRecentLearnersForItem,
+  showTopicChannelRoot,
+  showTopicChannels,
+  showTopicItemList,
+  showTopicLearnerItemDetails,
+  showTopicLearnersForItem,
+} from '../state/actions/reports';
 import { PageNames } from '../constants';
 import store from 'kolibri.coreVue.vuex.store';
 
@@ -12,28 +32,28 @@ export default [
     name: PageNames.CLASS_LIST,
     path: '/',
     handler: () => {
-      actions.showClassListPage(store);
+      showClassListPage(store);
     },
   },
   {
     name: PageNames.EXAMS,
     path: '/:classId/exams',
     handler: toRoute => {
-      examActions.showExamsPage(store, toRoute.params.classId);
+      showExamsPage(store, toRoute.params.classId);
     },
   },
   {
     name: PageNames.CREATE_EXAM,
     path: '/:classId/exams/new/:channelId',
     handler: toRoute => {
-      examActions.showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
+      showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
     },
   },
   {
     name: PageNames.EXAM_REPORT,
     path: '/:classId/:channelId/exams/:examId',
     handler: toRoute => {
-      examActions.showExamReportPage(
+      showExamReportPage(
         store,
         toRoute.params.classId,
         toRoute.params.channelId,
@@ -50,7 +70,7 @@ export default [
     name: PageNames.EXAM_REPORT_DETAIL,
     path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
     handler: toRoute => {
-      examActions.showExamReportDetailPage(
+      showExamReportDetailPage(
         store,
         toRoute.params.classId,
         toRoute.params.userId,
@@ -65,26 +85,21 @@ export default [
     name: PageNames.RECENT_CHANNELS,
     path: '/:classId/recent',
     handler: to => {
-      reportsActions.showRecentChannels(store, to.params.classId);
+      showRecentChannels(store, to.params.classId);
     },
   },
   {
     name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
     path: '/:classId/recent/:channelId',
     handler: to => {
-      reportsActions.showRecentItemsForChannel(store, to.params.classId, to.params.channelId);
+      showRecentItemsForChannel(store, to.params.classId, to.params.channelId);
     },
   },
   {
     name: PageNames.RECENT_LEARNERS_FOR_ITEM,
     path: '/:classId/recent/:channelId/:contentId',
     handler: to => {
-      reportsActions.showRecentLearnersForItem(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.contentId
-      );
+      showRecentLearnersForItem(store, to.params.classId, to.params.channelId, to.params.contentId);
     },
   },
   {
@@ -96,7 +111,7 @@ export default [
     name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
     path: '/:classId/recent/:channelId/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
-      reportsActions.showRecentLearnerItemDetails(
+      showRecentLearnerItemDetails(
         store,
         to.params.classId,
         to.params.userId,
@@ -111,38 +126,28 @@ export default [
     name: PageNames.TOPIC_CHANNELS,
     path: '/:classId/topics',
     handler: to => {
-      reportsActions.showTopicChannels(store, to.params.classId);
+      showTopicChannels(store, to.params.classId);
     },
   },
   {
     name: PageNames.TOPIC_CHANNEL_ROOT,
     path: '/:classId/topics/:channelId',
     handler: to => {
-      reportsActions.showTopicChannelRoot(store, to.params.classId, to.params.channelId);
+      showTopicChannelRoot(store, to.params.classId, to.params.channelId);
     },
   },
   {
     name: PageNames.TOPIC_ITEM_LIST,
     path: '/:classId/topics/:channelId/topic/:topicId',
     handler: to => {
-      reportsActions.showTopicItemList(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.topicId
-      );
+      showTopicItemList(store, to.params.classId, to.params.channelId, to.params.topicId);
     },
   },
   {
     name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
     path: '/:classId/topics/:channelId/item/:contentId',
     handler: to => {
-      reportsActions.showTopicLearnersForItem(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.contentId
-      );
+      showTopicLearnersForItem(store, to.params.classId, to.params.channelId, to.params.contentId);
     },
   },
   {
@@ -154,7 +159,7 @@ export default [
     name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
     path: '/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
-      reportsActions.showTopicLearnerItemDetails(
+      showTopicLearnerItemDetails(
         store,
         to.params.classId,
         to.params.userId,
@@ -169,33 +174,28 @@ export default [
     name: PageNames.LEARNER_LIST,
     path: '/:classId/learners',
     handler: to => {
-      reportsActions.showLearnerList(store, to.params.classId);
+      showLearnerList(store, to.params.classId);
     },
   },
   {
     name: PageNames.LEARNER_CHANNELS,
     path: '/:classId/learners/:userId',
     handler: to => {
-      reportsActions.showLearnerChannels(store, to.params.classId, to.params.userId);
+      showLearnerChannels(store, to.params.classId, to.params.userId);
     },
   },
   {
     name: PageNames.LEARNER_CHANNEL_ROOT,
     path: '/:classId/learners/:userId/:channelId',
     handler: to => {
-      reportsActions.showLearnerChannelRoot(
-        store,
-        to.params.classId,
-        to.params.userId,
-        to.params.channelId
-      );
+      showLearnerChannelRoot(store, to.params.classId, to.params.userId, to.params.channelId);
     },
   },
   {
     name: PageNames.LEARNER_ITEM_LIST,
     path: '/:classId/learners/:userId/:channelId/topic/:topicId',
     handler: to => {
-      reportsActions.showLearnerItemList(
+      showLearnerItemList(
         store,
         to.params.classId,
         to.params.userId,
@@ -214,7 +214,7 @@ export default [
     path:
       '/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
     handler: to => {
-      reportsActions.showLearnerItemDetails(
+      showLearnerItemDetails(
         store,
         to.params.classId,
         to.params.userId,
@@ -229,7 +229,7 @@ export default [
     name: PageNames.GROUPS,
     path: '/:classId/groups',
     handler: to => {
-      groupActions.showGroupsPage(store, to.params.classId);
+      showGroupsPage(store, to.params.classId);
     },
   },
   {
