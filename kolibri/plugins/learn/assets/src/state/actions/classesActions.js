@@ -2,6 +2,7 @@ import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ContentNodeResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 
 const translator = createTranslator('classesPageTitles', {
   allClasses: 'All classes',
@@ -28,9 +29,12 @@ export function showAllClassesPage(store) {
   });
   return LearnerClassroomResource.getCollection({ no_assignments: true })
     .fetch()
-    .then(classrooms => {
+    ._promise.then(classrooms => {
       store.dispatch('SET_LEARNER_CLASSROOMS', classrooms);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+    })
+    .catch(error => {
+      return handleApiError(store, error);
     });
 }
 
@@ -51,8 +55,7 @@ export function showClassAssignmentsPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      // TODO Handle 404
-      console.log(error); // eslint-disable-line
+      return handleApiError(store, error);
     });
 }
 
@@ -83,7 +86,7 @@ export function showLessonPlaylist(store, { lessonId }) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      console.log(error); // eslint-disable-line
+      return handleApiError(store, error);
     });
 }
 
@@ -111,10 +114,10 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
       store.dispatch('SET_CURRENT_LESSON', lesson);
       const currentResource = lesson.resources[index];
       if (!currentResource) {
-        return Promise.reject();
+        return Promise.reject(`Lesson does not have a resource at index ${index}.`);
       }
       const nextResource = lesson.resources[index + 1];
-      return getAllLessonContentNodes([currentResource, nextResource].filter(x => x));
+      return getAllLessonContentNodes([currentResource, nextResource].filter(Boolean));
     })
     .then(resources => {
       store.dispatch('CORE_SET_TITLE', resources[0].title);
@@ -122,6 +125,6 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      console.log(error); // eslint-disable-line
+      return handleApiError(store, error);
     });
 }
