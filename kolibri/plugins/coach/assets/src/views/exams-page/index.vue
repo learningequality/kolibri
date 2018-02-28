@@ -21,7 +21,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
-          <th>{{ $tr('visibleTo') }}</th>
+          <th>{{ $tr('recipients') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -31,7 +31,7 @@
           :key="exam.id"
           :examId="exam.id"
           :examTitle="exam.title"
-          :examActive="exam.activeExams"
+          :examActive="exam.active"
           :examVisibility="exam.visibility"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
@@ -135,7 +135,7 @@
       inactiveExams: 'Inactive exams',
       newExam: 'New exam',
       title: 'Title',
-      visibleTo: 'Visible to',
+      recipients: 'Recipients',
       noExams: 'You do not have any exams',
       noActiveExams: 'No acitve exams',
       noInactiveExams: 'No inactive exams',
@@ -182,10 +182,10 @@
         ];
       },
       activeExams() {
-        return this.sortedExams.filter(exam => exam.activeExams === true);
+        return this.sortedExams.filter(exam => exam.active === true);
       },
       inactiveExams() {
-        return this.sortedExams.filter(exam => exam.activeExams === false);
+        return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.statusSelected.label;

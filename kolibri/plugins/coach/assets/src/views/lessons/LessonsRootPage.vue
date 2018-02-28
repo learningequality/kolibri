@@ -22,7 +22,7 @@
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('visibleTo') }}</th>
+          <th>{{ $tr('recipients') }}</th>
           <th>
             {{ $tr('status') }}
             <core-info-icon
@@ -165,7 +165,7 @@
       newLesson: 'New lesson',
       title: 'Title',
       size: 'Size',
-      visibleTo: 'Visible to',
+      recipients: 'Recipients',
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       noOne: 'No one',

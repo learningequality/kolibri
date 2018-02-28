@@ -47,7 +47,7 @@
         </dd>
 
         <dt>
-          {{ $tr('visibleTo') }}
+          {{ $tr('recipients') }}
         </dt>
         <dd>
           <template v-if="!lessonAssignments.length">
@@ -384,7 +384,7 @@
       resources: 'Resources',
       status: 'Status',
       statusTooltipText: 'Active: learners can see lesson. Inactive: hidden from learners.',
-      visibleTo: 'Visible to',
+      recipients: 'Recipients',
       addResourcesButtonPrompt: 'Add resources',
       resourceReorderColumnHeaderForTable: 'Reorder buttons',
       nameColumnHeaderForTable: 'Name',

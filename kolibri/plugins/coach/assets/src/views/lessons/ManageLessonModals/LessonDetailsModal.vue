@@ -22,7 +22,7 @@
       />
 
       <fieldset>
-        <legend>{{ $tr('visibleTo') }}</legend>
+        <legend>{{ $tr('recipients') }}</legend>
         <recipient-selector
           v-model="selectedCollectionIds"
           :groups="groups"
@@ -219,7 +219,7 @@
       required: 'This is required',
       save: 'Save',
       title: 'Title',
-      visibleTo: 'Visible to',
+      recipients: 'Recipients',
     },
   };
 
