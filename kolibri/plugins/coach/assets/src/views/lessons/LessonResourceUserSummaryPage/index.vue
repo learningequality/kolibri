@@ -35,17 +35,66 @@
               <!-- {{ $tr('userIconTableColumnHeader') }} -->
             </th>
             <th>
-              {{ $tr('nameTableColumnHeader') }}
+              <k-button
+                @click="setSort('name')"
+                class="header-button"
+                appearance="basic-link"
+                :text="$tr('nameTableColumnHeader')"
+              />
+              <!-- TODO should probably use constants -->
+              <ui-icon-button
+                v-if="sortBy==='name'"
+                @click="invert=!invert"
+                size="small"
+                type="secondary"
+                :icon="arrowIcon"
+              />
             </th>
             <th>
-              {{ progressHeader }}
+              <k-button
+                @click="setSort('progress')"
+                class="header-button"
+                appearance="basic-link"
+                :text="progressHeader"
+              />
+              <ui-icon-button
+                v-if="sortBy==='progress'"
+                @click="invert=!invert"
+                size="small"
+                type="secondary"
+                :icon="arrowIcon"
+              />
             </th>
             <th>
-              {{ $tr('groupTableColumnHeader') }}
+              <k-button
+                @click="setSort('groupName')"
+                class="header-button"
+                appearance="basic-link"
+                :text="$tr('groupTableColumnHeader')"
+              />
+              <ui-icon-button
+                v-if="sortBy==='groupName'"
+                @click="invert=!invert"
+                size="small"
+                type="secondary"
+                :icon="arrowIcon"
+              />
 
             </th>
             <th>
-              {{ $tr('lastActiveTableColumnHeader') }}
+              <k-button
+                @click="setSort('lastActive')"
+                class="header-button"
+                appearance="basic-link"
+                :text="$tr('lastActiveTableColumnHeader')"
+              />
+              <ui-icon-button
+                v-if="sortBy==='lastActive'"
+                @click="invert=!invert"
+                size="small"
+                type="secondary"
+                :icon="arrowIcon"
+              />
             </th>
           </tr>
         </thead>
@@ -81,7 +130,7 @@
             <td>
               <elapsed-time
                 v-if="user.lastActive"
-                :date="user.lastActive"
+                :date="new Date(user.lastActive)"
               />
               <template v-else>
                 -
@@ -103,6 +152,8 @@
 
 <script>
 
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
@@ -118,11 +169,14 @@
       CoreTable,
       progressBar,
       kRouterLink,
+      kButton,
+      uiIconButton,
       elapsedTime,
     },
     data() {
       return {
         sortBy: 'name',
+        invert: false,
       };
     },
     computed: {
@@ -141,10 +195,16 @@
           name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
         };
       },
+      arrowIcon() {
+        return this.invert ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+      },
       sortedUsers() {
-        return Array.from(this.userData).sort((s1, s2) =>
-          s1[this.sortBy].localeCompare(s2[this.sortBy])
-        );
+        const sorted = Array.from(this.userData).sort((s1, s2) => {
+          const first = String(s1[this.sortBy]);
+          const second = String(s2[this.sortBy]);
+          return first.localeCompare(second);
+        });
+        return this.invert ? sorted.reverse() : sorted;
       },
     },
     methods: {
@@ -155,6 +215,10 @@
             userId,
           },
         };
+      },
+      setSort(sortKey) {
+        this.sortBy = sortKey;
+        this.invert = false;
       },
     },
     vuex: {
@@ -185,6 +249,9 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
+
   .kind-icon
     display: inline-block
     font-size: 1.8em
@@ -207,5 +274,9 @@
 
   .resource-data
     max-width: 90%
+
+  .header-button
+    text-decoration: none
+    color: $core-text-default
 
 </style>
