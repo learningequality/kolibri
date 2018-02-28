@@ -4,12 +4,14 @@ import {
   isSuperuser,
   isAdmin,
   currentFacilityId,
+  facilities,
 } from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
+  FacilityResource,
   FacilityDatasetResource,
   ContentSessionLogResource,
   ContentSummaryLogResource,
@@ -239,13 +241,27 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
-  const facilityConfigCollection = FacilityDatasetResource.getCollection({
-    // getCollection for currentSession's facilityId if none was passed
-    facility_id: facilityId,
-  }).fetch();
+function getFacilities(store) {
+  return FacilityResource.getCollection()
+    .fetch()
+    .then(facilities => {
+      store.dispatch('CORE_SET_FACILITIES', facilities);
+    });
+}
 
-  return facilityConfigCollection.then(facilityConfig => {
+function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
+  const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
+  let datasetPromise;
+  if (currentFacility && currentFacility.dataset) {
+    datasetPromise = Promise.resolve([currentFacility.dataset]);
+  } else {
+    datasetPromise = FacilityDatasetResource.getCollection({
+      // getCollection for currentSession's facilityId if none was passed
+      facility_id: facilityId,
+    }).fetch();
+  }
+
+  return datasetPromise.then(facilityConfig => {
     let config = {};
     const facility = facilityConfig[0];
     if (facility) {
@@ -743,6 +759,7 @@ export {
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilities,
   getFacilityConfig,
   initContentSession,
   setChannelInfo,

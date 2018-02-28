@@ -30,6 +30,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
+  import { facilities } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'facilityModal',
@@ -63,7 +64,7 @@
       getters: {
         // currentFacilityId uses session, with is anonymous in sign-in-page
         currentFacilityId: state => state.facilityId,
-        facilities: state => state.core.facilities,
+        facilities,
       },
       actions: {
         getFacilityConfig,
