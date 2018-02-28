@@ -49,4 +49,7 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
                 target_user=self.request.user,
                 ancestor_collection=F('collection')
         )
-        return Lesson.objects.filter(lesson_assignments__in=assignments)
+        return Lesson.objects.filter(
+            lesson_assignments__in=assignments,
+            is_active=True
+        )
