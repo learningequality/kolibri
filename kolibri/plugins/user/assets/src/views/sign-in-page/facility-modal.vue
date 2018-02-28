@@ -51,8 +51,7 @@
       submitAndClose() {
         this.setFacilityId();
         this.clearLoginError();
-        this.getFacilityConfig(this.selectedFacility);
-        this.emitClose();
+        this.getFacilityConfig(this.selectedFacility).then(this.emitClose);
       },
     },
     $trs: {
