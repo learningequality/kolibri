@@ -97,7 +97,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import contentNodeKinds from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../lessonsConstants';
 
   export default {
@@ -110,7 +110,7 @@
     },
     computed: {
       isExercise() {
-        return this.resourceKind === contentNodeKinds;
+        return this.resourceKind === ContentNodeKinds.EXERCISE;
       },
       progressHeader() {
         if (this.isExercise) {
