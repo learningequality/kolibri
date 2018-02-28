@@ -12,7 +12,9 @@ system/windows.py
 
 etc..
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -73,8 +75,7 @@ def _windows_kill_pid(pid):
 buffering = int(six.PY3)        # No unbuffered text I/O on Python 3 (#20815).
 
 
-def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
-                         err_log='/dev/null', umask=0o022):
+def _posix_become_daemon(our_home_dir='.', umask=0o022):
     "Robustly turn into a UNIX daemon, running in our_home_dir."
     # First fork
     try:
@@ -95,6 +96,8 @@ def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
         sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
         os._exit(1)
 
+
+def _posix_write_to_daemon_log(out_log='/dev/null', err_log='/dev/null'):
     si = open('/dev/null', 'r')
     so = open(out_log, 'a+', buffering)
     se = open(err_log, 'a+', buffering)
@@ -105,13 +108,16 @@ def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
     sys.stdout, sys.stderr = so, se
 
 
-def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0o022):
+def _windows_become_daemon(our_home_dir='.', umask=0o022):
     """
     If we're not running under a POSIX system, just simulate the daemon
     mode by doing redirections and directory changing.
     """
     os.chdir(our_home_dir)
     os.umask(umask)
+
+
+def _windows_write_to_daemon_log(out_log=None, err_log=None):
     sys.stdin.close()
     sys.stdout.close()
     sys.stderr.close()
@@ -150,7 +156,9 @@ if os.name == 'posix':
     pid_exists = _posix_pid_exists
     kill_pid = _posix_kill_pid
     become_daemon = _posix_become_daemon
+    write_to_daemon_log = _posix_write_to_daemon_log
 else:
     pid_exists = _windows_pid_exists
     kill_pid = _windows_kill_pid
     become_daemon = _windows_become_daemon
+    write_to_daemon_log = _windows_write_to_daemon_log
