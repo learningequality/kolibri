@@ -1,9 +1,11 @@
 import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
+import find from 'lodash/find';
 import { showExerciseDetailView } from './reports.js';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../lessonsConstants';
 import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 
 /* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
  * data on the Lesson Summary Page.
@@ -23,55 +25,44 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const loadRequirements = [
-    // used for list of existing users
+    // Used to get Lesson.learner_ids
     LessonResource.getModel(lessonId).fetch(),
-    // Get ContentNode to get the resource kind, title, etc., and channel ID
-    // to get Report API
+    // Get ContentNode to get the resource kind, title, etc., and channel ID for Report API
     ContentNodeResource.getModel(contentId).fetch(),
     // Get group names
-    // QUESTION can we pass in an array of id's like contentNode?
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
   ];
 
   return Promise.all(loadRequirements)
     .then(([lesson, contentNode, learnerGroups]) => {
       const channelObject = getChannelObject(store.state, contentNode.channel_id);
-      const channelTitle = channelObject.title;
-      const resourceTitle = contentNode.title;
-      const resourceKind = contentNode.kind;
+      const getLearnerGroup = userId => find(learnerGroups, g => g.user_ids.includes(userId)) || {};
 
       // IDEA filter by ids?
-      UserReportResource.getCollection({
+      return UserReportResource.getCollection({
         channel_id: contentNode.channel_id,
         collection_id: classId,
         collection_kind: CollectionTypes.CLASSROOM,
         content_node_id: contentNode.pk,
       })
         .fetch()
-        .then(classReports => {
-          // Contains all information needed in template
+        ._promise.then(userReports => {
+          const getUserReport = userId => find(userReports, { pk: userId }) || {};
           const userData = lesson.learner_ids.map(learnerId => {
-            // attach group object to each learner in this resource
-            const learnerGroup =
-              learnerGroups.find(group => group.user_ids.includes(learnerId)) || {};
-
-            // add progress, full_name, last_active
-            const learnerReport = classReports.find(report => report.pk === learnerId) || {};
-
+            const { full_name, last_active, progress } = getUserReport(learnerId);
             return {
               id: learnerId,
-              name: learnerReport.full_name,
-              lastActive: learnerReport.last_active,
-              groupName: learnerGroup.name,
-              // make sure this will always exist?
-              progress: learnerReport.progress[0].total_progress,
+              name: full_name,
+              lastActive: last_active,
+              groupName: getLearnerGroup(learnerId).name,
+              progress: progress[0].total_progress,
             };
           });
 
           store.dispatch('SET_PAGE_STATE', {
-            channelTitle,
-            resourceTitle,
-            resourceKind,
+            channelTitle: channelObject.title,
+            resourceTitle: contentNode.title,
+            resourceKind: contentNode.kind,
             userData,
           });
           store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
@@ -79,8 +70,9 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
           store.dispatch('CORE_SET_PAGE_LOADING', false);
         });
     })
-    .catch(() => {
+    .catch(error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return handleApiError(store, error);
     });
 }
 
