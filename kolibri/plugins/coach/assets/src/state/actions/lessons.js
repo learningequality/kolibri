@@ -24,7 +24,7 @@ export function showLessonsRootPage(store, classId) {
   const loadRequirements = [
     // Fetch learner groups for the New Lesson Modal
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    updateClassLessons(store, classId),
+    refreshClassLessons(store, classId),
     setClassState(store, classId),
   ];
   return Promise.all(loadRequirements).then(
@@ -41,7 +41,7 @@ export function showLessonsRootPage(store, classId) {
   );
 }
 
-export function updateClassLessons(store, classId) {
+export function refreshClassLessons(store, classId) {
   return LessonResource.getCollection({ collection: classId })
     .fetch({}, true)
     ._promise.then(lessons => {
