@@ -27,7 +27,7 @@
     </section>
 
     <section>
-      <core-table>
+      <core-table v-if="userData.length">
         <thead>
           <tr>
             <th class="visuallyhidden core-table-icon-col">
@@ -51,8 +51,8 @@
         </thead>
         <tbody>
           <tr
-            v-for="(learner, id) in learnerRows"
-            :key="id"
+            v-for="user in userData"
+            :key="user.id"
           >
             <td class="core-table-icon-col">
               <!-- IDEA separate column? -->
@@ -62,26 +62,26 @@
               <!-- IDEA separate column? -->
               <k-router-link
                 v-if="isExercise"
-                :text="learner.name"
-                :to="userReportRoute(id)"
+                :text="user.name"
+                :to="userReportRoute(user.id)"
               />
               <template v-else>
-                {{ learner.name }}
+                {{ user.name }}
               </template>
             </td>
             <td>
               <progress-bar
-                :progress="learner.progress"
+                :progress="user.progress"
                 :showPercentage="true"
               />
             </td>
             <td>
-              {{ learner.groupName }}
+              {{ user.groupName }}
             </td>
             <td>
               <elapsed-time
-                v-if="learner.lastActive"
-                :date="learner.lastActive"
+                v-if="user.lastActive"
+                :date="user.lastActive"
               />
               <template v-else>
                 -
@@ -90,6 +90,10 @@
           </tr>
         </tbody>
       </core-table>
+
+      <p v-else>
+        {{ $tr('userTableEmptyMessage') }}
+      </p>
 
     </section>
   </div>
@@ -148,7 +152,7 @@
         resourceTitle: state => state.pageState.resourceTitle,
         resourceKind: state => state.pageState.resourceKind,
         channelTitle: state => state.pageState.channelTitle,
-        learnerRows: state => state.pageState.learnerRows,
+        userData: state => state.pageState.userData,
       },
       actions: {},
     },
@@ -162,8 +166,7 @@
       exerciseProgressTableColumnHeader: 'Exercise Progress',
       groupTableColumnHeader: 'Group',
       lastActiveTableColumnHeader: 'Last Active',
-      lastActiveLabel: '{numberOfHours,number, integer} hours ago',
-      progressPercentage: '{progress, number, percent }', //pass in fraction. Handles math + %
+      userTableEmptyMessage: 'This lesson is not visible to any users',
     },
   };
 

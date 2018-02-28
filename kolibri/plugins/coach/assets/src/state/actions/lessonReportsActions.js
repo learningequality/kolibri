@@ -39,14 +39,7 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
       const channelTitle = channelObject.title;
       const resourceTitle = contentNode.title;
       const resourceKind = contentNode.kind;
-      // initialize the learnerRows object, contains all information needed in template
-      const learnerRows = {};
 
-      // set a key for each learner
-      lesson.learner_ids.forEach(learnerId => (learnerRows[learnerId] = null));
-
-      // Fetches progress for the *entire* class, but non-assigned learners
-      // are filtered out below in the SET_LESSON_RESOURCE_REPORT mutation.
       // IDEA filter by ids?
       UserReportResource.getCollection({
         channel_id: contentNode.channel_id,
@@ -56,7 +49,8 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
       })
         .fetch()
         .then(classReports => {
-          for (const learnerId in learnerRows) {
+          // Contains all information needed in template
+          const userData = lesson.learner_ids.map(learnerId => {
             // attach group object to each learner in this resource
             const learnerGroup =
               learnerGroups.find(group => group.user_ids.includes(learnerId)) || {};
@@ -64,20 +58,21 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
             // add progress, full_name, last_active
             const learnerReport = classReports.find(report => report.pk === learnerId) || {};
 
-            learnerRows[learnerId] = {
+            return {
+              id: learnerId,
               name: learnerReport.full_name,
               lastActive: learnerReport.last_active,
               groupName: learnerGroup.name,
               // make sure this will always exist?
               progress: learnerReport.progress[0].total_progress,
             };
-          }
+          });
 
           store.dispatch('SET_PAGE_STATE', {
             channelTitle,
             resourceTitle,
             resourceKind,
-            learnerRows,
+            userData,
           });
           store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
           store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
