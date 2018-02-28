@@ -5,6 +5,9 @@ export default {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+  SET_FACILITY_ID(state, facilityId) {
+    state.facilityId = facilityId;
+  },
   // Profile Page Mutations
   SET_PROFILE_BUSY(state, isBusy) {
     state.pageState.busy = isBusy;

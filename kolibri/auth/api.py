@@ -206,6 +206,14 @@ class FacilityViewSet(viewsets.ModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
+    def get_queryset(self, prefetch=True):
+        queryset = Facility.objects.all()
+        if prefetch:
+            # This is a default field on the serializer, so do a select_related
+            # to prevent n queries when n facilities are queried
+            return queryset.select_related('dataset')
+        return queryset
+
 
 class CurrentFacilityViewSet(viewsets.ViewSet):
     def list(self, request):
