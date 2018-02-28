@@ -23,7 +23,7 @@
       <dl>
         <dt>
           {{ $tr('status') }}
-          <info-icon
+          <core-info-icon
             :iconAriaLabel="$tr('lessonStatusDescription')"
             :tooltipText="$tr('statusTooltipText')"
             tooltipPosition="bottom left"
@@ -184,7 +184,7 @@
   import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
   import StatusIcon from '../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import InfoIcon from '../InfoIcon';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
@@ -213,7 +213,7 @@
       kButton,
       uiIconButton,
       kRouterLink,
-      InfoIcon,
+      CoreInfoIcon,
       coreTable,
       progressBar,
     },

@@ -25,7 +25,7 @@
           <th>{{ $tr('visibleTo') }}</th>
           <th>
             {{ $tr('status') }}
-            <info-icon
+            <core-info-icon
               :iconAriaLabel="$tr('lessonStatusDescription')"
               :tooltipText="$tr('statusTooltipText')"
               tooltipPosition="bottom right"
@@ -81,7 +81,7 @@
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import LessonDetailsModal from './ManageLessonModals/LessonDetailsModal';
-  import InfoIcon from './InfoIcon';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import StatusIcon from './StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -95,7 +95,7 @@
     components: {
       CoreTable,
       LessonDetailsModal,
-      InfoIcon,
+      CoreInfoIcon,
       StatusIcon,
       contentIcon,
       kButton,

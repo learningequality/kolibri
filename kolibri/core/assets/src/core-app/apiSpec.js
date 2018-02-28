@@ -75,6 +75,7 @@ import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import kDropdownMenu from '../views/k-dropdown-menu';
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import CoreInfoIcon from '../views/CoreInfoIcon';
 
 export default {
   client,
@@ -131,6 +132,7 @@ export default {
       customUiMenu,
       CoreTable,
       kDropdownMenu,
+      CoreInfoIcon,
     },
     router,
     mixins: {
