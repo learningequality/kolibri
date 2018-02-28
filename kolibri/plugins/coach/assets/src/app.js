@@ -17,7 +17,6 @@ import {
   showLessonSummaryPage,
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
-  showLessonSelectionSearchPage,
   showLessonSelectionContentPreview,
   showLessonResourceContentPreview,
 } from './state/actions/lessons';
@@ -108,18 +107,6 @@ const lessonRoutes = [
         toRoute.params.classId,
         toRoute.params.lessonId,
         toRoute.params.topicId
-      );
-    },
-  },
-  {
-    name: LessonsPageNames.SELECTION_SEARCH,
-    path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
-    handler: toRoute => {
-      showLessonSelectionSearchPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.searchTerm
       );
     },
   },
