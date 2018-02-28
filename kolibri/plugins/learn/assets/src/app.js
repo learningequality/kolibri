@@ -1,6 +1,14 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
-import * as actions from './state/actions/main';
+import {
+  prepareLearnApp,
+  showChannels,
+  showSearch,
+  showContentUnavailable,
+  showTopicsTopic,
+  showTopicsChannel,
+  showTopicsContent,
+} from './state/actions/main';
 import {
   showLearn,
   showPopularPage,
@@ -23,7 +31,7 @@ const routes = [
     name: PageNames.TOPICS_ROOT,
     path: '/topics',
     handler: () => {
-      actions.showChannels(store);
+      showChannels(store);
     },
   },
   {
@@ -37,35 +45,35 @@ const routes = [
     name: PageNames.SEARCH,
     path: '/search',
     handler: toRoute => {
-      actions.showSearch(store, toRoute.query.query);
+      showSearch(store, toRoute.query.query);
     },
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,
     path: '/content-unavailable',
     handler: () => {
-      actions.showContentUnavailable(store);
+      showContentUnavailable(store);
     },
   },
   {
     name: PageNames.TOPICS_CHANNEL,
     path: '/topics/:channel_id',
     handler: toRoute => {
-      actions.showTopicsChannel(store, toRoute.params.channel_id);
+      showTopicsChannel(store, toRoute.params.channel_id);
     },
   },
   {
     name: PageNames.TOPICS_TOPIC,
     path: '/topics/t/:id',
     handler: toRoute => {
-      actions.showTopicsTopic(store, toRoute.params.id);
+      showTopicsTopic(store, toRoute.params.id);
     },
   },
   {
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',
     handler: toRoute => {
-      actions.showTopicsContent(store, toRoute.params.id);
+      showTopicsContent(store, toRoute.params.id);
     },
   },
   {
@@ -112,7 +120,7 @@ const routes = [
 
 class LearnModule extends KolibriApp {
   get stateSetters() {
-    return [actions.prepareLearnApp];
+    return [prepareLearnApp];
   }
   get routes() {
     return routes;
@@ -128,6 +136,4 @@ class LearnModule extends KolibriApp {
   }
 }
 
-const learnModule = new LearnModule();
-
-export { learnModule as default };
+export default new LearnModule();
