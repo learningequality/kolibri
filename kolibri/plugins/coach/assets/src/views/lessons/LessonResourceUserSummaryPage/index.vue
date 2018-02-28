@@ -79,7 +79,13 @@
               {{ learner.groupName }}
             </td>
             <td>
-              {{ learner.lastActive }}
+              <elapsed-time
+                v-if="learner.lastActive"
+                :date="learner.lastActive"
+              />
+              <template v-else>
+                -
+              </template>
             </td>
           </tr>
         </tbody>
@@ -97,6 +103,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../lessonsConstants';
 
@@ -107,6 +114,7 @@
       CoreTable,
       progressBar,
       kRouterLink,
+      elapsedTime,
     },
     computed: {
       isExercise() {
