@@ -37,7 +37,7 @@
   }
 
   export default {
-    name: 'LessonResourceViewer',
+    name: 'lessonResourceViewer',
     components: {
       ContentCard,
       ContentPage,

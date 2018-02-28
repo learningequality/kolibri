@@ -51,7 +51,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="user in userData"
+            v-for="user in sortedUsers"
             :key="user.id"
           >
             <td class="core-table-icon-col">
@@ -120,6 +120,11 @@
       kRouterLink,
       elapsedTime,
     },
+    data() {
+      return {
+        sortBy: 'name',
+      };
+    },
     computed: {
       isExercise() {
         return this.resourceKind === ContentNodeKinds.EXERCISE;
@@ -135,6 +140,11 @@
         return {
           name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
         };
+      },
+      sortedUsers() {
+        return Array.from(this.userData).sort((s1, s2) =>
+          s1[this.sortBy].localeCompare(s2[this.sortBy])
+        );
       },
     },
     methods: {
