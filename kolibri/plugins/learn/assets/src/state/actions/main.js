@@ -28,6 +28,7 @@ import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import prepareLearnApp from '../prepareLearnApp';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
 const name = 'topicTreeExplorationPageTitles';
 
@@ -69,12 +70,11 @@ function validateProgress(data) {
 
 function _topicState(data, ancestors = []) {
   const progress = validateProgress(data);
-  const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
-    thumbnail: thumbnail.storage_url,
+    thumbnail: getContentNodeThumbnail(data) || undefined,
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
     kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
@@ -86,13 +86,12 @@ function _topicState(data, ancestors = []) {
 
 function contentState(data, nextContent, ancestors = []) {
   const progress = validateProgress(data);
-  const thumbnail = data.files.find(file => file.thumbnail && file.available) || {};
   const state = {
     id: data.pk,
     title: data.title,
     kind: data.kind,
     description: data.description,
-    thumbnail: thumbnail.storage_url,
+    thumbnail: getContentNodeThumbnail(data) || undefined,
     available: data.available,
     files: data.files,
     progress,

@@ -74,7 +74,9 @@ import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
+// webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
   client,
@@ -148,6 +150,7 @@ export default {
   },
   urls,
   utils: {
+    contentNode,
     browser,
     exams,
     validators,

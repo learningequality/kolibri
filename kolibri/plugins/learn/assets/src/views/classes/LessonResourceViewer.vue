@@ -26,15 +26,7 @@
   import ContentCard from '../content-card';
   import ContentPage from '../content-page';
   import { lessonResourceViewerLink } from './classPageLinks';
-
-  // TODO Make this utility
-  function getContentNodeThumbnail(contentnode) {
-    const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
-    if (fileWithThumbnail) {
-      return fileWithThumbnail.storage_url;
-    }
-    return null;
-  }
+  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
   export default {
     name: 'lessonResourceViewer',
@@ -44,7 +36,7 @@
     },
     computed: {
       nextResourceLink() {
-        return lessonResourceViewerLink(+this.$route.params.resourceNumber + 1);
+        return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
       },
     },
     methods: {
@@ -56,7 +48,6 @@
         currentLessonResource: state => state.pageState.content,
         nextLessonResource: state => state.pageState.nextLessonResource,
       },
-      actions: {},
     },
     $trs: {
       nextInLesson: 'Next in Lesson:',

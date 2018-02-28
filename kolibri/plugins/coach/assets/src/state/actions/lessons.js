@@ -6,6 +6,7 @@ import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolib
 import LessonReportResource from '../../apiResources/lessonReport';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -204,14 +205,6 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
 }
 
 export function showLessonResourceSelectionTopicPage(store, classId, lessonId, topicId) {
-  function getTopicThumbnail(contentnode) {
-    const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
-    if (fileWithThumbnail) {
-      return fileWithThumbnail.storage_url;
-    }
-    return null;
-  }
-
   const loadRequirements = [
     ContentNodeResource.getModel(topicId).fetch(),
     ContentNodeResource.getCollection({ parent: topicId }).fetch(),
@@ -229,7 +222,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
           channel_id: node.channel_id,
           description: node.description,
           title: node.title,
-          thumbnail: getTopicThumbnail(node),
+          thumbnail: getContentNodeThumbnail(node),
           kind: node.kind,
         };
       });

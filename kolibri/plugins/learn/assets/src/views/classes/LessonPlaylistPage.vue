@@ -47,15 +47,7 @@
   import ContentCard from '../content-card';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
   import { lessonResourceViewerLink } from './classPageLinks';
-
-  // TODO Make this utility
-  function getContentNodeThumbnail(contentnode) {
-    const fileWithThumbnail = contentnode.files.find(file => file.thumbnail && file.available);
-    if (fileWithThumbnail) {
-      return fileWithThumbnail.storage_url;
-    }
-    return null;
-  }
+  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
   export default {
     name: 'lessonPlaylistPage',
