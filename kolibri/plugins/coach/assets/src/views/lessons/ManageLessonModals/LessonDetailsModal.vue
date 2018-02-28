@@ -6,6 +6,13 @@
     width="400px"
   >
     <form @submit.prevent="submitLessonData">
+      <ui-alert
+        v-if="showError"
+        type="error"
+        :dismissible="false"
+      >
+        {{ $tr('submitLessonError') }}
+      </ui-alert>
       <k-textbox
         :label="$tr('title')"
         :maxlength="50"
@@ -56,10 +63,11 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import RecipientSelector from './RecipientSelector';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { LessonResource } from 'kolibri.resources';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { lessonSummaryLink } from '../lessonsRouterUtils';
-  import RecipientSelector from './RecipientSelector';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import { refreshLessonReport } from '../../../state/actions/lessonReportsActions';
 
@@ -70,6 +78,7 @@
       kButton,
       kTextbox,
       RecipientSelector,
+      UiAlert,
     },
     data() {
       return {
@@ -79,6 +88,7 @@
         selectedCollectionIds: [],
         title: '',
         titleIsVisited: false,
+        showError: false,
       };
     },
     computed: {
@@ -154,7 +164,12 @@
         this.closeModal();
         this.showSuccessSnackbar();
       },
+      handleSubmitFailure() {
+        this.formIsSubmitted = false;
+        this.showError = true;
+      },
       submitLessonData() {
+        this.showError = false;
         // Return immediately if "submit" has already been clicked
         if (this.formIsSubmitted) {
           return;
@@ -170,10 +185,8 @@
                 this.handleSubmitSuccess();
                 return this.updateCurrentLesson(updatedLesson);
               })
-              .catch(error => {
-                // TODO handle error properly
-                this.formIsSubmitted = false;
-                console.log(error); // eslint-disable-line
+              .catch(() => {
+                this.handleSubmitFailure();
               });
           } else {
             return this.createLesson()
@@ -183,9 +196,8 @@
                   lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
                 );
               })
-              .catch(error => {
-                this.formIsSubmitted = false;
-                console.log(error); // eslint-disable-line
+              .catch(() => {
+                this.handleSubmitFailure();
               });
           }
         }
@@ -223,7 +235,6 @@
       },
     },
     $trs: {
-      // TODO make these labels more semantic
       cancel: 'Cancel',
       changesToLessonSaved: 'Changes to lesson saved',
       continue: 'Continue',
@@ -233,6 +244,7 @@
       newLessonCreated: 'New lesson created',
       required: 'This is required',
       save: 'Save',
+      submitLessonError: 'There was a problem saving this lesson',
       title: 'Title',
       visibleTo: 'Visible to',
     },
