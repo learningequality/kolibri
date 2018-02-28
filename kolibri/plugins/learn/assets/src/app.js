@@ -1,7 +1,7 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
+import prepareLearnApp from './state/prepareLearnApp';
 import {
-  prepareLearnApp,
   showChannels,
   showSearch,
   showContentUnavailable,

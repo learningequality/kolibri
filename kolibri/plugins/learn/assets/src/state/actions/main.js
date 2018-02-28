@@ -26,13 +26,10 @@ import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
-import prepareLearnApp from '../prepareLearnApp';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
-const name = 'topicTreeExplorationPageTitles';
-
-const messages = {
+const translator = createTranslator('topicTreeExplorationPageTitles', {
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
   currentTopicForChannelPageTitle: '{ currentTopicTitle } - { currentChannelTitle }',
   currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
@@ -40,9 +37,7 @@ const messages = {
   searchPageTitle: 'Search',
   examsListPageTitle: 'Exams',
   currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 /**
  * Vuex State Mappers
@@ -59,7 +54,7 @@ function _crumbState(ancestors) {
   }));
 }
 
-function validateProgress(data) {
+function normalizeProgress(data) {
   if (!data.progress_fraction) {
     return 0.0;
   } else if (data.progress_fraction > 1.0) {
@@ -69,8 +64,7 @@ function validateProgress(data) {
 }
 
 function _topicState(data, ancestors = []) {
-  const progress = validateProgress(data);
-  const state = {
+  return {
     id: data.pk,
     title: data.title,
     description: data.description,
@@ -78,15 +72,13 @@ function _topicState(data, ancestors = []) {
     breadcrumbs: _crumbState(ancestors),
     parent: data.parent,
     kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
-    progress,
+    progress: normalizeProgress(data),
     channel_id: data.channel_id,
   };
-  return state;
 }
 
-function contentState(data, nextContent, ancestors = []) {
-  const progress = validateProgress(data);
-  const state = {
+export function contentState(data, nextContent, ancestors = []) {
+  return {
     id: data.pk,
     title: data.title,
     kind: data.kind,
@@ -94,7 +86,7 @@ function contentState(data, nextContent, ancestors = []) {
     thumbnail: getContentNodeThumbnail(data) || undefined,
     available: data.available,
     files: data.files,
-    progress,
+    progress: normalizeProgress(data),
     breadcrumbs: _crumbState(ancestors),
     content_id: data.content_id,
     next_content: nextContent,
@@ -105,9 +97,8 @@ function contentState(data, nextContent, ancestors = []) {
     parent: data.parent,
     lang: data.lang,
     channel_id: data.channel_id,
+    ...assessmentMetaDataState(data),
   };
-  Object.assign(state, assessmentMetaDataState(data));
-  return state;
 }
 
 function _collectionState(data) {
@@ -148,7 +139,7 @@ function _examLoggingState(data) {
  * These methods are used to manipulate client side cache to reduce requests
  */
 
-function updateContentNodeProgress(channelId, contentId, progressFraction) {
+export function updateContentNodeProgress(channelId, contentId, progressFraction) {
   /*
    * Update the progress_fraction directly on the model object, so as to prevent having
    * to cache bust the model (and hence the entire collection), because some progress was
@@ -158,7 +149,7 @@ function updateContentNodeProgress(channelId, contentId, progressFraction) {
   model.set({ progress_fraction: progressFraction });
 }
 
-function setAndCheckChannels(store) {
+export function setAndCheckChannels(store) {
   return setChannelInfo(store).then(
     () => {
       const channels = getChannels(store.state);
@@ -179,7 +170,7 @@ function setAndCheckChannels(store) {
  * These methods are used to update client-side state
  */
 
-function showChannels(store) {
+export function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
 
@@ -210,7 +201,7 @@ function showChannels(store) {
   );
 }
 
-function showTopicsTopic(store, id, isRoot = false) {
+export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   if (isRoot) {
     store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
@@ -284,13 +275,13 @@ function showTopicsTopic(store, id, isRoot = false) {
   );
 }
 
-function showTopicsChannel(store, id) {
+export function showTopicsChannel(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
   showTopicsTopic(store, id, true);
 }
 
-function showTopicsContent(store, id) {
+export function showTopicsContent(store, id) {
   store.dispatch('SET_EMPTY_LOGGING_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
@@ -333,7 +324,7 @@ function showTopicsContent(store, id) {
   );
 }
 
-function triggerSearch(store, searchTerm) {
+export function triggerSearch(store, searchTerm) {
   if (!searchTerm) {
     const searchState = {
       searchTerm,
@@ -359,7 +350,7 @@ function triggerSearch(store, searchTerm) {
     });
 }
 
-function clearSearch(store) {
+export function clearSearch(store) {
   store.dispatch('SET_PAGE_STATE', {
     topics: [],
     contents: [],
@@ -367,7 +358,7 @@ function clearSearch(store) {
   });
 }
 
-function showContentUnavailable(store) {
+export function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -375,7 +366,7 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
 }
 
-function showSearch(store, searchTerm) {
+export function showSearch(store, searchTerm) {
   store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -394,7 +385,7 @@ function showSearch(store, searchTerm) {
   });
 }
 
-function calcQuestionsAnswered(attemptLogs) {
+export function calcQuestionsAnswered(attemptLogs) {
   let questionsAnswered = 0;
   Object.keys(attemptLogs).forEach(key => {
     Object.keys(attemptLogs[key]).forEach(innerKey => {
@@ -404,7 +395,7 @@ function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-function showExam(store, examId, questionNumber) {
+export function showExam(store, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   const userId = currentUserId(store.state);
@@ -568,7 +559,7 @@ function showExam(store, examId, questionNumber) {
   }
 }
 
-function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
@@ -621,7 +612,7 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   );
 }
 
-function closeExam(store) {
+export function closeExam(store) {
   const examLog = Object.assign({}, store.state.examLog, {
     completion_timestamp: now(),
   });
@@ -633,21 +624,3 @@ function closeExam(store) {
       handleApiError(store, error);
     });
 }
-
-export {
-  setAndCheckChannels,
-  contentState,
-  showChannels,
-  showTopicsChannel,
-  showTopicsTopic,
-  showTopicsContent,
-  showContentUnavailable,
-  triggerSearch,
-  clearSearch,
-  showSearch,
-  showExam,
-  setAndSaveCurrentExamAttemptLog,
-  closeExam,
-  prepareLearnApp,
-  updateContentNodeProgress,
-};
