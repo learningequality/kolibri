@@ -48,7 +48,9 @@ export const mutations = {
   SET_TOPIC_PROGRESS(state, progressArray) {
     progressArray.forEach(progress => {
       const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
-      topic.progress = progress.progress_fraction;
+      if (topic) {
+        topic.progress = progress.progress_fraction;
+      }
     });
   },
 };
