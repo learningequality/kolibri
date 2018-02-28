@@ -1,11 +1,11 @@
-import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
 import find from 'lodash/find';
-import { showExerciseDetailView } from './reports.js';
+import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../lessonsConstants';
 import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { showExerciseDetailView } from './reports';
 
 /* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
  * data on the Lesson Summary Page.
@@ -65,6 +65,7 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
             resourceKind: contentNode.kind,
             userData,
           });
+          store.dispatch('CORE_SET_TITLE', contentNode.title);
           store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
           store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -76,7 +77,9 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
     });
 }
 
-/* eslint-disable no-unused-vars */
+/*
+ * Shows the attempt log for an Exercise
+ */
 export function showLessonResourceUserReportPage(
   store,
   classId,
@@ -91,18 +94,25 @@ export function showLessonResourceUserReportPage(
   store.dispatch('SET_PAGE_STATE', {
     toolbarRoute: { name: LessonsPageNames.RESOURCE_USER_SUMMARY },
   });
-  // TODO set title
   ContentNodeResource.getModel(contentId)
     .fetch()
-    .then(contentNode => {
-      showExerciseDetailView(
-        store,
-        classId,
-        userId,
-        contentNode.channel_id,
-        contentId,
-        questionNumber,
-        interactionNumber
-      );
-    });
+    .then(
+      contentNode => {
+        store.dispatch('CORE_SET_TITLE', contentNode.title);
+        // NOTE: returning the result causes problems for some reason
+        showExerciseDetailView(
+          store,
+          classId,
+          userId,
+          contentNode.channel_id,
+          contentId,
+          questionNumber,
+          interactionNumber
+        );
+      },
+      error => {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        return handleApiError(store, error);
+      }
+    );
 }
