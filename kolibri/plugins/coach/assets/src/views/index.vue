@@ -175,8 +175,8 @@
         return this.$tr('coachToolbarHeader');
       },
       immersivePageIcon() {
-        // TODO going to need to set a backgrund color
-        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+        const backButtonPages = [LessonsPageNames.CONTENT_PREVIEW, ...resourceUserPages];
+        if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
         }
         return 'close';
