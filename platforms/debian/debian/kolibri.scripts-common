@@ -89,7 +89,7 @@ args=("$@")
 
 
 
-# This generates the contents of /etc/kolibri/system.conf so we don't have the
+# This generates the contents of /etc/kolibri/daemon.conf so we don't have the
 # file tracked by dpkg
 default_user_conf() {
 	cat <<EOF
