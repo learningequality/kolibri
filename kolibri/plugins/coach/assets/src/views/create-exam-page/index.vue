@@ -119,7 +119,7 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      @randomize="seed = generateRandomSeed()"
+      @randomize="randomize"
     />
   </div>
 
@@ -137,6 +137,7 @@
     addExercise,
     removeExercise,
     displayExamModal,
+    setSelectedExercises,
   } from '../../state/actions/exam';
   import { className } from '../../state/getters/main';
   import { Modals as ExamModals } from '../../examConstants';
@@ -148,6 +149,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
+  import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
@@ -321,36 +323,20 @@
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
-        const shuffledExercises = shuffle(Array.from(this.selectedExercises));
-        const numExercises = shuffledExercises.length;
-        const numQuestions = this.inputNumQuestions;
-        const questionsPerExercise = numQuestions / numExercises;
-        const remainingQuestions = numQuestions % numExercises;
-        if (remainingQuestions === 0) {
-          return shuffledExercises.map(exercise => ({
-            exercise_id: exercise.id,
-            number_of_questions: Math.trunc(questionsPerExercise),
-          }));
-        } else if (questionsPerExercise >= 1) {
-          return shuffledExercises.map((exercise, index) => {
-            if (index < remainingQuestions) {
-              return {
-                exercise_id: exercise.id,
-                number_of_questions: Math.trunc(questionsPerExercise) + 1,
-              };
-            }
-            return {
-              exercise_id: exercise.id,
-              number_of_questions: Math.trunc(questionsPerExercise),
-            };
-          });
+        const questionSources = [];
+        for (let i = 0; i < this.inputNumQuestions; i++) {
+          const questionSourcesIndex = i % this.selectedExercises.length;
+          if (questionSources[questionSourcesIndex]) {
+            questionSources[questionSourcesIndex].number_of_questions += 1;
+          } else {
+            questionSources.push({
+              exercise_id: this.selectedExercises[i].id,
+              number_of_questions: 1,
+              title: this.selectedExercises[i].title,
+            });
+          }
         }
-        const exercisesSubset = shuffledExercises;
-        exercisesSubset.splice(numQuestions);
-        return exercisesSubset.map(exercise => ({
-          exercise_id: exercise.id,
-          number_of_questions: 1,
-        }));
+        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
       },
     },
     methods: {
@@ -440,6 +426,10 @@
       generateRandomSeed() {
         return random(1000);
       },
+      randomize() {
+        this.seed = this.generateRandomSeed();
+        this.setSelectedExercises(shuffle(this.selectedExercises));
+      },
     },
     vuex: {
       getters: {
@@ -460,6 +450,7 @@
         removeExercise,
         displayExamModal,
         createSnackbar,
+        setSelectedExercises,
       },
     },
   };

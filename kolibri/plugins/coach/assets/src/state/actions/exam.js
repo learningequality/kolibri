@@ -421,7 +421,7 @@ function showCreateExamPage(store, classId, channelId) {
 function addExercise(store, exercise) {
   const selectedExercises = store.state.pageState.selectedExercises;
   if (!selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)) {
-    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises.concat(exercise));
+    setSelectedExercises(store, selectedExercises.concat(exercise));
   }
 }
 
@@ -430,6 +430,10 @@ function removeExercise(store, exercise) {
   selectedExercises = selectedExercises.filter(
     selectedExercise => selectedExercise.id !== exercise.id
   );
+  setSelectedExercises(store, selectedExercises);
+}
+
+function setSelectedExercises(store, selectedExercises) {
   store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
 }
 
@@ -653,4 +657,5 @@ export {
   addExercise,
   removeExercise,
   getAllExercisesWithinTopic,
+  setSelectedExercises,
 };

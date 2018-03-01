@@ -25,7 +25,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
     name: 'previewNewExamModal',
-    $trs: { randomize: 'Randomize questions' },
+    $trs: { randomize: 'Randomize selection' },
     components: {
       previewExamModal,
       kButton,

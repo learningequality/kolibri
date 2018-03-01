@@ -11,53 +11,55 @@
       :primary="false"
       @click="close"
     />
-    <ui-progress-linear v-show="loading" />
-    <div v-show="!loading">
-      <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
-        <slot name="randomize-button"></slot>
-      </div>
-      <div class="exam-preview-container pure-g">
-        <div class="question-selector pure-u-1-3">
-          <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
-            <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
-            <ol class="question-list">
-              <li
-                v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
-                :key="questionIndex"
-              >
-                <k-button
-                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  :primary="isSelected(question.itemId, exercise.exercise_id)"
-                  appearance="flat-button"
-                  :text="$tr(
-                    'question',
-                    { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                  )"
-                />
-              </li>
-            </ol>
+    <transition mode="out-in">
+      <ui-progress-linear v-if="loading" />
+      <div v-else>
+        <div>
+          <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+          <slot name="randomize-button"></slot>
+        </div>
+        <div class="exam-preview-container pure-g">
+          <div class="question-selector pure-u-1-3">
+            <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
+              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
+              <ol class="question-list">
+                <li
+                  v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
+                  :key="questionIndex"
+                >
+                  <k-button
+                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                    :primary="isSelected(question.itemId, exercise.exercise_id)"
+                    appearance="flat-button"
+                    :text="$tr(
+                      'question',
+                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                    )"
+                  />
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div class="exercise-container pure-u-2-3">
+            <content-renderer
+              v-if="content && itemId"
+              class="content-renderer"
+              ref="contentRenderer"
+              :id="content.pk"
+              :kind="content.kind"
+              :files="content.files"
+              :contentId="content.content_id"
+              :channelId="examChannelId"
+              :available="content.available"
+              :extraFields="content.extra_fields"
+              :itemId="itemId"
+              :assessment="true"
+              :allowHints="false"
+            />
           </div>
         </div>
-        <div class="exercise-container pure-u-2-3">
-          <content-renderer
-            v-if="content && itemId"
-            class="content-renderer"
-            ref="contentRenderer"
-            :id="content.pk"
-            :kind="content.kind"
-            :files="content.files"
-            :contentId="content.content_id"
-            :channelId="examChannelId"
-            :available="content.available"
-            :extraFields="content.extra_fields"
-            :itemId="itemId"
-            :assessment="true"
-            :allowHints="false"
-          />
-        </div>
       </div>
-    </div>
+    </transition>
   </core-modal>
 
 </template>
@@ -78,7 +80,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{num, plural, one {question} other {questions}}',
+      numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -137,19 +139,26 @@
         return this.currentQuestion.itemId;
       },
     },
+    watch: {
+      examQuestionSources: 'setExercises',
+    },
     created() {
-      ContentNodeResource.getCollection({
-        ids: this.examQuestionSources.map(item => item.exercise_id),
-      })
-        .fetch()
-        .then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.pk, node);
-          });
-          this.loading = false;
-        });
+      this.setExercises();
     },
     methods: {
+      setExercises() {
+        this.loading = true;
+        ContentNodeResource.getCollection({
+          ids: this.examQuestionSources.map(item => item.exercise_id),
+        })
+          .fetch()
+          .then(contentNodes => {
+            contentNodes.forEach(node => {
+              this.$set(this.exercises, node.pk, node);
+            });
+            this.loading = false;
+          });
+      },
       isSelected(questionItemId, exerciseId) {
         return (
           this.currentQuestion.itemId === questionItemId &&
