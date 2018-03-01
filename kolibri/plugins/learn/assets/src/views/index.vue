@@ -2,8 +2,12 @@
 
   <core-base
     :topLevelPageName="topLevelPageName"
-    :appBarTitle="$tr('learnTitle')"
+    :appBarTitle="appBarTitle"
     :bottomMargin="bottomSpaceReserved"
+    :immersivePage="isImmersivePage"
+    :immersivePageIcon="immersivePageIcon"
+    :immersivePagePrimary="immersivePageIsPrimary"
+    :immersivePageRoute="immersiveToolbarRoute"
   >
     <template slot="app-bar-actions">
       <action-bar-search-box v-if="!isWithinSearchPage" />
@@ -91,6 +95,8 @@
     [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
+  const immersivePages = [ClassesPageNames.LESSON_RESOURCE_VIEWER];
+
   export default {
     name: 'learn',
     $trs: {
@@ -121,16 +127,52 @@
         }
         return pageNameToComponentMap[this.pageName] || null;
       },
+      appBarTitle() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          if (this.content) {
+            return this.content.title;
+          }
+        }
+        return this.$tr('learnTitle');
+      },
+      isImmersivePage() {
+        return immersivePages.includes(this.pageName);
+      },
+      immersiveToolbarRoute() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return {
+            name: ClassesPageNames.LESSON_PLAYLIST,
+          };
+        }
+      },
+      immersivePageIsPrimary() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return false;
+        }
+        return true;
+      },
+      immersivePageIcon() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return 'arrow_back';
+        }
+        return null;
+      },
       isWithinSearchPage() {
         return this.pageName === PageNames.SEARCH;
       },
       tabLinksAreVisible() {
         return (
-          this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
+          this.pageName !== PageNames.SEARCH &&
+          !this.isImmersivePage
         );
       },
       pointsAreVisible() {
-        return this.windowSize.breakpoint > 0 && this.pageName !== PageNames.SEARCH;
+        return (
+          this.windowSize.breakpoint > 0 &&
+          this.pageName !== PageNames.SEARCH &&
+          !this.isImmersivePage
+        );
       },
       recommendedLink() {
         return {
