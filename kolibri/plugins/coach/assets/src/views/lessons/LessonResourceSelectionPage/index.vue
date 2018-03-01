@@ -30,6 +30,7 @@
           :thumbnail="content.thumbnail"
           :description="content.description"
           :kind="content.kind"
+          :message="selectionMetadata(content.id)"
           :link="contentLink(content)"
         />
       </li>
@@ -121,6 +122,14 @@
           });
           this.$router.push(lessonSummaryLink(this.routerParams));
         });
+      },
+      selectionMetadata(contentId) {
+        const count = this.ancestorCounts[contentId];
+        const total = this.workingResources.length;
+        if (count) {
+          return this.$tr('selectionInformation', { count, total });
+        }
+        return '';
       },
       isSelected(contentId) {
         // resource id is a content pk, but the pk === id in vuex

@@ -189,34 +189,31 @@ function showResourceSelectionPage(
 
       const ancestorCounts = {};
 
-      const getResourceAncestors = store.state.pageState.workingResources.map(
-        resourceId => ContentNodeResource.fetchAncestors(resourceId)
+      const getResourceAncestors = store.state.pageState.workingResources.map(resourceId =>
+        ContentNodeResource.fetchAncestors(resourceId)
       );
 
-      Promise.all(getResourceAncestors).then(
+      return Promise.all(getResourceAncestors).then(
         // there has to be a better way
         resourceAncestors => {
-          resourceAncestors.forEach(
-            ancestorArray => ancestorArray.forEach(
-              ancestor => {
-                if(ancestorCounts[ancestor.title]){
-                  ancestorCounts[ancestor.title]++;
-                } else{
-                  ancestorCounts[ancestor.title] = 1;
-                }
+          resourceAncestors.forEach(ancestorArray =>
+            ancestorArray.forEach(ancestor => {
+              if (ancestorCounts[ancestor.pk]) {
+                ancestorCounts[ancestor.pk]++;
+              } else {
+                ancestorCounts[ancestor.pk] = 1;
               }
-            )
+            })
           );
           store.dispatch('SET_ANCESTOR_COUNTS', ancestorCounts);
+          // carry pendingSelections over from other interactions in this modal
+          store.dispatch('SET_CONTENT_LIST', contentList);
+          store.dispatch('SET_PAGE_NAME', pageName);
+          store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
+          store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
         }
       );
-
-      // carry pendingSelections over from other interactions in this modal
-      store.dispatch('SET_CONTENT_LIST', contentList);
-      store.dispatch('SET_PAGE_NAME', pageName);
-      store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
-      store.dispatch('CORE_SET_TITLE', translator.$tr('selectResources'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
