@@ -187,6 +187,30 @@ function showResourceSelectionPage(
         store.dispatch('SET_ANCESTORS', ancestors);
       }
 
+      const ancestorCounts = {};
+
+      const getResourceAncestors = store.state.pageState.workingResources.map(
+        resourceId => ContentNodeResource.fetchAncestors(resourceId)
+      );
+
+      Promise.all(getResourceAncestors).then(
+        // there has to be a better way
+        resourceAncestors => {
+          resourceAncestors.forEach(
+            ancestorArray => ancestorArray.forEach(
+              ancestor => {
+                if(ancestorCounts[ancestor.title]){
+                  ancestorCounts[ancestor.title]++;
+                } else{
+                  ancestorCounts[ancestor.title] = 1;
+                }
+              }
+            )
+          );
+          store.dispatch('SET_ANCESTOR_COUNTS', ancestorCounts);
+        }
+      );
+
       // carry pendingSelections over from other interactions in this modal
       store.dispatch('SET_CONTENT_LIST', contentList);
       store.dispatch('SET_PAGE_NAME', pageName);

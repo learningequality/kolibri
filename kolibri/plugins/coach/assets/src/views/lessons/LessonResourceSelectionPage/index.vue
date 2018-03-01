@@ -143,6 +143,7 @@
         classId: state => state.classId,
         contentList: state => state.pageState.contentList,
         resourceCache: state => state.pageState.resourceCache,
+        ancestorCounts: state => state.pageState.ancestorCounts,
       },
       actions: {
         saveLessonResources,

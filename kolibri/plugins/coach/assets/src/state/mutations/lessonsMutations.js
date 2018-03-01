@@ -27,6 +27,10 @@ export function SET_ANCESTORS(state, ancestors) {
   state.pageState.ancestors = [...ancestors];
 }
 
+export function SET_ANCESTOR_COUNTS(state, ancestorCountsObject) {
+  state.pageState.ancestorCounts = ancestorCountsObject;
+}
+
 export function SET_WORKING_RESOURCES(state, workingResources) {
   state.pageState.workingResources = [...workingResources];
 }
