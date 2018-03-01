@@ -8,6 +8,8 @@ run.config:
     - nodejs-6.11.4
     - gettext-tools
     - fish-2.6.0nb3
+    - nginx
+
 
   # without this, yarn would error out with readonly filesystem errors
   cache_dirs:
@@ -22,4 +24,5 @@ web.main:
     data.storage:
       - kolibri_home/
   start:
-    - python deploy/kolibri.pex start --foreground --debug
+    nginx: nginx -c /app/deploy/nginx.conf
+    kolibri: python deploy/kolibri.pex start --foreground --port 8090
