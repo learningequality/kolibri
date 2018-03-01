@@ -1,6 +1,5 @@
 from django.db.models import Sum
 from kolibri.auth.models import Classroom
-from kolibri.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
