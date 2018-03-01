@@ -26,8 +26,8 @@ export function SET_CURRENT_AND_NEXT_LESSON_RESOURCES(state, resources) {
   };
   // Needed for the content renderer to work
   if (resources[1]) {
-    state.pageState.nextLessonResource = { ...resources[1] };
+    state.pageState.content.next_content = { ...resources[1] };
   } else {
-    state.pageState.nextLessonResource = null;
+    state.pageState.content.next_content = null;
   }
 }

@@ -158,6 +158,7 @@
   import pointsSlidein from '../points-slidein';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
+  import { lessonResourceViewerLink } from '../classes/classPageLinks';
 
   export default {
     name: 'learnContent',
@@ -215,6 +216,10 @@
       },
       nextContentLink() {
         if (this.content.next_content) {
+          // HACK Use a the Resource Viewer Link instead
+          if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+            return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+          }
           return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
@@ -279,7 +284,7 @@
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
         channelId: state => state.pageState.content.channel_id,
-        pagename: state => state.pageName,
+        pageName: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,

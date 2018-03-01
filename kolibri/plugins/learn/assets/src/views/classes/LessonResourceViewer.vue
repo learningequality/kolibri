@@ -46,7 +46,7 @@
       getters: {
         currentLesson: state => state.pageState.currentLesson,
         currentLessonResource: state => state.pageState.content,
-        nextLessonResource: state => state.pageState.nextLessonResource,
+        nextLessonResource: state => state.pageState.content.next_content,
       },
     },
     $trs: {

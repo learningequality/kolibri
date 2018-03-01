@@ -103,8 +103,8 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
     pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
     initialState: {
       currentLesson: {},
-      currentLessonResource: {},
-      nextLessonResource: {},
+      // To match expected shape for content-page
+      content: {},
     },
   });
   return LearnerLessonResource.getModel(lessonId)
