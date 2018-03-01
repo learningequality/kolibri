@@ -31,7 +31,7 @@ Depends: python3 (<< 3.6),
          python3 (>= 3.4),
          python3-pkg-resources,
          adduser
-Suggests: python3-cryptography
+Recommends: python3-cryptography
 # Depends: ${python3:Depends}, ${misc:Depends}
 Description: The offline app for universal education
  An educational platform for learners of all ages.

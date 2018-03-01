@@ -28,3 +28,13 @@ if [ -e /etc/kolibri/daemon.conf ]
 then
   . /etc/kolibri/daemon.conf
 fi
+
+# Finally, to ensure that they are available to subprocesses, export them
+# This has been a problem in Ubuntu 14.04 despite the use of `su -p`
+# Will be investigated in 0.8.x when setting a path relative to "~" is
+# supported.
+export KOLIBRI_USER
+export KOLIBRI_LISTEN
+export KOLIBRI_COMMAND
+export DJANGO_SETTINGS_MODULE
+# export KOLIBRI_HOME
