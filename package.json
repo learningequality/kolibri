@@ -56,6 +56,7 @@
     "vue-intl": "2.1.1",
     "vue-markdown": "^2.1.3",
     "vue-router": "^2.1.1",
+    "vue-shave": "^1.0.3",
     "vuex": "^1.0.0"
   },
   "devDependencies": {

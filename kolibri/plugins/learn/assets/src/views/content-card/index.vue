@@ -1,18 +1,23 @@
 <template>
 
-  <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
+  <span ref="complete-title">
 
-    <card-thumbnail
-      class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :progress="progress"
-      :isMobile="isMobile"
-    />
+    <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
+      <card-thumbnail
+        class="thumbnail"
+        :thumbnail="thumbnail"
+        :kind="kind"
+        :progress="progress"
+        :isMobile="isMobile"
+      />
+      <h3 class="text" dir="auto" v-shave>{{ title }}</h3>
+    </router-link>
+    
+    <ui-tooltip v-if="hasTooltip" trigger="complete-title">
+      {{ title }}
+    </ui-tooltip>
 
-    <h3 class="text" dir="auto">{{ title }}</h3>
-
-  </router-link>
+  </span>
 
 </template>
 
@@ -23,10 +28,20 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
+  import Vue from 'kolibri.lib.vue';
+  import VueShave from 'vue-shave';
+  import uiTooltip from 'keen-ui/src/UiTooltip';
+
+  Vue.use(VueShave, {
+    throttle: 300,
+    height: 35,
+    spaces: true,
+  });
 
   export default {
     components: {
       cardThumbnail,
+      uiTooltip,
     },
     props: {
       title: {
@@ -61,6 +76,16 @@
         type: Boolean,
         default: false,
       },
+    },
+    data() {
+      return {
+        hasTooltip: false,
+      };
+    },
+    updated() {
+      this.$nextTick(() => {
+        this.hasTooltip = this.$el.querySelector('h3 .js-shave') !== null;
+      });
     },
   };
 
