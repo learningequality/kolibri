@@ -65,6 +65,9 @@
           // HACK: Infer the Learner's progress by summing the progress_fractions
           // on all the ContentNodes
           const total = sumBy(this.contentNodes, cn => cn.progress_fraction || 0);
+          if (total === 0) {
+            return null;
+          }
           return total / this.contentNodes.length;
         }
       },
