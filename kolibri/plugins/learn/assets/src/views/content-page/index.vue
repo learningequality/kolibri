@@ -112,10 +112,10 @@
       <points-popup
         v-if="showPopup"
         @close="markAsComplete"
-        :kind="content.next_content.kind"
-        :title="content.next_content.title"
+        :nextContent="content.next_content"
       >
         <k-button
+          v-if="nextContent"
           :primary="true"
           slot="nextItemBtn"
           @click="nextContentClicked"
