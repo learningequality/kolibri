@@ -42,14 +42,14 @@
           <td class="core-table-icon-col">
             <content-icon :kind="lessonKind" />
           </td>
-          <td class="core-table-main-col">
+          <td class="core-table-main-col lesson-title-col">
             <k-router-link
               :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-              :text="lesson.name"
+              :text="lesson.title"
             />
           </td>
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-          <td>{{ getLessonVisibility(lesson.assigned_groups) }}</td>
+          <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
           <td>
             <status-icon :active="lesson.is_active" />
           </td>
@@ -184,6 +184,9 @@
 
 
 <style lang="stylus" scoped>
+
+  .lesson-title-col
+    width: 40%
 
   .filter-and-button
     display: flex

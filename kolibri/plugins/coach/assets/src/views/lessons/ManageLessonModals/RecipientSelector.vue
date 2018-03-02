@@ -6,6 +6,7 @@
       :label="$tr('entireClass')"
       :value="entireClassIsSelected"
       @change="selectEntireClass()"
+      :disabled="disabled"
     />
     <k-checkbox
       v-for="group in groups"
@@ -13,6 +14,7 @@
       :label="group.name"
       :checked="groupIsChecked(group.id)"
       @change="toggleGroup($event, group.id)"
+      :disabled="disabled"
     />
   </div>
 
@@ -48,6 +50,10 @@
       classId: {
         type: String,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

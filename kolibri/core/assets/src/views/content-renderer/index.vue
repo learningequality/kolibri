@@ -1,35 +1,33 @@
 <template>
 
-  <div>
+  <div class="content-renderer">
     <ui-alert v-if="noRendererAvailable" :dismissible="false" type="error">
       {{ $tr('rendererNotAvailable') }}
     </ui-alert>
-    <div v-else-if="available" class="fill-height">
-      <div class="content-wrapper">
-        <loading-spinner id="spinner" v-if="!currentViewClass" />
-        <component
-          v-else
-          :is="currentViewClass"
-          @startTracking="startTracking"
-          @stopTracking="stopTracking"
-          @updateProgress="updateProgress"
-          @answerGiven="answerGiven"
-          @hintTaken="hintTaken"
-          @itemError="itemError"
-          @interaction="interaction"
-          :files="availableFiles"
-          :defaultFile="defaultFile"
-          :itemId="itemId"
-          :answerState="answerState"
-          :allowHints="allowHints"
-          :supplementaryFiles="supplementaryFiles"
-          :thumbnailFiles="thumbnailFiles"
-          :interactive="interactive"
-          :lang="lang"
-          ref="contentView"
-        />
-      </div>
-    </div>
+    <template v-else-if="available">
+      <loading-spinner id="spinner" v-if="!currentViewClass" />
+      <component
+        v-else
+        :is="currentViewClass"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"
+        @answerGiven="answerGiven"
+        @hintTaken="hintTaken"
+        @itemError="itemError"
+        @interaction="interaction"
+        :files="availableFiles"
+        :defaultFile="defaultFile"
+        :itemId="itemId"
+        :answerState="answerState"
+        :allowHints="allowHints"
+        :supplementaryFiles="supplementaryFiles"
+        :thumbnailFiles="thumbnailFiles"
+        :interactive="interactive"
+        :lang="lang"
+        ref="contentView"
+      />
+    </template>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
@@ -215,10 +213,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .fill-height
-    height: 100%
-
-  .content-wrapper
+  .content-renderer
     height: 100%
 
   #spinner

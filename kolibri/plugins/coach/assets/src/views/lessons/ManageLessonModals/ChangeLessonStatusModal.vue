@@ -5,6 +5,7 @@
     @cancel="closeModal()"
   >
     <form @submit.prevent="updateLessonStatus">
+      <p>{{ $tr('description') }}</p>
       <k-radio-button
         :label="$tr('activeOption')"
         :radiovalue="true"
@@ -107,8 +108,9 @@
       changeLessonStatusTitle: 'Change lesson status',
       save: 'Save',
       cancel: 'Cancel',
-      activeOption: 'Active. Learners can see this lesson.',
-      inactiveOption: 'Inactive. Lesson is hidden from learners.',
+      description: 'Learners can only see active lessons',
+      activeOption: 'Active',
+      inactiveOption: 'Inactive',
       lessonIsNowActive: 'Lesson is now active',
       lessonIsNowInactive: 'Lesson is now inactive',
     },
