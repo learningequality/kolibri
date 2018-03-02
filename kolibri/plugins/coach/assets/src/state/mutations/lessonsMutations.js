@@ -1,3 +1,5 @@
+import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
+
 export function SET_CLASS_LESSONS(state, lessons) {
   state.pageState.lessons = [...lessons];
 }
@@ -49,9 +51,13 @@ export function SET_LESSON_REPORT(state, report) {
 }
 
 export function ADD_TO_RESOURCE_CACHE(state, node) {
-  if (node && node.id) {
-    state.pageState.resourceCache[node.id] = { ...node };
-  } else if (node && node.pk) {
-    state.pageState.resourceCache[node.pk] = { ...node, id: node.pk };
+  if (node && node.pk) {
+    const channelObject = getChannelObject(state, node.channel_id);
+
+    state.pageState.resourceCache[node.pk] = {
+      ...node,
+      channelTitle: channelObject.title,
+      id: node.pk,
+    };
   }
 }

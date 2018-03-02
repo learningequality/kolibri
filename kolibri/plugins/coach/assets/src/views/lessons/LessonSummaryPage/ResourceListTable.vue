@@ -225,7 +225,7 @@
         lessonId: state => state.pageState.currentLesson.id,
         workingResources: state => state.pageState.workingResources,
         // consider loading this async?
-        resourceContentNodes: state => state.pageState.resourceContentNodes,
+        resourceContentNodes: state => state.pageState.resourceCache,
         totalLearners: state => state.pageState.lessonReport.total_learners,
         numLearnersCompleted(state) {
           return function counter(contentNodeId) {

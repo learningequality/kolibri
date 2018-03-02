@@ -1,5 +1,5 @@
 import { LessonsPageNames } from '../../lessonsConstants';
-import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
+import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
@@ -75,50 +75,12 @@ export function updateCurrentLesson(store, lessonId) {
 }
 
 export function showLessonSummaryPage(store, classId, lessonId) {
-  function updateResourceContentNodes(resourceIds) {
-    const contentNodeMap = {};
-
-    if (resourceIds.length) {
-      return ContentNodeResource.getCollection({ ids: resourceIds })
-        .fetch()
-        .then(
-          contentNodeArray => {
-            contentNodeArray.forEach(
-              // should map directly to resourceIds
-              // TODO include route information? Also selection page. Simplify component logic
-              // TODO don't transform, use backend data directly
-              contentNode => {
-                const channelObject = getChannelObject(store.state, contentNode.channel_id);
-                contentNodeMap[contentNode.pk] = {
-                  title: contentNode.title,
-                  channelTitle: channelObject.title,
-                  progress: Number(contentNode.progress_fraction),
-                  id: contentNode.pk,
-                  kind: contentNode.kind,
-                  content_id: contentNode.content_id,
-                  channel_id: contentNode.channel_id,
-                };
-              }
-            );
-
-            store.dispatch('SET_RESOURCE_CONTENT_NODES', contentNodeMap);
-
-            // TODO make sure this is resolved properly
-            return contentNodeMap;
-          },
-          error => {
-            return handleApiError(store, error);
-          }
-        );
-    }
-    return Promise.resolve(contentNodeMap);
-  }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
     lessonReport: {},
-    resourceContentNodes: [],
     workingResources: [],
+    resourceCache: store.state.pageState.resourceCache || {},
   });
 
   const loadRequirements = [
@@ -133,7 +95,7 @@ export function showLessonSummaryPage(store, classId, lessonId) {
       // TODO state mapper
       const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
-      return updateResourceContentNodes(resourceIds).then(() => {
+      return getResourceCache(store, resourceIds).then(() => {
         store.dispatch('SET_WORKING_RESOURCES', resourceIds);
         store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
         store.dispatch('SET_LESSON_REPORT', lessonReport);
