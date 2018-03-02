@@ -182,7 +182,7 @@
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
   import { LessonActions, CollectionTypes } from '../../../lessonsConstants';
-  import StatusIcon from '../StatusIcon';
+  import StatusIcon from '../../StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { selectionRootLink } from '../lessonsRouterUtils';

@@ -504,6 +504,12 @@ function createExam(store, classCollection, examObj) {
           () => {
             store.dispatch('CORE_SET_PAGE_LOADING', false);
             router.getInstance().push({ name: PageNames.EXAMS });
+            CoreActions.createSnackbar(store, {
+              text: createTranslator('newExamCreated', {
+                newExamCreated: 'New exam created',
+              }).$tr('newExamCreated'),
+              autoDismiss: true,
+            });
           },
           error => CoreActions.handleError(store, error)
         );
@@ -512,16 +518,14 @@ function createExam(store, classCollection, examObj) {
     );
 }
 
-function showExamReportPage(store, classId, channelId, examId) {
+function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
   const examLogPromise = ExamLogResource.getCollection({
     exam: examId,
     collection: classId,
   }).fetch();
-  const examPromise = ExamResource.getModel(examId, {
-    channel_id: channelId,
-  }).fetch();
+  const examPromise = ExamResource.getModel(examId).fetch();
   const facilityUserPromise = FacilityUserResource.getCollection({
     member_of: classId,
   }).fetch();
@@ -553,7 +557,6 @@ function showExamReportPage(store, classId, channelId, examId) {
       const pageState = {
         examTakers,
         exam,
-        channelId,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);

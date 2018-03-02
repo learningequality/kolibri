@@ -22,7 +22,14 @@
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('recipients') }}</th>
-          <th></th>
+          <th>
+            {{ $tr('status') }}
+            <core-info-icon
+              :iconAriaLabel="$tr('statusDescription')"
+              :tooltipText="$tr('statusTooltipText')"
+              tooltipPosition="bottom right"
+            />
+          </th>
         </tr>
       </thead>
       <tbody slot="tbody">
@@ -47,10 +54,10 @@
     <p v-if="!exams.length">
       {{ $tr('noExams') }}
     </p>
-    <p v-else-if="statusSelected.value === 'activeExams' && !activeExams.length">
+    <p v-else-if="statusSelected.value === $tr('activeExams') && !activeExams.length">
       {{ $tr('noActiveExams') }}
     </p>
-    <p v-else-if=" statusSelected.value === 'inactiveExams' && !inactiveExams.length">
+    <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
       {{ $tr('noInactiveExams') }}
     </p>
 
@@ -119,6 +126,7 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   export default {
     name: 'coachExamsPage',
@@ -134,6 +142,9 @@
       noActiveExams: 'No acitve exams',
       noInactiveExams: 'No inactive exams',
       show: 'Show',
+      status: 'Status',
+      statusDescription: 'Status description',
+      statusTooltipText: 'Learners can only see active lessons',
     },
     components: {
       CoreTable,
@@ -146,6 +157,7 @@
       previewExamModal,
       renameExamModal,
       deleteExamModal,
+      CoreInfoIcon,
     },
     data() {
       return {

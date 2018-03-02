@@ -132,14 +132,7 @@ const lessonRoutes = [
   },
 ];
 
-const routes = [
-  {
-    name: PageNames.CLASS_LIST,
-    path: '/',
-    handler: () => {
-      actions.showClassListPage(store);
-    },
-  },
+const examRoutes = [
   {
     name: PageNames.EXAMS,
     path: '/:classId/exams',
@@ -156,14 +149,9 @@ const routes = [
   },
   {
     name: PageNames.EXAM_REPORT,
-    path: '/:classId/:channelId/exams/:examId',
+    path: '/:classId/exams/:examId',
     handler: toRoute => {
-      examActions.showExamReportPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.channelId,
-        toRoute.params.examId
-      );
+      examActions.showExamReportPage(store, toRoute.params.classId, toRoute.params.examId);
     },
   },
   {
@@ -186,6 +174,17 @@ const routes = [
       );
     },
   },
+];
+
+const routes = [
+  {
+    name: PageNames.CLASS_LIST,
+    path: '/',
+    handler: () => {
+      actions.showClassListPage(store);
+    },
+  },
+  ...examRoutes,
   {
     name: PageNames.RECENT_CHANNELS,
     path: '/:classId/recent',

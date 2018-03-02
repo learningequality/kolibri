@@ -1,21 +1,24 @@
 <template>
 
   <tr>
-    <td class="core-table-icon-col prel">
+    <td class="core-table-icon-col">
       <ui-icon
         icon="assignment_late"
         :ariaLabel="String(examActive)"
-
-        :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
       />
-      <span v-if="examActive" class="active-circle"></span>
     </td>
 
-    <td class="core-table-main-col">{{ examTitle }}</td>
+    <td class="core-table-main-col">
+      <k-router-link
+        :text="examTitle"
+        :to="examRoute"
+      />
+    </td>
 
-    <td>{{ visibilityString }}</td>
+    <td>{{ recipients }}</td>
 
     <td>
+      <status-icon :active="examActive" />
       <k-dropdown-menu
         :text="$tr('options')"
         :options="actionOptions"
@@ -30,9 +33,11 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import uiIcon from 'keen-ui/src/UiIcon';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import StatusIcon from '../StatusIcon';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'examRow',
@@ -53,7 +58,8 @@
     components: {
       uiIcon,
       kDropdownMenu,
-      kButton,
+      kRouterLink,
+      StatusIcon,
     },
     props: {
       examId: {
@@ -74,7 +80,7 @@
       },
     },
     computed: {
-      visibilityString() {
+      recipients() {
         if (this.examVisibility.class) {
           return this.$tr('entireClass');
         } else if (this.examVisibility.groups.length) {
@@ -91,6 +97,12 @@
           { label: this.$tr('rename') },
           { label: this.$tr('delete') },
         ];
+      },
+      examRoute() {
+        return {
+          name: PageNames.EXAM_REPORT,
+          params: { examId: this.examId },
+        };
       },
     },
     methods: {
@@ -139,27 +151,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .prel
-    position: relative
-
-  .icon-active
-    color: $core-action-normal
-
-  .icon-inactive
-    color: $core-text-annotation
-
-  .active-circle
-    position: absolute
-    display: inline-block
-    bottom: 15px
-    right: 15px
-    height: 10px
-    width: 10px
-    border-radius: 50%
-    background-color: $core-status-correct
-
-</style>
+<style lang="stylus" scoped></style>
